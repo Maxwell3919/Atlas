@@ -1,0 +1,149 @@
+---
+// 首页：只放奶牛猫 +「Click it.」；点击后才展开方法目录（页内切换，可再点收起）。
+import Base from '../layouts/Base.astro';
+import CowCat from '../components/CowCat.astro';
+import { categories, methods, normalizeBase } from '../data/methods.js';
+
+const base = normalizeBase(import.meta.env.BASE_URL);
+---
+<Base title="Atlas · DFT 计算方法手册">
+  <div class="home">
+    <button
+      id="cat-toggle"
+      class="cat-btn"
+      type="button"
+      aria-expanded="false"
+      aria-controls="dir"
+    >
+      <CowCat />
+      <span class="hint">Click it.</span>
+    </button>
+
+    <section id="dir" class="dir" aria-label="方法目录">
+      <div class="dir-inner">
+        <p class="dir-lead">DFT 计算方法手册 —— 每个方法按引擎分开写。</p>
+        {
+          categories.map((c) => (
+            <div class="group">
+              <h2>{c.name}</h2>
+              <ul>
+                {c.order.map((slug) => (
+                  <li>
+                    <a href={`${base}/m/${slug}/`}>{methods[slug].zh}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 11vh;
+  }
+  .cat-btn {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    border-radius: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cat-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+  }
+  .hint {
+    font-family: Georgia, "Songti SC", serif;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    transition: color 0.2s ease;
+  }
+  .cat-btn:hover .hint { color: var(--fg); }
+
+  /* 展开目录：grid-rows 0fr -> 1fr 平滑展开 */
+  .dir {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .dir.open { grid-template-rows: 1fr; }
+  .dir-inner { overflow: hidden; }
+  .dir-lead {
+    text-align: center;
+    color: var(--muted);
+    margin: 2.2rem 0 0.6rem;
+    font-size: 0.95rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
+  }
+  .dir.open .dir-lead { opacity: 1; transform: none; }
+
+  .group {
+    margin-top: 1.6rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+  }
+  .dir.open .group { opacity: 1; transform: none; }
+  .group h2 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin: 0 0 0.7rem;
+    letter-spacing: 0.14em;
+  }
+  .group ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+  .group a {
+    display: inline-block;
+    padding: 0.32rem 0.85rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--fg);
+    font-size: 0.92rem;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+  .group a:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dir, .dir-lead, .group { transition: none; }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('cat-toggle');
+  const dir = document.getElementById('dir');
+  if (btn && dir) {
+    btn.addEventListener('click', () => {
+      const open = dir.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  }
+</script>

@@ -1,0 +1,131 @@
+---
+// Atlas 共享布局：顶栏只放一个「Atlas」回首页链接，无其他导航项。
+import { normalizeBase } from '../data/methods.js';
+
+const { title = 'Atlas' } = Astro.props;
+const base = normalizeBase(import.meta.env.BASE_URL);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content="DFT 计算方法手册" />
+  </head>
+  <body>
+    <header class="site-head">
+      <a class="wordmark" href={base + '/'}>Atlas</a>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-foot">Atlas · DFT 计算方法手册</footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    color-scheme: light dark;
+    --bg: #faf9f6;
+    --fg: #1d1c19;
+    --muted: #77746d;
+    --line: #e5e2da;
+    --card: #ffffff;
+    --accent: #2450ae;
+    --code-bg: #f1efe8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #131519;
+      --fg: #e9e7e1;
+      --muted: #9b998f;
+      --line: #2b2e35;
+      --card: #1a1d23;
+      --accent: #8fb3f7;
+      --code-bg: #1c2028;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.8 -apple-system, BlinkMacSystemFont, "PingFang SC",
+      "Hiragino Sans GB", "Source Han Sans SC", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .site-head {
+    display: flex;
+    align-items: center;
+    padding: 1.1rem 1.5rem;
+  }
+  .wordmark {
+    font-family: Georgia, "Times New Roman", "Songti SC", serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--fg);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  .wordmark:hover { opacity: 1; }
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+  }
+  .site-foot {
+    padding: 1.4rem 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  h1, h2 {
+    font-family: Georgia, "Songti SC", "STSong", "Noto Serif SC", "Noto Serif CJK SC", serif;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+  code, pre {
+    font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+  }
+  code {
+    background: var(--code-bg);
+    border-radius: 5px;
+    padding: 0.1em 0.35em;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    line-height: 1.65;
+    color: var(--muted);
+    margin: 0.9rem 0;
+  }
+  pre code { background: none; padding: 0; }
+  .todo-chip {
+    display: inline-block;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
+  }
+</style>

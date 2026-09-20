@@ -1,0 +1,95 @@
+---
+// 奶牛猫：内联 SVG，黑白花色，可点击（外层按钮由首页提供）。
+---
+<svg
+  class="cowcat"
+  viewBox="0 0 220 204"
+  width="198"
+  height="184"
+  role="img"
+  aria-label="奶牛猫"
+>
+  <defs>
+    <clipPath id="cat-head-clip"><circle cx="110" cy="88" r="40" /></clipPath>
+  </defs>
+
+  <!-- 尾巴 -->
+  <path
+    class="cat-tail"
+    d="M164 150 C 196 146 208 126 194 108"
+    fill="none"
+    stroke="#221f1b"
+    stroke-width="10"
+    stroke-linecap="round"></path>
+
+  <!-- 身体 -->
+  <ellipse cx="110" cy="146" rx="50" ry="38"
+    fill="#f7f5f0" stroke="#221f1b" stroke-width="4" />
+  <!-- 身体黑斑 -->
+  <path d="M94 116 C 120 104 146 114 154 140 C 140 152 110 152 94 142 Z"
+    fill="#26231e" />
+
+  <!-- 前爪 -->
+  <rect x="84" y="164" width="16" height="30" rx="8"
+    fill="#f7f5f0" stroke="#221f1b" stroke-width="4" />
+  <rect x="120" y="164" width="16" height="30" rx="8"
+    fill="#f7f5f0" stroke="#221f1b" stroke-width="4" />
+
+  <!-- 耳朵：左白右黑 -->
+  <path d="M82 60 L 72 20 L 108 42 Z"
+    fill="#f7f5f0" stroke="#221f1b" stroke-width="4" stroke-linejoin="round" />
+  <path d="M138 60 L 148 20 L 112 42 Z"
+    fill="#26231e" stroke="#221f1b" stroke-width="4" stroke-linejoin="round" />
+
+  <!-- 头 -->
+  <circle cx="110" cy="88" r="40" fill="#f7f5f0" stroke="#221f1b" stroke-width="4" />
+  <!-- 眼部黑斑（裁剪进头部） -->
+  <g clip-path="url(#cat-head-clip)">
+    <ellipse cx="134" cy="74" rx="23" ry="19" fill="#26231e" />
+  </g>
+
+  <!-- 眼睛：左黑点、右白点（落在黑斑上） -->
+  <circle cx="94" cy="84" r="5" fill="#221f1b" />
+  <circle cx="132" cy="84" r="5.5" fill="#f7f5f0" />
+  <circle cx="133.6" cy="82.4" r="1.6" fill="#221f1b" />
+
+  <!-- 鼻子与嘴 -->
+  <path d="M105.5 95 L 114.5 95 L 110 100.5 Z" fill="#d98a8f" />
+  <path d="M110 100.5 q 0 5.5 -6.5 6.5 M110 100.5 q 0 5.5 6.5 6.5"
+    fill="none" stroke="#221f1b" stroke-width="2.4" stroke-linecap="round" />
+
+  <!-- 胡须 -->
+  <g stroke="#221f1b" stroke-width="2" stroke-linecap="round" opacity="0.65">
+    <path d="M66 86 H 46" />
+    <path d="M68 95 L 48 101" />
+    <path d="M154 86 H 174" />
+    <path d="M152 95 L 172 101" />
+  </g>
+</svg>
+
+<style>
+  .cowcat {
+    display: block;
+    transform-origin: 50% 85%;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .cat-tail {
+    transform-box: fill-box;
+    transform-origin: 10% 90%;
+  }
+  :global(.cat-btn:hover) .cowcat,
+  :global(.cat-btn:focus-visible) .cowcat {
+    transform: rotate(-2.5deg) scale(1.04);
+  }
+  :global(.cat-btn:hover) .cat-tail,
+  :global(.cat-btn:focus-visible) .cat-tail {
+    animation: tail-sway 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes tail-sway {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(9deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cowcat, .cat-tail { transition: none; animation: none; }
+  }
+</style>

@@ -1,0 +1,85 @@
+---
+// 方法页 /m/<method>/：标题 + 引擎选择（两个大按钮，均为占位可点）。
+import Base from '../../../layouts/Base.astro';
+import { engines, methodList, normalizeBase } from '../../../data/methods.js';
+
+export function getStaticPaths() {
+  return methodList().map(({ slug, zh }) => ({
+    params: { method: slug },
+    props: { zh },
+  }));
+}
+
+const { zh } = Astro.props;
+const slug = Astro.params.method;
+const base = normalizeBase(import.meta.env.BASE_URL);
+---
+<Base title={`${zh} · Atlas`}>
+  <article class="hub">
+    <p class="kicker">方法</p>
+    <h1>{zh}</h1>
+    <p class="slugline">{slug}</p>
+    <p class="lead">这一步在两个软件里的输入文件不同，先选引擎。</p>
+
+    <div class="engine-grid">
+      {
+        engines.map((e) => (
+          <a class="engine" href={`${base}/m/${slug}/${e.id}/`}>
+            <span class="engine-name">{e.name}</span>
+            <span class="engine-note"><span class="todo-chip">TODO · 内容占位</span></span>
+          </a>
+        ))
+      }
+    </div>
+  </article>
+</Base>
+
+<style>
+  .hub { padding-top: 2.2rem; }
+  .kicker {
+    color: var(--muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    margin: 0 0 0.4rem;
+  }
+  h1 { font-size: 2.1rem; margin: 0; }
+  .slugline {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0.3rem 0 0;
+  }
+  .lead { color: var(--muted); margin: 2.4rem 0 1.2rem; }
+
+  .engine-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+  }
+  @media (max-width: 560px) {
+    .engine-grid { grid-template-columns: 1fr; }
+  }
+  .engine {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.6rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--fg);
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .engine:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+  .engine-name {
+    font-family: Georgia, "Songti SC", serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+</style>
