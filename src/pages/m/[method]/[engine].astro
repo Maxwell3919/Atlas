@@ -1,7 +1,7 @@
 ---
-// 方法 × 引擎页 /m/<method>/{qe,vasp}/：唯一放命令、参数与后处理的地方。
+// 方法 × 引擎页 /m/<method>/{qe,vasp}/：唯一放操作内容的地方，正文均为待填充。
 // 提及栏只放方法名链接（指向各方法的 HUB，绝不直连其他引擎页）。
-// 恰好 7 个 H2；缺内容一律 TODO 占位，不臆造命令与输出。
+// 恰好 7 个 H2，顺序锁定。
 import Base from '../../../layouts/Base.astro';
 import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
 
@@ -19,19 +19,8 @@ const { m, e } = Astro.props;
 const base = normalizeBase(import.meta.env.BASE_URL);
 const hubUrl = `${base}/m/${m.slug}/`;
 const needs = m.needs.map((s) => ({ slug: s, zh: methods[s].zh }));
-
-// 后处理（第 5 节）的专属提示：
-// phonopy 只出现在 phonon-finite-disp/vasp；Bader 程序只出现在 bader/*。
-const postNote =
-  m.slug === 'phonon-finite-disp' && e.id === 'vasp'
-    ? '力常数需要经 phonopy 转换与后处理；流程占位待补。'
-    : m.slug === 'bader'
-      ? '电荷密度需转换格式后交给 Bader 程序分析；步骤占位待补。'
-      : null;
-
-const engineTag = e.id === 'qe' ? 'Quantum ESPRESSO' : 'VASP';
 ---
-<Base title={`${m.zh} · ${engineTag} · Atlas`}>
+<Base title={`${m.zh} · ${e.name} · Atlas`}>
   <article class="page">
     <p class="crumb">
       <a href={hubUrl}>← {m.zh}</a>
@@ -39,7 +28,7 @@ const engineTag = e.id === 'qe' ? 'Quantum ESPRESSO' : 'VASP';
     </p>
 
     <h1>{m.zh}</h1>
-    <p class="engine-line">{engineTag}</p>
+    <p class="engine-line">{e.name}</p>
 
     {/* 提及栏：需要 ≤3 / 产出 ≤3 */}
     <div class="mention">
@@ -63,66 +52,38 @@ const engineTag = e.id === 'qe' ? 'Quantum ESPRESSO' : 'VASP';
 
     <section>
       <h2>需要 / 产出</h2>
-      <p class="guide">
-        上游：{needs.length > 0 ? needs.map((n) => n.zh).join('、') + '。' : '无前置方法依赖。'}
-        {' '}本步产出：{m.produces.join('；')}。
-      </p>
-      {m.note && <p class="note">{m.note}</p>}
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>本步与相邻步骤不同之处</h2>
-      <p class="guide">{m.diff}</p>
-      <pre><code># TODO：待补「{m.zh}」与其他步骤差异的展开说明</code></pre>
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>参数（只列本步）</h2>
-      <p class="guide">只列本步特有参数；与其他步骤共用的通用参数不在此重复。</p>
-      <pre><code># TODO：待补「{m.zh}」× {engineTag} 的本步参数清单（&lt;工作目录&gt;）</code></pre>
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>命令与输出</h2>
-      <p class="guide">输入文件与运行命令占位如下；输出示例同样待补，不臆造。</p>
-      <pre><code># TODO：待补「{m.zh}」在 {engineTag} 中的输入文件与运行命令
-# TODO：待补运行输出示例（真实输出，禁止编造）</code></pre>
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>后处理</h2>
-      <p class="guide">
-        {
-          e.id === 'qe'
-            ? 'QE 侧的后处理工具与提取流程待补。'
-            : 'VASP 侧的后处理工具与提取流程待补。'
-        }
-      </p>
-      {postNote && <p class="note">{postNote}</p>}
-      <pre><code># TODO：待补「{m.zh}」× {engineTag} 的后处理流程</code></pre>
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>失败与假阳性</h2>
-      <p class="guide">本步常见的失败模式与「看似成功实则不对」的情形。</p>
-      <ul class="todo-list">
-        <li>TODO：失败模式（待补）</li>
-        <li>TODO：假阳性（待补）</li>
-      </ul>
+      <p class="fill">待填充</p>
     </section>
 
     <section>
       <h2>可选脚本 + 检查清单</h2>
-      <p class="guide">可选脚本占位；发布前先由人把 AI 稿读一遍。</p>
-      <pre><code># TODO：可选脚本（&lt;工作目录&gt;）</code></pre>
-      <ul class="todo-list check">
-        <li>人读一遍 AI 稿 —— 占位：核对依据、参数与结论后再发布</li>
-        <li>TODO：本步关键检查项（待补）</li>
-      </ul>
+      <p class="fill">待填充</p>
     </section>
-
-    <p class="basis">依据：（占位，待补）</p>
-    {m.slug === 'dos' && <p class="basis">也可用密网格二次 SCF。</p>}
   </article>
 </Base>
 
@@ -180,26 +141,8 @@ const engineTag = e.id === 'qe' ? 'Quantum ESPRESSO' : 'VASP';
     font-size: 1.18rem;
     margin: 0 0 0.7rem;
   }
-  .guide { color: var(--muted); margin: 0 0 0.4rem; }
-  .note {
-    color: var(--fg);
-    font-size: 0.92rem;
-    border-left: 3px solid var(--line);
-    padding-left: 0.8rem;
-    margin: 0.6rem 0;
-  }
-  .todo-list {
-    margin: 0.6rem 0 0;
-    padding-left: 1.4rem;
+  .fill {
     color: var(--muted);
-    font-size: 0.92rem;
-  }
-  .todo-list li { margin: 0.25rem 0; }
-  .basis {
-    margin-top: 3rem;
-    color: var(--muted);
-    font-size: 0.82rem;
-    border-top: 1px dashed var(--line);
-    padding-top: 0.9rem;
+    margin: 0;
   }
 </style>

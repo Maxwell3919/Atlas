@@ -1,5 +1,6 @@
 ---
 // 首页：只放奶牛猫 +「Click it.」；点击后才展开方法目录（页内切换，可再点收起）。
+// 目录首位为 README 条目，其后按分类列出方法。
 import Base from '../layouts/Base.astro';
 import CowCat from '../components/CowCat.astro';
 import { categories, methods, normalizeBase } from '../data/methods.js';
@@ -21,7 +22,12 @@ const base = normalizeBase(import.meta.env.BASE_URL);
 
     <section id="dir" class="dir" aria-label="方法目录">
       <div class="dir-inner">
-        <p class="dir-lead">DFT 计算方法手册 —— 每个方法按引擎分开写。</p>
+        <div class="readme-slot">
+          <a class="readme-entry" href={`${base}/readme/`}>
+            <span class="readme-label">README</span>
+            <span class="readme-arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
         {
           categories.map((c) => (
             <div class="group">
@@ -84,16 +90,47 @@ const base = normalizeBase(import.meta.env.BASE_URL);
   }
   .dir.open { grid-template-rows: 1fr; }
   .dir-inner { overflow: hidden; }
-  .dir-lead {
-    text-align: center;
-    color: var(--muted);
-    margin: 2.2rem 0 0.6rem;
-    font-size: 0.95rem;
+
+  /* README 条目：目录第一槽位，整行强调，区别于方法药丸 */
+  .readme-slot {
+    margin-top: 2.2rem;
+    margin-bottom: 0.4rem;
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
     transition: opacity 0.4s ease 0.15s, transform 0.4s ease 0.15s;
   }
-  .dir.open .dir-lead { opacity: 1; transform: none; }
+  .dir.open .readme-slot { opacity: 1; transform: none; }
+  .readme-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--fg);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .readme-entry:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  }
+  .readme-label {
+    font-family: Georgia, "Times New Roman", serif;
+    letter-spacing: 0.05em;
+  }
+  .readme-arrow {
+    color: var(--muted);
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+  .readme-entry:hover .readme-arrow {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
 
   .group {
     margin-top: 1.6rem;
@@ -133,7 +170,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     transform: translateY(-1px);
   }
   @media (prefers-reduced-motion: reduce) {
-    .dir, .dir-lead, .group { transition: none; }
+    .dir, .readme-slot, .group { transition: none; }
   }
 </style>
 

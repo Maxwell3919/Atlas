@@ -1,7 +1,7 @@
 ---
-// 方法页 /m/<method>/：标题 + 引擎选择（两个大按钮，均为占位可点）。
+// 方法页 /m/<method>/：标题 + 引擎按钮；未接入的引擎渲染为不可点的「未接入」徽标。
 import Base from '../../../layouts/Base.astro';
-import { engines, methodList, normalizeBase } from '../../../data/methods.js';
+import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
 
 export function getStaticPaths() {
   return methodList().map(({ slug, zh }) => ({
@@ -12,22 +12,29 @@ export function getStaticPaths() {
 
 const { zh } = Astro.props;
 const slug = Astro.params.method;
+const method = methods[slug];
 const base = normalizeBase(import.meta.env.BASE_URL);
+const activeEngines = engines.filter((e) => (method.engines ?? []).includes(e.id));
+const placeholderEngines = method.placeholderEngines ?? [];
 ---
 <Base title={`${zh} · Atlas`}>
   <article class="hub">
-    <p class="kicker">方法</p>
     <h1>{zh}</h1>
-    <p class="slugline">{slug}</p>
-    <p class="lead">这一步在两个软件里的输入文件不同，先选引擎。</p>
 
     <div class="engine-grid">
       {
-        engines.map((e) => (
+        activeEngines.map((e) => (
           <a class="engine" href={`${base}/m/${slug}/${e.id}/`}>
             <span class="engine-name">{e.name}</span>
-            <span class="engine-note"><span class="todo-chip">TODO · 内容占位</span></span>
           </a>
+        ))
+      }
+      {
+        placeholderEngines.map((name) => (
+          <span class="engine engine-ph" aria-disabled="true">
+            <span class="engine-name">{name}</span>
+            <span class="ph-badge">未接入</span>
+          </span>
         ))
       }
     </div>
@@ -35,21 +42,11 @@ const base = normalizeBase(import.meta.env.BASE_URL);
 </Base>
 
 <style>
-  .hub { padding-top: 2.2rem; }
-  .kicker {
-    color: var(--muted);
-    font-size: 0.8rem;
-    letter-spacing: 0.3em;
-    margin: 0 0 0.4rem;
+  .hub { padding-top: 2.6rem; }
+  h1 {
+    font-size: 2.1rem;
+    margin: 0 0 2.2rem;
   }
-  h1 { font-size: 2.1rem; margin: 0; }
-  .slugline {
-    font-family: "SF Mono", ui-monospace, Menlo, monospace;
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin: 0.3rem 0 0;
-  }
-  .lead { color: var(--muted); margin: 2.4rem 0 1.2rem; }
 
   .engine-grid {
     display: grid;
@@ -62,6 +59,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
   .engine {
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 0.7rem;
     padding: 1.6rem 1.5rem;
     border: 1px solid var(--line);
@@ -71,7 +69,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     text-decoration: none;
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .engine:hover {
+  a.engine:hover {
     text-decoration: none;
     border-color: var(--accent);
     transform: translateY(-2px);
@@ -81,5 +79,21 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     font-family: Georgia, "Songti SC", serif;
     font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  /* 未接入引擎：与按钮同构，但虚线边框、弱化配色、无交互 */
+  .engine-ph {
+    cursor: default;
+    color: var(--muted);
+    border-style: dashed;
+  }
+  .ph-badge {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    border-radius: 999px;
+    padding: 0.1rem 0.6rem;
   }
 </style>

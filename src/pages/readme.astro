@@ -1,0 +1,22 @@
+---
+// README 页 /readme/：站点说明页，正文待站点主人亲自填写。
+import Base from '../layouts/Base.astro';
+---
+<Base title="README · Atlas">
+  <article class="readme">
+    <h1>README</h1>
+    <p class="fill">待填充</p>
+  </article>
+</Base>
+
+<style>
+  .readme { padding-top: 2.6rem; }
+  h1 {
+    font-size: 2rem;
+    margin: 0 0 1.2rem;
+  }
+  .fill {
+    color: var(--muted);
+    margin: 0;
+  }
+</style>
