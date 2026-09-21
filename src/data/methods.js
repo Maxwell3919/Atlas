@@ -12,8 +12,10 @@ export const engines = [
 // 分类与类内展示顺序（目录页与全部索引的唯一顺序来源）
 export const categories = [
   { id: 'basics',    name: '基础',     order: ['convergence', 'relax', 'vc-relax', 'scf', 'nscf'] },
-  { id: 'stability', name: '稳定',     order: ['phonon-dfpt', 'phonon-finite-disp', 'elastic-born', 'aimd'] },
-  { id: 'electronic', name: '电子',    order: ['bands', 'dos', 'fatband', 'fermi-surface'] },
+  // subtitle 仅存档；现有各组标题均为纯文本，thermo 组保持同构，不渲染。
+  { id: 'thermo',    name: '结构与热力学', subtitle: '这个相在能量上站得住吗？', order: ['formation-energy', 'convex-hull', 'exfoliation-energy', 'adsorption-energy'] },
+  { id: 'stability', name: '稳定',     order: ['phonon-dfpt', 'phonon-finite-disp', 'imaginary-phonon', 'elastic-born', 'aimd'] },
+  { id: 'electronic', name: '电子',    order: ['bands', 'band-gap', 'band-3d', 'band-unfolding', 'dos', 'fatband', 'fermi-surface'] },
   { id: 'charge',    name: '电荷',     order: ['delta-charge', 'bader', 'elf'] },
   { id: 'supercon',  name: '超导',     order: ['wannier90', 'epc'] },
   { id: 'interface-magnet', name: '界面与磁', order: ['workfunction', 'band-alignment', 'magnetic-gs', 'dft-plus-u'] },
@@ -58,6 +60,35 @@ export const methods = {
     engines: ['qe', 'vasp'],
   },
 
+  'formation-energy': {
+    zh: '形成能 / 内聚能',
+    category: 'thermo',
+    needs: ['relax'],
+    produces: ['形成能 / 凸包距离'],
+    engines: ['qe', 'vasp'],
+  },
+  'convex-hull': {
+    zh: '凸包相图 / Energy-above-hull',
+    category: 'thermo',
+    needs: ['formation-energy'],
+    produces: ['凸包距离 / 相稳定性判定'],
+    engines: ['qe', 'vasp'],
+  },
+  'exfoliation-energy': {
+    zh: '剥离能 / 解理能',
+    category: 'thermo',
+    needs: ['relax'],
+    produces: ['剥离能 / 解理能'],
+    engines: ['qe', 'vasp'],
+  },
+  'adsorption-energy': {
+    zh: '吸附能 / 界面结合能',
+    category: 'thermo',
+    needs: ['relax'],
+    produces: ['吸附能 / 界面结合能'],
+    engines: ['qe', 'vasp'],
+  },
+
   'phonon-dfpt': {
     zh: 'DFPT 声子',
     category: 'stability',
@@ -70,6 +101,13 @@ export const methods = {
     category: 'stability',
     needs: ['scf'],
     produces: ['力常数与声子谱'],
+    engines: ['qe', 'vasp'],
+  },
+  'imaginary-phonon': {
+    zh: '虚频 / 软模判据',
+    category: 'stability',
+    needs: ['phonon-dfpt', 'phonon-finite-disp'],
+    produces: ['无虚频判定 / 软模指认'],
     engines: ['qe', 'vasp'],
   },
   'elastic-born': {
@@ -93,6 +131,27 @@ export const methods = {
     category: 'electronic',
     needs: ['nscf'],
     produces: ['能带图'],
+    engines: ['qe', 'vasp'],
+  },
+  'band-gap': {
+    zh: '带隙（直接 / 间接）',
+    category: 'electronic',
+    needs: ['bands'],
+    produces: ['直接 / 间接带隙'],
+    engines: ['qe', 'vasp'],
+  },
+  'band-3d': {
+    zh: '3D 能带',
+    category: 'electronic',
+    needs: ['nscf'],
+    produces: ['3D 能带 E(kx,ky) 面'],
+    engines: ['qe', 'vasp'],
+  },
+  'band-unfolding': {
+    zh: '能带反折叠',
+    category: 'electronic',
+    needs: ['bands'],
+    produces: ['原胞 BZ 能带 / 光谱权重'],
     engines: ['qe', 'vasp'],
   },
   'dos': {
