@@ -1,111 +1,183 @@
-# QE 自洽（scf）：一次应变扫描批次的完整案例
+参考：
 
-**参考**：[INPUT_PW 文档](https://www.quantum-espresso.org/Doc/INPUT_PW.html)（&CONTROL/&SYSTEM/&ELECTRONS 全部参数）
+- QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
 
-本页目标：走一遍 QE 自洽从写输入到验收判读的全流程。案例是一套应变扫描批次（ZrCl2/Sc2C 界面，多个形变目录），每个目录一套 scf，后续能带/态密度链都把「本目录 scf 正常结束」当门槛。
+## static SCF（Self-Consistent Field）
 
-## 输入文件：pwx.in
+简单来说，DFT 中的 SCF 指的是求解 Kohn–Sham 方程时采用的一种迭代数值方法。它的核心目的是找到一个自洽的电子密度分布，使得从该密度计算出的有效势场，再反过来解方程得到的密度，与原先的密度完全相同（即"自洽"）。SCF 收敛意味着你找到了该体系在原子核固定构型下的基态电子结构。所有的后续性质（能量、力、能带结构、光学性质）都必须基于 SCF 收敛的密度来计算，否则结果是不可靠的。
 
-真实主例逐参数注释（坐标块按你的体系替换）：
+下面是一次真实的静态 SCF 完整操作记录：二维 HfCl2/PbO2 体系，在结构优化（vc-relax）之后，把提取好的最终几何放进 06_static 目录做静态自洽。结构、赝势、泛函设置全部沿用结构优化，只把 `calculation` 改为 `scf`。
 
-```fortran
+### 建目录、写输入文件
+
+文件建议先在本地编辑好，再用 cat 指令在服务器中输入（heredoc）。目录用数字编号，在 Linux 里输入数字后 Tab 补全很方便，这是日常使用的小技巧：
+
+```bash
+[<user>@<cluster> QE]$ cd <工作目录>/QE
+
+[<user>@<cluster> QE]$ mkdir -p 06_static
+[<user>@<cluster> QE]$ cd 06_static
+
+[<user>@<cluster> 06_static]$ cat > scf.in <<'EOF'
 &CONTROL
   calculation = 'scf'
-  outdir = '<outdir>'            ! 原 './out/'，电荷/波函数都写这里
-  prefix = '<prefix>'            ! 本例 'zrclscc'，产物文件名随之
+  outdir = './out/'
+  prefix = 'HfCl2_PbO2'
   pseudo_dir = '<赝势库路径>'
-! tprnfor = .true.                ! 需要打印力时再打开
-! tstress = .true.                ! 需要应力时再打开
-  verbosity = 'high'             ! 高输出，便于 grep 判读
+  tprnfor = .true.
+  tstress = .true.
+  verbosity = 'high'
 /
+
 &SYSTEM
-  ibrav = 0,                     ! 自定义晶胞，用 CELL_PARAMETERS 卡
-  nat = 6,                       ! ZrCl2/Sc2C 界面 6 原子
-  ntyp = 4,                      ! Zr, Cl, Sc, C
-  ecutwfc = 100,                 ! 已做收敛测试
-  ecutrho = 800,                 ! 8 倍关系，PAW 惯例
-  input_dft = 'vdw-DF3-opt1'     ! 层状体系必须 vdW 修正
+  ibrav = 0
+  nat = 6
+  ntyp = 4
+  ecutwfc = 90
+  ecutrho = 720
+  input_dft = 'vdw-DF3-opt1'
+  force_symmorphic = .true.
   occupations = 'smearing'
   smearing = 'gaussian'
-  degauss = 3.7d-3               ! Ry；与后续 PROJWFC 展宽配套
+  degauss = 3.7d-3
 /
+
 &ELECTRONS
-  conv_thr = 1.0000000000d-12    ! 能量判据很紧，为后处理留余量
-  mixing_beta = 4.0000000000d-01
+  conv_thr = 1.0000000000d-08
+  electron_maxstep = 200
+  mixing_beta = 7.0000000000d-01
 /
-&ions
-/
-&cell
-/
+
 ATOMIC_SPECIES
-Zr  91.224  Zr.pbe-spn-kjpaw_psl.1.0.0.UPF
-Cl  35.450  Cl.pbe-n-kjpaw_psl.1.0.0.UPF
-Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
-C   12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
+Hf  178.49   Hf.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl   35.45   Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Pb  207.20   Pb.pbe-dn-kjpaw_psl.1.0.0.UPF
+O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
+
 CELL_PARAMETERS (angstrom)
-（替换为你的结构块；本例 a≈3.31 Å，c=40.0 Å 真空方向）
+! 此处放入结构优化输出的三行晶胞矢量（本例约 3.3565… Å，c = 30 Å）
+
 ATOMIC_POSITIONS (crystal)
-（替换为你的结构块）
-K_POINTS automatic
-  32 32 1 0 0 0                  ! 面内 32×32、真空方向 1
+! 此处放入结构优化输出的六行原子坐标
+
+K_POINTS (automatic)
+24 24 1 0 0 0
+EOF
 ```
 
-注意 `&ions`/`&cell` 是两个空 namelist——从弛豫输入模板继承而来，空着无害。批处理目录间唯一变化的就是结构块。
+两个小点：**outdir = './out/'** 会在运行时自动创建，不需要手动 mkdir；`conv_thr = 1e-8` 对静态 SCF 够用——它的任务是为后续 DOS/能带提供密度与参考能级，声子前置的 SCF 才需要收紧到 `1d-12`（见声子页）。
 
-## 命令主线
+### Slurm 脚本
 
-提交用作业脚本（目录内备有 pwx.slurm 一类脚本），等价单条命令：
+结构优化的脚本已经跑通过，直接复制过来改一行执行命令：
 
 ```bash
-sbatch pwx.slurm
-mpirun -np 32 pw.x < pwx.in > pwx.out 2>&1
-squeue -u <user>        # 队列清空 ≠ 全部成功，成败要看输出文件
+[<user>@<cluster> 06_static]$ cp ../05_relax/rx.slurm scf.slurm
+
+[<user>@<cluster> 06_static]$ sed -i 's#pw.x<rx.in>rx.out#pw.x -in scf.in > scf.out#' scf.slurm
+
+[<user>@<cluster> 06_static]$ tail -n 5 scf.slurm
+mpirun -np 56 <qe_bin>/pw.x -in scf.in > scf.out
+[<user>@<cluster> 06_static]$
 ```
 
-## 判读三件套
+完整脚本内容如下（首次使用时照此生成）：
 
 ```bash
-grep "JOB DONE" pwx.out
+#!/bin/bash
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
+
+# unlimit memory
+ulimit -s unlimited
+ulimit -l unlimited
+
+# load path
+source /data/intel/oneapi/setvars.sh
+
+cd $SLURM_SUBMIT_DIR
+
+mpirun -np 56 <qe_bin>/pw.x -in scf.in > scf.out
 ```
 
-```text
+几处关键行：`-o/-e` 把标准输出与错误分别写进日志文件；`ulimit` 两行解除栈与内存限制；`source` 加载 oneAPI 运行环境；`cd $SLURM_SUBMIT_DIR` 保证在提交目录里执行；`-np 56` 是本任务占用的 MPI 进程数，按集群配额修改。
+
+### 提交与监控
+
+```bash
+sbatch scf.slurm
+```
+
+```bash
+squeue -u <user>
+tail -f scf.out
+```
+
+提交后先 `squeue` 确认任务在跑，再 `tail -f` 盯进度；也可以用 `watch -n 5 "grep 'iteration #' scf.out | tail"` 做周期性摘要。
+
+### 结束后验收
+
+```bash
+grep "JOB DONE" scf.out
+grep '^!' scf.out | tail
+grep "the Fermi energy is" scf.out | tail
+grep "Total force" scf.out | tail
+```
+
+真实输出如下：
+
+```bash
+[<user>@<cluster> 06_static]$ grep "JOB DONE" scf.out
    JOB DONE.
+[<user>@<cluster> 06_static]$ grep '^!' scf.out | tail
+!    total energy              =   -1795.68899321 Ry
+[<user>@<cluster> 06_static]$ grep "the Fermi energy is" scf.out | tail
+     the Fermi energy is     0.0483 ev
+[<user>@<cluster> 06_static]$ grep "Total force" scf.out | tail
+     Total force =     0.000049     Total SCF correction =     0.000129
+[<user>@<cluster> 06_static]$
 ```
 
+判读：`-1795.68899321 Ry` 是固定弛豫结构上的静态总能，**不要**与 vc-relax 末尾的 `Final enthalpy` 直接当成同一个物理量比较；真正重要的是 SCF 正常收敛，且在固定优化后结构上重新计算时残余总力只有 `4.9×10⁻⁵ Ry/Bohr`——这是候选几何上的干净电子自洽结果。但要注意：**SCF 正常完成不能替代结构优化收敛检查**，vc-relax 程序结束不等于 BFGS 收敛（这是真实踩过的坑，详见结构优化页）。
+
+### 存档与规模核对
+
+把关键结果存一份摘要：
+
 ```bash
-grep "! total energy" pwx.out
+{
+    echo "===== STATIC SCF ====="
+    grep "JOB DONE" scf.out
+    grep '^!' scf.out | tail -n 1
+    grep "the Fermi energy is" scf.out | tail -n 1
+    grep "Total force" scf.out | tail -n 1
+} | tee static_summary.txt
 ```
+
+再确认这次 SCF 的规模（原子数、电子数、KS 态数、k 点数）：
+
+```bash
+grep -E "number of atoms/cell|number of electrons|number of Kohn-Sham states|number of k points" scf.out
+```
+
+以及把应力也记录下来：
+
+```bash
+grep -A4 "total   stress" scf.out | tail -n 5
+```
+
+### 下一步
 
 ```text
-!    total energy              =    -208.22938097 Ry
+已优化结构
+    ↓
+static SCF        ← 本页
+    ↓
+DOS 专用 NSCF（k 网格加密）
+    ↓
+dos.x → TDOS；projwfc.x → PDOS
+    ↓
+bands（nbnd 留足空带）
 ```
 
-判据：`JOB DONE.` 存在，且输出末段有一条 `!` 前缀的最终总能量行——不带 `!` 的行是迭代过程值，不能当结果用。若出现 `convergence NOT achieved`，无论其他行多好看，一律 FAIL，调 `mixing_beta` 或放宽 `conv_thr` 重投。
-
-更大范围的批次盘点用本页唯一小工具（三分类循环，逐个 `.out` 判 DONE/ERROR/RUNNING）：
-
-```bash
-find . -name '*.out' | while read -r f; do
-  if grep -q "JOB DONE" "$f" 2>/dev/null; then st="DONE"
-  elif grep -qiE "Error|CRASH|stopped" "$f" 2>/dev/null; then st="ERROR"
-  else st="RUNNING/INCOMPLETE"; fi
-  calc=$(grep -m1 -E "calculation\s*=" "$f" 2>/dev/null | head -1)
-  echo "[$st] $f $calc"
-done
-```
-
-注意 `RUNNING/INCOMPLETE` 不等于崩溃：可能是被杀或仍在写，先看调度器状态再决定重投。
-
-## 产物与下一步衔接
-
-本例 scf 目录最终留有：`pwx.in/pwx.out`、后续链的 `bands.in/bands.out/bandspp.in/bandspp.out`、以及 `bands.dat`/`bands.dat.gnu`/`bands.dat.rap`（能带提取产物）；`outdir`（原 `./out/`）下保存电荷密度与波函数，供 bands/projwfc 非自洽复用，归档确认后可清理。每个目录的费米能级照例登记（后续作图零点）：
-
-```bash
-grep "the Fermi energy is" pwx.out | tail -1
-```
-
-## 思考
-
-1. `conv_thr` 收得很紧（1e-12）对 scf 本身几乎无感，为什么对后续 EPC/应变能量差是必要的？
-2. 队列清空后 `squeue` 显示无作业，能否直接宣布「五个 scf 全部成功」？为什么？
-3. 若把 `degauss` 从 3.7d-3 改成别的值再跑一遍 scf，能量表还能与旧值直接比较吗？
+一个提醒：`E_F = 0.0483 eV` 是当前 smearing SCF 给出的费米能级，**单凭这个数值本身不能判断体系是否金属**——要等 DOS/PDOS 算完，看 E_F 附近是否存在有限 DOS 再下结论。
