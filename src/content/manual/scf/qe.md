@@ -1,91 +1,111 @@
-## 需要 / 产出
+# QE 自洽（scf）：一次应变扫描批次的完整案例
 
-- 前置：应变/形变目录结构已就绪，各目录配有 scf 输入（本例 pw.x 输入为 pwx.in）。
-- 产出：各目录自洽结果与能量表——最终迭代总能量（`! total energy` 行）、费米能级 E_F、以及跨应变的能量-应变对照表。
-- 参考体系：nat = 6（Sc2C 单层），`K_POINTS automatic` 网格。
+**参考**：[INPUT_PW 文档](https://www.quantum-espresso.org/Doc/INPUT_PW.html)（&CONTROL/&SYSTEM/&ELECTRONS 全部参数）
 
-## 本步与相邻步骤不同之处
+本页目标：走一遍 QE 自洽从写输入到验收判读的全流程。案例是一套应变扫描批次（ZrCl2/Sc2C 界面，多个形变目录），每个目录一套 scf，后续能带/态密度链都把「本目录 scf 正常结束」当门槛。
 
-- scf 是一切后处理（bands、dos、pdos）的地基：后续链都以「scf 输出有 `JOB DONE` 且 `!` 总能量行存在」为验收门槛。
-- 应变扫描中 scf 输入完全相同，仅结构（CELL/坐标）随弛豫输出更新；因此验收脚本可以跨目录复用。
+## 输入文件：pwx.in
 
-## 参数（只列本步）
+真实主例逐参数注释（坐标块按你的体系替换）：
 
-- 输入文件片段（ELECTRONS 段）：`conv_thr = 1.0000000000d-12`、`mixing_beta = 4.0000000000d-01`。
-- 体系片段：`ibrav = 0, nat = 6, ntyp = 4, ecutwfc = 100, ecutrho = 800`，vdw-DF3-opt1。
-- 完整的 `&CONTROL`/`&SYSTEM` pw.x 输入模板待填充（教程只给出片段，禁止凭空补全）。
+```fortran
+&CONTROL
+  calculation = 'scf'
+  outdir = '<outdir>'            ! 原 './out/'，电荷/波函数都写这里
+  prefix = '<prefix>'            ! 本例 'zrclscc'，产物文件名随之
+  pseudo_dir = '<赝势库路径>'
+! tprnfor = .true.                ! 需要打印力时再打开
+! tstress = .true.                ! 需要应力时再打开
+  verbosity = 'high'             ! 高输出，便于 grep 判读
+/
+&SYSTEM
+  ibrav = 0,                     ! 自定义晶胞，用 CELL_PARAMETERS 卡
+  nat = 6,                       ! ZrCl2/Sc2C 界面 6 原子
+  ntyp = 4,                      ! Zr, Cl, Sc, C
+  ecutwfc = 100,                 ! 已做收敛测试
+  ecutrho = 800,                 ! 8 倍关系，PAW 惯例
+  input_dft = 'vdw-DF3-opt1'     ! 层状体系必须 vdW 修正
+  occupations = 'smearing'
+  smearing = 'gaussian'
+  degauss = 3.7d-3               ! Ry；与后续 PROJWFC 展宽配套
+/
+&ELECTRONS
+  conv_thr = 1.0000000000d-12    ! 能量判据很紧，为后处理留余量
+  mixing_beta = 4.0000000000d-01
+/
+&ions
+/
+&cell
+/
+ATOMIC_SPECIES
+Zr  91.224  Zr.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl  35.450  Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
+C   12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS (angstrom)
+（替换为你的结构块；本例 a≈3.31 Å，c=40.0 Å 真空方向）
+ATOMIC_POSITIONS (crystal)
+（替换为你的结构块）
+K_POINTS automatic
+  32 32 1 0 0 0                  ! 面内 32×32、真空方向 1
+```
 
-## 命令与输出
+注意 `&ions`/`&cell` 是两个空 namelist——从弛豫输入模板继承而来，空着无害。批处理目录间唯一变化的就是结构块。
 
-批量验收：逐目录判 DONE/WAIT 并抽能量行（命令与输出原样）：
+## 命令主线
+
+提交用作业脚本（目录内备有 pwx.slurm 一类脚本），等价单条命令：
 
 ```bash
-for d in tensile/001 tensile/002 compress/001 compress/002 compress/003; do
-  f="$d/pwx.out"
-  if grep -q "JOB DONE" "$f" 2>/dev/null; then st=DONE; else st=WAIT; fi
-  echo "[$st] $f"
-  grep -E "total energy|highest occupied|JOB DONE" "$f" | tail -n 5
-done
+sbatch pwx.slurm
+mpirun -np 32 pw.x < pwx.in > pwx.out 2>&1
+squeue -u <user>        # 队列清空 ≠ 全部成功，成败要看输出文件
 ```
 
-输出节选（`!` 开头即自洽最终能量）：
+## 判读三件套
+
+```bash
+grep "JOB DONE" pwx.out
+```
 
 ```text
-[DONE] tensile/001/pwx.out
-     total energy              =    -208.22938097 Ry
-!    total energy              =    -208.22938097 Ry
    JOB DONE.
-[DONE] tensile/002/pwx.out
-!    total energy              =    -208.22814362 Ry
-[DONE] compress/001/pwx.out
-!    total energy              =    -208.22929538 Ry
 ```
 
-全目录作业状态盘点（DONE / ERROR / RUNNING 三分类）：
+```bash
+grep "! total energy" pwx.out
+```
+
+```text
+!    total energy              =    -208.22938097 Ry
+```
+
+判据：`JOB DONE.` 存在，且输出末段有一条 `!` 前缀的最终总能量行——不带 `!` 的行是迭代过程值，不能当结果用。若出现 `convergence NOT achieved`，无论其他行多好看，一律 FAIL，调 `mixing_beta` 或放宽 `conv_thr` 重投。
+
+更大范围的批次盘点用本页唯一小工具（三分类循环，逐个 `.out` 判 DONE/ERROR/RUNNING）：
 
 ```bash
 find . -name '*.out' | while read -r f; do
-  if grep -q "JOB DONE" "$f" 2>/dev/null; then
-    st="DONE"
-  elif grep -qiE "Error|CRASH|stopped" "$f" 2>/dev/null; then
-    st="ERROR"
-  else
-    st="RUNNING/INCOMPLETE"
-  fi
+  if grep -q "JOB DONE" "$f" 2>/dev/null; then st="DONE"
+  elif grep -qiE "Error|CRASH|stopped" "$f" 2>/dev/null; then st="ERROR"
+  else st="RUNNING/INCOMPLETE"; fi
   calc=$(grep -m1 -E "calculation\s*=" "$f" 2>/dev/null | head -1)
   echo "[$st] $f $calc"
 done
 ```
 
-## 后处理
+注意 `RUNNING/INCOMPLETE` 不等于崩溃：可能是被杀或仍在写，先看调度器状态再决定重投。
 
-- 能量-应变表：直接汇总各目录 `!` 行总能量（Ry），如上例 tensile/001 −208.22938097、tensile/002 −208.22814362、compress/001 −208.22929538，用于比较形变能量代价。
-- 费米能级提取（作图零点）：
+## 产物与下一步衔接
 
-```bash
-for d in compress/00{3,2,1} tensile/00{1,0015,2,3}; do
-  ef=$(grep "the Fermi energy is" $d/scf/pwx.out | tail -n 1 | awk '{print $(NF-1)}')
-  echo -e "$d\t E_F = $ef eV"
-done
-```
-
-## 失败与假阳性
-
-- 只有 `total energy`（不带 `!`）而最后没有 `! total energy` 行：说明自洽尚未收敛到判据，数据不能进能量表。
-- `convergence NOT achieved` 关键字出现在输出中即 FAIL（验收 grep 应包含它）。
-- 状态分类里 `RUNNING/INCOMPLETE` 不等于崩溃：可能是排队中被杀或仍在写，先看作业状态再决定重投。
-
-## 可选脚本 + 检查清单
-
-能量行快速汇总：
+本例 scf 目录最终留有：`pwx.in/pwx.out`、后续链的 `bands.in/bands.out/bandspp.in/bandspp.out`、以及 `bands.dat`/`bands.dat.gnu`/`bands.dat.rap`（能带提取产物）；`outdir`（原 `./out/`）下保存电荷密度与波函数，供 bands/projwfc 非自洽复用，归档确认后可清理。每个目录的费米能级照例登记（后续作图零点）：
 
 ```bash
-grep -E "total energy|highest occupied|JOB DONE" $d/pwx.out | tail -n 5
+grep "the Fermi energy is" pwx.out | tail -1
 ```
 
-检查清单：
-- [ ] 每个目录 `pwx.out` 含 `JOB DONE.`。
-- [ ] 每个目录有 `!` 前缀的最终总能量行。
-- [ ] 输出无 `convergence NOT achieved`。
-- [ ] E_F 已批量提取并登记（后续 DOS/能带零点）。
-- [ ] 能量-应变表注明统一收敛判据（conv_thr）与 k 网格。
+## 思考
+
+1. `conv_thr` 收得很紧（1e-12）对 scf 本身几乎无感，为什么对后续 EPC/应变能量差是必要的？
+2. 队列清空后 `squeue` 显示无作业，能否直接宣布「五个 scf 全部成功」？为什么？
+3. 若把 `degauss` 从 3.7d-3 改成别的值再跑一遍 scf，能量表还能与旧值直接比较吗？

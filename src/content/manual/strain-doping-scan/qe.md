@@ -1,108 +1,126 @@
-## 需要 / 产出
+参考：
 
-目标：扫面内应变 ±1–3%（tensile/compress 各 001–003），每个应变重复"弛豫 → SCF → 能带 → 电声"全链。起点只有一个无应变弛豫胞，其余目录全部由它复制改造。
+- QE 官方文档 INPUT_PW（calculation / CELL_PARAMETERS）：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
+- QE 官方文档 INPUT_PW（cell_dofree）：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
 
-## 本步与相邻步骤不同之处
+## 本页目标
 
-本步的独特操作是"造目录"：整套复制既有目录，再 sed 替换晶胞数字。形变体系弛豫用 relax（锁胞，只动原子内坐标），不用 vc-relax；只有无应变参考体系才用 vc-relax。真空方向 c=40 永远不动。
+围绕一个母体结构搭一套应变目录（拉伸/压缩 ±1–3%），每个应变点重跑「结构 → 电子结构 → 电声 → Tc」全套链，读出性质随应变的走向。读完本页你能：批量造算例目录、正确锁定晶胞、逐点验收并汇总能量与 Tc 随应变的变化。
 
-## 参数（只列本步）
+## 思路
 
-无应变面内格矢（vc-relax 后实录）：
+- 母体无应变算例：vc-relax（`cell_dofree='2Dxy'`，真空方向 c 固定、面内自由），得到平衡晶格。
+- 应变点：**只改面内晶格常数**，用 `relax`（锁晶胞、只弛豫原子内部坐标）——应变是人为强加的约束，不能再让程序自己优化晶胞，否则应变就不是你设定的值。
+- 每个应变点一套完整目录，互不干扰。
 
-```
-3.312897589 0.000000000 0.000000000
--1.656448795 2.869053472 0.000000000
-0.000000000 0.000000000 40.000000000
-```
+cell_dofree 取值速查（真实文件里三种都出现过）：`'2Dxy'` 只弛豫面内两个晶格矢量；`'fixc'` 固定第三矢量整体；`'all'` 三维全自由（体相用）。
 
-拉伸 3% 即面内矢量乘 1.030000（3.412284517 / 3.312897589 = 1.030000）；压缩 3% 乘 0.97：
+## 搭目录：cp + sed 两个动作
 
-```
-3.213510661 0.000000000 0.000000000
--1.606755331 2.782981868 0.000000000
-0.000000000 0.000000000 40.000000000
-```
-
-原子起步用无应变分数坐标；rx 收敛后再把新 z 写回后续 pwx/bands/ph* 输入。
-
-## 命令与输出
-
-建压缩 3% 目录（整套复制输入与 slurm，再只改晶胞三个数；替换串只含面内数字，c=40 不会被误改）：
+以拉伸 3% 为例，从无应变目录复制后，sed 替换 `rx.in` 里 CELL_PARAMETERS 的三个数值（六方格子 b = −a/2 联动）：
 
 ```bash
-mkdir -p compress
-rm -rf compress/003
-cp -a tensile/003 compress/003
-find compress/003 -name '*.in' -exec grep -l '3.412284517' {} \; | while read f; do
-  sed -i \
-    -e 's/3.412284517/3.213510661/g' \
-    -e 's/-1.706142258/-1.606755331/g' \
-    -e 's/2.955125076/2.782981868/g' \
-    "$f"
-done
+cp -a no_strain tensile_003
+cd tensile_003
+sed -i 's/3.312897589/3.412284517/' rx.in
+sed -i 's/-1.656448795/-1.706137701/' rx.in
+sed -i 's/2.869053472/2.955057172/' rx.in
 ```
 
-五套 SCF 的应变–能量表（32×32，取 `! total energy` 行）：
+（压缩 3% 则换成 3.213510661 / −1.606755331 / 2.782981868；c = 40.0 始终不动。）改完 `grep CELL -A 4 rx.in` 核对一遍数值再提交。
 
+母体 vc-relax 后的真实晶胞（六方，面内 3.312897589 Å）与 ×1.03/×0.97 的换算关系要写进每个算例的 README 一行，避免后人不知道数值从哪来。
+
+## 应变点输入：rx.in（relax 锁胞）
+
+与母体 vc-relax 相比只有三处增量：`calculation = 'relax'`、晶胞数值换成应变后的、`&CELL` 留空（程序不再动晶胞）：
+
+```fortran
+&CONTROL
+  calculation = 'relax'        ! 只弛豫原子，晶胞锁死
+  outdir = './out_rx/'
+  prefix = '<prefix>'
+  pseudo_dir = '<赝势库路径>'
+  tprnfor = .true.
+  etot_conv_thr = 1.0d-8
+  forc_conv_thr = 1.0d-6
+/
+&SYSTEM
+  ibrav = 0   nat = 6   ntyp = 4
+  ecutwfc = 90   ecutrho = 720
+  input_dft = 'vdw-DF3-opt1'
+  occupations = 'smearing'   smearing = 'gaussian'   degauss = 3.7d-3
+/
+&ELECTRONS
+  conv_thr = 1.0d-8   electron_maxstep = 200
+  mixing_beta = 4.0d-1
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+（同母体）
+（替换为你的结构块：CELL_PARAMETERS 换成应变值 / ATOMIC_POSITIONS 沿用母体）
+K_POINTS automatic
+  16 16 1 0 0 0
 ```
-compress/003   -208.225061 Ry
-compress/002   -208.227747 Ry
-compress/001   -208.229295 Ry
-tensile/001    -208.229381 Ry
-tensile/002    -208.228144 Ry
+
+## 每个应变点的完整链与验收
+
+结构目录与电声目录分开放，链路为：
+
+```text
+结构：rx → pwx(32×32×1 SCF) → bands → bandspp
+电声：pwxall(64×64×1 la2F) → phx(q=1) → phx1/2/3 → q2rx → matdynxline → lambdax
 ```
 
-±1% 最低、压到 −3% 上升最明显——能量随应变的形状合理。
-
-## 后处理
-
-每个应变目录先验收 rx → pwx → bands → bandspp，再进电声目录重跑整套 `pwx → pwxall → phx 四段 → q2r → matdyn → lambdax`（脚本见下）。一次只推一个应变目录；能量表先确认应变方向单调合理，再进入跨应变的 Tc 对比。
-
-## 失败与假阳性
-
-- 批量 sed 改 .slurm 核数时会吃掉重定向：`mpirun -np <np> <qe_bin>/pw.x<pwxall.in>pwxall.out` 变成 `<qe_bin>/pw.xpwxall.out`，pw.x 拿不到输入直接跑错。用 `cat -A` 看 `<>` 是否还在；统一修回 `pw.x<pwxall.in>pwxall.out` 形态后再提交，改完 `grep mpirun` 复核。
-- 别在 tensile/003 里原地改来改去：压缩等新应变一律新建目录，保住原始 tensile/003。
-- sed 前先 `grep -l` 确认命中文件，防止对不含该数字的文件空跑或误伤。
-
-## 可选脚本 + 检查清单
+每步验收只认完成标志：
 
 ```bash
-# 批量改核数（数值按机器填，phx1+phx2+phx3 之和≈满配核数，三个可并行）
-fix_np() {
-  d="$1"
-  setnp() { # $1=file $2=np
-    f="$d/$1"; [ -f "$f" ] || return
-    sed -i -E \
-      -e "s/mpirun[[:space:]]+-np[[:space:]]+[0-9]+/mpirun -np $2/" \
-      -e "s/^(#SBATCH[[:space:]]+-n[[:space:]]+)[0-9]+/\1$2/" \
-      -e "s/^(#SBATCH[[:space:]]+--ntasks=)[0-9]+/\1$2/" \
-      "$f"
-    echo -n "$f "; grep -E 'mpirun -np|#SBATCH -n' "$f"
-  }
-  setnp pwxall.slurm <np>; setnp pwx.slurm <np>; setnp phx.slurm <np>
-  setnp phx1.slurm <np_s>; setnp phx2.slurm <np_s>; setnp phx3.slurm <np_m>
-}
-
-# 按依赖链提交某电声目录全流程（一次只交一个目录）
-sub_epc() {
-  d="$1"; cd "$d" || return
-  j1=$(sbatch --parsable pwxall.slurm)
-  j2=$(sbatch --parsable --dependency=afterok:$j1 pwx.slurm)
-  j3=$(sbatch --parsable --dependency=afterok:$j2 phx.slurm)
-  j4=$(sbatch --parsable --dependency=afterok:$j3 phx1.slurm)
-  j5=$(sbatch --parsable --dependency=afterok:$j3 phx2.slurm)
-  j6=$(sbatch --parsable --dependency=afterok:$j3 phx3.slurm)
-  echo "$d: pwxall $j1, pwx $j2, phx $j3, phx1/2/3 $j4/$j5/$j6"
-  cd - >/dev/null
-}
+grep -l "JOB DONE" */*.out
 ```
 
-清单：
+再顺手查一句收敛失败：
 
-- [ ] 每个应变目录由 `cp -a` 整套复制而来，原始 tensile/003 未被动过
-- [ ] 晶胞三个数替换后已 grep 复核，c=40 未变
-- [ ] 形变目录 rx 用 relax 锁胞，无应变才 vc-relax
-- [ ] 每套 SCF 能量已收表，应变–能量形状单调合理
-- [ ] `grep mpirun` 确认重定向 `<...in>...out` 完整后再提交
-- [ ] 一次只 sub_epc 一个目录，q2r 之后三步在六段全 DONE 后再交
+```bash
+grep -l "convergence NOT achieved" */*.out
+```
+
+命中即该算例 FAIL，重交或调参，不要带病进下一步。
+
+## 能量–应变表怎么读
+
+各应变点 scf 总能（真实记录，Ry）：
+
+| 算例 | E (Ry) |
+|---|---|
+| compress/003 | −208.225061 |
+| compress/002 | −208.227747 |
+| compress/001 | −208.229295 |
+| tensile/001 | −208.229381 |
+| tensile/002 | −208.228144 |
+
+能量最低点在 ±1% 之间——与母体平衡晶格一致，这本身就是一个自检：如果最低点偏离无应变平衡太远，先怀疑应变换算写错了。
+
+电声侧同表汇总：无应变 λ≈0.31–0.32、ω_log≈259–262 K；拉伸 3% λ 扫描从 0.54 漂到 0.36，Tc 峰 ≈3.9 K 出现在最小展宽端（读表纪律见 Allen–Dynes 页）。
+
+## 电子掺杂扫描
+
+同一模式可直接平移到掺杂系列：建 0.01–0.3 等浓度的目录树，每个目录只改电子数相关设置，其余输入与母体一致。注意掺杂算例的能量表与 Tc 表要和应变系列分开存档。
+
+## 事故：批量 sed 之后丢了重定向
+
+一次批量改写提交脚本时把 `pw.x < pwxall.in > pwxall.out` 写坏，实际成了 `pw.xpwxall.out`（少个空格、输入重定向整个丢失），作业秒退无输出。定位与修复：
+
+```bash
+cat -A pwxall.slurm | tail -n 5
+```
+
+把执行行改回完整重定向再提交。纪律：批量 sed 改脚本后，先 `cat -A`（或 `bash -n`）再 sbatch。
+
+## 思考
+
+- 应变点为什么用 relax 而不是 vc-relax？如果用了 vc-relax，ε 还是你设定的值吗？
+- c = 40 Å 在整个应变系列里为什么始终不动？
+- ±1% 能量差只有 ~10⁻³ Ry 量级，能量表比较时对收敛阈值有什么要求？

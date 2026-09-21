@@ -1,9 +1,10 @@
-// 手册正文加载：src/content/manual/<slug>/<engine>.md → 按 7 个固定 H2 分节。
-// 约定：正文 = 恰好这 7 个 H2（顺序即下表）；可省略若干节，省略/空节渲染为「待填充」。
-// 节内可用 H3 及以下小标题，但不得出现其他 H2。首个 H2 之前的文字不渲染。
+// 手册正文加载：src/content/manual/<slug>/<engine>.md → 自由叙述渲染。
+// 有内容文件：整篇 markdown 渲染为连续正文，标题与分节结构完全由作者自定；
+// 无内容文件：返回 null，页面渲染固定 7 节骨架（每节正文「待填充」）。
 import { getCollection } from 'astro:content';
 import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 
+// 无内容文件时骨架使用的固定 7 节标题（仅用于占位骨架，不是内容契约）。
 export const MANUAL_SECTION_TITLES = [
   '需要 / 产出',
   '本步与相邻步骤不同之处',
@@ -28,52 +29,15 @@ function getProcessor() {
   return processorPromise;
 }
 
-// 按「恰好等于 ## <固定标题> 的行」切分；``` / ~~~ 围栏内的行不参与切分。
-function splitSections(body) {
-  const parts = new Map();
-  let current = null;
-  let fence = null;
-  for (const line of body.split('\n')) {
-    const trimmed = line.trim();
-    const fenceOpen = trimmed.match(/^(```|~~~)/);
-    if (fenceOpen) {
-      fence = fence ? null : fenceOpen[1];
-      if (current) current.push(line);
-      continue;
-    }
-    if (!fence) {
-      const title = MANUAL_SECTION_TITLES.find((t) => trimmed === '## ' + t);
-      if (title) {
-        current = [];
-        parts.set(title, current);
-        continue;
-      }
-    }
-    if (current) current.push(line);
-  }
-  return parts;
-}
-
-// 返回固定 7 节：{ title, html }；html 为 null 表示该节应渲染「待填充」。
-export async function loadManualSections(slug, engine) {
+// 返回整篇正文渲染后的 HTML；无内容文件或空文件时返回 null。
+export async function loadManualBody(slug, engine) {
   const id = `${slug}/${engine}`;
   const entries = await getCollection('manual', (entry) => entry.id === id);
   const entry = entries[0];
-
-  const filled = new Map();
-  if (entry && typeof entry.body === 'string') {
-    const parts = splitSections(entry.body);
-    const processor = await getProcessor();
-    for (const [title, lines] of parts) {
-      const raw = lines.join('\n').trim();
-      if (!raw) continue;
-      const { code } = await processor.render(raw);
-      filled.set(title, code);
-    }
-  }
-
-  return MANUAL_SECTION_TITLES.map((title) => ({
-    title,
-    html: filled.get(title) ?? null,
-  }));
+  if (!entry || typeof entry.body !== 'string') return null;
+  const raw = entry.body.trim();
+  if (!raw) return null;
+  const processor = await getProcessor();
+  const { code } = await processor.render(raw);
+  return code;
 }

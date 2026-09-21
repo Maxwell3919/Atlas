@@ -1,93 +1,89 @@
-## 需要 / 产出
+# QE 投影态密度（projwfc.x）：从稠密网格到原子分辨
 
-- 前置：应变目录结构已就绪（与能带链同一套形变子目录）。
-- 产出：各应变 `pdos/` 目录下自洽 + 投影态密度：总态密度 `zrclscc.pdos_tot` 与分原子分轨道文件 `zrclscc.pdos_atm#N(元素)_wfc#M(轨道)`。
-- 参考体系：nat = 6, ntyp = 4（Zr, Cl, Sc, C），prefix = 'zrclscc'，outdir = './out/'。
+**参考**：[INPUT_PROJWFC 文档](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [INPUT_DOS 文档](https://www.quantum-espresso.org/Doc/INPUT_DOS.html)
 
-## 本步与相邻步骤不同之处
+本页目标：在独立 `pdos/` 目录里跑 scf + projwfc.x，得到总态密度和逐原子逐轨道的投影文件。与能带链分目录维护是有意为之：bands 走高对称路径，dos 要稠密 k 网格，K_POINTS 诉求不同。案例体系仍是 ZrCl2/Sc2C（nat=6）。
 
-- dos 链在独立的 `pdos/` 目录执行：`pw.x < pwx.in`（自洽或加密 k 网格非自洽）→ `projwfc.x < pdos.in`（提取 PDOS/LDOS），与能带链（`scf/` 目录 scf→bands→bands.x）分开维护。
-- 与 bands 步的差别：bands 沿高对称路径解本征值；dos 用稠密 k 网格 + projwfc.x 投影，输出能量网格上的态密度。
-- 关键纪律：不同形变下所有输入参数（截断、泛函、赝势、smearing、k 网格、PROJWFC 设置）完全保持不变，唯一更新的是对应形变弛豫后的 `CELL_PARAMETERS` 与 `ATOMIC_POSITIONS`。
+## 输入文件：pdos.in
 
-## 参数（只列本步）
-
-`head -n 25 pdos.in` 原样内容：
+真实主例全文：
 
 ```fortran
 &PROJWFC
- outdir = './out/'
- prefix = 'zrclscc'
- ngauss=0, degauss = 2.2d-3
- DeltaE=0.005
- lsym=.true.
- filpdos='zrclscc',
- filproj='zrclscc',
+  outdir = '<outdir>'
+  prefix = '<prefix>'
+  ngauss=0,                      ! 高斯展宽
+  degauss = 2.2d-3               ! Ry；与 scf 的 smearing 配套
+  DeltaE=0.005                   ! Ry；输出能量格点步长
+  lsym=.true.
+  filpdos='<prefix>',            ! 产物文件前缀
+  filproj='<prefix>',
 /
 ```
 
-- `degauss = 2.2d-3`（Ry）与 scf 的 smearing 取同一套展宽；`DeltaE=0.005` 控制输出能量格点步长。
+参数逐条读：`degauss` 决定投影展宽，跨应变必须一致，否则 pdos_tot 之间没有可比性；`DeltaE` 定能量网格分辨率；`filpdos` 定产物文件名前缀（本例 zrclscc，故产物叫 zrclscc.pdos_tot 等）。
 
-## 命令与输出
+配套的 scf 步（pdos/pwx.in）结构块与主 scf 一致、k 网格按需求加密——稠密网格是态密度质量的关键，判据仍是 `JOB DONE`。
 
-每目录两步，`JOB DONE` 门控（批处理节选）：
+## 命令主线
 
 ```bash
-$PW_CMD < pwx.in > pwx.out 2>&1
-if grep -q "JOB DONE" pwx.out; then
-    echo "[ ${d} ] 2/2: Running projwfc.x..."
-    $PROJ_CMD < pdos.in > pdos.out 2>&1
-    echo "[ ${d} ] 态密度计算全部完成！"
-fi
+pw.x < pwx.in > pwx.out 2>&1
+projwfc.x < pdos.in > pdos.out 2>&1
 ```
 
-本例（nat=6）生成的分波文件清单（节选）：
+## 判读三件套
+
+```bash
+grep "JOB DONE" pdos.out
+```
 
 ```text
-zrclscc.pdos_atm#1(Zr)_wfc#1(s) ... wfc#5(d)
-zrclscc.pdos_atm#2(C)_wfc#1(s)  ... wfc#2(p)
-zrclscc.pdos_atm#3(Cl)_wfc#1(s) ... wfc#2(p)
-zrclscc.pdos_atm#5(Sc)_wfc#1(s) ... wfc#4(d)
+   JOB DONE.
 ```
-
-## 后处理
-
-- PDOS 作图必须以费米能为零点（E − E_F = 0 eV），E_F 取自 scf 输出：
 
 ```bash
-ef=$(grep "the Fermi energy is" $d/pdos/pwx.out | tail -n 1 | awk '{print $(NF-1)}')
+ls *pdos* | head -4
 ```
 
-- N(E_F)：从 `zrclscc.pdos_tot` 中取 E ≈ E_F 行的 DOS 列读数，用于对比各应变费米面附近态密度变化。
-- 完整性检查（两目录五个输出都要有 `JOB DONE`）：
+```text
+zrclscc.pdos_tot
+zrclscc.pdos_atm#1(Zr)_wfc#1(s)
+zrclscc.pdos_atm#1(Zr)_wfc#5(d)
+zrclscc.pdos_atm#2(C)_wfc#2(p)
+```
+
+判据：`pdos.out` 含 `JOB DONE.`（projwfc.x 没跑完的数据一律不可用）；`pdos_tot` 与全部 `pdos_atm#N_wfc#M` 文件生成且非空。
+
+## 产物：两层文件体系
+
+- `zrclscc.pdos_tot`：总态密度（能量、DOS、投影 DOS 三列）；
+- `zrclscc.pdos_atm#N(元素)_wfc#M(轨道)`：逐原子逐轨道，文件名自带归属（本例 Zr 4d 在 `wfc#5(d)`、C 2p 在 `wfc#2(p)`、Sc 3d 在 `wfc#4(d)`）。
+
+## 判读：E−E_F 零点纪律与 N(E_F)
 
 ```bash
-for d in compress/00{1,2,3} tensile/00{1,0015,2,3}; do
-  echo "=== 检查 $d ==="
-  grep -H "JOB DONE" $d/pdos/pwx.out $d/pdos/pdos.out 2>/dev/null
-done
+grep "the Fermi energy is" pwx.out | tail -1 | awk '{print $(NF-1)}'
 ```
 
-## 失败与假阳性
+PDOS 图横轴必须以 E − E_F = 0 为零点，E_F 取同目录 scf 输出最后一次出现的值。N(E_F) 的读法：在 `pdos_tot` 里取 E ≈ E_F 行的 DOS 列。这个量对超导和磁性讨论都有直接意义——金属体系 N(E_F) 越高，电声耦合起点越高；磁性体系 N(E_F) 的自旋分辨差决定 Stoner 倾向。引用时注明所用展宽（degauss），不同展宽下的 N(E_F) 不可直接比。
 
-- `pdos.out` 无 `JOB DONE`：projwfc.x 未完成或中途崩溃，数据不可用于作图，先查错误再重投。
-- E_F 取错文件：能带零点必须取同体系同参数 scf 输出的费米能级，混用不同应变的 E_F 会造成态密度整体错位。
-- 各应变的 degauss/DeltaE 若不一致，pdos_tot 之间的对比失去意义——属于假阳性差异。
+## 分工说明：dos.x（&DOS）是更轻的替代
 
-## 可选脚本 + 检查清单
+只需要总 DOS、不需要投影时，可用 dos.x，输入更短（另一个体系的真实例子）：
 
-批量 N(E_F) 零点表（配合 E_F 提取循环使用）：
-
-```bash
-for d in compress/00{3,2,1} tensile/00{1,0015,2,3}; do
-  ef=$(grep "the Fermi energy is" $d/pdos/pwx.out | tail -n 1 | awk '{print $(NF-1)}')
-  echo -e "$d\t E_F = $ef eV"
-done
+```fortran
+&DOS
+  prefix='<prefix>'
+  outdir='<outdir>'
+  fildos='dos.ptte2.dat'         ! 输出 dos.ptte2.dat
+/
 ```
 
-检查清单：
-- [ ] `pdos/pwx.out` 与 `pdos/pdos.out` 均含 `JOB DONE`。
-- [ ] `zrclscc.pdos_tot` 与全部 `pdos_atm#N_wfc#M` 文件已生成且非空。
-- [ ] 各应变 PROJWFC 参数（degauss、DeltaE、lsym）逐项一致。
-- [ ] 已记录各应变 E_F，作图统一以 E − E_F = 0 为零点。
-- [ ] N(E_F) 读数来自 E ≈ E_F 行，并注明所用展宽。
+projwfc.x 与 dos.x 的分工：前者给原子/轨道分辨（胖带与 N(E_F) 分析的基础），后者只出总 DOS——要做轨道归属就别省 projwfc 这一步。
+
+## 思考
+
+1. 为什么 `degauss` 要与 scf 的 smearing 取同一套值？
+2. `pdos.out` 没有 `JOB DONE` 但 pdos 文件已生成，能不能直接用？
+3. 换了赝势之后，`wfc#` 编号会变吗？对跨体系对比意味着什么？

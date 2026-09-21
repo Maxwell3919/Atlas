@@ -1,89 +1,77 @@
-## 需要 / 产出
+参考：
 
-前置：DFPT 声子与插值已完成，手头有 `scc.dyn*`（ph.x 原始 q 点动力学矩阵）、`scc.fc`、`scc.freq`、`scc.freq.gp`（matdyn 插值色散）。本步只做读数诊断：定位虚频、判断是 ASR 残余还是结构软模，并处理下游 `lambda.x` 的 NaN 故障链。
+- QE 官方文档 INPUT_MATDYN：<https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html>
+- PHonon 用户指南：<https://www.quantum-espresso.org/Doc/user_guide/>
 
-## 本步与相邻步骤不同之处
+## 本页目标
 
-DFPT 声子一章管"怎么算出 dyn/freq"；本章管"负值出现后怎么办"。电声 α²F 一章管 λ/Tc 读数；本章管"λ 有数但 ω_log、Tc 全 NaN"的故障链——根因排查、备份置零、重跑验收都在这里。
+声子谱跑完不等于结束：要逐支逐 q 检查有没有负频率，并判断负频是数值残差还是真实的结构失稳；另外在 λ/Tc 链上还有一个由负 w² 引发的 NaN 陷阱。读完本页你能：用一行命令扫负频、按证据判断虚频性质、把 λ.x 的 NaN 修好重跑。
 
-## 参数（只列本步）
+## 前置
 
-无新计算参数。判读阈值：|ω|>1 cm⁻¹ 以下当数值噪声。ASR 相关开关在 q2r/matdyn：`zasr='crystal'`、`asr='crystal'`。
+DFPT 声子链完成（见 DFPT 声子页），`zrclscc.freq` 与 `zrclscc.freq.gp` 已生成；Γ 点动力学矩阵 `scc.dyn1` 可读。
 
-## 命令与输出
-
-无 python3 环境下的逐行负频检查（awk 一行）：
+## 扫负频（一行命令，无需 python）
 
 ```bash
 awk '{for(i=2;i<=NF;i++) if($i+0<-1.0){print FILENAME, NR, $0; next}}' scc.freq scc.freq.gp
 ```
 
-ASR 设置确认：
+把 `scc.freq` 换成你自己的频率文件即可；阈值 −1.0 cm⁻¹ 用来过滤接近零的数值噪声。真实命中示例（Γ 点附近）：
+
+```text
+scc.freq.gp 457 0.023094 -1.5221 11.1103 ...
+chk_imag: ./scc.dyn1 | q = (0 0 0) | ω=-20.939 cm-1
+```
+
+## 判读：−20.939 cm⁻¹ 是不是失稳？
+
+四层证据逐层看，不要只看一个数：
+
+1. **量级**：只有 −20 cm⁻¹ 量级，且其余负值都在 −1～−2 cm⁻¹ 的噪声带内；真正的软模通常在 −100 cm⁻¹ 量级且随 q 连续下探。
+2. **位置**：只出现在 Γ（q=0）。声学求和规则（ASR）的数值残差正是 Γ 点声学支不为零，插值程序还会再放大几 cm⁻¹。
+3. **q 方向行为**：沿 M、K 方向没有伴随的连续软化谷——CDW 型失稳会沿特定波矢形成谷。
+4. **对照**：同一结构更大网格的母体计算（如 96×96×1）在 Γ 干净无负 w²，说明负值来自插值/ASR，而非势能面本身。
+
+四条都指向同一结论：这是 ASR 残差 + 插值假象，不是结构失稳；相应的 q2r/matdyn 已用 `zasr`/`asr='crystal'` 处理。反之，若量级大、沿特定 q 连续软化、母体也有，才进入「虚频驱动的不稳定性」讨论。
+
+## 陷阱：负 w² 把 λ.x 打成 NaN
+
+Γ 点的负频率在 EPC 输出里以 **w² 为负** 的形式出现：`elph_dir/elph.inp_lambda.1` 第 2/3 行记录了 `w² = -0.364091E-07` 这样的值。λ.x 对 w² 开方就得到 NaN，并污染整条链：
+
+```text
+alpha2F.dat 全为 NaN → lambda = NaN → omega_log = NaN → T_c = NaN
+```
+
+### 定位与修复
 
 ```bash
-grep -nEi 'asr|zasr' q2rx.in matdynxline.in lambdax.in
-q2rx.in:2:zasr='crystal'
-matdynxline.in:2: asr='crystal'
+grep -n "w2" elph_dir/elph.inp_lambda.1 | head
 ```
 
-Γ 点残余实锤（dyn 原始 q 点）：
-
-```
-./scc.dyn1 | q = ( 0.000000000 0.000000000 0.000000000 ) | ω=-20.939 cm-1
-```
-
-## 后处理
-
-本例四层证据的判读：
-
-| 文件 | 结果 | 含义 |
-| --- | --- | --- |
-| scc.dyn1 | −20.9 cm⁻¹ ×2 支 | Γ 声学支 ASR 残余 |
-| scc.dyn2–10 | 无 |ω|>1 负频 | q 网格无真软模 |
-| scc.freq（已 asr） | 无 |ω|>1 负频 | ASR 已压掉 |
-| scc.freq.gp | 5 点 −1.1～−1.8，都在 Γ 附近 | 插值/声学支数值噪声 |
-
-结论路径：只有 Γ 一对虚频、其余 q 干净、加 asr 后插值端只剩约 −2 cm⁻¹ → ASR 残余，不是结构失稳。−21 cm⁻¹ 略偏大（理想常 <10 cm⁻¹），但力常数整体可用；只有虚频连成段（整条支深于几十 cm⁻¹）才是真软模，那要回头查结构弛豫与 k 收敛。
-
-下游逐模读数（λ.x 输出，按模编号）：
-
-```
-lambda( 4)= 0.1611 gamma= 165.60 GHz
-lambda( 5)= 0.1364 gamma= 140.28 GHz
-lambda( 7)= 0.5848 gamma= 1116.94 GHz
-```
-
-声学支 λ≈0 属正常；贡献集中在少数几支。
-
-## 失败与假阳性
-
-- NaN 故障链：Γ 负频 → `elph_dir/elph.inp_lambda.1` 第 2/3 行 w²=−0.364091E−07 → λ.x `sqrt(w²)` 得 NaN → α²F 全 NaN → ω_log、Tc 全 NaN；λ 列照常打印（`lambda = 1.068245 ( NaN ) = NaN K`），极具迷惑性。
-- 只看 `scc.freq` 得出"无虚频"是假阳性：它已过 asr，必须回 dyn 原始值复核。
-- 别因 −2 cm⁻¹ 量级噪声重跑整套 ph.x；收益小，且 ASR 已能压住。
-- 修复记录：`cp -a elph_dir elph_dir.bak_w2` 备份 → awk 置零 NR==2||NR==3 的负 w²（声学支 λ 本来≈0，几乎不动 λ，只救 ω_log）→ 重跑后 λ=1.06825、ω_log=327.576 K 全部恢复有限值。
-
-## 可选脚本 + 检查清单
+修复：先备份，再把第 2、3 行的负 w² 置零，重跑 λ.x：
 
 ```bash
-# 分层扫描：dyn 原始 q 点 + 插值色散
-chk_imag() {
-  d="${1:-.}"
-  awk '/^[[:space:]]*q =/ { q=$0; f=FILENAME }
-       /freq (|omega(/ { cm=$8+0
-         if (cm < -1.0) printf " %s | %s | ω=%.3f cm-1\n", f, q, cm }
-       END { if(!n) print " no imag in dyn (|ω|>1 cm-1)" }' "$d"/scc.dyn*
-  for f in "$d"/scc.freq "$d"/scc.freq.gp; do
-    [ -f "$f" ] || continue
-    awk '{ for(i=2;i<=NF;i++) if($i+0<-1.0) { c++; if(c<=20) print " ", $0 }
-    } END { if(!c) print " no imag"; else print " imag lines:", c+0 }' "$f"
-  done
-}
+cp -a elph_dir elph_dir.bak_w2
+awk 'NR==2||NR==3{for(i=1;i<=NF;i++) if($i+0<0) $i=0} {print}' elph_dir/elph.inp_lambda.1 > elph_dir/elph.inp_lambda.1.fixed
+mv elph_dir/elph.inp_lambda.1.fixed elph_dir/elph.inp_lambda.1
 ```
 
-清单：
+重跑后输出恢复正常（真实记录：`lambda = 1.06825  327.576 ...`，NaN 消失）。注意：置零只对 ASR 残差量级的小负 w² 合理——它本应≈0；若负值大，说明结构本身有问题，应回到虚频判读去。
 
-- [ ] dyn 原始值与插值色散两层都查过
-- [ ] 虚频只在 Γ 一对 → 判 ASR 残余；连成段 → 判结构软模并回头查弛豫
-- [ ] `elph.inp_lambda.*` 负 w² 只在 Γ（第 2/3 行）
-- [ ] 置零前已备份 `elph_dir.bak_w2`，置零后 awk 复读确认
-- [ ] 重跑 λ.x 后 α²F 无 NaN、ω_log 有限
+## 逐模读数
+
+λ.x 输出还给出 Γ 点逐模式贡献，可直接定位强散射的声子支：
+
+```text
+lambda( 4) = 1.1124 gamma = 1534.64 GHz
+lambda( 7) = 3.5962 gamma = 9215.98 GHz
+```
+
+`gamma` 是模式线宽（GHz），与逐模 λ 一起构成声子线宽分析的入口。
+
+## 思考
+
+- ASR 残差为什么总是落在 Γ 点？`asr='crystal'` 在 q2r/matdyn 两步各做了什么？
+- 负 w² 置零在什么前提下才合理？如果 −w² 达到 −10²cm⁻¹ 量级还能这样处理吗？
+- 插值程序为什么会在 Γ 附近放大几 cm⁻¹ 的假负频？

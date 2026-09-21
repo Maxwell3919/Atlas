@@ -1,89 +1,146 @@
-## 需要 / 产出
+参考：
 
-结构目录完成 `rx`（vc-relax）与 `pwx`（SCF）后，在电声目录（如 `ph64/`）内按序产出：
+- QE 官方文档 INPUT_PH：<https://www.quantum-espresso.org/Doc/INPUT_PH.html>
+- QE 官方文档 INPUT_Q2R：<https://www.quantum-espresso.org/Doc/INPUT_Q2R.html>
+- QE 官方文档 INPUT_MATDYN：<https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html>
+- PHonon 用户指南：<https://www.quantum-espresso.org/Doc/user_guide/>
 
-- `pwx.out`（给 ph.x 准备 outdir 的 SCF）与 `pwxall.out`（密 k + `la2F=.true.`，必须在 ph.x 之前）
-- `phx.out`（q=1）→ `phx1.out`（q=2–4）→ `phx2.out`（q=5–7）→ `phx3.out`（q=8–10）
-- `q2rx.out` → `scc.fc`、`dyna2F`；`matdynxline.out`（线模色散）→ `scc.freq`、`scc.freq.gp`、`matdyn.modes`
-- 电声副产物：`elph_dir/elph.inp_lambda.1–10`、`elph.gamma.1–10`
+## 本页目标
 
-## 本步与相邻步骤不同之处
+结构弛豫收敛后，用 DFPT 算完整声子谱：在 8×8×1 q 网格上逐 q 解析求动力常数，q2r.x 合并成力常数文件，matdyn.x 沿高对称路径内插色散。读完本页你能：分批准备并提交 ph.x、接上 q2r 与 matdyn、对每一步的产物与验收标志逐项核对。
 
-本步是 DFPT 声子本身（ph.x → q2r → matdyn）；λ/Tc 读数与 NaN 诊断是它的下游（分别见电声与虚频两章）。`ph64` 与 `ph96` 的区别只在 pwxall 的 k 网格（64 64 1 vs 96 96 1），q 网格都是 8 8 1。
+## 前置
 
-## 参数（只列本步）
+- vc-relax 已收敛，弛豫后结构与赝势就位；
+- scf 已跑通（普通 32×32×1 网格即可；EPC 场景要换成 la2F 的密 k 自洽，见电声耦合页）。
 
-- q 网格 8 8 1，不可约 q 共 10 个（对应 elph 文件 .1–.10）。
-- ph.x 分四段提交：q=1、q=2–4、q=5–7、q=8–10，四段共用同一 outdir 与 `scc.dyn*`。
-- q2r 用 `zasr='crystal'`；matdyn 线模版用 `asr='crystal'`。
-- 完整 &PHONON/&ELECTRONS 输入模板：待填充。
+## ph.x 输入（q=1 单独一批）
 
-## 命令与输出
+ph.x 输入只有 `&inputph` 一个 namelist——它从 scf 的输出目录读波函数与电荷，质量用 amass 单独给，不需要再写结构卡片：
 
-六段作业验收（脚本见文末）：
-
-```
-==== <电声目录>/ph64 ====
-[DONE] pwxall.out
-[DONE] pwx.out
-[DONE] phx.out
-[DONE] phx1.out
-[DONE] phx2.out
-[DONE] phx3.out
-```
-
-单文件验收看尾部标志：
-
-```
-=------------------------------------------------------------------------------=
-JOB DONE.
-=------------------------------------------------------------------------------=
-```
-
-ASR 相关行 grep 实录：
-
-```
-q2rx.in:2:zasr='crystal'
-matdynxline.in:2: asr='crystal'
+```fortran
+&inputph
+  tr2_ph = 1.0d-16        ! 声子自洽收敛阈值，取得严一些
+  nmix_ph = 12            ! 声子自洽混合步数
+  verbosity = 'high'
+  prefix = '<prefix>'     ! 与 scf 完全一致，否则读不到波函数
+  fildvscf = 'zrclsccdv'  ! 自洽变势文件前缀（EPC 链要用）
+  amass(1) = 91.224       ! Zr，单位 amu，与 ATOMIC_SPECIES 一致
+  amass(2) = 35.450       ! Cl
+  amass(3) = 44.956       ! Sc
+  amass(4) = 12.011       ! C
+  outdir = './out/'
+  fildyn = 'zrclscc.dyn'  ! 动力学矩阵输出前缀
+  trans = .true.          ! 计算声子（含介电张量/Born 电荷，绝缘体自动给）
+  ldisp = .true.          ! 用 nq1×nq2×nq3 网格自动铺 q 点
+  start_q = 1
+  last_q = 1              ! 本批只算 q=1（Γ 点）
+  nq1 = 8
+  nq2 = 8
+  nq3 = 1
+/
 ```
 
-## 后处理
+纯声子谱页不需要 `electron_phonon`/`el_ph_sigma`/`el_ph_nsigma` 三个键；要接电声链就照上面电声耦合页的写法加上。
 
-六个 out 全 DONE 后，在同一目录串行提交 `q2rx.slurm → matdynxline.slurm → lambdax.slurm`。产物对号：`scc.dyn0`–`scc.dyn10`（原始 q 点）、`scc.fc`（q2r 力常数）、`scc.freq`/`scc.freq.gp`（插值色散）、`matdyn.modes`（含本征矢）。画谱用线模输出；查虚频回 dyn 原始值（见虚频一章）。
+## q 分批与提交
 
-## 失败与假阳性
+8×8×1 网格共有 10 个不等价 q 点。ph.x 按 `start_q/last_q` 切批，每批一个输入文件、各自 sbatch 并行：
 
-- 四段 ph.x 理论上可并行（前段结束即交后段），但共用同一 outdir 与 `scc.dyn*`；I/O 不稳时跑完一段再交下一段。
-- 某个 out 没有 JOB DONE 也没有 Error，多半是没跑完，别急着交 q2r。
-- q2r 没做时 matdyn 读不到 `scc.fc`，会给出错误谱而不报错——交 matdyn 前先确认 `scc.fc` 存在。
+| 文件 | start_q | last_q | 说明 |
+|---|---|---|---|
+| phx.in | 1 | 1 | Γ 点单独一批 |
+| phx1.in | 2 | 4 | |
+| phx2.in | 5 | 7 | |
+| input_tmp.in | 8 | 10 | |
 
-## 可选脚本 + 检查清单
+除 `start_q/last_q` 外四份文件逐字节相同（diff 核验过）。作业脚本就是常规写法：
 
 ```bash
-# pwxall 到 phx3 六段验收
-chk_epc() {
-  d="$1"
-  echo "==== $d ===="
-  for f in pwxall.out pwx.out phx.out phx1.out phx2.out phx3.out; do
-    p="$d/$f"
-    if [ ! -f "$p" ]; then echo "[NO OUT] $f"; continue; fi
-    if grep -q "JOB DONE" "$p"; then st=DONE
-    elif grep -qiE "Error|CRASH|stopped" "$p"; then st=ERROR
-    else st=RUN/INCOMPLETE; fi
-    echo "[$st] $f"
-  done
-}
-
-# 全树盘点：哪些 out 有/没有 JOB DONE
-find . -name '*.out' | while read -r f; do
-  grep -q "JOB DONE" "$f" || echo "$f"
-done
+#!/bin/bash
+#SBATCH --job-name=phx1
+#SBATCH --partition=<partition>
+#SBATCH --nodes=1
+#SBATCH --ntasks=<np>
+#SBATCH --time=<时长>
+mpirun -np <np> ph.x -i phx1.in > phx1.out
 ```
 
-清单：
+```bash
+sbatch phx1.slurm
+```
 
-- [ ] pwxall、pwx、phx、phx1/2/3 六个 out 全部 JOB DONE
-- [ ] `elph_dir/elph.inp_lambda.1–10` 与 `elph.gamma.1–10` 齐全
-- [ ] q2r 产出 `scc.fc`，matdyn 产出 `scc.freq`/`scc.freq.gp`
-- [ ] zasr/asr='crystal' 已在 q2r、matdyn 输入中确认
-- [ ] 全部 DONE 后才提交 q2r → matdyn → lambdax
+提交后 `squeue -u <user>` 确认排队。ph.x 是整条 DFPT 链里最耗时的环节，把 q 拆成四批并行是常规做法；批间无依赖，全部跑完才进 q2r。
+
+## 验收与产物对号
+
+每批跑完先查完成标志：
+
+```bash
+grep -l "JOB DONE" phx*.out
+```
+
+四份输出都应有命中。产物按前缀对号：
+
+| 产物 | 来自 | 用途 |
+|---|---|---|
+| zrclscc.dyn0 | ph.x | q 点清单 |
+| zrclscc.dyn1 … dyn10 | ph.x 各 q | 动力学矩阵 |
+| zrclscc.fc | q2r.x | 合并后的力常数 |
+| zrclscc.freq / .freq.gp | matdyn.x | 色散频率 |
+| matdyn.modes | matdyn.x | 各 q 各支本矢 |
+
+## q2r.x：合并力常数
+
+所有 q 批 JOB DONE 之后：
+
+```fortran
+&input
+  zasr = 'crystal'        ! 声学求和规则；消除 Γ 点小残差
+  fildyn = 'zrclscc.dyn'
+  flfrc = 'zrclscc.fc'
+  la2F = .true.           ! 只在接电声链时保留
+/
+```
+
+```bash
+q2r.x -i q2rx.in > q2rx.out
+```
+
+成功标志：输出出现 `fft-check success`，并生成 `zrclscc.fc`。
+
+## matdyn.x：沿路径内插色散
+
+```fortran
+&input
+  asr = 'crystal'
+  amass(1) = 91.224
+  amass(2) = 35.450
+  amass(3) = 44.956
+  amass(4) = 12.011
+  flfrc = 'zrclscc.fc'
+  flfrq = 'zrclscc.freq'
+  la2F = .true.
+  dos = .false.              ! 不算声子态密度
+  q_in_band_form = .true.    ! q 列表按高对称路径给
+  q_in_cryst_coord = .true.  ! q 用晶体坐标
+/
+4
+0.0000000000   0.0000000000   0.0000000000 50    !G
+0.5000000000   0.0000000000   0.0000000000 50    !M
+0.3333333333   0.3333333333   0.0000000000 50    !K
+0.0000000000   0.0000000000   0.0000000000  1    !G
+/
+```
+
+```bash
+matdyn.x -i matdynxline.in > matdynxline.out
+```
+
+六方体系的 G-M-K-G 路径每段 50 个点；`q_in_band_form` 让 matdyn 沿路径连点出 `.freq.gp`（画图用）与 `.modes`。
+
+## 思考
+
+- 为什么 Γ 点（q=1）值得单独一批？它与声学求和规则、非解析项处理有什么关系？
+- `zasr`/`asr` 取 'crystal' 时，q2r 与 matdyn 各自做了什么？若换成 'simple' 结果差在哪？
+- 四批 q 中有一批没跑完就先执行 q2r，会发生什么？
