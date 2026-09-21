@@ -1,49 +1,65 @@
-# VASP 功函数：slab 静电势与真空能级
+参考：
 
-**参考**：[LVTOT 标签页](https://www.vasp.at/wiki/index.php/LVTOT) · [IDIPOL 标签页](https://www.vasp.at/wiki/index.php/IDIPOL)
+- VASP wiki INCAR 标签总表：<https://www.vasp.at/wiki/index.php/Category:All_INCAR_Tags>
 
-本页目标：对一个已收敛的 slab 模型求功函数 Φ = E_vac − E_F。真实主例：SnSe2 slab（`SYSTEM = SnSe2 wf`，非自洽续算），产物 LOCPOT 与 PLANAR_AVERAGE.dat 同目录俱在。
+## 功函数
 
-## 结构处理：slab 模型要点
+功函数 Φ = E_vac − E_F：真空静电势平台与费米能级之差。 slab 计算沿 z 做平面平均后，远离 slab 的静电势平台就是真空能级。结构处理有三件事：真空层要够厚；偶极修正中心放在 slab 中央；结构固定（NSW = 0、IBRION = −1）只做电子自洽。
 
-功函数是「真空能级 − 费米能级」，slab 结构直接决定真空能级可不可信，三点必须落实：
+记录体系：SnSe2 单层 slab，下面全部输入与数值为 SSH 只读实取的真实文件与真实输出。
 
-1. **真空层要够厚**：真空方向（z）留出真实平台区，slab 表面势在真空端必须衰减到平台；
-2. **偶极修正**：不对称 slab 有净偶极，开 `LDIPOL = .TRUE.` + `IDIPOL = 3`（沿 z 修正），`DIPOL = 0.5 0.5 0.5` 把修正中心放在 slab 质心（分数坐标半程）；
-3. **固定结构**：`NSW = 0`、`IBRION = -1`，功函数只对特定构型定义，不做离子步。
+### 结构处理（slab 与偶极修正）
 
-## 输入文件：INCAR（非自洽续算，一次成块）
+```bash
+[<user>@<cluster> wf]$ sed -n '1,5p' POSCAR
+"Sn1 Se2"
+   1.00000000000000
+     3.8464052687627550    0.0000000000015396    0.0000000000000001
+    -1.9232026344298054    3.3310846760065127   -0.0000000000000002
+     0.0000000000000007   -0.0000000000000005   18.3572978035193977
+```
 
-本页主例的真实 INCAR 全文，逐段注释：
+判读：a ≈ 3.846 Å、c ≈ 18.357 Å——单层 slab 厚约 7 Å，真空约 10 Å，两侧真空互联，保证势能平台有干净的平坦段。偶极修正沿 z：IDIPOL = 3，修正中心 DIPOL = 0.5 0.5 0.5 放胞中心（slab 居中时即 slab 中央），避免表面偶极在周期镜像间引起锯齿状的势能台阶。NSW = 0 配 IBRION = −1 固定离子；INCAR 里残留的 EDIFFG = −0.01、ISIF = 2 在固定结构下不参与迭代（模板残留行）。
 
-```fortran
+### INCAR（SSH 实取全文）
+
+```bash
+[<user>@<cluster> wf]$ cat INCAR
 SYSTEM = SnSe2 wf   # SnSe2 Slab 功函数计算 (Work Function)
 
+##################################################
 # 并行控制
+##################################################
 LPLANE  = .TRUE.
 NPAR    = 4
 NSIM    = 4
 
+##################################################
 # I/O 控制
-ISTART  = 1         # 读取已有 WAVECAR
-ICHARG  = 11        # 关键：非自洽，从已收敛 CHGCAR 读电荷
+##################################################
+ISTART  = 1
+ICHARG  = 11
 LWAVE   = .TRUE.
 LCHARG  = .TRUE.
-LVTOT   = .TRUE.    # 输出 LOCPOT（总局域势）——功函数的数据源
-LCORR   = .TRUE.    # 修正项写入 LOCPOT，与偶极修正配套
+LVTOT   = .TRUE.
+LCORR   = .TRUE.
 LASPH   = .TRUE.
 LORBIT  = 11
 
+##################################################
 # 离子部分（固定结构）
+##################################################
 NSW     = 0
 IBRION  = -1
 ISIF    = 2
 EDIFFG  = -0.01
-LDIPOL  = .TRUE.    # 偶极修正开启
-IDIPOL  = 3         # 沿 z 修正
-DIPOL   = 0.5 0.5 0.5   # 修正中心 = slab 中央
+LDIPOL  = .TRUE.
+IDIPOL  = 3
+DIPOL   = 0.5 0.5 0.5
 
+##################################################
 # 电子自洽(SCF)参数
+##################################################
 ENCUT   = 520
 GGA     = PE
 EDIFF   = 1E-6
@@ -55,7 +71,9 @@ ISMEAR  = 0
 SIGMA   = 0.05
 IVDW    = 11
 
-# 混合器参数（slab 加快收敛）
+##################################################
+# 混合器参数（slab加快收敛）
+##################################################
 AMIX     = 0.1
 BMIX     = 0.0001
 AMIX_MAG = 0.4
@@ -64,46 +82,75 @@ MAXMIX   = 80
 LMAXMIX  = 4
 ```
 
-方案读法：**先有一套已收敛的自洽 slab**（同参数、同结构，含相同的偶极修正设置），本步只是把它的 CHGCAR 拿来做非自洽静电势输出——`ICHARG = 11` 的含义就是「读 CHGCAR、固定电荷、只解势场」。KPOINTS/POSCAR/POTCAR 照常从 scf 目录复制。
-
-## 命令主线
+逐段判读：ISTART = 1 复用 WAVECAR；ICHARG = 11 是非自洽方案——读入已有 CHGCAR 固定密度、只解 Kohn–Sham 本征值，费米能级与静电势都来自这份密度，前提是那份 CHGCAR 用完全相同的 ENCUT/网格/结构生成。LVTOT = .TRUE. 输出 LOCPOT（静电势），LCORR = .TRUE. 把偶极修正项计入势能文件——少这一项，E_vac 会差一个台阶。AMIX = 0.1 / BMIX = 1e-4 / MAXMIX = 80 是 slab 类体系加速收敛的常用组合。K 网格由间距自动生成：
 
 ```bash
-cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/CHGCAR ./
-mpirun -np <np> vasp_std > out.log 2>&1
-ls LOCPOT        # 产物就位检查
+[<user>@<cluster> wf]$ cat KPOINTS
+K-Spacing Value to Generate K-Mesh: 0.010
+0
+Gamma
+  33  33   1
+0.0  0.0  0.0
 ```
 
-LOCPOT 之后做 z 向平面平均得到 PLANAR_AVERAGE.dat（本例目录中两文件并存）；平面平均的具体生成命令按所用后处理工具核对待填充。
+### 提交
 
-## 判读三件套
+script_std 与 Bader 页同款（进程数不同）：
 
 ```bash
-grep "E-fermi" OUTCAR
+mpirun -np 32 <vasp 路径>/vasp_std > out
 ```
 
-```text
+```bash
+[<user>@<cluster> wf]$ sbatch script_std
+```
+
+### E-fermi 与平面平均
+
+```bash
+[<user>@<cluster> wf]$ grep "E-fermi" OUTCAR | head -3
  E-fermi :  -2.4741     XC(G=0):  -3.7120     alpha+bet : -3.3624
-```
 
-```bash
-head -2 PLANAR_AVERAGE.dat && tail -2 PLANAR_AVERAGE.dat
-```
-
-```text
+[<user>@<cluster> wf]$ head -8 PLANAR_AVERAGE.dat
 #Distance(A) Planar-Average-Potential(eV)/Densitiy(e/A)
   0.0000             3.27267
- 18.2262             3.27892
+  0.0656             3.27993
+  0.1311             3.27892
+  0.1967             3.28602
+  0.2622             3.28413
+  0.3278             3.28633
+  0.3934             3.27903
+
+[<user>@<cluster> wf]$ sort -k2 -g PLANAR_AVERAGE.dat | tail -3
+ 18.1606             3.28602
+  0.3278             3.28633
+ 18.0295             3.28633
 ```
 
-判据：平面平均曲线两端（真空区）出现平台，本例平台值 ≈ 3.28 eV；E_F = −2.4741 eV。功函数 = 平台 − E_F ≈ 3.28 − (−2.47) ≈ **5.75 eV**（与 SnSe2 文献量级一致）。判据细则：平台必须平坦（两端数值差 < 0.01 eV 量级才可信），slab 中部势阱深度与平台差即为表面偶极效应的直观量。
+判读：PLANAR_AVERAGE.dat 共 281 行，步长 0.0656 Å = c(18.3573 Å)/280。slab 居中时 z = 0 与 z = c 相邻，是同一片真空的两个周期镜像——所以最高值同时出现在 0.3278 与 18.0295，互为印证。取平台最高点 E_vac = 3.2863 eV（VASP wiki 惯例：以平台最大值作真空能级），则
 
-## QE 对照一句
+Φ = E_vac − E_F = 3.2863 − (−2.4741) ≈ 5.76 eV。
 
-QE 侧同思路：pp.x 出静电势（`plot_num = 1` 或 `2`）后用 average.x 做 z 向平面平均，真空平台与 `the Fermi energy is` 行相减即得 Φ——管线与 VASP 一致，读法不变。
+（若两端平台数值不一致，说明 slab 有净偶极未修正或真空层不够厚，先回头检查 IDIPOL/DIPOL 再读数。）
 
-## 思考
+平面平均的生成：LOCPOT 在目录里，PLANAR_AVERAGE.dat 由平面平均脚本生成；当时目录中没有留下该脚本的执行记录，生成命令 待填充。
 
-1. `ICHARG = 11` 与直接在 scf 里开 `LVTOT` 一步做完，差别在哪？为什么主例选续算？
-2. 若真空端平台不平（两端差 0.05 eV），先怀疑哪三个设置？
-3. DIPOL 放在 (0.5, 0.5, 0.5) 的前提是什么？slab 不在盒子中央时会怎样？
+### QE 对照一句
+
+QE 侧同一件事的做法：pp.x 提取静电势（plot_num = 1）后用 average.x 做平面平均，同样取平台减 E_F；二维体系配合假设孤立边界时注意平面平均的取段仍要落在真空区。
+
+### 下一步
+
+```text
+slab SCF（固定结构 + 偶极修正）
+    ↓
+LVTOT → LOCPOT → 平面平均
+    ↓
+E_vac − E_F = Φ      ← 本页
+    ↓
+能带/态密度（费米能级参照下的电子结构）
+    ↓
+表面电荷转移 → Bader/差分电荷
+```
+
+一个提醒：Φ 是"态密度参照下的差值"——E_F 随 smearing 参数略有移动，比较不同体系的 Φ 时必须用同一 ISMEAR/SIGMA 与同一套修正设置。

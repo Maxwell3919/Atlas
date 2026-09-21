@@ -1,50 +1,98 @@
-# QE 轨道分辨（胖带数据源）：把 pdos_atm 文件用起来
+参考：
 
-**参考**：[INPUT_PROJWFC 文档](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html)
+- QE 官方文档 INPUT_PROJWFC：<https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html>
 
-本页目标：dos 链跑完后，`pdos/` 目录里按原子×轨道拆开的投影文件就是「哪条带来自哪个原子哪个轨道」的数据源。本页讲怎么组织这些文件、怎么保证跨应变可比。案例体系 ZrCl2/Sc2C（nat=6），计算与 dos 页完全相同（同一 pdos.in），区别只在后处理。
+## 轨道分辨：把 PDOS 拆到元素×轨道
 
-## 数据源：文件名即归属
+DOS 主流程（projwfc.x）跑完后，费米能级附近「电子到底是谁的」这个问题就靠 PDOS 文件回答。计算本身在 DOS 页已完成（同一套 projwfc.in：`filpdos='HfCl2_PbO2'`、degauss=0.0037 与 SCF/NSCF 一致），本页讲怎么组织文件、怎么归并出有解释力的轨道证据。
+
+### 数据源：pdos_atm 文件与 state 通道
+
+projwfc.x 的产物按「原子#(元素)_波函数#(轨道)」命名，本例（HfCl2/PbO2，6 原子）：
 
 ```text
-zrclscc.pdos_atm#1(Zr)_wfc#5(d)   # Zr 4d
-zrclscc.pdos_atm#2(C)_wfc#2(p)    # C 2p
-zrclscc.pdos_atm#3(Cl)_wfc#2(p)   # Cl 3p
-zrclscc.pdos_atm#4(Cl)_wfc#2(p)   # Cl 3p
-zrclscc.pdos_atm#5(Sc)_wfc#4(d)   # Sc 3d
-zrclscc.pdos_atm#6(Sc)_wfc#4(d)   # Sc 3d
+HfCl2_PbO2.pdos_atm#1(Hf)_wfc#1(s)  … #4(d)
+HfCl2_PbO2.pdos_atm#2(Cl)_wfc#1(s)  … #2(p)
+HfCl2_PbO2.pdos_atm#3(Cl)_wfc#1(s)  … #2(p)
+HfCl2_PbO2.pdos_atm#4(Pb)_wfc#1(s)  … #3(d)
+HfCl2_PbO2.pdos_atm#5(O)_wfc#1(s)   … #2(p)
+HfCl2_PbO2.pdos_atm#6(O)_wfc#1(s)   … #2(p)
+HfCl2_PbO2.pdos_tot
 ```
 
-每个文件是能量格点上的分轨道 ldos 列，读法与 pdos_tot 一致。界面电荷转移或能带归属问题的标准做法：同一元素（或同一层）的文件按轨道求和，叠加到能带/总 DOS 图上，费米面附近的成分占比一目了然。
-
-## 判读三件套
+先确认投影通道齐全（state 通道清单是轨道归纳的依据）：
 
 ```bash
-ls $d/pdos/zrclscc.pdos_atm#* | wc -l
+[<user>@<cluster> pdos]$ grep "state #" projwfc.out
+     state #   1: atom   1 (Hf ), wfc  1 (l=0 m= 1)
+     ...
+     state #   6: atom   1 (Hf ), wfc  4 (l=2 m= 1)
+     ...
+     state #  11: atom   2 (Cl ), wfc  1 (l=0 m= 1)
+     ...
+     state #  19: atom   4 (Pb ), wfc  1 (l=0 m= 1)
+     ...
+     state #  28: atom   5 (O  ), wfc  1 (l=0 m= 1)
+     ...
+[<user>@<cluster> pdos]$
 ```
 
-判据一：文件数覆盖 6 个原子的全部价道（Zr 5 道、C 2 道、Cl 各 2 道、Sc 各 4 道）。判据二：`grep -H "JOB DONE" $d/pdos/pwx.out $d/pdos/pdos.out` 两处都在——projwfc 半途而废时部分文件会缺，数一下就知道。判据三：E_F 从同目录 scf 输出取：
+（本例共 35 条 state，完整清单见 projwfc.out。）归纳成元素×轨道：
+
+```text
+Hf : s + p + d
+Cl : s + p
+Pb : s + p + d
+O  : s + p
+```
+
+### 怎么归并：同元素同轨道求和
+
+画轨道分辨图时，把同一元素同一 l 的各 m 分量（即同名 `pdos_atm#N(元素)_wfc#M(l)` 系列文件）求和。本例最值得关注的四组：
+
+```text
+Hf-d
+Pb-p
+O-p
+Cl-p
+```
+
+理由：如果费米能级附近存在有限 DOS，这几组通常最有解释价值——Hf-d/Pb-p 是金属阳离子的主导价道，O-p/Cl-p 是阴离子配位道，它们在 E_F 附近的相对权重直接决定后续讨论（电声耦合起点、成键归属）的落点。
+
+### 判读：E_F 附近的投影数值
+
+总 DOS 与总投影的对照取 pdos_tot 在 E_F 最近的点：
 
 ```bash
-grep "the Fermi energy is" $d/pdos/pwx.out | tail -1
+[<user>@<cluster> pdos]$ awk '
+> BEGIN { EF=0.050; best=1e9 }
+> $1 !~ /^#/ {
+>     d=$1-EF
+>     if(d<0)d=-d
+>     if(d<best){ best=d; line=$0 }
+> }
+> END { print line }
+> ' HfCl2_PbO2.pdos_tot
+   0.050  0.189E+01  0.184E+01
+[<user>@<cluster> pdos]$
 ```
 
-## 三条对齐纪律
+第三列就是投影求和后的 pdos(E)。本例 0.189 vs 0.184——总 DOS 的 97% 被原子轨道投影覆盖，说明投影基组完备、轨道归并分析可信。若这个比值明显偏低（比如 <80%），要警惕投影通道缺失或展宽不一致。具体到每个元素/轨道在 E_F 附近的占比，把上面对应 pdos_atm 文件在 E=0.050 行的第二列读出来相加即可（本例文件齐全，逐文件读数过程不再展开）。
 
-轨道分辨对比最容易失真的是不对齐，守住三条即可比：
+### 三条对齐纪律
 
-1. **能量零点**：统一 E − E_F = 0，E_F 取自本目录 scf（本例约 −0.34 eV 量级，以各自输出为准）；
-2. **展宽与能量窗固定**：degauss 统一（本例 2.2d-3 Ry），跨应变只变结构不变参数；
-3. **wfc 编号不跨体系硬对齐**：`wfc#` 编号跟随赝势的价道排列，换赝势后编号会变；`lsym=.true.` 下低对称体系投影可能按对称性合并，严格逐原子拆分时先核对 `pdos.out` 里的投影计数是否与 nat 一致。
+1. **能量零点**：统一 E − E_F = 0（本例 E_F = 0.050 eV，与 dos.x 头部标注一致）；
+2. **展宽固定**：所有 pdos 文件来自同一 projwfc.in（degauss=0.0037 Ry），跨计算对比时展宽必须一致；
+3. **wfc 编号不跨体系硬对齐**：`wfc#M` 与 `l` 的对应关系以本体系 `grep "state #"` 输出为准，换赝势或换体系后编号会变。
 
-## 产物与判读落点
+### 下一步
 
-本页交付一套轨道分辨证据：对每个应变给出「费米面附近 Zr 4d / Sc 3d / C 2p / Cl 3p 各占多少」。判读结论直接决定后续讨论的落点——费米面贡献集中在金属阳离子 d 道（电声与超导的主战场）还是阴离子 p 道（配位/共价主导）。
+轨道分辨的 PDOS 证据与能带放在一起才完整： bands → bands.x 出色散后，把轨道权重按元素叠加到能带图上（k 分辨的胖带作图方法待填充——本页的 pdos_atm 文件正是它的数据基础）：
 
-尚未覆盖：把权重画到 k 点上、逐能带宽窄变化的 k 分辨投影能带（fatband）作图待填充——本页的 pdos_atm 文件是它的数据基础。
-
-## 思考
-
-1. 为什么「同一元素按轨道求和」之前必须先确认投影计数与 nat 一致？
-2. `lsym=.true.` 在什么情形下会把哪些投影合并起来？对界面低对称体系意味着什么？
-3. 若两个应变的 degauss 一个是 2.2d-3 另一个是 2.2d-2，画在同一张图上会怎样？
+```text
+DOS-NSCF → projwfc.x（DOS 页）
+    ↓
+pdos_atm 文件体系 ← 本页（元素×轨道归并）
+    ↓
+bands → bands.x → 能带图 + 轨道权重叠加
+```

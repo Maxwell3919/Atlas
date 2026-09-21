@@ -1,89 +1,231 @@
-# QE 投影态密度（projwfc.x）：从稠密网格到原子分辨
+参考：
 
-**参考**：[INPUT_PROJWFC 文档](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [INPUT_DOS 文档](https://www.quantum-espresso.org/Doc/INPUT_DOS.html)
+- QE 官方文档 INPUT_DOS：<https://www.quantum-espresso.org/Doc/INPUT_DOS.html>
+- QE 官方文档 INPUT_PROJWFC：<https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html>
 
-本页目标：在独立 `pdos/` 目录里跑 scf + projwfc.x，得到总态密度和逐原子逐轨道的投影文件。与能带链分目录维护是有意为之：bands 走高对称路径，dos 要稠密 k 网格，K_POINTS 诉求不同。案例体系仍是 ZrCl2/Sc2C（nat=6）。
+## TDOS 与 PDOS：dos.x 和 projwfc.x
 
-## 输入文件：pdos.in
+DOS 描述「某个特定能量位置上有多少个可供电子占据的量子态」，横坐标能量、纵坐标状态数。上一页的 DOS-NSCF（k 36×36×1）跑完后，TDOS 与 PDOS 都直接读取 `07_dos/nscf/out/HfCl2_PbO2.save`，不需要再复制波函数目录。两者分工：`dos.x` 出总态密度（TDOS），`projwfc.x` 出逐原子逐轨道投影（PDOS）。
 
-真实主例全文：
-
-```fortran
-&PROJWFC
-  outdir = '<outdir>'
-  prefix = '<prefix>'
-  ngauss=0,                      ! 高斯展宽
-  degauss = 2.2d-3               ! Ry；与 scf 的 smearing 配套
-  DeltaE=0.005                   ! Ry；输出能量格点步长
-  lsym=.true.
-  filpdos='<prefix>',            ! 产物文件前缀
-  filproj='<prefix>',
-/
-```
-
-参数逐条读：`degauss` 决定投影展宽，跨应变必须一致，否则 pdos_tot 之间没有可比性；`DeltaE` 定能量网格分辨率；`filpdos` 定产物文件名前缀（本例 zrclscc，故产物叫 zrclscc.pdos_tot 等）。
-
-配套的 scf 步（pdos/pwx.in）结构块与主 scf 一致、k 网格按需求加密——稠密网格是态密度质量的关键，判据仍是 `JOB DONE`。
-
-## 命令主线
+### TDOS：dos.in 与提交
 
 ```bash
-pw.x < pwx.in > pwx.out 2>&1
-projwfc.x < pdos.in > pdos.out 2>&1
-```
+[<user>@<cluster> QE]$ cd <工作目录>/QE
 
-## 判读三件套
+[<user>@<cluster> QE]$ mkdir -p 07_dos/tdos
+[<user>@<cluster> QE]$ cd 07_dos/tdos
 
-```bash
-grep "JOB DONE" pdos.out
-```
-
-```text
-   JOB DONE.
-```
-
-```bash
-ls *pdos* | head -4
-```
-
-```text
-zrclscc.pdos_tot
-zrclscc.pdos_atm#1(Zr)_wfc#1(s)
-zrclscc.pdos_atm#1(Zr)_wfc#5(d)
-zrclscc.pdos_atm#2(C)_wfc#2(p)
-```
-
-判据：`pdos.out` 含 `JOB DONE.`（projwfc.x 没跑完的数据一律不可用）；`pdos_tot` 与全部 `pdos_atm#N_wfc#M` 文件生成且非空。
-
-## 产物：两层文件体系
-
-- `zrclscc.pdos_tot`：总态密度（能量、DOS、投影 DOS 三列）；
-- `zrclscc.pdos_atm#N(元素)_wfc#M(轨道)`：逐原子逐轨道，文件名自带归属（本例 Zr 4d 在 `wfc#5(d)`、C 2p 在 `wfc#2(p)`、Sc 3d 在 `wfc#4(d)`）。
-
-## 判读：E−E_F 零点纪律与 N(E_F)
-
-```bash
-grep "the Fermi energy is" pwx.out | tail -1 | awk '{print $(NF-1)}'
-```
-
-PDOS 图横轴必须以 E − E_F = 0 为零点，E_F 取同目录 scf 输出最后一次出现的值。N(E_F) 的读法：在 `pdos_tot` 里取 E ≈ E_F 行的 DOS 列。这个量对超导和磁性讨论都有直接意义——金属体系 N(E_F) 越高，电声耦合起点越高；磁性体系 N(E_F) 的自旋分辨差决定 Stoner 倾向。引用时注明所用展宽（degauss），不同展宽下的 N(E_F) 不可直接比。
-
-## 分工说明：dos.x（&DOS）是更轻的替代
-
-只需要总 DOS、不需要投影时，可用 dos.x，输入更短（另一个体系的真实例子）：
-
-```fortran
+[<user>@<cluster> tdos]$ cat > dos.in <<'EOF'
 &DOS
-  prefix='<prefix>'
-  outdir='<outdir>'
-  fildos='dos.ptte2.dat'         ! 输出 dos.ptte2.dat
+  prefix = 'HfCl2_PbO2'
+  outdir = '../nscf/out/'
+  fildos = 'HfCl2_PbO2.dos'
+  Emin = -10.0
+  Emax = 10.0
+  DeltaE = 0.01
+  ngauss = 0
+  degauss = 0.0037
 /
+EOF
 ```
 
-projwfc.x 与 dos.x 的分工：前者给原子/轨道分辨（胖带与 N(E_F) 分析的基础），后者只出总 DOS——要做轨道归属就别省 projwfc 这一步。
+`degauss = 0.0037 Ry` 与前面的 SCF/NSCF 保持一致——展宽不一致的话 DOS 形状没有可比性。能量窗 −10 到 10 eV、步长 0.01 eV，覆盖费米能级上下足够远。
 
-## 思考
+```bash
+[<user>@<cluster> tdos]$ cat > dos.slurm <<'EOF'
+#!/bin/bash
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
 
-1. 为什么 `degauss` 要与 scf 的 smearing 取同一套值？
-2. `pdos.out` 没有 `JOB DONE` 但 pdos 文件已生成，能不能直接用？
-3. 换了赝势之后，`wfc#` 编号会变吗？对跨体系对比意味着什么？
+ulimit -s unlimited
+ulimit -l unlimited
+
+source /data/intel/oneapi/setvars.sh
+
+cd $SLURM_SUBMIT_DIR
+
+mpirun -np 56 <qe_bin>/dos.x \
+  -in dos.in > dos.out
+EOF
+
+[<user>@<cluster> tdos]$ sbatch dos.slurm
+```
+
+### TDOS 验收
+
+```bash
+[<user>@<cluster> tdos]$ grep "JOB DONE" dos.out
+   JOB DONE.
+[<user>@<cluster> tdos]$ cat _err.*.log
+[<user>@<cluster> tdos]$
+[<user>@<cluster> tdos]$ ls -lh HfCl2_PbO2.dos
+-rw-rw-r-- 1 <user> <user> 65K Sep  5 14:22 HfCl2_PbO2.dos
+[<user>@<cluster> tdos]$ head HfCl2_PbO2.dos
+#  E (eV)   dos(E)     Int dos(E) EFermi =    0.050 eV
+ -10.000  0.9616E-84  0.9616E-86
+  -9.990  0.9616E-84  0.1923E-85
+  -9.980  0.9616E-84  0.2885E-85
+  -9.970  0.9616E-84  0.3846E-85
+  -9.960  0.9616E-84  0.4808E-85
+  -9.950  0.9616E-84  0.5770E-85
+  -9.940  0.9616E-84  0.6731E-85
+  -9.930  0.9616E-84  0.7693E-85
+  -9.920  0.9616E-84  0.8654E-85
+[<user>@<cluster> tdos]$
+```
+
+判读：JOB DONE、err 日志为空、.dos 文件生成；文件头直接给出本次用的费米能级 `EFermi = 0.050 eV`。深能级处 dos(E) 是 10⁻⁸⁴ 量级——不是零但完全可忽略，说明展宽下限正常。
+
+### PDOS：projwfc.in 与提交
+
+```bash
+[<user>@<cluster> QE]$ mkdir -p 07_dos/pdos
+[<user>@<cluster> QE]$ cd 07_dos/pdos
+
+[<user>@<cluster> pdos]$ cat > projwfc.in <<'EOF'
+&PROJWFC
+  prefix = 'HfCl2_PbO2'
+  outdir = '../nscf/out/'
+  filpdos = 'HfCl2_PbO2'
+  Emin = -10.0
+  Emax = 10.0
+  DeltaE = 0.01
+  ngauss = 0
+  degauss = 0.0037
+/
+EOF
+
+[<user>@<cluster> pdos]$ cat > pdos.slurm <<'EOF'
+#!/bin/bash
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
+
+ulimit -s unlimited
+ulimit -l unlimited
+
+source /data/intel/oneapi/setvars.sh
+
+cd $SLURM_SUBMIT_DIR
+
+mpirun -np 56 <qe_bin>/projwfc.x \
+  -in projwfc.in > projwfc.out
+EOF
+
+[<user>@<cluster> pdos]$ sbatch pdos.slurm
+```
+
+### PDOS 验收：文件体系与轨道通道
+
+```bash
+[<user>@<cluster> pdos]$ grep "JOB DONE" projwfc.out
+   JOB DONE.
+[<user>@<cluster> pdos]$
+[<user>@<cluster> pdos]$ grep -iE "error|warning" projwfc.out | tail -n 30
+[<user>@<cluster> pdos]$
+[<user>@<cluster> pdos]$ ls -lh HfCl2_PbO2*
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#2(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#3(p)
+-rw-rw-r-- 1 <user> <user> 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#4(d)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#2(p)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#2(p)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#2(p)
+-rw-rw-r-- 1 <user> <user> 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#3(d)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#2(p)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#1(s)
+-rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#2(p)
+-rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_tot
+[<user>@<cluster> pdos]$
+```
+
+再抓一下投影通道清单，它告诉你每个原子有哪些 s/p/d 投影轨道（`grep "state #" projwfc.out`，本例 35 条 state：Hf s+p+d、Cl 各 s+p、Pb s+p+d、O 各 s+p，完整清单见 projwfc.out）。归纳成：
+
+```text
+Hf : s + p + d
+Cl : s + p
+Pb : s + p + d
+O  : s + p
+```
+
+TDOS 和 PDOS 都正常完成、无 warning/error，DOS 流程可以判定完成。
+
+### 定量判读：DOS(EF) 与金属判定
+
+先把 E_F 附近的 DOS 定量取出来。dos.x 给出的费米能级是 0.050 eV：
+
+```bash
+[<user>@<cluster> tdos]$ awk '
+> BEGIN { EF=0.050; best=1e9 }
+> $1 !~ /^#/ {
+>     d=$1-EF
+>     if(d<0)d=-d
+>     if(d<best){
+>         best=d
+>         E=$1
+>         DOS=$2
+>         INT=$3
+>     }
+> }
+> END {
+>     print "E nearest EF =",E,"eV"
+>     print "DOS(EF)      =",DOS,"states/eV/cell"
+>     print "Int DOS      =",INT
+> }
+> ' HfCl2_PbO2.dos
+E nearest EF = 0.050 eV
+DOS(EF)      = 0.1893E+01 states/eV/cell
+Int DOS      = 0.2601E+02
+```
+
+再看费米能级前后 ±0.1 eV 的逐点形状：
+
+```bash
+[<user>@<cluster> tdos]$ awk '
+> $1 !~ /^#/ && $1>=-0.05 && $1<=0.15 {
+>     print
+> }
+> ' HfCl2_PbO2.dos
+  -0.050  0.5132E+00  0.2588E+02
+  -0.040  0.5509E+00  0.2589E+02
+   ...
+   0.040  0.1911E+01  0.2599E+02
+   0.050  0.1893E+01  0.2601E+02
+   0.060  0.1785E+01  0.2603E+02
+   ...
+   0.150  0.8934E+00  0.2613E+02
+```
+
+DOS 在 E_F 两侧连续、没有落零的缺口。再看 pdos_tot 在 E_F 最近一点的值：
+
+```bash
+[<user>@<cluster> pdos]$ awk '
+> BEGIN { EF=0.050; best=1e9 }
+> $1 !~ /^#/ {
+>     d=$1-EF
+>     if(d<0)d=-d
+>     if(d<best){ best=d; line=$0 }
+> }
+> END { print line }
+> ' HfCl2_PbO2.pdos_tot
+   0.050  0.189E+01  0.184E+01
+[<user>@<cluster> pdos]$
+```
+
+判读：**`E_F = 0.0483/0.0500 eV` 这个数值本身不能判断体系是否金属**——金属与否看的是 E_F 附近是否存在有限 DOS。本例 DOS(EF) = 1.893 states/eV/cell，pdos_tot 给出 0.189/0.184（dos 与 pdos 非常接近，说明这套原子轨道投影已覆盖绝大部分费米面附近的态），费米能级附近有明确非零 DOS：这套无 SOC 结果下体系是金属态候选。
+
+### 下一步
+
+DOS 主流程完成，进入能带计算（bands → bands.x），轨道分辨的深入分析（按元素×轨道拆 PDOS 权重）见胖带数据页：
+
+```text
+static SCF → DOS-NSCF（上一页）
+    ↓
+dos.x → TDOS       ← 本页
+projwfc.x → PDOS   ← 本页
+    ↓
+bands → bands.x
+```

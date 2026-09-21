@@ -1,84 +1,157 @@
 参考：
 
-- QE 官方文档 INPUT_PW（calculation='nscf'）：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
-- FermiSurfer 项目主页：<https://github.com/FermiSurfer/FermiSurfer>
+- QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
 
-## 本页目标
+## DOS 专用 NSCF：加密 k 网格复用 SCF 电荷
 
-在收敛自洽的基础上用密 k 网格做一次非自洽计算，得到费米面上的电子态密度与费米面文件，供 FermiSurfer 等 3D 费米面工具出图。读完本页你能：写 nscf 输入、跑 fs.x、核对 bxsf 产物。
+DOS 计算需要比 SCF 更密的 k 采样，但不需要重新自洽。做法是：沿用已完成 static SCF 的电荷密度，结构、赝势、泛函、cutoff、smearing 全部保持一致，只把 calculation 改成 `nscf`、k 网格加密到 `36×36×1`。这个 36×36×1 目前作为 DOS 采样网格使用，不把它宣称为重新做过收敛测试的最终参数。
 
-## 前置
+### 复制 SCF 数据
 
-scf 已收敛（普通 32×32×1 网格即可）；`outdir/prefix` 与 scf 保持一致——nscf 直接读 scf 落盘的电荷密度，不再自洽迭代，所以很快（分钟级到小时级）。
+先建目录，把 static SCF 的 `.save` 目录整个拷过来（`cp -a` 保留权限与时间戳）：
 
-## nscf 输入：相对 scf 只有四处增量
+```bash
+[<user>@<cluster> QE]$ cd <工作目录>/QE
 
-真实费米面链的 nscf 输入全文（`…/FS/nscf.in`）：
+[<user>@<cluster> QE]$ mkdir -p 07_dos/nscf
+[<user>@<cluster> QE]$ cd 07_dos/nscf
 
-```fortran
+[<user>@<cluster> nscf]$ mkdir -p out
+
+[<user>@<cluster> nscf]$ cp -a ../../06_static/out/HfCl2_PbO2.save out/
+
+[<user>@<cluster> nscf]$ ls out/HfCl2_PbO2.save | head
+```
+
+先确认 SCF 数据复制成功，再写输入。
+
+### 输入文件
+
+```bash
+[<user>@<cluster> nscf]$ cat > nscf.in <<'EOF'
 &CONTROL
-  calculation = 'nscf'         ! ① 非自洽：读 scf 电荷，只解 Kohn–Sham 方程
+  calculation = 'nscf'
   outdir = './out/'
-  prefix = '<prefix>'
+  prefix = 'HfCl2_PbO2'
   pseudo_dir = '<赝势库路径>'
   verbosity = 'high'
 /
+
 &SYSTEM
-  ibrav = 0, nat = 6, ntyp = 4,
-  ecutwfc = 100, ecutrho = 800,
+  ibrav = 0
+  nat = 6
+  ntyp = 4
+  ecutwfc = 90
+  ecutrho = 720
   input_dft = 'vdw-DF3-opt1'
+  force_symmorphic = .true.
   occupations = 'smearing'
   smearing = 'gaussian'
-  degauss = 2.0d-3             ! ② 展宽比 scf 的 3.7d-3 更细
+  degauss = 3.7d-3
 /
+
 &ELECTRONS
-  conv_thr = 1.0000000000d-12  ! ③（nscf 无自洽循环，此键实际不参与迭代）
-  mixing_beta = 4.0000000000d-01
+  conv_thr = 1.0000000000d-08
+  electron_maxstep = 200
+  mixing_beta = 7.0000000000d-01
 /
+
 ATOMIC_SPECIES
-（与 scf 相同，略）
-（替换为你的结构块：CELL_PARAMETERS / ATOMIC_POSITIONS）
-K_POINTS automatic
-  64 64 1 0 0 0                ! ④ 密网格：费米面分辨率由它决定
+Hf  178.49   Hf.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl   35.45   Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Pb  207.20   Pb.pbe-dn-kjpaw_psl.1.0.0.UPF
+O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
+
+CELL_PARAMETERS (angstrom)
+! 此处放入结构优化输出的三行晶胞矢量（本例 3.356510437 …，c = 30 Å）
+
+ATOMIC_POSITIONS (crystal)
+! 此处放入结构优化输出的六行原子坐标
+
+K_POINTS (automatic)
+36 36 1 0 0 0
+EOF
+
+[<user>@<cluster> nscf]$ cat nscf.in
 ```
 
-与 scf 的差异就四处：`calculation='nscf'`、k 网格 32³→64³、degauss 收细、以及**不再需要** `&ions/&cell` 空壳（离子不动了）。若做 DOS 需要严格全 BZ 采样，常再补 `nosym = .true.`——本例真实文件未加（对称约化在该用途下可接受），是否需要按后续画图工具的要求定。
+与 scf.in 逐项对比：CONTROL 里 `calculation = 'nscf'`、没有 tprnfor/tstress（不重新算力）；SYSTEM/ELECTRONS/结构块全部一致，唯一数值变化是 K_POINTS 从 24×24×1 到 36×36×1。
 
-## 费米面：fs.x
+### Slurm 脚本：sed 改一行
 
-```fortran
-&fermi
-    outdir = './out/'
-    prefix = '<prefix>'
-/
-```
+直接复用已经跑通的脚本：
 
 ```bash
-fs.x -i fs.in > fs.out
+[<user>@<cluster> nscf]$ cp ../../05_relax/rx.slurm nscf.slurm
+
+[<user>@<cluster> nscf]$ sed -i \
+> 's#pw.x<rx.in>rx.out#pw.x -in nscf.in > nscf.out#' \
+> nscf.slurm
+
+[<user>@<cluster> nscf]$ cat nscf.slurm
 ```
 
-fs.x 读取 nscf 落盘的本征值，输出 Xcrysden 格式的费米面文件：
+如果你的 rx.slurm 最后一行确实还是 `mpirun -np 56 <qe_bin>/pw.x<rx.in>rx.out`，修改后应该变成 `mpirun -np 56 <qe_bin>/pw.x -in nscf.in > nscf.out`。提交前 `cat` 一遍核对。
+
+### 提交与监控
+
+```bash
+[<user>@<cluster> nscf]$ sbatch nscf.slurm
+```
+
+运行时可以看 `squeue`，以及 `tail -f nscf.out`。
+
+### 验收：nscf 看 JOB DONE / Error，不看 convergence
+
+结束后执行这一组：
+
+```bash
+grep "JOB DONE" nscf.out
+
+grep "the Fermi energy is" nscf.out | tail
+
+grep -E "number of electrons|number of Kohn-Sham states|number of k points" nscf.out
+
+grep -E "convergence has been achieved|Error in routine" nscf.out | tail -n 20
+```
+
+真实输出：
+
+```bash
+[<user>@<cluster> nscf]$ grep "JOB DONE" nscf.out
+   JOB DONE.
+[<user>@<cluster> nscf]$
+[<user>@<cluster> nscf]$ grep "the Fermi energy is" nscf.out | tail
+     the Fermi energy is     0.0500 ev
+[<user>@<cluster> nscf]$
+[<user>@<cluster> nscf]$ grep -E \
+> "number of electrons|number of Kohn-Sham states|number of k points" \
+> nscf.out
+     number of electrons       =        52.00
+     number of Kohn-Sham states=           31
+     number of k points=   127  Gaussian smearing, width (Ry)=  0.0037
+[<user>@<cluster> nscf]$
+[<user>@<cluster> nscf]$ grep -E \
+> "convergence has been achieved|Error in routine" \
+> nscf.out | tail -n 20
+[<user>@<cluster> nscf]$ ls
+_err.<jobid>.log  nscf.in  nscf.out  nscf.slurm  out  _out.<jobid>.log
+[<user>@<cluster> nscf]$
+```
+
+逐条判读：`36×36×1` 在当前对称性下被约化成 **127 个不可约 k 点**，这是正常的；最后一条 grep 什么都没抓到也**不构成异常**——这是 `nscf`，不做 SCF 迭代，判断是否成功主要看 `JOB DONE.`、是否存在 `Error in routine`，以及能带数据是否正常生成。这是和 scf 验收思路完全不同的一点，别拿 convergence 的尺子来量 nscf。
+
+另外把 `number of Kohn-Sham states = 31` 这一条专门记下来：它会告诉后续能带计算这次 NSCF 实际算了多少条带（bands 页要用它定 nbnd）。
+
+### 下一步
+
+NSCF 正常 `JOB DONE.` 后，在同一个 07_dos 下建 tdos 和 pdos：
 
 ```text
-zrclscc_fs.bxsf
+07_dos/
+├── nscf/    ← 本页
+├── tdos/    → dos.x → TDOS
+└── pdos/    → projwfc.x → PDOS
 ```
 
-## 验收与出图
-
-- nscf 输出末尾同样应有 `JOB DONE`；费米能级取输出里的 `the Fermi energy is` 行。
-- `ls -lh` 确认 `.bxsf` 生成（几十 MB 量级，随网格变密增大）。
-- bxsf 交给 FermiSurfer / XCrySDen 打开即可看 3D 费米面；先在 FermiSurfer 里把等能面值设为费米能级。
-
-## 链路小结
-
-```text
-scf (32×32×1) → nscf (64×64×1) → fs.x → .bxsf → FermiSurfer
-```
-
-能带、DOS、费米面三者共用同一次 scf；nscf 之后的所有电子结构产品（bands.x、projwfc.x、fs.x）都只是换一种方式消费它的本征值。
-
-## 思考
-
-- 为什么费米面要用比 scf 更密的 k 网格？分辨率瓶颈在 nscf 还是在 scf？
-- `nosym` 加与不加，对 DOS 积分和费米面文件各有什么影响？
-- 若费米面穿过多条能带，bxsf 里如何区分它们？
+TDOS 和 PDOS 都读取 `07_dos/nscf/out/HfCl2_PbO2.save`，所以不需要再复制一份波函数目录——直接依次跑 dos.x 和 projwfc.x（见 DOS 后处理页）。

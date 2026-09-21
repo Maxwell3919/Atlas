@@ -4,11 +4,11 @@
 - QE 官方文档 INPUT_PH（electron_phonon / el_ph_sigma）：<https://www.quantum-espresso.org/Doc/INPUT_PH.html>
 - PHonon 用户指南（EPC 与 lambda.x 章节）：<https://www.quantum-espresso.org/Doc/user_guide/>
 
-## 本页目标
+## 电声耦合（EPC）
 
-从弛豫结构出发跑通完整电声耦合链，产出 λ.x 所需的全部输入数据。读完本页你能：理解两套 SCF 的分工、按 q 分批提交 EPC 计算、把 elph 输出喂给 lambda.x。
+电声耦合矩阵元是超导 Tc 预测的原料：DFPT 求出每个 q 点上电子密度对原子位移的响应，与 phonon 一起组装成 λ.x 可消费的 elph 数据。这一页走通从结构到 elph 文件齐备的完整链路。
 
-## 前置与两套 SCF 的分工
+## 先分清两套 SCF
 
 体系里通常并存两套自洽，别混用：
 
@@ -19,16 +19,20 @@
 
 **紧挨着 ph.x 的那次自洽必须是 pwxall**——密网格波函数是电声插值的数据源；若在 pwxall 之后再跑一次普通 scf，波函数被低密度版本覆盖，后面电声结果整个失真。真实工作流里 pwx（普通）与 pwxall（EPC）放在不同目录，互不覆盖。
 
-## pwxall.in（相对普通 scf 只多两处）
+## 第一步：pwxall（EPC 自洽）
 
-```fortran
+相对普通 scf 只多两处：`la2F=.true.` 和更密的 k 网格。
+
+```bash
+[<user>@<cluster> ph64]$ cat > pwxall.in <<'EOF'
 &CONTROL
   calculation = 'scf'
   outdir = './out/'
   prefix = '<prefix>'
-  pseudo_dir = '<赝势库路径，与 ATOMIC_SPECIES 匹配>'
+  pseudo_dir = '<赝势库路径>'
   verbosity = 'high'
 /
+
 &SYSTEM
   ibrav = 0, nat = 6, ntyp = 4,
   ecutwfc = 100, ecutrho = 800,
@@ -38,26 +42,36 @@
   smearing = 'gaussian'
   degauss = 3.7d-3
 /
+
 &ELECTRONS
   conv_thr = 1.0000000000d-12
   mixing_beta = 4.0000000000d-01
 /
+
 ATOMIC_SPECIES
 （与 scf 相同，略）
-（替换为你的结构块：CELL_PARAMETERS / ATOMIC_POSITIONS）
+
+CELL_PARAMETERS (angstrom)
+! 此处放入你的结构块：三行晶胞矢量
+
+ATOMIC_POSITIONS (crystal)
+! 此处放入你的结构块：原子坐标行
+
 K_POINTS automatic
-  64 64 1 0 0 0              ! 比 scf 的 32×32×1 密一倍
+  64 64 1 0 0 0
+EOF
 ```
 
 ```bash
 pw.x -i pwxall.in > pwxall.out
 ```
 
-## ph.x（EPC 开关 + q 分批）
+## 第二步：ph.x（EPC 开关 + q 分批）
 
-EPC 版 phx.in 与纯声子版的差别只是三个键：
+EPC 版 phx.in 与纯声子版的差别只有三个键：
 
-```fortran
+```bash
+[<user>@<cluster> ph64]$ cat > phx.in <<'EOF'
 &inputph
   tr2_ph = 1.0d-16
   nmix_ph = 12
@@ -81,43 +95,58 @@ EPC 版 phx.in 与纯声子版的差别只是三个键：
   nq2 = 8
   nq3 = 1
 /
+EOF
 ```
 
 同样按 start_q/last_q 切四批（q=1；2–4；5–7；8–10）各自 sbatch 并行。每批跑完在对应 q 的输出目录里生成 `elph_dir/elph.inp_lambda.<q>`——这就是给 lambda.x 的原料，20 个展宽各一份文件。
 
-## q2r.x（带 la2F）
+## 事故：批量 sed 之后丢了重定向
 
-```fortran
+一次批量改写提交脚本时，`pw.x < pwxall.in > pwxall.out` 被写成了 `pw.xpwxall.out`（少个空格、输入重定向整个丢失），作业秒退且没有任何 pw.x 输出。定位用 `cat -A` 看脚本末尾的不可见字符：
+
+```bash
+[<user>@<cluster> ph64]$ cat -A pwxall.slurm | tail -n 5
+mpirun -np 56 <qe_bin>/pw.xpwxall.out$
+[<user>@<cluster> ph64]$
+```
+
+把执行行改回完整重定向再提交即可。教训：批量 sed 改脚本后，提交前先 `cat -A` 或 `bash -n` 过一遍。
+
+## 第三步：q2r（带 la2F）
+
+```bash
+[<user>@<cluster> ph64]$ cat > q2rx.in <<'EOF'
 &input
 zasr = 'crystal'
 fildyn = 'zrclscc.dyn'
 flfrc = 'zrclscc.fc'
 la2F = .true.                ! 必须带，否则 elph 数据链断裂
 /
+EOF
 ```
 
-## 事故：提交脚本里丢掉的输入重定向
+四批 q 全部 JOB DONE 后再执行；成功标志 `fft-check success`。
 
-一次批量改写提交脚本时，重定向被吃掉一个字符，实际执行成了：
+## 第四步：清点 elph 数据
 
-```text
-pw.xpwxall.out          ← 本应是  pw.x < pwxall.in > pwxall.out
-```
-
-现象是作业秒退且没有任何 pw.x 输出。定位用 `cat -A` 看脚本末尾不可见字符：
+lambda.x 需要的原料应齐备：
 
 ```bash
-cat -A pwxall.slurm | tail -n 5
+[<user>@<cluster> ph64]$ ls elph_dir/ | head
+elph.inp_lambda.1
+elph.inp_lambda.2
+...
+[<user>@<cluster> ph64]$
 ```
 
-把执行行改成带完整重定向的写法后重交即可。教训：批量 sed 改脚本后，提交前先 `cat -A` 或 `bash -n` 过一遍。
+10 个 q × 20 档展宽各一份。之后交给 lambda.x——输入文件与判读见 λ(ω) 谱函数页。
 
-## 交接给 lambda.x
+## 下一步
 
-四批 q 全部 JOB DONE、q2r 完成 `zrclscc.fc` 后，elph_dir 里应齐备 10 个 q 的 20 套展宽文件。lambda.x 的输入与判读见 λ(ω) 谱函数页。
-
-## 思考
-
-- `la2F` 打开后，scf 与 ph.x 各自多算了什么量？
-- 为什么 EPC 自洽要用比普通 scf 更密的 k 网格？密度不够时最先失真的是哪一步？
-- el_ph_nsigma 取 20 的意义是什么？判读时挑哪一档展宽？
+```text
+DFPT 声子 + la2F 自洽（本页）
+    ↓ elph.inp_lambda.N 齐备
+λ(ω) 谱函数（lambda.x）
+    ↓
+Allen–Dynes Tc
+```

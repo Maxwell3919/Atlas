@@ -1,86 +1,141 @@
-# VASP ELF：LELF 一步法与 QE 两步对照
+参考：
 
-**参考**：[LELF 标签页](https://www.vasp.at/wiki/index.php/LELF) · [QE INPUT_PP 文档](https://www.quantum-espresso.org/Doc/INPUT_PP.html)
+- VESTA 官网：<https://jp-minerals.org/vesta/>
+- VASP wiki INCAR 标签总表：<https://www.vasp.at/wiki/index.php/Category:All_INCAR_Tags>
 
-本页目标：对同一体系（Sc2C/ZrCl2 界面）算电子局域化函数 ELF（0–1 无量纲），VESTA 读图分析成键与孤对局域化。VASP 走一步法（静态计算直接出 ELFCAR），QE 走两步法（pw.x 自洽 + pp.x 导出 cube）作对照。
+## ELF（Electron Localization Function）
 
-## 输入文件：VASP INCAR
+ELF 在 0–1 之间度量电子定域性：约 0.5 对应自由电子气参考值，接近 1 是强定域区（共价键、孤对电子、芯区），接近 0 是低密度区（层间范德华间隙、真空）。VASP 只需加 LELF = .TRUE. 一步输出 ELFCAR；核心陷阱是 LREAL——ELF 要重构动能密度，沿用 SCF 里的 LREAL = A 会引入实空间投影的网格噪声，必须改 LREAL = .FALSE.。
 
-从已收敛 `scf/` 复制基准文件（真实目录命令）：
+记录体系仍是 Sc2C/ZrCl2 异质结。当时 elf 目录已完整跑过一轮（作业 18107），本页按修正后的做法复述全流程。
 
-```bash
-cp ../scf/CONTCAR ./POSCAR
-cp ../scf/POTCAR ../scf/KPOINTS ../scf/WAVECAR ../scf/CHGCAR ./
-```
+### 复用 SCF 输入
 
-INCAR 原样（真实文件转录，体系行按实际体系修正）：
-
-```fortran
-SYSTEM = Sc2C_ZrCl2     ! 继承的 scf 源文件此行为复制残留的 SnS2，运行前改正
-ISTART = 1              ! 读取已有的 WAVECAR
-ICHARG = 1              ! 读取已有的 CHGCAR
-LWAVE = .FALSE.
-LCHARG = .FALSE.
-LELF = .TRUE.           ! 核心开关：计算并输出 ELFCAR
-LREAL = .FALSE.         ! ELF 必须在倒空间投影，禁止 LREAL=A（理由见下）
-PREC = Accurate         ! 保证 FFT 网格精细，避免切面锯齿
-LASPH = .TRUE.
-LORBIT = 11
-IBRION = -1             ! 固定离子，只做电子步
-NSW = 0
-ENCUT = 520
-GGA = PE
-VOSKOWN = 1
-EDIFF = 1E-6
-NELM = 60
-ALGO = Normal
-ISMEAR = 0
-SIGMA = 0.05
-IVDW = 11
-LMAXMIX = 4
-```
-
-三处有明确理由，抄时不要抄丢：`LREAL = .FALSE.` 是硬要求——ELF 需要动能密度，实空间投影（`LREAL = A`）会在动能密度重构时引入噪声，等值面出现碎斑；`PREC = Accurate` 保证网格精细；`IBRION = -1`/`NSW = 0` 固定离子，ELF 只对静态构型有意义。`ISTART = 1`/`ICHARG = 1` 复用 scf 的波函数与电荷，电子步几步收完。
-
-## 命令主线
+已有收敛的 WAVECAR 与 CHGCAR，读入续算即可（极快，通常几分钟甚至几十秒）：
 
 ```bash
-mpirun -np <np> vasp_std > out.log 2>&1
-ls ELFCAR        # 就位检查：文件生成即成
+[<user>@<cluster> vasp]$ ls
+bader  bands  elf  rx  scf
+
+[<user>@<cluster> elf]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/CHGCAR ../scf/WAVECAR ../scf/script_std ./
 ```
 
-## QE 两步对照
+### INCAR
 
-pw.x 自洽后用 pp.x：第一段 namelist 计算 ELF 到中间文件（`outdir`、`filplot = 'calc_elf'`、`plot_num = 8`——8 代表 ELF），第二段转 cube。`&PLOT` 段原样：
+```bash
+[<user>@<cluster> elf]$ cat > INCAR <<'EOF'
+SYSTEM = Sc2C_ZrCl2_ELF
+########## about parallelation ###########
+   LPLANE = .TRUE.
+   NPAR = 4
+   NSIM = 4
+##########################################
+############### about I/O ################
+   ISTART = 1                ! 读取已有的 WAVECAR
+   ICHARG = 1                ! 读取已有的 CHGCAR
+   LWAVE = .FALSE.
+   LCHARG = .FALSE.
+##########################################
+########### about switch control ##########
+   LELF = .TRUE.             ! 核心开关：计算并输出 ELFCAR
+   LREAL = .FALSE.           ! ELF 必须在倒空间投影，禁止 LREAL=A
+   PREC = Accurate           ! 保证 FFT 网格精细，避免切面锯齿
+   LASPH = .TRUE.
+   LORBIT = 11
+###########################################
+############# about ionic relax ############
+   IBRION = -1               ! 固定离子步，只做电子步
+   NSW = 0
+###########################################
+########### about electron scf ############
+   ENCUT = 520
+   GGA = PE
+   VOSKOWN = 1
+   EDIFF = 1E-6
+   NELM = 60
+###########################################
+############### other important parameter ###############
+   ALGO = Normal
+   ISMEAR = 0
+   SIGMA = 0.05
+   IVDW = 11
+   LMAXMIX = 4
+###########################################
+EOF
+```
 
-```fortran
+两个关键改动判读：LELF = .TRUE. 生成 ELFCAR；LREAL 从 SCF 模板继承的 A 改为 .FALSE.——实空间投影近似在动能密度重构时可能产生网格噪声，这是 ELF 计算与普通 SCF 的决定性差别之一。ISTART = 1 与 ICHARG = 1 配合拷来的 WAVECAR/CHGCAR，一两个电子步内完成并写出 ELFCAR。
+
+### 提交与验收
+
+```bash
+[<user>@<cluster> elf]$ sbatch script_std
+
+[<user>@<cluster> elf]$ watch -n 1 squeue
+```
+
+结束后目录状态（真实记录）：
+
+```bash
+[<user>@<cluster> vasp]$ ls elf/
+CHG      EIGENVAL        INCAR    _out.18107.log  POTCAR      vasprun.xml
+CHGCAR   ELFCAR          KPOINTS  OUTCAR          PROCAR      WAVECAR
+CONTCAR  _err.18107.log  OSZICAR  PCDAT           REPORT      XDATCAR
+DOSCAR   IBZKPT          out      POSCAR          script_std
+```
+
+判读：ELFCAR 在列表里，作业日志 _out.18107.log/_err.18107.log 成对出现——这一轮是修好 LREAL 之后完成的。
+
+### VESTA 出图
+
+ELFCAR 直接拖入 VESTA：
+
+- 3D 等值面（Properties → Isosurfaces → New）：0.5 附近是均匀电子气（金属性区域）；0.75–0.85 是强共价键或孤对电子（如 Cl 外侧的电子对）；接近 0 是层间范德华间隙与真空。
+- 2D 截面（Utilities → 2D Data Display → Slice）：用 3 个代表原子定面（如 Sc–C–Zr）或直接指定 Miller 指数（(1 1 0) / (0 0 1)），勾选 Show contour lines，色彩范围设 0.0–1.0 即可直读成键属性（离子键/共价键/金属性）。
+
+### QE 两步对照
+
+QE 侧是两步法：pw.x 正常自洽，再用 pp.x 提取。配置如下（出自当时的对话记录）：
+
+```bash
+&INPUTPP
+   prefix = 'calc_prefix',
+   outdir = './tmp',
+   filplot = 'calc_elf',
+   plot_num = 8        ! 8 代表 ELF
+/
 &PLOT
- nfile = 1,
- filepp(1) = 'calc_elf',
- weight(1) = 1.0,
- iflag = 3,          ! 3 代表 3D 体系
- output_format = 6,  ! 6 代表 Gaussian cube 格式（VESTA 友好）
- fileout = 'elf.cube'
+   nfile = 1,
+   filepp(1) = 'calc_elf',
+   weight(1) = 1.0,
+   iflag = 3,          ! 3 代表 3D 体系
+   output_format = 6,  ! 6 代表 Gaussian cube 格式（VESTA 友好）
+   fileout = 'elf.cube'
 /
 ```
 
-```bash
-pw.x < scf.in > scf.out 2>&1
-pp.x < pp.in > pp.out 2>&1
+可信度边界：这份 pp.x 配置只是对话记录里的方案，集群上没有对应的 QE ELF 产物文件——它没有经过实测验证，照抄前先在 QE 官方文档里核对 plot_num/iflag/output_format 的当前定义。二维层状材料建议在 pp.x 中适当加密输出网格，避免真空层边界的数值发散或等值面截断伪影。
+
+### 可信度边界
+
+- LREAL = A 是本页最大的坑：ELF 出现网格状条纹或锯齿时，第一嫌疑就是它，改 .FALSE. 重算。
+- 赝势类型影响动能密度重构质量：USPP/个别超软势偶有数值噪声，PAW/NC 更稳。
+- 等值面取值 0.7–0.85 是成键分析的经验起点，不同体系要按图微调，不是通用标准。
+- 自旋极化体系默认输出总 ELF；分自旋时 QE 侧要在 pp.x 里显式指定 spin_component。
+- ELF 判断的是"定域性"，与电荷转移量（见 Bader 页）是两个视角，结论互证而非互相替代。
+
+### 下一步
+
+```text
+SCF（WAVECAR + CHGCAR 复用）
+    ↓
+ELF：LELF = .TRUE. + LREAL = .FALSE.   ← 本页
+    ↓
+VESTA 等值面/切面
+    ↓
+差分电荷密度（电荷重分布的空间图）
+    ↓
+Bader 电荷（原子分配的定量记账）
 ```
 
-如实说明：这段 pp.x 配置来自会话记录，集群上未见真实的 QE ELF 产物文件——把它当配置模板用，跑前按 INPUT_PP 文档核对一遍参数名。二维层状材料建议在 pp.x 里适当加密输出网格，避免真空层边界的数值发散或等值面截断伪影。QE 端 pw.x 自洽的完整输入模板待填充，SCF 本身与手册其余 QE 页同规格。
-
-## 判读：VESTA 等值面取值
-
-VESTA 打开 ELFCAR（或 elf.cube），Isosurface level 常用 **0.7 ∼ 0.85**（自由电子气参考值 0.5），配合 Slice Contour 做 2D 切面。读法：高值区（≥0.7）对应局域共价键/孤对；层间持续低值说明该方向无局域键——这正是插层体系结合方式的直观证据。图注必须注明所取等值面数值。
-
-## 可信度边界（与 Bader 互补）
-
-ELF 与 Bader 互补：Bader 按原子划分电荷量，ELF 看键的局域形态。两边共同的软肋都在赝势：ELF 对赝势类型敏感，推荐全相对论/标量模守恒（NC）或标准 USPP/PAW，个别超软势动能密度重建偶有数值噪声；VASP 一侧最典型的假阳性就是 `LREAL = A` 的碎斑——异常时先查这一项，改 `.FALSE.` 重算。网格不足（切面锯齿）用 `PREC = Accurate` 或显式调大 FFT 网格解决。
-
-## 思考
-
-1. `LREAL = A` 为什么只对 ELF 致命，而对总能、能带这类量无伤大雅？
-2. 等值面取 0.5、0.7、0.85 三档对比看，分别强调什么结构特征？
-3. 若某层间区域 ELF 高于 0.7，与 Bader 的层间转移结果矛盾吗？各自说明什么？
+一个提醒：ELF 对网格敏感，切面出现锯齿先加 FFT 网格或改 LREAL，再谈物理。
