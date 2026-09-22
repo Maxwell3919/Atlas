@@ -1,0 +1,13 @@
+{
+  "warmup_steps": 1000,
+  "production_steps": 500,
+  "timestep_fs": 1,
+  "snapshots": 51,
+  "velocity_seed": 2026092202,
+  "momentum_sha256": "8d77daace18335b69edb8611fa3dd19da02c7ad3003307cfede492a46ac91c14",
+  "mean_temperature_K": 322.4618765415747,
+  "temperature_std_K": 42.461517079713495,
+  "max_abs_delta_total_meV_atom": 0.01488466970211988,
+  "production_wall_s": 169.9470366705209,
+  "total_prepare_wall_s": 547.166096650064
+}

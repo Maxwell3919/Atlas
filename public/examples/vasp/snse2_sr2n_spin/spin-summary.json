@@ -1,0 +1,15 @@
+{
+  "nrows": 10800, 
+  "max_abs_mz": 0.981, 
+  "path_ticks_A-1": [
+    0.0, 
+    0.9183525437502472, 
+    1.4485636269770399, 
+    2.5089857932241535
+  ], 
+  "nk": 150, 
+  "nb": 72, 
+  "quantity": "native PROCAR projected magnetization; no normalization", 
+  "fermi_scf_eV": -1.4881, 
+  "axis": "default SAXIS=(0,0,1), Cartesian"
+}

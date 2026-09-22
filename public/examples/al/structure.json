@@ -1,0 +1,32 @@
+{
+  "cell_angstrom": [
+    [
+      -1.978033900405362,
+      0.0,
+      1.978033900405362
+    ],
+    [
+      0.0,
+      1.978033900405362,
+      1.978033900405362
+    ],
+    [
+      -1.978033900405362,
+      1.978033900405362,
+      0.0
+    ]
+  ],
+  "positions_fractional": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "symbols": [
+    "Al"
+  ],
+  "source": "relax-ibrav/al.relax.out",
+  "qe7.5": "native",
+  "scientific_acceptance": "not_assessed"
+}

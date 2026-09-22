@@ -53,6 +53,10 @@ export async function loadManualBody(slug, engine) {
         if (prompt) {
           return `${prompt[1]}<span class="terminal-user">${prompt[2]}</span>${prompt[3]}<span class="terminal-directory">${prompt[4]}</span>${prompt[5]}${prompt[6]}`;
         }
+        const shellPrompt = line.match(/^(\([^)]+\) )?([\w.-]+@[\w.-]+)(:)([^$\n]*)(\$)(.*)$/);
+        if (shellPrompt) {
+          return `${shellPrompt[1] ?? ''}<span class="terminal-user">${shellPrompt[2]}</span>${shellPrompt[3]}<span class="terminal-directory">${shellPrompt[4]}</span>${shellPrompt[5]}${shellPrompt[6]}`;
+        }
         if (/^\s*(?:bfgs failed\b|Error in routine\b|convergence NOT achieved\b)/i.test(line)) {
           return `<span class="terminal-error">${line}</span>`;
         }

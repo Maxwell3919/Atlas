@@ -1,0 +1,52 @@
+cuequivariance or cuequivariance_torch is not available. Cuequivariance acceleration will be disabled.
+ENVIRONMENT {
+  "versions": {
+    "mace-torch": "0.3.16",
+    "ase": "3.29.0",
+    "phonopy": "4.4.0",
+    "symfc": "1.7.3",
+    "spglib": "2.7.0",
+    "scipy": "1.18.0",
+    "numpy": "2.4.6",
+    "torch": "2.12.0"
+  },
+  "module_paths": {
+    "ase": "<用户Python包>/lib/python3.12/site-packages/ase/__init__.py",
+    "scipy": "<用户Python包>/lib/python3.12/site-packages/scipy/__init__.py",
+    "phonopy": "<MACE环境>/lib/python3.12/site-packages/phonopy/__init__.py",
+    "symfc": "<MACE环境>/lib/python3.12/site-packages/symfc/__init__.py"
+  },
+  "model_sha256": "2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736",
+  "cpu_threads": 2,
+  "source_trajectory_sha256": "80609a23fc740931601134c314ad786481e67ded4309bf2f5874ad9212045af3"
+}
+CUBIC_REFERENCE {"a_initial_A": 5.464664315456402, "a_final_A": 5.464664315456402, "steps": 0, "volume_A3": 163.1888445820938, "fmax_eV_A": 5.823070155755285e-15, "stress_eV_A3": [1.3476746059391367e-07, 1.3476746062774258e-07, 1.347674606181336e-07, -3.30674418285811e-17, -1.0755458939616247e-17, -4.190839656418783e-17]}
+ATOM_ORDER max_mapping_error_A 0.0 primitive_atoms 2
+FINITE_DISPLACEMENT harmonic-0.01 1 fmax 0.08129747577817399
+FINITE_DISPLACEMENT harmonic-0.01 2 fmax 0.08129747577816904
+FINITE_DISPLACEMENT harmonic-0.005 1 fmax 0.040643198219682514
+FINITE_DISPLACEMENT harmonic-0.005 2 fmax 0.0406431982196819
+HARMONIC_BASELINES {"harmonic-0.01": {"amplitude_A": 0.01, "force_evaluations": 2, "raw_fc_translational_drift_eV_A2": 6.221672482764617e-14, "corrected_fc_translational_drift_eV_A2": 6.268856961311187e-15}, "harmonic-0.005": {"amplitude_A": 0.005, "force_evaluations": 2, "raw_fc_translational_drift_eV_A2": 1.1967380211808099e-13, "corrected_fc_translational_drift_eV_A2": 6.217248937900877e-15}}
+MAPPED_FORCE 0 of 101 max_u_A 0.27048778719496863
+MAPPED_FORCE 20 of 101 max_u_A 0.24044942607053585
+MAPPED_FORCE 40 of 101 max_u_A 0.2892110515722915
+MAPPED_FORCE 60 of 101 max_u_A 0.2784840191413805
+MAPPED_FORCE 80 of 101 max_u_A 0.23474133934676725
+MAPPED_FORCE 100 of 101 max_u_A 0.26753993024797595
+MAPPING_DONE snapshots 101 all_forces_recomputed True
+INDEPENDENT_START seed=2026092202 momentum_sha256 8d77daace18335b69edb8611fa3dd19da02c7ad3003307cfede492a46ac91c14
+INDEPENDENT_WARMUP_DONE steps 1000 temperature_K 408.67462446295895 wall_s 341.06818941328675
+INDEPENDENT_MD_DONE {
+  "warmup_steps": 1000,
+  "production_steps": 500,
+  "timestep_fs": 1,
+  "snapshots": 51,
+  "velocity_seed": 2026092202,
+  "momentum_sha256": "8d77daace18335b69edb8611fa3dd19da02c7ad3003307cfede492a46ac91c14",
+  "mean_temperature_K": 322.4618765415747,
+  "temperature_std_K": 42.461517079713495,
+  "max_abs_delta_total_meV_atom": 0.01488466970211988,
+  "production_wall_s": 169.9470366705209,
+  "total_prepare_wall_s": 547.166096650064
+}
+DATA_PREPARATION_FINISHED

@@ -1,242 +1,164 @@
-参考：
+[Henkelman 组：Bader 程序](https://www.henkelmanlab.org/code/bader/) · [VASP：LAECHG](https://vasp.at/wiki/LAECHG) · [CHGCAR](https://vasp.at/wiki/CHGCAR)
 
-- Henkelman 组 Bader 程序（含 chgsum.pl 说明）：<http://theory.cm.utexas.edu/henkelman/code/bader/>
-- VASP wiki INCAR 标签总表：<https://www.vasp.at/wiki/index.php/Category:All_INCAR_Tags>
+Bader 分析把实空间分成一个个原子盆地，再积分盆地内的电子数。先用两个完全等价的 Fe 原子跑通一次：它们的分区电子数应当相同，整胞总数也应与 VASP 的价电子数一致。这个小体系很容易看清输入、三维网格、参考密度与 ACF.dat 之间的关系。
 
-## Bader 电荷分析
+结构和磁态来自 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的 FM 解。下载 [真实输入、OUTCAR、96³ 电荷网格及后处理脚本](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz) 后，解包进入 `fe-bcc/charge_elf`。包中保留两套网格的输出与检查结果，POTCAR 仅提供 TITEL、ZVAL 和哈希标识。
 
-Bader 分析把空间电荷沿零通量面（∇ρ·n = 0）划分给各原子，每个原子分到的电子数 Q_Bader 与赝势价电子数 ZVAL 相减即净转移电荷 Δq = ZVAL − Q_Bader。赝势只显式处理价电子，直接对 CHGCAR 积分会在原子核附近切错分区——所以要把 AECCAR0（芯）与 AECCAR2（自洽价）叠加成全电子密度，作为剖分参考。
-
-下面是一次完整的真实操作记录：Sc2C/ZrCl2 异质结超胞（6 原子：Zr C Cl Sc，1 1 2 2），价电子总数 52。
-
-### 准备输入文件
-
-从已收敛的 ../scf 复制基准文件；WAVECAR 可选，拷了它续算只需几步：
-
-```bash
-[bcgong@localhost vasp]$ cd <工作目录>/vasp/bader
-
-[bcgong@localhost bader]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/INCAR ../scf/script_std ./
-
-[bcgong@localhost bader]$ cp ../scf/WAVECAR ./
-```
-
-### INCAR
-
-INCAR 直接继承 ../scf，只加两行关键参数——LAECHG = .TRUE. 输出全电子电荷，PREC = Accurate 提高网格精度：
-
-```bash
-[bcgong@localhost bader]$ cat > INCAR <<'EOF'
-SYSTEM = Sc2C_ZrCl2_bader
-   LPLANE = .TRUE.
-   NPAR = 4
-   ISTART = 0
-   LWAVE = F
-   LCHARG = T
-   LCORR = T
-   LAECHG = T              ! 输出 AECCAR0（芯）与 AECCAR2（价）
-   PREC = Accurate         ! 密集 FFT 网格，提高积分精度
-   LREAL = A
-   LASPH = T
-   LORBIT = 11
-   ISIF = 2
-   IBRION = -1
-   ENCUT = 520
-   GGA = PE
-   VOSKOWN = 1
-   EDIFF = 1E-6
-   NELM = 160
-   AMIX = 0.1
-   BMIX = 0.0001
-   MAXMIX = 80
-   LMAXMIX = 4
-   IVDW = 11
-   ALGO = N
-   ISMEAR = 0
-   SIGMA = 0.05
-EOF
-```
-
-ISTART 仍是 0——真实记录里提交前才发现：拷了 WAVECAR 却写 0，VASP 会从头自洽。改掉：
-
-```bash
-[bcgong@localhost bader]$ sed -i 's/ISTART =      0/ISTART =      1/g' INCAR
-```
-
-### 提交脚本与作业
-
-script_std 继承自 ../scf，进程数按配额改：
-
-```bash
-#!/bin/bash
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-# unlimit memory
-ulimit -s unlimited
-ulimit -l unlimited
-
-# load path
-source /data/intel/oneapi/setvars.sh
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 16 <vasp 路径>/vasp_std > out
-```
-
-```bash
-[bcgong@localhost bader]$ sbatch script_std
-Submitted batch job 18108
-
-[bcgong@localhost bader]$ watch -n 1 squeue
-```
-
-### 结束后验收
-
-```bash
-[bcgong@localhost bader]$ ls
-AECCAR0  CONTCAR         INCAR           OUTCAR  REPORT
-AECCAR1  DOSCAR          KPOINTS         PCDAT   script_std
-AECCAR2  EIGENVAL        OSZICAR         POSCAR  vasprun.xml
-CHG      _err.18108.log  out             POTCAR  WAVECAR
-CHGCAR   IBZKPT          _out.18108.log  PROCAR  XDATCAR
-```
-
-判读：AECCAR0（芯）与 AECCAR2（价）出现，说明 LAECHG 生效；AECCAR1 是初猜密度，不参与求和。
-
-### 第一次失败：chgsum.pl 不存在
-
-```bash
-[bcgong@localhost bader]$ chgsum.pl AECCAR0 AECCAR2
-bash: chgsum.pl: command not found...
-
-[bcgong@localhost bader]$ bader CHGCAR -ref CHGCAR_sum
-
-   GRID BASED BADER ANALYSIS  (Version 1.05 08/19/23)
-
-   DENSITY-GRID:   56 x  56 x 588
-   RUN TIME:    0.62 SECONDS
- forrtl: No such file or directory
- forrtl: severe (29): file not found, unit 100, file <工作目录>/bader/CHGCAR_sum
- ...（Fortran 堆栈略）
-[bcgong@localhost bader]$
-```
-
-判读：bader 本体在，但 chgsum.pl 没装；缺 CHGCAR_sum 时程序在读参考文件这一步直接 forrtl severe (29) 退出。
-
-### 用 python3 逐点求和
-
-chgsum.pl 的逻辑只是同网格点逐点相加，python3 能做：
-
-```bash
-[bcgong@localhost bader]$ python3 - << 'EOF'
-f0 = open("AECCAR0", "r")
-f2 = open("AECCAR2", "r")
-out = open("CHGCAR_sum", "w")
-for line0 in f0:
-    line2 = f2.readline()
-    out.write(line0)
-    tokens = line0.strip().split()
-    if len(tokens) == 3 and all(t.isdigit() for t in tokens):
-        nx, ny, nz = map(int, tokens)
-        break
-total_points = nx * ny * nz
-print(f"Grid size: {nx} x {ny} x {nz}, Total points: {total_points}")
-count = 0
-line_buf = []
-while count < total_points:
-    val0 = f0.readline().strip().split()
-    val2 = f2.readline().strip().split()
-    if not val0 or not val2:
-        break
-    for v0, v2 in zip(val0, val2):
-        s = float(v0) + float(v2)
-        line_buf.append(f"{s:18.11E}")
-        count += 1
-        if len(line_buf) == 5:
-            out.write(" " + " ".join(line_buf) + "\n")
-            line_buf = []
-if line_buf:
-    out.write(" " + " ".join(line_buf) + "\n")
-f0.close()
-f2.close()
-out.close()
-print("CHGCAR_sum generated successfully!")
-EOF
-Grid size: 56 x 56 x 588, Total points: 1843968
-CHGCAR_sum generated successfully!
-```
-
-### 运行 Bader 分析
-
-```bash
-[bcgong@localhost bader]$ bader CHGCAR -ref CHGCAR_sum
-
-   GRID BASED BADER ANALYSIS  (Version 1.05 08/19/23)
-   ...（读文件段同上）
-   REFINING AUTOMATICALLY
-   ITERATION: 1
-   EDGE POINTS:        877273
-   REASSIGNED POINTS:   73752
-
-   RUN TIME:      10.52 SECONDS
-
-   ...（最小距离计算段略）
-
-   WRITING BADER ATOMIC CHARGES TO ACF.dat
-   WRITING BADER VOLUME CHARGES TO BCF.dat
-
-   NUMBER OF BADER MAXIMA FOUND:          14225
-       SIGNIFICANT MAXIMA FOUND:              6
-                  VACUUM CHARGE:         0.0000
-            NUMBER OF ELECTRONS:       52.00000
-
-[bcgong@localhost bader]$
-```
-
-判读：14225 个局部极大里只有 6 个显著极大，正好等于原子数；VACUUM CHARGE = 0.0000；总电子数 52.00000 与价电子总数严格守恒。
-
-### ACF.dat 与 ZVAL 记账
-
-```bash
-[bcgong@localhost bader]$ cat ACF.dat
-    #         X           Y           Z       CHARGE      MIN DIST   ATOMIC VOL
-  --------------------------------------------------------------------------
-     1    1.663439    0.960385   22.584788   10.850960     1.145626    17.321670
-     2    0.000000    0.000000   17.435500    6.300579     1.023854    37.278704
-     3   -0.000002    1.920774   24.351995    7.675786     1.249538   159.120073
-     4   -0.000002    1.920774   20.600314    7.903389     1.332017    20.918173
-     5   -0.000002    1.920774   16.258404    9.762359     1.010728   133.830810
-     6    1.663439    0.960385   18.635111    9.506927     1.006346    10.796091
-  --------------------------------------------------------------------------
-     VACUUM CHARGE:               0.0000
-     VACUUM VOLUME:               0.0000
-     NUMBER OF ELECTRONS:        52.0000
-
-[bcgong@localhost bader]$ sed -n '6,7p' POSCAR
-   Zr   C    Cl   Sc
-      1     1     2     2
-
-[bcgong@localhost bader]$ grep "ZVAL" POTCAR
-    POMASS =   91.224; ZVAL   =   12.000    mass and valenz
-    POMASS =   12.011; ZVAL   =    4.000    mass and valenz
-    POMASS =   35.453; ZVAL   =    7.000    mass and valenz
-```
-
-（第 4 行 Sc_sv 的 ZVAL = 11.000 在记录里被截断，取自下方。）
-
-逐原子 Δq = ZVAL − Q_Bader（单位 e）：Zr 12.000 → 10.850960（Δq +1.149040）；C 4.000 → 6.300579（−2.300579）；Cl1 7.000 → 7.675786（−0.675786）；Cl2 7.000 → 7.903389（−0.903389）；Sc1 11.000 → 9.762359（+1.237641）；Sc2 11.000 → 9.506927（+1.493073）。
-
-判读，分层守恒闭合：Sc2C 层（Sc1+Sc2+C）= +1.237641 + 1.493073 − 2.300579 = **+0.430135 e**，供电子层；ZrCl2 层（Zr+Cl1+Cl2）= +1.149040 − 0.675786 − 0.903389 = **−0.430135 e**，受电子层。两侧严格反号，层间净转移 0.430135 e，总失 +3.8797、总得 −3.8798，代数和为 0。细节：Cl2 在界面侧得电 −0.90 e 而 Bader 体积只有 20.92 Å³，Cl1 在真空侧只得 −0.68 e 却膨胀到 159.12 Å³；Sc2 紧邻界面失电 1.49 e 多于外侧 Sc1 的 1.24 e。
-
-### 下一步
+这次在新的 `charge_elf` 目录中复制 POSCAR、KPOINTS、POTCAR 和提交脚本，用 `vi INCAR` 打开全电子密度输出。保存后读取实际输入。
 
 ```text
-SCF（CHGCAR + AECCAR0/AECCAR2）
-    ↓
-Bader 电荷分析        ← 本页
-    ↓
-差分电荷密度（空间分布） → ELF（键合定域性）
+[bcgong@localhost charge_elf]$ cat INCAR
+SYSTEM = Fe bcc FM charge and ELF
+ISTART = 0
+ICHARG = 2
+ENCUT = 400
+PREC = Accurate
+EDIFF = 1E-8
+NELM = 100
+ALGO = Normal
+ISMEAR = 1
+SIGMA = 0.1
+ISPIN = 2
+MAGMOM = 3 3
+LORBIT = 11
+LREAL = .FALSE.
+LASPH = .TRUE.
+NPAR = 1
+NSW = 0
+IBRION = -1
+LWAVE = .FALSE.
+LCHARG = .TRUE.
+
+LAECHG = .TRUE.
+LELF = .TRUE.
+NGXF = 96
+NGYF = 96
+NGZF = 96
+```
+`LAECHG` 写出 AECCAR0、AECCAR1、AECCAR2：分别对应芯电子、原子叠加的价电子密度和最终自洽价电子密度。用来找分区边界的参考是 AECCAR0 + AECCAR2；实际积分的目标仍是 CHGCAR 中的总价电子密度。AECCAR1 不代替已经收敛的 AECCAR2。
+
+本次同时写了 ELFCAR，供 [ELF](/Atlas/m/elf/vasp/) 使用，因此显式设了 `NPAR = 1`。96³ 是 AECCAR 与 CHGCAR 的细网格；ELFCAR 的采样网格要另外从它自己的文件头读取。
+
+```text
+[bcgong@localhost charge_elf]$ cat run.slurm
+#!/bin/bash
+#SBATCH --job-name=atlas-fe-charge
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
+ulimit -s unlimited
+ulimit -l unlimited
+source /data/intel/oneapi/setvars.sh
+export OMP_NUM_THREADS=1
+unset SLURM_CPUS_PER_TASK
+export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
+cd $SLURM_SUBMIT_DIR
+mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
+```
+使用现场核验过的 8 个空闲核串行运行，任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
+
+```text
+[bcgong@localhost charge_elf]$ tail -4 OSZICAR
+DAV:  16    -0.164736467596E+02    0.20496E-07   -0.31079E-09  2807   0.760E-04    0.228E-04
+DAV:  17    -0.164736467728E+02   -0.13183E-07   -0.30314E-10  2702   0.201E-04    0.489E-05
+DAV:  18    -0.164736467769E+02   -0.41130E-08   -0.60443E-11  2639   0.102E-04
+   1 F= -.16473647E+02 E0= -.16473764E+02  d E =0.351572E-03  mag=     4.2127
+```
+```text
+[bcgong@localhost charge_elf]$ grep 'aborting loop because EDIFF is reached' OUTCAR
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+```
+```text
+[bcgong@localhost charge_elf]$ ls -lh AECCAR0 AECCAR2 CHGCAR ELFCAR
+-rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR0
+-rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR2
+-rw-rw-r-- 1 bcgong bcgong  31M Sep 22 21:42 CHGCAR
+-rw-rw-r-- 1 bcgong bcgong 139K Sep 22 21:42 ELFCAR
+```
+文件出现只是开始。AECCAR0 很早就会写出，AECCAR2 才对应自洽完成后的密度；要先确认 SCF 完整结束，再进行相加。
+
+```text
+[bcgong@localhost charge_elf]$ head -14 AECCAR0
+Fe bcc FM charge and ELF                
+   1.00000000000000     
+     2.800000    0.000000    0.000000
+     0.000000    2.800000    0.000000
+     0.000000    0.000000    2.800000
+   Fe
+     2
+Direct
+  0.000000  0.000000  0.000000
+  0.500000  0.500000  0.500000
+ 
+   96   96   96
+ 0.22196122414E+07 0.11375194526E+06 0.25172471731E+05 0.14564894925E+05 0.78478711560E+04
+ 0.37607831076E+04 0.17456520963E+04 0.88918058069E+03 0.56326744509E+03 0.44347649245E+03
+```
+结构块之后的 `96 96 96` 表示 884,736 个点。相加时，两份文件的晶胞、元素顺序、坐标和网格都必须一致；只按行号相加，或者对不同长度的数据直接 zip，会把错误静默带入参考密度。
+
+随例子提供的 `sum_charge.py` 检查这四项，并且要求标量块长度恰好等于三维网格乘积。脚本只取第一块总电荷密度，写成 CHGCAR_sum 后重新读回，既不混入磁化密度块，也不把 augmentation occupancies 当作网格值相加。
+
+```text
+[bcgong@localhost charge_elf]$ python sum_charge.py
+AECCAR0_integral = 39.5201008301
+AECCAR2_integral = 16.0011953963
+CHGCAR_integral = 16.0000000133
+grid = [96, 96, 96]
+points = 884736
+reference_integral = 55.5212962264
+scope = first total-charge block only; no spin-density or augmentation blocks copied
+```
+CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯电子密度很尖锐，96³ 对其积分仍不够好：AECCAR0 的积分为 39.5201，而这套 Fe 赝势每胞的芯电子数应为 2 × (26 − 8) = 36。先保留这个差异，后面加密网格检查，不用一个“总电子数对上了”掩盖参考密度的数值问题。
+
+运行 Bader 时，把 CHGCAR 作为积分目标，把刚得到的 CHGCAR_sum 作为找边界的参考：
+
+```text
+[bcgong@localhost charge_elf]$ <bader_bin>/bader CHGCAR -ref CHGCAR_sum
 ```
 
-一个提醒：MIN DIST 是原子核到其 Bader 分割面的最小距离，若小于最近邻键长，说明零通量面切进了分子内部，分区质量可疑，需加密网格复查。
+本例执行的是服务器上 Bader 1.05 的可执行文件。输出依次读取目标与参考网格、寻找盆地、细化边界，最后写出 ACF.dat；已有记录显示两个 Bader maxima，真空电荷为 0，总价电子数为 16。继续看每个原子分到了多少电子。
+
+```text
+[bcgong@localhost charge_elf]$ cat ACF.dat
+    #         X           Y           Z       CHARGE      MIN DIST   ATOMIC VOL
+ --------------------------------------------------------------------------------
+    1    0.000000    0.000000    0.000000    8.000303     1.161917    10.977166
+    2    1.400000    1.400000    1.400000    7.999697     1.161917    10.974834
+ --------------------------------------------------------------------------------
+    VACUUM CHARGE:               0.0000
+    VACUUM VOLUME:               0.0000
+    NUMBER OF ELECTRONS:        16.0000
+```
+`CHARGE` 是盆地内积分得到的价电子数。若把净电荷定义为 Q = ZVAL − N_Bader，那么这里两个 Fe 的 Q 约为 −0.000303 与 +0.000303 e。等价原子出现的这点差异首先反映离散网格和边界划分误差，不能解释成 Fe 原子之间发生了有方向的电荷转移。
+
+`MIN DIST` 是原子到盆地边界的最短距离，并不是最近邻键长。这里 MIN DIST 为 1.161917 Å，而 bcc Fe 的最近邻距离约为 2.424871 Å；前者小于后者是几何上很自然的结果，不能作为分区失败的依据。
+
+再在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。后处理仍执行同一个相加脚本和 Bader 命令。
+
+```text
+[bcgong@localhost charge_elf_192]$ cat ACF.dat
+    #         X           Y           Z       CHARGE      MIN DIST   ATOMIC VOL
+ --------------------------------------------------------------------------------
+    1    0.000000    0.000000    0.000000    7.999923     1.187177    10.975705
+    2    1.400000    1.400000    1.400000    8.000077     1.187177    10.976295
+ --------------------------------------------------------------------------------
+    VACUUM CHARGE:               0.0000
+    VACUUM VOLUME:               0.0000
+    NUMBER OF ELECTRONS:        16.0000
+```
+两原子现在分别得到 7.999923 和 8.000077 个价电子，仍精确汇总为显示精度内的 16。96³ 到 192³，每个原子的变化约为 0.000380 e，等价原子之间的不对称减小了。与此同时，AECCAR0 积分从 39.5201 靠近到 36.2910：参考密度核区的积分还没有完全闭合，不能把它与价电子盆地积分的稳定程度混为一个指标。
+
+这份小例子可以核对文件、网格、守恒和等价原子。真正比较异质结构的电荷转移时，应逐步加密网格，观察关心的原子或层电荷是否达到所需精度，并在所有对照计算中使用相同分区定义。
+
+下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
+
+```text
+收敛的固定几何 SCF
+  ├─ CHGCAR：积分价电子
+  └─ AECCAR0 + AECCAR2：找分区边界的参考
+                 └─ 相同结构与完整网格检查 → Bader → ACF.dat
+                                                   └─ 总数、等价性与网格加密检查
+```

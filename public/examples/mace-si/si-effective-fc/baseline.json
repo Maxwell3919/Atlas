@@ -1,0 +1,14 @@
+{
+  "harmonic-0.01": {
+    "amplitude_A": 0.01,
+    "force_evaluations": 2,
+    "raw_fc_translational_drift_eV_A2": 6.221672482764617e-14,
+    "corrected_fc_translational_drift_eV_A2": 6.268856961311187e-15
+  },
+  "harmonic-0.005": {
+    "amplitude_A": 0.005,
+    "force_evaluations": 2,
+    "raw_fc_translational_drift_eV_A2": 1.1967380211808099e-13,
+    "corrected_fc_translational_drift_eV_A2": 6.217248937900877e-15
+  }
+}

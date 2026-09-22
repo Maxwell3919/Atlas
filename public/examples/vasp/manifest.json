@@ -1,0 +1,202 @@
+{
+  "files": [
+    {
+      "file": "examples/vasp/fe-bcc-lesson-files.tar.gz",
+      "source_sha256": "2322e59defd4b06f9ab9b94379b1796ff774deb95df9d2ea5e03fb01ec590ff8",
+      "public_sha256": "2322e59defd4b06f9ab9b94379b1796ff774deb95df9d2ea5e03fb01ec590ff8",
+      "bytes": 13870268
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/EIGENVAL",
+      "source_sha256": "29bf417323071f39d20d49de6ebffbdf62bf678fa6edfa641a7ee89c70f53e4a",
+      "public_sha256": "29bf417323071f39d20d49de6ebffbdf62bf678fa6edfa641a7ee89c70f53e4a",
+      "bytes": 71809
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/INCAR",
+      "source_sha256": "37103d11c1c4cf5fd5ff6edb3506e02e302a00aa2b66ea0394ab585a8a20c0a0",
+      "public_sha256": "37103d11c1c4cf5fd5ff6edb3506e02e302a00aa2b66ea0394ab585a8a20c0a0",
+      "bytes": 324
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/KPOINTS",
+      "source_sha256": "c0c30a316fea3cdc7e1d7a85a9d5839d996dbdd083f8878363e7721b8487175e",
+      "public_sha256": "c0c30a316fea3cdc7e1d7a85a9d5839d996dbdd083f8878363e7721b8487175e",
+      "bytes": 60
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/OSZICAR",
+      "source_sha256": "70aa4faf1a225ab70aecd734b102372925f390adfcb8bf3036cb52d75216b11f",
+      "public_sha256": "70aa4faf1a225ab70aecd734b102372925f390adfcb8bf3036cb52d75216b11f",
+      "bytes": 3808
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/OUTCAR",
+      "source_sha256": "38a9305f4feb3036846a872ada03c50c17de2f995f35d8ca64d2f99a7cf1014a",
+      "public_sha256": "38a9305f4feb3036846a872ada03c50c17de2f995f35d8ca64d2f99a7cf1014a",
+      "bytes": 227365
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/PLANAR_AVERAGE.dat",
+      "source_sha256": "6842f0f92338ffcda6132a03a686d91d5862eace709c1b0b4ceaba8312150c9e",
+      "public_sha256": "6842f0f92338ffcda6132a03a686d91d5862eace709c1b0b4ceaba8312150c9e",
+      "bytes": 13969
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/plane_average.py",
+      "source_sha256": "984669252ae5f535f7ad62ee6639dfe8533f17d309f10dab4b7a42f8731d5bc5",
+      "public_sha256": "984669252ae5f535f7ad62ee6639dfe8533f17d309f10dab4b7a42f8731d5bc5",
+      "bytes": 2802
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/plot_potential.py",
+      "source_sha256": "3c19f80fc89a64468112dd8841d9430324a385b38e084eb3107a15352f9f9fc3",
+      "public_sha256": "3c19f80fc89a64468112dd8841d9430324a385b38e084eb3107a15352f9f9fc3",
+      "bytes": 748
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/potential-z.png",
+      "source_sha256": "23076ab36c21dd504f6e730877a70632b827884be5638653f1d33909c210cff7",
+      "public_sha256": "23076ab36c21dd504f6e730877a70632b827884be5638653f1d33909c210cff7",
+      "bytes": 92499
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/potential-summary.json",
+      "source_sha256": "c66a8d81fbe6c864e13b6b6ad65a8b6746ea6231fb1f676401a358e70fcbf09e",
+      "public_sha256": "c66a8d81fbe6c864e13b6b6ad65a8b6746ea6231fb1f676401a358e70fcbf09e",
+      "bytes": 579
+    },
+    {
+      "file": "examples/vasp/hfcl2_pbo2_potential/potential-z.pdf",
+      "source_sha256": "3d13c750b5c8ecaae7b287034f57a4942b1ed0a98c135eb5cfd9a87006c71bbf",
+      "public_sha256": "3d13c750b5c8ecaae7b287034f57a4942b1ed0a98c135eb5cfd9a87006c71bbf",
+      "bytes": 16477
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/INCAR",
+      "source_sha256": "312cb81c35bafb9edc99957238d90a05e71b0daf7afb4e56ed3d4756d6660c25",
+      "public_sha256": "312cb81c35bafb9edc99957238d90a05e71b0daf7afb4e56ed3d4756d6660c25",
+      "bytes": 4053
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/KPOINTS",
+      "source_sha256": "d84910178478cb4cc2d9610624af5cd6627bd4489562dc9fdae08bb50e7a22ce",
+      "public_sha256": "d84910178478cb4cc2d9610624af5cd6627bd4489562dc9fdae08bb50e7a22ce",
+      "bytes": 458
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/OSZICAR",
+      "source_sha256": "f7f62bdd0f99635033863bbc987604a5e2327b28873be5db0cf55e479bb8c2f5",
+      "public_sha256": "f7f62bdd0f99635033863bbc987604a5e2327b28873be5db0cf55e479bb8c2f5",
+      "bytes": 992
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/OUTCAR",
+      "source_sha256": "1e4e32e171ff2d7c5af5eb5f78d73a0a32bc33b8dcc9446afd6108dc583876b9",
+      "public_sha256": "1e4e32e171ff2d7c5af5eb5f78d73a0a32bc33b8dcc9446afd6108dc583876b9",
+      "bytes": 498695
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/SCF_OUTCAR",
+      "source_sha256": "a612099287309e210cc4cb728ba4e0b4852def5e73b1f6b5a27f68250585c6cd",
+      "public_sha256": "a612099287309e210cc4cb728ba4e0b4852def5e73b1f6b5a27f68250585c6cd",
+      "bytes": 884617
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/plot_spin.py",
+      "source_sha256": "334edb07a0ecd087876446f0f59e34ee6b232c9a2787fb00f88dbaf29552885d",
+      "public_sha256": "334edb07a0ecd087876446f0f59e34ee6b232c9a2787fb00f88dbaf29552885d",
+      "bytes": 1031
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/spin-path.dat",
+      "source_sha256": "4f510dad7a692e7eb3d27c93f73cd04019e7de3e31177d9809cce7c8ad8a2e86",
+      "public_sha256": "4f510dad7a692e7eb3d27c93f73cd04019e7de3e31177d9809cce7c8ad8a2e86",
+      "bytes": 1533633
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/spin-summary.json",
+      "source_sha256": "a68ef372d7a7df202a6c5e74ad1205937a9ca393fcf8533db2829fb62efc4995",
+      "public_sha256": "a68ef372d7a7df202a6c5e74ad1205937a9ca393fcf8533db2829fb62efc4995",
+      "bytes": 331
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/spin-path.png",
+      "source_sha256": "cc60b4c2a2f8b36577b18ee2c0f93d9dd88bea56035e0fc1f5a78b3e7bc6ad14",
+      "public_sha256": "cc60b4c2a2f8b36577b18ee2c0f93d9dd88bea56035e0fc1f5a78b3e7bc6ad14",
+      "bytes": 482542
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/spin_path.py",
+      "source_sha256": "81b00aa7fd4f71d463da5f74ccb39316ae31b3d7b9db0dfce51f73368e9a64ed",
+      "public_sha256": "81b00aa7fd4f71d463da5f74ccb39316ae31b3d7b9db0dfce51f73368e9a64ed",
+      "bytes": 2289
+    },
+    {
+      "file": "examples/vasp/snse2_sr2n_spin/spin-path.pdf",
+      "source_sha256": "daca617f65a39fd211be9c931ed11557dbdc2ee92943d17aacf459f17841bc5c",
+      "public_sha256": "daca617f65a39fd211be9c931ed11557dbdc2ee92943d17aacf459f17841bc5c",
+      "bytes": 151354
+    },
+    {
+      "file": "examples/vasp/fe-bcc/magnetic-energies.json",
+      "source_sha256": "1180aeb0df4eb226c2d445b038b62708173bebf960c52baf5b0851497c5d93ad",
+      "public_sha256": "1180aeb0df4eb226c2d445b038b62708173bebf960c52baf5b0851497c5d93ad",
+      "bytes": 470
+    },
+    {
+      "file": "examples/vasp/fe-bcc/magnetic_energies.py",
+      "source_sha256": "27099eb6b191bc440afb11b4c32828b4779978a05d2f4a391a0266aee7ea850d",
+      "public_sha256": "27099eb6b191bc440afb11b4c32828b4779978a05d2f4a391a0266aee7ea850d",
+      "bytes": 1134
+    },
+    {
+      "file": "examples/vasp/fe-bcc/magnetic-energies.png",
+      "source_sha256": "748108455d2203b661015bcaa5e558434e53dff821cd3eaf073cf51da8619fae",
+      "public_sha256": "748108455d2203b661015bcaa5e558434e53dff821cd3eaf073cf51da8619fae",
+      "bytes": 48460
+    },
+    {
+      "file": "examples/vasp/fe-bcc/plot_magnetic.py",
+      "source_sha256": "00d8f9ac7ed494b144ac5b8ecda3bff5869792385827547ee0bcb9690842ab39",
+      "public_sha256": "00d8f9ac7ed494b144ac5b8ecda3bff5869792385827547ee0bcb9690842ab39",
+      "bytes": 605
+    },
+    {
+      "file": "examples/vasp/fe-bcc/magnetic-energies.pdf",
+      "source_sha256": "fe99db630730d4320a96b4dc78803c03679c9da2d7555dd44bbdb6300ce86add",
+      "public_sha256": "fe99db630730d4320a96b4dc78803c03679c9da2d7555dd44bbdb6300ce86add",
+      "bytes": 14894
+    },
+    {
+      "file": "examples/vasp/fe-bcc/charge_elf_192/elf-down-z0.dat",
+      "source_sha256": "06f64243f25a5471cf8c195c1f4ffd16dacd0460250bb7816f62a461754644cb",
+      "public_sha256": "06f64243f25a5471cf8c195c1f4ffd16dacd0460250bb7816f62a461754644cb",
+      "bytes": 14256
+    },
+    {
+      "file": "examples/vasp/fe-bcc/charge_elf_192/elf-up-z0.dat",
+      "source_sha256": "1ba6135a1dc37348bc5e794d1f63dd9a6140c0cdec8634372e03c08cca4104bb",
+      "public_sha256": "1ba6135a1dc37348bc5e794d1f63dd9a6140c0cdec8634372e03c08cca4104bb",
+      "bytes": 14256
+    },
+    {
+      "file": "examples/vasp/fe-bcc/charge_elf_192/plot_elf.py",
+      "source_sha256": "ae70786528d5d2b05a47e91427b9efaba3505993f753d43a40c9b227aacc96c7",
+      "public_sha256": "ae70786528d5d2b05a47e91427b9efaba3505993f753d43a40c9b227aacc96c7",
+      "bytes": 623
+    },
+    {
+      "file": "examples/vasp/fe-bcc/charge_elf_192/elf-z0.png",
+      "source_sha256": "bb30619371e1e15c18e6cdcc4501116b16317635564dea3d4b58c590b43f3c39",
+      "public_sha256": "bb30619371e1e15c18e6cdcc4501116b16317635564dea3d4b58c590b43f3c39",
+      "bytes": 61021
+    },
+    {
+      "file": "examples/vasp/fe-bcc/charge_elf_192/elf-z0.pdf",
+      "source_sha256": "8dd8bfccc3facf33be0330f3ea71e61779ddea5404c9082133ff60cfa78bcd55",
+      "public_sha256": "8dd8bfccc3facf33be0330f3ea71e61779ddea5404c9082133ff60cfa78bcd55",
+      "bytes": 54187
+    }
+  ]
+}

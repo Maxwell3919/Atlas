@@ -8,7 +8,7 @@ import { availableManualIds } from '../lib/manual.js';
 
 const base = normalizeBase(import.meta.env.BASE_URL);
 const available = await availableManualIds();
-const ready = (slug) => ['qe', 'vasp'].some((engine) => available.has(`${slug}/${engine}`));
+const ready = (slug) => methods[slug].engines.some((engine) => available.has(`${slug}/${engine}`));
 const publishedCategories = categories.map((c) => ({ ...c, order: c.order.filter(ready) })).filter((c) => c.order.length);
 const unpublished = categories.flatMap((c) => c.order).filter((slug) => !ready(slug));
 ---

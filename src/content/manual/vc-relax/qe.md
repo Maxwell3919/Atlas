@@ -2,6 +2,8 @@
 
 - QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
 
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
+
 ## vc-relax（变胞结构优化）
 
 这次先让原子位置和允许的晶胞自由度一起调整，观察力怎样变化。二维模型的真空方向不能随意跟着收缩，所以这里使用 `cell_dofree='fixc'`。下面保留这次没有达到 BFGS 收敛的过程：它适合用来学习检查输出，不能当成已接受结构的范例。
@@ -172,62 +174,13 @@ End final coordinates
 
 力整体下降，但末段并非单调下降。图的横轴是输出中的力报告序号，不是保证接受的 BFGS 步数；判断优化通过仍需看明确的收敛条件。这正是保留失败行比只截取结尾更有用的地方。
 
-## 提取最终几何
+## 保存候选结构时，把未收敛状态一起记住
 
-```bash
-[hzw@localhost 05_relax]$ sed -n '/Begin final coordinates/,/End final coordinates/p' rx.out \
-> > final_structure.txt
+读取末尾结构时，可以用 `vi rx.out` 搜索 `Begin final coordinates`，同时确认对应的 `CELL_PARAMETERS` 与 `ATOMIC_POSITIONS` 单位。若失败输出没有完整结束块，则回到最后一个完整的结构更新记录；不要把不同离子步的晶胞与位置拼在一起。
 
-[hzw@localhost 05_relax]$ cat final_structure.txt
-```
+这一轮保留下来的两个结构片段如下。文件名含有 `relaxed`，仍然只代表保存时的命名，不能覆盖前面的 BFGS 失败信息：
 
-想直接得到最后一组晶胞和原子坐标：
-
-```bash
-[hzw@localhost 05_relax]$ awk '
-> /CELL_PARAMETERS/ {
->     cell=$0 ORS
->     for(i=1;i<=3;i++){getline; cell=cell $0 ORS}
-> }
-> /ATOMIC_POSITIONS/ {
->     pos=$0 ORS
->     for(i=1;i<=6;i++){getline; pos=pos $0 ORS}
-> }
-> END {
->     print "===== FINAL CELL ====="
->     printf "%s",cell
->     print ""
->     print "===== FINAL ATOMS ====="
->     printf "%s",pos
-> }
-> ' rx.out | tee final_geometry.txt
-```
-
-这次 vc-relax 后，面内晶格从约 `3.37559 Å` 收缩到 `3.35651 Å`，c 保持 `30 Å`——符合 `cell_dofree='fixc'` 的预期；原子分数坐标也更新了，说明离子和允许的面内自由度都发生了优化。
-
-把最终几何放到固定位置，避免以后一直从 rx.out 解析：
-
-```bash
-[hzw@localhost 05_relax]$ mkdir -p ../01_structure
-
-[hzw@localhost 05_relax]$ cp final_geometry.txt ../01_structure/relaxed_geometry.txt
-
-[hzw@localhost 05_relax]$ awk '
-> /CELL_PARAMETERS/ {
->     print
->     for(i=1;i<=3;i++){getline; print}
-> }
-> ' final_geometry.txt \
-> > ../01_structure/relaxed_cell.inc
-
-[hzw@localhost 05_relax]$ awk '
-> /ATOMIC_POSITIONS/ {
->     print
->     for(i=1;i<=6;i++){getline; print}
-> }
-> ' final_geometry.txt \
-> > ../01_structure/relaxed_atoms.inc
-
+```text
 [hzw@localhost 05_relax]$ cat ../01_structure/relaxed_cell.inc
 CELL_PARAMETERS (angstrom)
    3.356510437   0.000000000  -0.000000000
@@ -244,18 +197,138 @@ O             0.3333333333        0.6666666667        0.5147767817
 [hzw@localhost 05_relax]$
 ```
 
-`relaxed_cell.inc` / `relaxed_atoms.inc` 两个片段后续可以直接 cat 进输入文件。总结本次结果：vc-relax 程序结束但 BFGS 未收敛；最后输出的面内晶格常数约 3.356510437 Å，第三晶格矢量保持 30 Å。候选结构可以记录，但正式声子前仍需闭合结构收敛检查。
+面内晶格从约 3.37559 Å 变为 3.35651 Å，第三晶格矢量仍为 30 Å，与 `cell_dofree='fixc'` 的受限自由度相符。文件记录了这次计算走到的候选结构；继续做正式声子前，需要先解决优化未收敛的问题，并重新核对最后的力和应力。
 
-### 下一步
+<a id="al-vc-relax"></a>
 
-下面的 [SCF 页](/Atlas/m/scf/qe/)记录已有候选几何上的电子计算，用于说明数据来源。正式性质计算前应先完成结构收敛检查，不能靠一次 static SCF 替代失败的优化：
+## 一份完整走到最后坐标的 Al 晶胞优化
+
+上面的失败记录说明怎样识别停止原因。再看一个已经走完的独立算例：Maxwell 上的 QE 7.5、单原子 fcc Al 原胞，使用 QE 官方库的 `Al.pz-vbc.UPF`。这里是 LDA-PZ 金属设置，与前面的材料不是同一条计算链。它的最后结构将用于本站的 Al 声子、弹性与费米面算例。
+
+完整输入如下。一个原子位于原点，晶胞保留 fcc 对称性；`cell_dofree='ibrav'` 让优化遵守所选 Bravais 晶格约束。在这份 `ibrav=2` 输入里，直接照搬另一种晶格使用的 `volume` 选项会报错，因此保留实际可运行的设置。
 
 ```text
-vc-relax（本页，候选几何 + .inc 片段）
-    ↓
-static SCF
-    ↓
-DOS 专用 NSCF → dos.x/projwfc.x
-    ↓
-bands → bands.x
+maxwell@maxwell:<工作目录>/relax-ibrav$ cat al.relax.in
+&CONTROL
+ calculation = 'vc-relax'
+ prefix = 'al'
+ pseudo_dir = '../pseudo'
+ outdir = './tmp'
+ tstress = .true.
+ tprnfor = .true.
+ etot_conv_thr = 1.0d-8
+ forc_conv_thr = 1.0d-5
+ nstep = 50
+/
+&SYSTEM
+ ibrav = 2
+ celldm(1) = 7.50
+ nat = 1
+ ntyp = 1
+ ecutwfc = 40
+ ecutrho = 160
+ occupations = 'smearing'
+ smearing = 'mv'
+ degauss = 0.02
+ nbnd = 6
+/
+&ELECTRONS
+ conv_thr = 1.0d-12
+/
+&IONS
+ ion_dynamics = 'bfgs'
+/
+&CELL
+ cell_dynamics = 'bfgs'
+ cell_dofree = 'ibrav'
+ press = 0.0
+ press_conv_thr = 0.05
+/
+ATOMIC_SPECIES
+Al 26.9815385 Al.pz-vbc.UPF
+ATOMIC_POSITIONS crystal
+Al 0.0 0.0 0.0
+K_POINTS automatic
+16 16 16 0 0 0
+```
+`press=0.0` 是目标外压，`press_conv_thr=0.05` 的单位为 kbar。这里保持电子网格 16×16×16、40/160 Ry 截断和 0.02 Ry 冷展宽；这组设置支持本次完整操作演示，后面若需要定量弹性常数，还要针对应力与其导数继续比较参数。
+
+真实提交脚本同时写出程序输出与标准错误：
+
+```text
+maxwell@maxwell:<工作目录>/relax-ibrav$ cat run.slurm
+#!/bin/bash
+#SBATCH --job-name=atlas-al-relax
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=1
+#SBATCH --time=01:00:00
+#SBATCH --output=_out.%j.log
+#SBATCH --error=_err.%j.log
+ulimit -s unlimited
+ulimit -l unlimited
+source /opt/intel/oneapi/setvars.sh
+export OMP_NUM_THREADS=1
+cd "$SLURM_SUBMIT_DIR"
+mpirun -np 8 <qe_bin>/pw.x -in al.relax.in > al.relax.out 2> al.relax.err
+```
+保存输入后使用 `sbatch run.slurm` 提交。本次作业号为 1954。用 `tail -f al.relax.out` 观察时，SCF 迭代、应力张量、BFGS 步与新晶胞会交替出现；不同层次的步数不要混在一起数。
+
+这一轮优化从 −7.91 kbar 开始，BFGS 经过三个晶胞更新。输出明确给出收敛及最终坐标块：
+
+```text
+     bfgs converged in   4 scf cycles and   3 bfgs steps
+     (criteria: energy <  1.0E-08 Ry, force <  1.0E-05 Ry/Bohr, cell <  5.0E-02 kbar)
+
+     End of BFGS Geometry Optimization
+
+     Final enthalpy           =      -4.1908934915 Ry
+
+     File ./tmp/al.bfgs deleted, as requested
+Begin final coordinates
+     new unit-cell volume =    104.45465 a.u.^3 (    15.47858 Ang^3 )
+     density =      2.89457 g/cm^3
+
+CELL_PARAMETERS (alat=  7.50000000)
+  -0.498392314   0.000000000   0.498392314
+   0.000000000   0.498392314   0.498392314
+  -0.498392314   0.498392314   0.000000000
+
+ATOMIC_POSITIONS (crystal)
+Al               0.0000000000        0.0000000000        0.0000000000
+End final coordinates
+```
+`CELL_PARAMETERS` 旁边写着 `alat=7.50000000`，它仍是初始长度单位（bohr）。不能把矩阵中的小数直接当 Å，也不能看见 `alat` 未变就说晶胞没有变化。把矩阵乘上这个长度，得到最终 fcc 晶格，常规立方晶格常数为 **3.95606780 Å**。
+
+最终坐标后，程序还会按最后晶胞重新计算电子态。所以下面这一段也要读完，不能在第一次看见 `bfgs converged` 时就截断文件：
+
+```text
+     Forces acting on atoms (cartesian axes, Ry/au):
+
+     atom    1 type  1   force =     0.00000000    0.00000000    0.00000000
+
+     Total force =     0.000000     Total SCF correction =     0.000000
+
+
+     Computing stress (Cartesian axis) and pressure
+
+          total   stress  (Ry/bohr**3)                   (kbar)     P=        0.02
+   0.00000014   0.00000000  -0.00000000            0.02        0.00       -0.00
+   0.00000000   0.00000014  -0.00000000            0.00        0.02       -0.00
+  -0.00000000  -0.00000000   0.00000014           -0.00       -0.00        0.02
+```
+最后的压力为 0.02 kbar，原子力在打印精度内为零；这次有 BFGS 收敛、完整最后坐标、重新计算的电子收敛和末尾 `JOB DONE.`。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
+
+准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)展示了实际使用的 `celldm(1)`、SCF 与保存目录，后续计算没有继续读取优化前的 7.50 bohr 晶胞。
+
+## 下一步
+
+固定优化后结构，进入 [SCF](/Atlas/m/scf/qe/)；需要检查晶胞形变后的应力，再进入 [弹性常数](/Atlas/m/elastic-born/qe/)。两个示例的元素、赝势与保存目录分别保留，不交叉复制。
+
+```text
+vc-relax → 每轮 SCF + 力 / 应力 → BFGS 收敛
+                                  ↓
+                         最终晶胞与位置 + 最后电子计算
+                                  ↓
+                             新 SCF → 后续性质
 ```

@@ -1,0 +1,36 @@
+<MACE环境>/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+cuequivariance or cuequivariance_torch is not available. Cuequivariance acceleration will be disabled.
+MACE 0.3.16 ASE 3.29.0
+model_sha256 2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736
+<MACE环境>/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+<工作目录>/si-md/md.py:28: DeprecationWarning: Use thermalize_momenta
+  MaxwellBoltzmannDistribution(atoms, temperature_K=300.0, force_temp=True,
+INITIAL atoms=64 DOF=189 temperature_K=300.00000000
+WARMUP_DONE steps=1000 time_ps=1.000 temperature_K=376.24870155 wall_s=324.613
+START nve-1fs steps=500 timestep_fs=1.0 initial_state_sha256=aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d
+{
+  "steps": 500,
+  "timestep_fs": 1.0,
+  "duration_ps": 0.5,
+  "initial_state_sha256": "aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d",
+  "max_abs_delta_meV_atom": 0.014623237966304714,
+  "final_delta_meV_atom": 0.001887423370483532,
+  "linear_drift_meV_atom_ps": 0.0014274760219451569,
+  "mean_temperature_K": 331.80169436485613,
+  "wall_seconds": 161.21382180787623
+}
+START nve-0p5fs steps=1000 timestep_fs=0.5 initial_state_sha256=aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d
+{
+  "steps": 1000,
+  "timestep_fs": 0.5,
+  "duration_ps": 0.5,
+  "initial_state_sha256": "aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d",
+  "max_abs_delta_meV_atom": 0.0036474880289461,
+  "final_delta_meV_atom": 0.00047103504829948406,
+  "linear_drift_meV_atom_ps": 0.0003567237150614159,
+  "mean_temperature_K": 331.8879410554873,
+  "wall_seconds": 322.6769241001457
+}
+MD_INTEGRATION_ACCEPTED

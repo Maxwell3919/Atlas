@@ -1,0 +1,90 @@
+[
+  {
+    "kmesh": 24,
+    "nks": 13824,
+    "fermi_eV": 8.397934321755272,
+    "crossing_bands": [
+      2,
+      3
+    ],
+    "band_ranges": [
+      {
+        "band": 1,
+        "min_eV": -11.564498563637576,
+        "max_eV": -0.9099244934626718
+      },
+      {
+        "band": 2,
+        "min_eV": -4.50356416553684,
+        "max_eV": 12.928335567448826
+      },
+      {
+        "band": 3,
+        "min_eV": -0.34321368664888574,
+        "max_eV": 12.92833556886017
+      },
+      {
+        "band": 4,
+        "min_eV": 1.3764204359893544,
+        "max_eV": 14.089139199936351
+      },
+      {
+        "band": 5,
+        "min_eV": 5.781825825548719,
+        "max_eV": 16.241167735950537
+      },
+      {
+        "band": 6,
+        "min_eV": 9.47753138029783,
+        "max_eV": 19.410589433979645
+      }
+    ],
+    "source_xml_sha256": "f07f94526d8c18181808316e8256075110e0ab57a27ea47b374db69722835b19",
+    "nscf_out_sha256": "868160dad08597d645a927c69d685ab03cebfa46741b43f49e604377d5b5b3b2",
+    "definition": "Energy grid includes all k, no interpolation, E-EF in eV."
+  },
+  {
+    "kmesh": 32,
+    "nks": 32768,
+    "fermi_eV": 8.381502717320133,
+    "crossing_bands": [
+      2,
+      3
+    ],
+    "band_ranges": [
+      {
+        "band": 1,
+        "min_eV": -11.548066959202437,
+        "max_eV": -0.8934928889577716
+      },
+      {
+        "band": 2,
+        "min_eV": -4.487132561119305,
+        "max_eV": 12.944767171883965
+      },
+      {
+        "band": 3,
+        "min_eV": -0.3267820822530947,
+        "max_eV": 12.94476717329531
+      },
+      {
+        "band": 4,
+        "min_eV": 1.3928520531046082,
+        "max_eV": 14.105570788518774
+      },
+      {
+        "band": 5,
+        "min_eV": 5.798257429908023,
+        "max_eV": 16.25759930823918
+      },
+      {
+        "band": 6,
+        "min_eV": 9.493962986363178,
+        "max_eV": 20.080026299221082
+      }
+    ],
+    "source_xml_sha256": "e8fa22aa590135fc71cf93ab82ac0b52844112240d8a8be195ffe962acb8e46f",
+    "nscf_out_sha256": "986abf2e10830fc5cd5cca0b7b56f55854cf5e4c8afaa88a521888f609226ed7",
+    "definition": "Energy grid includes all k, no interpolation, E-EF in eV."
+  }
+]

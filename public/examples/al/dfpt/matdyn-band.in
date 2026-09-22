@@ -1,0 +1,13 @@
+&INPUT
+ flfrc='al.fc'
+ asr='crystal'
+ flfrq='al.freq'
+ q_in_cryst_coord=.true.
+ q_in_band_form=.true.
+/
+5
+0 0 0 40
+0.5 0 0.5 40
+0.5 0.25 0.75 40
+0.5 0.5 0.5 40
+0 0 0 1

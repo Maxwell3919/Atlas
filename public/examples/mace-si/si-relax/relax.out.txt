@@ -1,0 +1,19 @@
+<MACE环境>/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+cuequivariance or cuequivariance_torch is not available. Cuequivariance acceleration will be disabled.
+MACE 0.3.16 ASE 3.29.0
+model_sha256 2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736
+<MACE环境>/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+INITIAL atoms=8 energy_eV=-42.8918232886 fmax_eV_A=0.99965933
+{
+  "converged": true,
+  "steps": 15,
+  "energy_eV": -42.953871918991695,
+  "initial_energy_eV": -42.89182328857759,
+  "fmax_eV_A": 0.0006266642896855485,
+  "cell_unchanged": true,
+  "volume_A3": 160.10300699999996,
+  "wall_seconds": 0.7575141163542867
+}
+RELAX_ACCEPTED

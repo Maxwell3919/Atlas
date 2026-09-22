@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "record_id": "atlas-si-cutoff60-20260922",
+  "code": "qe",
+  "code_version": "7.5",
+  "task_type": "scf",
+  "case_id": "si-diamond-public",
+  "scientific_protocol_id": "si-pbe-fixed-cell",
+  "status": "completed",
+  "scientific_acceptance": "not_assessed",
+  "configuration": {
+    "prefix": "si",
+    "mpi_ranks": 4,
+    "omp_threads": 1
+  },
+  "metrics": {},
+  "evidence": [
+    {
+      "role": "input",
+      "label": "scf.in",
+      "status": "present",
+      "sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+    },
+    {
+      "role": "output",
+      "label": "scf.out",
+      "status": "present",
+      "sha256": "34edfa596e0c1fe92c1159389577a0964147d52d96b034a7e319f699cf17297c"
+    },
+    {
+      "role": "stderr",
+      "label": "scf.err",
+      "status": "present",
+      "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+    },
+    {
+      "role": "input_output_audit",
+      "label": "output_audit.json",
+      "status": "present",
+      "sha256": "4e820d275637c74a0ef1559d2ee94ff6c6b9b3279ce0370ecfa9485368505925"
+    },
+    {
+      "role": "charge_density",
+      "label": "charge-density.dat",
+      "status": "present",
+      "sha256": "7eff5e1afcca609d7f21724902320514dfea7548712e60b1f6a513e67af7f643"
+    },
+    {
+      "role": "save_metadata",
+      "label": "data-file-schema.xml",
+      "status": "present",
+      "sha256": "33e90ba199b619d24c15ff6711a5ac94763d625afd5ca4a31ae04353e6010093"
+    }
+  ],
+  "limitations": [
+    "Teaching protocol; finite fixed-cell model; scientific acceptance not asserted.",
+    "Slurm accounting storage disabled; native timing available in stdout.",
+    "Official live ecutwfc payload matched but local wrapper-reference gate remains blocked."
+  ],
+  "provenance": {
+    "collector": "atlas-preston-agent",
+    "collector_version": "1.0",
+    "generated_utc": "2026-09-22T13:45:39.802695+00:00"
+  }
+}

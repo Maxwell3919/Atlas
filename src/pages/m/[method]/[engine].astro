@@ -10,7 +10,7 @@ import { loadManualBody } from '../../../lib/manual.js';
 export function getStaticPaths() {
   const routes = [];
   for (const m of methodList()) {
-    for (const e of engines) {
+    for (const e of engines.filter((engine) => m.engines.includes(engine.id))) {
       routes.push({ params: { method: m.slug, engine: e.id }, props: { m, e } });
     }
   }

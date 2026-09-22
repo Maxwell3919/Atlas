@@ -1,261 +1,168 @@
-参考：
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/)
 
-- QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
-- QE 官方文档 INPUT_BANDS：<https://www.quantum-espresso.org/Doc/INPUT_BANDS.html>
+## 沿 Γ–X–W–K–Γ–L–X 看 Si 的能级怎样变化
 
-## 能带：pw.x bands + bands.x
+这里沿用 [Si SCF](/Atlas/m/scf/qe/)的固定结构与密度，单独建立一条高对称路径。前面的均匀 [NSCF](/Atlas/m/nscf/qe/)用于 DOS 与布里渊区采样；本页不重做那套流程，而是在相同父 SCF 上求指定路径的本征值。
 
-能带计算分两步：`pw.x` 以 `calculation = 'bands'` 沿高对称路径解本征值（非自洽，复用 static SCF 的电荷密度），再用后处理程序 `bands.x` 把本征值整理成可直接画图的数据文件。本例做无 SOC 的 Γ-M-K-Γ 能带。
+例子使用 QE 7.5、PBE、两个 Si 原子、无 SOC。当前坐标与原胞约定对应下面的路径；换晶胞基矢后，不能只保留这些点的标签和数字。
 
-### 路径怎么定
+本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
-六方二维晶格的高对称点（倒格子分数坐标）：
+下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
+
+对应的 [bands.err](/Atlas/examples/si-pbe/bands-cg/bands.err) 为 1604 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示，以及 `IEEE_DENORMAL` 浮点非正规数提示。本轮最终输出没有未收敛本征值行，后处理读到了完整的 8 条带、121 个路径点；验收时应把这些结果与原始 stderr 一起检查。
+
+## 输入中的四列分别是什么
+
+先把 `scf/tmp` 复制到独立的 `bands-cg` 目录，用 `vi bands.in` 编辑。本次实际输入完整列在下面：
 
 ```text
-Γ = (0,   0,   0)
-M = (1/2, 0,   0)
-K = (1/3, 1/3, 0)
-Γ = (0,   0,   0)
-```
-
-### 建目录与 nbnd 的选取理由
-
-和 DOS-NSCF 一样复制 static SCF 数据：
-
-```bash
-[hzw@localhost QE]$ cd <工作目录>/QE
-
-[hzw@localhost QE]$ mkdir -p 08_bands
-[hzw@localhost QE]$ cd 08_bands
-
-[hzw@localhost 08_bands]$ mkdir -p out
-
-[hzw@localhost 08_bands]$ cp -a ../06_static/out/HfCl2_PbO2.save out/
-```
-
-写输入文件（K_POINTS 换成 crystal_b 路径卡；每行末尾整数是该段插值点数，最后一段回到 Γ 只给 1 个点）：
-
-```bash
-[hzw@localhost 08_bands]$ cat > bands.in <<'EOF'
+[preston@preston-System-Product-Name bands-cg]$ cat bands.in
 &CONTROL
   calculation = 'bands'
-  outdir = './out/'
-  prefix = 'HfCl2_PbO2'
-  pseudo_dir = '<赝势库路径>'
   verbosity = 'high'
+  prefix = 'si'
+  outdir = './tmp'
+  pseudo_dir = '../pseudo'
+  tprnfor = .true.
+  tstress = .true.
 /
-
 &SYSTEM
-  ibrav = 0
-  nat = 6
-  ntyp = 4
-  ecutwfc = 90
-  ecutrho = 720
-  input_dft = 'vdw-DF3-opt1'
-  force_symmorphic = .true.
-  occupations = 'smearing'
-  smearing = 'gaussian'
-  degauss = 3.7d-3
-  nbnd = 40
+  ibrav = 2
+  A = 5.397607551
+  nbnd = 8
+  nat = 2
+  ntyp = 1
+  ecutwfc = 60
+  ecutrho = 640
+  occupations = 'fixed'
 /
-
 &ELECTRONS
-  conv_thr = 1.0000000000d-08
-  electron_maxstep = 200
-  mixing_beta = 7.0000000000d-01
+  diagonalization = 'cg'
+  diago_cg_maxiter = 200
+  diago_thr_init = 1.0d-10
+  conv_thr = 1.0d-10
 /
-
 ATOMIC_SPECIES
-Hf  178.49   Hf.pbe-spn-kjpaw_psl.1.0.0.UPF
-Cl   35.45   Cl.pbe-n-kjpaw_psl.1.0.0.UPF
-Pb  207.20   Pb.pbe-dn-kjpaw_psl.1.0.0.UPF
-O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
-
-CELL_PARAMETERS (angstrom)
-! 此处放入结构优化输出的三行晶胞矢量（本例 3.356510437 …，c = 30 Å）
-
-ATOMIC_POSITIONS (crystal)
-! 此处放入结构优化输出的六行原子坐标
-
-K_POINTS crystal_b
-4
-0.0000000000  0.0000000000  0.0000000000  50
-0.5000000000  0.0000000000  0.0000000000  50
-0.3333333333  0.3333333333  0.0000000000  50
-0.0000000000  0.0000000000  0.0000000000   1
-EOF
+Si 28.085 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS alat
+Si 0.00 0.00 0.00
+Si 0.25 0.25 0.25
+K_POINTS tpiba_b
+7
+0.0 0.0 0.0 24
+1.0 0.0 0.0 12
+1.0 0.5 0.0 12
+0.75 0.75 0.0 24
+0.0 0.0 0.0 24
+0.5 0.5 0.5 24
+1.0 0.0 0.0 1
 ```
+`tpiba_b` 的前三列是以 2π/a 为单位的笛卡尔 k 坐标，第四列控制到下一个节点的路径采样。7 行是 7 个节点，程序展开后得到 121 个实际 k 点，不是只算 7 个点。`nbnd=8` 保留 4 条占据带与 4 条空带。
 
-这里显式设了 `nbnd = 40`，理由来自 NSCF 的实测：自动只有 31 条 Kohn-Sham bands，而体系有 52 个电子，即无自旋极化下约 26 条占据带，只剩约 5 条空带。40 条给费米能级以上留出更合理的观察窗口。这里的空带数量需覆盖要看的能量窗口；若研究更高能量区或其他响应量，还应继续检查带数。
+本例使用 CG 复算后的干净结果；此前包含未收敛本征值警告的一轮保留在其他目录。求解器的选择与输出核对见 [NSCF 页](/Atlas/m/nscf/qe/)，图源没有沿用那一轮警告数据。
 
-### Slurm 脚本与提交
-
-```bash
-[hzw@localhost 08_bands]$ cp ../05_relax/rx.slurm bands.slurm
-
-[hzw@localhost 08_bands]$ sed -i \
-> 's#pw.x<rx.in>rx.out#pw.x -in bands.in > bands.out#' \
-> bands.slurm
-
-[hzw@localhost 08_bands]$ cat bands.slurm
-
-[hzw@localhost 08_bands]$ sbatch bands.slurm
-```
-
-### 验收
-
-```bash
-[hzw@localhost 08_bands]$ grep "JOB DONE" bands.out
-   JOB DONE.
-[hzw@localhost 08_bands]$
-[hzw@localhost 08_bands]$ grep -E \
-> "number of electrons|number of Kohn-Sham states|number of k points" \
-> bands.out
-     number of electrons       =        52.00
-     number of Kohn-Sham states=           40
-     number of k points=   151  Gaussian smearing, width (Ry)=  0.0037
-[hzw@localhost 08_bands]$
-[hzw@localhost 08_bands]$ grep -iE "error|warning" bands.out | tail -n 30
-[hzw@localhost 08_bands]$
-```
-
-判读：Kohn-Sham states 从 31 提到 40，符合 nbnd 设置；151 个 k 点来自路径卡的 50+50+50+1 插值；无 error/warning。pw.x 部分完成，接着用 bands.x 把本征值整理成适合直接画 Γ-M-K-Γ 能带的数据文件。
-
-### bands.x 后处理
-
-```bash
-[hzw@localhost 08_bands]$ cat > bands_pp.in <<'EOF'
-&BANDS
-  prefix = 'HfCl2_PbO2'
-  outdir = './out/'
-  filband = 'HfCl2_PbO2.bands'
-/
-EOF
-
-[hzw@localhost 08_bands]$ cat > bands_pp.slurm <<'EOF'
+```text
+[preston@preston-System-Product-Name bands-cg]$ cat run.sh
 #!/bin/bash
-#SBATCH -o _out_bands.%j.log
-#SBATCH -e _err_bands.%j.log
-
+#SBATCH --job-name=atlas-si-cg
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:20:00
+#SBATCH --output=_out.%j.log
+#SBATCH --error=_err.%j.log
+unset DISPLAY XAUTHORITY
 ulimit -s unlimited
-ulimit -l unlimited
-
-source /data/intel/oneapi/setvars.sh
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 56 <qe_bin>/bands.x \
-  -in bands_pp.in > bands_pp.out
-EOF
-
-[hzw@localhost 08_bands]$ sbatch bands_pp.slurm
+ulimit -c 0
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+cd "$SLURM_SUBMIT_DIR"
+/usr/bin/mpirun --bind-to none -np 4 <qe_bin>/pw.x -in bands.in > bands.out 2> bands.err
 ```
+提交使用 `sbatch run.sh`，运行时用 `tail -f bands.out` 查看当前点。结束后，除了队列状态，还要读 `bands.err`，检查 121 个点、8 条能带、未收敛本征值警告与正常收尾。
 
-完成后检查：
+## bands.x 整理刚才的路径结果
+
+`pw.x` 完成路径本征值求解后，`bands.x` 才读取同一份 `prefix/outdir` 并导出作图文件：
+
+```text
+[preston@preston-System-Product-Name bands-cg]$ cat bands-post.in
+&BANDS
+  prefix = 'si'
+  outdir = './tmp'
+  filband = 'si.bands.dat'
+  lsym = .false.
+/
+```
+`lsym=.false.` 在本例中不做不可约表示分类；默认 `no_overlap=.true.` 也没有启用相邻点重叠最大化排序。因此图上的连接按输出带序绘制，在简并与交叉处不要据此断言某条线始终保持同一种轨道身份。需要轨道身份时，继续读取同路径的 [胖带](/Atlas/m/fatband/qe/)。
 
 ```bash
-[hzw@localhost 08_bands]$ grep "JOB DONE" bands_pp.out
+<qe_bin>/bands.x -in bands-post.in > bands-post.out 2> bands-post.err
+```
+
+```text
+     Reading collected, re-writing distributed wavefunctions
+     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
+     high-symmetry point:  1.0000 0.0000 0.0000   x coordinate   1.0000
+     high-symmetry point:  1.0000 0.5000 0.0000   x coordinate   1.5000
+     high-symmetry point:  0.7500 0.7500 0.0000   x coordinate   1.8536
+     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   2.9142
+     high-symmetry point:  0.5000 0.5000 0.5000   x coordinate   3.7802
+     high-symmetry point:  1.0000 0.0000 0.0000   x coordinate   4.6463
+
+     Plottable bands (eV) written to file si.bands.dat.gnu
+     Bands written to file si.bands.dat
+
+     BANDS        :      1.02s CPU      1.11s WALL
+
+
+   This run was terminated on:  22: 2:52  22Sep2026            
+
+=------------------------------------------------------------------------------=
    JOB DONE.
-[hzw@localhost 08_bands]$
-[hzw@localhost 08_bands]$ grep -iE "error|warning" bands_pp.out | tail -n 30
-[hzw@localhost 08_bands]$
-[hzw@localhost 08_bands]$ ls -lh HfCl2_PbO2.bands*
--rw-rw-r-- 1 hzw hzw  60K Sep  5 14:44 HfCl2_PbO2.bands
--rw-rw-r-- 1 hzw hzw 124K Sep  5 14:44 HfCl2_PbO2.bands.gnu
--rw-rw-r-- 1 hzw hzw  55K Sep  5 14:45 HfCl2_PbO2.bands.rap
-[hzw@localhost 08_bands]$
+=------------------------------------------------------------------------------=
 ```
-
-三个产物各司其职：`.bands` 是原始本征值，`.gnu` 是 gnuplot 可直接画的网格数据，`.rap` 含对称性分类信息。`.gnu` 生成成功后再看头部：
-
-```bash
-[hzw@localhost 08_bands]$ head -n 20 HfCl2_PbO2.bands.gnu
-    0.0000  -62.5594
-    0.0115  -62.5594
-    0.0231  -62.5594
-    0.0346  -62.5593
-    0.0462  -62.5591
-    0.0577  -62.5590
-    0.0693  -62.5587
-    0.0808  -62.5585
-    0.0924  -62.5582
-    0.1039  -62.5579
-    0.1155  -62.5576
-    0.1270  -62.5572
-    0.1386  -62.5568
-    0.1501  -62.5563
-    0.1617  -62.5559
-    0.1732  -62.5554
-    0.1848  -62.5549
-    0.1963  -62.5544
-    0.2078  -62.5538
-    0.2194  -62.5532
-[hzw@localhost 08_bands]$
-```
-
-两列分别是路径累计坐标和本征值。第二列的单位是 **eV**，无需乘 Ry→eV 的换算系数。该算例的 QE 7.2 输出直接写明了单位：
+`si.bands.dat` 有一个 `&plot` 表头，后面按 k 坐标与能量分组；`.gnu` 则按能带分块，每块两列，块间空行。先看两种文件的开头：
 
 ```text
-[hzw@localhost 08_bands]$ grep -E 'Program BANDS|Plottable bands|high-symmetry' bands_pp.out; head -n 3 HfCl2_PbO2.bands.gnu
-     Program BANDS v.7.2 starts on  5Sep2026 at 14:44:42
-     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
-     high-symmetry point:  0.5000 0.2887 0.0000   x coordinate   0.5774
-     high-symmetry point:  0.3333 0.5774 0.0000   x coordinate   0.9107
-     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   1.5774
-     Plottable bands (eV) written to file HfCl2_PbO2.bands.gnu
-    0.0000  -62.5594
-    0.0115  -62.5594
-    0.0231  -62.5594
-[hzw@localhost 08_bands]$
+[preston@preston-System-Product-Name bands-cg]$ head -n 6 si.bands.dat
+ &plot nbnd=   8, nks=   121 /
+            0.000000  0.000000  0.000000
+   -5.692    6.397    6.397    6.397    8.967    8.967    8.967    9.969
+            0.041667  0.000000  0.000000
+   -5.685    6.347    6.363    6.363    8.947    9.010    9.010   10.018
+            0.083333  0.000000  0.000000
 ```
-
-同时把高对称路径坐标抓出来：
-
-```bash
-[hzw@localhost 08_bands]$ grep "high-symmetry point" bands_pp.out
-     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
-     high-symmetry point:  0.5000 0.2887 0.0000   x coordinate   0.5774
-     high-symmetry point:  0.3333 0.5774 0.0000   x coordinate   0.9107
-     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   1.5774
-[hzw@localhost 08_bands]$
-```
-
-这个输出给出 Γ、M、K、Γ 在横坐标上的累计距离：
 
 ```text
-Γ : 0.0000
-M : 0.5774
-K : 0.9107
-Γ : 1.5774
+[preston@preston-System-Product-Name bands-cg]$ head -n 6 si.bands.dat.gnu
+    0.0000   -5.6925
+    0.0417   -5.6848
+    0.0833   -5.6616
+    0.1250   -5.6231
+    0.1667   -5.5691
+    0.2083   -5.4998
 ```
+`.gnu` 第一列是沿路径累计的距离，第二列已经是 eV。不能把每一行当作不同能带，也不能再次把能量乘 Ry→eV 的换算常数。
 
-画图时直接拿来做竖线和横轴刻度。
+## 画图时明确能量零点
 
-### 记下费米能级
+这张图把路径上第 4 条带的最大值设为零，即本例的 VBM；没有使用另一材料的费米能文件。下载包中的 `plot_bands.py` 直接读取 `si.bands.dat.gnu`，核对 8×121 个点和每条带相同的横坐标，再统一减去 6.3970 eV。
 
 ```bash
-[hzw@localhost 08_bands]$ echo "0.0500" > Ef.dat
-[hzw@localhost 08_bands]$ cat Ef.dat
-0.0500
-[hzw@localhost 08_bands]$
+python3 plot_bands.py
 ```
 
-后面画能带统一做 E − E_F，把费米能级平移到 0 eV。
+![Si 路径能带，能量相对同一路径的价带顶](/Atlas/examples/si-pbe/plots/bands-direct.png)
 
-### 画出已有的无 SOC 能带
+能带图适合看路径上能级如何分散，不能保证路径经过全布里渊区的真实极值。直接/间接带隙的判定与采样对照见 [带隙页](/Atlas/m/band-gap/qe/)；导带谷附近的曲率见 [有效质量](/Atlas/m/effective-mass/qe/)。
 
-![HfCl2/PbO2 无 SOC 能带，纵轴 E-EF，单位 eV](/Atlas/figures/bands.svg)
-
-本图读取上面的 `.bands.gnu`，减去同一记录的 SCF 费米能级 0.0483 eV，截取 −4 至 4 eV；没有再次换算能量单位。竖线来自 `bands_pp.out` 的路径坐标。先看接近零能量的交叉，再与 [DOS 图](/Atlas/m/dos/qe/)对照。
-
-这里展示已有候选几何上的无 SOC 结果。几何收敛、k 路径与实际结构对称性的对应，以及 SOC 的影响仍需分别检查；图画出来不等于这些检查已经完成。
-
-## 下一步
-
-需要轨道归属时进入[投影数据页](/Atlas/m/fatband/qe/)；涉及 Hf、Pb 附近能带劈裂的讨论，再建立可比较的 SOC 算例。
+下一步：需要 s/p 成分时进入 [逐 k 胖带](/Atlas/m/fatband/qe/)，保留本页的相同 k 点与带号；需要态数分布时进入 [DOS](/Atlas/m/dos/qe/)，读取均匀网格分支。
 
 ```text
-同一结构的 SCF 电荷密度
-    ├─ 均匀 k 网格 NSCF → DOS / PDOS
-    └─ 路径 bands → bands.x → 本页能带图 → SOC 对照
+同一 SCF 密度 → 路径 bands → bands.x → 原始 eV 数据 → 统一能量零点
+                              └─ projwfc.x → 逐k逐带投影
+均匀 NSCF ──────────────────────────────→ DOS
 ```

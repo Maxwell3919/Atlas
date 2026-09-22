@@ -5,6 +5,8 @@
 - [ph.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
 - [Slurm：squeue](https://slurm.schedmd.com/squeue.html)
 
+若要先跑通一个较小的完整算例，可以使用 [fcc Al 的 32³ 电子网格与 4³ q 网格路线](/Atlas/m/eliashberg-a2f/qe/)。该页从致密 SCF、响应 SCF 写到逐 q 输出、α²F 积分和展宽检查，输入输出可下载；这些教学参数尚未获得材料性质的收敛结论。下面保留二维材料的逐 q 计算记录。
+
 ## 从 SnSe₂/Sr₂N 的计算目录接着做
 
 这次在 bcgong 的 tmux 窗口里准备 EPC 输入。`qe` 下已经建好了两个空目录：`ph64` 和 `ph96`。它们用来比较两套致密电子网格。先看文件从哪里来，再开始复制。

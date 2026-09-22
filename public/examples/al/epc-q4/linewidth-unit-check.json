@@ -1,0 +1,25 @@
+{
+  "source": "QE7.5 PHonon/PH/elphon.f90 elphsum: lamb=gam/pi/w2/dosfit; then gam*=RY_TO_GHZ. Modules/constants.f90: RY_TO_GHZ=1000*RY_TO_THZ; RY_TO_THZ=Ry/h/1e12.",
+  "ry_to_THz": 3289.8419602508284,
+  "number_of_records_checked": 240,
+  "formula_records_above_cutoff": 210,
+  "low_frequency_lambda_cutoff_cm1": 20.0,
+  "cutoff_records": 30,
+  "gamma_printing_step_GHz": 0.01,
+  "lambda_printing_step": 0.0001,
+  "chosen_example": {
+    "q_index": 2,
+    "sigma_Ry": 0.02,
+    "mode": 3,
+    "frequency_THz": 7.165696,
+    "gamma_GHz": 23.94,
+    "DOS_EF_states_spin_Ry_cell": 2.646097,
+    "frequency_Ry": 0.002178127729714306,
+    "gamma_Ry": 7.2769453029210975e-06,
+    "lambda_from_printed_gamma": 0.18451292320429052,
+    "lambda_printed": 0.1845,
+    "rounding_tolerance": 8.953653366839819e-05,
+    "below_20_cm1_cutoff": false
+  },
+  "convention": "Use printed ordinary-frequency THz/GHz through native Ry conversion. Do not insert an extra 2pi or double the per-spin DOS."
+}

@@ -7,6 +7,7 @@
 export const engines = [
   { id: 'qe', name: 'Quantum ESPRESSO' },
   { id: 'vasp', name: 'VASP' },
+  { id: 'mace', name: 'MACE' },
 ];
 
 // 分类与类内展示顺序（目录页与全部索引的唯一顺序来源）
@@ -36,16 +37,16 @@ export const methods = {
     category: 'basics',
     needs: ['convergence'],
     produces: ['优化后结构'],
-    engines: ['qe', 'vasp'],
-    placeholderEngines: ['MACE'],
+    engines: ['qe', 'vasp', 'mace'],
+    needsByEngine: { mace: [] },
   },
   'vc-relax': {
     zh: '晶胞弛豫',
     category: 'basics',
     needs: ['convergence'],
     produces: ['优化晶胞与结构'],
-    engines: ['qe', 'vasp'],
-    placeholderEngines: ['MACE'],
+    engines: ['qe', 'vasp', 'mace'],
+    needsByEngine: { mace: [] },
   },
   'scf': {
     zh: '电子自洽 SCF',
@@ -126,7 +127,6 @@ export const methods = {
     needs: ['vc-relax'],
     produces: ['短时 MD 轨迹'],
     engines: ['qe', 'vasp'],
-    placeholderEngines: ['MACE'],
   },
   'phdos': {
     zh: '声子态密度 PHDOS',
@@ -146,15 +146,18 @@ export const methods = {
     zh: '机器学习势 MD',
     category: 'stability',
     needs: ['relax'],
+    needsByEngine: { mace: ['vc-relax'] },
     produces: ['MLIP 分子动力学轨迹'],
-    engines: ['qe', 'vasp'],
+    engines: ['mace'],
   },
   'anharmonic-sscha': {
-    zh: '非谐效应 / SSCHA / TDEP',
+    zh: '非谐效应 / 有限温度声子',
     category: 'stability',
     needs: ['phonon-dfpt'],
     produces: ['温度重整化声子 / 非谐自由能'],
-    engines: ['qe', 'vasp'],
+    engines: ['qe', 'vasp', 'mace'],
+    needsByEngine: { mace: ['mlip-md', 'vc-relax'] },
+    producesByEngine: { mace: ['有限温度有效二阶力常数与声子'] },
   },
 
   'bands': {
@@ -197,7 +200,7 @@ export const methods = {
     zh: '投影能带 / 胖带',
     category: 'electronic',
     needs: ['bands', 'dos'],
-    producesByEngine: { qe: ['能量分辨 PDOS 整理；路径投影另需数据'] },
+    needsByEngine: { qe: ['bands'] },
     produces: ['投影能带'],
     engines: ['qe', 'vasp'],
   },
@@ -213,6 +216,7 @@ export const methods = {
     category: 'electronic',
     needs: ['bands'],
     produces: ['自旋纹理图'],
+    producesByEngine: { vasp: ['SOC 路径上的自旋投影'] },
     engines: ['qe', 'vasp'],
   },
   'electrostatic-potential': {
@@ -227,6 +231,7 @@ export const methods = {
     category: 'electronic',
     needs: ['fermi-surface'],
     produces: ['嵌套函数 / χ(q)'],
+    producesByEngine: { qe: ['费米面几何联合权重 J(q)'] },
     engines: ['qe', 'vasp'],
   },
   'effective-mass': {

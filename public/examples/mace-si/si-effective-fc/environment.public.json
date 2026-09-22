@@ -1,0 +1,21 @@
+{
+  "versions": {
+    "mace-torch": "0.3.16",
+    "ase": "3.29.0",
+    "phonopy": "4.4.0",
+    "symfc": "1.7.3",
+    "spglib": "2.7.0",
+    "scipy": "1.18.0",
+    "numpy": "2.4.6",
+    "torch": "2.12.0"
+  },
+  "module_paths": {
+    "ase": "<用户Python包>/lib/python3.12/site-packages/ase/__init__.py",
+    "scipy": "<用户Python包>/lib/python3.12/site-packages/scipy/__init__.py",
+    "phonopy": "<MACE环境>/lib/python3.12/site-packages/phonopy/__init__.py",
+    "symfc": "<MACE环境>/lib/python3.12/site-packages/symfc/__init__.py"
+  },
+  "model_sha256": "2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736",
+  "cpu_threads": 2,
+  "source_trajectory_sha256": "80609a23fc740931601134c314ad786481e67ded4309bf2f5874ad9212045af3"
+}

@@ -1,0 +1,28 @@
+{
+  "case_id": "si-diamond-public",
+  "decision": "pass",
+  "limitations": [
+    "The minimum workflow is not a universal complete workflow.",
+    "Material-, model-, and observable-specific controls may add stages and convergence dimensions."
+  ],
+  "minimum_workflow": [
+    "pw.x:relax"
+  ],
+  "objective": "Restore displaced Si basis at fixed published-example cell",
+  "observable": {
+    "absolute_tolerance": 0.0001,
+    "name": "maximum_atomic_force",
+    "relative_tolerance": null,
+    "unit": "Ry/Bohr"
+  },
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T13:35:30+00:00"
+  },
+  "qe_version": "7.5",
+  "schema_version": "1.0",
+  "scientific_protocol_id": "si-pbe-fixed-cell-relax",
+  "state": "plan_ready",
+  "task_type": "relax"
+}

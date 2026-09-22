@@ -1,0 +1,70 @@
+{
+  "source": "al.elph.out, Calculation of q blocks and matching Number of q in the star",
+  "full_mesh": 64,
+  "qpoints": [
+    {
+      "q_cart_2pi_alat": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "star_weight": 1
+    },
+    {
+      "q_cart_2pi_alat": [
+        -0.1767767,
+        0.1767767,
+        -0.1767767
+      ],
+      "star_weight": 8
+    },
+    {
+      "q_cart_2pi_alat": [
+        0.3535534,
+        -0.3535534,
+        0.3535534
+      ],
+      "star_weight": 4
+    },
+    {
+      "q_cart_2pi_alat": [
+        0.0,
+        0.3535534,
+        0.0
+      ],
+      "star_weight": 6
+    },
+    {
+      "q_cart_2pi_alat": [
+        0.5303301,
+        -0.1767767,
+        0.5303301
+      ],
+      "star_weight": 24
+    },
+    {
+      "q_cart_2pi_alat": [
+        0.3535534,
+        0.0,
+        0.3535534
+      ],
+      "star_weight": 12
+    },
+    {
+      "q_cart_2pi_alat": [
+        0.0,
+        -0.7071068,
+        0.0
+      ],
+      "star_weight": 3
+    },
+    {
+      "q_cart_2pi_alat": [
+        -0.3535534,
+        -0.7071068,
+        0.0
+      ],
+      "star_weight": 6
+    }
+  ]
+}

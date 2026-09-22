@@ -1,180 +1,240 @@
 参考：
 
-- QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
+- [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
+- [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
+- [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
+- [本例使用的 Si PBE 赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
 
-## static SCF（Self-Consistent Field）
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
-上一页提取了这次优化最后输出的晶胞和原子坐标。这里固定它们，重新做电子自洽，记录总能、费米能级、力和应力。
+下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 
-这次几何仍是候选结构：原来的 BFGS 没有收敛。下面的 SCF 用来检查这个固定构型，不能替它补上结构优化通过的结论。输入沿用 HfCl₂/PbO₂ 的赝势与物理设置，先进入 `06_static`。
+## 把结构固定下来，先求一份电子密度
 
-## 建目录、写输入文件
+这里在 Preston 上用 QE 7.5 计算两个原子的金刚石 Si 原胞。晶格取自 QE 示例的 10.20 bohr，赝势使用公开库中的 PBE 超软赝势；这是固定结构的教学算例。后面的 NSCF、路径能带和 Γ 点声子都从这份明确的输入出发。
 
-文件建议先在本地编辑好，再用 cat 指令在服务器中输入（heredoc）。目录用数字编号，在 Linux 里输入数字后 Tab 补全很方便，这是日常使用的小技巧：
+如果结构来自自己的优化，先到[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对最后结构，再把它带进 SCF。截断能与电子网格如何比较，见[收敛测试](/Atlas/m/convergence/qe/)。这一页集中看一份 SCF 怎么提交、输出分几段，以及下一步真正需要保留哪些文件。
 
-```bash
-[hzw@localhost QE]$ cd <工作目录>/QE
+## 读完这份小输入，再提交
 
-[hzw@localhost QE]$ mkdir -p 06_static
-[hzw@localhost QE]$ cd 06_static
-
-[hzw@localhost 06_static]$ cat > scf.in <<'EOF'
-&CONTROL
-  calculation = 'scf'
-  outdir = './out/'
-  prefix = 'HfCl2_PbO2'
-  pseudo_dir = '<赝势库路径>'
-  tprnfor = .true.
-  tstress = .true.
-  verbosity = 'high'
-/
-
-&SYSTEM
-  ibrav = 0
-  nat = 6
-  ntyp = 4
-  ecutwfc = 90
-  ecutrho = 720
-  input_dft = 'vdw-DF3-opt1'
-  force_symmorphic = .true.
-  occupations = 'smearing'
-  smearing = 'gaussian'
-  degauss = 3.7d-3
-/
-
-&ELECTRONS
-  conv_thr = 1.0000000000d-08
-  electron_maxstep = 200
-  mixing_beta = 7.0000000000d-01
-/
-
-ATOMIC_SPECIES
-Hf  178.49   Hf.pbe-spn-kjpaw_psl.1.0.0.UPF
-Cl   35.45   Cl.pbe-n-kjpaw_psl.1.0.0.UPF
-Pb  207.20   Pb.pbe-dn-kjpaw_psl.1.0.0.UPF
-O    15.999  O.pbe-n-kjpaw_psl.1.0.0.UPF
-
-CELL_PARAMETERS (angstrom)
-! 此处放入结构优化输出的三行晶胞矢量（本例约 3.3565… Å，c = 30 Å）
-
-ATOMIC_POSITIONS (crystal)
-! 此处放入结构优化输出的六行原子坐标
-
-K_POINTS (automatic)
-24 24 1 0 0 0
-EOF
-```
-
-两个小点：**outdir = './out/'** 会在运行时自动创建，不需要手动 mkdir；本例使用 `conv_thr = 1e-8`；它只是这次输入的选择。是否足够，需要针对所比较的能量、力或其他目标量测试；不能把静态 SCF 与声子各配一个固定阈值当作普遍保证。
-
-### Slurm 脚本
-
-结构优化的脚本已经跑通过，直接复制过来改一行执行命令：
-
-```bash
-[hzw@localhost 06_static]$ cp ../05_relax/rx.slurm scf.slurm
-
-[hzw@localhost 06_static]$ sed -i 's#pw.x<rx.in>rx.out#pw.x -in scf.in > scf.out#' scf.slurm
-
-[hzw@localhost 06_static]$ tail -n 5 scf.slurm
-mpirun -np 56 <qe_bin>/pw.x -in scf.in > scf.out
-[hzw@localhost 06_static]$
-```
-
-完整脚本内容如下（首次使用时照此生成）：
-
-```bash
-#!/bin/bash
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-# unlimit memory
-ulimit -s unlimited
-ulimit -l unlimited
-
-# load path
-source /data/intel/oneapi/setvars.sh
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 56 <qe_bin>/pw.x -in scf.in > scf.out
-```
-
-几处关键行：`-o/-e` 把标准输出与错误分别写进日志文件；`ulimit -s/-l` 分别设置栈与可锁定内存限制；`source` 加载 oneAPI 运行环境；`cd $SLURM_SUBMIT_DIR` 保证在提交目录里执行；`-np 56` 是本任务占用的 MPI 进程数，按集群配额修改。
-
-### 提交与监控
-
-```bash
-sbatch scf.slurm
-```
-
-```bash
-squeue -u hzw
-tail -f scf.out
-```
-
-提交后先 `squeue` 确认任务在跑，再 `tail -f` 盯进度；也可以用 `watch -n 5 "grep 'iteration #' scf.out | tail"` 做周期性摘要。
-
-### 结束后验收
-
-```bash
-grep "JOB DONE" scf.out
-grep '^!' scf.out | tail
-grep "the Fermi energy is" scf.out | tail
-grep "Total force" scf.out | tail
-```
-
-真实输出如下：
-
-```bash
-[hzw@localhost 06_static]$ grep "JOB DONE" scf.out
-   JOB DONE.
-[hzw@localhost 06_static]$ grep '^!' scf.out | tail
-!    total energy              =   -1795.68899321 Ry
-[hzw@localhost 06_static]$ grep "the Fermi energy is" scf.out | tail
-     the Fermi energy is     0.0483 ev
-[hzw@localhost 06_static]$ grep "Total force" scf.out | tail
-     Total force =     0.000049     Total SCF correction =     0.000129
-[hzw@localhost 06_static]$
-```
-
-判读：`-1795.68899321 Ry` 是固定弛豫结构上的静态总能，**不要**与 vc-relax 末尾的 `Final enthalpy` 直接当成同一个物理量比较；真正重要的是 SCF 正常收敛，且在固定优化后结构上重新计算时残余总力只有 `4.9×10⁻⁵ Ry/Bohr`。这是该候选几何上的一次电子计算，不能单凭总力较小判断几何已经合格。但要注意：**SCF 正常完成不能替代结构优化收敛检查**，vc-relax 程序结束不等于 BFGS 收敛（这是真实踩过的坑，详见结构优化页）。
-
-### 存档与规模核对
-
-把关键结果存一份摘要：
-
-```bash
-{
-    echo "===== STATIC SCF ====="
-    grep "JOB DONE" scf.out
-    grep '^!' scf.out | tail -n 1
-    grep "the Fermi energy is" scf.out | tail -n 1
-    grep "Total force" scf.out | tail -n 1
-} | tee static_summary.txt
-```
-
-再确认这次 SCF 的规模（原子数、电子数、KS 态数、k 点数）：
-
-```bash
-grep -E "number of atoms/cell|number of electrons|number of Kohn-Sham states|number of k points" scf.out
-```
-
-以及把应力也记录下来：
-
-```bash
-grep -A4 "total   stress" scf.out | tail -n 5
-```
-
-### 下一步
+在 `si-pbe` 下，`pseudo` 放赝势，`scf` 放本次输入与输出。输入使用相对路径 `../pseudo`，所以提交时要先进入 `scf`。本次文件内容如下：
 
 ```text
-已优化结构
-    ↓
-static SCF        ← 本页
-    ↓
-├─ 均匀密 k 网格 NSCF → dos.x / projwfc.x → DOS / PDOS
-    └─ 高对称路径 bands → bands.x → 能带图
+[preston@preston-System-Product-Name scf]$ cat scf.in
+&CONTROL
+  calculation = 'scf'
+  prefix = 'si'
+  outdir = './tmp'
+  pseudo_dir = '../pseudo'
+  tprnfor = .true.
+  tstress = .true.
+/
+&SYSTEM
+  ibrav = 2
+  A = 5.397607551
+  nat = 2
+  ntyp = 1
+  ecutwfc = 60
+  ecutrho = 640
+  occupations = 'fixed'
+/
+&ELECTRONS
+  conv_thr = 1.0d-10
+/
+ATOMIC_SPECIES
+Si 28.085 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS alat
+Si 0.00 0.00 0.00
+Si 0.25 0.25 0.25
+K_POINTS automatic
+8 8 8 0 0 0
+```
+`ibrav=2` 定义 fcc 原胞，`A` 是常规立方晶格参数，单位 Å。`ATOMIC_POSITIONS alat` 中的坐标按这个晶格参数缩放，不是分数坐标卡片 `crystal`。两种坐标表示不能只换卡片名而不换数值。
+
+`calculation='scf'` 固定晶胞和原子位置。`tprnfor`、`tstress` 让它仍然打印力和应力，供我们判断这个固定结构处在什么状态。8 个价电子在这份非磁性计算中占据 4 条带，所以 `occupations='fixed'` 可用于这个半导体例子；金属的占据处理另见[Al 声子前的 SCF](/Atlas/m/phonon-dfpt/qe/)。
+
+下面是实际运行的四进程脚本。`ulimit`、线程数和工作目录一起保留；QE 路径按本机安装位置填写。Preston 的这套程序使用 GCC/OpenMPI，环境与其他机器的 Intel MPI 不通用。
+
+```text
+[preston@preston-System-Product-Name scf]$ cat run.sh
+#!/bin/bash
+#SBATCH --job-name=atlas-si
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:20:00
+#SBATCH --output=_out.%j.log
+#SBATCH --error=_err.%j.log
+ulimit -s unlimited
+ulimit -c 0
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+cd "$SLURM_SUBMIT_DIR"
+/usr/bin/mpirun --bind-to core -np 4 <qe_bin>/pw.x -in scf.in > scf.out 2> scf.err
+```
+用 `vi scf.in` 检查并保存输入后，提交与查看的命令是：
+
+```bash
+sbatch run.sh
+squeue -j 765
+tail -f scf.out
+```
+这次作业号是 765，实际 WALL 时间为 13.73 s；重新提交会得到新的号码。`tail -f` 只跟随输出，Ctrl-C 结束的是查看进程。输出一段时间没有新增时，先同时看队列和错误文件，不要立即往同一目录再次提交。
+
+## OUT 的前半段是在告诉你：程序实际读到了什么
+
+`scf.out` 开头记录程序版本、进程数和输入文件。继续往下，会出现结构、电子数、截断能与交换关联设置：
+
+```text
+     bravais-lattice index     =            2
+     lattice parameter (alat)  =      10.2000  a.u.
+     unit-cell volume          =     265.3020 (a.u.)^3
+     number of atoms/cell      =            2
+     number of atomic types    =            1
+     number of electrons       =         8.00
+     number of Kohn-Sham states=            4
+     kinetic-energy cutoff     =      60.0000  Ry
+     charge density cutoff     =     640.0000  Ry
+     scf convergence threshold =      1.0E-10
+     mixing beta               =       0.7000
+     number of iterations used =            8  plain     mixing
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+```
+这里的 `alat=10.2000 a.u.` 与输入中的 Å 单位不同；它们描述的是同一个长度。`number of electrons=8.00` 来自两个 Si、每个 4 个价电子。`number of Kohn-Sham states=4` 也解释了为什么这份 SCF 输出没有可供我们研究导带的空带：空带会在后面的 NSCF 或路径计算中明确增加。
+
+下一段是晶格轴、赝势来源、对称性和原子位置。赝势段可以直接核对文件名、类型与价电子数：
+
+```text
+     PseudoPot. # 1 for Si read from file:
+     ../pseudo/Si.pbe-n-rrkjus_psl.1.0.0.UPF
+     MD5 check sum: fa25574f73a70a4139f2adfbefec430c
+     Pseudo is Ultrasoft + core correction, Zval =  4.0
+```
+再往下是 k 点列表。输入写了 8×8×8，输出却只有 29 个点，这里先不要改输入：程序利用当前晶体的对称性只保留不可约点，同时写出权重。29 不代表输入变成了 29×29×29。
+
+```text
+     number of k points=    29
+                       cart. coord. in units 2pi/alat
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0039062
+        k(    2) = (  -0.1250000   0.1250000  -0.1250000), wk =   0.0312500
+        k(    3) = (  -0.2500000   0.2500000  -0.2500000), wk =   0.0312500
+        k(    4) = (  -0.3750000   0.3750000  -0.3750000), wk =   0.0312500
+        k(    5) = (   0.5000000  -0.5000000   0.5000000), wk =   0.0156250
+```
+头部的这些内容应该在计算刚开始时就检查。若元素、原子数、k 点或赝势与预期不同，即使后面得到一个收敛能量，也是在解另一份输入。
+
+## 迭代段要连着看能量和估计误差
+
+第一次电子迭代从初始密度出发。下面保留两轮连续的输出，可以看清每个循环的排列：
+
+```text
+     iteration #  1     ecut=    60.00 Ry     beta= 0.70
+     Davidson diagonalization with overlap
+     ethr =  1.00E-02,  avg # of iterations =  2.0
+
+     Threshold (ethr) on eigenvalues was too large:
+     Diagonalizing with lowered threshold
+
+     Davidson diagonalization with overlap
+     ethr =  6.40E-04,  avg # of iterations =  1.5
+
+     total cpu time spent up to now is        1.2 secs
+
+     total energy              =     -22.83581101 Ry
+     estimated scf accuracy    <       0.05540955 Ry
+
+     iteration #  2     ecut=    60.00 Ry     beta= 0.70
+     Davidson diagonalization with overlap
+     ethr =  6.93E-04,  avg # of iterations =  1.0
+
+     total cpu time spent up to now is        1.5 secs
+
+     total energy              =     -22.83770169 Ry
+     estimated scf accuracy    <       0.00288592 Ry
+```
+`total energy` 是当前轮的总能；`estimated scf accuracy` 是程序对电子自洽误差的估计，单位 Ry；`ethr` 属于本征值求解器的内部阈值。三者不是同一个量。能量两轮之间看起来变化很小，仍要继续核对 SCF 的停止条件。
+
+这次第 9 轮结束后，输出先列能带本征值，再打印最高占据态、带感叹号的总能和自洽收敛信息：
+
+```text
+     highest occupied level (ev):     6.3971
+
+!    total energy              =     -22.83859230 Ry
+     estimated scf accuracy    <          4.3E-11 Ry
+
+     The total energy is the sum of the following terms:
+     one-electron contribution =       5.30781076 Ry
+     hartree contribution      =       1.08523150 Ry
+     xc contribution           =     -12.33187599 Ry
+     ewald contribution        =     -16.89975857 Ry
+
+     convergence has been achieved in   9 iterations
+```
+`4.3E-11 Ry` 小于输入的 `conv_thr=1.0d-10`，并有明确的 9 轮收敛行。这里的最高占据态是 6.3971 eV；它不是我们已经求出的带隙，也不是金属计算中的费米能行。后续作图要说明选择的能量零点，不能随手拿另一目录的数来平移。
+
+## 力为零、压力不为零，两件事可以同时发生
+
+```text
+     Forces acting on atoms (cartesian axes, Ry/au):
+
+     atom    1 type  1   force =    -0.00000000   -0.00000000   -0.00000000
+     atom    2 type  1   force =     0.00000000    0.00000000    0.00000000
+
+     Total force =     0.000000     Total SCF correction =     0.000000
+
+
+     Computing stress (Cartesian axis) and pressure
+
+          total   stress  (Ry/bohr**3)                   (kbar)     P=       38.45
+   0.00026138   0.00000000   0.00000000           38.45        0.00        0.00
+   0.00000000   0.00026138  -0.00000000            0.00       38.45       -0.00
+   0.00000000  -0.00000000   0.00026138            0.00       -0.00       38.45
+```
+两个 Si 的力在打印精度内为零，而压力是 **38.45 kbar**。高对称结构可以使原子力为零；这并不保证晶胞体积已经优化。因此这份结果可用于演示“固定结构电子自洽”，不能据此宣布得到零压平衡晶格。若问题要求平衡晶胞，应回到 `vc-relax`，而不是不断收紧同一固定晶胞的电子阈值。
+
+程序随后写出保存数据，末尾给出分项计时和退出标记：
+
+```text
+     Writing all to output data dir ./tmp/si.save/ :
+     XML data file, charge density, pseudopotentials, collected wavefunctions
 ```
 
-一个提醒：`E_F = 0.0483 eV` 是当前 smearing SCF 给出的费米能级，**单凭这个数值本身不能判断体系是否金属**——要等 DOS/PDOS 算完，看 E_F 附近是否存在有限 DOS 再下结论。
+```text
+     Parallel routines
+
+     PWSCF        :      9.22s CPU     13.73s WALL
+
+
+   This run was terminated on:  21:32:37  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+```
+把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；应连同输出保存，不能称为空文件，也不能只凭这条提示判定电子迭代失败。
+
+## 下一步要带走保存目录，不只是一份 OUT
+
+`scf.out` 便于人阅读，`tmp/si.save` 才保存后续程序读取的电子态。这个目录里的 `data-file-schema.xml` 记录结构和计算信息，`charge-density.dat` 保存电子密度，`wfc*.dat` 保存波函数；文件分布还会随 QE 版本和并行方式变化。
+
+准备新的分支时，先新建目录并复制这份父数据，避免后续 NSCF 改写 SCF 原件。例如使用：
+
+```bash
+mkdir ../nscf
+cp -r tmp ../nscf/
+cp scf.in ../nscf/nscf.in
+cd ../nscf
+vi nscf.in
+```
+这里的 `nscf.in` 还需要按[NSCF 页](/Atlas/m/nscf/qe/)修改计算类型、网格与空带；复制只建立文件关系，没有自动完成那些设置。`prefix` 和 `outdir` 必须指向刚复制的 Si 数据。如果改变了结构、元素、赝势或上游物理设置，应重新建立对应 SCF。
+
+下一步按所需结果选择：[均匀网格 NSCF](/Atlas/m/nscf/qe/)通向 DOS 与布里渊区采样；[路径能带](/Atlas/m/bands/qe/)沿指定高对称线求本征值；[Γ 点声子及虚频对照](/Atlas/m/imaginary-phonon/qe/)读取本例的密度与波函数求响应。
+
+```text
+明确结构与赝势 → SCF 输入 → 电子迭代、力和应力 → si.save
+                                                   ├─ 均匀 NSCF → DOS
+                                                   ├─ 路径 bands → 能带 / 投影
+                                                   └─ ph.x → 动力学矩阵
+```

@@ -1,0 +1,159 @@
+{
+  "decision": "pass",
+  "evidence": {
+    "convergence_parameters": {
+      "conv_thr": {
+        "unit": "Ry",
+        "value": 1e-10
+      },
+      "ecutrho": {
+        "unit": "Ry",
+        "value": 640.0
+      },
+      "ecutwfc": {
+        "unit": "Ry",
+        "value": 40.0
+      },
+      "k_point_count": {
+        "unit": "count",
+        "value": 512.0
+      }
+    },
+    "input": {
+      "role": "pw_input",
+      "sha256": "2a4da6832d3a5129abccca89658c59b845bdf78619cd0474de02a2bd099480fa"
+    },
+    "observables": {
+      "total_energy": {
+        "unit": "Ry",
+        "value": -22.83848017
+      }
+    },
+    "output": {
+      "role": "pw_output",
+      "sha256": "d2ef4bce89f2dabe554509501ed5658ceec81dc65a1f6d5a371d38898f10ee44"
+    },
+    "parent_manifest": null,
+    "parent_record_id": null,
+    "plan": {
+      "role": "qe_plan",
+      "sha256": "5fdda5b2c2e017ccf070d8552c9b688962d40fc567aaf57f487fef6ab7a422b9"
+    },
+    "plan_record_id": "si-pbe-fixed-cell",
+    "pseudopotential_manifest": {
+      "role": "pseudopotential_manifest",
+      "sha256": "1c644bde9385ea08d128bdfe0658c62217b0fbe455d11ebac4ab484991df9bc6"
+    },
+    "pseudopotentials": [
+      {
+        "declared_source": "QE pseudopotential library, pslibrary 1.0.0, independent public download cmp verified",
+        "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+        "format": "upf",
+        "functional": "PBE",
+        "has_so": false,
+        "label": "Si",
+        "pseudo_type": "USPP",
+        "relativistic": "scalar",
+        "sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a"
+      }
+    ],
+    "stderr": {
+      "role": "runtime_stderr",
+      "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+    }
+  },
+  "findings": [
+    {
+      "code": "QE.STDERR.NONEMPTY",
+      "message": "Separate stderr is nonempty and requires case-level review even though no deterministic fatal marker matched",
+      "severity": "warning"
+    }
+  ],
+  "gates": {
+    "execution_completion": "pass",
+    "input_integrity": "pass",
+    "observable_convergence": "not_assessed",
+    "official_version_match": "pass",
+    "parent_ancestry": "pass",
+    "physical_validity": "not_assessed",
+    "plan": "pass",
+    "pseudopotential_provenance": "pass",
+    "runtime_diagnostics": "pass",
+    "runtime_paths": "pass"
+  },
+  "output_summary": {
+    "echoed_settings": {
+      "ecutrho_ry": 640.0,
+      "ecutwfc_ry": 40.0,
+      "ibrav": 2,
+      "nat": 2,
+      "ntyp": 1
+    },
+    "job_done": true,
+    "observables": {
+      "total_energy": {
+        "unit": "Ry",
+        "value": -22.83848017
+      }
+    },
+    "qe_version": "7.5",
+    "scf_iteration_lines": 10,
+    "successful_scf_cycles": 1,
+    "warning_lines": 0
+  },
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T13:33:14+00:00"
+  },
+  "required_remaining_gates": [
+    "observable-specific convergence under a fixed protocol",
+    "claim-specific physical/model validation"
+  ],
+  "schema_version": "1.0",
+  "scientific_claim_decision": "blocked",
+  "scope": "pw.x input, stdout, and stderr",
+  "stderr_summary": {
+    "fatal_lines": 0,
+    "floating_point_exception_lines": 0,
+    "nonempty_lines": 12,
+    "warning_lines": 0
+  },
+  "summary": {
+    "calculation": "scf",
+    "conv_thr_ry": 1e-10,
+    "degauss_ry": null,
+    "ecutrho_ry": 640.0,
+    "ecutwfc_ry": 40.0,
+    "executable": "pw.x",
+    "ibrav": 2,
+    "k_points": {
+      "count": 512,
+      "mesh": [
+        8,
+        8,
+        8
+      ],
+      "mode": "automatic",
+      "offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "nat": 2,
+    "ntyp": 1,
+    "occupations": "fixed",
+    "outdir_explicit": true,
+    "prefix_explicit": true,
+    "pseudo_dir_explicit": true,
+    "restart_mode": "from_scratch",
+    "species": [
+      {
+        "label": "Si",
+        "pseudopotential": "Si.pbe-n-rrkjus_psl.1.0.0.UPF"
+      }
+    ],
+    "spin_orbit": false
+  }
+}

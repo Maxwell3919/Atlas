@@ -1,0 +1,9 @@
+&PROJWFC
+  prefix = 'si'
+  outdir = './tmp'
+  filpdos = 'si'
+  filproj = 'si-projections'
+  ngauss = 0
+  degauss = 0.01
+  DeltaE = 0.02
+/

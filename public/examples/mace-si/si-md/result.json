@@ -1,0 +1,25 @@
+{
+  "nve-1fs": {
+    "steps": 500,
+    "timestep_fs": 1.0,
+    "duration_ps": 0.5,
+    "initial_state_sha256": "aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d",
+    "max_abs_delta_meV_atom": 0.014623237966304714,
+    "final_delta_meV_atom": 0.001887423370483532,
+    "linear_drift_meV_atom_ps": 0.0014274760219451569,
+    "mean_temperature_K": 331.80169436485613,
+    "wall_seconds": 161.21382180787623
+  },
+  "nve-0p5fs": {
+    "steps": 1000,
+    "timestep_fs": 0.5,
+    "duration_ps": 0.5,
+    "initial_state_sha256": "aa5fa0d6ed2b008e2cede92f7a1c70d79bc1e7b2df2a991cf4e1b29809ca0a6d",
+    "max_abs_delta_meV_atom": 0.0036474880289461,
+    "final_delta_meV_atom": 0.00047103504829948406,
+    "linear_drift_meV_atom_ps": 0.0003567237150614159,
+    "mean_temperature_K": 331.8879410554873,
+    "wall_seconds": 322.6769241001457
+  },
+  "same_initial_state": true
+}

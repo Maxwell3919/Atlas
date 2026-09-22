@@ -1,0 +1,380 @@
+BASELINE harmonic-0.01 {"min_path_THz": 8.215144003995272e-08, "max_path_THz": 11.46388172597322, "gamma_THz": [-1.604227589912054e-07, -6.533057133466671e-08, 2.0629478485091923e-07, 11.463881725973213, 11.463881725973213, 11.463881725973216], "boundaries_inv_A": [0.0, 0.18299385694590103, 0.2744907854188515, 0.339188883999816, 0.5332831797427076, 0.6917605085943548], "independent_force_error": {"snapshots": 51, "rmse_meV_A": 82.28819040747791, "force_rms_meV_A": 476.65260225487987, "relative_rmse": 0.1726376610936366, "max_abs_error_meV_A": 851.8643789871678, "r2": 0.9701962379721186}}
+BASELINE harmonic-0.005 {"min_path_THz": -2.1361876454284975e-07, "max_path_THz": 11.463065347600221, "gamma_THz": [-1.4648330054710965e-07, -1.1004433916552849e-07, -1.0126821553537512e-07, 11.463065347600221, 11.463065347600221, 11.463065347600226], "boundaries_inv_A": [0.0, 0.18299385694590103, 0.2744907854188515, 0.339188883999816, 0.5332831797427076, 0.6917605085943548], "independent_force_error": {"snapshots": 51, "rmse_meV_A": 82.31655055022317, "force_rms_meV_A": 476.65260225487987, "relative_rmse": 0.1726971596521488, "max_abs_error_meV_A": 852.0340534423362, "r2": 0.9701756910480802}}
+AMPLITUDE_COMPARISON max_abs_frequency_difference_THz 0.0011216652799070914
+FIT_START ntrain 20 training_time_ps [0.005, 0.1]
+-------------------------------- Symfc start -------------------------------
+Symfc version 1.7.3 (https://github.com/symfc/symfc)
+Citation: A. Seko and A. Togo, Phys. Rev. B, 110, 214302 (2024)
+Computing [2] order force constants.
+Increase log-level to watch detailed symfc log.
+--------------------------------- Symfc end --------------------------------
+FIT_RESULT {
+  "training_snapshots": 20,
+  "training_source_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "heldout_source_indices": [
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100
+  ],
+  "source_training_temperature_K": 329.19266200457616,
+  "source_heldout_temperature_K": 329.5612658123723,
+  "independent_temperature_K": 322.4618765415747,
+  "fit_wall_s": 0.2392388191074133,
+  "train": {
+    "snapshots": 20,
+    "rmse_meV_A": 92.72588650442586,
+    "force_rms_meV_A": 508.6726691887346,
+    "relative_rmse": 0.18228989312972396,
+    "max_abs_error_meV_A": 1184.0318342424025,
+    "r2": 0.9667703948627538
+  },
+  "heldout_block": {
+    "snapshots": 21,
+    "rmse_meV_A": 86.62868149875958,
+    "force_rms_meV_A": 511.2241130746244,
+    "relative_rmse": 0.1694534339895548,
+    "max_abs_error_meV_A": 651.3978606348707,
+    "r2": 0.9712855337091476
+  },
+  "independent": {
+    "snapshots": 51,
+    "rmse_meV_A": 77.09242204712771,
+    "force_rms_meV_A": 476.65260225487987,
+    "relative_rmse": 0.16173712612168678,
+    "max_abs_error_meV_A": 788.9774387329207,
+    "r2": 0.9738411020338976
+  },
+  "bands": {
+    "min_path_THz": 3.1278644254052073e-07,
+    "max_path_THz": 12.049431128763793,
+    "gamma_THz": [
+      2.6882481524332106e-07,
+      2.8795673112979773e-07,
+      3.3121537135964406e-07,
+      12.04943112876379,
+      12.049431128763791,
+      12.049431128763791
+    ],
+    "boundaries_inv_A": [
+      0.0,
+      0.18299385694590103,
+      0.2744907854188515,
+      0.339188883999816,
+      0.5332831797427076,
+      0.6917605085943548
+    ]
+  },
+  "translational_drift_eV_A2": 1.2281842209915794e-14,
+  "permutation_difference_eV_A2": 0.0
+}
+FIT_START ntrain 40 training_time_ps [0.005, 0.2]
+-------------------------------- Symfc start -------------------------------
+Symfc version 1.7.3 (https://github.com/symfc/symfc)
+Citation: A. Seko and A. Togo, Phys. Rev. B, 110, 214302 (2024)
+Computing [2] order force constants.
+Increase log-level to watch detailed symfc log.
+--------------------------------- Symfc end --------------------------------
+FIT_RESULT {
+  "training_snapshots": 40,
+  "training_source_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40
+  ],
+  "heldout_source_indices": [
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100
+  ],
+  "source_training_temperature_K": 329.15683349845165,
+  "source_heldout_temperature_K": 329.5612658123723,
+  "independent_temperature_K": 322.4618765415747,
+  "fit_wall_s": 0.19720161240547895,
+  "train": {
+    "snapshots": 40,
+    "rmse_meV_A": 87.96706190084986,
+    "force_rms_meV_A": 510.88765069719733,
+    "relative_rmse": 0.1721847489967767,
+    "max_abs_error_meV_A": 1174.6311812359552,
+    "r2": 0.970352412212917
+  },
+  "heldout_block": {
+    "snapshots": 21,
+    "rmse_meV_A": 86.10940691973528,
+    "force_rms_meV_A": 511.2241130746244,
+    "relative_rmse": 0.168437686559526,
+    "max_abs_error_meV_A": 652.3703846739928,
+    "r2": 0.9716287457464748
+  },
+  "independent": {
+    "snapshots": 51,
+    "rmse_meV_A": 77.19010954980308,
+    "force_rms_meV_A": 476.65260225487987,
+    "relative_rmse": 0.16194207098554203,
+    "max_abs_error_meV_A": 777.2361861828996,
+    "r2": 0.9737747656449136
+  },
+  "bands": {
+    "min_path_THz": 2.9384943736806337e-07,
+    "max_path_THz": 12.12470931548479,
+    "gamma_THz": [
+      3.172615805042327e-07,
+      3.5946530799284665e-07,
+      3.6540076730260544e-07,
+      12.124709315484788,
+      12.12470931548479,
+      12.12470931548479
+    ],
+    "boundaries_inv_A": [
+      0.0,
+      0.18299385694590103,
+      0.2744907854188515,
+      0.339188883999816,
+      0.5332831797427076,
+      0.6917605085943548
+    ]
+  },
+  "translational_drift_eV_A2": 1.3001318771577175e-14,
+  "permutation_difference_eV_A2": 0.0
+}
+FIT_START ntrain 60 training_time_ps [0.005, 0.3]
+-------------------------------- Symfc start -------------------------------
+Symfc version 1.7.3 (https://github.com/symfc/symfc)
+Citation: A. Seko and A. Togo, Phys. Rev. B, 110, 214302 (2024)
+Computing [2] order force constants.
+Increase log-level to watch detailed symfc log.
+--------------------------------- Symfc end --------------------------------
+FIT_RESULT {
+  "training_snapshots": 60,
+  "training_source_indices": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60
+  ],
+  "heldout_source_indices": [
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100
+  ],
+  "source_training_temperature_K": 333.0385518583748,
+  "source_heldout_temperature_K": 329.5612658123723,
+  "independent_temperature_K": 322.4618765415747,
+  "fit_wall_s": 0.20133990049362183,
+  "train": {
+    "snapshots": 60,
+    "rmse_meV_A": 83.98692651911895,
+    "force_rms_meV_A": 507.5035374472191,
+    "relative_rmse": 0.16549032730211002,
+    "max_abs_error_meV_A": 1183.6070694886912,
+    "r2": 0.9726129515694405
+  },
+  "heldout_block": {
+    "snapshots": 21,
+    "rmse_meV_A": 85.97194072830276,
+    "force_rms_meV_A": 511.2241130746244,
+    "relative_rmse": 0.16816879041805538,
+    "max_abs_error_meV_A": 653.8601384355852,
+    "r2": 0.9717192579293281
+  },
+  "independent": {
+    "snapshots": 51,
+    "rmse_meV_A": 76.89831035078684,
+    "force_rms_meV_A": 476.65260225487987,
+    "relative_rmse": 0.1613298867707998,
+    "max_abs_error_meV_A": 780.8986475127572,
+    "r2": 0.973972667634521
+  },
+  "bands": {
+    "min_path_THz": -1.6573891556325794e-07,
+    "max_path_THz": 11.910694433538483,
+    "gamma_THz": [
+      -1.681971743188951e-07,
+      6.222189490317196e-08,
+      1.0185099667096893e-07,
+      11.910694433538481,
+      11.910694433538481,
+      11.910694433538483
+    ],
+    "boundaries_inv_A": [
+      0.0,
+      0.18299385694590103,
+      0.2744907854188515,
+      0.339188883999816,
+      0.5332831797427076,
+      0.6917605085943548
+    ]
+  },
+  "translational_drift_eV_A2": 1.18551002348255e-14,
+  "permutation_difference_eV_A2": 0.0
+}
+EFFECTIVE_40_VS_60_MAX_PATH_DIFFERENCE_THz 0.21401488194631035
+FIT_PIPELINE_FINISHED wall_s 1.4532057205215096

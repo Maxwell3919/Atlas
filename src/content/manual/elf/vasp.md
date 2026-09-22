@@ -1,116 +1,150 @@
-参考：
+[VASP：LELF](https://vasp.at/wiki/LELF) · [ELFCAR](https://vasp.at/wiki/ELFCAR) · [NPAR](https://vasp.at/wiki/NPAR)
 
-- VESTA 官网：<https://jp-minerals.org/vesta/>
-- [VASP LELF](https://vasp.at/wiki/LELF)
+ELF 文件中的数是电子局域化函数，不能按 CHGCAR 的电子密度单位去读。这里接着 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁小体系，读取实际生成的两个自旋通道，并画出经过 z = 0 的截面。
 
-## ELF（Electron Localization Function）
+下载 [输入、完整 OUTCAR、ELFCAR 与绘图脚本](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz)。其中 `charge_elf` 和 `charge_elf_192` 分别保留较粗、较细的实空间采样，后者用于下面的截图数据。它们都是共线自旋计算；这条 ELF 路线不接非共线 SOC 输出。
 
-ELF 在 0–1 之间度量电子定域性：约 0.5 对应自由电子气参考值，接近 1 是强定域区（共价键、孤对电子、芯区），ELF 本身不是电荷密度，接近 0 不能直接翻译成真空或低密度。本例设置 LELF = .TRUE. 输出 ELFCAR，并使用 LREAL = .FALSE.。遇到网格条纹时应同时检查网格、投影近似和可视化设置，不能仅凭图形就认定原因。
-
-记录体系仍是 Sc2C/ZrCl2 异质结。当时 elf 目录已完整跑过一轮（作业 18107），本页按修正后的做法复述全流程。
-
-### 复用 SCF 输入
-
-已有收敛的 WAVECAR 与 CHGCAR，读入续算即可（极快，通常几分钟甚至几十秒）：
-
-```bash
-[bcgong@localhost vasp]$ ls
-bader  bands  elf  rx  scf
-
-[bcgong@localhost elf]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/CHGCAR ../scf/WAVECAR ../scf/script_std ./
-```
-
-### INCAR
-
-```bash
-[bcgong@localhost elf]$ cat > INCAR <<'EOF'
-SYSTEM = Sc2C_ZrCl2_ELF
-########## about parallelation ###########
-   LPLANE = .TRUE.
-   NPAR = 4
-   NSIM = 4
-##########################################
-############### about I/O ################
-   ISTART = 1                ! 读取已有的 WAVECAR
-   ICHARG = 1                ! 读取已有的 CHGCAR
-   LWAVE = .FALSE.
-   LCHARG = .FALSE.
-##########################################
-########### about switch control ##########
-   LELF = .TRUE.             ! 核心开关：计算并输出 ELFCAR
-   LREAL = .FALSE.           ! ELF 必须在倒空间投影，禁止 LREAL=A
-   PREC = Accurate           ! 保证 FFT 网格精细，避免切面锯齿
-   LASPH = .TRUE.
-   LORBIT = 11
-###########################################
-############# about ionic relax ############
-   IBRION = -1               ! 固定离子步，只做电子步
-   NSW = 0
-###########################################
-########### about electron scf ############
-   ENCUT = 520
-   GGA = PE
-   VOSKOWN = 1
-   EDIFF = 1E-6
-   NELM = 60
-###########################################
-############### other important parameter ###############
-   ALGO = Normal
-   ISMEAR = 0
-   SIGMA = 0.05
-   IVDW = 11
-   LMAXMIX = 4
-###########################################
-EOF
-```
-
-两个关键改动判读：LELF = .TRUE. 生成 ELFCAR；LREAL 从 SCF 模板继承的 A 改为 .FALSE.——实空间投影近似在动能密度重构时可能产生网格噪声，这是 ELF 计算与普通 SCF 的决定性差别之一。ISTART = 1 与 ICHARG = 1 配合拷来的 WAVECAR/CHGCAR，一两个电子步内完成并写出 ELFCAR。
-
-### 提交与验收
-
-```bash
-[bcgong@localhost elf]$ sbatch script_std
-
-[bcgong@localhost elf]$ watch -n 1 squeue
-```
-
-结束后目录状态（真实记录）：
-
-```bash
-[bcgong@localhost vasp]$ ls elf/
-CHG      EIGENVAL        INCAR    _out.18107.log  POTCAR      vasprun.xml
-CHGCAR   ELFCAR          KPOINTS  OUTCAR          PROCAR      WAVECAR
-CONTCAR  _err.18107.log  OSZICAR  PCDAT           REPORT      XDATCAR
-DOSCAR   IBZKPT          out      POSCAR          script_std
-```
-
-判读：ELFCAR 在列表里，作业日志 _out.18107.log/_err.18107.log 成对出现——这只能确认文件存在；它不能单独证明计算完成或 LREAL 是先前问题的原因。
-
-### VESTA 出图
-
-ELFCAR 直接拖入 VESTA：
-
-- 3D 等值面（Properties → Isosurfaces → New）：0.5 附近是均匀电子气（金属性区域）；0.75–0.85 是强共价键或孤对电子（如 Cl 外侧的电子对）；低值区需要结合电荷密度判断。
-- 2D 截面（Utilities → 2D Data Display → Slice）：用 3 个代表原子定面（如 Sc–C–Zr）或直接指定 Miller 指数（(1 1 0) / (0 0 1)），勾选 Show contour lines，色彩范围固定为 0.0–1.0，结合结构观察定域区域；不由颜色直接给键分类。
-
-### 读取图像时保留哪些信息
-
-记录切面、等值面阈值和色标，再与原子位置、实际电荷密度对照。单一 ELF 阈值不能自动给出离子键、共价键或金属键的分类；改变色标也不能代替数值检查。
-
-VASP 的 LELF 文档另有 NPAR 的要求。复用输入前，应结合实际版本逐项核对相关参数，不能只复制 LELF 一行。
-
-### 下一步
+在新目录中用 `cp` 复制 FM 的结构、KPOINTS 和 POTCAR，进入目录后用 `vi INCAR` 打开 LELF。保存后读回的输入如下。
 
 ```text
-SCF（WAVECAR + CHGCAR 复用）
-    ↓
-ELF：LELF = .TRUE. + LREAL = .FALSE.   ← 本页
-    ↓
-VESTA 等值面/切面
-    ↓
-差分电荷密度（电荷重分布的空间图）
-    ↓
-Bader 电荷（原子分配的定量记账）
+[bcgong@localhost charge_elf_192]$ cat INCAR
+SYSTEM = Fe bcc FM charge and ELF
+ISTART = 0
+ICHARG = 2
+ENCUT = 400
+PREC = Accurate
+EDIFF = 1E-8
+NELM = 100
+ALGO = Normal
+ISMEAR = 1
+SIGMA = 0.1
+ISPIN = 2
+MAGMOM = 3 3
+LORBIT = 11
+LREAL = .FALSE.
+LASPH = .TRUE.
+NPAR = 1
+NSW = 0
+IBRION = -1
+LWAVE = .FALSE.
+LCHARG = .TRUE.
+
+LAECHG = .TRUE.
+LELF = .TRUE.
+NGXF = 192
+NGYF = 192
+NGZF = 192
+
+NGX = 36
+NGY = 36
+NGZ = 36
+```
+这份 VASP 5.4.4 计算显式设置了 `NPAR = 1`，与 LELF 文档的要求一致。不要保留另一份输入的 NPAR=4，然后只把 LELF 打开。`LAECHG` 与细网格用于同次计算的 [Bader 分析](/Atlas/m/bader/vasp/)，ELFCAR 自己的采样来自 NGX、NGY、NGZ：本例是 36 × 36 × 36。
+
+结构固定，`ISPIN = 2`，两个 Fe 的初始磁矩平行。程序最终收敛到的总磁矩约为 4.2127 μB/胞；这里没有用初始 MAGMOM 数值代替结果。
+
+```text
+[bcgong@localhost charge_elf_192]$ cat run.slurm
+#!/bin/bash
+#SBATCH --job-name=atlas-fe-grid192
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:15:00
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
+ulimit -s unlimited
+ulimit -l unlimited
+source /data/intel/oneapi/setvars.sh
+export OMP_NUM_THREADS=1
+unset SLURM_CPUS_PER_TASK
+export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
+cd $SLURM_SUBMIT_DIR
+mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
+```
+任务 18188 用 8 个 MPI 进程运行，实际耗时约 102 秒；每次只运行一个教学任务，并在原有研究任务之外保留至少半台机器的空闲算力。
+
+```text
+[bcgong@localhost charge_elf_192]$ tail -4 OSZICAR
+DAV:  16    -0.164736471272E+02    0.20405E-07   -0.31078E-09  2807   0.760E-04    0.228E-04
+DAV:  17    -0.164736471409E+02   -0.13691E-07   -0.30315E-10  2702   0.201E-04    0.489E-05
+DAV:  18    -0.164736471451E+02   -0.41252E-08   -0.60352E-11  2639   0.102E-04
+   1 F= -.16473647E+02 E0= -.16473764E+02  d E =0.351572E-03  mag=     4.2127
+```
+```text
+[bcgong@localhost charge_elf_192]$ grep 'aborting loop because EDIFF is reached' OUTCAR
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+```
+```text
+[bcgong@localhost charge_elf_192]$ grep -E 'dimension x,y,z|LELF' OUTCAR
+   dimension x,y,z NGX =    36 NGY =   36 NGZ =   36
+   dimension x,y,z NGXF=   192 NGYF=  192 NGZF=  192
+   dimension x,y,z NGX =    18 NGY =   18 NGZ =   18
+   LELF         =      T    write electronic localiz. function (ELF)
+```
+这几行分别确认电子迭代结束、LELF 确实启用，以及粗网格 36³ 与细网格 192³。两套网格服务于不同输出，不能看到 AECCAR 使用 192³ 就假定 ELFCAR 也有同样的点数。
+
+```text
+[bcgong@localhost charge_elf_192]$ head -15 ELFCAR
+Fe bcc FM charge and ELF                
+   1.00000000000000     
+     2.800000    0.000000    0.000000
+     0.000000    2.800000    0.000000
+     0.000000    0.000000    2.800000
+   Fe
+     2
+Direct
+  0.000000  0.000000  0.000000
+  0.500000  0.500000  0.500000
+ 
+   36   36   36
+ 0.18012E-01 0.31080E-03 0.73938E-04 0.16325E-03 0.73557E-03 0.30330E-02 0.95991E-02 0.23283E-01 0.44567E-01 0.69501E-01
+ 0.90951E-01 0.10258     0.10283     0.96336E-01 0.90702E-01 0.91312E-01 0.98696E-01 0.10827     0.11271     0.10827    
+ 0.98696E-01 0.91312E-01 0.90702E-01 0.96336E-01 0.10283     0.10258     0.90951E-01 0.69501E-01 0.44567E-01 0.23283E-01
+```
+文件头仍是晶胞、元素、原子数与 Direct 坐标；空行后的 `36 36 36` 才是第一个 ELF 数据块的形状。x 索引最快、z 最慢，因此一张固定 z 截面恰好由连续的 36 × 36 个数构成。
+
+对于这份 `ISPIN = 2` 输出，第一个块是 ELF↑，后面接 ELF↓。两个通道都应读取；只拿第一块画图，不能称为一份包含两个自旋通道的完整检查。
+
+```text
+[bcgong@localhost charge_elf_192]$ python read_elf.py
+up grid=[36, 36, 36] values=46656 min=7.1308e-05 max=0.13286
+down grid=[36, 36, 36] values=46656 min=0.00011024 max=0.3339
+Wrote elf-up-z0.dat and elf-down-z0.dat; z=0 slice
+```
+脚本检查了两个块各自都有 46,656 个有限数值，形状一致，范围在 0–1 之内。本例上自旋的最大值约 0.13286，下自旋约 0.33390。验收不止是 `ls` 看文件存在：还包括完整网格、两个通道、数值范围和来源 SCF 的收敛。
+
+脚本把 z = 0 的截面分别写入 `elf-up-z0.dat` 与 `elf-down-z0.dat`，每份有 36 行、每行 36 个数。它们是无量纲的 ELF 值，不需要乘电子电荷或除以晶胞体积。
+
+```text
+[bcgong@localhost charge_elf_192]$ head -2 elf-up-z0.dat
+0.01801200 0.00031080 0.00007394 0.00016325 0.00073557 0.00303300 0.00959910 0.02328300 0.04456700 0.06950100 0.09095100 0.10258000 0.10283000 0.09633600 0.09070200 0.09131200 0.09869600 0.10827000 0.11271000 0.10827000 0.09869600 0.09131200 0.09070200 0.09633600 0.10283000 0.10258000 0.09095100 0.06950100 0.04456700 0.02328300 0.00959910 0.00303300 0.00073557 0.00016325 0.00007394 0.00031080
+0.00031080 0.00011587 0.00007131 0.00018791 0.00082675 0.00327530 0.01007200 0.02396500 0.04528300 0.06999900 0.09104900 0.10228000 0.10234000 0.09594000 0.09060100 0.09151900 0.09909300 0.10870000 0.11313000 0.10870000 0.09909300 0.09151900 0.09060100 0.09594000 0.10234000 0.10228000 0.09104900 0.06999900 0.04528300 0.02396500 0.01007200 0.00327530 0.00082675 0.00018791 0.00007131 0.00011587
+```
+切片上的每一行对应一个 y，列对应 x。这里晶格边长 2.8 Å，因此两个相邻采样点相隔约 0.07778 Å。
+
+```text
+[bcgong@localhost charge_elf]$ python read_elf.py
+up grid=[18, 18, 18] values=5832 min=7.3938e-05 max=0.13202
+down grid=[18, 18, 18] values=5832 min=0.00015527 max=0.33107
+Wrote elf-up-z0.dat and elf-down-z0.dat; z=0 slice
+```
+较粗的文件是每个通道 18³ 个点。加密后，两通道最大值分别从 0.13202、0.33107 变为 0.13286、0.33390；主要数值范围相近，但粗网格无法显示细网格才采到的位置。比较两张图时应保持同一截面、同一颜色范围，不靠改变色标来制造差异。
+
+在本机进入解包后的 `fe-bcc/charge_elf_192`，执行：
+
+```bash
+python3 plot_elf.py
 ```
 
-若切面出现锯齿，先检查数据网格、绘图插值与实际输入，再决定如何复算。
+脚本读取两份截面表，并排画出上、下自旋通道；横纵轴为 Å，色标统一为 0–1，输出 `elf-z0.png` 和 `elf-z0.pdf`。在 VESTA 中也可打开 ELFCAR 查看三维等值面；截图时应写明所选自旋数据块与等值面数值。
+
+这张截面反映的是所算共线磁态中的局域化函数。不能把某个颜色直接换算为转移了多少个电子；要讨论转移电子数，接 [Bader](/Atlas/m/bader/vasp/)。要看成键前后的密度增减位置，接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)。
+
+![Fe 上、下自旋的 ELF 截面](/Atlas/examples/vasp/fe-bcc/charge_elf_192/elf-z0.png)
+
+```text
+收敛的共线自旋 SCF + LELF + NPAR=1
+  └─ ELFCAR → 结构头与两套自旋网格检查
+                   └─ 固定 z 的两个截面 → 同一色标可视化
+```

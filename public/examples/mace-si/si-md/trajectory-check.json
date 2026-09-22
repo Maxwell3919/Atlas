@@ -1,0 +1,26 @@
+{
+  "nve-1fs": {
+    "frames": 101,
+    "csv_rows": 101,
+    "atoms_per_frame": 64,
+    "all_frames_finite": true,
+    "max_energy_csv_mismatch_eV_atom": 4.991562718714704e-13,
+    "volume_range_A3": 0.0,
+    "max_total_momentum_ase_units": 6.754135550515241e-15,
+    "minimum_pair_distance_A": 2.094835590190839,
+    "final_rms_displacement_A": 0.26843685625154534
+  },
+  "nve-0p5fs": {
+    "frames": 101,
+    "csv_rows": 101,
+    "atoms_per_frame": 64,
+    "all_frames_finite": true,
+    "max_energy_csv_mismatch_eV_atom": 4.991562718714704e-13,
+    "volume_range_A3": 0.0,
+    "max_total_momentum_ase_units": 6.9125315400528245e-15,
+    "minimum_pair_distance_A": 2.0949198169361503,
+    "final_rms_displacement_A": 0.2684607696667986
+  },
+  "initial_positions_identical": true,
+  "initial_momenta_identical": true
+}

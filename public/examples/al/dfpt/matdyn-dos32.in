@@ -1,0 +1,10 @@
+&INPUT
+ flfrc='al.fc'
+ asr='crystal'
+ dos=.true.
+ nk1=32
+ nk2=32
+ nk3=32
+ deltaE=1.0
+ fldos='al.phdos32.dat'
+/

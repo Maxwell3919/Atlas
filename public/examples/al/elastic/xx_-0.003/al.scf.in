@@ -1,0 +1,33 @@
+&CONTROL
+ calculation = 'scf'
+ prefix = 'al'
+ pseudo_dir = '<赝势库路径>'
+ outdir = './tmp'
+ tstress = .true.
+ tprnfor = .true.
+ verbosity = 'high'
+/
+&SYSTEM
+ ibrav = 0
+ nat = 1
+ ntyp = 1
+ ecutwfc = 40
+ ecutrho = 160
+ occupations = 'smearing'
+ smearing = 'mv'
+ degauss = 0.02
+ nbnd = 6
+/
+&ELECTRONS
+ conv_thr = 1.0d-12
+/
+ATOMIC_SPECIES
+Al 26.9815385 Al.pz-vbc.UPF
+ATOMIC_POSITIONS crystal
+Al 0.00000000000000 0.00000000000000 0.00000000000000
+CELL_PARAMETERS angstrom
+-1.97209979870415 0.00000000000000 1.97803390040536
+0.00000000000000 1.97803390040536 1.97803390040536
+-1.97209979870415 1.97803390040536 0.00000000000000
+K_POINTS automatic
+16 16 16 0 0 0

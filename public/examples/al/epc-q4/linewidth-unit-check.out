@@ -1,0 +1,15 @@
+QE7.5: 1 Ry / h = 3289.841960251 THz
+q2, mode3, electronic width 0.020 Ry
+q_index = 2
+sigma_Ry = 0.02
+mode = 3
+frequency_THz = 7.165696
+gamma_GHz = 23.94
+DOS_EF_states_spin_Ry_cell = 2.646097
+frequency_Ry = 0.002178127729714306
+gamma_Ry = 7.2769453029210975e-06
+lambda_from_printed_gamma = 0.18451292320429052
+lambda_printed = 0.1845
+rounding_tolerance = 8.953653366839819e-05
+below_20_cm1_cutoff = False
+210 above-cutoff rows agree within printed rounding; 30 Gamma rows have lambda set to zero by the native 20 cm^-1 cutoff.

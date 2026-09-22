@@ -1,0 +1,42 @@
+&CONTROL
+ calculation = 'vc-relax'
+ prefix = 'al'
+ pseudo_dir = '../pseudo'
+ outdir = './tmp'
+ tstress = .true.
+ tprnfor = .true.
+ etot_conv_thr = 1.0d-8
+ forc_conv_thr = 1.0d-5
+ nstep = 50
+/
+&SYSTEM
+ ibrav = 2
+ celldm(1) = 7.50
+ nat = 1
+ ntyp = 1
+ ecutwfc = 40
+ ecutrho = 160
+ occupations = 'smearing'
+ smearing = 'mv'
+ degauss = 0.02
+ nbnd = 6
+/
+&ELECTRONS
+ conv_thr = 1.0d-12
+/
+&IONS
+ ion_dynamics = 'bfgs'
+/
+&CELL
+ cell_dynamics = 'bfgs'
+ cell_dofree = 'ibrav'
+ press = 0.0
+ press_conv_thr = 0.05
+/
+ATOMIC_SPECIES
+Al 26.9815385 Al.pz-vbc.UPF
+ATOMIC_POSITIONS crystal
+Al 0.0 0.0 0.0
+K_POINTS automatic
+16 16 16 0 0 0
+

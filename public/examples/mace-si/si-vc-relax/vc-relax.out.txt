@@ -1,0 +1,38 @@
+<MACE环境>/lib/python3.12/site-packages/e3nn/o3/_wigner.py:10: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  _Jd, _W3j_flat, _W3j_indices = torch.load(os.path.join(os.path.dirname(__file__), 'constants.pt'))
+cuequivariance or cuequivariance_torch is not available. Cuequivariance acceleration will be disabled.
+MACE 0.3.16 ASE 3.29.0
+model_sha256 2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736
+<MACE环境>/lib/python3.12/site-packages/mace/calculators/mace.py:226: UserWarning: Environment variable TORCH_FORCE_NO_WEIGHTS_ONLY_LOAD detected, since the`weights_only` argument was not explicitly passed to `torch.load`, forcing weights_only=False.
+  torch.load(f=model_path, map_location=device)
+INITIAL atoms=8 energy_eV=-42.7667768420 volume_A3=175.61600000
+{
+  "converged": true,
+  "steps": 18,
+  "initial_energy_eV": -42.76677684200746,
+  "energy_eV": -42.967165172147226,
+  "initial_volume_A3": 175.61599999999996,
+  "volume_A3": 163.18884458209394,
+  "cell_lengths_A": [
+    5.464480703128529,
+    5.464718899266747,
+    5.464793393633502
+  ],
+  "cell_angles_deg": [
+    89.99451924668405,
+    90.00373954700109,
+    89.99687367253333
+  ],
+  "fmax_eV_A": 0.0002580385197946813,
+  "stress_eV_A3": [
+    -7.795706733771092e-06,
+    2.4939587082779995e-06,
+    5.71265227698127e-06,
+    1.5484093725681533e-05,
+    -1.2207863628214975e-05,
+    1.1799012875139589e-05
+  ],
+  "max_abs_stress_GPa": 0.002480825296156292,
+  "wall_seconds": 1.0119415447115898
+}
+VC_RELAX_ACCEPTED

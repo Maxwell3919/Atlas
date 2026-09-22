@@ -1,0 +1,32 @@
+[
+  {
+    "half_window_inv_A": 0.01,
+    "npoints": 7,
+    "quadratic_A_eVA2": 3.983440700996282,
+    "minimum_k_inv_A": 0.9828411703552794,
+    "minimum_k_tpiba": 0.8443155283804056,
+    "minimum_energy_eV": 6.935522147931746,
+    "mass_over_me": 0.9564550854747157,
+    "rms_residual_meV": 0.00021245759702422803
+  },
+  {
+    "half_window_inv_A": 0.02,
+    "npoints": 13,
+    "quadratic_A_eVA2": 3.9857366171013453,
+    "minimum_k_inv_A": 0.9828241203200428,
+    "minimum_k_tpiba": 0.8443008814466549,
+    "minimum_energy_eV": 6.9355219367617105,
+    "mass_over_me": 0.9559041357142399,
+    "rms_residual_meV": 0.0008655800553457263
+  },
+  {
+    "half_window_inv_A": 0.03,
+    "npoints": 21,
+    "quadratic_A_eVA2": 3.9871029601794854,
+    "minimum_k_inv_A": 0.9827881580884817,
+    "minimum_k_tpiba": 0.844269987878642,
+    "minimum_energy_eV": 6.935521564306659,
+    "mass_over_me": 0.955576556263134,
+    "rms_residual_meV": 0.0036125283432944474
+  }
+]

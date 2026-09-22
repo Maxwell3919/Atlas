@@ -1,0 +1,12 @@
+{
+  "source_trajectory_unchanged": true,
+  "independent_initial_velocities": true,
+  "mapped_frames": 101,
+  "independent_frames": 51,
+  "saved_force_max_difference_eV_A": 0.0,
+  "independent_prediction_max_difference_eV_A": 0.0,
+  "independently_recomputed_RMSE_meV_A": 76.89831035078684,
+  "yaml_force_constant_max_difference_eV_A2": 4.679416576447437e-16,
+  "gamma_reload_max_difference_THz": 3.754156711138878e-07,
+  "all_dispersion_rows_finite": true
+}

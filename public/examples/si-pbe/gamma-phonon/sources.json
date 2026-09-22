@@ -1,0 +1,126 @@
+{
+  "case": "Si Gamma, fixed example geometry",
+  "qe_version": "7.5",
+  "files": [
+    {
+      "file": "dynmat-crystal.err",
+      "source_sha256": "afc74ed6b6b9ce9e8643fd1c32f2a91ed8518e36d13136d3ecbd1d36be34c7e4",
+      "public_sha256": "afc74ed6b6b9ce9e8643fd1c32f2a91ed8518e36d13136d3ecbd1d36be34c7e4"
+    },
+    {
+      "file": "dynmat-crystal.in",
+      "source_sha256": "f28e5202701a944f7c0f6ad7134c92a9fe49e86b0b1b458eefdc1da009ea1bed",
+      "public_sha256": "f28e5202701a944f7c0f6ad7134c92a9fe49e86b0b1b458eefdc1da009ea1bed"
+    },
+    {
+      "file": "dynmat-crystal.out",
+      "source_sha256": "50cc218171f9f39a2941a9b0396dad3c4decb4127daa8832af09b8451cb7357f",
+      "public_sha256": "50cc218171f9f39a2941a9b0396dad3c4decb4127daa8832af09b8451cb7357f"
+    },
+    {
+      "file": "dynmat-no.err",
+      "source_sha256": "afc74ed6b6b9ce9e8643fd1c32f2a91ed8518e36d13136d3ecbd1d36be34c7e4",
+      "public_sha256": "afc74ed6b6b9ce9e8643fd1c32f2a91ed8518e36d13136d3ecbd1d36be34c7e4"
+    },
+    {
+      "file": "dynmat-no.in",
+      "source_sha256": "17c31f732b318d744d595a48d38e33114e04dcdf7d0666a3f119827dc7d16561",
+      "public_sha256": "17c31f732b318d744d595a48d38e33114e04dcdf7d0666a3f119827dc7d16561"
+    },
+    {
+      "file": "dynmat-no.out",
+      "source_sha256": "5f63504c4f9b5e89b2359b6c5ede29f9f4ac441d5f75e1fa709772d7f7c5e110",
+      "public_sha256": "5f63504c4f9b5e89b2359b6c5ede29f9f4ac441d5f75e1fa709772d7f7c5e110"
+    },
+    {
+      "file": "dynmat.axsf",
+      "source_sha256": "f5f411436315855c72eee877b83b87a69043bdfc0ce4cc18b7d2df7204f9b59c",
+      "public_sha256": "f5f411436315855c72eee877b83b87a69043bdfc0ce4cc18b7d2df7204f9b59c"
+    },
+    {
+      "file": "ph.err",
+      "source_sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025",
+      "public_sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+    },
+    {
+      "file": "ph.in",
+      "source_sha256": "1e31e0eaaaa5123e4cf82ea4dc287da8281c76551153359015937261624de81b",
+      "public_sha256": "1e31e0eaaaa5123e4cf82ea4dc287da8281c76551153359015937261624de81b"
+    },
+    {
+      "file": "ph.out",
+      "source_sha256": "a8824584c89b7941cff5cf88d0a62fefc069f6c7c5909377c85f2c5977b45f00",
+      "public_sha256": "a8824584c89b7941cff5cf88d0a62fefc069f6c7c5909377c85f2c5977b45f00"
+    },
+    {
+      "file": "run.sh",
+      "source_sha256": "dee27ba1f157b667c35959d2e37cce0b4cf3e803de46e83ce3a00d6d13859b70",
+      "public_sha256": "7eb9e555fab21677af61b4d629f374a675aec403e33a15b364d6a8ca5a5b40ea"
+    },
+    {
+      "file": "scf.err",
+      "source_sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025",
+      "public_sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+    },
+    {
+      "file": "scf.in",
+      "source_sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c",
+      "public_sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+    },
+    {
+      "file": "scf.out",
+      "source_sha256": "e34dee4baece934ca4365b0d2ab51c2018c4e7c740eca67aa12a37cfeb218bf6",
+      "public_sha256": "e34dee4baece934ca4365b0d2ab51c2018c4e7c740eca67aa12a37cfeb218bf6"
+    },
+    {
+      "file": "si-crystal.modes",
+      "source_sha256": "a6b0d2a190ad4e4e20683a883e44af070e5518585fbcfac8ab27d0ca06ffe67f",
+      "public_sha256": "a6b0d2a190ad4e4e20683a883e44af070e5518585fbcfac8ab27d0ca06ffe67f"
+    },
+    {
+      "file": "si-crystal.mold",
+      "source_sha256": "82bf6a0c5c90917dcdc14db5fc8e5bd414e04ce7fa474e8d1ff5fa18e7bc517c",
+      "public_sha256": "82bf6a0c5c90917dcdc14db5fc8e5bd414e04ce7fa474e8d1ff5fa18e7bc517c"
+    },
+    {
+      "file": "si-no.modes",
+      "source_sha256": "149db19222c742a711044f4f97d713e423bd19961e5a61373f96d38f53e623ec",
+      "public_sha256": "149db19222c742a711044f4f97d713e423bd19961e5a61373f96d38f53e623ec"
+    },
+    {
+      "file": "si-no.mold",
+      "source_sha256": "4b5897bb3edc78cfc92948e7f323f6546500c5a4292b71de4595faa100e8d444",
+      "public_sha256": "4b5897bb3edc78cfc92948e7f323f6546500c5a4292b71de4595faa100e8d444"
+    },
+    {
+      "file": "plot_asr.py",
+      "source_sha256": "334fbdf4d65228c9925aef8e9761385721f86c838a881f5c1ee6cdf72bbcf514",
+      "public_sha256": "334fbdf4d65228c9925aef8e9761385721f86c838a881f5c1ee6cdf72bbcf514"
+    },
+    {
+      "file": "si.dynG",
+      "source_sha256": "4c11750ce1aae956fc9bda343ad599de985718a6c4c2ae33fd99745f45b6a937",
+      "public_sha256": "4c11750ce1aae956fc9bda343ad599de985718a6c4c2ae33fd99745f45b6a937"
+    },
+    {
+      "file": "asr-comparison.csv",
+      "source_sha256": "d63c26f117a5570ac0ef71537295ec73a44d5fe4a3e9800616e44f6db3a2e755",
+      "public_sha256": "2b814d6db73c2ca2d391623f571c656cf33cb7eb7a2a02d2967f23c5c714796f"
+    },
+    {
+      "file": "si-gamma-asr.svg",
+      "source_sha256": "63e74d60a007f661aadf95732f994c10f8c2ae57966df08d56c0fdf0d90b18b9",
+      "public_sha256": "63e74d60a007f661aadf95732f994c10f8c2ae57966df08d56c0fdf0d90b18b9"
+    },
+    {
+      "file": "si-gamma-asr.png",
+      "source_sha256": "ba445eed6f1aecf020211227b921dc8ccd7c760eed19677388918870fde41eec",
+      "public_sha256": "ba445eed6f1aecf020211227b921dc8ccd7c760eed19677388918870fde41eec"
+    },
+    {
+      "file": "si-gamma-asr.pdf",
+      "source_sha256": "f2315c401c0ef2ceaff8c625802e1f8c712de6583783684e190d3d3727321198",
+      "public_sha256": "f2315c401c0ef2ceaff8c625802e1f8c712de6583783684e190d3d3727321198"
+    }
+  ]
+}

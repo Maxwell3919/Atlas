@@ -1,237 +1,126 @@
-参考：
+[dos.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_DOS.html) · [projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/)
 
-- QE 官方文档 INPUT_DOS：<https://www.quantum-espresso.org/Doc/INPUT_DOS.html>
-- QE 官方文档 INPUT_PROJWFC：<https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html>
+## 在能量轴上数状态，先用均匀 k 网格
 
-## TDOS 与 PDOS：dos.x 和 projwfc.x
+这里接 [Si 的 24³ NSCF](/Atlas/m/nscf/qe/)。那一页已经保留 8 条能带并检查本征值求解；`dos.x` 在这些带能量上做布里渊区加权，不再求一份新的电荷密度。高对称路径的点分布服务于画线，不能代替这里的均匀采样。
 
-DOS 描述「某个特定能量位置上有多少个可供电子占据的量子态」，横坐标能量、纵坐标状态数。上一页的 DOS-NSCF（k 36×36×1）跑完后，TDOS 与 PDOS 都直接读取 `07_dos/nscf/out/HfCl2_PbO2.save`，不需要再复制波函数目录。两者分工：`dos.x` 出总态密度（TDOS），`projwfc.x` 出逐原子逐轨道投影（PDOS）。
+本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
-### TDOS：dos.in 与提交
+下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 
-```bash
-[hzw@localhost QE]$ cd <工作目录>/QE
+## 让 dos.x 读取正确的那份保存数据
 
-[hzw@localhost QE]$ mkdir -p 07_dos/tdos
-[hzw@localhost QE]$ cd 07_dos/tdos
-
-[hzw@localhost tdos]$ cat > dos.in <<'EOF'
-&DOS
-  prefix = 'HfCl2_PbO2'
-  outdir = '../nscf/out/'
-  fildos = 'HfCl2_PbO2.dos'
-  Emin = -10.0
-  Emax = 10.0
-  DeltaE = 0.01
-  ngauss = 0
-  degauss = 0.0037
-/
-EOF
-```
-
-`degauss = 0.0037 Ry` 与前面的 SCF/NSCF 保持一致；比较时应标出各自展宽，另做展宽与 k 采样检查，不把一致的输入自动当成收敛。能量窗 −10 到 10 eV、步长 0.01 eV，覆盖费米能级上下足够远。
-
-```bash
-[hzw@localhost tdos]$ cat > dos.slurm <<'EOF'
-#!/bin/bash
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-ulimit -s unlimited
-ulimit -l unlimited
-
-source /data/intel/oneapi/setvars.sh
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 56 <qe_bin>/dos.x \
-  -in dos.in > dos.out
-EOF
-
-[hzw@localhost tdos]$ sbatch dos.slurm
-```
-
-### TDOS 验收
-
-```bash
-[hzw@localhost tdos]$ grep "JOB DONE" dos.out
-   JOB DONE.
-[hzw@localhost tdos]$ cat _err.*.log
-[hzw@localhost tdos]$
-[hzw@localhost tdos]$ ls -lh HfCl2_PbO2.dos
--rw-rw-r-- 1 hzw hzw 65K Sep  5 14:22 HfCl2_PbO2.dos
-[hzw@localhost tdos]$ head HfCl2_PbO2.dos
-#  E (eV)   dos(E)     Int dos(E) EFermi =    0.050 eV
- -10.000  0.9616E-84  0.9616E-86
-  -9.990  0.9616E-84  0.1923E-85
-  -9.980  0.9616E-84  0.2885E-85
-  -9.970  0.9616E-84  0.3846E-85
-  -9.960  0.9616E-84  0.4808E-85
-  -9.950  0.9616E-84  0.5770E-85
-  -9.940  0.9616E-84  0.6731E-85
-  -9.930  0.9616E-84  0.7693E-85
-  -9.920  0.9616E-84  0.8654E-85
-[hzw@localhost tdos]$
-```
-
-判读：JOB DONE、err 日志为空、.dos 文件生成；文件头直接给出本次用的费米能级 `EFermi = 0.050 eV`。深能级处 dos(E) 是 10⁻⁸⁴ 量级——不是零但完全可忽略，说明展宽下限正常。
-
-### PDOS：projwfc.in 与提交
-
-```bash
-[hzw@localhost QE]$ mkdir -p 07_dos/pdos
-[hzw@localhost QE]$ cd 07_dos/pdos
-
-[hzw@localhost pdos]$ cat > projwfc.in <<'EOF'
-&PROJWFC
-  prefix = 'HfCl2_PbO2'
-  outdir = '../nscf/out/'
-  filpdos = 'HfCl2_PbO2'
-  Emin = -10.0
-  Emax = 10.0
-  DeltaE = 0.01
-  ngauss = 0
-  degauss = 0.0037
-/
-EOF
-
-[hzw@localhost pdos]$ cat > pdos.slurm <<'EOF'
-#!/bin/bash
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-ulimit -s unlimited
-ulimit -l unlimited
-
-source /data/intel/oneapi/setvars.sh
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 56 <qe_bin>/projwfc.x \
-  -in projwfc.in > projwfc.out
-EOF
-
-[hzw@localhost pdos]$ sbatch pdos.slurm
-```
-
-### PDOS 验收：文件体系与轨道通道
-
-```bash
-[hzw@localhost pdos]$ grep "JOB DONE" projwfc.out
-   JOB DONE.
-[hzw@localhost pdos]$
-[hzw@localhost pdos]$ grep -iE "error|warning" projwfc.out | tail -n 30
-[hzw@localhost pdos]$
-[hzw@localhost pdos]$ ls -lh HfCl2_PbO2*
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#2(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#3(p)
--rw-rw-r-- 1 hzw hzw 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#4(d)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#2(p)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#2(p)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#2(p)
--rw-rw-r-- 1 hzw hzw 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#3(d)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#2(p)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#1(s)
--rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#2(p)
--rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_tot
-[hzw@localhost pdos]$
-```
-
-再抓一下投影通道清单，它告诉你每个原子有哪些 s/p/d 投影轨道（`grep "state #" projwfc.out`，本例 35 条 state：Hf s+p+d、Cl 各 s+p、Pb s+p+d、O 各 s+p，完整清单见 projwfc.out）。归纳成：
+本次从已检查的 `gap24-cg/tmp` 复制到 `dos-cg/tmp`，后处理有自己的目录。用 `vi dos.in` 保存下列实际输入：
 
 ```text
-Hf : s + p + d
-Cl : s + p
-Pb : s + p + d
-O  : s + p
+[preston@preston-System-Product-Name dos-cg]$ cat dos.in
+&DOS
+  prefix = 'si'
+  outdir = './tmp'
+  fildos = 'si.dos.dat'
+  Emin = -8.0
+  Emax = 16.0
+  DeltaE = 0.02
+  ngauss = 0
+  degauss = 0.01
+/
+```
+`Emin/Emax/DeltaE` 使用 **eV**，而 `degauss` 使用 **Ry**。这里 0.01 Ry 约为 0.1361 eV，不能把它读成 0.01 eV。`ngauss=0` 选择普通 Gaussian 展宽；能量轴上采样更密只会让曲线绘得更细，并没有增加电子 k 点。
+
+`dos.x` 根据保存的带能量和权重计算总 DOS，本身不需要再读取所有波函数。需要轨道投影时，`projwfc.x` 才沿另一条依赖读取相应波函数，见 [布居与投影](/Atlas/m/population-analysis/qe/)。
+
+```text
+[preston@preston-System-Product-Name dos-cg]$ cat run.sh
+#!/bin/bash
+#SBATCH --job-name=atlas-si-dos
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:20:00
+#SBATCH --output=_out.%j.log
+#SBATCH --error=_err.%j.log
+unset DISPLAY XAUTHORITY
+ulimit -s unlimited
+ulimit -c 0
+export OMP_NUM_THREADS=1
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+cd "$SLURM_SUBMIT_DIR"
+/usr/bin/mpirun --bind-to none -np 4 <qe_bin>/dos.x -in dos.in > dos.out 2> dos.err
+```
+这份短后处理仍以 Slurm 脚本运行，`sbatch run.sh` 提交后，先读 `dos.out` 和 `dos.err`，确认保存目录、交换关联设置和展宽都与预期对应。本次输出中的这几段是：
+
+```text
+     Reading xml data from directory:
+
+     ./tmp/si.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
 ```
 
-TDOS 和 PDOS 都正常完成、无 warning/error，DOS 流程可以判定完成。
+```text
+     Gaussian broadening (read from input): ngauss,degauss=   0    0.010000
 
-### 定量判读：DOS(EF) 与金属判定
 
-先把 E_F 附近的 DOS 定量取出来。dos.x 给出的费米能级是 0.050 eV：
+     DOS          :      0.70s CPU      0.73s WALL
+
+
+   This run was terminated on:  22: 2:58  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+```
+本次实际 WALL 时间为 0.73 s。[dos.err](/Atlas/examples/si-pbe/dos-cg/dos.err) 为 1300 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；原始文件随结果保留。本轮已写出完整 DOS 表，输出未见致命错误。`JOB DONE.` 表明这一步执行完毕；图的可靠范围仍取决于 NSCF 的空带数、k 网格与后处理展宽。
+
+## 数据文件的第三列不是“又一条 DOS”
+
+```text
+[preston@preston-System-Product-Name dos-cg]$ head -n 6 si.dos.dat
+#  E (eV)   dos(E)     Int dos(E) EFermi =    6.397 eV
+  -8.000  0.9182E-85  0.1836E-86
+  -7.980  0.9182E-85  0.3673E-86
+  -7.960  0.9182E-85  0.5509E-86
+  -7.940  0.9182E-85  0.7345E-86
+  -7.920  0.9182E-85  0.9182E-86
+```
+三列依次为能量 eV、总 DOS（states/eV/cell）和累计态数。这里是非自旋极化体系，总 DOS 已计入自旋简并；不要再额外乘 2。
+
+开头的 DOS 约 10⁻⁸⁵，位于本次能带范围以外。这个小数不能单独被命名为某种物理“下限”；应结合采样能区、有限展宽与程序的数值处理来读。再看文件末尾：
+
+```text
+[preston@preston-System-Product-Name dos-cg]$ tail -n 4 si.dos.dat
+  15.940  0.2460E-01  0.1597E+02
+  15.960  0.2901E-01  0.1597E+02
+  15.980  0.3403E-01  0.1597E+02
+  16.000  0.3945E-01  0.1597E+02
+```
+积分到 16 eV 时约为 15.97 个态，接近 8 条带乘自旋简并的 16；它包含空态，因此不是应当等于整胞 8 个电子的电子数验收。有限能窗也可能漏掉高能端的部分带和展宽尾部。
+
+## 从原始能量转到相对价带顶的图
+
+在解包后的 `si-pbe` 目录运行：
 
 ```bash
-[hzw@localhost tdos]$ awk '
-> BEGIN { EF=0.050; best=1e9 }
-> $1 !~ /^#/ {
->     d=$1-EF
->     if(d<0)d=-d
->     if(d<best){
->         best=d
->         E=$1
->         DOS=$2
->         INT=$3
->     }
-> }
-> END {
->     print "E nearest EF =",E,"eV"
->     print "DOS(EF)      =",DOS,"states/eV/cell"
->     print "Int DOS      =",INT
-> }
-> ' HfCl2_PbO2.dos
-E nearest EF = 0.050 eV
-DOS(EF)      = 0.1893E+01 states/eV/cell
-Int DOS      = 0.2601E+02
+python3 plot_si.py dos
 ```
 
-再看费米能级前后 ±0.1 eV 的逐点形状：
+![Si 的总态密度，能量相对同一 24³ NSCF 的价带顶](/Atlas/examples/si-pbe/plots/dos.png)
 
-```bash
-[hzw@localhost tdos]$ awk '
-> $1 !~ /^#/ && $1>=-0.05 && $1<=0.15 {
->     print
-> }
-> ' HfCl2_PbO2.dos
-  -0.050  0.5132E+00  0.2588E+02
-  -0.040  0.5509E+00  0.2589E+02
-   ...
-   0.040  0.1911E+01  0.2599E+02
-   0.050  0.1893E+01  0.2601E+02
-   0.060  0.1785E+01  0.2603E+02
-   ...
-   0.150  0.8934E+00  0.2613E+02
-```
+脚本读取 `dos-cg/si.dos.dat` 的前两列，并从 `gap-results.json` 读取同一 `gap24-cg` 的 VBM，再平移能量轴。图中的阴影只是曲线下方的填色，不代表某种元素或轨道投影。完整[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)与[原始 DOS 表](/Atlas/examples/si-pbe/dos-cg/si.dos.dat)可以单独下载。
 
-DOS 在 E_F 两侧连续、没有落零的缺口。再看 pdos_tot 在 E_F 最近一点的值：
-
-```bash
-[hzw@localhost pdos]$ awk '
-> BEGIN { EF=0.050; best=1e9 }
-> $1 !~ /^#/ {
->     d=$1-EF
->     if(d<0)d=-d
->     if(d<best){ best=d; line=$0 }
-> }
-> END { print line }
-> ' HfCl2_PbO2.pdos_tot
-   0.050  0.189E+01  0.184E+01
-[hzw@localhost pdos]$
-```
-
-在 E_F 附近，dos.x 给出 1.893 states/eV/cell，pdos_tot 的两列为 1.89 和 1.84。`0.189E+01` 表示 1.89，读数时要保留科学计数法的指数。这个点上投影和与总 DOS 接近，但不能由单点比例宣布投影基组完备。有限展宽下的非零 DOS 也应结合能带交叉和采样检查来判断。
-
-### 把总 DOS 与投影和放在一起
-
-![同一候选结构的总 DOS 与总投影 DOS 对照](/Atlas/figures/dos.svg)
-
-图中能量统一减去 0.050 eV，虚线为 projwfc.x 的投影和。两者并非每处都完全相同。比较应在所讨论的能量窗口进行，记录 k 网格、展宽和投影定义，而不是只算费米能级一个点的比值。
+Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这一张有展宽的图上量出高精度带隙。带边位置与采样依赖回到 [带隙页](/Atlas/m/band-gap/qe/)核对；DOS 峰形需要另做 k 网格与展宽的交叉比较。
 
 ## 下一步
 
-DOS 主流程完成，进入能带计算（bands → bands.x），轨道分辨的深入分析（按元素×轨道拆 PDOS 权重）见胖带数据页：
+需要 s/p 总贡献时进入 [投影与布居](/Atlas/m/population-analysis/qe/)；需要知道每个 k、每条带的 s/p 权重时进入 [胖带](/Atlas/m/fatband/qe/)。后者保留 k 分辨信息，与沿整个布里渊区积分的 PDOS 用途不同。
 
 ```text
-static SCF → DOS-NSCF（上一页）
-    ↓
-dos.x → TDOS       ← 本页
-projwfc.x → PDOS   ← 本页
-    ↓
-bands → bands.x
+SCF → 均匀 NSCF → dos.x → 总 DOS 与累计态数
+                 └─ projwfc.x → 轨道投影与布居
+SCF → 路径 bands ── projwfc.x → 逐 k 胖带
 ```
