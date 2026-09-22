@@ -1,0 +1,6 @@
+Direct DFT validation: 13 path points, 4 valence eigenvalues at each point
+Common energy reference: direct Gamma valence maximum = 6.386039243 eV
+mesh   n_k   spread_bohr2   MLWF_iterations   max_error_eV   RMSE_eV
+4^3     64    22.766427441        9           0.214117881   0.082717233
+6^3    216    26.905582236       13           0.083242336   0.026945536
+Interpolation comparison is limited to these 13 points; no full-grid convergence or conduction-band claim.

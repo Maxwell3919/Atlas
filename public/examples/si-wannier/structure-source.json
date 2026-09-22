@@ -1,0 +1,13 @@
+{
+  "source": "Wannier90 3.1.0 official example11 shipped with QE7.5",
+  "structure": "diamond Si, 2 atoms, ibrav=2, celldm(1)=10.2 bohr",
+  "not_relaxed_here": true,
+  "modifications": [
+    "40/320 Ry cutoffs",
+    "explicit fixed occupations and 4 valence bands",
+    "full k grid with nosym/noinv",
+    "four bond-centred s projections; isolated valence subspace; no disentanglement",
+    "4^3 and 6^3 uniform meshes"
+  ],
+  "protocol_convergence": "not established"
+}

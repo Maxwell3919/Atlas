@@ -41,7 +41,7 @@ assert len(mp)==10
 scan=[]
 for j,(sigma,lam,li,wlog,dosef) in enumerate(dat):
     weighted=sum(v['star_weight']/64*v['lambda_mode'] for v in rows if abs(v['sigma_Ry']-sigma)<1e-10)
-    integ=2*np.trapz(af[1:,j+1]/af[1:,0],af[1:,0])
+    integ=2*(np.trapezoid if hasattr(np, "trapezoid") else np.trapz)(af[1:,j+1]/af[1:,0],af[1:,0])
     assert abs(weighted-lam)<1e-6 and abs(integ-li)<2e-5
     denom=lam-.1*(1+.62*lam); assert denom>0
     tc=wlog/1.2*np.exp(-1.04*(1+lam)/denom)

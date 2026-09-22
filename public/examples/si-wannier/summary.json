@@ -1,0 +1,46 @@
+{
+  "qe_version": "7.5",
+  "wannier90_version": "3.1.0",
+  "validation_unique_kpoints": 12,
+  "validation_points": 13,
+  "validation_eigenvalues": 52,
+  "energy_reference": "highest occupied direct DFT Gamma eigenvalue",
+  "energy_reference_eV": 6.3860392433843165,
+  "direct_DFT_source": "k4/validation/si.bands.in and bands.data-file-schema.xml",
+  "scope": "4 isolated valence bands only; no conduction bands, gap or transport claim",
+  "kmesh_results": {
+    "4": {
+      "num_kpoints": 64,
+      "num_bands": 4,
+      "num_wann": 4,
+      "spread_bohr2": 22.766427441,
+      "spread_angstrom2": 6.375248994263501,
+      "wannier_iterations": 9,
+      "validation_max_abs_error_eV": 0.2141178814062088,
+      "validation_RMSE_eV": 0.08271723308038685,
+      "native_complete": true,
+      "scientific_protocol_convergence": "not established"
+    },
+    "6": {
+      "num_kpoints": 216,
+      "num_bands": 4,
+      "num_wann": 4,
+      "spread_bohr2": 26.905582236,
+      "spread_angstrom2": 7.5343303877895815,
+      "wannier_iterations": 13,
+      "validation_max_abs_error_eV": 0.0832423361602519,
+      "validation_RMSE_eV": 0.026945535916978305,
+      "native_complete": true,
+      "scientific_protocol_convergence": "not established"
+    }
+  },
+  "pseudopotential": {
+    "filename": "Si.pbe-n-van.UPF",
+    "source": "https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-van.UPF",
+    "sha256": "9d217d7893f893994a9914b3cba1affaafb25b13928baef576127374d2b5a932",
+    "type": "USPP",
+    "functional": "PBE",
+    "relativistic": "nonrelativistic",
+    "valence_electrons": 4
+  }
+}

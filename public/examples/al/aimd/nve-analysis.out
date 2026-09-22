@@ -1,0 +1,7 @@
+case                steps  dt_fs    coord_end_fs  energy_range_meV_atom  mean_T_K
+nve-dt20-nosym        50  0.967554  48.377687       0.019405       142.856
+nve-dt10-nosym       100  0.483777  48.377687       0.004269       142.226
+All 150 SCF cycles converged; no final-iteration diagonalization warning; 2 native JOB DONE endings.
+Early SCF diagonalization warnings: {'nve-dt20-nosym': 1, 'nve-dt10-nosym': 0}
+NVE position difference at the common final time: 2.272203084249565e-05 angstrom RMS
+NVE total-energy conservation tested only over ~48 fs; no thermodynamic convergence claim.

@@ -164,7 +164,7 @@ q_index,qx,qy,qz,star_weight,sigma_Ry,mode,frequency_THz,frequency_cm1,lambda_mo
 
 横坐标是上表的文件编号，三种颜色对应同一个 q 点的三个模式。上图保留 γ 的 GHz 单位，下图为无量纲 λ；两张图一起读，能看到较大的线宽并不必然对应最大的 λ。要研究高对称路径上的连续线宽，可以继续在同一套 EPC 实空间数据上设置 matdyn 路径；本图只展示已经直接计算的这 8 个代表点。
 
-下载 [linewidth.csv](/Atlas/examples/al/epc-q4/linewidth.csv)、[analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) 与 [plot_epc.py](/Atlas/examples/al/plot_epc.py)，保持 `epc-q4` 子目录结构，在 Al 数据目录运行：
+下载[完整 Al 示例包](/Atlas/examples/al-lesson-files.tar.gz)，解压后进入 `al` 目录。包内的 [plot_epc.py](/Atlas/examples/al/plot_epc.py) 会同时读取 `epc-q4` 下的 `linewidth.csv`、`alpha2F.dat`、`tc-scan.csv` 和 `mu-sensitivity.csv`，生成线宽与 EPC 的配套图：
 
 ```bash
 python plot_epc.py

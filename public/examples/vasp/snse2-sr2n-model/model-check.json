@@ -1,0 +1,79 @@
+{
+  "reference": {
+    "file": "POSCAR.reference",
+    "sha256": "8df6f97cce96d70aae848421ee1424bbacc35261df7723c61267ece8d6a0625f",
+    "n_atoms": 6,
+    "a_A": 3.950115620714601,
+    "b_A": 3.9501156194308513,
+    "gamma_deg": 119.99999999787727,
+    "normal_height_A": 39.40218779384673,
+    "normal_gap_A": 2.157839544395461,
+    "minimum_interlayer_distance_A": 3.1396511418984274,
+    "empty_interval_A": 31.21570966300952,
+    "slab_center_normal_A": 20.831543022684546,
+    "SnSe2_thickness_A": 3.3249000154262625,
+    "Sr2N_thickness_A": 2.703738571015485,
+    "cell": [
+      [
+        3.950115620714601,
+        1.522404e-10,
+        -0.0
+      ],
+      [
+        -1.9750578097205296,
+        3.4209004743098745,
+        0.0
+      ],
+      [
+        -1e-16,
+        2e-16,
+        39.40218779384673
+      ]
+    ]
+  },
+  "gap3p0": {
+    "file": "POSCAR.gap3p0",
+    "sha256": "e8eaaf1c00af2d1e0ce74f8f210915a4bba7743a67c97b9d9c78a07704244db0",
+    "n_atoms": 6,
+    "a_A": 3.950115620714601,
+    "b_A": 3.9501156194308513,
+    "gamma_deg": 119.99999999787727,
+    "normal_height_A": 39.40218779384673,
+    "normal_gap_A": 3.0,
+    "minimum_interlayer_distance_A": 3.7684397027771697,
+    "empty_interval_A": 30.373549207404984,
+    "slab_center_normal_A": 19.70109389692336,
+    "SnSe2_thickness_A": 3.324900015426259,
+    "Sr2N_thickness_A": 2.703738571015485,
+    "cell": [
+      [
+        3.950115620714601,
+        1.522404e-10,
+        -0.0
+      ],
+      [
+        -1.9750578097205296,
+        3.4209004743098745,
+        0.0
+      ],
+      [
+        -1e-16,
+        2e-16,
+        39.40218779384673
+      ]
+    ]
+  },
+  "comparison": {
+    "max_cell_change_A": 0.0,
+    "max_fractional_xy_change": 0.0,
+    "rigid_fractional_c_shifts_SnSe2_Sr2N": [
+      -0.018003287067975826,
+      -0.03937673110135648
+    ],
+    "SnSe2_reference_a_A": 3.846405268762755,
+    "SnSe2_reference_b_A": 3.846405268793599,
+    "SnSe2_a_extension_percent": 2.69629289440958,
+    "SnSe2_b_extension_percent": 2.6962928602107583,
+    "a_vector_angle_to_SnSe2_reference_deg": 2.1852882721694453e-09
+  }
+}

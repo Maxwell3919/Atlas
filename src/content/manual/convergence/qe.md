@@ -248,7 +248,7 @@ Submitted batch job 783
 ```
 
 
-末尾则用于确认程序确实走到结束。`PWSCF` 一行同时给出 CPU 和 WALL 时间；`JOB DONE.` 要和前面的电子收敛信息一起读。最早几次运行的 `scf.err` 含图形环境授权提示，原件仍保留；对应输入、能量迭代和结束标志已逐项核对。后续作业脚本清除了 `DISPLAY` 和 `XAUTHORITY`。
+末尾则用于确认程序确实走到结束。`PWSCF` 一行同时给出 CPU 和 WALL 时间；`JOB DONE.` 要和前面的电子收敛信息一起读。最早几次运行的 `scf.err` 含图形环境授权提示，原件仍保留；对应输入、能量迭代和结束标志已逐项核对。后续作业脚本清除了 `DISPLAY` 和 `XAUTHORITY`，但部分后续 MPI 任务仍收到同类提示，错误流仍需逐次检查。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ tail -n 12 scf/scf.out

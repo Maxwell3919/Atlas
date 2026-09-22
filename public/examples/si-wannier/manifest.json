@@ -1,0 +1,496 @@
+{
+  "files": [
+    {
+      "file": "examples/si-wannier/analyse_wannier.py",
+      "bytes": 5791,
+      "public_sha256": "143b5167e992eb0a915cf043f7d89f99748038e423f0463f64c6289000d6ac02",
+      "source_sha256": "143b5167e992eb0a915cf043f7d89f99748038e423f0463f64c6289000d6ac02"
+    },
+    {
+      "file": "examples/si-wannier/analysis.out",
+      "bytes": 466,
+      "public_sha256": "330fd9483201a8ea0c021126551caf8ad35cbaca81e548aad9f230227823b748",
+      "source_sha256": "330fd9483201a8ea0c021126551caf8ad35cbaca81e548aad9f230227823b748"
+    },
+    {
+      "file": "examples/si-wannier/direct-bands.csv",
+      "bytes": 4417,
+      "public_sha256": "41134de20d6c36d9374df08af99996728c9fa80ac76d28a504e61375da3659bd",
+      "source_sha256": "41134de20d6c36d9374df08af99996728c9fa80ac76d28a504e61375da3659bd"
+    },
+    {
+      "file": "examples/si-wannier/figures/wannier-bands.pdf",
+      "bytes": 25895,
+      "public_sha256": "19dc5a0f668bb0d811cdfd1ed9f67f050f4ffd5529abbefe5b087b462a1cfe86",
+      "source_sha256": "19dc5a0f668bb0d811cdfd1ed9f67f050f4ffd5529abbefe5b087b462a1cfe86"
+    },
+    {
+      "file": "examples/si-wannier/figures/wannier-bands.png",
+      "bytes": 263781,
+      "public_sha256": "cf1dce653ae91d301876813506a038754ed11c645da4382659615a5fc50ecc48",
+      "source_sha256": "cf1dce653ae91d301876813506a038754ed11c645da4382659615a5fc50ecc48"
+    },
+    {
+      "file": "examples/si-wannier/figures/wannier-spread.pdf",
+      "bytes": 18930,
+      "public_sha256": "d443f74871d0a5fdee045e8fccdae899813b49d5f85875a86c5cb10e0628441d",
+      "source_sha256": "d443f74871d0a5fdee045e8fccdae899813b49d5f85875a86c5cb10e0628441d"
+    },
+    {
+      "file": "examples/si-wannier/figures/wannier-spread.png",
+      "bytes": 113217,
+      "public_sha256": "827fe8768ddd8b9610febca36240bb0243a171c3aa7abeed8af5f6876f921cfa",
+      "source_sha256": "827fe8768ddd8b9610febca36240bb0243a171c3aa7abeed8af5f6876f921cfa"
+    },
+    {
+      "file": "examples/si-wannier/k4/bands.csv",
+      "bytes": 57040,
+      "public_sha256": "c069606746f6e6af551bafbef9557e4d708bc269a7430235dcc1ebb3ab620aef",
+      "source_sha256": "c069606746f6e6af551bafbef9557e4d708bc269a7430235dcc1ebb3ab620aef"
+    },
+    {
+      "file": "examples/si-wannier/k4/nscf.data-file-schema.xml",
+      "bytes": 84746,
+      "public_sha256": "eb7c10de87b3a1a21af7e9873cc2f3e09da6ab87a6c9df53a12a7a979c66223e",
+      "source_sha256": "a4577f19c76895400841e786fce31d2ad2c682bafe0e1768e21f5ad44eb39e0c"
+    },
+    {
+      "file": "examples/si-wannier/k4/pw2wan.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/pw2wan.out",
+      "bytes": 4719,
+      "public_sha256": "ace29adb77c0569e2c2d40ab651d30a6b1cab0b5c9dc983cc2aba3e3268890d3",
+      "source_sha256": "ace29adb77c0569e2c2d40ab651d30a6b1cab0b5c9dc983cc2aba3e3268890d3"
+    },
+    {
+      "file": "examples/si-wannier/k4/run.slurm",
+      "bytes": 823,
+      "public_sha256": "6af3b311a3acba4db3d976ddfb286d87137c2d260ebe104ae5164a2396982488",
+      "source_sha256": "6fa91c600f05f87259ceb45ebfb724d9e03b1c0b6f4efde8c01340ce3ece8397"
+    },
+    {
+      "file": "examples/si-wannier/k4/scf.data-file-schema.xml",
+      "bytes": 72994,
+      "public_sha256": "85edb928cf6a704faa50ebee8b79c9bcc1ac43dfd7e8de17c5a94d1a60f49c5f",
+      "source_sha256": "fba93c3aa601cabf584d6e6c07ea764dca2508f2a05a4c0bc0d5beae7ef28c0a"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.nscf.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.nscf.in",
+      "bytes": 4388,
+      "public_sha256": "9eee8b0375f3c08645ba9ce3a9411db8f9520bc4697fdfde800abfb33188497a",
+      "source_sha256": "ab38276b8124c47eaa60b4cc79473c028f2a6543d2856f31191a8b50fafc2ff7"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.nscf.out",
+      "bytes": 35432,
+      "public_sha256": "d519fea1d8db0afc0aa0161ce1fd22edf386f2f9bbdc5b58351c886da03d815b",
+      "source_sha256": "5a6b6bcb43e3830360dfd854f360a81129b9feadf5903277be3c34e7875b59cf"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.scf.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.scf.in",
+      "bytes": 530,
+      "public_sha256": "96d8c9cbdb66dc107e28bcfdc40e908e2a99fa222a927d4874f44f5d2dcb36e6",
+      "source_sha256": "4b5649c4d1c01171430f52b76943bfd0ef59cacc62bd388725b9e3493d87ec41"
+    },
+    {
+      "file": "examples/si-wannier/k4/si.scf.out",
+      "bytes": 56283,
+      "public_sha256": "8dfa5a0ef79d806516194c0e6525647288cc1d7b0739db92514409aa7b5e4338",
+      "source_sha256": "66c425afb0c4b51720c13f5c8ad03f5dba700468d8d902abcf765059c8db4bf9"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.amn",
+      "bytes": 68707,
+      "public_sha256": "bc8cf9da86e4b7562cad593581dca958a4085fadc8bb8cb13a1500b92ee7fe43",
+      "source_sha256": "bc8cf9da86e4b7562cad593581dca958a4085fadc8bb8cb13a1500b92ee7fe43"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.eig",
+      "bytes": 9984,
+      "public_sha256": "a890d4a1634032be477425df260ef108c233b35da65cf7e8f3fec57c4fabe43d",
+      "source_sha256": "a890d4a1634032be477425df260ef108c233b35da65cf7e8f3fec57c4fabe43d"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.mmn",
+      "bytes": 329315,
+      "public_sha256": "d5d2ddea2e3f20a19380d54d501c2d0dadf241b2b3fd0692b824cd236ba87c63",
+      "source_sha256": "d5d2ddea2e3f20a19380d54d501c2d0dadf241b2b3fd0692b824cd236ba87c63"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.nnkp",
+      "bytes": 18086,
+      "public_sha256": "e09abe8416119f778a19e1733309dcd3014285bf30b8efbd2bb8d5c0dc25fc53",
+      "source_sha256": "e09abe8416119f778a19e1733309dcd3014285bf30b8efbd2bb8d5c0dc25fc53"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.pw2wan",
+      "bytes": 115,
+      "public_sha256": "1f8b294e61dcf418602c989495eeff172bbbb529ca9c3c8d668a3ccb90fcd9de",
+      "source_sha256": "1f8b294e61dcf418602c989495eeff172bbbb529ca9c3c8d668a3ccb90fcd9de"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.win",
+      "bytes": 3565,
+      "public_sha256": "827dd64f5854a7bd245d8a4bbb7b2042d997c91587d361b89717dddfa3fff804",
+      "source_sha256": "827dd64f5854a7bd245d8a4bbb7b2042d997c91587d361b89717dddfa3fff804"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon.wout",
+      "bytes": 33431,
+      "public_sha256": "372a4157471303880d57316e238ee7cfbcc78f4f34f8f0e31e77d19306c8d1be",
+      "source_sha256": "372a4157471303880d57316e238ee7cfbcc78f4f34f8f0e31e77d19306c8d1be"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_band.dat",
+      "bytes": 32616,
+      "public_sha256": "c6f288cd5dd56b6c7964a240a14f0e5be7ab2c0920326fcfc8aab90bb1d59bd2",
+      "source_sha256": "c6f288cd5dd56b6c7964a240a14f0e5be7ab2c0920326fcfc8aab90bb1d59bd2"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_band.gnu",
+      "bytes": 385,
+      "public_sha256": "2a6e55f33cead80900611297a958ce7d2a4d976e6094e954ea8ea829aeda29ce",
+      "source_sha256": "2a6e55f33cead80900611297a958ce7d2a4d976e6094e954ea8ea829aeda29ce"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_band.kpt",
+      "bytes": 10634,
+      "public_sha256": "5c389397a6f0009c47cf5c082b8aa7710d044eaedb563f604628df32a6f157b7",
+      "source_sha256": "5c389397a6f0009c47cf5c082b8aa7710d044eaedb563f604628df32a6f157b7"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_band.labelinfo.dat",
+      "bytes": 545,
+      "public_sha256": "135fb4f377f0bcb918ad1d282225603a62c204cc44cfa3ae09f7df78611346d6",
+      "source_sha256": "135fb4f377f0bcb918ad1d282225603a62c204cc44cfa3ae09f7df78611346d6"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_centres.xyz",
+      "bytes": 407,
+      "public_sha256": "2e882a6a382ac301aee078c2d6a450aabf162233e9487ab0bea0b7e9de891015",
+      "source_sha256": "2e882a6a382ac301aee078c2d6a450aabf162233e9487ab0bea0b7e9de891015"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_hr.dat",
+      "bytes": 74933,
+      "public_sha256": "b8a78dd6a775b2f84163cd039f9355d0ec31d873a9b2b43cfebee0d52cbf6c33",
+      "source_sha256": "b8a78dd6a775b2f84163cd039f9355d0ec31d873a9b2b43cfebee0d52cbf6c33"
+    },
+    {
+      "file": "examples/si-wannier/k4/silicon_wsvec.dat",
+      "bytes": 80321,
+      "public_sha256": "46a52f2946c401cf86c9d10a8e5d5681394f2e1f58a76542707b521c933bef34",
+      "source_sha256": "46a52f2946c401cf86c9d10a8e5d5681394f2e1f58a76542707b521c933bef34"
+    },
+    {
+      "file": "examples/si-wannier/k4/spread-history.csv",
+      "bytes": 1070,
+      "public_sha256": "79f7ec608d057a4e5f4ab78cb0ae344336dd8101fc03fc8cacad744eb0a613ba",
+      "source_sha256": "79f7ec608d057a4e5f4ab78cb0ae344336dd8101fc03fc8cacad744eb0a613ba"
+    },
+    {
+      "file": "examples/si-wannier/k4/validation/bands.data-file-schema.xml",
+      "bytes": 45233,
+      "public_sha256": "63fbf06fa2369b685b7a86856d0de727ca7a05643971152e5837a8c1c2f1b3e9",
+      "source_sha256": "9d91183749c2db114b9a9a699586e8fe589b0b7c3b7c04923261f08059012eca"
+    },
+    {
+      "file": "examples/si-wannier/k4/validation/run.slurm",
+      "bytes": 458,
+      "public_sha256": "27a8ed1fd2fe57b66870d3e09b5033c0bafe6b337bd0941404ce35e15d241148",
+      "source_sha256": "32027ac5f9e94a80c80aae12532592e6e7fc25fe46f338014f211c0dee2715e0"
+    },
+    {
+      "file": "examples/si-wannier/k4/validation/si.bands.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/validation/si.bands.in",
+      "bytes": 1264,
+      "public_sha256": "10a03b475790d0fbbf1f0c968d34be69f6aa0a579906e6c006beba39f0236025",
+      "source_sha256": "57869ac4cbad692fef159407c3267ea2d56eb4e1957fcaa7407f7acc48d1634b"
+    },
+    {
+      "file": "examples/si-wannier/k4/validation/si.bands.out",
+      "bytes": 13428,
+      "public_sha256": "224f62371441deae572c5bcb3b94d75401c09f10a61eac660e1ee4a4ccd811c8",
+      "source_sha256": "9449b424b4d543c311889ab39a6b86a65e7a80bcb981922128fba00716a9c804"
+    },
+    {
+      "file": "examples/si-wannier/k4/wannier-pp.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/wannier-pp.out",
+      "bytes": 106,
+      "public_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e",
+      "source_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e"
+    },
+    {
+      "file": "examples/si-wannier/k4/wannier.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k4/wannier.out",
+      "bytes": 106,
+      "public_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e",
+      "source_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e"
+    },
+    {
+      "file": "examples/si-wannier/k6/bands.csv",
+      "bytes": 57035,
+      "public_sha256": "dbf49a17f01bb5927c6018af27995bf0e2afc0c1ff3c5efbfbd639154a7ab964",
+      "source_sha256": "dbf49a17f01bb5927c6018af27995bf0e2afc0c1ff3c5efbfbd639154a7ab964"
+    },
+    {
+      "file": "examples/si-wannier/k6/nscf.data-file-schema.xml",
+      "bytes": 201909,
+      "public_sha256": "43198e4433f627ae661329b8ac692e2ccc25854b9f4256f75810642c49a33f73",
+      "source_sha256": "6683c0f695a262a824b22cfebbcd5308d4dbc3580ec959fcf4e76d08194b4cbe"
+    },
+    {
+      "file": "examples/si-wannier/k6/pw2wan.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k6/pw2wan.out",
+      "bytes": 7181,
+      "public_sha256": "3d4b5c05674a3718e829d3b61bdf58b979b207ee3ae8cbbd54f4cc6e8ce3af39",
+      "source_sha256": "3d4b5c05674a3718e829d3b61bdf58b979b207ee3ae8cbbd54f4cc6e8ce3af39"
+    },
+    {
+      "file": "examples/si-wannier/k6/run.slurm",
+      "bytes": 823,
+      "public_sha256": "789a7765c16e947d6a9d5a50b2700a7297dae45962be249f10d4992ff209493a",
+      "source_sha256": "5796be0247b7488fc5db36271b3490252b285bb18b8e91f632373f6f0465f862"
+    },
+    {
+      "file": "examples/si-wannier/k6/scf.data-file-schema.xml",
+      "bytes": 72994,
+      "public_sha256": "444ddb8cc476a55cf8a208f8b0edcc1204a0848c0c15a84d2a0929d86e18cdd4",
+      "source_sha256": "99bdb8c383974c0debeb66eaab652b5ab5176d1d59362972154c843a8813d1c1"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.nscf.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.nscf.in",
+      "bytes": 13509,
+      "public_sha256": "5c24775bf65d166ebd87e0f40789b2f1f1b4fc7c243a534c8b60dca8190a3241",
+      "source_sha256": "9a480f54b99d07a882d80688e7cfaf802bbeaa792a9aa982a451c6d4192b1f84"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.nscf.out",
+      "bytes": 98360,
+      "public_sha256": "483077db5189c5fb85c693da5f65956359cfb3ed9e9e9031f05fe5252de80860",
+      "source_sha256": "50ebccf74dda48bee55da59e668a0451dd8c1567f67776f7601df5b5e7865e7f"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.scf.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.scf.in",
+      "bytes": 530,
+      "public_sha256": "96d8c9cbdb66dc107e28bcfdc40e908e2a99fa222a927d4874f44f5d2dcb36e6",
+      "source_sha256": "4b5649c4d1c01171430f52b76943bfd0ef59cacc62bd388725b9e3493d87ec41"
+    },
+    {
+      "file": "examples/si-wannier/k6/si.scf.out",
+      "bytes": 56283,
+      "public_sha256": "d1210d757ca6bb7ce8e07be8f818bd1e213c1c6722b90888ab7fb5603de4a40c",
+      "source_sha256": "492b9a822d8b39a577172eed35668a2d8e3e0c7d0f29c5bade97c1369c9cd40b"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.amn",
+      "bytes": 231651,
+      "public_sha256": "2d00407651ea0c204cff17219102f1536ee2bb357d99532faa2653f3ef53186c",
+      "source_sha256": "2d00407651ea0c204cff17219102f1536ee2bb357d99532faa2653f3ef53186c"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.eig",
+      "bytes": 33696,
+      "public_sha256": "84c66fdfc866ead99ff3980994a03ed4c563c77f3bea52174c4a01a02f86f4fd",
+      "source_sha256": "84c66fdfc866ead99ff3980994a03ed4c563c77f3bea52174c4a01a02f86f4fd"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.mmn",
+      "bytes": 1111203,
+      "public_sha256": "27080bfc69fb36bab707ff7aa10402388c6d77c904106d051398a4075ab54e1d",
+      "source_sha256": "27080bfc69fb36bab707ff7aa10402388c6d77c904106d051398a4075ab54e1d"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.nnkp",
+      "bytes": 58670,
+      "public_sha256": "4eaf08d5987734892ba505e63d14453c0453f290f46bbeec9fbd9ace1e4d80cb",
+      "source_sha256": "4eaf08d5987734892ba505e63d14453c0453f290f46bbeec9fbd9ace1e4d80cb"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.pw2wan",
+      "bytes": 115,
+      "public_sha256": "1f8b294e61dcf418602c989495eeff172bbbb529ca9c3c8d668a3ccb90fcd9de",
+      "source_sha256": "1f8b294e61dcf418602c989495eeff172bbbb529ca9c3c8d668a3ccb90fcd9de"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.win",
+      "bytes": 10405,
+      "public_sha256": "434d9410cc1049f78773077d813ea8f47bc601528f40203bde50d7e32c1eda0d",
+      "source_sha256": "434d9410cc1049f78773077d813ea8f47bc601528f40203bde50d7e32c1eda0d"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon.wout",
+      "bytes": 48539,
+      "public_sha256": "dec8883af93bb6923f5045351ca71bb4b74e514e3e24ce126072ffb4f2db7306",
+      "source_sha256": "dec8883af93bb6923f5045351ca71bb4b74e514e3e24ce126072ffb4f2db7306"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_band.dat",
+      "bytes": 32616,
+      "public_sha256": "2c8fa903a2ae708f1de7fa09b62e4e83b00998847867fd8a30af37b8e414f34a",
+      "source_sha256": "2c8fa903a2ae708f1de7fa09b62e4e83b00998847867fd8a30af37b8e414f34a"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_band.gnu",
+      "bytes": 385,
+      "public_sha256": "2a6e55f33cead80900611297a958ce7d2a4d976e6094e954ea8ea829aeda29ce",
+      "source_sha256": "2a6e55f33cead80900611297a958ce7d2a4d976e6094e954ea8ea829aeda29ce"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_band.kpt",
+      "bytes": 10634,
+      "public_sha256": "5c389397a6f0009c47cf5c082b8aa7710d044eaedb563f604628df32a6f157b7",
+      "source_sha256": "5c389397a6f0009c47cf5c082b8aa7710d044eaedb563f604628df32a6f157b7"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_band.labelinfo.dat",
+      "bytes": 545,
+      "public_sha256": "135fb4f377f0bcb918ad1d282225603a62c204cc44cfa3ae09f7df78611346d6",
+      "source_sha256": "135fb4f377f0bcb918ad1d282225603a62c204cc44cfa3ae09f7df78611346d6"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_centres.xyz",
+      "bytes": 407,
+      "public_sha256": "4a96beca4de5742d673caf0761c113a844cae7ad70298c3a470164a9b8a2d973",
+      "source_sha256": "4a96beca4de5742d673caf0761c113a844cae7ad70298c3a470164a9b8a2d973"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_hr.dat",
+      "bytes": 224675,
+      "public_sha256": "a6fc1f04a473a703fa1bb472f82151adb09441d73b083127a484ec8108222abd",
+      "source_sha256": "a6fc1f04a473a703fa1bb472f82151adb09441d73b083127a484ec8108222abd"
+    },
+    {
+      "file": "examples/si-wannier/k6/silicon_wsvec.dat",
+      "bytes": 231233,
+      "public_sha256": "08aed4fcd28021a9619ee05a9866a5ef1b97fa38543af9eb468c9901cca5fee8",
+      "source_sha256": "08aed4fcd28021a9619ee05a9866a5ef1b97fa38543af9eb468c9901cca5fee8"
+    },
+    {
+      "file": "examples/si-wannier/k6/spread-history.csv",
+      "bytes": 1474,
+      "public_sha256": "849b5eba416ad1b7d2032115e3aee0984b21491767e72206b2aa09d6f6cada3a",
+      "source_sha256": "849b5eba416ad1b7d2032115e3aee0984b21491767e72206b2aa09d6f6cada3a"
+    },
+    {
+      "file": "examples/si-wannier/k6/wannier-pp.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k6/wannier-pp.out",
+      "bytes": 106,
+      "public_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e",
+      "source_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e"
+    },
+    {
+      "file": "examples/si-wannier/k6/wannier.err",
+      "bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "examples/si-wannier/k6/wannier.out",
+      "bytes": 106,
+      "public_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e",
+      "source_sha256": "72b8eca1e28bb91a84dd7e9dd27bc34b6f0e128d2d5aaf3fff66ec94eda61d3e"
+    },
+    {
+      "file": "examples/si-wannier/plot_wannier.py",
+      "bytes": 2797,
+      "public_sha256": "aea729d0d71669608b4873218f5f17f7e552a1bbe1358950e605d961d91117b8",
+      "source_sha256": "aea729d0d71669608b4873218f5f17f7e552a1bbe1358950e605d961d91117b8"
+    },
+    {
+      "file": "examples/si-wannier/prepare_si_wannier.py",
+      "bytes": 3812,
+      "public_sha256": "4240100524c82ae8c70e1a7afc99990eacc48da562a18ceea6d10c9ed738f71f",
+      "source_sha256": "d9a0128c557f094a1bb6189b89d138ea7b2302de09509d47f1b45348eae963d6"
+    },
+    {
+      "file": "examples/si-wannier/prepare_validation.py",
+      "bytes": 1792,
+      "public_sha256": "fd28832fe6ae99473a5a1ba4ba1e0af3294a4e9ebb8b64e4cfb42b9b8721acfe",
+      "source_sha256": "f266d05a6acc532fd1c962c61b6c0ba9718c8f7281f112b4fbea2e7fe7454864"
+    },
+    {
+      "file": "examples/si-wannier/pseudo/Si.pbe-n-van.UPF",
+      "bytes": 678199,
+      "public_sha256": "9d217d7893f893994a9914b3cba1affaafb25b13928baef576127374d2b5a932",
+      "source_sha256": "9d217d7893f893994a9914b3cba1affaafb25b13928baef576127374d2b5a932"
+    },
+    {
+      "file": "examples/si-wannier/structure-source.json",
+      "bytes": 473,
+      "public_sha256": "e5e22b905c8d3530e96a2878d3cb7f08a44fd8fcd3383b5bc14cae0fcb18a484",
+      "source_sha256": "e5e22b905c8d3530e96a2878d3cb7f08a44fd8fcd3383b5bc14cae0fcb18a484"
+    },
+    {
+      "file": "examples/si-wannier/summary.json",
+      "bytes": 1603,
+      "public_sha256": "727a767b2f0f2b7f4a0950ef3cac4d1e668b47a6150cf225f7ec23f95d6fd09a",
+      "source_sha256": "727a767b2f0f2b7f4a0950ef3cac4d1e668b47a6150cf225f7ec23f95d6fd09a"
+    },
+    {
+      "file": "examples/si-wannier/validation-errors.csv",
+      "bytes": 10609,
+      "public_sha256": "692d6fb16dc380aa934545739d106f9669b9bd2cc285cc08eaba334b069ba0b3",
+      "source_sha256": "692d6fb16dc380aa934545739d106f9669b9bd2cc285cc08eaba334b069ba0b3"
+    },
+    {
+      "file": "examples/si-wannier/validation-kpoints.csv",
+      "bytes": 1675,
+      "public_sha256": "c1b24afc9ef74a1645afc37d9335f5a45670d2845b89235dadc4a48eb5814f0e",
+      "source_sha256": "c1b24afc9ef74a1645afc37d9335f5a45670d2845b89235dadc4a48eb5814f0e"
+    }
+  ]
+}

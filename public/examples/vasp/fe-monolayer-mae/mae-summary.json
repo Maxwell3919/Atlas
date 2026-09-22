@@ -1,0 +1,223 @@
+{
+  "definition": "Delta E = E_x - E_z; one Fe per cell",
+  "energy_for_primary_comparison": "energy(sigma->0); free energy retained as smearing diagnostic",
+  "cases": [
+    {
+      "name": "k09_z",
+      "PAW_check_source": "recorded original hash",
+      "F_eV": -6.32688259,
+      "E0_eV": -6.32647774,
+      "E_without_entropy_eV": -6.32566805,
+      "elapsed_s": 86.399,
+      "nkpoints": 81,
+      "mag_spinor_muB": [
+        -0.0001,
+        0.0,
+        2.8108
+      ],
+      "mag_cartesian_muB": [
+        -0.0001,
+        0.0,
+        2.8108
+      ],
+      "mag_angle_from_target_deg": 0.002038415468131078,
+      "incar": {
+        "SYSTEM": "Fe monolayer SOC z",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "160",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "LNONCOLLINEAR": ".TRUE.",
+        "LSORBIT": ".TRUE.",
+        "SAXIS": "0 0 1",
+        "MAGMOM": "0 0 3",
+        "LORBIT": "11",
+        "LMAXMIX": "4",
+        "GGA_COMPAT": ".FALSE.",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "ISYM": "0",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "POSCAR_sha256": "20c7db9ad0b35b8fd4599aef77d3ab450d346ea25debdc621054dcf43ef29d3a",
+      "POTCAR_sha256": "cd5a22d9368cc8b5cc476bea79732366149640da08ac9009b0e1b7fc627eea28",
+      "KPOINTS_sha256": "440adb3f708a6358edd04c5b3cc3f3023e39c9f6dce7ace0c97c3de6a9895f33",
+      "OUTCAR_sha256": "0170c953a8ee869214a96894f554a79f43deb95f77406daa671b9ef5444f408d"
+    },
+    {
+      "name": "k09_x",
+      "PAW_check_source": "recorded original hash",
+      "F_eV": -6.32683074,
+      "E0_eV": -6.32653433,
+      "E_without_entropy_eV": -6.32594151,
+      "elapsed_s": 89.01,
+      "nkpoints": 81,
+      "mag_spinor_muB": [
+        -0.0,
+        -0.0002,
+        2.8257
+      ],
+      "mag_cartesian_muB": [
+        2.8257,
+        -0.0002,
+        1.730242230175338e-16
+      ],
+      "mag_angle_from_target_deg": 0.004055333420795992,
+      "incar": {
+        "SYSTEM": "Fe monolayer SOC x",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "160",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "LNONCOLLINEAR": ".TRUE.",
+        "LSORBIT": ".TRUE.",
+        "SAXIS": "1 0 0",
+        "MAGMOM": "0 0 3",
+        "LORBIT": "11",
+        "LMAXMIX": "4",
+        "GGA_COMPAT": ".FALSE.",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "ISYM": "0",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "POSCAR_sha256": "20c7db9ad0b35b8fd4599aef77d3ab450d346ea25debdc621054dcf43ef29d3a",
+      "POTCAR_sha256": "cd5a22d9368cc8b5cc476bea79732366149640da08ac9009b0e1b7fc627eea28",
+      "KPOINTS_sha256": "440adb3f708a6358edd04c5b3cc3f3023e39c9f6dce7ace0c97c3de6a9895f33",
+      "OUTCAR_sha256": "767e3a68d21f1c01e93bebd844369be4d01525946e62978a1f09620e7d3021e7"
+    },
+    {
+      "name": "k15_z",
+      "PAW_check_source": "recorded original hash",
+      "F_eV": -6.3338396,
+      "E0_eV": -6.3334267,
+      "E_without_entropy_eV": -6.33260091,
+      "elapsed_s": 201.326,
+      "nkpoints": 225,
+      "mag_spinor_muB": [
+        0.0001,
+        -0.0001,
+        2.9729
+      ],
+      "mag_cartesian_muB": [
+        0.0001,
+        -0.0001,
+        2.9729
+      ],
+      "mag_angle_from_target_deg": 0.0027255700381866007,
+      "incar": {
+        "SYSTEM": "Fe monolayer SOC z",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "160",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "LNONCOLLINEAR": ".TRUE.",
+        "LSORBIT": ".TRUE.",
+        "SAXIS": "0 0 1",
+        "MAGMOM": "0 0 3",
+        "LORBIT": "11",
+        "LMAXMIX": "4",
+        "GGA_COMPAT": ".FALSE.",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "ISYM": "0",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "POSCAR_sha256": "20c7db9ad0b35b8fd4599aef77d3ab450d346ea25debdc621054dcf43ef29d3a",
+      "POTCAR_sha256": "cd5a22d9368cc8b5cc476bea79732366149640da08ac9009b0e1b7fc627eea28",
+      "KPOINTS_sha256": "4cb75127c7b3ddf430060f38d850b30510ed079d7f838cade4f3abf8059cacc8",
+      "OUTCAR_sha256": "83ad92221249de8b278d9fe432b5d1bedc7155848439de419b9db3818e7e6e00"
+    },
+    {
+      "name": "k15_x",
+      "PAW_check_source": "recorded original hash",
+      "F_eV": -6.33320573,
+      "E0_eV": -6.33278678,
+      "E_without_entropy_eV": -6.33194887,
+      "elapsed_s": 199.324,
+      "nkpoints": 225,
+      "mag_spinor_muB": [
+        0.0001,
+        -0.0001,
+        2.9668
+      ],
+      "mag_cartesian_muB": [
+        2.9668,
+        -0.0001,
+        -9.999999999981835e-05
+      ],
+      "mag_angle_from_target_deg": 0.0027311738544148977,
+      "incar": {
+        "SYSTEM": "Fe monolayer SOC x",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "160",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "LNONCOLLINEAR": ".TRUE.",
+        "LSORBIT": ".TRUE.",
+        "SAXIS": "1 0 0",
+        "MAGMOM": "0 0 3",
+        "LORBIT": "11",
+        "LMAXMIX": "4",
+        "GGA_COMPAT": ".FALSE.",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "ISYM": "0",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "POSCAR_sha256": "20c7db9ad0b35b8fd4599aef77d3ab450d346ea25debdc621054dcf43ef29d3a",
+      "POTCAR_sha256": "cd5a22d9368cc8b5cc476bea79732366149640da08ac9009b0e1b7fc627eea28",
+      "KPOINTS_sha256": "4cb75127c7b3ddf430060f38d850b30510ed079d7f838cade4f3abf8059cacc8",
+      "OUTCAR_sha256": "bcc313ec31a4d050c5d7583f6f9f5accb749aa1465eb39198940cdf0e7afd794"
+    }
+  ],
+  "pairs": [
+    {
+      "mesh": 9,
+      "delta_F_x_minus_z_meV_per_Fe": 0.05185000000018647,
+      "delta_E0_x_minus_z_meV_per_Fe": -0.056590000000689145
+    },
+    {
+      "mesh": 15,
+      "delta_F_x_minus_z_meV_per_Fe": 0.6338699999997033,
+      "delta_E0_x_minus_z_meV_per_Fe": 0.6399200000002381
+    }
+  ],
+  "mesh_change_delta_E0_meV": 0.6965100000009272
+}
