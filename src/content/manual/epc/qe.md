@@ -544,7 +544,7 @@ Slurm accounting storage is disabled
 
 ## pwxall 结束后，怎样决定能否接 pwx
 
-下面是结束后要执行的检查命令；当前这一段先说明方法，不能当成已经通过的结果：
+任务退出后，先按下面的顺序检查；这一轮的实际结果接在后面：
 
 ```bash
 scontrol show job 18178
@@ -563,14 +563,299 @@ grep -niE 'error in routine|convergence NOT achieved|eigenvalues not converged|M
 
 这里验收的是“这一份固定结构 SCF 是否正常完成、能否用于下一步数据衔接”。结构优化、赝势适用性和 k/q/展宽对目标物理量的收敛仍是另外的检查，不能由这次 SCF 通过一并代替。
 
-## 串行衔接的当前进度
+## 密网格这一轮实际怎样结束
 
-作业 18178 已启动并进入电子迭代。`pwx` 尚未提交；等上述输出与数据检查完成后，再在同一窗口提交并继续记录。ph96 和声子脚本本轮没有启动。
+先读调度器记录，再读输出末尾的收敛信息：
+
+```text
+[bcgong@localhost ph64]$ scontrol show job 18178 | grep -E 'JobId=|JobState=|RunTime=|ExitCode='
+JobId=18178 JobName=srnsnse-k64
+   JobState=COMPLETED Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:40:37 TimeLimit=365-00:00:00 TimeMin=N/A
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -E 'iteration #|estimated scf accuracy|convergence has|^!|JOB DONE' pwxall.out | tail -n 10
+     estimated scf accuracy    <          1.0E-10 Ry
+     iteration # 21     ecut=   120.00 Ry     beta= 0.40
+     estimated scf accuracy    <          2.3E-12 Ry
+     iteration # 22     ecut=   120.00 Ry     beta= 0.40
+     estimated scf accuracy    <          2.0E-12 Ry
+     iteration # 23     ecut=   120.00 Ry     beta= 0.40
+!    total energy              =   -1784.37924631 Ry
+     estimated scf accuracy    <          5.5E-13 Ry
+     convergence has been achieved in  23 iterations
+   JOB DONE.
+[bcgong@localhost ph64]$
+```
+
+
+作业 18178 在 40 分 37 秒后结束，退出码为 `0:0`。电子迭代共 23 轮，最后打印的误差上界为 `5.5E-13 Ry`，低于本输入的 `1.0E-12 Ry`，并出现 `JOB DONE.`。
+
+结束后再检查错误日志与异常信息：
+
+```text
+[bcgong@localhost ph64]$ wc -c pwxall.err _err.18178.log
+0 pwxall.err
+0 _err.18178.log
+0 total
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -niE 'Error in routine|convergence NOT achieved|eigenvalues not converged|MPI_ABORT|out.of.memory|IEEE_' pwxall.out pwxall.err _out.18178.log _err.18178.log
+[bcgong@localhost ph64]$
+```
+
+
+两份错误文件都是零字节，上面的关键词检查没有匹配。但仍应阅读完整输出：例如本次 vdW-DF 的文献说明也用了百分号边框，单独搜索一长串 `%` 会把正常说明一起找出来。
+
+把实际 23 轮的误差画在一起，可以看到前几轮上升、后期小幅反弹，以及最后跨过输入阈值的过程：
+
+![SnSe₂/Sr₂N 64×64×1 网格 SCF 的电子迭代误差](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.svg)
+
+纵轴是输出打印的 `estimated scf accuracy` 上界，采用对数刻度，虚线为本次输入阈值。[下载这张图的数据](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.csv)，或直接阅读[完整 pwxall.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)。这张图对应一次固定输入的电子迭代，k 网格的物理量收敛仍需另外比较。
+
+## 先保留密网格数据，再让粗网格写入
+
+这次结束后实际留下了以下文件：
+
+```text
+[bcgong@localhost ph64]$ ls -lh out/srnsnse.a2Fsave out/srnsnse.save/data-file-schema.xml out/srnsnse.save/charge-density.dat
+-rw-rw-r-- 1 bcgong bcgong 419K Sep 22 19:34 out/srnsnse.a2Fsave
+-rw-rw-r-- 1 bcgong bcgong  49M Sep 22 19:33 out/srnsnse.save/charge-density.dat
+-rw-rw-r-- 1 bcgong bcgong 859K Sep 22 19:33 out/srnsnse.save/data-file-schema.xml
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ head -n 1 out/srnsnse.a2Fsave
+          43         374
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep monkhorst_pack out/srnsnse.save/data-file-schema.xml
+      <monkhorst_pack nk1="64" nk2="64" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+        <monkhorst_pack nk1="64" nk2="64" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+[bcgong@localhost ph64]$
+```
+
+
+`a2Fsave` 第一行的 43 和 374 分别对应带数和 k 点数，与本次输出一致；XML 中记录的网格为 64×64×1，三个偏移都是 0。文件内部的本征值、k 点、权重和网格记录也已核对。电荷密度和波函数文件均已写出。
+
+接下来粗网格仍使用同一个 `out/`，先把致密网格的本征值文件和 XML 描述复制出来：
+
+```text
+[bcgong@localhost ph64]$ cp out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ cp out/srnsnse.save/data-file-schema.xml pwxall.data-file-schema.xml
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
+2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
+2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
+[bcgong@localhost ph64]$
+```
+
+
+两行哈希相同，说明这份复制与原文件逐字节一致。`srnsnse.a2Fsave.k64` 保存密网格数据，`pwxall.data-file-schema.xml` 保存这一轮的 XML 描述。随后 `.save` 中的 XML 会由粗网格计算更新。
+
+打开力的输出，还能看到为什么电子迭代通过不代表结构已经优化通过：
+
+```text
+[bcgong@localhost ph64]$ grep -A8 'Forces acting on atoms' pwxall.out
+     Forces acting on atoms (cartesian axes, Ry/au):
+
+     atom    1 type  1   force =     0.00000000    0.00000000    0.00047248
+     atom    2 type  1   force =     0.00000000    0.00000000    0.00017962
+     atom    3 type  3   force =     0.00000000    0.00000000    0.00006384
+     atom    4 type  4   force =     0.00000000    0.00000000   -0.00032075
+     atom    5 type  4   force =     0.00000000    0.00000000   -0.00006845
+     atom    6 type  2   force =     0.00000000    0.00000000   -0.00032673
+     The non-local contrib.  to forces
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -E 'Total force|negative rho' pwxall.out | tail -n 3
+     negative rho (up, down):  3.709E-05 0.000E+00
+     Total force =     0.000688     Total SCF correction =     0.000002
+     negative rho (up, down):  3.709E-05 0.000E+00
+[bcgong@localhost ph64]$
+```
+
+
+这是固定结构上的力，单位为 Ry/au。程序打印的 `Total force` 为 0.000688，`Total SCF correction` 为 0.000002。输出中的 `negative rho` 诊断也保留在这里；它需要结合赝势、网格与数值设置复核。原来的 BFGS 未收敛问题仍然存在，不能用本次电子收敛行替代结构验收。
+
+## 在同一窗口串行提交 pwx
+
+密网格的结束和保存文件核对完后，再看一次粗网格输入并提交：
+
+```text
+[bcgong@localhost ph64]$ grep -A1 K_POINTS pwx.in
+K_POINTS automatic
+  16 16 1 0 0 0
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ sbatch -J srnsnse-k16 pwx.slurm
+Submitted batch job 18179
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ squeue -j 18179 -o "%.10i %.16j %.8T %.10M %.6D %R"
+     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
+     18179      srnsnse-k16  RUNNING       0:02      1 localhost
+[bcgong@localhost ph64]$
+```
+
+
+作业 18179 使用 `pwx.in`。提交发生在 18178 完成并保留密网格数据之后，两份 SCF 没有同时写入同一个目录。
+
+```text
+[bcgong@localhost ph64]$ head -n 35 pwx.out
+
+     Program PWSCF v.7.1 starts on 22Sep2026 at 19:36:47
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org",
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on    32 processors
+
+     MPI processes distributed on     1 nodes
+     55847 MiB available memory on the printing compute node when the environment starts
+
+     Reading input from pwx.in
+Warning: card &CELL ignored
+Warning: card / ignored
+
+     Current dimensions of program PWSCF are:
+     Max number of different atomic species (ntypx) = 10
+     Max number of k-points (npk) =  40000
+     Max angular momentum in pseudopotentials (lmaxx) =  4
+     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
+     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
+     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
+     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= VDW-DF3-OPT1
+                           (   1   4  45   0   3   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -E 'number of atoms|number of atomic types|number of electrons|Kohn-Sham states|kinetic-energy cutoff|charge density cutoff|convergence threshold|number of k points' pwx.out
+     number of atoms/cell      =            6
+     number of atomic types    =            4
+     number of electrons       =        71.00
+     number of Kohn-Sham states=           43
+     kinetic-energy cutoff     =     120.0000  Ry
+     charge density cutoff     =     960.0000  Ry
+     scf convergence threshold =      1.0E-12
+     number of k points=    30  Gaussian smearing, width (Ry)=  0.0037
+[bcgong@localhost ph64]$
+```
+
+
+程序读取的是 `pwx.in`，仍使用 QE 7.1 和 32 个 MPI 进程。网格改变后，这一轮列出 30 个 k 点；元素数、截断、展宽和电子阈值保持配套。监控时把前面的作业号换成 18179，输出文件换成 `pwx.out`，错误文件换成 `pwx.err` 和 `_err.18179.log`。
+
+
+## 粗网格结束后，再核对数据有没有接错
+
+```text
+[bcgong@localhost ph64]$ scontrol show job 18179 | grep -E 'JobId=|JobState=|RunTime=|ExitCode='
+JobId=18179 JobName=srnsnse-k16
+   JobState=COMPLETED Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:04:15 TimeLimit=UNLIMITED TimeMin=N/A
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -E 'iteration #|estimated scf accuracy|convergence has|^!|JOB DONE' pwx.out | tail -n 10
+     estimated scf accuracy    <          7.4E-11 Ry
+     iteration # 21     ecut=   120.00 Ry     beta= 0.40
+     estimated scf accuracy    <          6.6E-12 Ry
+     iteration # 22     ecut=   120.00 Ry     beta= 0.40
+     estimated scf accuracy    <          2.5E-12 Ry
+     iteration # 23     ecut=   120.00 Ry     beta= 0.40
+!    total energy              =   -1784.37930124 Ry
+     estimated scf accuracy    <          4.6E-13 Ry
+     convergence has been achieved in  23 iterations
+   JOB DONE.
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ wc -c pwx.err _err.18179.log
+0 pwx.err
+0 _err.18179.log
+0 total
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep monkhorst_pack out/srnsnse.save/data-file-schema.xml
+      <monkhorst_pack nk1="16" nk2="16" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+        <monkhorst_pack nk1="16" nk2="16" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
+2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
+2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
+[bcgong@localhost ph64]$
+```
+
+
+粗网格作业用时 4 分 15 秒，23 轮电子迭代后打印的误差上界为 `4.6E-13 Ry`，低于输入的 `1.0E-12 Ry`。这一轮同样结合了调度器退出状态、电子收敛、错误文件和 XML 检查。当前 `.save` 的 XML 网格已经变成 16×16×1，而致密网格 `a2Fsave` 与复制出来的文件哈希仍相同；后续所需的两套电子数据没有被混成同一个网格。
+
+再看当前 XML 的 k 点数与几个波函数文件的时间：
+
+```text
+[bcgong@localhost ph64]$ grep nks out/srnsnse.save/data-file-schema.xml
+      <nks>30</nks>
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ ls -lh out/srnsnse.save/wfc1.dat out/srnsnse.save/wfc30.dat out/srnsnse.save/wfc31.dat out/srnsnse.save/wfc374.dat
+-rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:40 out/srnsnse.save/wfc1.dat
+-rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:41 out/srnsnse.save/wfc30.dat
+-rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:33 out/srnsnse.save/wfc31.dat
+-rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:34 out/srnsnse.save/wfc374.dat
+[bcgong@localhost ph64]$
+```
+
+当前 XML 记录 `nks=30`。前 30 份波函数已在粗网格运行时重新写入，后面的编号仍保留密网格运行时的文件。因此，数一遍 `wfc*.dat` 得到的 374 不能当作当前粗网格的 k 点数；读取保存数据要以当前 XML、对应输出和实际写入的文件为准。
+
+可以继续阅读[完整 pwx.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwx.out.txt)，从程序开头、参数回显、逐轮电子迭代一直看到力、应力、计时和结束标记。本轮执行到两步 SCF 为止，ph96 和声子任务尚未启动。
+
 <!-- ph64-scf-session-end -->
 
 ## 已完成算例里的输出长什么样
 
-下面保留原来 **Sc₂C/ZrCl₂** 算例的输出，供对照文件结构。它与上面的 SnSe₂/Sr₂N 新目录是两套材料，数值和计算完成状态不能混用。
+下面另列 **Sc₂C/ZrCl₂** 已完成的电声算例，供对照逐 q 文件结构。它与上面的 SnSe₂/Sr₂N 是两套材料，数值和计算完成状态不能混用。
 
 <details>
 <summary>展开 Sc₂C/ZrCl₂ 的 SCF 与逐 q 电声输出</summary>
@@ -644,7 +929,7 @@ elph_dir/elph.inp_lambda.10
 
 ## 下一步
 
-本材料当前按上述顺序进行两步[固定结构 SCF](/Atlas/m/scf/qe/)；[结构优化](/Atlas/m/vc-relax/qe/)的验收问题仍保留。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
+本材料已按上述顺序完成两步[固定结构 SCF](/Atlas/m/scf/qe/)；[结构优化](/Atlas/m/vc-relax/qe/)的验收问题仍保留。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
 
 ```text
 结构验收 → 致密 k SCF（la2F）→ 粗 k SCF → 完整 q 网格声子 + EPC
