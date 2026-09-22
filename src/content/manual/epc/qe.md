@@ -20,7 +20,7 @@
 ```
 
 
-这条输出要先读完：程序在 43 次 SCF、40 步 BFGS 后结束，**BFGS 没有收敛，不能判定为结构优化通过**。下面沿用它的末步结构准备输入，并继续做两步固定结构 SCF；这能检查电子迭代与数据衔接，不能替代结构验收。进入声子与 EPC 之前，结构问题仍需解决。如何看力、应力与优化结束信息，见[结构优化](/Atlas/m/vc-relax/qe/)。
+这条输出要先读完：程序在 43 次 SCF、40 步 BFGS 后结束，**BFGS 没有收敛，不能判定为结构优化通过**。下面沿用它的末步结构准备输入，并继续做两步固定结构 SCF；这能检查电子迭代与数据衔接，不能替代结构验收。下面也继续观察这份固定结构的声子任务如何启动；最终使用声子与 EPC 结果时，结构问题仍需解决。如何看力、应力与优化结束信息，见[结构优化](/Atlas/m/vc-relax/qe/)。
 
 还有一处会直接影响声子频率的输入错误：
 
@@ -849,9 +849,308 @@ JobId=18179 JobName=srnsnse-k16
 
 当前 XML 记录 `nks=30`。前 30 份波函数已在粗网格运行时重新写入，后面的编号仍保留密网格运行时的文件。因此，数一遍 `wfc*.dat` 得到的 374 不能当作当前粗网格的 k 点数；读取保存数据要以当前 XML、对应输出和实际写入的文件为准。
 
-可以继续阅读[完整 pwx.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwx.out.txt)，从程序开头、参数回显、逐轮电子迭代一直看到力、应力、计时和结束标记。本轮执行到两步 SCF 为止，ph96 和声子任务尚未启动。
+可以继续阅读[完整 pwx.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwx.out.txt)，从程序开头、参数回显、逐轮电子迭代一直看到力、应力、计时和结束标记。两步 SCF 的运行和保存数据核对到这里完成，接下来在同一目录启动 ph.x。
 
 <!-- ph64-scf-session-end -->
+
+<!-- ph64-phonon-session-start -->
+## 接着提交 ph.x
+
+两步 SCF 留下的文件已经对上。声子输入继续使用 `prefix='srnsnse'`、`outdir='./out/'`，读取粗网格的保存数据；密网格本征值仍保存在 `out/srnsnse.a2Fsave`。本次沿用前面展示的 `phx.in` 和 `phx.slurm`，完整计算 8×8×1 q 网格，没有设置 `start_q/last_q` 分段。
+
+提交前再检查脚本，然后交给 Slurm：
+
+```text
+[bcgong@localhost ph64]$ bash -n phx.slurm
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ sbatch -J srnsnse-ph64 phx.slurm
+Submitted batch job 18180
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ squeue -j 18180 -o "%.10i %.16j %.8T %.10M %.6D %R"
+     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
+     18180     srnsnse-ph64  RUNNING       0:02      1 localhost
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ scontrol show job 18180 | grep -E 'JobId=|JobState=|RunTime=|NumNodes=|WorkDir='
+JobId=18180 JobName=srnsnse-ph64
+   JobState=RUNNING Reason=None Dependency=(null)
+   RunTime=00:00:04 TimeLimit=UNLIMITED TimeMin=N/A
+   NumNodes=1 NumCPUs=16 NumTasks=16 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   WorkDir=<工作目录>/qe/ph64
+[bcgong@localhost ph64]$
+```
+
+
+作业号是 18180，申请的 16 个任务已经分配。这里 `RUNNING` 只说明作业正在运行；继续读 `phx.out`，确认启动的是哪一个程序、读了哪一份输入和保存目录：
+
+```text
+[bcgong@localhost ph64]$ head -n 34 phx.out
+
+     Program PHONON v.7.1 starts on 22Sep2026 at 20:44:51
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org",
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on    16 processors
+
+     MPI processes distributed on     1 nodes
+     R & G space division:  proc/nbgrp/npool/nimage =      16
+     56695 MiB available memory on the printing compute node when the environment starts
+
+     Reading input from phx.in
+      Title line not specified: using 'default'.
+
+     Reading xml data from directory:
+
+     ./out/srnsnse.save/
+     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
+     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
+     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
+     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= VDW-DF3-OPT1
+                           (   1   4  45   0   3   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+[bcgong@localhost ph64]$
+```
+
+
+输出确认本次运行的是 PHONON 7.1，使用 16 个 MPI 进程，读取 `phx.in` 和 `./out/srnsnse.save/`。脚本里的 `OMP_NUM_THREADS=1` 与前面的 16 个 MPI 进程配置相配。没有写标题行时，本次程序使用了 `default`；这条提示之后仍继续读取 SCF 数据。
+
+页首的官方输入文档目前标注为 QE 7.5；这里逐项记录的是本机 QE 7.1 的实际输入与输出，不能用新版手册直接保证旧版本所有组合都适用。当前任务成功启动，也不等于 PAW、泛函与电声计算的数值结果已经通过验证。
+
+## 先看 q 点，再看原子质量和位移模式
+
+程序开头先列出这次真正要处理的 q 点：
+
+```text
+[bcgong@localhost ph64]$ grep -A12 'uniform grid of q-points' phx.out
+     Dynamical matrices for ( 8, 8, 1)  uniform grid of q-points
+     (  10 q-points):
+       N         xq(1)         xq(2)         xq(3)
+       1   0.000000000   0.000000000   0.000000000
+       2   0.000000000   0.144337567   0.000000000
+       3   0.000000000   0.288675135   0.000000000
+       4   0.000000000   0.433012702   0.000000000
+       5   0.000000000  -0.577350269   0.000000000
+       6   0.125000000   0.216506351   0.000000000
+       7   0.125000000   0.360843918   0.000000000
+       8   0.125000000   0.505181486   0.000000000
+       9   0.250000000   0.433012702   0.000000000
+      10   0.250000000   0.577350269   0.000000000
+[bcgong@localhost ph64]$
+```
+
+
+8×8×1 是完整均匀网格，经过本次结构的对称性处理后，需要处理的是上面 10 个不可约 q 点。第一个为 Γ 点。后面的逐 q 文件应与这份列表相对应；不能只从目录名 ph64 推断有多少个声子 q 点。
+
+再看程序实际采用的质量。前面修正过 N/Sn 的索引，这里要从输出再核对一次：
+
+```text
+[bcgong@localhost ph64]$ grep -A7 'site n.  atom      mass' phx.out
+     site n.  atom      mass           positions (alat units)
+        1     Sr  87.6200   tau(    1) = (   -0.00000    0.57735    4.96384  )
+        2     Sr  87.6200   tau(    2) = (    0.50000    0.28868    4.28013  )
+        3     Sn 118.7100   tau(    3) = (   -0.00000    0.57735    5.97533  )
+        4     Se  78.9710   tau(    4) = (    0.00000    0.00000    6.36490  )
+        5     Se  78.9710   tau(    5) = (    0.50000    0.28868    5.51263  )
+        6     N   14.0070   tau(    6) = (    0.00000    0.00000    4.57298  )
+
+[bcgong@localhost ph64]$
+```
+
+
+N 现在打印为 14.0070，Sn 为 118.7100。六行依次对应六个原子；同一种元素可以出现多次，`amass(i)` 的索引仍按 `ATOMIC_SPECIES` 中的元素种类排列。
+
+Γ 点接着给出了这些表示：
+
+```text
+[bcgong@localhost ph64]$ grep -E 'Calculation of q|irreducible representations|Representation.*modes' phx.out
+     Calculation of q =    0.0000000   0.0000000   0.0000000
+     There are   12 irreducible representations
+     Representation     1      1 modes -  To be done
+     Representation     2      1 modes -  To be done
+     Representation     3      1 modes -  To be done
+     Representation     4      1 modes -  To be done
+     Representation     5      1 modes -  To be done
+     Representation     6      1 modes -  To be done
+     Representation     7      2 modes -  To be done
+     Representation     8      2 modes -  To be done
+     Representation     9      2 modes -  To be done
+     Representation    10      2 modes -  To be done
+     Representation    11      2 modes -  To be done
+     Representation    12      2 modes -  To be done
+[bcgong@localhost ph64]$
+```
+
+
+这份输出中，前六个表示各含一个模式，后六个各含两个，一共 18 个，正好对应六个原子的 18 个位移自由度。这里的 12 个表示和前面的 10 个 q 点是不同层次。`To be done` 表示这份启动输出还没有把它们算完，下面列出的位移图样也不能当成已经得到的声子频率。
+
+## 运行时有哪些文件，怎样继续看进度
+
+此时 `srnsnse.dyn0` 已经出现：
+
+```text
+[bcgong@localhost ph64]$ cat srnsnse.dyn0
+   8   8   1
+  10
+   0.000000000000000E+00   0.000000000000000E+00   0.000000000000000E+00
+   0.000000000000000E+00   0.144337567308136E+00   0.000000000000000E+00
+   0.000000000000000E+00   0.288675134616271E+00   0.000000000000000E+00
+   0.000000000000000E+00   0.433012701924407E+00   0.000000000000000E+00
+   0.000000000000000E+00  -0.577350269232543E+00   0.000000000000000E+00
+   0.125000000000007E+00   0.216506350962204E+00   0.000000000000000E+00
+   0.125000000000007E+00   0.360843918270339E+00   0.000000000000000E+00
+   0.125000000000007E+00   0.505181485578475E+00   0.000000000000000E+00
+   0.250000000000014E+00   0.433012701924407E+00   0.000000000000000E+00
+   0.250000000000014E+00   0.577350269232543E+00   0.000000000000000E+00
+[bcgong@localhost ph64]$
+```
+
+
+第一行是网格，第二行是 10，后面是十个 q 点坐标。这个文件在初始化时就能写出，因此看到 `dyn0` 不能认定全部动力学矩阵已经完成。
+
+再打开声子保存目录：
+
+```text
+[bcgong@localhost ph64]$ ls -1 out/_ph0/srnsnse.phsave
+control_ph.xml
+patterns.10.xml
+patterns.1.xml
+patterns.2.xml
+patterns.3.xml
+patterns.4.xml
+patterns.5.xml
+patterns.6.xml
+patterns.7.xml
+patterns.8.xml
+patterns.9.xml
+status_run.xml
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ cat out/_ph0/srnsnse.phsave/status_run.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+  <STATUS_PH>
+    <STOPPED_IN>phq_setup.</STOPPED_IN>
+    <RECOVER_CODE>-40</RECOVER_CODE>
+    <CURRENT_Q>1</CURRENT_Q>
+    <CURRENT_IU>1</CURRENT_IU>
+  </STATUS_PH>
+</Root>
+[bcgong@localhost ph64]$
+```
+
+
+现在已经有十份 `patterns.*.xml`。结合刚才输出中的 `To be done`，可以看到“位移模式文件已经建立”与“响应求解已经完成”是两件事。这份状态文件记录 `CURRENT_Q=1`、`CURRENT_IU=1`；尽管字段叫 `STOPPED_IN`，当时 Slurm 仍为 `RUNNING`，16 个 ph.x 工作进程也在使用 CPU，不能单凭这个字段名认定任务已终止。
+
+在共享窗口中继续跟随输出：
+
+```text
+[bcgong@localhost ph64]$ tail -f phx.out
+```
+
+按 `Ctrl-C` 退出查看后，再用下面两条命令分别看队列和最近的响应迭代：
+
+```bash
+squeue -j 18180 -o "%.10i %.16j %.8T %.10M %R"
+grep -E 'Calculation of q|Representation|iter #|Convergence|convergence|freq' phx.out | tail -n 30
+```
+
+较长的一次求解中，输出可能暂时停在同一段。先联合检查队列、进程和错误日志，再判断是否异常；不要因为屏幕不滚动就重复提交，让两个 ph.x 同时写这个目录。
+
+随后，Γ 点第一个表示开始出现自洽响应迭代：
+
+```text
+[bcgong@localhost ph64]$ tail -n 20 phx.out
+
+     PHONON       :   2m42.11s CPU   2m44.00s WALL
+
+
+
+     Representation #   1 mode #   1
+
+     Self-consistent Calculation
+
+     Pert. #  1: Fermi energy shift (Ry) =     2.3174E-01     0.0000E+00
+
+      iter #   1 total cpu time :   206.5 secs   av.it.:   5.4
+      thresh= 1.000E-02 alpha_mix =  0.700 |ddv_scf|^2 =  1.884E-04
+
+     Pert. #  1: Fermi energy shift (Ry) =    -4.6446E+00     0.0000E+00
+
+      iter #   2 total cpu time :   271.4 secs   av.it.:  12.8
+      thresh= 1.372E-03 alpha_mix =  0.700 |ddv_scf|^2 =  9.325E-02
+
+     Pert. #  1: Fermi energy shift (Ry) =    -1.1181E+00     0.0000E+00
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -E 'convergence threshold|number of atoms|number of k points' phx.out
+     number of atoms/cell      =            6
+     convergence threshold     =      1.0E-16
+     number of k points=    30  Gaussian smearing, width (Ry)=  0.0037
+[bcgong@localhost ph64]$
+```
+
+
+这部分已经进入声子响应求解。迭代行中的 `thresh` 是内层线性方程求解使用的阈值，不能把它当成输入的 `tr2_ph`。本次程序在前面的设置回显中打印 `convergence threshold = 1.0E-16`；继续看 `|ddv_scf|^2` 的变化和该表示的最终收敛信息。初始几轮残差可以上升，一两行输出还不足以判断整段求解是否失败。
+
+同时再检查错误文件：
+
+```text
+[bcgong@localhost ph64]$ wc -c phx.err _err.18180.log
+0 phx.err
+0 _err.18180.log
+0 total
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ grep -niE 'Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT|IEEE_' phx.out phx.err _err.18180.log
+[bcgong@localhost ph64]$
+```
+
+
+两份错误文件此时为空，关键词检查也没有匹配；这只是启动与早期迭代的观察。可以阅读[本次 phx.out 的启动快照（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/phx.startup.out.txt)，从程序开头、q 点列表、对称性和位移模式一路看到 Γ 点开始迭代。该文件是当时截取的静态副本，后续进度仍以计算目录中的 `phx.out` 为准。
+
+## ph.x 结束后，怎样决定能否进入后处理
+
+结束时仍要及时保存 `scontrol show job 18180`，因为这台机器的 `sacct` 没有开启。先核对正常退出、错误日志和程序结束信息：
+
+```bash
+scontrol show job 18180
+tail -n 50 phx.out
+cat phx.err
+cat _err.18180.log
+grep -niE 'Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT|IEEE_|JOB DONE' phx.out phx.err _out.18180.log _err.18180.log
+```
+
+随后逐 q 核对：本次列表中的十个 q 点是否全部处理，每个点所需的不可约表示是否都求解完成，有没有未收敛提示。再核对 `srnsnse.dyn1` 到 `srnsnse.dyn10` 的 q 坐标、六原子结构、质量与频率内容；文件存在或总数等于十，都不足以证明其中内容完整。
+
+本次还要求计算电声耦合，因此要另外检查 `elph_dir` 中对应的逐 q 数据，确认模数与本体系的 18 个模式相符，展宽记录与 `el_ph_nsigma=20` 配套，且没有混入旧质量、其他网格或其他材料的结果。完整文件尚未生成前，不能把 Sc₂C/ZrCl₂ 的 λ 表接到这条计算链上。
+
+动力学矩阵齐全且核对通过后，才接 `q2r.x → matdyn.x`；电声文件、权重及频率积分范围也检查完后，再准备本材料的 `lambda.x` 输入。结构 BFGS、赝势与泛函适用性、k/q 网格和展宽收敛仍需分别验收，不能由 ph.x 正常结束一并代替。本次只提交 ph.x，后处理和 ph96 尚未启动。
+<!-- ph64-phonon-session-end -->
 
 ## 已完成算例里的输出长什么样
 
@@ -929,7 +1228,7 @@ elph_dir/elph.inp_lambda.10
 
 ## 下一步
 
-本材料已按上述顺序完成两步[固定结构 SCF](/Atlas/m/scf/qe/)；[结构优化](/Atlas/m/vc-relax/qe/)的验收问题仍保留。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
+本材料已完成两步[固定结构 SCF](/Atlas/m/scf/qe/)，并启动 ph.x；[结构优化](/Atlas/m/vc-relax/qe/)的验收问题仍保留。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
 
 ```text
 结构验收 → 致密 k SCF（la2F）→ 粗 k SCF → 完整 q 网格声子 + EPC
