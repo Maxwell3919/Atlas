@@ -12,15 +12,15 @@
 ### 从母体 SCF 固定网格
 
 ```bash
-[<user>@<cluster> vasp]$ cd <工作目录>/vasp/cod
+[bcgong@localhost vasp]$ cd <工作目录>/vasp/cod
 
-[<user>@<cluster> cod]$ grep -n "dimension x,y,z" ../scf/OUTCAR
+[bcgong@localhost cod]$ grep -n "dimension x,y,z" ../scf/OUTCAR
 515:   dimension x,y,z NGX =    28 NGY =   28 NGZ =  294
 516:   dimension x,y,z NGXF=    56 NGYF=   56 NGZF=  588
 
-[<user>@<cluster> cod]$ mkdir -p AB part_A part_B
+[bcgong@localhost cod]$ mkdir -p AB part_A part_B
 
-[<user>@<cluster> cod]$ ls
+[bcgong@localhost cod]$ ls
 AB  part_A  part_B
 ```
 
@@ -29,7 +29,7 @@ AB  part_A  part_B
 ### INCAR 写死网格
 
 ```bash
-[<user>@<cluster> cod]$ cat > INCAR <<'EOF'
+[bcgong@localhost cod]$ cat > INCAR <<'EOF'
 SYSTEM = sc2c_zrcl2_cod
 ########## about parallelation ###########
    LPLANE = .TRUE.
@@ -84,11 +84,11 @@ SYSTEM = sc2c_zrcl2_cod
    NGZF = 588
 ###################################################
 EOF
-[<user>@<cluster> cod]$ for dir in AB part_A part_B; do cp INCAR $dir/; cp ../scf/KPOINTS $dir/; cp ../scf/script_std $dir/; done
+[bcgong@localhost cod]$ for dir in AB part_A part_B; do cp INCAR $dir/; cp ../scf/KPOINTS $dir/; cp ../scf/script_std $dir/; done
 
-[<user>@<cluster> cod]$ cp ../scf/CONTCAR AB/POSCAR
+[bcgong@localhost cod]$ cp ../scf/CONTCAR AB/POSCAR
 
-[<user>@<cluster> cod]$ cp ../scf/POTCAR AB/
+[bcgong@localhost cod]$ cp ../scf/POTCAR AB/
 ```
 
 AB（复合体系）直接继承母体的 CONTCAR 与 POTCAR——它就是母体几何的重算。
@@ -96,7 +96,7 @@ AB（复合体系）直接继承母体的 CONTCAR 与 POTCAR——它就是母�
 ### CONTCAR 切片造单体
 
 ```bash
-[<user>@<cluster> cod]$ head -n 10 ../scf/CONTCAR
+[bcgong@localhost cod]$ head -n 10 ../scf/CONTCAR
 Sc2C
     1.00000000000000
       3.3268753886372542   -0.0000000000982961    0.0000000000000000
@@ -113,19 +113,19 @@ Sc2C
 
 ```bash
 # part_A (ZrCl2)：保留 Zr 与 Cl
-[<user>@<cluster> cod]$ sed -n '1,5p' ../scf/CONTCAR > part_A/POSCAR
-[<user>@<cluster> cod]$ echo "   Zr   Cl" >> part_A/POSCAR
-[<user>@<cluster> cod]$ echo "     1     2" >> part_A/POSCAR
-[<user>@<cluster> cod]$ echo "Direct" >> part_A/POSCAR
-[<user>@<cluster> cod]$ sed -n '9p' ../scf/CONTCAR >> part_A/POSCAR     # Zr (1个)
-[<user>@<cluster> cod]$ sed -n '11,12p' ../scf/CONTCAR >> part_A/POSCAR # Cl (2个)
+[bcgong@localhost cod]$ sed -n '1,5p' ../scf/CONTCAR > part_A/POSCAR
+[bcgong@localhost cod]$ echo "   Zr   Cl" >> part_A/POSCAR
+[bcgong@localhost cod]$ echo "     1     2" >> part_A/POSCAR
+[bcgong@localhost cod]$ echo "Direct" >> part_A/POSCAR
+[bcgong@localhost cod]$ sed -n '9p' ../scf/CONTCAR >> part_A/POSCAR     # Zr (1个)
+[bcgong@localhost cod]$ sed -n '11,12p' ../scf/CONTCAR >> part_A/POSCAR # Cl (2个)
 # part_B (Sc2C)：保留 C 与 Sc
-[<user>@<cluster> cod]$ sed -n '1,5p' ../scf/CONTCAR > part_B/POSCAR
-[<user>@<cluster> cod]$ echo "   C    Sc" >> part_B/POSCAR
-[<user>@<cluster> cod]$ echo "     1     2" >> part_B/POSCAR
-[<user>@<cluster> cod]$ echo "Direct" >> part_B/POSCAR
-[<user>@<cluster> cod]$ sed -n '10p' ../scf/CONTCAR >> part_B/POSCAR    # C (1个)
-[<user>@<cluster> cod]$ sed -n '13,14p' ../scf/CONTCAR >> part_B/POSCAR # Sc (2个)
+[bcgong@localhost cod]$ sed -n '1,5p' ../scf/CONTCAR > part_B/POSCAR
+[bcgong@localhost cod]$ echo "   C    Sc" >> part_B/POSCAR
+[bcgong@localhost cod]$ echo "     1     2" >> part_B/POSCAR
+[bcgong@localhost cod]$ echo "Direct" >> part_B/POSCAR
+[bcgong@localhost cod]$ sed -n '10p' ../scf/CONTCAR >> part_B/POSCAR    # C (1个)
+[bcgong@localhost cod]$ sed -n '13,14p' ../scf/CONTCAR >> part_B/POSCAR # Sc (2个)
 ```
 
 核对：`cat part_A/POSCAR`、`cat part_B/POSCAR`——两个文件都应为 11 行（头部 5 行 + 元素/数目 2 行 + Direct + 3 行坐标），part_A 为 1 Zr + 2 Cl，part_B 为 1 C + 2 Sc。
@@ -135,12 +135,12 @@ Sc2C
 第一反应往往是复制母体 POTCAR、或者直接用普通元素名拼，两个都会撞墙：
 
 ```bash
-[<user>@<cluster> cod]$ POT_DIR="<赝势库路径>"
+[bcgong@localhost cod]$ POT_DIR="<赝势库路径>"
 
-[<user>@<cluster> cod]$ cat $POT_DIR/Zr/POTCAR $POT_DIR/Cl/POTCAR > part_A/POTCAR
+[bcgong@localhost cod]$ cat $POT_DIR/Zr/POTCAR $POT_DIR/Cl/POTCAR > part_A/POTCAR
 cat: <赝势库路径>/Zr/POTCAR: No such file or directory
 
-[<user>@<cluster> cod]$ grep "TITEL" ../scf/POTCAR
+[bcgong@localhost cod]$ grep "TITEL" ../scf/POTCAR
     TITEL  = PAW_PBE Zr_sv 04Jan2005
     TITEL  = PAW_PBE C 08Apr2002
     TITEL  = PAW_PBE Cl 06Sep2000
@@ -150,12 +150,12 @@ cat: <赝势库路径>/Zr/POTCAR: No such file or directory
 判读：母体用的是半芯态版本 Zr_sv 与 Sc_sv，普通 Zr/Sc 目录不存在——这就是 No such file or directory 的来源。更重要的是 POTCAR 不能整份复制：VASP 按原子类型的顺序与数量从前往后匹配，part_A 只有 Zr 和 Cl，沿用 4 元素的母体 POTCAR 时第 2 种元素会被识别成 C，价电子数与类型全错；part_B 同理。按片段重组，顺序必须与 POSCAR 一致：
 
 ```bash
-[<user>@<cluster> cod]$ cat $POT_DIR/Zr_sv/POTCAR $POT_DIR/Cl/POTCAR > part_A/POTCAR
+[bcgong@localhost cod]$ cat $POT_DIR/Zr_sv/POTCAR $POT_DIR/Cl/POTCAR > part_A/POTCAR
 
-[<user>@<cluster> cod]$ cat $POT_DIR/C/POTCAR $POT_DIR/Sc_sv/POTCAR > part_B/POTCAR
+[bcgong@localhost cod]$ cat $POT_DIR/C/POTCAR $POT_DIR/Sc_sv/POTCAR > part_B/POTCAR
 
-[<user>@<cluster> cod]$ echo "=== part_A POTCAR ==="; grep "TITEL" part_A/POTCAR
-[<user>@<cluster> cod]$ echo "=== part_B POTCAR ==="; grep "TITEL" part_B/POTCAR
+[bcgong@localhost cod]$ echo "=== part_A POTCAR ==="; grep "TITEL" part_A/POTCAR
+[bcgong@localhost cod]$ echo "=== part_B POTCAR ==="; grep "TITEL" part_B/POTCAR
 ```
 
 （判据：part_A 应显示 Zr_sv、Cl 两行，part_B 应显示 C、Sc_sv 两行，顺序与各自 POSCAR 一致。）
@@ -163,19 +163,19 @@ cat: <赝势库路径>/Zr/POTCAR: No such file or directory
 ### 批量提交三个体系
 
 ```bash
-[<user>@<cluster> cod]$ for dir in AB part_A part_B; do cd $dir; sbatch script_std; cd ..; done
+[bcgong@localhost cod]$ for dir in AB part_A part_B; do cd $dir; sbatch script_std; cd ..; done
 
-[<user>@<cluster> cod]$ squeue -u <user>
+[bcgong@localhost cod]$ squeue -u bcgong
 ```
 
 三个任务都应处于排队/运行状态。跑完后先验网格再相减：
 
 ```bash
-[<user>@<cluster> cod]$ head -n 20 AB/CHGCAR
+[bcgong@localhost cod]$ head -n 20 AB/CHGCAR
 
-[<user>@<cluster> cod]$ head -n 20 part_A/CHGCAR
+[bcgong@localhost cod]$ head -n 20 part_A/CHGCAR
 
-[<user>@<cluster> cod]$ head -n 20 part_B/CHGCAR
+[bcgong@localhost cod]$ head -n 20 part_B/CHGCAR
 ```
 
 （判据：三份 CHGCAR 结构信息下方的网格行必须同为 28 28 294 / 56 56 588；出现任何不一致，回查 INCAR 的 fixed FFT-grid 段。）
@@ -183,7 +183,7 @@ cat: <赝势库路径>/Zr/POTCAR: No such file or directory
 ### vaspkit 相减与 VESTA 出图
 
 ```bash
-[<user>@<cluster> cod]$ vaspkit -task 314
+[bcgong@localhost cod]$ vaspkit -task 314
 ```
 
 按提示依次输入复合体系 AB/CHGCAR、单体 part_A/CHGCAR、单体 part_B/CHGCAR，生成 CHGDIFF.vasp。下载到本地用 VESTA 打开：Properties → Isosurfaces 新建等值面，正值（电荷积累）与负值（电荷耗散）各画一层；先切过界面原子的竖直面看层间转移方向，再切水平面看面内重构。等值面数值从 0.005 e/Å³ 量级起步按体系调（经验值，非本记录实测）。

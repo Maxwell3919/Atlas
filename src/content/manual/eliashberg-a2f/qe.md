@@ -5,7 +5,7 @@
 
 ## 先看 λ 随展宽怎样变化
 
-下面两条曲线来自 Sc₂C/ZrCl₂ 主算例 `ph64`、`ph96` 留存的 `lambda.dat`，对应密电子 k 网格 64×64×1 和 96×96×1；两者声子 q 网格同为 8×8×1。数据于 2026-09-22 重新读取。
+下面两条曲线来自 Sc₂C/ZrCl₂ 主算例 `ph64`、`ph96` 留存的 `lambda.dat`，对应密电子 k 网格 64×64×1 和 96×96×1；两者声子 q 网格同为 8×8×1。下面直接读取这两份结果。
 
 ![两个密电子网格下的 lambda 和公式 Tc 随展宽变化](/Atlas/figures/epc-broadening.svg)
 
@@ -16,7 +16,7 @@
 本算例输入原文如下：
 
 ```text
-[<user>@<cluster> ph64]$ cat lambdax.in
+[bcgong@localhost ph64]$ cat lambdax.in
 10  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method
     10         ! Number of q-points for which EPC is calculated,
     0.00000000  0.00000000  0.00000000   1.00  ! the first q-point, use kpoints.x program to calculate
@@ -41,7 +41,7 @@ elph_dir/elph.inp_lambda.9
 elph_dir/elph.inp_lambda.10
 0.1                      ! \mu the Coloumb coefficient in the modified
                          ! Allen-Dynes formula for T_c (via \omega_log)
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 q 点、权重和文件顺序必须逐项对应上游清单；不能从这段数字外观就猜坐标约定。尤其要核对权重总和与完整网格的关系，再按运行版本读取 lambda.x 的说明。这里保留原始输入用于复核，不将其认定为已经通过输入审计的通用模板。
@@ -49,7 +49,7 @@ q 点、权重和文件顺序必须逐项对应上游清单；不能从这段数
 ## 按表头读数
 
 ```text
-[<user>@<cluster> ph64]$ head -n 4 lambda.dat; tail -n 3 lambda.dat
+[bcgong@localhost ph64]$ head -n 4 lambda.dat; tail -n 3 lambda.dat
 # degauss   lambda    int alpha2F  <log w>     N(Ef)
   0.001    2.940003    2.902508    97.625   32.317854
   0.002    2.062339    2.025444   100.907   29.723113
@@ -57,12 +57,12 @@ q 点、权重和文件顺序必须逐项对应上游清单；不能从这段数
   0.018    0.840009    0.795808   118.455   24.677094
   0.019    0.817430    0.772534   119.438   24.729924
   0.020    0.796142    0.750607   120.400   24.781569
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 第二列是 λ，第三列的表头为 `int alpha2F`，第四列为 `<log w>`。不要把第三列随意叫作“分解部分”。同目录 `lambdax.out` 给第四列标注 K；展宽列标注 Ry。
 
-在 0.001 Ry 与 0.020 Ry 两端，λ 从 2.940003 变到 0.796142。这个变化不能靠挑选较大的展宽或取区间平均消除。更正（2026-09-22）：旧文中 λ≈0.31、ω_log≈259 K 的片段不属于本次核对的这张主算例表，已从这条教案主线移出。
+在 0.001 Ry 与 0.020 Ry 两端，λ 从 2.940003 变到 0.796142。这个变化不能靠挑选较大的展宽或取区间平均消除。λ、ω_log 和 Tc 应从同一算例、同一档展宽对应的行中读取。
 
 ## 谱函数和累计耦合分开看
 

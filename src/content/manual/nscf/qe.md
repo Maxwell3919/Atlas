@@ -11,16 +11,16 @@ DOS 计算需要比 SCF 更密的 k 采样，但不需要重新自洽。做法�
 先建目录，把 static SCF 的 `.save` 目录整个拷过来（`cp -a` 保留权限与时间戳）：
 
 ```bash
-[<user>@<cluster> QE]$ cd <工作目录>/QE
+[hzw@localhost QE]$ cd <工作目录>/QE
 
-[<user>@<cluster> QE]$ mkdir -p 07_dos/nscf
-[<user>@<cluster> QE]$ cd 07_dos/nscf
+[hzw@localhost QE]$ mkdir -p 07_dos/nscf
+[hzw@localhost QE]$ cd 07_dos/nscf
 
-[<user>@<cluster> nscf]$ mkdir -p out
+[hzw@localhost nscf]$ mkdir -p out
 
-[<user>@<cluster> nscf]$ cp -a ../../06_static/out/HfCl2_PbO2.save out/
+[hzw@localhost nscf]$ cp -a ../../06_static/out/HfCl2_PbO2.save out/
 
-[<user>@<cluster> nscf]$ ls out/HfCl2_PbO2.save | head
+[hzw@localhost nscf]$ ls out/HfCl2_PbO2.save | head
 ```
 
 先确认 SCF 数据复制成功，再写输入。
@@ -28,7 +28,7 @@ DOS 计算需要比 SCF 更密的 k 采样，但不需要重新自洽。做法�
 ### 输入文件
 
 ```bash
-[<user>@<cluster> nscf]$ cat > nscf.in <<'EOF'
+[hzw@localhost nscf]$ cat > nscf.in <<'EOF'
 &CONTROL
   calculation = 'nscf'
   outdir = './out/'
@@ -72,7 +72,7 @@ K_POINTS (automatic)
 36 36 1 0 0 0
 EOF
 
-[<user>@<cluster> nscf]$ cat nscf.in
+[hzw@localhost nscf]$ cat nscf.in
 ```
 
 与 scf.in 逐项对比：CONTROL 里 `calculation = 'nscf'`、没有 tprnfor/tstress（不重新算力）；SYSTEM/ELECTRONS/结构块全部一致，唯一数值变化是 K_POINTS 从 24×24×1 到 36×36×1。
@@ -82,13 +82,13 @@ EOF
 直接复用已经跑通的脚本：
 
 ```bash
-[<user>@<cluster> nscf]$ cp ../../05_relax/rx.slurm nscf.slurm
+[hzw@localhost nscf]$ cp ../../05_relax/rx.slurm nscf.slurm
 
-[<user>@<cluster> nscf]$ sed -i \
+[hzw@localhost nscf]$ sed -i \
 > 's#pw.x<rx.in>rx.out#pw.x -in nscf.in > nscf.out#' \
 > nscf.slurm
 
-[<user>@<cluster> nscf]$ cat nscf.slurm
+[hzw@localhost nscf]$ cat nscf.slurm
 ```
 
 如果你的 rx.slurm 最后一行确实还是 `mpirun -np 56 <qe_bin>/pw.x<rx.in>rx.out`，修改后应该变成 `mpirun -np 56 <qe_bin>/pw.x -in nscf.in > nscf.out`。提交前 `cat` 一遍核对。
@@ -96,7 +96,7 @@ EOF
 ### 提交与监控
 
 ```bash
-[<user>@<cluster> nscf]$ sbatch nscf.slurm
+[hzw@localhost nscf]$ sbatch nscf.slurm
 ```
 
 运行时可以看 `squeue`，以及 `tail -f nscf.out`。
@@ -118,25 +118,25 @@ grep -E "convergence has been achieved|Error in routine" nscf.out | tail -n 20
 真实输出：
 
 ```bash
-[<user>@<cluster> nscf]$ grep "JOB DONE" nscf.out
+[hzw@localhost nscf]$ grep "JOB DONE" nscf.out
    JOB DONE.
-[<user>@<cluster> nscf]$
-[<user>@<cluster> nscf]$ grep "the Fermi energy is" nscf.out | tail
+[hzw@localhost nscf]$
+[hzw@localhost nscf]$ grep "the Fermi energy is" nscf.out | tail
      the Fermi energy is     0.0500 ev
-[<user>@<cluster> nscf]$
-[<user>@<cluster> nscf]$ grep -E \
+[hzw@localhost nscf]$
+[hzw@localhost nscf]$ grep -E \
 > "number of electrons|number of Kohn-Sham states|number of k points" \
 > nscf.out
      number of electrons       =        52.00
      number of Kohn-Sham states=           31
      number of k points=   127  Gaussian smearing, width (Ry)=  0.0037
-[<user>@<cluster> nscf]$
-[<user>@<cluster> nscf]$ grep -E \
+[hzw@localhost nscf]$
+[hzw@localhost nscf]$ grep -E \
 > "convergence has been achieved|Error in routine" \
 > nscf.out | tail -n 20
-[<user>@<cluster> nscf]$ ls
+[hzw@localhost nscf]$ ls
 _err.<jobid>.log  nscf.in  nscf.out  nscf.slurm  out  _out.<jobid>.log
-[<user>@<cluster> nscf]$
+[hzw@localhost nscf]$
 ```
 
 逐条判读：`36×36×1` 在当前对称性下被约化成 **127 个不可约 k 点**，这是正常的；最后一条 grep 什么都没抓到也**不构成异常**——这是 `nscf`，不做 SCF 迭代，判断是否成功主要看 `JOB DONE.`、是否存在 `Error in routine`，以及能带数据是否正常生成。这是和 scf 验收思路完全不同的一点，别拿 convergence 的尺子来量 nscf。

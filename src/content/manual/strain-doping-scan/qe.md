@@ -19,23 +19,23 @@ cell_dofree 取值速查（真实文件里三种都出现过）：`'2Dxy'` 只�
 以拉伸 3% 为例，从无应变目录复制后，sed 替换 `rx.in` 里 CELL_PARAMETERS 的三个数值（六方格子 b = −a/2 联动）：
 
 ```bash
-[<user>@<cluster> QE]$ cp -a no_strain tensile_003
+[bcgong@localhost QE]$ cp -a no_strain tensile_003
 
-[<user>@<cluster> QE]$ cd tensile_003
-[<user>@<cluster> tensile_003]$ sed -i 's/3.312897589/3.412284517/' rx.in
-[<user>@<cluster> tensile_003]$ sed -i 's/-1.656448795/-1.706137701/' rx.in
-[<user>@<cluster> tensile_003]$ sed -i 's/2.869053472/2.955057172/' rx.in
+[bcgong@localhost QE]$ cd tensile_003
+[bcgong@localhost tensile_003]$ sed -i 's/3.312897589/3.412284517/' rx.in
+[bcgong@localhost tensile_003]$ sed -i 's/-1.656448795/-1.706137701/' rx.in
+[bcgong@localhost tensile_003]$ sed -i 's/2.869053472/2.955057172/' rx.in
 ```
 
 （压缩 3% 则换成 3.213510661 / −1.606755331 / 2.782981868；c = 40.0 始终不动。）改完核对一遍数值再提交：
 
 ```bash
-[<user>@<cluster> tensile_003]$ grep CELL -A 4 rx.in
+[bcgong@localhost tensile_003]$ grep CELL -A 4 rx.in
 CELL_PARAMETERS (angstrom)
    3.412284517 0.000000000 0.000000000
   -1.706137701 2.955057172 0.000000000
    0.000000000 0.000000000 40.000000000
-[<user>@<cluster> tensile_003]$
+[bcgong@localhost tensile_003]$
 ```
 
 母体 vc-relax 后的面内晶格 3.312897589 Å 与 ×1.03/×0.97 的换算关系写进每个算例的 README 一行，避免后人不知道数值从哪来。
@@ -45,7 +45,7 @@ CELL_PARAMETERS (angstrom)
 与母体 vc-relax 相比只有三处增量：`calculation = 'relax'`、晶胞数值换成应变后的、`&CELL` 留空（程序不再动晶胞）：
 
 ```bash
-[<user>@<cluster> tensile_003]$ cat > rx.in <<'EOF'
+[bcgong@localhost tensile_003]$ cat > rx.in <<'EOF'
 &CONTROL
   calculation = 'relax'        ! 只弛豫原子，晶胞锁死
   outdir = './out_rx/'
@@ -121,7 +121,7 @@ grep -l "convergence NOT achieved" */*.out
 
 在列出的这些采样点里，±1% 的能量较低；表中没有零应变点，不能据此定位连续曲线的最小值或证明母体已经达到平衡。
 
-电声数据应按每个应变点的实际 k/q 网格、展宽和赝势整理。这里不再把来源不同的 λ/Tc 片段混成同一张应变表；读取方法见 [Allen–Dynes 页](/Atlas/m/allen-dynes/qe/)。
+电声数据应按每个应变点的实际 k/q 网格、展宽和赝势整理。各行的 λ/Tc 必须与对应应变点匹配；读取方法见 [Allen–Dynes 页](/Atlas/m/allen-dynes/qe/)。
 
 ## 电子掺杂扫描
 
@@ -132,9 +132,9 @@ grep -l "convergence NOT achieved" */*.out
 一次批量改写提交脚本时把 `pw.x < pwxall.in > pwxall.out` 写坏，实际成了 `pw.xpwxall.out`（少个空格、输入重定向整个丢失），作业秒退无输出。定位与修复：
 
 ```bash
-[<user>@<cluster> ph64]$ cat -A pwxall.slurm | tail -n 5
+[hzw@localhost ph64]$ cat -A pwxall.slurm | tail -n 5
 mpirun -np 56 <qe_bin>/pw.xpwxall.out$
-[<user>@<cluster> ph64]$
+[hzw@localhost ph64]$
 ```
 
 把执行行改回完整重定向再提交。纪律：批量 sed 改脚本后，先 `cat -A` 核对文件名和重定向，再用 `bash -n` 检查语法；后者不保证执行文件存在。

@@ -6,10 +6,10 @@
 
 ## 先把两套电子网格接对
 
-继续使用 Sc₂C/ZrCl₂ 主算例的 `ph64`（QE 7.1，2026 年 6 月输出）。这里的两次 SCF 各有用途：密网格为费米面求和保存数据，粗网格衔接声子响应。下面是 2026-09-22 对留存输入和输出的读取，不是新提交记录。
+继续读取 bcgong 上 Sc₂C/ZrCl₂ 主算例的 `ph64`（QE 7.1）。这里的两次 SCF 各有用途：密网格为费米面求和保存数据，粗网格衔接声子响应。
 
 ```text
-[<user>@<cluster> 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
+[bcgong@localhost 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
 ph64/pwx.in:K_POINTS automatic
 ph64/pwx.in-  16 16 1 0 0 0
 --
@@ -24,15 +24,15 @@ ph64/phx.in:  nq3=1
 ph96/phx.in:  nq1=8
 ph96/phx.in:  nq2=8
 ph96/phx.in:  nq3=1
-[<user>@<cluster> 2]$
+[bcgong@localhost 2]$
 ```
 
-更正（2026-09-22）：原文把 `pwx` 写成 32×32×1，并称密网格 SCF 必须紧挨 ph.x、之后不能运行粗网格 SCF。这与本目录输入和运行次序不符。该 `interpolated` 路线先准备密网格数据，再做粗网格 SCF 和声子；不能把它与另一种电声流程混写。
+本目录的 `pwx` 使用 16×16×1 粗网格，`pwxall` 使用 64×64×1 密网格。该 `interpolated` 路线先准备密网格数据，再做粗网格 SCF 和声子；运行顺序需要与采用的电声流程对应。
 
 ## 读取密网格输入与执行脚本
 
 ```text
-[<user>@<cluster> ph64]$ cat pwxall.in
+[bcgong@localhost ph64]$ cat pwxall.in
 &CONTROL
   calculation = 'scf'
   outdir = './out/'
@@ -80,13 +80,13 @@ Sc            0.3333333333        0.6666666667        0.4128299130
 Sc            0.6666666667        0.3333333333        0.4719057887
 K_POINTS automatic
   64 64 1 0 0 0
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 完整脚本如下。这里实用 32 个 MPI 进程；HfCl₂/PbO₂ 页面里的 56 属于另一台集群的另一份作业，不能为了统一排版改成同一个数。
 
 ```text
-[<user>@<cluster> ph64]$ cat pwxall.slurm
+[bcgong@localhost ph64]$ cat pwxall.slurm
 #!/bin/bash
 
 #SBATCH -o _out.%j.log
@@ -103,7 +103,7 @@ cd $SLURM_SUBMIT_DIR
 
 mpirun -np 32 <qe_bin>/pw.x<pwxall.in>pwxall.out
 #rm -r _*.log
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 同一脚本中的输入、输出文件名是一对。复制脚本后先 `tail -n 5 pwxall.slurm` 逐字检查；`bash -n` 只能查 shell 语法，像 `pw.xpwxall.out` 这样的错误文件名仍可能通过语法检查。
@@ -123,13 +123,13 @@ Program PHONON v.7.1 starts on 19Jun2026 at  3: 1:20  # phx.out
 密网格这次留下的 SCF 摘录：
 
 ```text
-[<user>@<cluster> ph64]$ grep -E 'Program PWSCF|number of k points|convergence has been achieved|^!|JOB DONE' pwxall.out
+[bcgong@localhost ph64]$ grep -E 'Program PWSCF|number of k points|convergence has been achieved|^!|JOB DONE' pwxall.out
      Program PWSCF v.7.1 starts on 19Jun2026 at  1: 2:52
      number of k points=   374  Gaussian smearing, width (Ry)=  0.0037
 !    total energy              =    -793.68227867 Ry
      convergence has been achieved in  44 iterations
    JOB DONE.
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 ![密电子网格 SCF 的误差随迭代变化](/Atlas/figures/scf-accuracy.svg)
@@ -141,7 +141,7 @@ Program PHONON v.7.1 starts on 19Jun2026 at  3: 1:20  # phx.out
 声子页列出的四批 q 范围对应十个不可约 q 点。接着检查 lambda.x 要读取的文件：
 
 ```text
-[<user>@<cluster> ph64]$ find elph_dir -maxdepth 1 -name 'elph.inp_lambda.*' -type f | sort -V; head -n 5 elph_dir/elph.inp_lambda.1; head -n 4 lambda.dat; tail -n 3 lambda.dat
+[bcgong@localhost ph64]$ find elph_dir -maxdepth 1 -name 'elph.inp_lambda.*' -type f | sort -V; head -n 5 elph_dir/elph.inp_lambda.1; head -n 4 lambda.dat; tail -n 3 lambda.dat
 elph_dir/elph.inp_lambda.1
 elph_dir/elph.inp_lambda.2
 elph_dir/elph.inp_lambda.3
@@ -164,10 +164,10 @@ elph_dir/elph.inp_lambda.10
   0.018    0.840009    0.795808   118.455   24.677094
   0.019    0.817430    0.772534   119.438   24.729924
   0.020    0.796142    0.750607   120.400   24.781569
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
-第一行末尾的 20 与 18 分别对应本文件的展宽数和模数，后面会出现各档 Gaussian Broadening 数据。这里是十个 q 文件，每个文件内部有二十档展宽；原文的“十个 q × 二十档、各一份文件”会让人误找二百份文件，已更正。
+第一行末尾的 20 与 18 分别对应本文件的展宽数和模数，后面会出现各档 Gaussian Broadening 数据。这里共有十个 q 文件，每个文件内部有二十档展宽。展宽结果保存在各 q 文件内部，不是每一档各占一个文件。
 
 文件存在只是起点：逐 q 编号、坐标、模数与每档展宽都应相互对应。q2r 的实际警告保留在[声子页](/Atlas/m/phonon-dfpt/qe/)，不能只挑成功行进入下一步。
 

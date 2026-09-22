@@ -14,16 +14,16 @@ ELF 在 0–1 之间度量电子定域性：约 0.5 对应自由电子气参考�
 已有收敛的 WAVECAR 与 CHGCAR，读入续算即可（极快，通常几分钟甚至几十秒）：
 
 ```bash
-[<user>@<cluster> vasp]$ ls
+[bcgong@localhost vasp]$ ls
 bader  bands  elf  rx  scf
 
-[<user>@<cluster> elf]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/CHGCAR ../scf/WAVECAR ../scf/script_std ./
+[bcgong@localhost elf]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/CHGCAR ../scf/WAVECAR ../scf/script_std ./
 ```
 
 ### INCAR
 
 ```bash
-[<user>@<cluster> elf]$ cat > INCAR <<'EOF'
+[bcgong@localhost elf]$ cat > INCAR <<'EOF'
 SYSTEM = Sc2C_ZrCl2_ELF
 ########## about parallelation ###########
    LPLANE = .TRUE.
@@ -69,15 +69,15 @@ EOF
 ### 提交与验收
 
 ```bash
-[<user>@<cluster> elf]$ sbatch script_std
+[bcgong@localhost elf]$ sbatch script_std
 
-[<user>@<cluster> elf]$ watch -n 1 squeue
+[bcgong@localhost elf]$ watch -n 1 squeue
 ```
 
 结束后目录状态（真实记录）：
 
 ```bash
-[<user>@<cluster> vasp]$ ls elf/
+[bcgong@localhost vasp]$ ls elf/
 CHG      EIGENVAL        INCAR    _out.18107.log  POTCAR      vasprun.xml
 CHGCAR   ELFCAR          KPOINTS  OUTCAR          PROCAR      WAVECAR
 CONTCAR  _err.18107.log  OSZICAR  PCDAT           REPORT      XDATCAR
@@ -94,12 +94,12 @@ ELFCAR 直接拖入 VESTA：
 - 2D 截面（Utilities → 2D Data Display → Slice）：用 3 个代表原子定面（如 Sc–C–Zr）或直接指定 Miller 指数（(1 1 0) / (0 0 1)），勾选 Show contour lines，色彩范围固定为 0.0–1.0，结合结构观察定域区域；不由颜色直接给键分类。
 
 ### 读取图像时保留哪些信息
-+
-+记录切面、等值面阈值和色标，再与原子位置、实际电荷密度对照。单一 ELF 阈值不能自动给出离子键、共价键或金属键的分类；改变色标也不能代替数值检查。
-+
-+更正（2026-09-22）：原文的 QE ELF 输入仅来自讨论方案，没有对应运行产物，因此已移出操作主线。这里也不再把某类赝势概括为普遍更稳，或把 LREAL 当作所有图像伪影的唯一解释。当前 VASP LELF 文档另有 NPAR 的要求，旧输入是否适用于新版本应逐项核对，不能只复制 LELF 一行。
-+
-+### 下一步
+
+记录切面、等值面阈值和色标，再与原子位置、实际电荷密度对照。单一 ELF 阈值不能自动给出离子键、共价键或金属键的分类；改变色标也不能代替数值检查。
+
+VASP 的 LELF 文档另有 NPAR 的要求。复用输入前，应结合实际版本逐项核对相关参数，不能只复制 LELF 一行。
+
+### 下一步
 
 ```text
 SCF（WAVECAR + CHGCAR 复用）

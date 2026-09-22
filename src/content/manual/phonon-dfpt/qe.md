@@ -11,14 +11,14 @@
 
 ![Sc2C/ZrCl2 沿 Γ–M–K–Γ 的插值声子频率，单位 cm⁻¹](/Atlas/figures/phonon.svg)
 
-这里使用 Sc₂C/ZrCl₂ 主算例的 `ph64` 目录，输出标明 QE 7.1、运行于 2026 年 6 月；以下命令于 2026-09-22 读取这些已有文件。它与前面 HfCl₂/PbO₂ 的结构优化是两个独立算例，结构、赝势和保存目录不能交叉使用。本次没有重新提交计算，也没有把其他机器上的补充尝试并入这条链。页首在线手册用于查阅；涉及旧版本的具体行为，以本算例输出和对应版本文档复核。
+这里读取 bcgong 上 Sc₂C/ZrCl₂ 主算例的 `ph64` 目录，输出对应 QE 7.1。它与前面 HfCl₂/PbO₂ 的结构优化是两个独立算例，结构、赝势和保存目录不能交叉使用。页首在线手册用于查阅；涉及旧版本的具体行为，以本算例输出和对应版本文档复核。
 
 ## 先核对电子网格与声子网格
 
 目录叫 `ph64`，并不意味着声子用了 64×64×1。打开输入查看：
 
 ```text
-[<user>@<cluster> 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
+[bcgong@localhost 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
 ph64/pwx.in:K_POINTS automatic
 ph64/pwx.in-  16 16 1 0 0 0
 --
@@ -33,7 +33,7 @@ ph64/phx.in:  nq3=1
 ph96/phx.in:  nq1=8
 ph96/phx.in:  nq2=8
 ph96/phx.in:  nq3=1
-[<user>@<cluster> 2]$
+[bcgong@localhost 2]$
 ```
 
 `pwx.in` 是 16×16×1 的粗电子网格，`pwxall.in` 保存 64×64×1 密电子网格的数据；`phx.in` 的 `nq1/nq2/nq3` 才是 8×8×1 声子网格。这里保留了 EPC 开关，密网格与粗网格的衔接见[电声耦合页](/Atlas/m/epc/qe/)。纯声子计算不需要照搬 EPC 部分。
@@ -43,7 +43,7 @@ ph96/phx.in:  nq3=1
 先读取第一批输入。四种原子的质量与本算例的 Zr、Cl、Sc、C 顺序对应：
 
 ```text
-[<user>@<cluster> ph64]$ cat phx.in
+[bcgong@localhost ph64]$ cat phx.in
   &inputph
   tr2_ph=1.0d-16
   nmix_ph=12
@@ -67,13 +67,13 @@ ph96/phx.in:  nq3=1
   nq2=8
   nq3=1
 /
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 不要只凭文件名猜分工，直接读取范围，再对照各自输出：
 
 ```text
-[<user>@<cluster> ph64]$ grep -E 'start_q|last_q' phx.in phx1.in phx2.in phx3.in; grep 'JOB DONE' phx.out phx1.out phx2.out phx3.out
+[bcgong@localhost ph64]$ grep -E 'start_q|last_q' phx.in phx1.in phx2.in phx3.in; grep 'JOB DONE' phx.out phx1.out phx2.out phx3.out
 phx.in:  start_q=1
 phx.in:  last_q=1
 phx1.in:  start_q=2
@@ -86,7 +86,7 @@ phx.out:   JOB DONE.
 phx1.out:   JOB DONE.
 phx2.out:   JOB DONE.
 phx3.out:   JOB DONE.
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 范围覆盖 1–10，四份输出都有结束标志。这只完成了最初的清点，还要检查各批错误、响应收敛、动力学矩阵是否非空，才能进行后处理。共同读取一个 SCF 目录也不意味着各批可以任意同时写同一套工作文件；新的并行任务必须核对独立工作目录和该版本的分批规则。
@@ -98,22 +98,22 @@ phx3.out:   JOB DONE.
 本次留存的输入是：
 
 ```text
-[<user>@<cluster> ph64]$ cat q2rx.in
+[bcgong@localhost ph64]$ cat q2rx.in
 &input
 zasr='crystal'
 fildyn='zrclscc.dyn'
 flfrc='zrclscc.fc'
 la2F=.true.
 /
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 ```text
-[<user>@<cluster> ph64]$ grep 'fft-check warning' q2rx.out
+[bcgong@localhost ph64]$ grep 'fft-check warning' q2rx.out
       fft-check warning: sum of imaginary terms = 2.414214E-08
       fft-check warning: sum of imaginary terms = 1.207107E-08
       fft-check warning: sum of imaginary terms = 2.414214E-08
       fft-check warning: sum of imaginary terms = 1.207107E-08
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 文件中既有 `fft-check success`，也有上面的 warning。只 grep success 会漏掉它们。这里如实保留这次输出；是否影响目标频率，需要比较完整动力学矩阵、力常数和直接 q 点结果，不能凭 warning 数字较小就宣布通过。
@@ -121,7 +121,7 @@ la2F=.true.
 ## matdyn：把力常数沿路径展开
 
 ```text
-[<user>@<cluster> ph64]$ cat matdynxline.in
+[bcgong@localhost ph64]$ cat matdynxline.in
 &input
   asr='crystal'
   amass(1)=91.224
@@ -142,7 +142,7 @@ la2F=.true.
 0.3333333333   0.3333333333   0.0000000000 50    !K
 0.0000000000   0.0000000000   0.0000000000  1    !G
 /
-[<user>@<cluster> ph64]$
+[bcgong@localhost ph64]$
 ```
 
 `zrclscc.freq.gp` 是本页作图读取的表。第一列为累计路径坐标，其余 18 列为这个六原子模型的频率。图中按原文件绘线，没有删除负值或人为把曲线抬到零以上。`asr='crystal'` 已是这次后处理的一部分，应与原始动力学矩阵的频率区分。

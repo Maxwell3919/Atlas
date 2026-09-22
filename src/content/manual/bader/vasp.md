@@ -14,11 +14,11 @@ Bader 分析把空间电荷沿零通量面（∇ρ·n = 0）划分给各原子�
 从已收敛的 ../scf 复制基准文件；WAVECAR 可选，拷了它续算只需几步：
 
 ```bash
-[<user>@<cluster> vasp]$ cd <工作目录>/vasp/bader
+[bcgong@localhost vasp]$ cd <工作目录>/vasp/bader
 
-[<user>@<cluster> bader]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/INCAR ../scf/script_std ./
+[bcgong@localhost bader]$ cp ../scf/POSCAR ../scf/POTCAR ../scf/KPOINTS ../scf/INCAR ../scf/script_std ./
 
-[<user>@<cluster> bader]$ cp ../scf/WAVECAR ./
+[bcgong@localhost bader]$ cp ../scf/WAVECAR ./
 ```
 
 ### INCAR
@@ -26,7 +26,7 @@ Bader 分析把空间电荷沿零通量面（∇ρ·n = 0）划分给各原子�
 INCAR 直接继承 ../scf，只加两行关键参数——LAECHG = .TRUE. 输出全电子电荷，PREC = Accurate 提高网格精度：
 
 ```bash
-[<user>@<cluster> bader]$ cat > INCAR <<'EOF'
+[bcgong@localhost bader]$ cat > INCAR <<'EOF'
 SYSTEM = Sc2C_ZrCl2_bader
    LPLANE = .TRUE.
    NPAR = 4
@@ -60,7 +60,7 @@ EOF
 ISTART 仍是 0——真实记录里提交前才发现：拷了 WAVECAR 却写 0，VASP 会从头自洽。改掉：
 
 ```bash
-[<user>@<cluster> bader]$ sed -i 's/ISTART =      0/ISTART =      1/g' INCAR
+[bcgong@localhost bader]$ sed -i 's/ISTART =      0/ISTART =      1/g' INCAR
 ```
 
 ### 提交脚本与作业
@@ -85,16 +85,16 @@ mpirun -np 16 <vasp 路径>/vasp_std > out
 ```
 
 ```bash
-[<user>@<cluster> bader]$ sbatch script_std
+[bcgong@localhost bader]$ sbatch script_std
 Submitted batch job 18108
 
-[<user>@<cluster> bader]$ watch -n 1 squeue
+[bcgong@localhost bader]$ watch -n 1 squeue
 ```
 
 ### 结束后验收
 
 ```bash
-[<user>@<cluster> bader]$ ls
+[bcgong@localhost bader]$ ls
 AECCAR0  CONTCAR         INCAR           OUTCAR  REPORT
 AECCAR1  DOSCAR          KPOINTS         PCDAT   script_std
 AECCAR2  EIGENVAL        OSZICAR         POSCAR  vasprun.xml
@@ -107,10 +107,10 @@ CHGCAR   IBZKPT          _out.18108.log  PROCAR  XDATCAR
 ### 第一次失败：chgsum.pl 不存在
 
 ```bash
-[<user>@<cluster> bader]$ chgsum.pl AECCAR0 AECCAR2
+[bcgong@localhost bader]$ chgsum.pl AECCAR0 AECCAR2
 bash: chgsum.pl: command not found...
 
-[<user>@<cluster> bader]$ bader CHGCAR -ref CHGCAR_sum
+[bcgong@localhost bader]$ bader CHGCAR -ref CHGCAR_sum
 
    GRID BASED BADER ANALYSIS  (Version 1.05 08/19/23)
 
@@ -119,7 +119,7 @@ bash: chgsum.pl: command not found...
  forrtl: No such file or directory
  forrtl: severe (29): file not found, unit 100, file <工作目录>/bader/CHGCAR_sum
  ...（Fortran 堆栈略）
-[<user>@<cluster> bader]$
+[bcgong@localhost bader]$
 ```
 
 判读：bader 本体在，但 chgsum.pl 没装；缺 CHGCAR_sum 时程序在读参考文件这一步直接 forrtl severe (29) 退出。
@@ -129,7 +129,7 @@ bash: chgsum.pl: command not found...
 chgsum.pl 的逻辑只是同网格点逐点相加，python3 能做：
 
 ```bash
-[<user>@<cluster> bader]$ python3 - << 'EOF'
+[bcgong@localhost bader]$ python3 - << 'EOF'
 f0 = open("AECCAR0", "r")
 f2 = open("AECCAR2", "r")
 out = open("CHGCAR_sum", "w")
@@ -170,7 +170,7 @@ CHGCAR_sum generated successfully!
 ### 运行 Bader 分析
 
 ```bash
-[<user>@<cluster> bader]$ bader CHGCAR -ref CHGCAR_sum
+[bcgong@localhost bader]$ bader CHGCAR -ref CHGCAR_sum
 
    GRID BASED BADER ANALYSIS  (Version 1.05 08/19/23)
    ...（读文件段同上）
@@ -191,7 +191,7 @@ CHGCAR_sum generated successfully!
                   VACUUM CHARGE:         0.0000
             NUMBER OF ELECTRONS:       52.00000
 
-[<user>@<cluster> bader]$
+[bcgong@localhost bader]$
 ```
 
 判读：14225 个局部极大里只有 6 个显著极大，正好等于原子数；VACUUM CHARGE = 0.0000；总电子数 52.00000 与价电子总数严格守恒。
@@ -199,7 +199,7 @@ CHGCAR_sum generated successfully!
 ### ACF.dat 与 ZVAL 记账
 
 ```bash
-[<user>@<cluster> bader]$ cat ACF.dat
+[bcgong@localhost bader]$ cat ACF.dat
     #         X           Y           Z       CHARGE      MIN DIST   ATOMIC VOL
   --------------------------------------------------------------------------
      1    1.663439    0.960385   22.584788   10.850960     1.145626    17.321670
@@ -213,11 +213,11 @@ CHGCAR_sum generated successfully!
      VACUUM VOLUME:               0.0000
      NUMBER OF ELECTRONS:        52.0000
 
-[<user>@<cluster> bader]$ sed -n '6,7p' POSCAR
+[bcgong@localhost bader]$ sed -n '6,7p' POSCAR
    Zr   C    Cl   Sc
       1     1     2     2
 
-[<user>@<cluster> bader]$ grep "ZVAL" POTCAR
+[bcgong@localhost bader]$ grep "ZVAL" POTCAR
     POMASS =   91.224; ZVAL   =   12.000    mass and valenz
     POMASS =   12.011; ZVAL   =    4.000    mass and valenz
     POMASS =   35.453; ZVAL   =    7.000    mass and valenz

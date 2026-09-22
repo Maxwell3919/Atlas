@@ -25,7 +25,7 @@ HfCl2_PbO2.pdos_tot
 先确认投影通道齐全（state 通道清单是轨道归纳的依据）：
 
 ```bash
-[<user>@<cluster> pdos]$ grep "state #" projwfc.out
+[hzw@localhost pdos]$ grep "state #" projwfc.out
      state #   1: atom   1 (Hf ), wfc  1 (l=0 m= 1)
      ...
      state #   6: atom   1 (Hf ), wfc  4 (l=2 m= 1)
@@ -36,7 +36,7 @@ HfCl2_PbO2.pdos_tot
      ...
      state #  28: atom   5 (O  ), wfc  1 (l=0 m= 1)
      ...
-[<user>@<cluster> pdos]$
+[hzw@localhost pdos]$
 ```
 
 （本例共 35 条 state，完整清单见 projwfc.out。）归纳成元素×轨道：
@@ -66,7 +66,7 @@ Cl-p
 总 DOS 与总投影的对照取 pdos_tot 在 E_F 最近的点：
 
 ```bash
-[<user>@<cluster> pdos]$ awk '
+[hzw@localhost pdos]$ awk '
 > BEGIN { EF=0.050; best=1e9 }
 > $1 !~ /^#/ {
 >     d=$1-EF
@@ -76,7 +76,7 @@ Cl-p
 > END { print line }
 > ' HfCl2_PbO2.pdos_tot
    0.050  0.189E+01  0.184E+01
-[<user>@<cluster> pdos]$
+[hzw@localhost pdos]$
 ```
 
 第三列就是投影求和后的 pdos(E)。本例两列应读作 1.89 与 1.84；两者在这个能量点相差约 3%，但不证明整个能量窗口内的投影完备。具体到每个元素/轨道在 E_F 附近的占比，把上面对应 pdos_atm 文件在 E=0.050 行的第二列读出来相加即可（本例文件齐全，逐文件读数过程不再展开）。

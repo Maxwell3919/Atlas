@@ -33,12 +33,6 @@ const unpublished = categories.flatMap((c) => c.order).filter((slug) => !ready(s
             <span class="readme-arrow" aria-hidden="true">→</span>
           </a>
         </div>
-        <div class="group reading-routes">
-          <h2>沿一个问题读下去</h2>
-          <p><a href={`${base}/m/vc-relax/qe/`}>结构优化的失败行</a> → <a href={`${base}/m/scf/qe/`}>固定结构 SCF</a> → <a href={`${base}/m/dos/qe/`}>DOS 图</a> / <a href={`${base}/m/bands/qe/`}>能带图</a></p>
-          <p><a href={`${base}/m/phonon-dfpt/qe/`}>逐 q 文件到声子图</a> → <a href={`${base}/m/imaginary-phonon/qe/`}>核对原始频率</a> → <a href={`${base}/m/eliashberg-a2f/qe/`}>读取展宽扫描</a></p>
-          <p><a href={`${base}/m/exfoliation-energy/vasp/`}>移动一层后，能量怎样变化</a></p>
-        </div>
         {
           publishedCategories.map((c) => (
             <div class="group">
@@ -187,9 +181,6 @@ const unpublished = categories.flatMap((c) => c.order).filter((slug) => !ready(s
   }
   .more-methods { margin-top: 2rem; color: var(--muted); font-size: .88rem; }
   .readme-label small { font: .74rem -apple-system, sans-serif; color: var(--muted); margin-left: .65rem; }
-  .reading-routes { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
-  .reading-routes p { font-size: .88rem; margin: .55rem 0; }
-  .reading-routes a { border: none; background: none; border-radius: 0; padding: 0; color: var(--accent); }
   .more-methods summary { cursor: pointer; }
   .more-methods ul { columns: 2; padding-left: 1.2rem; }
   @media (max-width: 560px) { .more-methods ul { columns: 1; } }

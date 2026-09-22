@@ -11,12 +11,12 @@
 输入文件建议先在本地编辑好，再用 cat 指令在服务器中输入（heredoc）。目录用数字编号，在 Linux 里输入数字后 Tab 补全很方便，这是日常使用的小技巧。另外 `outdir = './out_rx/'` 指向的文件夹会在运行时自动创建，不需要手动建：
 
 ```bash
-[<user>@<cluster> QE]$ cd <工作目录>/QE
+[hzw@localhost QE]$ cd <工作目录>/QE
 
-[<user>@<cluster> QE]$ mkdir -p 05_relax
-[<user>@<cluster> QE]$ cd 05_relax
+[hzw@localhost QE]$ mkdir -p 05_relax
+[hzw@localhost QE]$ cd 05_relax
 
-[<user>@<cluster> 05_relax]$ cat > rx.in <<'EOF'
+[hzw@localhost 05_relax]$ cat > rx.in <<'EOF'
 &CONTROL
   calculation = 'vc-relax'
   etot_conv_thr = 1.0000000000d-08
@@ -71,7 +71,7 @@ K_POINTS automatic
 24 24 1 0 0 0
 EOF
 
-[<user>@<cluster> 05_relax]$ cat rx.in
+[hzw@localhost 05_relax]$ cat rx.in
 ```
 
 写完 `cat` 一遍回看，是防止 heredoc 手滑的最低成本检查。
@@ -79,7 +79,7 @@ EOF
 ### Slurm 脚本
 
 ```bash
-[<user>@<cluster> 05_relax]$ cat > rx.slurm <<'EOF'
+[hzw@localhost 05_relax]$ cat > rx.slurm <<'EOF'
 #!/bin/bash
 #SBATCH -o _out.%j.log
 #SBATCH -e _err.%j.log
@@ -95,7 +95,7 @@ cd $SLURM_SUBMIT_DIR
 
 mpirun -np 56 <qe_bin>/pw.x<rx.in>rx.out
 EOF
-[<user>@<cluster> 05_relax]$
+[hzw@localhost 05_relax]$
 ```
 
 np 后的 56 是这个任务占用的 MPI 进程数；`ulimit -s` 设置栈限制，`ulimit -l` 设置可锁定内存限制；它们不能解除 Slurm 的时间或作业内存配额。
@@ -136,7 +136,7 @@ ATOMIC_POSITIONS (crystal)
 任务结束后：
 
 ```bash
-[<user>@<cluster> 05_relax]$ grep -E \
+[hzw@localhost 05_relax]$ grep -E \
 > 'Begin final coordinates|End final coordinates|Total force|total stress|Final enthalpy|End of BFGS Geometry Optimization|JOB DONE' \
 > rx.out | tail -n 100
      Total force =     0.037945     Total SCF correction =     0.000117
@@ -149,25 +149,23 @@ ATOMIC_POSITIONS (crystal)
 Begin final coordinates
 End final coordinates
    JOB DONE.
-[<user>@<cluster> 05_relax]$
+[hzw@localhost 05_relax]$
 ```
 
 从输出看，力总体从 0.037945 Ry/Bohr 降到了 10⁻⁴–10⁻⁵ 量级，随后给出了 End of BFGS / Final enthalpy / JOB DONE 的完整结尾——看起来一切正常。**但 `JOB DONE.` 仅表示程序到达结束段，还必须检查 BFGS 是否收敛。**
 
-> **更正（2026-09-05）：本次 vc-relax 程序已结束，但 BFGS 未收敛，不能判定结构优化通过。**
-
-这是事后复核才发现的：上面的 grep 摘录并不完整，缺了收敛判定的关键证据。教训是：验收 vc-relax 要专门确认 BFGS 收敛标志，而不是看到 JOB DONE 就翻篇。
+本次程序已结束，但 **BFGS 未收敛，不能判定为结构优化通过**。上面的 grep 没有检索 BFGS 收敛信息，需要把相应的行一起读出来。
 
 ### 把遗漏的失败行一起找出来
 
-2026-09-22 回到原输出重新查找，明确的失败原因就在结束段前面：
+失败信息就在结束段前面：
 
 ```text
-[<user>@<cluster> 05_relax]$ grep -Ei 'bfgs failed|End of BFGS|JOB DONE' rx.out
+[hzw@localhost 05_relax]$ grep -Ei 'bfgs failed|End of BFGS|JOB DONE' rx.out
      bfgs failed after  30 scf cycles and  27 bfgs steps, convergence not achieved
      End of BFGS Geometry Optimization
    JOB DONE.
-[<user>@<cluster> 05_relax]$
+[hzw@localhost 05_relax]$
 ```
 
 ![本次结构优化的总力变化，BFGS 未收敛](/Atlas/figures/relax-force.svg)
@@ -177,16 +175,16 @@ End final coordinates
 ## 提取最终几何
 
 ```bash
-[<user>@<cluster> 05_relax]$ sed -n '/Begin final coordinates/,/End final coordinates/p' rx.out \
+[hzw@localhost 05_relax]$ sed -n '/Begin final coordinates/,/End final coordinates/p' rx.out \
 > > final_structure.txt
 
-[<user>@<cluster> 05_relax]$ cat final_structure.txt
+[hzw@localhost 05_relax]$ cat final_structure.txt
 ```
 
 想直接得到最后一组晶胞和原子坐标：
 
 ```bash
-[<user>@<cluster> 05_relax]$ awk '
+[hzw@localhost 05_relax]$ awk '
 > /CELL_PARAMETERS/ {
 >     cell=$0 ORS
 >     for(i=1;i<=3;i++){getline; cell=cell $0 ORS}
@@ -210,11 +208,11 @@ End final coordinates
 把最终几何放到固定位置，避免以后一直从 rx.out 解析：
 
 ```bash
-[<user>@<cluster> 05_relax]$ mkdir -p ../01_structure
+[hzw@localhost 05_relax]$ mkdir -p ../01_structure
 
-[<user>@<cluster> 05_relax]$ cp final_geometry.txt ../01_structure/relaxed_geometry.txt
+[hzw@localhost 05_relax]$ cp final_geometry.txt ../01_structure/relaxed_geometry.txt
 
-[<user>@<cluster> 05_relax]$ awk '
+[hzw@localhost 05_relax]$ awk '
 > /CELL_PARAMETERS/ {
 >     print
 >     for(i=1;i<=3;i++){getline; print}
@@ -222,7 +220,7 @@ End final coordinates
 > ' final_geometry.txt \
 > > ../01_structure/relaxed_cell.inc
 
-[<user>@<cluster> 05_relax]$ awk '
+[hzw@localhost 05_relax]$ awk '
 > /ATOMIC_POSITIONS/ {
 >     print
 >     for(i=1;i<=6;i++){getline; print}
@@ -230,12 +228,12 @@ End final coordinates
 > ' final_geometry.txt \
 > > ../01_structure/relaxed_atoms.inc
 
-[<user>@<cluster> 05_relax]$ cat ../01_structure/relaxed_cell.inc
+[hzw@localhost 05_relax]$ cat ../01_structure/relaxed_cell.inc
 CELL_PARAMETERS (angstrom)
    3.356510437   0.000000000  -0.000000000
   -1.678255218   2.906823306   0.000000000
     0.000000000  -0.000000000  30.000000000
-[<user>@<cluster> 05_relax]$ cat ../01_structure/relaxed_atoms.inc
+[hzw@localhost 05_relax]$ cat ../01_structure/relaxed_atoms.inc
 ATOMIC_POSITIONS (crystal)
 Hf            0.0000000000        0.0000000000        0.3750750598
 Cl            0.6666666667        0.3333333333        0.4300153898
@@ -243,7 +241,7 @@ Cl            0.6666666667        0.3333333333        0.3192017432
 Pb           -0.0000000000       -0.0000000000        0.5521514583
 O             0.6666666667        0.3333333333        0.5876371921
 O             0.3333333333        0.6666666667        0.5147767817
-[<user>@<cluster> 05_relax]$
+[hzw@localhost 05_relax]$
 ```
 
 `relaxed_cell.inc` / `relaxed_atoms.inc` 两个片段后续可以直接 cat 进输入文件。总结本次结果：vc-relax 程序结束但 BFGS 未收敛；最后输出的面内晶格常数约 3.356510437 Å，第三晶格矢量保持 30 Å。候选结构可以记录，但正式声子前仍需闭合结构收敛检查。

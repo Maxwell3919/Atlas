@@ -23,20 +23,20 @@ K = (1/3, 1/3, 0)
 和 DOS-NSCF 一样复制 static SCF 数据：
 
 ```bash
-[<user>@<cluster> QE]$ cd <工作目录>/QE
+[hzw@localhost QE]$ cd <工作目录>/QE
 
-[<user>@<cluster> QE]$ mkdir -p 08_bands
-[<user>@<cluster> QE]$ cd 08_bands
+[hzw@localhost QE]$ mkdir -p 08_bands
+[hzw@localhost QE]$ cd 08_bands
 
-[<user>@<cluster> 08_bands]$ mkdir -p out
+[hzw@localhost 08_bands]$ mkdir -p out
 
-[<user>@<cluster> 08_bands]$ cp -a ../06_static/out/HfCl2_PbO2.save out/
+[hzw@localhost 08_bands]$ cp -a ../06_static/out/HfCl2_PbO2.save out/
 ```
 
 写输入文件（K_POINTS 换成 crystal_b 路径卡；每行末尾整数是该段插值点数，最后一段回到 Γ 只给 1 个点）：
 
 ```bash
-[<user>@<cluster> 08_bands]$ cat > bands.in <<'EOF'
+[hzw@localhost 08_bands]$ cat > bands.in <<'EOF'
 &CONTROL
   calculation = 'bands'
   outdir = './out/'
@@ -91,32 +91,32 @@ EOF
 ### Slurm 脚本与提交
 
 ```bash
-[<user>@<cluster> 08_bands]$ cp ../05_relax/rx.slurm bands.slurm
+[hzw@localhost 08_bands]$ cp ../05_relax/rx.slurm bands.slurm
 
-[<user>@<cluster> 08_bands]$ sed -i \
+[hzw@localhost 08_bands]$ sed -i \
 > 's#pw.x<rx.in>rx.out#pw.x -in bands.in > bands.out#' \
 > bands.slurm
 
-[<user>@<cluster> 08_bands]$ cat bands.slurm
+[hzw@localhost 08_bands]$ cat bands.slurm
 
-[<user>@<cluster> 08_bands]$ sbatch bands.slurm
+[hzw@localhost 08_bands]$ sbatch bands.slurm
 ```
 
 ### 验收
 
 ```bash
-[<user>@<cluster> 08_bands]$ grep "JOB DONE" bands.out
+[hzw@localhost 08_bands]$ grep "JOB DONE" bands.out
    JOB DONE.
-[<user>@<cluster> 08_bands]$
-[<user>@<cluster> 08_bands]$ grep -E \
+[hzw@localhost 08_bands]$
+[hzw@localhost 08_bands]$ grep -E \
 > "number of electrons|number of Kohn-Sham states|number of k points" \
 > bands.out
      number of electrons       =        52.00
      number of Kohn-Sham states=           40
      number of k points=   151  Gaussian smearing, width (Ry)=  0.0037
-[<user>@<cluster> 08_bands]$
-[<user>@<cluster> 08_bands]$ grep -iE "error|warning" bands.out | tail -n 30
-[<user>@<cluster> 08_bands]$
+[hzw@localhost 08_bands]$
+[hzw@localhost 08_bands]$ grep -iE "error|warning" bands.out | tail -n 30
+[hzw@localhost 08_bands]$
 ```
 
 判读：Kohn-Sham states 从 31 提到 40，符合 nbnd 设置；151 个 k 点来自路径卡的 50+50+50+1 插值；无 error/warning。pw.x 部分完成，接着用 bands.x 把本征值整理成适合直接画 Γ-M-K-Γ 能带的数据文件。
@@ -124,7 +124,7 @@ EOF
 ### bands.x 后处理
 
 ```bash
-[<user>@<cluster> 08_bands]$ cat > bands_pp.in <<'EOF'
+[hzw@localhost 08_bands]$ cat > bands_pp.in <<'EOF'
 &BANDS
   prefix = 'HfCl2_PbO2'
   outdir = './out/'
@@ -132,7 +132,7 @@ EOF
 /
 EOF
 
-[<user>@<cluster> 08_bands]$ cat > bands_pp.slurm <<'EOF'
+[hzw@localhost 08_bands]$ cat > bands_pp.slurm <<'EOF'
 #!/bin/bash
 #SBATCH -o _out_bands.%j.log
 #SBATCH -e _err_bands.%j.log
@@ -148,28 +148,28 @@ mpirun -np 56 <qe_bin>/bands.x \
   -in bands_pp.in > bands_pp.out
 EOF
 
-[<user>@<cluster> 08_bands]$ sbatch bands_pp.slurm
+[hzw@localhost 08_bands]$ sbatch bands_pp.slurm
 ```
 
 完成后检查：
 
 ```bash
-[<user>@<cluster> 08_bands]$ grep "JOB DONE" bands_pp.out
+[hzw@localhost 08_bands]$ grep "JOB DONE" bands_pp.out
    JOB DONE.
-[<user>@<cluster> 08_bands]$
-[<user>@<cluster> 08_bands]$ grep -iE "error|warning" bands_pp.out | tail -n 30
-[<user>@<cluster> 08_bands]$
-[<user>@<cluster> 08_bands]$ ls -lh HfCl2_PbO2.bands*
--rw-rw-r-- 1 <user> <user>  60K Sep  5 14:44 HfCl2_PbO2.bands
--rw-rw-r-- 1 <user> <user> 124K Sep  5 14:44 HfCl2_PbO2.bands.gnu
--rw-rw-r-- 1 <user> <user>  55K Sep  5 14:45 HfCl2_PbO2.bands.rap
-[<user>@<cluster> 08_bands]$
+[hzw@localhost 08_bands]$
+[hzw@localhost 08_bands]$ grep -iE "error|warning" bands_pp.out | tail -n 30
+[hzw@localhost 08_bands]$
+[hzw@localhost 08_bands]$ ls -lh HfCl2_PbO2.bands*
+-rw-rw-r-- 1 hzw hzw  60K Sep  5 14:44 HfCl2_PbO2.bands
+-rw-rw-r-- 1 hzw hzw 124K Sep  5 14:44 HfCl2_PbO2.bands.gnu
+-rw-rw-r-- 1 hzw hzw  55K Sep  5 14:45 HfCl2_PbO2.bands.rap
+[hzw@localhost 08_bands]$
 ```
 
 三个产物各司其职：`.bands` 是原始本征值，`.gnu` 是 gnuplot 可直接画的网格数据，`.rap` 含对称性分类信息。`.gnu` 生成成功后再看头部：
 
 ```bash
-[<user>@<cluster> 08_bands]$ head -n 20 HfCl2_PbO2.bands.gnu
+[hzw@localhost 08_bands]$ head -n 20 HfCl2_PbO2.bands.gnu
     0.0000  -62.5594
     0.0115  -62.5594
     0.0231  -62.5594
@@ -190,13 +190,13 @@ EOF
     0.1963  -62.5544
     0.2078  -62.5538
     0.2194  -62.5532
-[<user>@<cluster> 08_bands]$
+[hzw@localhost 08_bands]$
 ```
 
-两列分别是路径累计坐标和本征值。更正（2026-09-22）：第二列已经是 **eV**，不再乘 Ry→eV 的换算系数。该算例的 QE 7.2 输出直接写明了单位：
+两列分别是路径累计坐标和本征值。第二列的单位是 **eV**，无需乘 Ry→eV 的换算系数。该算例的 QE 7.2 输出直接写明了单位：
 
 ```text
-[<user>@<cluster> 08_bands]$ grep -E 'Program BANDS|Plottable bands|high-symmetry' bands_pp.out; head -n 3 HfCl2_PbO2.bands.gnu
+[hzw@localhost 08_bands]$ grep -E 'Program BANDS|Plottable bands|high-symmetry' bands_pp.out; head -n 3 HfCl2_PbO2.bands.gnu
      Program BANDS v.7.2 starts on  5Sep2026 at 14:44:42
      high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
      high-symmetry point:  0.5000 0.2887 0.0000   x coordinate   0.5774
@@ -206,16 +206,18 @@ EOF
     0.0000  -62.5594
     0.0115  -62.5594
     0.0231  -62.5594
-[<user>@<cluster> 08_bands]$
-```同时把高对称路径坐标抓出来：
+[hzw@localhost 08_bands]$
+```
+
+同时把高对称路径坐标抓出来：
 
 ```bash
-[<user>@<cluster> 08_bands]$ grep "high-symmetry point" bands_pp.out
+[hzw@localhost 08_bands]$ grep "high-symmetry point" bands_pp.out
      high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
      high-symmetry point:  0.5000 0.2887 0.0000   x coordinate   0.5774
      high-symmetry point:  0.3333 0.5774 0.0000   x coordinate   0.9107
      high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   1.5774
-[<user>@<cluster> 08_bands]$
+[hzw@localhost 08_bands]$
 ```
 
 这个输出给出 Γ、M、K、Γ 在横坐标上的累计距离：
@@ -232,10 +234,10 @@ K : 0.9107
 ### 记下费米能级
 
 ```bash
-[<user>@<cluster> 08_bands]$ echo "0.0500" > Ef.dat
-[<user>@<cluster> 08_bands]$ cat Ef.dat
+[hzw@localhost 08_bands]$ echo "0.0500" > Ef.dat
+[hzw@localhost 08_bands]$ cat Ef.dat
 0.0500
-[<user>@<cluster> 08_bands]$
+[hzw@localhost 08_bands]$
 ```
 
 后面画能带统一做 E − E_F，把费米能级平移到 0 eV。

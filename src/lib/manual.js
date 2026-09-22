@@ -20,8 +20,7 @@ export const MANUAL_SECTION_TITLES = [
   '可选脚本 + 检查清单',
 ];
 
-// 一次构建共享一个 markdown 处理器；关闭 shiki 与 smartypants，
-// 让围栏代码块走站内 CSS 变量（明暗两套主题都干净），CLI 选项不被弯引号改写。
+// 保留终端原文、缩进与引号；提示符配色在 Markdown 完成 HTML 转义后添加。
 let processorPromise = null;
 function getProcessor() {
   if (!processorPromise) {
@@ -45,5 +44,20 @@ export async function loadManualBody(slug, engine) {
   const processor = await getProcessor();
   const { code } = await processor.render(raw);
   let section = 0;
-  return code.replace(/<h2(?:\s+id="[^"]*")?>/g, () => `<h2 id="section-${++section}">`);
+  return code
+    .replace(/<h2(?:\s+id="[^"]*")?>/g, () => `<h2 id="section-${++section}">`)
+    .replace(/(<pre><code(?:\s[^>]*)?>)([\s\S]*?)(<\/code><\/pre>)/g, (_, open, body, close) => {
+      // 仅包裹已转义的文字，不解析命令，不改写复制出来的会话内容。
+      const painted = body.split('\n').map((line) => {
+        const prompt = line.match(/^(\[)([\w.-]+@[\w.-]+)( )([^\]\n]+)(\]\$)(.*)$/);
+        if (prompt) {
+          return `${prompt[1]}<span class="terminal-user">${prompt[2]}</span>${prompt[3]}<span class="terminal-directory">${prompt[4]}</span>${prompt[5]}${prompt[6]}`;
+        }
+        if (/^\s*(?:bfgs failed\b|Error in routine\b|convergence NOT achieved\b)/i.test(line)) {
+          return `<span class="terminal-error">${line}</span>`;
+        }
+        return line;
+      }).join('\n');
+      return open + painted + close;
+    });
 }

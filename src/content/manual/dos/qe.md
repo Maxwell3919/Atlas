@@ -10,12 +10,12 @@ DOS 描述「某个特定能量位置上有多少个可供电子占据的量子�
 ### TDOS：dos.in 与提交
 
 ```bash
-[<user>@<cluster> QE]$ cd <工作目录>/QE
+[hzw@localhost QE]$ cd <工作目录>/QE
 
-[<user>@<cluster> QE]$ mkdir -p 07_dos/tdos
-[<user>@<cluster> QE]$ cd 07_dos/tdos
+[hzw@localhost QE]$ mkdir -p 07_dos/tdos
+[hzw@localhost QE]$ cd 07_dos/tdos
 
-[<user>@<cluster> tdos]$ cat > dos.in <<'EOF'
+[hzw@localhost tdos]$ cat > dos.in <<'EOF'
 &DOS
   prefix = 'HfCl2_PbO2'
   outdir = '../nscf/out/'
@@ -32,7 +32,7 @@ EOF
 `degauss = 0.0037 Ry` 与前面的 SCF/NSCF 保持一致；比较时应标出各自展宽，另做展宽与 k 采样检查，不把一致的输入自动当成收敛。能量窗 −10 到 10 eV、步长 0.01 eV，覆盖费米能级上下足够远。
 
 ```bash
-[<user>@<cluster> tdos]$ cat > dos.slurm <<'EOF'
+[hzw@localhost tdos]$ cat > dos.slurm <<'EOF'
 #!/bin/bash
 #SBATCH -o _out.%j.log
 #SBATCH -e _err.%j.log
@@ -48,19 +48,19 @@ mpirun -np 56 <qe_bin>/dos.x \
   -in dos.in > dos.out
 EOF
 
-[<user>@<cluster> tdos]$ sbatch dos.slurm
+[hzw@localhost tdos]$ sbatch dos.slurm
 ```
 
 ### TDOS 验收
 
 ```bash
-[<user>@<cluster> tdos]$ grep "JOB DONE" dos.out
+[hzw@localhost tdos]$ grep "JOB DONE" dos.out
    JOB DONE.
-[<user>@<cluster> tdos]$ cat _err.*.log
-[<user>@<cluster> tdos]$
-[<user>@<cluster> tdos]$ ls -lh HfCl2_PbO2.dos
--rw-rw-r-- 1 <user> <user> 65K Sep  5 14:22 HfCl2_PbO2.dos
-[<user>@<cluster> tdos]$ head HfCl2_PbO2.dos
+[hzw@localhost tdos]$ cat _err.*.log
+[hzw@localhost tdos]$
+[hzw@localhost tdos]$ ls -lh HfCl2_PbO2.dos
+-rw-rw-r-- 1 hzw hzw 65K Sep  5 14:22 HfCl2_PbO2.dos
+[hzw@localhost tdos]$ head HfCl2_PbO2.dos
 #  E (eV)   dos(E)     Int dos(E) EFermi =    0.050 eV
  -10.000  0.9616E-84  0.9616E-86
   -9.990  0.9616E-84  0.1923E-85
@@ -71,7 +71,7 @@ EOF
   -9.940  0.9616E-84  0.6731E-85
   -9.930  0.9616E-84  0.7693E-85
   -9.920  0.9616E-84  0.8654E-85
-[<user>@<cluster> tdos]$
+[hzw@localhost tdos]$
 ```
 
 判读：JOB DONE、err 日志为空、.dos 文件生成；文件头直接给出本次用的费米能级 `EFermi = 0.050 eV`。深能级处 dos(E) 是 10⁻⁸⁴ 量级——不是零但完全可忽略，说明展宽下限正常。
@@ -79,10 +79,10 @@ EOF
 ### PDOS：projwfc.in 与提交
 
 ```bash
-[<user>@<cluster> QE]$ mkdir -p 07_dos/pdos
-[<user>@<cluster> QE]$ cd 07_dos/pdos
+[hzw@localhost QE]$ mkdir -p 07_dos/pdos
+[hzw@localhost QE]$ cd 07_dos/pdos
 
-[<user>@<cluster> pdos]$ cat > projwfc.in <<'EOF'
+[hzw@localhost pdos]$ cat > projwfc.in <<'EOF'
 &PROJWFC
   prefix = 'HfCl2_PbO2'
   outdir = '../nscf/out/'
@@ -95,7 +95,7 @@ EOF
 /
 EOF
 
-[<user>@<cluster> pdos]$ cat > pdos.slurm <<'EOF'
+[hzw@localhost pdos]$ cat > pdos.slurm <<'EOF'
 #!/bin/bash
 #SBATCH -o _out.%j.log
 #SBATCH -e _err.%j.log
@@ -111,35 +111,35 @@ mpirun -np 56 <qe_bin>/projwfc.x \
   -in projwfc.in > projwfc.out
 EOF
 
-[<user>@<cluster> pdos]$ sbatch pdos.slurm
+[hzw@localhost pdos]$ sbatch pdos.slurm
 ```
 
 ### PDOS 验收：文件体系与轨道通道
 
 ```bash
-[<user>@<cluster> pdos]$ grep "JOB DONE" projwfc.out
+[hzw@localhost pdos]$ grep "JOB DONE" projwfc.out
    JOB DONE.
-[<user>@<cluster> pdos]$
-[<user>@<cluster> pdos]$ grep -iE "error|warning" projwfc.out | tail -n 30
-[<user>@<cluster> pdos]$
-[<user>@<cluster> pdos]$ ls -lh HfCl2_PbO2*
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#2(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#3(p)
--rw-rw-r-- 1 <user> <user> 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#4(d)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#2(p)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#2(p)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#2(p)
--rw-rw-r-- 1 <user> <user> 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#3(d)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#2(p)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#1(s)
--rw-rw-r-- 1 <user> <user>  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#2(p)
--rw-rw-r-- 1 <user> <user>  46K Sep  5 14:24 HfCl2_PbO2.pdos_tot
-[<user>@<cluster> pdos]$
+[hzw@localhost pdos]$
+[hzw@localhost pdos]$ grep -iE "error|warning" projwfc.out | tail -n 30
+[hzw@localhost pdos]$
+[hzw@localhost pdos]$ ls -lh HfCl2_PbO2*
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#2(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#3(p)
+-rw-rw-r-- 1 hzw hzw 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#1(Hf)_wfc#4(d)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#2(Cl)_wfc#2(p)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#3(Cl)_wfc#2(p)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#2(p)
+-rw-rw-r-- 1 hzw hzw 109K Sep  5 14:24 HfCl2_PbO2.pdos_atm#4(Pb)_wfc#3(d)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#5(O)_wfc#2(p)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#1(s)
+-rw-rw-r-- 1 hzw hzw  77K Sep  5 14:24 HfCl2_PbO2.pdos_atm#6(O)_wfc#2(p)
+-rw-rw-r-- 1 hzw hzw  46K Sep  5 14:24 HfCl2_PbO2.pdos_tot
+[hzw@localhost pdos]$
 ```
 
 再抓一下投影通道清单，它告诉你每个原子有哪些 s/p/d 投影轨道（`grep "state #" projwfc.out`，本例 35 条 state：Hf s+p+d、Cl 各 s+p、Pb s+p+d、O 各 s+p，完整清单见 projwfc.out）。归纳成：
@@ -158,7 +158,7 @@ TDOS 和 PDOS 都正常完成、无 warning/error，DOS 流程可以判定完成
 先把 E_F 附近的 DOS 定量取出来。dos.x 给出的费米能级是 0.050 eV：
 
 ```bash
-[<user>@<cluster> tdos]$ awk '
+[hzw@localhost tdos]$ awk '
 > BEGIN { EF=0.050; best=1e9 }
 > $1 !~ /^#/ {
 >     d=$1-EF
@@ -184,7 +184,7 @@ Int DOS      = 0.2601E+02
 再看费米能级前后 ±0.1 eV 的逐点形状：
 
 ```bash
-[<user>@<cluster> tdos]$ awk '
+[hzw@localhost tdos]$ awk '
 > $1 !~ /^#/ && $1>=-0.05 && $1<=0.15 {
 >     print
 > }
@@ -202,7 +202,7 @@ Int DOS      = 0.2601E+02
 DOS 在 E_F 两侧连续、没有落零的缺口。再看 pdos_tot 在 E_F 最近一点的值：
 
 ```bash
-[<user>@<cluster> pdos]$ awk '
+[hzw@localhost pdos]$ awk '
 > BEGIN { EF=0.050; best=1e9 }
 > $1 !~ /^#/ {
 >     d=$1-EF
@@ -212,10 +212,10 @@ DOS 在 E_F 两侧连续、没有落零的缺口。再看 pdos_tot 在 E_F 最�
 > END { print line }
 > ' HfCl2_PbO2.pdos_tot
    0.050  0.189E+01  0.184E+01
-[<user>@<cluster> pdos]$
+[hzw@localhost pdos]$
 ```
 
-在 E_F 附近，dos.x 给出 1.893 states/eV/cell，pdos_tot 的两列为 1.89 和 1.84。更正（2026-09-22）：原文漏读了 `E+01`，把后两数写成了 0.189、0.184。这个点上投影和与总 DOS 接近，但不能由单点比例宣布投影基组完备。有限展宽下的非零 DOS 也应结合能带交叉和采样检查来判断。
+在 E_F 附近，dos.x 给出 1.893 states/eV/cell，pdos_tot 的两列为 1.89 和 1.84。`0.189E+01` 表示 1.89，读数时要保留科学计数法的指数。这个点上投影和与总 DOS 接近，但不能由单点比例宣布投影基组完备。有限展宽下的非零 DOS 也应结合能带交叉和采样检查来判断。
 
 ### 把总 DOS 与投影和放在一起
 

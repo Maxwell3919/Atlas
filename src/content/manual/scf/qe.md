@@ -13,12 +13,12 @@
 文件建议先在本地编辑好，再用 cat 指令在服务器中输入（heredoc）。目录用数字编号，在 Linux 里输入数字后 Tab 补全很方便，这是日常使用的小技巧：
 
 ```bash
-[<user>@<cluster> QE]$ cd <工作目录>/QE
+[hzw@localhost QE]$ cd <工作目录>/QE
 
-[<user>@<cluster> QE]$ mkdir -p 06_static
-[<user>@<cluster> QE]$ cd 06_static
+[hzw@localhost QE]$ mkdir -p 06_static
+[hzw@localhost QE]$ cd 06_static
 
-[<user>@<cluster> 06_static]$ cat > scf.in <<'EOF'
+[hzw@localhost 06_static]$ cat > scf.in <<'EOF'
 &CONTROL
   calculation = 'scf'
   outdir = './out/'
@@ -72,13 +72,13 @@ EOF
 结构优化的脚本已经跑通过，直接复制过来改一行执行命令：
 
 ```bash
-[<user>@<cluster> 06_static]$ cp ../05_relax/rx.slurm scf.slurm
+[hzw@localhost 06_static]$ cp ../05_relax/rx.slurm scf.slurm
 
-[<user>@<cluster> 06_static]$ sed -i 's#pw.x<rx.in>rx.out#pw.x -in scf.in > scf.out#' scf.slurm
+[hzw@localhost 06_static]$ sed -i 's#pw.x<rx.in>rx.out#pw.x -in scf.in > scf.out#' scf.slurm
 
-[<user>@<cluster> 06_static]$ tail -n 5 scf.slurm
+[hzw@localhost 06_static]$ tail -n 5 scf.slurm
 mpirun -np 56 <qe_bin>/pw.x -in scf.in > scf.out
-[<user>@<cluster> 06_static]$
+[hzw@localhost 06_static]$
 ```
 
 完整脚本内容如下（首次使用时照此生成）：
@@ -109,7 +109,7 @@ sbatch scf.slurm
 ```
 
 ```bash
-squeue -u <user>
+squeue -u hzw
 tail -f scf.out
 ```
 
@@ -127,15 +127,15 @@ grep "Total force" scf.out | tail
 真实输出如下：
 
 ```bash
-[<user>@<cluster> 06_static]$ grep "JOB DONE" scf.out
+[hzw@localhost 06_static]$ grep "JOB DONE" scf.out
    JOB DONE.
-[<user>@<cluster> 06_static]$ grep '^!' scf.out | tail
+[hzw@localhost 06_static]$ grep '^!' scf.out | tail
 !    total energy              =   -1795.68899321 Ry
-[<user>@<cluster> 06_static]$ grep "the Fermi energy is" scf.out | tail
+[hzw@localhost 06_static]$ grep "the Fermi energy is" scf.out | tail
      the Fermi energy is     0.0483 ev
-[<user>@<cluster> 06_static]$ grep "Total force" scf.out | tail
+[hzw@localhost 06_static]$ grep "Total force" scf.out | tail
      Total force =     0.000049     Total SCF correction =     0.000129
-[<user>@<cluster> 06_static]$
+[hzw@localhost 06_static]$
 ```
 
 判读：`-1795.68899321 Ry` 是固定弛豫结构上的静态总能，**不要**与 vc-relax 末尾的 `Final enthalpy` 直接当成同一个物理量比较；真正重要的是 SCF 正常收敛，且在固定优化后结构上重新计算时残余总力只有 `4.9×10⁻⁵ Ry/Bohr`。这是该候选几何上的一次电子计算，不能单凭总力较小判断几何已经合格。但要注意：**SCF 正常完成不能替代结构优化收敛检查**，vc-relax 程序结束不等于 BFGS 收敛（这是真实踩过的坑，详见结构优化页）。

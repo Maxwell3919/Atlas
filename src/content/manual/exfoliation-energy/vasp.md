@@ -10,12 +10,12 @@
 
 ### E(d) 方案与结构来源
 
-relax 目录先做结构优化（IBRION = 2、NSW = 200，ISIF = 2 固定晶胞只弛豫原子），得到层间平衡几何；scf_eq 是平衡态单点；scf_dN 把顶层（第 6 层 I-Hf-I）整体上移 N×1.00 Å，其余 15 个原子坐标不动。2026-09-22 对照 scf_eq 与 scf_d20 的 POSCAR，位移发生在第 11、12、18 号原子，三者均沿 z 增加 20.000000 Å。真空是否足够仍应通过周期镜像影响测试，不能仅由初始真空厚度判断。
+relax 目录先做结构优化（IBRION = 2、NSW = 200，ISIF = 2 固定晶胞只弛豫原子），得到层间平衡几何；scf_eq 是平衡态单点；scf_dN 把顶层（第 6 层 I-Hf-I）整体上移 N×1.00 Å，其余 15 个原子坐标不动。对照 scf_eq 与 scf_d20 的 POSCAR，位移发生在第 11、12、18 号原子，三者均沿 z 增加 20.000000 Å。真空是否足够仍应通过周期镜像影响测试，不能仅由初始真空厚度判断。
 
 ### relax INCAR
 
 ```bash
-[<user>@<cluster> exf]$ cat relax/INCAR
+[hzw@localhost exf]$ cat relax/INCAR
 SYSTEM = HfI2_relax
    LREAL = A
    LASPH = T
@@ -49,7 +49,7 @@ SYSTEM = HfI2_relax
 ### scf 系列 INCAR（21 个作业同一份）
 
 ```bash
-[<user>@<cluster> exf]$ cat scf_eq/INCAR
+[hzw@localhost exf]$ cat scf_eq/INCAR
 SYSTEM = SnS2
    LPLANE = .TRUE.
    NPAR = 4
@@ -91,7 +91,7 @@ SYSTEM = SnS2
 scf 系列逐字节一致性（diff 无输出即相同）：
 
 ```bash
-[<user>@<cluster> exf]$ for n in 1 8 15 20; do diff scf_eq/INCAR scf_d$n/INCAR > /dev/null && echo "scf_d$n: INCAR identical"; done
+[hzw@localhost exf]$ for n in 1 8 15 20; do diff scf_eq/INCAR scf_d$n/INCAR > /dev/null && echo "scf_d$n: INCAR identical"; done
 scf_d1: INCAR identical
 scf_d8: INCAR identical
 scf_d15: INCAR identical
@@ -101,7 +101,7 @@ scf_d20: INCAR identical
 顶层位移核对——POSCAR 第 19 行是顶层内侧 I 的 z 分数坐标：
 
 ```bash
-[<user>@<cluster> exf]$ for d in scf_eq scf_d1 scf_d10 scf_d20; do echo "== $d =="; sed -n '19p' $d/POSCAR; done
+[hzw@localhost exf]$ for d in scf_eq scf_d1 scf_d10 scf_d20; do echo "== $d =="; sed -n '19p' $d/POSCAR; done
 == scf_eq ==
   0.6666666670000012  0.3333333329999988  0.4915434728751257
 == scf_d1 ==
@@ -117,7 +117,7 @@ scf_d20: INCAR identical
 ### 批量提交
 
 ```bash
-[<user>@<cluster> exf]$ head -5 submitted_jobs.tsv
+[hzw@localhost exf]$ head -5 submitted_jobs.tsv
 dir	jobid	dependency
 scf_eq	16554	none
 scf_d1	16555	none
@@ -130,7 +130,7 @@ submit_all_scf.sh 一次排队 scf_eq 与 d1…d20 共 21 个作业，TSV 记录
 ### 能量提取与 E(d) 表
 
 ```bash
-[<user>@<cluster> exf]$ grep "energy  without entropy" scf_eq/OUTCAR | tail -1
+[hzw@localhost exf]$ grep "energy  without entropy" scf_eq/OUTCAR | tail -1
   energy  without entropy=     -111.23310238  energy(sigma->0) =     -111.23310238
 ```
 
@@ -154,7 +154,7 @@ submit_all_scf.sh 一次排队 scf_eq 与 d1…d20 共 21 个作业，TSV 记录
 
 这次重读了全部 21 个 OUTCAR。d15 到 d20 的能量增量为 0.66697 meV/cell；末段仍在变化，是否可忽略取决于目标精度。d20 相对 scf_eq 的能量差为 0.24895630 eV/cell。若用作单层剥离的估计，应明确剥离一层的定义并除以界面面积；本模型面内面积约 12.518 Å²，对应约 19.89 meV/Å²。
 
-更正（2026-09-22）：直接除以整个 18 原子 slab 得到的 13.8 meV/atom，只是另一种按整胞原子数归一化的数字，不能直接与按被剥离层原子数定义的文献结果比较。因此撤去原文据此判断“比石墨更弱”的结论。
+直接除以整个 18 原子 slab 得到的 13.8 meV/atom，是按整胞原子数归一化的数字。与文献比较时，必须先统一归一化方式；按整胞原子数和按被剥离层原子数定义的结果，不能直接比较。
 
 ### 参考体系配对
 

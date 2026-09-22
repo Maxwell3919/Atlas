@@ -13,7 +13,7 @@
 ### 结构处理（slab 与偶极修正）
 
 ```bash
-[<user>@<cluster> wf]$ sed -n '1,5p' POSCAR
+[bcgong@localhost wf]$ sed -n '1,5p' POSCAR
 "Sn1 Se2"
    1.00000000000000
      3.8464052687627550    0.0000000000015396    0.0000000000000001
@@ -26,7 +26,7 @@ a ≈ 3.846 Å、c ≈ 18.357 Å。仅有晶胞尺寸还不能保证真空平台
 ### 这次保存的 INCAR
 
 ```bash
-[<user>@<cluster> wf]$ cat INCAR
+[bcgong@localhost wf]$ cat INCAR
 SYSTEM = SnSe2 wf   # SnSe2 Slab 功函数计算 (Work Function)
 
 ##################################################
@@ -89,7 +89,7 @@ ISTART = 1 读取已有 WAVECAR；ICHARG = 11 固定已有电荷密度，因此�
 K 网格文件如下：
 
 ```bash
-[<user>@<cluster> wf]$ cat KPOINTS
+[bcgong@localhost wf]$ cat KPOINTS
 K-Spacing Value to Generate K-Mesh: 0.010
 0
 Gamma
@@ -106,16 +106,16 @@ mpirun -np 32 <vasp 路径>/vasp_std > out
 ```
 
 ```bash
-[<user>@<cluster> wf]$ sbatch script_std
+[bcgong@localhost wf]$ sbatch script_std
 ```
 
 ### E-fermi 与平面平均
 
 ```bash
-[<user>@<cluster> wf]$ grep "E-fermi" OUTCAR | head -3
+[bcgong@localhost wf]$ grep "E-fermi" OUTCAR | head -3
  E-fermi :  -2.4741     XC(G=0):  -3.7120     alpha+bet : -3.3624
 
-[<user>@<cluster> wf]$ head -8 PLANAR_AVERAGE.dat
+[bcgong@localhost wf]$ head -8 PLANAR_AVERAGE.dat
 #Distance(A) Planar-Average-Potential(eV)/Densitiy(e/A)
   0.0000             3.27267
   0.0656             3.27993
@@ -125,7 +125,7 @@ mpirun -np 32 <vasp 路径>/vasp_std > out
   0.3278             3.28633
   0.3934             3.27903
 
-[<user>@<cluster> wf]$ sort -k2 -g PLANAR_AVERAGE.dat | tail -3
+[bcgong@localhost wf]$ sort -k2 -g PLANAR_AVERAGE.dat | tail -3
  18.1606             3.28602
   0.3278             3.28633
  18.0295             3.28633
