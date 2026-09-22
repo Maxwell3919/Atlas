@@ -1,8 +1,8 @@
+[projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/)
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
-[projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/)
+下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算投影时，先完成 [Si 路径能带](/Atlas/m/bands/qe/)，本页读取其中 121 个路径点的波函数。
 
 普通能带告诉我们某个 k 点上有哪些能级；胖带再把这些态的轨道投影画成点的大小或带线的粗细。这次沿 Si 的 Γ–X–W–K–Γ–L–X 路径计算 121 个 k 点，每点保留 8 条能带，再分别画两个原子合计的 s 和 p 权重。横轴始终是这条路径中的位置。
 
@@ -29,7 +29,7 @@
 ```
 
 
-`degauss` 和 `DeltaE` 管理同时产生的能量展宽数据。胖带的 s、p 权重来自每个波函数的投影，不把一条 PDOS 曲线粘在能带旁边就算完成。这里只选择 Si 的 s、p 两组，是因为实际赝势给出了这些投影态。
+`ngauss=0`、`degauss=0.01 Ry` 和 `DeltaE=0.02 eV` 管理同时写出的 Gaussian 展宽数据；前者的宽度约为 0.1361 eV，后者是能量步长。本页胖带直接读取每个波函数的投影幅度，不用这组展宽生成点的大小。这里只选择 Si 的 s、p 两组，是因为实际赝势给出了这些投影态。路径上的点和权重也不是均匀布里渊区积分，因此同时产生的 PDOS 文件不在本页作为总 DOS 使用。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat bands-cg/post.sh

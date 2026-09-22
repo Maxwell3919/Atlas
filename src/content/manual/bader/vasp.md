@@ -39,6 +39,8 @@ NGZF = 96
 
 本次同时写了 ELFCAR，供 [ELF](/Atlas/m/elf/vasp/) 使用，因此显式设了 `NPAR = 1`。96³ 是 AECCAR 与 CHGCAR 的细网格；ELFCAR 的采样网格要另外从它自己的文件头读取。
 
+`NGXF/NGYF/NGZF` 决定沿三条晶格矢量保存多少个细网格点。它们加密的是密度的空间表示，ENCUT 控制的则是波函数平面波基组，两者不能互相替代。这里 Fe 的核区密度变化很快，先用 96³、再用 192³，是为了直接观察参考密度积分与盆地电荷对网格的敏感性；每个方向翻倍会使三维点数增加到八倍，也相应增加文件和后处理开销。
+
 ```text
 [bcgong@localhost charge_elf]$ cat run.slurm
 #!/bin/bash
@@ -58,7 +60,7 @@ export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
 cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
-使用现场核验过的 8 个空闲核串行运行，任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
+这个教学任务使用现场核验过的 8 个空闲核并行运行，与其他教学任务按次序提交；任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
 
 ```text
 [bcgong@localhost charge_elf]$ tail -4 OSZICAR

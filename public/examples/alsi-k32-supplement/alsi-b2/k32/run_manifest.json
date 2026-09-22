@@ -1,0 +1,86 @@
+{
+  "case_id": "alsi-b2",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scf_iteration_count_definition": "sum of printed electronic iteration headers",
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "alsi-b2/k32/scf.in",
+      "role": "input",
+      "sha256": "8a86caab2f2b58f88ce518a89fff835c12a1ae19c03e5252abeb80f13a08b1f7",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/k32/scf.out",
+      "role": "output",
+      "sha256": "f667fddeed2bc105826ac0ee3f220f7b053b7d769bbf245f4a29e882282e8548",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/k32/scf.err",
+      "role": "stderr",
+      "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/k32/run.sh",
+      "role": "run_script",
+      "sha256": "54833960be996b46719c4628335c80c49d47f8d6f3ddc6bbdd265202f3345ba7",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/k32/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "e15773dc2257e68700b5be2b21a92800856c7f58fea07cf803358b34b31820e6",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "ae8dfc76910dd9385777917cb075933e75c366c84a713a3223edfecd844e921e",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a",
+      "status": "present"
+    },
+    {
+      "label": "alsi-b2/k32/tmp/alsi-b2.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "6e837b48d5ad8e8117ba6b6e6cd2b5ab0da1038346ce4e55baa4ed11d20ca031",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching candidate set; terminal execution is not scientific acceptance.",
+    "Initial eigensolver warnings are retained; final SCF and numerical comparisons are reviewed separately.",
+    "Slurm accounting disabled; timing from native output, unavailable metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.46697777777777777,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 5,
+    "wall_time_s": 420.28
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T15:30:02+00:00"
+  },
+  "record_id": "atlas-alsi-alsi-b2-k32-20260922",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "alsi-pbe-cubic-comparison-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

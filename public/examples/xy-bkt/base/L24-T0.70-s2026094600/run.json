@@ -1,0 +1,22 @@
+{
+  "L": 24,
+  "temperature_J": 0.7,
+  "J": 1,
+  "kB": 1,
+  "seed": 2026094600,
+  "initialization": "ordered",
+  "extension_from_base": false,
+  "initial_energy_per_spin": -2.0,
+  "warmup_sweeps": 5000,
+  "production_sweeps": 20000,
+  "additional_production_sweeps": 20000,
+  "measurement_every_sweeps": 5,
+  "measurements": 4000,
+  "proposal_half_width_rad": 1.5707963267948966,
+  "sweep_definition": "two checkerboard sublattice updates, each spin attempted once",
+  "warmup_acceptance": 0.4469413194444437,
+  "production_acceptance": 0.44720781250000025,
+  "periodic_net_vorticity": 0,
+  "wall_seconds": 5.093180000782013,
+  "numpy_version": "2.4.6"
+}

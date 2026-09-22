@@ -1,0 +1,85 @@
+{
+  "case_id": "h-al111-h2-12A",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "h2-12A/scf.in",
+      "role": "input",
+      "sha256": "aff64a42c1c47f523f33c3b6dffc9735d6c576c9df872bd3731f42a5f1a736af",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/scf.out",
+      "role": "output",
+      "sha256": "85b01aeb658bade1a16548aa5e6807c0a642aa223da9a321932afb43e99c99af",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/scf.err",
+      "role": "stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/run.sh",
+      "role": "run_script",
+      "sha256": "b146cdbdd41453b3e1fdd61ab8544285ab58c1661ec5c40068b03080306dd811",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "51062f5600584206488e5a830b6bf1d2d45dc6e5dde8d4977a606f72cad93068",
+      "status": "present"
+    },
+    {
+      "label": "evidence/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "4223c3d85b0339190538a7715310c17ec961f916f1a36d2f0b0bfc40af1c2b24",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "37453d229ae178011735fd5a746265403dcfb95f14a480e0ea635061b2bf753d",
+      "status": "present"
+    },
+    {
+      "label": "h2-12A/tmp/h2-12A.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "0dc77910c2b692e3d61e1c6cebebc2135692c69d1cda0013bf31e03919b2d663",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching model; terminal native execution does not establish scientific acceptance.",
+    "Initial eigensolver warnings are retained; last electronic iteration and numerical or force comparisons are checked separately.",
+    "Timing from native output; Slurm accounting unavailable; queue and memory metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.019866666666666664,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 6,
+    "wall_time_s": 17.88
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T16:15:55+00:00"
+  },
+  "record_id": "atlas-h-al111-adsorption-h2-12A-20260923",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

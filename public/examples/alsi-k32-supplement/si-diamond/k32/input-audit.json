@@ -1,0 +1,148 @@
+{
+  "decision": "blocked",
+  "evidence": {
+    "convergence_parameters": {
+      "conv_thr": {
+        "unit": "Ry",
+        "value": 1e-10
+      },
+      "degauss": {
+        "unit": "Ry",
+        "value": 0.005
+      },
+      "ecutrho": {
+        "unit": "Ry",
+        "value": 640.0
+      },
+      "ecutwfc": {
+        "unit": "Ry",
+        "value": 80.0
+      },
+      "k_point_count": {
+        "unit": "count",
+        "value": 32768.0
+      }
+    },
+    "input": {
+      "role": "pw_input",
+      "sha256": "aeddb8c042fd7a97b6d8d2e6be1e28f5bf9e9bf30d3cce0add80abd8706849ed"
+    },
+    "observables": {},
+    "output": null,
+    "parent_manifest": null,
+    "parent_record_id": null,
+    "plan": {
+      "role": "qe_plan",
+      "sha256": "689835946fa687879b2b623d712490a0d08652f050cdc06d590bfdba35e63cea"
+    },
+    "plan_record_id": "alsi-pbe-static-cg-v1",
+    "pseudopotential_manifest": {
+      "role": "pseudopotential_manifest",
+      "sha256": "23cfc3504c2c59c9e99c9fddf25ac5e5b2e908059a4ce8b413f33beb6f6beb29"
+    },
+    "pseudopotentials": [
+      {
+        "declared_source": "QE pslibrary 1.0.0, independently downloaded and cmp verified",
+        "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+        "format": "upf",
+        "functional": "PBE",
+        "has_so": false,
+        "label": "Si",
+        "pseudo_type": "USPP",
+        "relativistic": "scalar",
+        "sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a"
+      }
+    ],
+    "stderr": null
+  },
+  "findings": [
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field startingpot is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field startingwfc is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diagonalization is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diago_cg_maxiter is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diago_thr_init is outside the automated pw.x core",
+      "severity": "error"
+    }
+  ],
+  "gates": {
+    "execution_completion": "not_requested",
+    "input_integrity": "fail",
+    "observable_convergence": "not_assessed",
+    "official_version_match": "pass",
+    "parent_ancestry": "pass",
+    "physical_validity": "not_assessed",
+    "plan": "pass",
+    "pseudopotential_provenance": "pass",
+    "runtime_diagnostics": "not_requested",
+    "runtime_paths": "pass"
+  },
+  "output_summary": null,
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T14:56:08+00:00"
+  },
+  "required_remaining_gates": [
+    "observable-specific convergence under a fixed protocol",
+    "claim-specific physical/model validation"
+  ],
+  "schema_version": "1.0",
+  "scientific_claim_decision": "blocked",
+  "scope": "pw.x input",
+  "stderr_summary": null,
+  "summary": {
+    "calculation": "scf",
+    "conv_thr_ry": 1e-10,
+    "degauss_ry": 0.005,
+    "ecutrho_ry": 640.0,
+    "ecutwfc_ry": 80.0,
+    "executable": "pw.x",
+    "ibrav": 0,
+    "k_points": {
+      "count": 32768,
+      "mesh": [
+        32,
+        32,
+        32
+      ],
+      "mode": "automatic",
+      "offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "nat": 2,
+    "ntyp": 1,
+    "occupations": "smearing",
+    "outdir_explicit": true,
+    "prefix_explicit": true,
+    "pseudo_dir_explicit": true,
+    "restart_mode": "from_scratch",
+    "species": [
+      {
+        "label": "Si",
+        "pseudopotential": "Si.pbe-n-rrkjus_psl.1.0.0.UPF"
+      }
+    ],
+    "spin_orbit": false
+  }
+}

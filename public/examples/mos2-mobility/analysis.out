@@ -1,0 +1,60 @@
+case            strain     Etot(eV)        EC-Vvac(eV)  maxplateau(eV)  Qmin-K(eV)
+k16-minus005        -0.0050  -2470.51518099  -4.21711775    3.422e-05   0.212902
+k16-plus005         +0.0050  -2470.51622272  -4.29929219    2.954e-05   0.295088
+k16-zero            +0.0000  -2470.51661152  -4.25832677    3.191e-05   0.256843
+minus005            -0.0050  -2470.51517354  -4.21711737    3.422e-05   0.212907
+minus010            -0.0100  -2470.51186545  -4.17570525    3.648e-05   0.168398
+plus005             +0.0050  -2470.51621036  -4.29929460    2.954e-05   0.295095
+plus010             +0.0100  -2470.51408061  -4.34005585    2.716e-05   0.332513
+vacuum28-minus005   -0.0050  -2470.51518865  -4.21709366    1.714e-05   0.212869
+vacuum28-plus005    +0.0050  -2470.51622697  -4.29928336    1.495e-05   0.295085
+vacuum28-zero       +0.0000  -2470.51661196  -4.25831558    1.596e-05   0.256834
+zero                +0.0000  -2470.51658356  -4.25831227    3.189e-05   0.256843
+{
+  "completed_cases": 11,
+  "expected_cases": 11,
+  "failures": [],
+  "model": "300Kscalar-PBEK-valleylongitudinalacousticDPonly",
+  "mobility_cm2_Vs": 200.38557021265964,
+  "fits": {
+    "five_strains": {
+      "C2D_N_m": 132.11090938282547,
+      "E1_eV": -8.217568774568537,
+      "E1_standard_error_eV": 0.014778309308512807,
+      "energy_fit_max_residual_eV": 3.334358684047283e-05,
+      "edge_fit_max_residual_eV": 0.00021690419527420346,
+      "C2D_N_m_relative_vs_three": 0.014122900180735419,
+      "E1_eV_relative_vs_three": 1.8802181019850297e-05
+    },
+    "three_strains": {
+      "C2D_N_m": 130.27110359038423,
+      "E1_eV": -8.217723285689326,
+      "E1_standard_error_eV": 0.012272434248064849,
+      "energy_fit_max_residual_eV": 2.710505431213761e-19,
+      "edge_fit_max_residual_eV": 7.085493216507643e-05
+    },
+    "k16": {
+      "C2D_N_m": 132.9088055696877,
+      "E1_eV": -8.217443534593494,
+      "E1_standard_error_eV": 0.014064127550793948,
+      "energy_fit_max_residual_eV": 2.168404344971009e-19,
+      "edge_fit_max_residual_eV": 8.11992782709936e-05,
+      "C2D_N_m_relative_vs_three": 0.020247790235947385,
+      "E1_eV_relative_vs_three": 3.4042408840760126e-05
+    },
+    "vacuum28": {
+      "C2D_N_m": 132.10139534563086,
+      "E1_eV": -8.218969901482733,
+      "E1_standard_error_eV": 0.014673062393877419,
+      "energy_fit_max_residual_eV": 1.6263032587282567e-19,
+      "edge_fit_max_residual_eV": 8.471496522854949e-05,
+      "C2D_N_m_relative_vs_three": 0.014049867582312662,
+      "E1_eV_relative_vs_three": 0.00015169843885816454
+    }
+  },
+  "baseline_masses": {
+    "mx_me": 0.4560118247455952,
+    "my_me": 0.4559465055835881,
+    "md_me": 0.4559791639949692
+  }
+}

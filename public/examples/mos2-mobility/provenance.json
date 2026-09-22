@@ -1,0 +1,99 @@
+{
+  "created_UTC": "2026-09-22T16:42:40.567936+00:00",
+  "host": "Maxwell",
+  "QE_version": "7.5",
+  "executable_sha256": {
+    "pw.x": "e0fea3791f15e1a6fe344333a6150c64b5e7fc805d47d000d80e32db434e4983",
+    "pp.x": "c3247e777bb32d684e51414a3faa9d1c679896800912323c526f4ab379907b54",
+    "average.x": "1f5bb527572fcaebe5ae2679c7df87566fb71bef827ae82e0fcaa7ed8bdaf484"
+  },
+  "jobs": {
+    "1983": "base",
+    "1984": "zero",
+    "1985": "minus005",
+    "1986": "plus005",
+    "1987": "minus010",
+    "1988": "plus010",
+    "1989": "k16-zero",
+    "1990": "vacuum28-zero:original bands timeout",
+    "1991": "k16-minus005:original bands timeout",
+    "1992": "k16-plus005:original bands timeout",
+    "1993": "vacuum28-minus005:cancelled pending before execution",
+    "1994": "vacuum28-plus005:cancelled pending before execution",
+    "1995": "vacuum28-minus005",
+    "1996": "vacuum28-plus005",
+    "1997": "vacuum28-zero/bands-retry",
+    "1998": "k16-minus005/bands-retry",
+    "1999": "k16-plus005/bands-retry"
+  },
+  "model_acceptance": "Only the predeclared finite-difference acoustic-deformation-potential consistency checks passed; no full material mobility prediction.",
+  "actual_cpu_limit": "4 concurrent allocations of 8 MPI; OMP_NUM_THREADS=1; cgroup CPU affinity nonoverlap verified.",
+  "software_changes": "None in this task; reused existing ASE/NumPy user environment.",
+  "final_queue": "No Maxwell jobs running or pending after 1999 native completion.",
+  "scheduler_accounting": "Slurm accounting disabled; completed jobs rapidly purged from scontrol. Native outputs, final XML, submission log and per-job stdout/stderr retained.",
+  "negative_rho_last_scf_range": [
+    0.0003845,
+    0.0004815
+  ],
+  "unresolved_scientific_items": [
+    "cutoff/FFT convergence not scanned",
+    "SOC absent",
+    "optical,Fröhlich,intervalley,piezoelectric,impurity/substrate scattering excluded",
+    "only two k meshes and two vacuum heights",
+    "small-strain fixed-transverse model, not complete transport calculation"
+  ],
+  "raw_evidence": [
+    "evidence/terminal.log",
+    "evidence/terminal-final.capture.txt",
+    "evidence/Mo.download-interrupted.UPF.part"
+  ],
+  "package_omissions": "Bloch wavefunctions and large three-dimensional pp potential grids omitted; final SCF charge density included. All band energies/XML and planar averages included.",
+  "summary": {
+    "completed_cases": 11,
+    "expected_cases": 11,
+    "failures": [],
+    "model": "300Kscalar-PBEK-valleylongitudinalacousticDPonly",
+    "mobility_cm2_Vs": 200.38557021265964,
+    "fits": {
+      "five_strains": {
+        "C2D_N_m": 132.11090938282547,
+        "E1_eV": -8.217568774568537,
+        "E1_standard_error_eV": 0.014778309308512807,
+        "energy_fit_max_residual_eV": 3.334358684047283e-05,
+        "edge_fit_max_residual_eV": 0.00021690419527420346,
+        "C2D_N_m_relative_vs_three": 0.014122900180735419,
+        "E1_eV_relative_vs_three": 1.8802181019850297e-05
+      },
+      "three_strains": {
+        "C2D_N_m": 130.27110359038423,
+        "E1_eV": -8.217723285689326,
+        "E1_standard_error_eV": 0.012272434248064849,
+        "energy_fit_max_residual_eV": 2.710505431213761e-19,
+        "edge_fit_max_residual_eV": 7.085493216507643e-05
+      },
+      "k16": {
+        "C2D_N_m": 132.9088055696877,
+        "E1_eV": -8.217443534593494,
+        "E1_standard_error_eV": 0.014064127550793948,
+        "energy_fit_max_residual_eV": 2.168404344971009e-19,
+        "edge_fit_max_residual_eV": 8.11992782709936e-05,
+        "C2D_N_m_relative_vs_three": 0.020247790235947385,
+        "E1_eV_relative_vs_three": 3.4042408840760126e-05
+      },
+      "vacuum28": {
+        "C2D_N_m": 132.10139534563086,
+        "E1_eV": -8.218969901482733,
+        "E1_standard_error_eV": 0.014673062393877419,
+        "energy_fit_max_residual_eV": 1.6263032587282567e-19,
+        "edge_fit_max_residual_eV": 8.471496522854949e-05,
+        "C2D_N_m_relative_vs_three": 0.014049867582312662,
+        "E1_eV_relative_vs_three": 0.00015169843885816454
+      }
+    },
+    "baseline_masses": {
+      "mx_me": 0.4560118247455952,
+      "my_me": 0.4559465055835881,
+      "md_me": 0.4559791639949692
+    }
+  }
+}

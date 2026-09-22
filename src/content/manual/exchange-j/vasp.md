@@ -14,7 +14,7 @@ C = sum over unique periodic nearest-neighbor bonds (e_i dot e_j)
 
 每条周期键只数一次，共线方向用 +1 或 −1 表示。这里 e_i 是单位方向，不把 MAGMOM 初值 3 μB 直接当成自旋量子数，也不额外乘一个未定义的 S²。按这个符号约定，J>0 的最近邻项偏好平行排列。
 
-原胞里的两个 Fe 分别在角点和体心。每个 Fe 有 8 个最近邻；为了确认周期边界没有漏算，脚本从 POSCAR 的分数坐标出发，遍历相邻平移单元，找出距离 √3 a/2 的原子对，并把 (i,j,R) 与反向的 (j,i,−R) 合并。
+所用两原子常规胞里的 Fe 分别在角点和体心。每个 Fe 有 8 个最近邻；为了确认周期边界没有漏算，脚本从 POSCAR 的分数坐标出发，遍历相邻平移单元，找出距离 √3 a/2 的原子对，并把 (i,j,R) 与反向的 (j,i,−R) 合并。
 
 ```text
 [bcgong@localhost fe_exchange_j]$ python enumerate_bonds.py
@@ -116,7 +116,7 @@ LCHARG = .FALSE.
 
 三个目录中只有 SYSTEM 和 MAGMOM 不同：FM 为 `3 3 3 3`，Néel 为 `3 -3 3 -3`，层状初态为 `3 3 -3 -3`。后者两个相邻位置朝上、接下来两个朝下，周期最近邻键中平行与反平行的数量相同。
 
-这些是未施加磁矩约束的自洽计算，MAGMOM 只设初始方向和幅值。最终还保留多少局域磁矩、是否仍为指定模式，必须从 OUTCAR 看，不能直接沿用输入标签。
+`NSW = 0`、`IBRION = -1` 让三个目录保持同一原子几何，比较时不会混入各磁态分别弛豫的结构能。这里没有施加磁矩约束，MAGMOM 给出初始方向和幅值，并参与对称性判定；`LORBIT = 11` 负责输出 PAW 局域投影，不能把磁矩固定在输入值。因此结束后要读 OUTCAR，确认局域磁矩的幅值和逐原子符号仍对应所设模式。[MAGMOM](https://vasp.at/wiki/MAGMOM) · [LORBIT](https://vasp.at/wiki/LORBIT)
 
 ```text
 [bcgong@localhost stripe4]$ cat run.slurm

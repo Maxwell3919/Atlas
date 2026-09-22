@@ -1,0 +1,6 @@
+[preston@preston-System-Product-Name alsi-formation-hull]$ grep -n -E 'number of k points|!    total energy|convergence has been|JOB DONE' alsi-b2/k32/scf.out
+116:     number of k points=   969  Marzari-Vanderbilt smearing, width (Ry)=  0.0050
+193:!    total energy              =     -16.42065067 Ry
+204:     convergence has been achieved in   5 iterations
+274:   JOB DONE.
+[preston@preston-System-Product-Name alsi-formation-hull]$

@@ -1,0 +1,6 @@
+[preston@preston-System-Product-Name alsi-k32-supplement]$ diff alsi-b2/k24/scf.in alsi-b2/k32/scf.in
+39c39
+< 24 24 24 0 0 0
+---
+> 32 32 32 0 0 0
+[preston@preston-System-Product-Name alsi-k32-supplement]$

@@ -4,7 +4,7 @@
 
 [下载原始 PROCAR、对应 SCF 输出和提取脚本](/Atlas/examples/vasp/snse2-sr2n-spin-path-files.tar.gz)。包内保留 150×72 组完整的四块投影数据，可重新生成 `spin-path.dat`；不包含大体积 CHGCAR 或波函数。现场还核对了 SCF 与路径计算的 POSCAR、POTCAR、CHGCAR，其各自 SHA256 完全一致，且路径计算关闭 LCHARG，未覆盖继承的密度。
 
-这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。普通 [SCF](/Atlas/m/scf/vasp/) 与 [能带](/Atlas/m/bands/vasp/) 的准备在对应页面，这里接在已结束的 SOC 能带计算后面。
+这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。[SCF](/Atlas/m/scf/vasp/) 页可用于对照静态输入与输出的读法，[能带方法目录](/Atlas/m/bands/)说明相应的数据需求。本页直接从这份已经结束的 SOC 能带输出开始。
 
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ head -8 POSCAR
@@ -32,6 +32,8 @@ Direct
    SIGMA  = 0.05              :boadening in eV
 ```
 这份能带计算使用 `ICHARG = 11`，从相应 SOC SCF 的固定电荷密度求沿线本征态；`LORBIT = 11` 让 PROCAR 写出原子与轨道投影。`LSORBIT` 需要非共线可执行程序。读取这种 PROCAR 时，一条 band 下不仅有总权重，还会有三个磁化分量。
+
+固定密度后仍要解这些路径点上的波函数，所以 `ICHARG=11` 并不跳过本征态求解。这里的 `LMAXMIX=4` 还涉及 CHGCAR 中保存和读取的 PAW 单中心电荷角动量分量；应与生成密度的 SCF 一起核对。只在路径输入里调大它，不能恢复父 CHGCAR 没有保存的分量。
 
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ cat KPOINTS
@@ -144,7 +146,7 @@ columns charge,mx,my,mz; output spin-path.dat
 
 将 `spin-path.dat`、`spin-summary.json` 和 `plot_spin.py` 放到本机同一目录，执行 `python3 plot_spin.py`。脚本并排画出 mx、my、mz 三幅着色能带，显示费米能上下 2 eV，三幅图共用 −1 到 1 的颜色标尺，同时输出 PNG 与 PDF。颜色在近简并态之间跳变时，先检查成对态和投影基底，不要把每个带号的突变都解释成独立的物理纹理。
 
-下一步若需更密的 k 平面数据，可以接 [Wannier90](/Atlas/m/wannier90/vasp/)，先验证插值能带再讨论自旋插值。涉及拓扑量时另接 [Berry 曲率与 Chern 数](/Atlas/m/berry-chern/vasp/)。
+下一步若需更密的 k 平面数据，可到 [Wannier90 方法目录](/Atlas/m/wannier90/)查看插值所需的波函数与接口数据，再验证插值能带和自旋矩阵元。拓扑量的数据需求另见 [Berry 曲率与 Chern 数方法目录](/Atlas/m/berry-chern/)；目录中已有例程使用各自的材料和程序，不能仅凭当前 PROCAR 接续得到这些量。
 
 ![SnSe₂/Sr₂N 路径上的三个自旋投影](/Atlas/examples/vasp/snse2_sr2n_spin/spin-path.png)
 

@@ -1,0 +1,86 @@
+{
+  "case_id": "al-fcc",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scf_iteration_count_definition": "sum of printed electronic iteration headers",
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "al-fcc/k32/scf.in",
+      "role": "input",
+      "sha256": "dc7ac355342d8c76badd4d7d60522296162e29d5f35b0bd3a3e96e081ce9042e",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/k32/scf.out",
+      "role": "output",
+      "sha256": "3ca60d3a3f0f0bd6d83c890855d48066d6d460dedd1ead57e1f1571494ba3e1d",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/k32/scf.err",
+      "role": "stderr",
+      "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/k32/run.sh",
+      "role": "run_script",
+      "sha256": "81a84e29dcd8f37812a4fb866d83dfdfa0436b6f8a6646d523e8ce2a24634b60",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/k32/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "f2ed8ce802a83cf7f8d3895da4bf36ccfaf0749bba5a9356279f840f023bf697",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "123b2d946b32a7df19f2529a2f81dea2195ea116fc2aa2b8c75442757fc6fa4c",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "50e0d531b2f04d8457bdc909c6ac9d8abe3b36634e8c4ebc42f9c3bfa3e113a3",
+      "status": "present"
+    },
+    {
+      "label": "al-fcc/k32/tmp/al-fcc.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "b53b84ff950f811e535a1b09af8250a901f1e30edd8b67a5f4d25ea98050c464",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching candidate set; terminal execution is not scientific acceptance.",
+    "Initial eigensolver warnings are retained; final SCF and numerical comparisons are reviewed separately.",
+    "Slurm accounting disabled; timing from native output, unavailable metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.0882888888888889,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 4,
+    "wall_time_s": 79.46000000000001
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T15:29:47+00:00"
+  },
+  "record_id": "atlas-alsi-al-fcc-k32-20260922",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "alsi-pbe-cubic-comparison-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

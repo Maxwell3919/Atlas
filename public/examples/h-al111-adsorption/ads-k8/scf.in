@@ -1,0 +1,40 @@
+&CONTROL
+ calculation='scf'
+ prefix='ads-k8'
+ outdir='./tmp'
+ pseudo_dir='../pseudo'
+ tstress=.true.
+ tprnfor=.true.
+ nstep=35
+ etot_conv_thr=1.0d-5
+ forc_conv_thr=2.0d-4
+/
+&SYSTEM
+ ibrav=0
+ nat=5
+ ntyp=2
+ nbnd=12
+ ecutwfc=60
+ ecutrho=640
+ occupations='smearing'
+ smearing='mv'
+ degauss=0.01
+/
+&ELECTRONS
+ conv_thr=1.0d-9
+/
+ATOMIC_SPECIES
+Al 26.9815385 Al.pbe-n-rrkjus_psl.1.0.0.UPF
+H 1.00794 H.pbe-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+2.858698905630 0.000000000000 0.000000000000
+1.429349452815 2.475705874046 0.000000000000
+0.000000000000 0.000000000000 22.868235764697
+ATOMIC_POSITIONS angstrom
+Al 2.858698905630 1.650470582697 9.067409236443 1 1 1
+Al 0.000000000000 0.000000000000 11.434117882349 0 0 0
+Al 1.429349452815 0.825235291349 13.800826528254 1 1 1
+H 2.858698905630 1.650470582697 7.461032250364 1 1 1
+H 1.429349452815 0.825235291349 15.407203514333 1 1 1
+K_POINTS automatic
+8 8 1 0 0 0

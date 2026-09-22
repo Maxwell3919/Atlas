@@ -1,0 +1,56 @@
+
+     Program POST-PROC v.7.5 starts on 23Sep2026 at  0:12:31 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     R & G space division:  proc/nbgrp/npool/nimage =       8
+     2433 MiB available memory on the printing compute node when the environment starts
+ 
+
+     Reading xml data from directory:
+
+     ./tmp/mos2.save/
+     file Mo.pbe-spn-rrkjus_psl.1.0.0.UPF: wavefunction(s)  4S renormalized
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PBE
+                           (   1   4   3   4   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+ 
+     Parallelization info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Min         150      74     22                30748    10854    1756
+     Max         152      75     24                30756    10879    1762
+     Sum        1205     595    187               246013    86907   14075
+ 
+     Using Slab Decomposition
+ 
+
+     negative rho (up, down):  3.884E-04 0.000E+00
+
+     Calling punch_plot, plot_num =  11
+     Writing data to file  electrostatic-potential.dat
+     Message from routine chdens:
+     namelist plot not found or invalid, exiting
+ 
+     POST-PROC    :      1.15s CPU      1.80s WALL
+
+ 
+   This run was terminated on:   0:12:33  23Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=

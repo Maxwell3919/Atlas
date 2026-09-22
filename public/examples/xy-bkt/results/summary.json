@@ -1,0 +1,32 @@
+{
+  "model": "periodic nearest-neighbour square-lattice classical XY; J=kB=1",
+  "helicity_definition": "Y=(<Cx+Cy>-[Var(Ix)+Var(Iy)]/T)/(2 L^2)",
+  "uncertainty": "16-block delete-one jackknife per chain; plotted error=max(within-chain combined error, half the two-seed difference); diagnostic error, not a calibrated confidence interval",
+  "autocorrelation": "positive autocorrelation window capped at six tau; diagnostic only",
+  "case_count": 44,
+  "base_cases": 36,
+  "extended_cases": 8,
+  "crossing_brackets": [
+    {
+      "L": 8,
+      "lower_sampled_T": 0.92,
+      "upper_sampled_T": 1.0,
+      "meaning": "finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit"
+    },
+    {
+      "L": 16,
+      "lower_sampled_T": 0.92,
+      "upper_sampled_T": 1.0,
+      "meaning": "finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit"
+    },
+    {
+      "L": 24,
+      "lower_sampled_T": 0.92,
+      "upper_sampled_T": 1.0,
+      "meaning": "finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit"
+    }
+  ],
+  "sampling_flags": [],
+  "seed_disagreement_flags": [],
+  "conclusion": "finite-size Monte Carlo workflow completed; thermodynamic-limit TBKT and material temperatures not estimated"
+}

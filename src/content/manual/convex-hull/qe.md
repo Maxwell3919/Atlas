@@ -67,7 +67,32 @@ plots/convex-hull.png and plots/convex-hull.svg
 
 绘图只需要 Python、NumPy、Matplotlib 和 CSV。把 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py) 与 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 放在同一目录，运行 `python3 plot_alsi.py hull`；图像写入 `plots/convex-hull.png` 和 `plots/convex-hull.svg`。要同时重画形成能与参数差值图，再加入 [numerical-checks.csv](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 并运行 `python3 plot_alsi.py all`。
 
-这批 20³→24³ 的形成能最大变化为 1.344 meV/atom，优化与最终静态的压力差也已在前一页给出。图上的正值来自本次电子能量计算；其中没有声子零点能、振动熵或组态熵，不能把这条线当成某个实验温度下的相界。所有候选均受限于指定立方原型，原子力小也不等于声子稳定。
+## 把 32³ 的同一组候选再放上来
+
+前面的表和图对应 24³。随后完成的 32³ 结果使用相同候选、相同固定几何与 80/640 Ry、`mv=0.005 Ry` 协议，电子求解和父文件核对见[形成能页的 32³ 对照](/Atlas/m/formation-energy/qe/)。端元也在 32³ 下重新计算，因此能量零点随本组端元重新建立。
+
+[独立补充包](/Atlas/examples/alsi-k32-supplement-files.tar.gz) 包含五对原始 IN/OUT/XML 和提取脚本。在解压后的 `alsi-k32-supplement` 中运行：
+
+```bash
+python3 analyse_k32.py
+python3 plot_k32.py hull
+```
+
+这两步先核对输入与原始输出，再由 [formation-k32.csv](/Atlas/examples/alsi-k32-supplement/formation-k32.csv) 重建下凸包。新表为：
+
+| 候选 | xSi | 32³ 形成能 / eV·atom⁻¹ | 高于下凸包 / meV·atom⁻¹ |
+| --- | ---: | ---: | ---: |
+| al-fcc | 0.00 | 0.000000000 | 0.000000 |
+| al3si-l12 | 0.25 | 0.109054980 | 109.054980 |
+| alsi-b2 | 0.50 | 0.266852871 | 266.852871 |
+| alsi3-l12 | 0.75 | 0.366450970 | 366.450970 |
+| si-diamond | 1.00 | 0.000000000 | 0.000000 |
+
+![同一组 AlSi 候选在 32³ 网格下的有限集合凸包](/Atlas/examples/alsi-k32-supplement/plots/hull-k32.svg)
+
+三个中间候选仍高于端元连线，凸包顶点仍是 fcc Al 和 diamond Si。这里“顶点没有变化”和“能量已经数值收敛”是两件要分别记录的事：24³→32³ 的形成能最大变化为 **1.798223 meV/atom**，仍高于 1 meV/atom 比较线。图中能量差更新了，候选集合和可作出的相稳定性结论范围没有因此扩大。
+
+前面的 20³→24³ 对照和后续 24³→32³ 对照均已保留，优化与不同静态协议下的压力差也在形成能页中列出。图上的正值来自本次电子能量计算；其中没有声子零点能、振动熵或组态熵，不能把这条线当成某个实验温度下的相界。所有候选均受限于指定立方原型，原子力小也不等于声子稳定。
 
 如果后续发现一个新的同成分结构，先按匹配协议计算它的能量，再把对应的真实记录加入候选集合并重建下凸包。要检查现有候选是否存在畸变方向，可接到 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)；看到负频后，沿 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 核对结构、原始频率和数值设置。
 

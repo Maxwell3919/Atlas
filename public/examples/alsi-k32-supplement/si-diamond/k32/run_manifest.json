@@ -1,0 +1,86 @@
+{
+  "case_id": "si-diamond",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scf_iteration_count_definition": "sum of printed electronic iteration headers",
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "si-diamond/k32/scf.in",
+      "role": "input",
+      "sha256": "aeddb8c042fd7a97b6d8d2e6be1e28f5bf9e9bf30d3cce0add80abd8706849ed",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/k32/scf.out",
+      "role": "output",
+      "sha256": "f3b139b0a9ce275c879b99e7fd006e75bac108e80fa3b38cb28a7fc2b228349b",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/k32/scf.err",
+      "role": "stderr",
+      "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/k32/run.sh",
+      "role": "run_script",
+      "sha256": "099e15a1a1e8a0de88bc06c9a195e8b2843711ef9794fabe937c50fafb98a1fe",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/k32/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "b6775f586cec0fea7e61888aca112d13e4a3c7df08611c1a6ffee08de9de8f11",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "689835946fa687879b2b623d712490a0d08652f050cdc06d590bfdba35e63cea",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "23cfc3504c2c59c9e99c9fddf25ac5e5b2e908059a4ce8b413f33beb6f6beb29",
+      "status": "present"
+    },
+    {
+      "label": "si-diamond/k32/tmp/si-diamond.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "60364f59af6af5d7ac192e1c67175c555011747e6a2792a1815fa994e455b467",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching candidate set; terminal execution is not scientific acceptance.",
+    "Initial eigensolver warnings are retained; final SCF and numerical comparisons are reviewed separately.",
+    "Slurm accounting disabled; timing from native output, unavailable metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.45561111111111113,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 3,
+    "wall_time_s": 410.05
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T15:30:17+00:00"
+  },
+  "record_id": "atlas-alsi-si-diamond-k32-20260922",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "alsi-pbe-cubic-comparison-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

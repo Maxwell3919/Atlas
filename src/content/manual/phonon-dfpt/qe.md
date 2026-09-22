@@ -2,7 +2,7 @@
 
 把原子轻轻推开，电子云会重新调整，原子受到的恢复力也随之改变。DFPT 直接求这一响应，不必为每一个位移再建一份超胞。计算结束时得到的是各个 q 点的动力学矩阵；我们还要把它们连成一张能读的声子图。
 
-下面用新计算的 **fcc Al 单原子原胞**走完整条路线。QE 7.5、LDA-PZ、官方 `Al.pz-vbc.UPF` 赝势，晶格由 [晶胞优化](/Atlas/m/vc-relax/qe/) 得到，立方晶格常数为 3.95606780 Å。这是一个明确的小体系计算示例；它不能替代任意材料自己的电子参数与 q 网格收敛检查。
+下面用新计算的 **fcc Al 单原子原胞**走完整条路线。QE 7.5、LDA-PZ、官方 `Al.pz-vbc.UPF` 赝势，晶格由 [Al 的晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 得到，立方晶格常数为 3.95606780 Å。这是一个明确的小体系计算示例；它不能替代任意材料自己的电子参数与 q 网格收敛检查。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -48,6 +48,8 @@ K_POINTS automatic
 ```
 本例明确写出原胞的三条晶格矢量，所以采用 `ibrav=0`。程序会提示这不是它最推荐的对称性表达方式；我们保留了完整精度的 fcc 晶格，继续核对程序识别的结构及 q 点对称性，没有把提示从原始输出中删掉。电子网格是 16×16×16，波函数/电荷密度截断为 40/160 Ry，`degauss=0.02 Ry`。这些值定义了这一组教案数据，并不因为 SCF 收敛就自动成为 Al 的最终推荐值。
 
+Al 的能带穿过费米能，因此这里用 `occupations='smearing'` 和 `smearing='mv'` 处理部分占据。0.02 Ry 约为 0.272 eV，是本次冷展宽参数；把它减小会改变费米面附近的占据和响应，需要同时比较电子 k 网格。`nbnd=6` 保留空态，让展宽附近的占据有足够的能带可用；换成另一材料时，应在 OUT 中核对最高带的占据是否已经可以忽略。较紧的 `conv_thr=1.0d-12` 先约束基态电子误差，下面的 `tr2_ph` 则另管响应迭代。
+
 ```console
 maxwell@maxwell:~/al/dfpt$ grep -A6 "convergence has been achieved" al.scf.out
      convergence has been achieved in   7 iterations
@@ -82,7 +84,9 @@ maxwell@maxwell:~/al/dfpt$ cat al.ph.in
 ```
 `prefix` 和 `outdir` 与 SCF 完全相同。`ldisp=.true.` 连同 `nq1=nq2=nq3=4` 请求完整均匀 q 网格；文件名 `al.dyn` 会扩展为索引与各个不可约点的动力学矩阵。`amass(1)` 是这里 Al 的质量，不能照抄另一个元素的质量。声子频率包含质量因子，电子 SCF 不报错也不能说明质量填对了。
 
-实际提交采用下面的 Slurm 脚本。这里先在本目录重做固定结构 SCF，然后运行 `ph.x`，并在它成功返回后调用后处理程序；脚本里的 `set -e` 会在某一步非零退出时停止。资源是 Maxwell 实際分配的 8 个 MPI 进程，每进程 1 个 OpenMP 线程。
+`tr2_ph=1.0d-14` 要在每个 q 点、每个实际求解的表示上满足。它限制的是响应自洽，不是直接给频率设一个误差条。`4³` 是本次直接求解的 q 网格；后面把绘图路径加密，只是在这组矩阵之间插值。要检查力常数的实空间范围和色散是否受网格限制，需要另算更密的原始 q 网格再比较。
+
+实际提交采用下面的 Slurm 脚本。这里先在本目录重做固定结构 SCF，然后运行 `ph.x`，并在它成功返回后调用后处理程序；脚本里的 `set -e` 会在某一步非零退出时停止。资源是 Maxwell 实际分配的 8 个 MPI 进程，每进程 1 个 OpenMP 线程。
 
 ```console
 maxwell@maxwell:~/al/dfpt$ cat run.slurm
@@ -276,7 +280,7 @@ maxwell@maxwell:~/al/dfpt$ tail -12 q2r.out
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-`q2r.x` 已将这些矩阵变为 `al.fc`。输入、输出及全部动力学矩阵可从 [Al 示例文件](/Atlas/examples/al/manifest.json) 对照核验；后处理读取同一套文件，没有混接另一个计算目录。
+`q2r.x` 已将这些矩阵变为 `al.fc`。[本次 q2r.in](/Atlas/examples/al/dfpt/q2r.in) 中，`fildyn='al.dyn'` 指向刚完成的矩阵，`flfrc='al.fc'` 指定实空间力常数文件。输入还保留 `zasr='simple'`；q2r 的这个选项针对 Born 有效电荷，不能当成下一步对力常数施加 `asr='crystal'` 的替代。本例是金属 Al，`q2r.out` 明确打印 `Dielectric Tensor not found`，没有把缺少非金属介电张量当作计算中断。输入、输出及全部动力学矩阵可从 [Al 示例文件](/Atlas/examples/al/manifest.json) 对照核验。
 
 ## 沿 Γ—X—W—L—Γ 把频率画出来
 

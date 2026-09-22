@@ -1,0 +1,11 @@
+{
+  "epsilon_xx": 0.005,
+  "mesh": 16,
+  "vacuum_add_A": 0,
+  "reference": "base",
+  "transverse": "fixed",
+  "ions": "fixedtoaccepted12x12relaxedpositions",
+  "geometry_reference": "plus005",
+  "bands_subdir": "bands-retry",
+  "original_job": 1992
+}

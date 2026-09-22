@@ -46,6 +46,8 @@ LCHARG = .FALSE.
 ```
 `ISPIN = 2` 开启共线自旋极化，`MAGMOM = 3 3` 给两个 Fe 相同的初始方向。`ISTART = 0`、`ICHARG = 2` 让这条路线从原子电荷开始，避免无意间继承另一种磁态的 WAVECAR 或 CHGCAR。磁矩在迭代中可以改变；3 μB 只是初值。
 
+`NSW = 0`、`IBRION = -1` 固定了原子位置，使这组三态比较都发生在 a=2.8 Å 的同一几何上。金属 Fe 使用 `ISMEAR = 1` 的 Methfessel–Paxton 展宽，`SIGMA = 0.1` 的单位是 eV。展宽帮助费米能附近的部分占据稳定迭代，也会影响三态能量差；后续检查网格与 SIGMA 时，要让三个目录一起采用新的设置，再比较相对能量是否稳定。[展宽与 k 点的关系](https://vasp.at/wiki/Smearing_technique)
+
 ```text
 [bcgong@localhost fm]$ cat KPOINTS
 Fe bcc 12x12x12
@@ -119,6 +121,8 @@ tot         -0.027  -0.116   4.339   4.196
 两个 Fe 的局域投影磁矩同为 2.098 μB，方向相同。表中的投影和是 4.196 μB，与整个晶胞积分得到的 4.2127 μB 略有差别；原子投影区之外还有贡献，所以不要强迫这两种定义逐位相等。
 
 另开 `afm` 目录，使用 `cp fm/POSCAR fm/INCAR fm/KPOINTS fm/POTCAR fm/run.slurm afm/` 复制输入。进入 `afm` 后用 `vi INCAR` 将 MAGMOM 改为 `3 -3`，其余物理参数保持一致。脚本仅改任务名。本次提交返回 18185，运行 13 秒结束。
+
+MAGMOM 还参与对称性判定，所以 AFM 输入中的正负号也决定了哪些对称操作可以保留。以后从磁性 CHGCAR 或 WAVECAR 续算时，这一行仍用于确定对称性，不能因为已有磁化密度就随手删去。[MAGMOM 的续算说明](https://vasp.at/wiki/MAGMOM)
 
 ```text
 [bcgong@localhost afm]$ cat INCAR

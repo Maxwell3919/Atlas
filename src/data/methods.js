@@ -8,6 +8,7 @@ export const engines = [
   { id: 'qe', name: 'Quantum ESPRESSO' },
   { id: 'vasp', name: 'VASP' },
   { id: 'mace', name: 'MACE' },
+  { id: 'model', name: '数值模型（Python）' },
 ];
 
 // 分类与类内展示顺序（目录页与全部索引的唯一顺序来源）
@@ -323,7 +324,9 @@ export const methods = {
     category: 'supercon',
     needs: ['epc'],
     produces: ['BKT 转变 / 标度分析'],
-    engines: ['qe', 'vasp'],
+    engines: ['qe', 'vasp', 'model'],
+    needsByEngine: { model: [] },
+    producesByEngine: { model: ['二维 XY 有限尺寸采样 / 相位刚度与涡旋'] },
   },
 
   'workfunction': {

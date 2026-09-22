@@ -1,8 +1,6 @@
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html)
+
+[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `mass/longitudinal.csv` 和 `mass/mass-fits.json`；横向与父密度复核结果另存于 `mass/mass-checks.csv`。包内输入、输出和 XML 可供复核，但不含可接续计算的 `tmp/si.save`，重新求能级前需重建下文对应的父 SCF 密度。
 
 Si 的导带谷不在 Γ 点，也不刚好落在常用路径的端点。若直接对整条 Γ–X 能带拟合一条抛物线，横轴虽然看起来平滑，算出的曲率却没有明确的带边含义。这次先沿 Γ–X 的导带最低处加密采样，再分别沿谷的纵向和横向求曲率。前面的[带隙](/Atlas/m/band-gap/qe/)用均匀网格找到了这片区域；这里不重复 SCF 和普通能带计算。
 
@@ -58,7 +56,7 @@ K_POINTS tpiba
 ```
 
 
-这里用 `calculation='bands'` 读取已经得到的密度，并计算明确指定的 k 点。保留 8 条能带，Si 原胞有 8 个价电子，当前非自旋极化模型中前 4 条占据，第 5 条是要跟踪的最低导带。`conv_thr` 收紧到 `1.0d-12`；它不能代替检查每个本征值是否正常求出。
+这里用 `calculation='bands'` 读取已经得到的密度，并计算明确指定的 k 点。保留 8 条能带，Si 原胞有 8 个价电子，当前非自旋极化模型中前 4 条占据，第 5 条是要跟踪的最低导带。这里保持密度固定，`conv_thr=1.0d-12` 不表示又做了一轮密度自洽；在未另设 `diago_thr_init` 的非自洽计算中，它参与确定默认的本征值求解阈值。收紧这个输入仍不能代替检查每个本征值是否正常求出。
 
 `K_POINTS tpiba` 后的 `101` 是点数。x 从 0.70 取到 0.95，步长 0.0025，y、z 为零；这些坐标的单位是 `2π/a`。文件最后几行如下，实际计算确实覆盖了谷的两侧，而不是只从极小值向一边取点。
 

@@ -1,0 +1,2 @@
+SELF_CHECK {"ordered_energy_per_spin": -2.0, "random_local_delta_energy_max_error": 1.5543122344752192e-15, "periodic_net_vorticity": 0, "numpy": "2.4.6"}
+BENCHMARK L24 1000 sweeps = 0.176617 s; 36 base + 8 extension cases at 2 workers estimated < 93.6 s plus I/O

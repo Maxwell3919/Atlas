@@ -29,6 +29,8 @@
 
 本页收录的两份[优化参数记录](/Atlas/examples/hfi2-exfoliation/relax-parameters.record.txt)与[单点参数记录](/Atlas/examples/hfi2-exfoliation/scf-parameters.record.txt)保留了原有值。单点记录的 `SYSTEM=SnS2` 是沿用模板时留下的标题；应从 POSCAR 元素、个数与实际赝势识别 HfI₂，不能由这个标题改判材料。
 
+`IVDW = 11` 选择 DFT-D3 零阻尼色散修正。移动整层以后，原子对距离改变，色散能也随之改变，所以冻结坐标的单点曲线仍然依赖这项设置。比较不同分离距离时，零点与所有位移点都要使用同一色散方法；若换一种方法检查结果，应重新计算整组相同构型。[IVDW 官方定义](https://vasp.at/wiki/IVDW)
+
 优化与单点采用不同的 `ENCUT/PREC`，因此 `scf_eq` 在这里先作为**位移零点**使用。它的名字本身不保证它是 400 eV 单点协议下经过重新收敛的能量极小点；原记录也没有在这一页给出完整的结构优化接受证据。下面所有能量差都统一减去 `scf_eq` 的单点能量，不减去 `relax` 的最终能量。
 
 ### 位移要加在同一层的三个原子上

@@ -1,0 +1,22 @@
+L  T/J    Y/J      display_error   seed_delta/error  minimum_block/tau
+ 8 0.70  +0.785049   0.001336          1.97             314.4
+ 8 0.80  +0.734276   0.001520          1.13             252.9
+ 8 0.88  +0.681421   0.003004          0.54             222.7
+ 8 0.92  +0.652275   0.003858          0.15             169.8
+ 8 1.00  +0.570432   0.010481          2.25             136.4
+ 8 1.10  +0.443103   0.014112          1.73             102.1
+16 0.70  +0.778496   0.000443          0.74             279.3
+16 0.80  +0.721847   0.001557          1.15             128.8
+16 0.88  +0.663836   0.002284          0.44             235.9
+16 0.92  +0.614160   0.003609          0.10             117.9
+16 1.00  +0.490403   0.011392          1.06             51.9
+16 1.10  +0.256825   0.020686          1.43             34.3
+24 0.70  +0.778040   0.000581          0.07             236.0
+24 0.80  +0.720485   0.001789          0.94             44.6
+24 0.88  +0.651180   0.003518          1.12             80.7
+24 0.92  +0.610133   0.005765          1.20             66.3
+24 1.00  +0.455445   0.022363          1.57             30.7
+24 1.10  +0.163436   0.023722          0.88             23.9
+Mean-curve crossing brackets: [{'L': 8, 'lower_sampled_T': 0.92, 'upper_sampled_T': 1.0, 'meaning': 'finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit'}, {'L': 16, 'lower_sampled_T': 0.92, 'upper_sampled_T': 1.0, 'meaning': 'finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit'}, {'L': 24, 'lower_sampled_T': 0.92, 'upper_sampled_T': 1.0, 'meaning': 'finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit'}]
+Sampling flags: 0 seed disagreement flags: 0
+No thermodynamic-limit TBKT, no material J, no material superconducting temperature.

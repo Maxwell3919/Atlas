@@ -1,0 +1,624 @@
+{
+  "note": "Raw numerical inputs, OUT, stderr and XML are byte-identical. Public run scripts only replace the private QE binary path. Audits retain their original status; a completed native run is not observable convergence.",
+  "files": [
+    {
+      "file": "REPRODUCE.md",
+      "origin": "Mac figure replay",
+      "public_sha256": "527d0b2a8730804cc7530130c44183edb57fe348d5bffd8f756620a33bab40fc",
+      "bytes": 1453
+    },
+    {
+      "file": "al-fcc/k24/data-file-schema.xml",
+      "source_sha256": "c7737120738dc93d653799f0ef76d540db7318451cb430379e6f7e9207ee896c",
+      "public_sha256": "c7737120738dc93d653799f0ef76d540db7318451cb430379e6f7e9207ee896c",
+      "bytes": 299942,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k24/run.sh",
+      "source_sha256": "793d715be429e00be7e07f883e1b172a7733ee895a94c04d93ab9cb1283a7a1d",
+      "public_sha256": "dd9e2fac4d77a84e2077b159c634621628837168451ba80aca0a087ab73b58fa",
+      "bytes": 431,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "al-fcc/k24/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k24/scf.in",
+      "source_sha256": "737903424fbd5e530d88b3708291cb84f3a7c570aaebf4cafc0533d38121d39e",
+      "public_sha256": "737903424fbd5e530d88b3708291cb84f3a7c570aaebf4cafc0533d38121d39e",
+      "bytes": 761,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k24/scf.out",
+      "source_sha256": "35fd042233784290a283f1a16e3df91ba9722578acb88f5c4b2b50cea4bb0af8",
+      "public_sha256": "35fd042233784290a283f1a16e3df91ba9722578acb88f5c4b2b50cea4bb0af8",
+      "bytes": 9422,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k32/data-file-schema.xml",
+      "source_sha256": "b53b84ff950f811e535a1b09af8250a901f1e30edd8b67a5f4d25ea98050c464",
+      "public_sha256": "b53b84ff950f811e535a1b09af8250a901f1e30edd8b67a5f4d25ea98050c464",
+      "bytes": 595192,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k32/input-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "28add54a1cced751351b0fdfde254f3d9ff8f8e77e0932c98c522583d782d5ae",
+      "bytes": 3919
+    },
+    {
+      "file": "al-fcc/k32/output-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "f2ed8ce802a83cf7f8d3895da4bf36ccfaf0749bba5a9356279f840f023bf697",
+      "bytes": 4938
+    },
+    {
+      "file": "al-fcc/k32/run.sh",
+      "source_sha256": "81a84e29dcd8f37812a4fb866d83dfdfa0436b6f8a6646d523e8ce2a24634b60",
+      "public_sha256": "ec57adaae3ea3f482ebee49f0382944e88c8ea420a670248260e4acc81109758",
+      "bytes": 431,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "al-fcc/k32/run_manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "bbfc70357030bab755223092d61d60069913df9e3ba7aba41a7bd6fc8313bc64",
+      "bytes": 2767
+    },
+    {
+      "file": "al-fcc/k32/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k32/scf.in",
+      "source_sha256": "dc7ac355342d8c76badd4d7d60522296162e29d5f35b0bd3a3e96e081ce9042e",
+      "public_sha256": "dc7ac355342d8c76badd4d7d60522296162e29d5f35b0bd3a3e96e081ce9042e",
+      "bytes": 761,
+      "redaction": null
+    },
+    {
+      "file": "al-fcc/k32/scf.out",
+      "source_sha256": "3ca60d3a3f0f0bd6d83c890855d48066d6d460dedd1ead57e1f1571494ba3e1d",
+      "public_sha256": "3ca60d3a3f0f0bd6d83c890855d48066d6d460dedd1ead57e1f1571494ba3e1d",
+      "bytes": 9599,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k24/data-file-schema.xml",
+      "source_sha256": "20f24c0d128c13be65bc004a9a26f6eb575f7de36e2a5ce3730564a87c03fcfc",
+      "public_sha256": "20f24c0d128c13be65bc004a9a26f6eb575f7de36e2a5ce3730564a87c03fcfc",
+      "bytes": 506970,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k24/run.sh",
+      "source_sha256": "dc268e61b1402172899a3929a140b894f714161053f066e68f5134a09f030d59",
+      "public_sha256": "650350ddf5d0244f1d56a11869c40363637da894f40e176608e0bc67d6a3d9bd",
+      "bytes": 434,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "al3si-l12/k24/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k24/scf.in",
+      "source_sha256": "0154a33efe6a56b4b22040830c3f68647b0d8fd8b1bf2edf78eccb7945ce6da8",
+      "public_sha256": "0154a33efe6a56b4b22040830c3f68647b0d8fd8b1bf2edf78eccb7945ce6da8",
+      "bytes": 947,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k24/scf.out",
+      "source_sha256": "ab67d55c0fde21bec2c36a48cbb8ac53d730552b7f2ed4edbd5df9f34b02652d",
+      "public_sha256": "ab67d55c0fde21bec2c36a48cbb8ac53d730552b7f2ed4edbd5df9f34b02652d",
+      "bytes": 11545,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32/data-file-schema.xml",
+      "source_sha256": "c1dc2ab7dfc46cecb026b2749aeac3434f8de2448439cd2efb40c22adbb755cf",
+      "public_sha256": "c1dc2ab7dfc46cecb026b2749aeac3434f8de2448439cd2efb40c22adbb755cf",
+      "bytes": 1022004,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32/input-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "53001d998b4cb379afc5ef359efa929512368075bd52ccc9cfc7d38a7c17e239",
+      "bytes": 4432
+    },
+    {
+      "file": "al3si-l12/k32/output-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "55d0a7831c3f2d81cccf1ade84d4990a3b77117cbc8f4d2655312bc2a94dccae",
+      "bytes": 5453
+    },
+    {
+      "file": "al3si-l12/k32/run.sh",
+      "source_sha256": "4f97c632cb8f97c8a9c1ce511bc3a18fbad13e192ac076a755c2ee31774b0324",
+      "public_sha256": "d9b645a27b18e47d7c20fcfe6a5d687130f12bf46774a416f55e9e59df6ca4c3",
+      "bytes": 434,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "al3si-l12/k32/run_manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "9a8da6ce0de2cb38f11a8bbbea71993272004986249cce87b771522680e7815c",
+      "bytes": 2789
+    },
+    {
+      "file": "al3si-l12/k32/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32/scf.in",
+      "source_sha256": "caf4a341e98d5bc91728fba489e862add74a95340f3e86a975e01148574c333d",
+      "public_sha256": "caf4a341e98d5bc91728fba489e862add74a95340f3e86a975e01148574c333d",
+      "bytes": 947,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32/scf.out",
+      "source_sha256": "4b5b8fc2c89dc78ca0acbc71b4338aa8e44f04d4673437223ea6af5003461ad1",
+      "public_sha256": "4b5b8fc2c89dc78ca0acbc71b4338aa8e44f04d4673437223ea6af5003461ad1",
+      "bytes": 11545,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32-davidson/data-file-schema.xml",
+      "source_sha256": "695620ca2464eb8aeb3a9c1398db3291a5b6572615a38a16b1cee376e4cb02dd",
+      "public_sha256": "695620ca2464eb8aeb3a9c1398db3291a5b6572615a38a16b1cee376e4cb02dd",
+      "bytes": 1022570,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32-davidson/run.sh",
+      "source_sha256": "94ae5bf23a0e36da11452dc1cbb0370b7282f75704334ab35a8295dc17bdd8a1",
+      "public_sha256": "d5e292481289d62b1f201fef8a12d5ef8136bda537eacfc5841af517bd971c67",
+      "bytes": 436,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "al3si-l12/k32-davidson/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32-davidson/scf.in",
+      "source_sha256": "6023e85d615517e473ec0165fdc478cb936dcfd3cdc6f4223e6dddb48c02aae2",
+      "public_sha256": "6023e85d615517e473ec0165fdc478cb936dcfd3cdc6f4223e6dddb48c02aae2",
+      "bytes": 947,
+      "redaction": null
+    },
+    {
+      "file": "al3si-l12/k32-davidson/scf.out",
+      "source_sha256": "34afc7f0b1a5a10628d18d364051409de267ae450256460aff13e84de8fa83a4",
+      "public_sha256": "34afc7f0b1a5a10628d18d364051409de267ae450256460aff13e84de8fa83a4",
+      "bytes": 12484,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k24/data-file-schema.xml",
+      "source_sha256": "f3dbd7a0552ca32cf617bda52d2c945688141cb980298f9bf54626f98357c934",
+      "public_sha256": "f3dbd7a0552ca32cf617bda52d2c945688141cb980298f9bf54626f98357c934",
+      "bytes": 415966,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k24/run.sh",
+      "source_sha256": "bedc59a718379998792948d606613e1860b920449491e8fe6138807aa9e10e41",
+      "public_sha256": "9c89272c3978a423df0ee18d04c575b99b253af2b0f3ee190a2fad0aa897843b",
+      "bytes": 432,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "alsi-b2/k24/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k24/scf.in",
+      "source_sha256": "df2e3b95bcd3cf1d665e1a9b4787b68d382a5ee91ce7d6a026e821eb0f567195",
+      "public_sha256": "df2e3b95bcd3cf1d665e1a9b4787b68d382a5ee91ce7d6a026e821eb0f567195",
+      "bytes": 849,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k24/scf.out",
+      "source_sha256": "56d848927beaf1e3261763fc2b89b133d472f440030a5ed2d166a3c8fbe8863e",
+      "public_sha256": "56d848927beaf1e3261763fc2b89b133d472f440030a5ed2d166a3c8fbe8863e",
+      "bytes": 10648,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k32/data-file-schema.xml",
+      "source_sha256": "6e837b48d5ad8e8117ba6b6e6cd2b5ab0da1038346ce4e55baa4ed11d20ca031",
+      "public_sha256": "6e837b48d5ad8e8117ba6b6e6cd2b5ab0da1038346ce4e55baa4ed11d20ca031",
+      "bytes": 830251,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k32/input-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "b88b0575c915405330fce16970f924b730be1bf84028f94161b6807819a63653",
+      "bytes": 4432
+    },
+    {
+      "file": "alsi-b2/k32/output-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "e15773dc2257e68700b5be2b21a92800856c7f58fea07cf803358b34b31820e6",
+      "bytes": 5453
+    },
+    {
+      "file": "alsi-b2/k32/run.sh",
+      "source_sha256": "54833960be996b46719c4628335c80c49d47f8d6f3ddc6bbdd265202f3345ba7",
+      "public_sha256": "5b837f5e7725bfc504c6d89c93d0e0eefdf245eca727a6e2c6c5e2e775edb0a2",
+      "bytes": 432,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "alsi-b2/k32/run_manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "6688225f5c6d79b298ec4985bf3dcf61efa039d428a7e90e3633471d701015ed",
+      "bytes": 2768
+    },
+    {
+      "file": "alsi-b2/k32/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k32/scf.in",
+      "source_sha256": "8a86caab2f2b58f88ce518a89fff835c12a1ae19c03e5252abeb80f13a08b1f7",
+      "public_sha256": "8a86caab2f2b58f88ce518a89fff835c12a1ae19c03e5252abeb80f13a08b1f7",
+      "bytes": 849,
+      "redaction": null
+    },
+    {
+      "file": "alsi-b2/k32/scf.out",
+      "source_sha256": "f667fddeed2bc105826ac0ee3f220f7b053b7d769bbf245f4a29e882282e8548",
+      "public_sha256": "f667fddeed2bc105826ac0ee3f220f7b053b7d769bbf245f4a29e882282e8548",
+      "bytes": 10648,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k24/data-file-schema.xml",
+      "source_sha256": "22b802d8cf3daf4c199a0a90aa770c3fc5182800220eebc485ea0faaea18dcaa",
+      "public_sha256": "22b802d8cf3daf4c199a0a90aa770c3fc5182800220eebc485ea0faaea18dcaa",
+      "bytes": 506970,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k24/run.sh",
+      "source_sha256": "26ce2907e957fe0ce4f6b6704d10bff0fae9c57cc35e3863e5f61809b512e4ab",
+      "public_sha256": "2dbdc899538543c3baf39018f80f320c4b368b7ed057a452e5937e1c9519dd63",
+      "bytes": 434,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "alsi3-l12/k24/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k24/scf.in",
+      "source_sha256": "a1fbfb036aab69320e91770b8cc5d86651a55661a0cfd33b56cfd0d75d05cb56",
+      "public_sha256": "a1fbfb036aab69320e91770b8cc5d86651a55661a0cfd33b56cfd0d75d05cb56",
+      "bytes": 947,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k24/scf.out",
+      "source_sha256": "cd244f67a429169a56602dad0a8f735a05f75c0fc017a59f490cc13174ee2869",
+      "public_sha256": "cd244f67a429169a56602dad0a8f735a05f75c0fc017a59f490cc13174ee2869",
+      "bytes": 11243,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k32/data-file-schema.xml",
+      "source_sha256": "47cedc9792c05033af2126d826a0192505290e185d3354403639518cfd4dc349",
+      "public_sha256": "47cedc9792c05033af2126d826a0192505290e185d3354403639518cfd4dc349",
+      "bytes": 1022003,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k32/input-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "5acbc81e85a9815b15a85a0bb5d137bdb4f5d0905515ccfec0b4dabfbfbb061d",
+      "bytes": 4432
+    },
+    {
+      "file": "alsi3-l12/k32/output-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "e6cc2296a64a36600940e9457d10fad17a480fd1e1e3416bce9cecb191cbe469",
+      "bytes": 5453
+    },
+    {
+      "file": "alsi3-l12/k32/run.sh",
+      "source_sha256": "5bce03c2b061af70bf9e58f6f151e7be1cea8c540468f081f99aa9da840a6762",
+      "public_sha256": "233969bf4643062074c59a9e01ae44ec63b8d888ae78c06b93a798a9f1b73bc6",
+      "bytes": 434,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "alsi3-l12/k32/run_manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "f6deacbf2e961244a0cd8193ae05c592caabfc6aafa060d6adf476e30ff31196",
+      "bytes": 2847
+    },
+    {
+      "file": "alsi3-l12/k32/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k32/scf.in",
+      "source_sha256": "244a355fee8391f4a0b333e7d86092237efa8e151ebed8bcbdf1edbb2c19bc50",
+      "public_sha256": "244a355fee8391f4a0b333e7d86092237efa8e151ebed8bcbdf1edbb2c19bc50",
+      "bytes": 947,
+      "redaction": null
+    },
+    {
+      "file": "alsi3-l12/k32/scf.out",
+      "source_sha256": "208f1e026d72f53a8d132ecb29da3a2db49754ccfb1c9b2353a1651222eef089",
+      "public_sha256": "208f1e026d72f53a8d132ecb29da3a2db49754ccfb1c9b2353a1651222eef089",
+      "bytes": 11243,
+      "redaction": null
+    },
+    {
+      "file": "analyse_k32.py",
+      "origin": "Mac figure replay",
+      "public_sha256": "eb2fcfb9ba76cc098d7b23371f5ae4e0e99a83ed1999a447ef52c68f8739c630",
+      "bytes": 10101
+    },
+    {
+      "file": "comparison-k24-k32.csv",
+      "origin": "Mac figure replay",
+      "public_sha256": "986e220eee977f7bc0c55bc6936f4e5942a444e96f4f0572a252dda06c62cf52",
+      "bytes": 646
+    },
+    {
+      "file": "energy-k24-k32.csv",
+      "origin": "Mac figure replay",
+      "public_sha256": "9cdcc7661685a4cb586db0fced8509491632a6a106084b13337e2417254d3770",
+      "bytes": 4986
+    },
+    {
+      "file": "evidence/captures/alsi3-k32-tail.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "de40703030a04a622e97f03271fb4c0f77aa25d8636663da060e16eec2369ed3",
+      "bytes": 605
+    },
+    {
+      "file": "evidence/captures/analysis-k32.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "1d70d893494a2b8fd5119f432c6b33e40f5c150eb1d6bf11a0b97b0138243b2c",
+      "bytes": 859
+    },
+    {
+      "file": "evidence/captures/b2-k32-summary.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "19cc2d7284faec77dea672be3f752e38cfe8e1c32fed4f9c868de1a743fe781c",
+      "bytes": 434
+    },
+    {
+      "file": "evidence/captures/input-diff-k24-k32.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "34a65d1d4ee0a6bd6f5526ce5fa02f37e9fa0875bab483d3c3c9a17bc3bbe1f1",
+      "bytes": 205
+    },
+    {
+      "file": "evidence/captures/input-k32.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "7c776f8f9af5874bbb471f3b268d280b999dd836210913373872fc79dcc949ef",
+      "bytes": 990
+    },
+    {
+      "file": "evidence/captures/k32-stderr-message.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "967433ee43a84737d39fda8633a69c02777776f2e6db2eed972eef08f04e2c1b",
+      "bytes": 213
+    },
+    {
+      "file": "evidence/captures/k32-stderr-sizes.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "39114c336236a0b46886ab560e27829413b7b7d263b656c68f108ffd17ef0291",
+      "bytes": 280
+    },
+    {
+      "file": "evidence/captures/list-k32.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "971e9c79aeb24721badbeb8caba335da66f4807e733ef1cc8307ffab78dcb8d9",
+      "bytes": 337
+    },
+    {
+      "file": "evidence/captures/parent-copy-b2-k32.txt",
+      "origin": "Mac figure replay",
+      "public_sha256": "718073d4d725ed8d8ad5b01046add68d6aef4e4f1e3ff9231de9275b1c63d10e",
+      "bytes": 149
+    },
+    {
+      "file": "evidence/finer-jobs.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "be07edca47bcf024025f128772262f01a9feed9db1d96df283b7f92887e683cf",
+      "bytes": 308
+    },
+    {
+      "file": "evidence/k32-analysis-receipt.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "04c36aef6fd8d4390c27b2f0a32e39c08a8475897b0e424d58a794decd19efd0",
+      "bytes": 1418
+    },
+    {
+      "file": "evidence/solver-comparison-k32.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "88718d841a0210d96720a971a24ed64b9d266a29225954d7b0b1307aa95b20de",
+      "bytes": 228
+    },
+    {
+      "file": "formation-k32.csv",
+      "origin": "Mac figure replay",
+      "public_sha256": "c2230d8b429989dc80090524c80ab4b6cee7a1a221628d878857da379990f83f",
+      "bytes": 2722
+    },
+    {
+      "file": "plot_k32.py",
+      "origin": "Mac figure replay",
+      "public_sha256": "c4edcfe78b76fe36807ef641c319f08d5833b45029eae9737cb57673545c220c",
+      "bytes": 4076
+    },
+    {
+      "file": "plots/hull-k32.png",
+      "origin": "Mac figure replay",
+      "public_sha256": "9b11a4cdd407494e6ae4ed88663a667f50a26dcdfab7d681f45f56d30ba46222",
+      "bytes": 72552
+    },
+    {
+      "file": "plots/hull-k32.svg",
+      "origin": "Mac figure replay",
+      "public_sha256": "55803999cc6d962131187666ef51a7c189966b04ca091f2a012c7c66382c2923",
+      "bytes": 47982
+    },
+    {
+      "file": "plots/k32-comparison.png",
+      "origin": "Mac figure replay",
+      "public_sha256": "0b08762c014847a73fc3e6b0e4210e5fed2c3527b31c20e6af9bab1248eb3944",
+      "bytes": 107153
+    },
+    {
+      "file": "plots/k32-comparison.svg",
+      "origin": "Mac figure replay",
+      "public_sha256": "e316c85f463f4b2b6701e4958fc905533e10662109608b0d5ac656442c365951",
+      "bytes": 65053
+    },
+    {
+      "file": "si-diamond/k24/data-file-schema.xml",
+      "source_sha256": "28a3a1f12cce7cc235db964abc3af9ded1b64976f61a9016a88f9c30a358e93f",
+      "public_sha256": "28a3a1f12cce7cc235db964abc3af9ded1b64976f61a9016a88f9c30a358e93f",
+      "bytes": 340511,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k24/run.sh",
+      "source_sha256": "dfc16b068d8f8f778751fc75060d46752aac6edd0cdb588b833d879d26f9fc2a",
+      "public_sha256": "4034e4e46978c017ce3627beacbb2c9971f5136706269c21aafaa55a884dfe23",
+      "bytes": 435,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "si-diamond/k24/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k24/scf.in",
+      "source_sha256": "7b9c61c5c37774d6e2e3e2a64ca069e763b4f4baf56cc2d83ae994289131c6ff",
+      "public_sha256": "7b9c61c5c37774d6e2e3e2a64ca069e763b4f4baf56cc2d83ae994289131c6ff",
+      "bytes": 812,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k24/scf.out",
+      "source_sha256": "91bc1fa7d63623014395fdfa0dace8482150a04837c93c20678c278e9e12a6ef",
+      "public_sha256": "91bc1fa7d63623014395fdfa0dace8482150a04837c93c20678c278e9e12a6ef",
+      "bytes": 9538,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k32/data-file-schema.xml",
+      "source_sha256": "60364f59af6af5d7ac192e1c67175c555011747e6a2792a1815fa994e455b467",
+      "public_sha256": "60364f59af6af5d7ac192e1c67175c555011747e6a2792a1815fa994e455b467",
+      "bytes": 682217,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k32/input-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "3203ccbc4c1fcc00b0876ba83fa6ca63bdecdf5a276df84e1b40e31c26c2abad",
+      "bytes": 3919
+    },
+    {
+      "file": "si-diamond/k32/output-audit.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "b6775f586cec0fea7e61888aca112d13e4a3c7df08611c1a6ffee08de9de8f11",
+      "bytes": 4940
+    },
+    {
+      "file": "si-diamond/k32/run.sh",
+      "source_sha256": "099e15a1a1e8a0de88bc06c9a195e8b2843711ef9794fabe937c50fafb98a1fe",
+      "public_sha256": "9b0dd3832b7f2e0d4efdd75be14d0f408e8841df5d746485e489fa9c977dc298",
+      "bytes": 435,
+      "redaction": "qe_bin path only"
+    },
+    {
+      "file": "si-diamond/k32/run_manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "6ccd20fadcfac92c212aa7065c427b02e8fee16aaa7246467f43b9ebbe03abf9",
+      "bytes": 2801
+    },
+    {
+      "file": "si-diamond/k32/scf.err",
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "bytes": 1300,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k32/scf.in",
+      "source_sha256": "aeddb8c042fd7a97b6d8d2e6be1e28f5bf9e9bf30d3cce0add80abd8706849ed",
+      "public_sha256": "aeddb8c042fd7a97b6d8d2e6be1e28f5bf9e9bf30d3cce0add80abd8706849ed",
+      "bytes": 812,
+      "redaction": null
+    },
+    {
+      "file": "si-diamond/k32/scf.out",
+      "source_sha256": "f3b139b0a9ce275c879b99e7fd006e75bac108e80fa3b38cb28a7fc2b228349b",
+      "public_sha256": "f3b139b0a9ce275c879b99e7fd006e75bac108e80fa3b38cb28a7fc2b228349b",
+      "bytes": 9538,
+      "redaction": null
+    },
+    {
+      "file": "sources/prototypes.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "002508c41bb71283a463048ac392497c614c03b896ba9475f33e3cd9072ddb67",
+      "bytes": 2105
+    },
+    {
+      "file": "sources/pseudo-manifest.json",
+      "origin": "Mac figure replay",
+      "public_sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a",
+      "bytes": 856
+    }
+  ]
+}

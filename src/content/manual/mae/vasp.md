@@ -50,11 +50,11 @@ LWAVE = .FALSE.
 LCHARG = .FALSE.
 ```
 
-`LSORBIT = .TRUE.` 和非共线计算让能量能够依赖磁化相对晶体的方向；运行程序使用 `vasp_ncl`。`GGA_COMPAT = .FALSE.`、`LASPH = .TRUE.` 在四个目录中保持一致，避免方向比较混入其他协议变化。
+`LSORBIT = .TRUE.` 和非共线计算让能量能够依赖磁化相对晶体的方向；运行程序使用 `vasp_ncl`。`GGA_COMPAT = .FALSE.` 减少 GGA 梯度场数值处理带来的晶格对称性误差；这里要相减的是亚 meV 量级的能量，官方特别建议 MAE 使用这个设置。[GGA_COMPAT 的数值影响](https://vasp.at/wiki/GGA_COMPAT) `LASPH = .TRUE.` 则保留 PAW 球内非球形梯度贡献，两项都在四个目录中保持一致。[LASPH](https://vasp.at/wiki/LASPH)
 
 本例始终使用 `MAGMOM = 0 0 3`，通过 SAXIS 选择这一初始磁矩在笛卡尔空间中的方向。SAXIS=0 0 1 时它沿 z；改为 SAXIS=1 0 0 后，它沿 x。SAXIS 定义自旋坐标基底，本身不是强制固定最终磁矩方向的约束；因此结束后还要检查磁矩是否仍接近所要比较的方向。
 
-`ISYM = 0` 和其余输入在两个方向之间一致。每次都 `ISTART = 0`、`ICHARG = 2`，没有混用在另一自旋基底下保存的密度或波函数。
+`ISYM = 0` 和其余输入在两个方向之间一致。每次都 `ISTART = 0`、`ICHARG = 2`，两方向分别从原子电荷开始，更新各自的电荷和磁化密度，最后用自洽总能量相减。这里保留实际使用的 ISYM=0；[SOC 官方说明](https://vasp.at/wiki/LSORBIT) 还建议用 ISYM=−1 检查完全关闭对称性后的结果。本例只核对了每对实际 k 点数一致，尚未做这项成对复算。
 
 ```text
 [bcgong@localhost k09_z]$ cat KPOINTS

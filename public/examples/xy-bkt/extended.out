@@ -1,0 +1,10 @@
+SELF_CHECK {"ordered_energy_per_spin": -2.0, "random_local_delta_energy_max_error": 1.5543122344752192e-15, "periodic_net_vorticity": 0, "numpy": "2.4.6"}
+FINISHED extended/L16-T0.88-s2026093805 samples=8000 acceptance=0.5035 wall=3.36s
+FINISHED extended/L16-T0.88-s2026093804 samples=8000 acceptance=0.5041 wall=3.39s
+FINISHED extended/L16-T0.92-s2026093806 samples=8000 acceptance=0.5170 wall=3.41s
+FINISHED extended/L16-T0.92-s2026093807 samples=8000 acceptance=0.5167 wall=3.40s
+FINISHED extended/L24-T0.88-s2026094604 samples=8000 acceptance=0.5044 wall=4.34s
+FINISHED extended/L24-T0.88-s2026094605 samples=8000 acceptance=0.5046 wall=4.36s
+FINISHED extended/L24-T0.92-s2026094606 samples=8000 acceptance=0.5167 wall=4.28s
+FINISHED extended/L24-T0.92-s2026094607 samples=8000 acceptance=0.5173 wall=4.42s
+MONTE_CARLO_FINISHED 8 cases wall=15.59s

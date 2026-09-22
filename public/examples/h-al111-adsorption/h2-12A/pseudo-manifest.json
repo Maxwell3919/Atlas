@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "pseudopotentials": [
+    {
+      "filename": "H.pbe-rrkjus_psl.1.0.0.UPF",
+      "sha256": "e03cd098d78e3eeb37cc9f790690f5827234cbc019fb621913391689a9ddacf7",
+      "source": "QE pslibrary 1.0.0; official-source bytes independently verified",
+      "source_url": "https://pseudopotentials.quantum-espresso.org/upf_files/H.pbe-rrkjus_psl.1.0.0.UPF",
+      "xc_functional": "PBE",
+      "relativistic": "scalar"
+    }
+  ]
+}

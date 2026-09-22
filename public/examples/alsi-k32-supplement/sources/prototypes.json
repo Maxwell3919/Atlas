@@ -1,0 +1,124 @@
+{
+  "structure_construction": "Explicit prototype coordinates, substituted with Al and Si; initial lattice constants are numerical starting guesses, not measured values. No intermediate is claimed to be an established Al-Si phase.",
+  "references": {
+    "al-fcc": "https://aflow.org/prototype-encyclopedia/A_cF4_225_a-001/",
+    "si-diamond": "https://aflow.org/prototype-encyclopedia/A_cF8_227_a-001/",
+    "alsi-b2": "https://aflow.org/prototype-encyclopedia/AB_cP2_221_a_b-002/",
+    "l12": "https://aflow.org/prototype-encyclopedia/AB3_cP4_221_a_c-001/"
+  },
+  "cases": {
+    "al-fcc": {
+      "ibrav": 2,
+      "a": 4.05,
+      "nbnd": 6,
+      "atoms": [
+        [
+          "Al",
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "si-diamond": {
+      "ibrav": 2,
+      "a": 5.43,
+      "nbnd": 8,
+      "atoms": [
+        [
+          "Si",
+          0,
+          0,
+          0
+        ],
+        [
+          "Si",
+          0.25,
+          0.25,
+          0.25
+        ]
+      ]
+    },
+    "alsi-b2": {
+      "ibrav": 1,
+      "a": 3.32,
+      "nbnd": 10,
+      "atoms": [
+        [
+          "Al",
+          0,
+          0,
+          0
+        ],
+        [
+          "Si",
+          0.5,
+          0.5,
+          0.5
+        ]
+      ]
+    },
+    "al3si-l12": {
+      "ibrav": 1,
+      "a": 4.12,
+      "nbnd": 14,
+      "atoms": [
+        [
+          "Si",
+          0,
+          0,
+          0
+        ],
+        [
+          "Al",
+          0,
+          0.5,
+          0.5
+        ],
+        [
+          "Al",
+          0.5,
+          0,
+          0.5
+        ],
+        [
+          "Al",
+          0.5,
+          0.5,
+          0
+        ]
+      ]
+    },
+    "alsi3-l12": {
+      "ibrav": 1,
+      "a": 4.25,
+      "nbnd": 14,
+      "atoms": [
+        [
+          "Al",
+          0,
+          0,
+          0
+        ],
+        [
+          "Si",
+          0,
+          0.5,
+          0.5
+        ],
+        [
+          "Si",
+          0.5,
+          0,
+          0.5
+        ],
+        [
+          "Si",
+          0.5,
+          0.5,
+          0
+        ]
+      ]
+    }
+  }
+}

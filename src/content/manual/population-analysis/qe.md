@@ -1,8 +1,6 @@
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 [projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
+
+[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `population-cg/lowdin.csv`，投影输入与原始输出也已保存。包中不含波函数与可接续计算的 `tmp/si.save`；重新运行 `projwfc.x` 时，需要按下文前提完成 SCF 和匹配的均匀网格 NSCF。
 
 `projwfc.x` 能把波函数投影到赝势提供的原子轨道上，并给出 Löwdin 布居。先从两个完全等价的 Si 原子开始，容易看清哪些数字是电子布居，哪些只是投影没有覆盖的部分。结构和父密度的建立见[SCF](/Atlas/m/scf/qe/)，均匀积分网格见[NSCF](/Atlas/m/nscf/qe/)；这里接 `18³` 网格的 `gap18-cg`，它已重新核对全部本征值求解结束。
 
@@ -41,6 +39,8 @@
 
 
 `prefix='si'` 和 `outdir='./tmp'` 必须对应那次 NSCF 的实际文件。`filproj` 保存逐态投影，`filpdos` 命名 PDOS；`degauss=0.01` 的单位是 Ry，`DeltaE=0.02` 的单位是 eV，二者用于同时生成的展宽 PDOS。不要因为输入里出现了展宽参数，就把投影电子数误读成某个能量点上的 DOS 值。
+
+这份输入的 `ngauss=0` 选择 Gaussian 展宽；`degauss` 控制每个离散能级在能量轴上铺开的宽度，`DeltaE` 控制输出曲线的取样间隔。减小 `DeltaE` 可以把已有曲线写得更细，但不会增加 NSCF 的 k 点，也不会补全赝势原子轨道没有覆盖的投影空间。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat population-cg/run.sh
@@ -206,7 +206,7 @@ atom,total_electrons,s_electrons,p_electrons,pz_electrons,px_electrons,py_electr
 
 这张图首先展示两个原子的等价性和投影构成。换成异质结构后，要比较的是相同赝势、相同投影定义和充分 k 采样下各个原子的变化，同时检查 spilling 是否显著改变。Löwdin 布居依赖所选择的原子轨道子空间；它不会自动等同于按实空间分区得到的 Bader 电荷，也不单独证明氧化态。
 
-下一步：看逐 k 点的轨道组成接[胖带](/Atlas/m/fatband/qe/)；看实空间分区接[Bader 电荷](/Atlas/m/bader/qe/)；看成键前后的空间变化接[差分电荷](/Atlas/m/delta-charge/qe/)。
+下一步：看逐 k 点的轨道组成接[胖带](/Atlas/m/fatband/qe/)；看实空间分区可参照[Bader 电荷的 VASP 例程](/Atlas/m/bader/vasp/)，看成键前后的空间变化可参照[差分电荷的 VASP 例程](/Atlas/m/delta-charge/vasp/)。后两页说明另一种分析方法，读取的是 CHGCAR 等 VASP 文件，不能直接接用这里的 QE `save` 目录。
 
 ```text
 均匀 NSCF 网格 + 波函数 → projwfc.x → 轨道编号与逐态投影

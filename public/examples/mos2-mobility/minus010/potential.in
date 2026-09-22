@@ -1,0 +1,6 @@
+&INPUTPP
+ prefix = 'mos2'
+ outdir = './tmp'
+ filplot = 'electrostatic-potential.dat'
+ plot_num = 11
+/

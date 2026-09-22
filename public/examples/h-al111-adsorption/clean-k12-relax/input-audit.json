@@ -1,0 +1,122 @@
+{
+  "decision": "pass",
+  "evidence": {
+    "convergence_parameters": {
+      "conv_thr": {
+        "unit": "Ry",
+        "value": 1e-09
+      },
+      "degauss": {
+        "unit": "Ry",
+        "value": 0.01
+      },
+      "ecutrho": {
+        "unit": "Ry",
+        "value": 640.0
+      },
+      "ecutwfc": {
+        "unit": "Ry",
+        "value": 60.0
+      },
+      "k_point_count": {
+        "unit": "count",
+        "value": 144.0
+      }
+    },
+    "input": {
+      "role": "pw_input",
+      "sha256": "b4291254311221fb2d1a2c6a1b6fcf8193b70d346859d8be397e1e8af71fb8d5"
+    },
+    "observables": {},
+    "output": null,
+    "parent_manifest": null,
+    "parent_record_id": null,
+    "plan": {
+      "role": "qe_plan",
+      "sha256": "dd1edf2a38bc4037578379527b2e8490f645c7cf70593cfdcf4b0f845897068b"
+    },
+    "plan_record_id": "h-al111-pbe-v1",
+    "pseudopotential_manifest": {
+      "role": "pseudopotential_manifest",
+      "sha256": "6f6d1a19ac8f036b7aff1a7314fd6a583ea237b5c45a84f1aec392fdd4801847"
+    },
+    "pseudopotentials": [
+      {
+        "declared_source": "QE pslibrary 1.0.0; official-source bytes independently verified",
+        "filename": "Al.pbe-n-rrkjus_psl.1.0.0.UPF",
+        "format": "upf",
+        "functional": "PBE",
+        "has_so": false,
+        "label": "Al",
+        "pseudo_type": "USPP",
+        "relativistic": "scalar",
+        "sha256": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e"
+      }
+    ],
+    "stderr": null
+  },
+  "findings": [],
+  "gates": {
+    "execution_completion": "not_requested",
+    "input_integrity": "pass",
+    "observable_convergence": "not_assessed",
+    "official_version_match": "pass",
+    "parent_ancestry": "pass",
+    "physical_validity": "not_assessed",
+    "plan": "pass",
+    "pseudopotential_provenance": "pass",
+    "runtime_diagnostics": "not_requested",
+    "runtime_paths": "pass"
+  },
+  "output_summary": null,
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T16:12:49+00:00"
+  },
+  "required_remaining_gates": [
+    "observable-specific convergence under a fixed protocol",
+    "claim-specific physical/model validation"
+  ],
+  "schema_version": "1.0",
+  "scientific_claim_decision": "blocked",
+  "scope": "pw.x input",
+  "stderr_summary": null,
+  "summary": {
+    "calculation": "relax",
+    "conv_thr_ry": 1e-09,
+    "degauss_ry": 0.01,
+    "ecutrho_ry": 640.0,
+    "ecutwfc_ry": 60.0,
+    "executable": "pw.x",
+    "ibrav": 0,
+    "k_points": {
+      "count": 144,
+      "mesh": [
+        12,
+        12,
+        1
+      ],
+      "mode": "automatic",
+      "offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "nat": 3,
+    "ntyp": 1,
+    "occupations": "smearing",
+    "outdir_explicit": true,
+    "prefix_explicit": true,
+    "pseudo_dir_explicit": true,
+    "restart_mode": "from_scratch",
+    "species": [
+      {
+        "label": "Al",
+        "pseudopotential": "Al.pbe-n-rrkjus_psl.1.0.0.UPF"
+      }
+    ],
+    "spin_orbit": false
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "structure_source": "https://wiki.fysik.dtu.dk/ase/_modules/ase/build/surface.html#mx2",
+  "builder": "ase.build.mx2('MoS2',kind='2H',a=3.18,thickness=3.19,vacuum=10)",
+  "ASE_version": "3.29.0",
+  "initial_cell_A": [
+    [
+      3.18,
+      0.0,
+      0.0
+    ],
+    [
+      -1.59,
+      2.753960784034515,
+      0.0
+    ],
+    [
+      0.0,
+      -0.0,
+      23.19
+    ]
+  ],
+  "initial_scaled_positions": [
+    [
+      0.0,
+      0.0,
+      0.5
+    ],
+    [
+      0.6666666666666666,
+      0.3333333333333333,
+      0.5687796463993101
+    ],
+    [
+      0.6666666666666666,
+      0.3333333333333333,
+      0.43122035360068994
+    ]
+  ],
+  "pseudo_urls": [
+    "https://pseudopotentials.quantum-espresso.org/upf_files/Mo.pbe-spn-rrkjus_psl.1.0.0.UPF",
+    "https://pseudopotentials.quantum-espresso.org/upf_files/S.pbe-n-rrkjus_psl.1.0.0.UPF"
+  ],
+  "model": "Scalar-relativistic PBE; K-valley electron, longitudinal acoustic deformation-potential approximation,300K; no material prediction.",
+  "strain_boundary": "UniaxialCartesianxx strain; transversey fixed;cellz fixed;internalcoordinatesrelaxed at eachstrain.",
+  "start_utc": "2026-09-22T15:43:14Z",
+  "checkpoint_utc": "2026-09-22T16:03:14Z",
+  "target_utc": "2026-09-22T16:13:14Z"
+}

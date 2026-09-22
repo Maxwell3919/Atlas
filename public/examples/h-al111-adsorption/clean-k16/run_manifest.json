@@ -1,0 +1,85 @@
+{
+  "case_id": "h-al111-clean-k16",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 2,
+    "mpi_ranks": 8,
+    "omp_threads": 1,
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "clean-k16/scf.in",
+      "role": "input",
+      "sha256": "d01f57357c9427ba739c3775e8aa063f4d0e4af9232bcb305eb85ba655286d24",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/scf.out",
+      "role": "output",
+      "sha256": "d63b7de0e61f3cabcefe46a0d7f408228ae698fe788f9819e438129fdd4d82ba",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/scf.err",
+      "role": "stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/run.sh",
+      "role": "run_script",
+      "sha256": "5e2216b80155d4698aec6b3b2ec9f77044840445849234bead7a1d83711e6720",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "e8d5b56cffb0549d0d5140dd7a3b10b91e3d1fe6b5a2a15e59402e23d0d1fb8d",
+      "status": "present"
+    },
+    {
+      "label": "evidence/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "4223c3d85b0339190538a7715310c17ec961f916f1a36d2f0b0bfc40af1c2b24",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "6f6d1a19ac8f036b7aff1a7314fd6a583ea237b5c45a84f1aec392fdd4801847",
+      "status": "present"
+    },
+    {
+      "label": "clean-k16/tmp/clean-k16.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "2f22be7eed2d141de6e10c827f08ab4367976419cb248a54e78f246c2bc5e096",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Geometry convergence applies to the input mesh only.",
+    "Force consistency failed upon increasing k mesh even when the adsorption energy difference fell within the teaching comparison line.",
+    "Slurm accounting unavailable; queue and peak memory metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.06475555555555555,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 10,
+    "wall_time_s": 29.14
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T16:23:46+00:00"
+  },
+  "record_id": "atlas-h-al111-clean-k16-20260923",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

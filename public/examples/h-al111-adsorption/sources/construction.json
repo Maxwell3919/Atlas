@@ -1,0 +1,165 @@
+{
+  "construction": "ABC-stacked fcc(111) 1x1 slab; middle Al fixed; H atop both surfaces; inversion symmetry; one monolayer per surface. H2 bond 0.74 Angstrom is an initial geometry guess.",
+  "parent_xml_relative": "../alsi-formation-hull/al-fcc/tmp/al-fcc.save/data-file-schema.xml",
+  "parent_xml_sha256": "51af36e854906acd8509a1766a73ec89fa5dca3198ad4994c7ff504eba647aad",
+  "bulk_a_A": 4.0428107630828585,
+  "layer_spacing_A": 2.334117882348605,
+  "initial_H_height_A": 1.6,
+  "slab_cell_A": [
+    [
+      2.8586989056298497,
+      0,
+      0
+    ],
+    [
+      1.4293494528149249,
+      2.4757058740462234,
+      0
+    ],
+    [
+      0,
+      0,
+      22.86823576469721
+    ]
+  ],
+  "clean_atoms_A": [
+    [
+      "Al",
+      2.8586989056298497,
+      1.6504705826974824,
+      9.100000000000001,
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "Al",
+      0,
+      0,
+      11.434117882348605,
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      "Al",
+      1.4293494528149249,
+      0.8252352913487412,
+      13.76823576469721,
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  ],
+  "ads_atoms_A": [
+    [
+      "Al",
+      2.8586989056298497,
+      1.6504705826974824,
+      9.100000000000001,
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "Al",
+      0,
+      0,
+      11.434117882348605,
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    [
+      "Al",
+      1.4293494528149249,
+      0.8252352913487412,
+      13.76823576469721,
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "H",
+      2.8586989056298497,
+      1.6504705826974824,
+      7.500000000000002,
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "H",
+      1.4293494528149249,
+      0.8252352913487412,
+      15.368235764697209,
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  ],
+  "h2_cell_A": [
+    [
+      10,
+      0,
+      0
+    ],
+    [
+      0,
+      10,
+      0
+    ],
+    [
+      0,
+      0,
+      10
+    ]
+  ],
+  "h2_atoms_A": [
+    [
+      "H",
+      5,
+      5,
+      4.63,
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    [
+      "H",
+      5,
+      5,
+      5.37,
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  ],
+  "bulk_source": "fcc Al same PBE USPP, constrained optimization k12,60/640Ry,mv=.01; fixed substrate lattice, not reoptimized at slab protocol",
+  "reference_url": "https://aflow.org/prototype-encyclopedia/A_cF4_225_a-001/",
+  "scope": "Three-layer, one-ML, specified atop-site nonmagnetic model; no global site, dilute limit, slab-thickness or thermodynamic acceptance claim",
+  "pseudopotential_hashes": {
+    "Al": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e",
+    "H": "e03cd098d78e3eeb37cc9f790690f5827234cbc019fb621913391689a9ddacf7"
+  }
+}

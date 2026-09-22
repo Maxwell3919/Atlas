@@ -1,0 +1,13 @@
+[preston@preston-System-Product-Name alsi-k32-supplement]$ python3 analyse_k32.py
+case           job    E32 (Ry/cell)       formation (eV/atom)  delta24->32 (meV/atom)
+al-fcc          844      -5.0397499931           0.00000000             +0.000000
+al3si-l12       847     -26.5073157318           0.10905498             +1.798223
+alsi-b2         846     -16.4206506696           0.26685287             +1.090635
+alsi3-l12       848     -39.1923973703           0.36645097             +0.534909
+si-diamond      845     -22.8402546501           0.00000000             +0.000000
+Inputs differ only in k mesh: True
+Finite-set hull vertices: al-fcc, si-diamond
+Maximum formation-energy change: 1.798223 meV/atom
+All changes within 1 meV/atom: False
+Davidson-CG Al3Si difference: 1.15852021e-07 meV/atom
+[preston@preston-System-Product-Name alsi-k32-supplement]$

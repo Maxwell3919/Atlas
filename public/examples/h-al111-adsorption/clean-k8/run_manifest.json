@@ -1,0 +1,85 @@
+{
+  "case_id": "h-al111-clean-k8",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 3,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "clean-k8/scf.in",
+      "role": "input",
+      "sha256": "e76a6a7b4caf980667127573fee2ed201ade77b83670d23509b67e02a7c27191",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/scf.out",
+      "role": "output",
+      "sha256": "8c0b432ae96b4f31c32c020f009aac66dbb3f8491aa665161b580c1bf19289d0",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/scf.err",
+      "role": "stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/run.sh",
+      "role": "run_script",
+      "sha256": "bc6b04b93dcd91ea9328dc4de4320308064bd41f0dae0a2ee900de87c6260f79",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "9568bd2674d30c344b06e91fd3b6e7c33d9ba4d2ec10973391fb09e4445072c6",
+      "status": "present"
+    },
+    {
+      "label": "evidence/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "4223c3d85b0339190538a7715310c17ec961f916f1a36d2f0b0bfc40af1c2b24",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "6f6d1a19ac8f036b7aff1a7314fd6a583ea237b5c45a84f1aec392fdd4801847",
+      "status": "present"
+    },
+    {
+      "label": "clean-k8/tmp/clean-k8.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "54162fcc6f7dd89f5f229791f832dfb5090d56688bc363c7398486ba65ec6d30",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching model; terminal native execution does not establish scientific acceptance.",
+    "Initial eigensolver warnings are retained; last electronic iteration and numerical or force comparisons are checked separately.",
+    "Timing from native output; Slurm accounting unavailable; queue and memory metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.03288888888888889,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 10,
+    "wall_time_s": 29.6
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T16:15:53+00:00"
+  },
+  "record_id": "atlas-h-al111-adsorption-clean-k8-20260923",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

@@ -1,8 +1,6 @@
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
+
+[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图直接读取 `band3d/cube.csv`，对应输入、输出和 XML 也在该子目录。包中不含可接续计算的 `tmp/si.save`；重新计算这批 k 点时，需要下文使用的同一份父 SCF 密度。
 
 一条高对称路径只是在倒空间里走过几条线。要看 Si 导带谷为什么在不同方向有不同曲率，需要离开那条线。这次在 Γ–X 导带谷附近真正计算一个三维 k 点立方网格，再从中画两张能量曲面。它覆盖的是一个局部谷，不是整个第一布里渊区。
 
@@ -61,6 +59,8 @@ K_POINTS tpiba
 
 
 三个方向分别为：x 从 0.75 到 0.95，共 11 点；y、z 从 −0.08 到 0.08，各 9 点，间隔均为 0.02，单位都是 `2π/a`。`11×9×9=891`，所以这里有真实的离面采样，并非把一条曲线绕轴旋转出来。
+
+取值范围决定这张局部图覆盖多大的谷区，点距决定能看清多细的起伏。扩大范围仍可能错过很窄的极值；缩小点距也不会把局部网格变成全布里渊区采样。这两种修改都只是在既有父密度上增加本征值采样。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ tail -n 5 band3d/grid.in

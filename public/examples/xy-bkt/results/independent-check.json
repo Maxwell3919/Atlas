@@ -1,0 +1,9 @@
+{
+  "checked_snapshots": 44,
+  "max_snapshot_energy_error_per_spin": 2.6645352591003757e-15,
+  "max_snapshot_vorticity_error": 0,
+  "continuations_with_identical_original_samples": 8,
+  "seed_warmup_replay_max_error": 0.0,
+  "max_current_mean_over_block_error": 2.7134435892354034,
+  "current_mean_note": "zero-current symmetry check is a finite-sampling diagnostic, not a proof of winding-sector ergodicity"
+}

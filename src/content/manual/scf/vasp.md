@@ -60,9 +60,15 @@ LCHARG = .FALSE.
 
 INCAR 控制计算怎样进行。`ENCUT = 400` 指定平面波截断能，单位 eV；`EDIFF = 1E-8` 是电子循环停止条件，`NELM = 100` 是最多电子步数。达到 NELM 只是用完迭代次数，不能代替达到 EDIFF。
 
+`EDIFF` 同时约束相邻电子步的总自由能变化和带能变化，单位是整个晶胞的 eV；它不是原子力阈值，也不是“总能已经精确到这个数”。本例把电子迭代收紧，是为了让后续磁构型比较少受电子循环残差干扰。400 eV 与下面的 12³ 网格仍需各自做取样检查；把 EDIFF 再调小不能补回平面波或 k 点取样不足。
+
 `ISPIN = 2` 开启共线自旋极化，`MAGMOM = 3 3` 给两个 Fe 同向的初始磁矩；迭代后的磁矩从输出读取。`ISMEAR = 1`、`SIGMA = 0.1` 是本例金属使用的占据展宽。`NSW = 0`、`IBRION = -1` 表示固定结构，原子位置和晶格都不会在这次运行中更新。
 
+这里每个初始磁矩以 μB 计；修改 MAGMOM 可能把自洽过程引到另一种磁性解，因此结束后要回读磁矩，而不只比较总能。`ISMEAR = 1` 是一阶 Methfessel–Paxton 展宽，SIGMA 的单位为 eV。改变宽度会改变费米面附近的占据和能量修正；它需要与 k 网格一起检查，不能直接把这组金属参数搬到有带隙的材料。
+
 `ISTART = 0`、`ICHARG = 2` 从新的波函数和原子电荷开始。输出开关也要在开始前确定：这里 `LWAVE` 和 `LCHARG` 均关闭，适合只比较能量和磁矩的短例子；若下一步需要重用密度或波函数，就要分别开启相应输出。
+
+`PREC = Accurate` 控制默认 FFT 网格等数值设置；这里已经显式给出 ENCUT，不能把 Accurate 读成另一个截断能。两个原子的算例采用 `LREAL = .FALSE.`，在倒空间计算投影，便于避免实空间投影近似混入小能量差。`LASPH = .TRUE.` 保留 PAW 球内密度梯度的非球形贡献，对后续 Fe 磁态比较也保持一致。`ALGO = Normal` 选择电子求解算法，`NCORE = 2` 分配每条轨道的并行工作；它们改变求解过程或资源使用，不能替代精度检查。
 
 ```text
 [bcgong@localhost fm]$ cat KPOINTS
@@ -225,7 +231,7 @@ Reciprocal lattice
   external pressure =       56.94 kB  Pullay stress =        0.00 kB
 ```
 
-两个高对称位置上的力接近零，但外压为 56.94 kbar，约 5.694 GPa。这个例子清楚地区分了电子收敛与晶胞平衡：对称性可以让原子受力抵消，固定的晶格常数仍可能远离零压位置。若要优化几何，下一步接 [固定晶胞结构优化](/Atlas/m/relax/vasp/) 或 [晶胞优化](/Atlas/m/vc-relax/vasp/)。
+两个高对称位置上的力接近零，但外压为 56.94 kbar，约 5.694 GPa。这个例子清楚地区分了电子收敛与晶胞平衡：对称性可以让原子受力抵消，固定的晶格常数仍可能远离零压位置。若要优化几何，先确定需要开放哪些自由度：只移动原子时查看 [固定晶胞结构优化](/Atlas/m/relax/)，连晶格一起调整时查看 [晶胞优化](/Atlas/m/vc-relax/)。这两处进入方法目录，各条计算路线会说明自己的程序和结构前提。
 
 ```text
 [bcgong@localhost fm]$ ls -lh INCAR POSCAR KPOINTS OUTCAR OSZICAR CONTCAR IBZKPT EIGENVAL DOSCAR PROCAR CHGCAR WAVECAR vasprun.xml

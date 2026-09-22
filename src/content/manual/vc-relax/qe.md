@@ -1,8 +1,6 @@
-参考：
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Al 例子的官方赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)
 
-- QE 官方文档 INPUT_PW：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
+下半页 Al 算例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。前半页保留 HfCl₂/PbO₂ 的优化失败记录，用来读清停止原因。
 
 ## vc-relax（变胞结构优化）
 
@@ -76,7 +74,11 @@ EOF
 [hzw@localhost 05_relax]$ cat rx.in
 ```
 
-写完 `cat` 一遍回看，是防止 heredoc 手滑的最低成本检查。
+写完后用 `cat` 回看文件，检查 namelist 的 `/`、元素数量和坐标单位。上面两段结构内容已从公开记录中隐去，整段照抄不能直接运行；下半页的 Al 例子保留了完整的小原胞输入。
+
+先看这次设得最紧的一项：`forc_conv_thr=1.0d-10 Ry/Bohr` 约为 `2.57×10⁻⁹ eV/Å`，这是原记录的数值，不能据此当作通常应采用的力精度。`etot_conv_thr=1.0d-8 Ry` 检查相邻离子步的整胞能量变化，`conv_thr=1.0d-8 Ry` 则控制每一步电子自洽。后面实际残余力远大于这份力阈值；要继续优化，应先核对更紧电子计算下的力与应力，再按后续性质需要设定可验证的停止条件，不能仅因力在下降就宣称通过。
+
+`cell_dofree='fixc'` 固定整条第三晶格矢量，本例用它保留 30 Å 的真空方向；它不是把所有原子的 z 坐标固定。`24 24 1` 是电子 k 网格，第三方向的 1 与这个层状模型对应。输入同时指定 `input_dft='vdw-DF3-opt1'`，因此不能只凭赝势文件名中的 `pbe` 就把这轮称为纯 PBE 计算。`degauss=3.7d-3 Ry` 约为 0.0503 eV；它与 Gaussian 占据、90/720 Ry 截断都属于本轮协议，需要分别检查对力和应力的影响。
 
 ### Slurm 脚本
 
@@ -116,7 +118,7 @@ watch -n 5 "grep -E 'iteration #|convergence has been achieved|Total force|total
 watch -n 10 "squeue -j <jobid>; echo; grep 'Total force' rx.out | tail -n 80"
 ```
 
-真实输出（每个 BFGS 步内部是一次完整 SCF，力逐级下降）：
+实际输出中，每个 BFGS 步内部又有电子 SCF 迭代；这里截取其中相邻片段，整体力趋势在后面的完整图中查看：
 
 ```text
 Every 5.0s: grep -E 'iteration #|convergence has been achieved|...'  Fri Sep  4 18:44:04 2026
@@ -251,7 +253,9 @@ Al 0.0 0.0 0.0
 K_POINTS automatic
 16 16 16 0 0 0
 ```
-`press=0.0` 是目标外压，`press_conv_thr=0.05` 的单位为 kbar。这里保持电子网格 16×16×16、40/160 Ry 截断和 0.02 Ry 冷展宽；这组设置支持本次完整操作演示，后面若需要定量弹性常数，还要针对应力与其导数继续比较参数。
+`press=0.0` 是目标外压，`press_conv_thr=0.05` 的单位为 kbar，相当于 0.005 GPa。因为本例保持立方对称性，主要观察体积变化与各向同性压力；这个限制没有搜索改变原型后的其他结构。`forc_conv_thr=1.0d-5 Ry/Bohr` 和 `etot_conv_thr=1.0d-8 Ry` 仍然同时参与优化停止判断，`nstep=50` 是步数上限。单原子高对称原胞的力可以恒为零，所以应力和最后晶胞尤其重要。
+
+`celldm(1)=7.50` 用 bohr 给出初始常规立方晶格参数。这里保持电子网格 16×16×16、40/160 Ry 截断和 0.02 Ry 的 Marzari–Vanderbilt 冷展宽，并求 6 条带以容纳金属的部分占据。改变这些设置会影响能量与压力，尤其不能拿很紧的电子 `conv_thr=1.0d-12` 替代截断能对应力的检查。后面若需要定量弹性常数，还要针对应力及其导数继续比较参数。
 
 真实提交脚本同时写出程序输出与标准错误：
 
@@ -319,7 +323,7 @@ End final coordinates
 ```
 最后的压力为 0.02 kbar，原子力在打印精度内为零；这次有 BFGS 收敛、完整最后坐标、重新计算的电子收敛和末尾 `JOB DONE.`。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
 
-准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)展示了实际使用的 `celldm(1)`、SCF 与保存目录，后续计算没有继续读取优化前的 7.50 bohr 晶胞。
+准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)将这份最终晶胞写成 `ibrav=0` 与 `CELL_PARAMETERS angstrom`，并展示匹配的 SCF 和保存目录；后续计算使用的是这些最终晶格矢量。
 
 ## 下一步
 

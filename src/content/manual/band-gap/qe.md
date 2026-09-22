@@ -1,8 +1,6 @@
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
+
+[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `gap-results.json`、`mass/longitudinal.csv` 和 `mass/mass-fits.json`；包内还保留用于核对的输入、输出与 XML。包中不含可接续计算的 `tmp/si.save`，重新求能级时需先按下文前提重建对应父 SCF 密度。
 
 Si 的价带顶位于 Γ 附近，导带底却在 Γ–X 之间。只在几个高对称点读数，容易越过真正的导带谷；只看 DOS 的展宽曲线，也很难准确给出能隙。这次从均匀 k 网格中找价带最高值和导带最低值，再把导带谷附近加密，逐步看清误差来自哪里。
 
@@ -49,6 +47,8 @@ K_POINTS automatic
 
 
 Si 原胞有 8 个价电子，在本例的非自旋极化固定占据模型下，前 4 条能带占据，第 5 条开始未占据。因此提取时使用 `band4` 和 `band5`。这个数不能直接套到含不同价电子数、磁性或部分占据的材料上。
+
+`nbnd=8` 在四条占据带之外再求四条空带，保证这次能读到最低导带。增加 `nbnd` 扩大每个 k 点的能级范围；加密 k 网格则改变搜索带边的位置。只增加空带数，不会补上两个 k 点之间尚未采到的导带谷。
 
 初次用默认对角化运行的部分密网格出现了 `c_bands: 1 eigenvalues not converged`。原文件留在 `gap18`、`gap24` 中，后面的数值使用独立的 `gap18-cg`、`gap24-cg` 复核结果。新输入采用 `diagonalization='cg'`、`diago_cg_maxiter=200` 和 `diago_thr_init=1.0d-10`；重新运行后逐行检查，未再出现本征值未收敛提示。`gap12` 的原始计算没有该警告，保留其原始结果。
 

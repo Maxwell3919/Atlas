@@ -143,7 +143,7 @@ python3 plot_model.py
 
 ![移动一层前后的面内配准、法向层间距与周期空隙](/Atlas/examples/vasp/snse2-sr2n-model/heterostructure-model.png)
 
-下一步接 [固定晶胞结构优化](/Atlas/m/relax/vasp/)，为新目录准备适合该材料的 INCAR、KPOINTS、POTCAR 和提交脚本，并在需要时约束共同面内晶胞。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
+下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
 
 ```text
 已有异质结 POSCAR + 明确的单层几何参考

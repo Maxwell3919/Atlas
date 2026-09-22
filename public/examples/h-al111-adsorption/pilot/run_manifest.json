@@ -1,0 +1,85 @@
+{
+  "case_id": "h-al111-pilot",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "pilot/scf.in",
+      "role": "input",
+      "sha256": "81c5df186cf2726db39a8f2e8ac51c3a56f2669195ba707c78c6fdc7dea11777",
+      "status": "present"
+    },
+    {
+      "label": "pilot/scf.out",
+      "role": "output",
+      "sha256": "bbe917c5a9dbcf9c152c6c834f7268680186c2b58c35a58d2df983607b4edf19",
+      "status": "present"
+    },
+    {
+      "label": "pilot/scf.err",
+      "role": "stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "present"
+    },
+    {
+      "label": "pilot/run.sh",
+      "role": "run_script",
+      "sha256": "cb832794ab68b9d1a75b49852a72bd8d614beb013cb2dc185d89fc2a3720f931",
+      "status": "present"
+    },
+    {
+      "label": "pilot/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "f88089b1c91416788eeda42c2b31a70b517ede3157503bd6e88a201db5cbba0d",
+      "status": "present"
+    },
+    {
+      "label": "evidence/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "4223c3d85b0339190538a7715310c17ec961f916f1a36d2f0b0bfc40af1c2b24",
+      "status": "present"
+    },
+    {
+      "label": "pilot/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "feccefa82ad599c680ed05c7decf2bed3f01750ba4d771fc2bf7ffb53fe63a66",
+      "status": "present"
+    },
+    {
+      "label": "pilot/tmp/ads.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "4fcc4e2b439b64f13bf5cdfab8d13666ee08fcdb203ab6032667659ec8cbf976",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching model; terminal native execution does not establish scientific acceptance.",
+    "Initial eigensolver warnings are retained; last electronic iteration and numerical or force comparisons are checked separately.",
+    "Timing from native output; Slurm accounting unavailable; queue and memory metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.029233333333333333,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 10,
+    "wall_time_s": 26.31
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T16:15:56+00:00"
+  },
+  "record_id": "atlas-h-al111-adsorption-pilot-20260923",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

@@ -64,7 +64,7 @@ maxwell@maxwell:~/al/dfpt$ cat q2r.in
  zasr='simple'
 /
 ```
-这里 `fildyn` 对应文件名前缀，`flfrc` 是即将写出的力常数文件；`zasr` 的处理选择同时记在输入里。不要从另一份结构的目录借几个编号文件来凑齐网格。
+这里 `fildyn` 对应文件名前缀，`flfrc` 是即将写出的力常数文件。`q2r.x` 的 `zasr` 针对 Born 有效电荷的和规则；这份金属 Al 数据没有 Born 有效电荷，不能把 `zasr='simple'` 当作已经修正声学支的依据。下面 `matdyn.x` 的 `asr='crystal'` 才对力常数施加三条平移和规则。它约束整体平移的恢复力，不能消除原始 q 网格或电子参数造成的误差。不要从另一份结构的目录借几个编号文件来凑齐网格。
 
 ```console
 maxwell@maxwell:~/al/dfpt$ <qe_bin>/q2r.x -in q2r.in > q2r.out 2> q2r.err
@@ -102,7 +102,7 @@ maxwell@maxwell:~/al/dfpt$ cat matdyn-dos.in
  fldos='al.phdos.dat'
 /
 ```
-`dos=.true.` 让 `matdyn.x` 在均匀网格上统计频率。`nk1`、`nk2`、`nk3` 在这个输入中是声子积分网格，不是 SCF 的电子 k 网格，也不是重新调用 `ph.x` 计算响应。这里从 4×4×4 的力常数插值到 24×24×24 点；`deltaE=1.0` 使用每厘米波数作为频率步长，输出文件名为 `al.phdos.dat`。
+`dos=.true.` 让 `matdyn.x` 在均匀 q 网格上用四面体方法计算 DOS。`nk1`、`nk2`、`nk3` 是声子积分网格，不是 SCF 的电子 k 网格，也不是重新调用 `ph.x` 计算响应。这里从 4×4×4 的力常数插值到 24×24×24 点；`deltaE=1.0` 指定输出频率轴的步长为 1 cm⁻¹，不是 Gaussian 展宽，输出文件名为 `al.phdos.dat`。减小这个步长只会把频率轴取样写得更细，不会补充原始 DFPT 响应点。
 
 ```console
 maxwell@maxwell:~/al/dfpt$ <qe_bin>/matdyn.x -in matdyn-dos.in > matdyn-dos.out 2> matdyn-dos.err
@@ -140,7 +140,7 @@ maxwell@maxwell:~/al/dfpt$ head -8 al.phdos.dat
 
 ## 把积分数和图放在一起检查
 
-[下载原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat) 与 [绘图脚本](/Atlas/examples/al/plot_phdos.py) 放在同一个本地工作目录。脚本同时读入 24³、32³ 两份数据，先输出积分，再画曲线；这样能发现列读错、单位弄错或数据截断的问题。
+解包本页开头的 Al 算例并保留目录结构，在 `al` 目录运行[绘图脚本](/Atlas/examples/al/plot_phdos.py)。脚本从 `dfpt/al.phdos.dat` 和 `dfpt/al.phdos32.dat` 读取 24³、32³ 两份数据；[单独下载的原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat)也应放回对应的 `dfpt` 子目录。它先输出积分再画曲线，这样能发现列读错、单位弄错或数据截断的问题。
 
 ```bash
 python3 plot_phdos.py

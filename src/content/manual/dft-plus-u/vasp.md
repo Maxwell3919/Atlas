@@ -4,7 +4,7 @@
 
 [下载本例的输入与原始输出](/Atlas/examples/vasp/vge2p4-dft-u3-files.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
 
-结构准备与普通静态计算接 [结构优化](/Atlas/m/relax/vasp/) 和 [SCF](/Atlas/m/scf/vasp/)。进入复制出来的计算目录后，先读 POSCAR，而不是先改 U。
+结构准备的路线见 [结构优化方法目录](/Atlas/m/relax/)，普通 VASP 静态计算的文件与操作见 [SCF](/Atlas/m/scf/vasp/)。进入复制出来的计算目录后，先读 POSCAR，再核对 U。
 
 ```text
 [bcgong@localhost vge2p4_u3]$ head -16 POSCAR
@@ -48,7 +48,9 @@ LASPH   = .TRUE.
 ```
 `LDAUTYPE = 2` 使用 Dudarev 形式，这时有意义的组合是 U − J。本例 V 的数值是 3 − 0 = 3 eV；`LDAUL = 2 -1 -1` 表示只对 V 的 d 轨道加这一项，Ge 和 P 不加。`MAGMOM = 1*2.0 2*0.1 4*0.0` 给的是初始条件，最终磁矩仍要从收敛输出读出来。
 
-这里没有将 U = 3 eV 当成程序自动求出的数值。要确定 U 的来源，可以沿用经过验证的文献协议，也可以另做 U 的计算或敏感性研究；它与 `EDIFF` 这样的数值停止阈值是两回事。
+`LASPH = .TRUE.` 保留 PAW 球内密度梯度的非球形贡献。这里对 V 的 d 轨道使用 DFT+U，这个设置会影响势、能带与总能量；做同一 U 下的磁构型比较时，应在各目录中保持一致。[LASPH 官方说明](https://vasp.at/wiki/LASPH)
+
+U = 3 eV 是人为指定的相互作用参数，来源需要文献协议、独立计算或敏感性研究支持。改变 U 会改变能量泛函，因此不能把不同 U 的总能量排在一起，以最低者选择“最佳 U”。可以观察带隙、磁矩等量怎样随 U 改变；磁态或结构之间的能量排序则应在相同的 U − J 下比较。`EDIFF` 只控制电子循环的停止条件，不决定 U 的物理取值。[LDAUTYPE 的能量比较说明](https://vasp.at/wiki/LDAUTYPE)
 
 ```text
 [bcgong@localhost vge2p4_u3]$ cat KPOINTS
@@ -135,7 +137,7 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
 
 修改这些参数应保留旧结果：先用 `cp` 把原始输入复制到新目录，再用 `vi INCAR` 编辑，并用 `cat INCAR` 核对。重新运行后，应再次读取 OUTCAR 的 LMAXMIX 回显，并确认生成的 CHGCAR 与新输入对应，再接后续计算。
 
-下一步接 [磁基态比较](/Atlas/m/magnetic-gs/vasp/)，比较不同初始磁构型最终收敛到的状态。准备好含所需局域占据矩阵的 SCF 后，再接 [能带](/Atlas/m/bands/vasp/) 或 [DOS](/Atlas/m/dos/vasp/)。
+下一步接 [磁基态比较](/Atlas/m/magnetic-gs/vasp/)，在同一 U 下比较不同初始磁构型最终收敛到的状态。若继续做 VASP 能带或 DOS，应先按上一段重新生成含所需局域占据矩阵的 CHGCAR，并沿用相同的结构、PAW 与 U 设置。[能带方法目录](/Atlas/m/bands/) 和 [DOS 方法目录](/Atlas/m/dos/) 列出各引擎路线；其中 QE 算例的文件不能接到这份 VASP 计算后面。
 
 ```text
 确定结构、元素顺序与 U 的来源

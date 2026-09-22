@@ -1,0 +1,85 @@
+{
+  "case_id": "h-al111-ads-k12-relax",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 8,
+    "omp_threads": 1,
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "ads-k12-relax/relax.in",
+      "role": "input",
+      "sha256": "bb10a9cc64f820d4bee1bbf9b74d15b9098a24a0fdbd639041bcdc1ab50c0394",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/relax.out",
+      "role": "output",
+      "sha256": "2ecb78e94df5b88d94352cc749029c2fb50566f534050390808d4d2ef3ecbbd8",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/relax.err",
+      "role": "stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/run.sh",
+      "role": "run_script",
+      "sha256": "daecf85de52a3f8d4800a5c5168e72cd68670b3fa860b03a88c84fa9a78f3663",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "1a0348b82a3328c7a9f35a67f4f48ae7cfd332e8861eee8639c5412f7594df37",
+      "status": "present"
+    },
+    {
+      "label": "evidence/qe_plan_relax.json",
+      "role": "plan",
+      "sha256": "dd1edf2a38bc4037578379527b2e8490f645c7cf70593cfdcf4b0f845897068b",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "feccefa82ad599c680ed05c7decf2bed3f01750ba4d771fc2bf7ffb53fe63a66",
+      "status": "present"
+    },
+    {
+      "label": "ads-k12-relax/tmp/ads-k12-relax.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "2a81b7967cc27d1c3cbc79aca088ae645cb4c20bbf83ef86dc3166d6aa6f6a40",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Geometry convergence applies to the input mesh only.",
+    "Force consistency failed upon increasing k mesh even when the adsorption energy difference fell within the teaching comparison line.",
+    "Slurm accounting unavailable; queue and peak memory metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 0.4341777777777778,
+    "ionic_steps": 10,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 81,
+    "wall_time_s": 195.38
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T16:23:48+00:00"
+  },
+  "record_id": "atlas-h-al111-ads-k12-relax-20260923",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "status": "completed",
+  "task_type": "relax"
+}

@@ -1,8 +1,8 @@
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
+下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，各测试目录按本页的 SCF 输入独立生成电子密度。
 
 先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。因此这是一个固定晶胞的 PBE 参数对照，不是在重现原例的 LDA 能量，也还没有优化 PBE 的平衡晶格。
 
@@ -50,7 +50,7 @@ K_POINTS automatic
 ```
 
 
-`ecutwfc=60` 和 `ecutrho=640` 都以 Ry 为单位，两者不是同一个截断。`conv_thr=1.0d-10` 控制这一次电子迭代停在哪里；即使一次 SCF 已经满足这个阈值，改用更密的 k 网格仍然可能改变总能量。`occupations='fixed'` 对应本例的非磁性半导体设置。最后三个零表示这份均匀网格没有半格位移；后面比较网格时也保持这一约定。
+`ecutwfc=60` 和 `ecutrho=640` 都以 Ry 为单位：前者限制波函数的平面波基组，后者控制电荷密度与势的表示，超软赝势的增广电荷也在其中。增大它们通常会增加平面波或 FFT 网格及计算开销，所以先分开比较，才知道计算量花在哪一项上。`conv_thr=1.0d-10` 控制本次电子自洽的估计能量误差；即使一次 SCF 已满足这个阈值，改用更密的 k 网格仍然可能改变总能量。`occupations='fixed'` 对应本例的非磁性半导体设置。最后三个零表示这份均匀网格没有半格位移；后面比较网格时也保持这一约定。
 
 做一个截断能对照时，实际操作是复制输入，再用 `vi` 改那一个数。例如 `cutoff40/scf.in` 把 `ecutwfc` 改成 40，保留 `ecutrho=640` 和 `8 8 8 0 0 0`。这样横轴才只有一个变量。这里没有把 `ecutrho` 同时设成波函数截断的某个固定倍数，否则能量变化会混入两个来源。完整文件可直接核对：[40 Ry 输入](/Atlas/examples/si-pbe/cutoff40/scf.in)、[80 Ry 输入](/Atlas/examples/si-pbe/cutoff80/scf.in)。
 
@@ -315,7 +315,7 @@ k8/scf.out:!    total energy              =     -22.83859230 Ry
 | kmesh | 14 | -22.83887935 | 0.0000 |
 
 
-为了演示如何读表，这次使用 **1 meV/atom** 作为总能量变化的比较线。它是这个小例子的教学条件，不是声子、应力或能隙的通用误差标准。波函数截断从 60 增至 80 Ry，总能量只改变约 0.138 meV/atom；电荷截断从 320 增至 640 Ry，改变约 0.025 meV/atom。k 网格却更敏感：`8³→10³` 仍改变约 1.60 meV/atom，`10³→12³` 约 0.292 meV/atom，`12³→14³` 约 0.059 meV/atom。仅凭 `8³` 那份输出的 `conv_thr`，看不出后面这件事。
+为了演示如何读表，这次使用 **1 meV/atom** 作为总能量变化的比较线。它是这个小例子的教学条件，不是声子、应力或能隙的通用误差标准。表中最后一点也只是本轮最高参数的参照，并非已经知道的无限基组、无限网格真值；需要一起看末端相邻几次变化，避免某一个点偶然接近参照就停止。波函数截断从 60 增至 80 Ry，总能量只改变约 0.138 meV/atom；电荷截断从 320 增至 640 Ry，改变约 0.025 meV/atom。k 网格却更敏感：`8³→10³` 仍改变约 1.60 meV/atom，`10³→12³` 约 0.292 meV/atom，`12³→14³` 约 0.059 meV/atom。仅凭 `8³` 那份输出的 `conv_thr`，看不出后面这件事。
 
 这也解释了后续例子为什么保留 `60/640 Ry`，而把用于带边精细计算的父 SCF 加密到 `12³`。是否用于别的材料、不同赝势或声子，需要对那个实际要使用的量继续比较。
 

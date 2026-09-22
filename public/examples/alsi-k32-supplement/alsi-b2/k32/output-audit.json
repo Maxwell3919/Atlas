@@ -1,0 +1,203 @@
+{
+  "decision": "blocked",
+  "evidence": {
+    "convergence_parameters": {
+      "conv_thr": {
+        "unit": "Ry",
+        "value": 1e-10
+      },
+      "degauss": {
+        "unit": "Ry",
+        "value": 0.005
+      },
+      "ecutrho": {
+        "unit": "Ry",
+        "value": 640.0
+      },
+      "ecutwfc": {
+        "unit": "Ry",
+        "value": 80.0
+      },
+      "k_point_count": {
+        "unit": "count",
+        "value": 32768.0
+      }
+    },
+    "input": {
+      "role": "pw_input",
+      "sha256": "8a86caab2f2b58f88ce518a89fff835c12a1ae19c03e5252abeb80f13a08b1f7"
+    },
+    "observables": {
+      "total_energy": {
+        "unit": "Ry",
+        "value": -16.42065067
+      }
+    },
+    "output": {
+      "role": "pw_output",
+      "sha256": "f667fddeed2bc105826ac0ee3f220f7b053b7d769bbf245f4a29e882282e8548"
+    },
+    "parent_manifest": null,
+    "parent_record_id": null,
+    "plan": {
+      "role": "qe_plan",
+      "sha256": "ae8dfc76910dd9385777917cb075933e75c366c84a713a3223edfecd844e921e"
+    },
+    "plan_record_id": "alsi-pbe-static-cg-v1",
+    "pseudopotential_manifest": {
+      "role": "pseudopotential_manifest",
+      "sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a"
+    },
+    "pseudopotentials": [
+      {
+        "declared_source": "QE pslibrary 1.0.0, independently downloaded and cmp verified",
+        "filename": "Al.pbe-n-rrkjus_psl.1.0.0.UPF",
+        "format": "upf",
+        "functional": "PBE",
+        "has_so": false,
+        "label": "Al",
+        "pseudo_type": "USPP",
+        "relativistic": "scalar",
+        "sha256": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e"
+      },
+      {
+        "declared_source": "QE pslibrary 1.0.0, independently downloaded and cmp verified",
+        "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+        "format": "upf",
+        "functional": "PBE",
+        "has_so": false,
+        "label": "Si",
+        "pseudo_type": "USPP",
+        "relativistic": "scalar",
+        "sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a"
+      }
+    ],
+    "stderr": {
+      "role": "runtime_stderr",
+      "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    }
+  },
+  "findings": [
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field startingpot is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field startingwfc is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diagonalization is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diago_cg_maxiter is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.INPUT.UNSUPPORTED_ASSIGNMENT",
+      "message": "&ELECTRONS field diago_thr_init is outside the automated pw.x core",
+      "severity": "error"
+    },
+    {
+      "code": "QE.STDERR.NONEMPTY",
+      "message": "Separate stderr is nonempty and requires case-level review even though no deterministic fatal marker matched",
+      "severity": "warning"
+    }
+  ],
+  "gates": {
+    "execution_completion": "pass",
+    "input_integrity": "fail",
+    "observable_convergence": "not_assessed",
+    "official_version_match": "pass",
+    "parent_ancestry": "pass",
+    "physical_validity": "not_assessed",
+    "plan": "pass",
+    "pseudopotential_provenance": "pass",
+    "runtime_diagnostics": "pass",
+    "runtime_paths": "pass"
+  },
+  "output_summary": {
+    "echoed_settings": {
+      "ecutrho_ry": 640.0,
+      "ecutwfc_ry": 80.0,
+      "ibrav": 0,
+      "nat": 2,
+      "ntyp": 2
+    },
+    "job_done": true,
+    "observables": {
+      "total_energy": {
+        "unit": "Ry",
+        "value": -16.42065067
+      }
+    },
+    "qe_version": "7.5",
+    "scf_iteration_lines": 5,
+    "successful_scf_cycles": 1,
+    "warning_lines": 0
+  },
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T15:26:29+00:00"
+  },
+  "required_remaining_gates": [
+    "observable-specific convergence under a fixed protocol",
+    "claim-specific physical/model validation"
+  ],
+  "schema_version": "1.0",
+  "scientific_claim_decision": "blocked",
+  "scope": "pw.x input, stdout, and stderr",
+  "stderr_summary": {
+    "fatal_lines": 0,
+    "floating_point_exception_lines": 0,
+    "nonempty_lines": 20,
+    "warning_lines": 0
+  },
+  "summary": {
+    "calculation": "scf",
+    "conv_thr_ry": 1e-10,
+    "degauss_ry": 0.005,
+    "ecutrho_ry": 640.0,
+    "ecutwfc_ry": 80.0,
+    "executable": "pw.x",
+    "ibrav": 0,
+    "k_points": {
+      "count": 32768,
+      "mesh": [
+        32,
+        32,
+        32
+      ],
+      "mode": "automatic",
+      "offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "nat": 2,
+    "ntyp": 2,
+    "occupations": "smearing",
+    "outdir_explicit": true,
+    "prefix_explicit": true,
+    "pseudo_dir_explicit": true,
+    "restart_mode": "from_scratch",
+    "species": [
+      {
+        "label": "Al",
+        "pseudopotential": "Al.pbe-n-rrkjus_psl.1.0.0.UPF"
+      },
+      {
+        "label": "Si",
+        "pseudopotential": "Si.pbe-n-rrkjus_psl.1.0.0.UPF"
+      }
+    ],
+    "spin_orbit": false
+  }
+}

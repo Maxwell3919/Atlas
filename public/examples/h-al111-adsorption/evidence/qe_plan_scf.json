@@ -1,0 +1,28 @@
+{
+  "case_id": "h-al111",
+  "decision": "pass",
+  "limitations": [
+    "The minimum workflow is not a universal complete workflow.",
+    "Material-, model-, and observable-specific controls may add stages and convergence dimensions."
+  ],
+  "minimum_workflow": [
+    "pw.x:scf"
+  ],
+  "objective": "Symmetric H adsorption on a specified three-layer Al111 slab; matched gas H2 reference; numerical comparison line only",
+  "observable": {
+    "absolute_tolerance": 0.0007349864435130998,
+    "name": "total_energy",
+    "relative_tolerance": null,
+    "unit": "Ry"
+  },
+  "provenance": {
+    "collector": "qe_guard",
+    "collector_version": "1.1.0",
+    "generated_utc": "2026-09-22T15:51:27+00:00"
+  },
+  "qe_version": "7.5",
+  "schema_version": "1.0",
+  "scientific_protocol_id": "h-al111-pbe-v1",
+  "state": "plan_ready",
+  "task_type": "scf"
+}

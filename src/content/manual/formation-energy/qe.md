@@ -328,7 +328,7 @@ Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line
 | alsi3-l12 | 0.75 | -39.19239483 | 0.365916 | -0.57 |
 | si-diamond | 1.0 | -22.84025465 | 0.000000 | 0.01 |
 
-[全部 30 项能量与输入输出哈希](/Atlas/examples/alsi-formation-hull/energy-table.csv)、[逐项数值变化](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 和 [当前五项汇总](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 可以一起下载。所有能量差都在同一行协议内重新减去同协议端元。
+[全部 30 项能量与输入输出哈希](/Atlas/examples/alsi-formation-hull/energy-table.csv)、[逐项数值变化](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 和 [24³ 五项汇总](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 可以一起下载。所有能量差都在同一行协议内重新减去同协议端元。
 
 | 候选 | 12→16 | 16→20 | σ .01→.005 | 60→80 Ry | 20→24 |
 | --- | --- | --- | --- | --- | --- |
@@ -336,7 +336,7 @@ Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line
 | alsi-b2 | -0.896 | -4.274 | -0.184 | -0.011 | -0.930 |
 | alsi3-l12 | +0.579 | -1.823 | -0.115 | -0.015 | -0.173 |
 
-这张表的单位是 meV/atom；前三档 k 网格在 σ=0.01、60 Ry 下比较，最后一档在 σ=0.005、80 Ry 下比较，中间分别只改变展宽和波函数截断。教学比较线取 1 meV/atom。20³→24³ 的最大变化为 `1.344 meV/atom`，仍高于比较线，因此本次没有宣称形成能已经达到 1 meV/atom 收敛。最终静态压力的最大绝对值为 `2.86 kbar`。这些 24³ 静态点沿用初始优化几何，不能直接称为 24³/80 Ry/σ=.005 协议下再次优化后的零压结果。这里也没有检验电荷密度截断、晶体原型完备性或真实有限温度自由能。
+这张表的单位是 meV/atom；前三档 k 网格在 σ=0.01、60 Ry 下比较，最后一档在 σ=0.005、80 Ry 下比较，中间分别只改变展宽和波函数截断。教学比较线取 1 meV/atom。20³→24³ 的最大变化为 `1.344 meV/atom`，仍高于比较线，因此到这一档还不能宣称形成能已经达到 1 meV/atom 收敛。24³ 静态压力的最大绝对值为 `2.86 kbar`。这些 24³ 静态点沿用初始优化几何，不能直接称为 24³/80 Ry/σ=.005 协议下再次优化后的零压结果。这里也没有检验电荷密度截断、晶体原型完备性或真实有限温度自由能。
 
 ```console
 [preston@preston-System-Product-Name alsi-formation-hull]$ python3 plot_alsi.py formation
@@ -347,6 +347,138 @@ plots/formation-energy.png and plots/formation-energy.svg
 ![形成能及数值参数变化](/Atlas/examples/alsi-formation-hull/plots/formation-energy.svg)
 
 左图把三个候选与同批端元比较；右图让每次改变参数带来的形成能变化单独可见。重画时，在含 CSV 和 `plot_alsi.py` 的目录运行 `python3 plot_alsi.py formation`，会同时写出 PNG 和 SVG。图中参考值、归一化方式和参数比较都来自 CSV，没有手工挪动能量点。
+
+## 同一协议继续到 32³，先把五项都收齐
+
+24³ 的对照之后，五个候选还完成了同协议的 32³ 静态计算。这里把它们接在前面的表后面读；上面的截断、展宽与 20³→24³ 结果继续保留。
+
+[下载 24³/32³ 独立补充包](/Atlas/examples/alsi-k32-supplement-files.tar.gz)。解压得到 `alsi-k32-supplement`：包内有五对原始输入、OUT、XML、错误流与独立提取脚本，读数和重新画图无需调用 QE。它没有包含电荷密度与波函数。
+
+先回原计算目录，确认五个 32³ 输出都在：
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ ls al-fcc/k32/scf.out si-diamond/k32/scf.out alsi-b2/k32/scf.out al3si-l12/k32/scf.out alsi3-l12/k32/scf.out
+al-fcc/k32/scf.out  al3si-l12/k32/scf.out  alsi-b2/k32/scf.out  alsi3-l12/k32/scf.out  si-diamond/k32/scf.out
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+这五项的作业号分别为 Al 844、Si 845、B2 AlSi 846、Al₃Si 847、AlSi₃ 848。每项实际使用 4 个 MPI 进程。它们仍固定各自 12³ 原型内优化得到的几何，没有在 32³ 下重新优化晶胞。
+
+把补充包中的两份 B2 输入直接比较：
+
+```text
+[preston@preston-System-Product-Name alsi-k32-supplement]$ diff alsi-b2/k24/scf.in alsi-b2/k32/scf.in
+39c39
+< 24 24 24 0 0 0
+---
+> 32 32 32 0 0 0
+[preston@preston-System-Product-Name alsi-k32-supplement]$
+```
+
+只有这一行改变。提取脚本也逐字检查其余四对输入，并从 XML 独立核对几何、元素、PBE、无自旋极化、80/640 Ry 截断、`mv` 展宽 0.005 Ry 和零网格位移。32³ 仍用各自网格的端元重新求形成能，不能继续扣除上表的 24³ 端元能量。
+
+原运行的密度起点也有记录：B2 使用了自己优化目录中的 `tmp`，其它候选同样只复制自己的父数据。若要重跑，把补充包内的 `k32` 目录放回前面的 `alsi-formation-hull/<候选>/` 计算树，先完成对应父计算，再照这个关系准备保存目录：
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ cp -a alsi-b2/tmp alsi-b2/k32/
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+`startingpot='file'` 会读取密度，`startingwfc='atomic+random'` 则重新生成适用于当前 k 网格的波函数；这些仍是完整电子自洽 SCF。将 `run.sh` 里的 `<qe_bin>` 改为自己的安装位置、核对赝势和父数据后再提交。补充包的 `scf.in`、OUT 和 XML 保持实跑原文，提交脚本只隐藏了机器上的 QE 安装路径。
+
+读 B2 的实际结果，网格对应 969 个不可约点，电子循环经过 5 次迭代收敛：
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ grep -n -E 'number of k points|!    total energy|convergence has been|JOB DONE' alsi-b2/k32/scf.out
+116:     number of k points=   969  Marzari-Vanderbilt smearing, width (Ry)=  0.0050
+193:!    total energy              =     -16.42065067 Ry
+204:     convergence has been achieved in   5 iterations
+274:   JOB DONE.
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+另一个结束较晚的候选是 AlSi₃。它的尾部完整保留了约 30 分钟的 WALL 时间与正常退出段：
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ tail -n 13 alsi3-l12/k32/scf.out
+     fftw         :    524.23s CPU    542.73s WALL ( 1329784 calls)
+     interpolate  :      0.07s CPU      0.07s WALL (       7 calls)
+
+     Parallel routines
+
+     PWSCF        :  29m40.43s CPU  30m21.34s WALL
+
+
+   This run was terminated on:  23:52:10  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+这一步只说明原生程序完成。独立提取还要求五项 XML 的 SCF 收敛标记为真、误差低于 `conv_thr=1e-10 Ry`、OUT 与 XML 的总能一致，以及末轮无本征值未收敛信息。五项本次都满足这些电子求解检查；错误文件仍要一起看：
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ wc -c */k32/scf.err
+1300 al-fcc/k32/scf.err
+1300 al3si-l12/k32/scf.err
+1300 alsi-b2/k32/scf.err
+1300 alsi3-l12/k32/scf.err
+1300 si-diamond/k32/scf.err
+6500 total
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+```text
+[preston@preston-System-Product-Name alsi-formation-hull]$ head -n 2 alsi-b2/k32/scf.err
+Authorization required, but no authorization protocol specified
+
+[preston@preston-System-Product-Name alsi-formation-hull]$
+```
+
+每个错误文件都有 1300 字节，内容是这台机器重复出现的环境授权提示，没有被当作空文件删掉。补充包也原样保留自动检查报告；其中的 `blocked` 来自自动输入检查器尚不支持这些起始密度与对角化字段，不能改写成自动审计通过。这里依据实际输入、完整输出和 XML 单独列明已经检查的项目。
+
+进入解压后的补充包目录，重新提取数值：
+
+```text
+[preston@preston-System-Product-Name alsi-k32-supplement]$ python3 analyse_k32.py
+case           job    E32 (Ry/cell)       formation (eV/atom)  delta24->32 (meV/atom)
+al-fcc          844      -5.0397499931           0.00000000             +0.000000
+al3si-l12       847     -26.5073157318           0.10905498             +1.798223
+alsi-b2         846     -16.4206506696           0.26685287             +1.090635
+alsi3-l12       848     -39.1923973703           0.36645097             +0.534909
+si-diamond      845     -22.8402546501           0.00000000             +0.000000
+Inputs differ only in k mesh: True
+Finite-set hull vertices: al-fcc, si-diamond
+Maximum formation-energy change: 1.798223 meV/atom
+All changes within 1 meV/atom: False
+Davidson-CG Al3Si difference: 1.15852021e-07 meV/atom
+[preston@preston-System-Product-Name alsi-k32-supplement]$
+```
+
+[energy-k24-k32.csv](/Atlas/examples/alsi-k32-supplement/energy-k24-k32.csv) 保留十份计算的总能、压力、迭代误差和文件哈希；[comparison-k24-k32.csv](/Atlas/examples/alsi-k32-supplement/comparison-k24-k32.csv) 还把形成能变化拆成候选能量变化与参考能量变化。这一点在 B2 上很直观：候选本身的每原子总能变化很小，端元参考的变化仍会明显进入最后的形成能差。
+
+| 候选 | 24³ / eV·atom⁻¹ | 32³ / eV·atom⁻¹ | 24³→32³ / meV·atom⁻¹ |
+| --- | ---: | ---: | ---: |
+| al3si-l12 | 0.107256757 | 0.109054980 | +1.798223 |
+| alsi-b2 | 0.265762236 | 0.266852871 | +1.090635 |
+| alsi3-l12 | 0.365916061 | 0.366450970 | +0.534909 |
+
+最大变化为 **1.798223 meV/atom**，所以 32³ 完成后仍不能宣布通过 1 meV/atom 比较线。Al₃Si 的变化从 20³→24³ 的负值变成了 24³→32³ 的正值，说明不能按“网格更密，每次差值必然更小”来读表。32³ 的最大绝对压力为 2.37 kbar；这里仍是原优化几何上的静态结果，没有重新得到这一数值协议下的零压晶胞。
+
+另外保留了 Al₃Si 的 [Davidson 对照](/Atlas/examples/alsi-k32-supplement/al3si-l12/k32-davidson/scf.out)，作业号 851。其初轮有 43 条本征值未收敛提示，末轮没有；最终能量与 CG 相差约 `1.16×10⁻⁷ meV/atom`。这个对照只检查同协议下的求解器一致性，形成能表仍统一使用五份 CG 结果，不能用它来替代网格比较。
+
+在装有 NumPy、Matplotlib 的本机进入补充包目录，运行[绘图脚本](/Atlas/examples/alsi-k32-supplement/plot_k32.py)：
+
+```bash
+python3 analyse_k32.py
+python3 plot_k32.py comparison
+```
+
+![AlSi 候选的 24³ 和 32³ 形成能及其差值](/Atlas/examples/alsi-k32-supplement/plots/k32-comparison.svg)
+
+左图保留两组实际形成能，右图单独展开它们的差值；浅蓝色区域是 ±1 meV/atom 比较范围。Al₃Si 与 B2 的柱子超出这个范围，AlSi₃ 这一项位于范围内。图只反映这两档网格的差异，没有把有限差值当作已知的全部数值误差。
 
 三个候选相对这些端元的形成能均为正。接下来把不同成分的结果放到同一张图上，查看候选相对允许分解组合的位置，见 [有限候选集凸包](/Atlas/m/convex-hull/qe/)。数值参数仍可沿 [收敛测试](/Atlas/m/convergence/qe/) 的方式继续增加，但应始终重新计算匹配的端元参考。
 

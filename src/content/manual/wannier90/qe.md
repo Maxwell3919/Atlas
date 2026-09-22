@@ -268,7 +268,11 @@ end kpoints
 
 四个 `f=...:s` 指定四个 Si–Si 键中心的 s 型初始投影。它们只是局域化迭代的起点，最后的中心与展布要从输出读。`num_iter=200` 是上限；`conv_tol=1e-10` 与连续五次迭代的窗口规定本次展布收敛条件。
 
+这里的三个“4”不能只看成相同的数字：QE 的 `nbnd` 决定实际求解多少条 Bloch 带，Wannier90 的 `num_bands` 对应接口提供的带空间，`num_wann` 决定最后保留多少个 Wannier 函数。本例正好是隔离的四条占据带，三个值才相等。若以后加入导带，增加 `nbnd` 不会自动决定合适的投影与解缠窗口，应先说明准备保留哪个能区。
+
 `length_unit=bohr` 与 `unit_cell_cart` 的单位都写得明确。因此本次 `.wout` 中中心坐标以 bohr、spread 以 bohr² 输出。`kpoint_path` 只用于最终插值图，路径是 Γ–X–W–L–Γ；它与前面的均匀网格用途不同。
+
+`length_unit` 控制 `.wout` 中长度的显示单位；它不把所有参数的单位一起改写。按 [Wannier90 参数说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/#realkinddp-conv_tol)，`conv_tol` 使用 Å²，不能因为这里的 spread 显示为 bohr²，就把阈值也解释成 bohr²。这个阈值检查同一网格内展布的迭代变化，后文直接 DFT 对照检查的是插值能量误差，二者没有相互替代关系。
 
 接口的输入很短，但名字和目录必须对得上：
 

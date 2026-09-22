@@ -1,0 +1,15 @@
+[preston@preston-System-Product-Name alsi-formation-hull]$ tail -n 13 alsi3-l12/k32/scf.out
+     fftw         :    524.23s CPU    542.73s WALL ( 1329784 calls)
+     interpolate  :      0.07s CPU      0.07s WALL (       7 calls)
+
+     Parallel routines
+
+     PWSCF        :  29m40.43s CPU  30m21.34s WALL
+
+
+   This run was terminated on:  23:52:10  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+[preston@preston-System-Product-Name alsi-formation-hull]$

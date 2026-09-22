@@ -1,0 +1,43 @@
+{
+  "schema": "alsi-k32-supplement-v1",
+  "native_completion": "pass",
+  "matched_protocol": "pass",
+  "inputs_differ_only_in_kmesh": true,
+  "native_numerics_unchanged": true,
+  "k28_computed": false,
+  "geometry": "Same constrained k12-optimized geometry as k24; no further ionic relaxation",
+  "energy_definition": "QE ! total energy F=E-TS, matched mv sigma 0.005 Ry; not a physical-temperature free energy",
+  "hull_vertices": {
+    "k24": [
+      "al-fcc",
+      "si-diamond"
+    ],
+    "k32": [
+      "al-fcc",
+      "si-diamond"
+    ]
+  },
+  "comparison_line_meV_atom": 1.0,
+  "max_change_meV_atom": 1.7982226926706453,
+  "within_1meV_atom": false,
+  "scientific_acceptance": "not_assessed",
+  "solver_comparison": {
+    "cg_job": 847,
+    "davidson_job": 851,
+    "delta_meV_atom": 1.1585202128307467e-07,
+    "cg_initial_warnings": 0,
+    "davidson_initial_warnings": 43,
+    "final_iteration_warnings": [
+      0,
+      0
+    ]
+  },
+  "original_guard_status": "blocked: unsupported input assignments in the automated core; unmodified original audit retained. Native completion checked here independently.",
+  "stderr": "All k32 files retain repeated X authorization messages; stderr is not empty.",
+  "limitations": [
+    "No phonon or lower-symmetry stability claim.",
+    "No full phase diagram.",
+    "No k28 calculation.",
+    "Charge-density cutoff and zero-smearing limit are not checked here."
+  ]
+}

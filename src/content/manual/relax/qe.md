@@ -1,8 +1,8 @@
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 的 Si 结构示例](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
-下载包保留输入、输出、单独保存的 XML和作图数据，没有包含可接续计算的 `tmp/si.save` 电荷密度与波函数。阅读输出和重新作图可直接使用包内文件；重新运行 QE 时，先按 [SCF 页](/Atlas/m/scf/qe/)生成保存目录，再复制到对应计算目录。DOS 和轨道投影还需要先完成匹配的 [NSCF](/Atlas/m/nscf/qe/)。
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 的 Si 结构示例](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
+下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，按本页完整的 `relax` 输入，从有位移的初始结构生成电子态与优化轨迹。
 
 这次把金刚石 Si 原胞里的第二个原子沿 x 方向稍微移开，再让 `relax` 把它找回来。晶胞保持不变，第一个原子固定；这样既能看见真实的 BFGS 步骤，也不会把整个晶体的平移混进轨迹。截断和 k 网格的选择过程见[收敛测试](/Atlas/m/convergence/qe/)，这里直接接着那份两原子输入操作。
 
@@ -52,7 +52,9 @@ K_POINTS automatic
 ```
 
 
-相对于 SCF，关键变化在 `calculation='relax'`、`&IONS` 和坐标。`ion_dynamics='bfgs'` 指定离子优化算法；`etot_conv_thr=1.0d-7` 的单位为 Ry，`forc_conv_thr=1.0d-4` 的单位为 Ry/Bohr，`nstep=40` 是允许的离子步数。它们和 `&ELECTRONS` 中的 `conv_thr` 各管一件事：前两项判断离子优化，后者决定每个离子位置上的电子自洽精度。
+相对于 SCF，关键变化在 `calculation='relax'`、`&IONS` 和坐标。`ion_dynamics='bfgs'` 指定离子优化算法；`etot_conv_thr=1.0d-7` 的单位为 Ry，比较相邻离子步的整胞能量变化，`forc_conv_thr=1.0d-4` 的单位为 Ry/Bohr，检查允许移动分量上的力。两类条件都要满足；OUT 中的 `Total force` 只是帮助看趋势，不能代替逐分量检查。这里的力阈值约为 0.00257 eV/Å，后面还会用独立静态计算核对。
+
+`nstep=40` 给出允许的离子步数上限，达到上限不等于优化完成。`&ELECTRONS` 中的 `conv_thr=1.0d-10` 则决定每个离子位置上的电子自洽精度。若电子误差造成的力变化已经接近离子阈值，只继续收紧力阈值会让优化难以稳定结束；因此下面保留了收紧电子阈值后的实际力对照。
 
 第一个 Si 后面的 `0 0 0` 固定三个分量，第二个 Si 的 `1 1 1` 允许三个分量移动。输入里没有 `&CELL`；晶格由 `ibrav=2` 和 `A` 固定。这次计算只能回答“给定这个晶胞，原子是否回到力较小的位置”，不能回答平衡晶格常数是多少。要让晶胞参与优化，接[晶格优化](/Atlas/m/vc-relax/qe/)。
 

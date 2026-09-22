@@ -1,0 +1,11 @@
+{
+  "E1_abs_min_eV": 0.1,
+  "E1_relative_fit_uncertainty_max": 0.1,
+  "C_and_E1_strain_window_relative_max": 0.05,
+  "mass_window_relative_max": 0.05,
+  "kgrid_C_E1_relative_max": 0.05,
+  "vacuum_C_E1_relative_max": 0.02,
+  "vacuum_plateau_spread_eV_max": 0.001,
+  "valley_rule": "K-neighborhood minimum must remain below all sampled Gamma/M/threeQ-direction competitors;no metal or unstable mass tensor.",
+  "nature_of_acceptance": "Finite-difference consistency checks for this simplified model;notfullmaterialtransportconvergence."
+}

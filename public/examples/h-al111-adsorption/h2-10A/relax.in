@@ -1,0 +1,38 @@
+&CONTROL
+ calculation='relax'
+ prefix='h2-10A'
+ outdir='./tmp'
+ pseudo_dir='../pseudo'
+ tstress=.true.
+ tprnfor=.true.
+ nstep=35
+ etot_conv_thr=1.0d-5
+ forc_conv_thr=2.0d-4
+/
+&SYSTEM
+ ibrav=0
+ nat=2
+ ntyp=1
+ nbnd=4
+ ecutwfc=60
+ ecutrho=640
+ occupations='smearing'
+ smearing='mv'
+ degauss=0.01
+/
+&ELECTRONS
+ conv_thr=1.0d-9
+/
+&IONS
+ ion_dynamics='bfgs'
+/
+ATOMIC_SPECIES
+H 1.00794 H.pbe-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+10.000000000000 0.000000000000 0.000000000000
+0.000000000000 10.000000000000 0.000000000000
+0.000000000000 0.000000000000 10.000000000000
+ATOMIC_POSITIONS angstrom
+H 5.000000000000 5.000000000000 4.630000000000 1 1 1
+H 5.000000000000 5.000000000000 5.370000000000 1 1 1
+K_POINTS gamma

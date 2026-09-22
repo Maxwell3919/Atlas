@@ -1,0 +1,86 @@
+{
+  "case_id": "al3si-l12",
+  "code": "qe",
+  "code_version": "7.5",
+  "configuration": {
+    "initial_eigen_warnings": 0,
+    "mpi_ranks": 4,
+    "omp_threads": 1,
+    "scf_iteration_count_definition": "sum of printed electronic iteration headers",
+    "scientific_acceptance": "not_assessed"
+  },
+  "evidence": [
+    {
+      "label": "al3si-l12/k32/scf.in",
+      "role": "input",
+      "sha256": "caf4a341e98d5bc91728fba489e862add74a95340f3e86a975e01148574c333d",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/k32/scf.out",
+      "role": "output",
+      "sha256": "4b5b8fc2c89dc78ca0acbc71b4338aa8e44f04d4673437223ea6af5003461ad1",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/k32/scf.err",
+      "role": "stderr",
+      "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/k32/run.sh",
+      "role": "run_script",
+      "sha256": "4f97c632cb8f97c8a9c1ce511bc3a18fbad13e192ac076a755c2ee31774b0324",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/k32/output-audit.json",
+      "role": "input_output_audit",
+      "sha256": "55d0a7831c3f2d81cccf1ade84d4990a3b77117cbc8f4d2655312bc2a94dccae",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/qe_plan_scf.json",
+      "role": "plan",
+      "sha256": "a0be67ac52ef5edbcd14f58367d8f8dd80f1b2f6d9c8a8972ecb849e61d7b79e",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/pseudo-manifest.json",
+      "role": "pseudopotential_manifest",
+      "sha256": "5031ca9da8d7aeb9e81f7eb4da7bcf8daeb92bbed76f004e29e8bc0502416715",
+      "status": "present"
+    },
+    {
+      "label": "al3si-l12/k32/tmp/al3si-l12.save/data-file-schema.xml",
+      "role": "save_metadata",
+      "sha256": "c1dc2ab7dfc46cecb026b2749aeac3434f8de2448439cd2efb40c22adbb755cf",
+      "status": "present"
+    }
+  ],
+  "limitations": [
+    "Finite teaching candidate set; terminal execution is not scientific acceptance.",
+    "Initial eigensolver warnings are retained; final SCF and numerical comparisons are reviewed separately.",
+    "Slurm accounting disabled; timing from native output, unavailable metrics remain null."
+  ],
+  "metrics": {
+    "core_hours": 2.543811111111111,
+    "ionic_steps": null,
+    "peak_memory_mb": null,
+    "queue_wait_s": null,
+    "scf_iterations": 7,
+    "wall_time_s": 2289.43
+  },
+  "provenance": {
+    "collector": "create_run_manifest.py",
+    "collector_version": "1.2.0",
+    "generated_utc": "2026-09-22T15:41:15+00:00"
+  },
+  "record_id": "atlas-alsi-al3si-l12-k32-20260922",
+  "schema_version": "1.0",
+  "scientific_acceptance": "not_assessed",
+  "scientific_protocol_id": "alsi-pbe-cubic-comparison-v1",
+  "status": "completed",
+  "task_type": "scf"
+}

@@ -87,6 +87,8 @@ ENVIRONMENT {
 
 小位移基线描述这个参考结构附近的势能曲率。脚本分别生成正负 0.01 Å、正负 0.005 Å 位移，用 MACE 计算每个构型的力，然后由 phonopy 重建二阶力常数。这个高对称 Si 超胞每个幅度只有 2 个对称不等价的位移构型；换成低对称结构后，位移数量会变化。
 
+位移幅度决定在平衡位置附近多远处测量恢复力。幅度太大时，高阶项会混入二阶近似；幅度很小时，力的数值噪声相对于位移会被放大。因此这里保留一大一小两种幅度，并在后文直接比较频率，而不把较小幅度自动当成较准确的答案。正负位移同时计算，也有助于分开对位移方向呈奇、偶变化的力贡献。
+
 ```python
 ph.generate_displacements(distance=amplitude, is_plusminus=True)
 # 对 ph.supercells_with_displacements 中的每个超胞计算 MACE 原子力。
@@ -185,6 +187,8 @@ prediction = -np.einsum('ijab,sjb->sia', fc, positions, optimize=True)
 ```
 
 symfc 使用参考晶体的对称性与力常数约束来拟合 `Φ`。最后一行把所得力常数乘回验证位移，得到预测力。报告中的 RMSE 是所有帧、所有原子和三个笛卡尔力分量的均方根误差；这使训练、后段验证和独立验证可以用相同定义比较。
+
+`calculate_full_force_constants=True` 选择完整原子对矩阵的存储布局，不是把拟合阶数提高了。当前模型仍只包含对位移线性的恢复力；将训练帧数从 20 增至 60，改变的是这些系数的拟合数据。即使增加数据，二阶表达式本身仍可能不能准确描述热运动中较大的位移，所以后面必须同时读取验证力误差与频率变化。
 
 ```console
 [talos@talos-MS-7D54 si-effective-fc]$ vi fit.py

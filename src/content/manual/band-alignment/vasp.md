@@ -128,7 +128,9 @@ Gamma
 0 0 0
 ```
 
-这里明确使用 `ISPIN = 1`，沿用原始参考计算的标量非磁性 PBE-D2 协议，没有开启 SOC。这是本例结果的范围，不能据此排除磁性态或 SOC 对带边的改变。`NSW = 0` 固定所有离子；`ISTART = 0` 和 `ICHARG = 2` 从原子电荷开始，两份目录均没有复用另一层的 CHGCAR。
+这里明确使用 `ISPIN = 1`，沿用标量非磁性的 PBE 与色散设置，没有开启 SOC。输入中的 `IVDW = 11` 对应 DFT-D3 零阻尼修正，因此本例协议是 PBE+D3（零阻尼）。[IVDW 的方法对应关系](https://vasp.at/wiki/IVDW) 这组非磁性结果不能排除磁性态或 SOC 对带边的改变。`NSW = 0` 固定所有离子；`ISTART = 0` 和 `ICHARG = 2` 从原子电荷开始，两份目录均没有复用另一层的 CHGCAR。
+
+两层统一使用 `ISMEAR = 0` 的高斯展宽、`SIGMA = 0.05 eV`，使同一套设置能用于后面分别呈现带隙和金属交叉的两份结果。展宽与 21×21×1 网格会影响占据、费米能及采样到的带边；继续做精度检查时，应比较各能级减去本次真空势后的变化，而不只看 OUTCAR 的总能量是否稳定。[VASP 的展宽说明](https://vasp.at/wiki/Smearing_technique)
 
 `LVHAR = .TRUE.` 写出离子势加 Hartree 势。`LDIPOL = .TRUE.`、`IDIPOL = 3` 在法向加入偶极修正，`DIPOL` 放在居中后的层附近。非对称层可以具有两个不同的真空平台；偶极修正并不要求把这两个平台强行变成一个值。[LDIPOL 官方说明](https://vasp.at/wiki/LDIPOL) 也指出，这类修正可能让电子收敛变慢，所以是否达到 EDIFF 必须从输出中确认。
 

@@ -15,6 +15,8 @@
 
 `FrechetCellFilter` 把晶胞变形与原子位移一起传给 BFGS。`scalar_pressure=0.0` 给出零外压条件；这里是三维体相，各晶胞方向都可以变化。二维薄层的真空方向需要另行约束，不能原封不动照搬这一行。
 
+这份输入没有设置 `mask`，也没有打开 `hydrostatic_strain` 或 `constant_volume`，因此体积和剪切都参与优化。它要检验的是从偏大、略有扰动的晶胞能否走回零外压附近，因此末态三条边的长度与三个角都要从结果中读回。若只希望保持立方形状并改变边长，应另设均匀缩放约束；那将是另一组几何自由度，须重新检查末态应力。
+
 ```python
 (venv) talos@talos-MS-7D54:<工作目录>$ vi si-vc-relax/vc-relax.py
 (venv) talos@talos-MS-7D54:<工作目录>$ cd si-vc-relax

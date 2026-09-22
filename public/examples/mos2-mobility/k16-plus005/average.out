@@ -1,0 +1,31 @@
+MPI startup(): PMI server not found. Please set I_MPI_PMI_LIBRARY variable if it is not a singleton case.
+
+     Program AVERAGE v.7.5 starts on 23Sep2026 at  0:26: 7 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     2459 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading header from file  electrostatic-potential.dat
+Notice: npt was too small and is set to  320 (number of points in 1D FFT)
+     Reading data from file  electrostatic-potential.dat
+     Output written to file avg.dat
+ 
+     AVERAGE      :      0.10s CPU      0.11s WALL
+
+ 
+   This run was terminated on:   0:26: 7  23Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
