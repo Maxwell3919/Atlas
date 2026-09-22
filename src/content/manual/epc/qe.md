@@ -3,7 +3,7 @@
 - [PHonon：interpolated 电声流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html)
 - [pw.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 - [ph.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
-- [matdyn.x 输入](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
+- [Slurm：squeue](https://slurm.schedmd.com/squeue.html)
 
 ## 从 SnSe₂/Sr₂N 的计算目录接着做
 
@@ -20,7 +20,7 @@
 ```
 
 
-这条输出要先读完：程序在 43 次 SCF、40 步 BFGS 后结束，**BFGS 没有收敛，不能判定为结构优化通过**。下面暂时沿用它的末步结构准备输入；开始 EPC 前，要先解决结构验收。如何看力、应力与优化结束信息，见[结构优化](/Atlas/m/vc-relax/qe/)。
+这条输出要先读完：程序在 43 次 SCF、40 步 BFGS 后结束，**BFGS 没有收敛，不能判定为结构优化通过**。下面沿用它的末步结构准备输入，并继续做两步固定结构 SCF；这能检查电子迭代与数据衔接，不能替代结构验收。进入声子与 EPC 之前，结构问题仍需解决。如何看力、应力与优化结束信息，见[结构优化](/Atlas/m/vc-relax/qe/)。
 
 还有一处会直接影响声子频率的输入错误：
 
@@ -202,7 +202,7 @@ mpirun -np 16 <qe_bin>/ph.x -in phx.in > phx.out 2> phx.err
 ```
 
 
-两个 SCF 与声子步骤需要依次完成并检查，不能一次把三个脚本同时提交。新目录尚未运行这些程序，也没有可供展示的新 SCF 或声子输出。
+两个 SCF 与声子步骤需要依次完成并检查。下面实际提交的是 64×64×1 的 `pwxall`；它结束并核对通过后，才接 16×16×1 的 `pwx`。声子任务另行处理。
 
 ## 把 ph96 只改成另一套致密网格
 
@@ -341,7 +341,232 @@ README.md
 ```
 
 
-每套目录都有五份输入、六份 Slurm 脚本和一份说明。脚本分别做过 `bash -n` 检查，远端文件也已回读；这些检查只验证文件和 shell 语法。本次到这里结束，没有提交计算。
+每套目录都有五份输入、六份 Slurm 脚本和一份说明。脚本分别做过 `bash -n` 检查，远端文件也已回读；这些检查只验证文件和 shell 语法。输入准备到这里完成，接着在同一个 ph64 目录提交致密网格 SCF。
+
+<!-- ph64-scf-session-start -->
+## 提交 pwxall，先确认程序确实读对了文件
+
+在 ph64 中检查网格和脚本，然后提交：
+
+```text
+[bcgong@localhost ph64]$ grep -A1 K_POINTS pwxall.in
+K_POINTS automatic
+  64 64 1 0 0 0
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ bash -n pwxall.slurm
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ sbatch -J srnsnse-k64 pwxall.slurm
+Submitted batch job 18178
+[bcgong@localhost ph64]$
+```
+
+
+`18178` 是调度器返回的作业号。先记住它，接下来的队列和日志检查都指向这一份作业，避免读到其他目录的同名 `pwxall.out`。
+
+```text
+[bcgong@localhost ph64]$ squeue -j 18178 -o "%.10i %.16j %.8T %.10M %.6D %R"
+     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
+     18178      srnsnse-k64  RUNNING       0:33      1 localhost
+[bcgong@localhost ph64]$
+```
+
+```text
+[bcgong@localhost ph64]$ scontrol show job 18178 | grep -E 'JobId=|JobState=|RunTime=|NumNodes=|WorkDir='
+JobId=18178 JobName=srnsnse-k64
+   JobState=RUNNING Reason=None Dependency=(null)
+   RunTime=00:00:35 TimeLimit=365-00:00:00 TimeMin=N/A
+   NumNodes=1 NumCPUs=32 NumTasks=32 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
+   WorkDir=<工作目录>/qe/ph64
+[bcgong@localhost ph64]$
+```
+
+
+`RUNNING` 表示调度器已经启动作业。这里申请并分配了 32 个任务，工作目录也确实是 ph64。此时还不能判断 SCF 是否收敛，继续打开程序输出的开头：
+
+```text
+[bcgong@localhost ph64]$ head -n 43 pwxall.out
+
+     Program PWSCF v.7.1 starts on 22Sep2026 at 18:53:36
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org",
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on    32 processors
+
+     MPI processes distributed on     1 nodes
+     76371 MiB available memory on the printing compute node when the environment starts
+
+     Reading input from pwxall.in
+Warning: card &CELL ignored
+Warning: card / ignored
+
+     Current dimensions of program PWSCF are:
+     Max number of different atomic species (ntypx) = 10
+     Max number of k-points (npk) =  40000
+     Max angular momentum in pseudopotentials (lmaxx) =  4
+     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
+     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
+     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
+     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= VDW-DF3-OPT1
+                           (   1   4  45   0   3   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+     Message from routine setup:
+     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
+
+     R & G space division:  proc/nbgrp/npool/nimage =      32
+     Subspace diagonalization in iterative solution of the eigenvalue problem:
+     a serial algorithm will be used
+
+[bcgong@localhost ph64]$
+```
+
+
+这一段先核对三件事：程序是 QE 7.1，使用 32 个 MPI 进程，读取的是 `pwxall.in`。`&CELL ignored` 来自 SCF 输入里保留的空晶胞控制块；这条提示不表示程序进行了晶胞优化。赝势波函数归一化、强制指定泛函和 `ibrav=0` 的提示也保留在输出中，需要结合本次输入逐项读，不能只摘出没有提示的几行。
+
+再读实际采用的体系与数值设置：
+
+```text
+[bcgong@localhost ph64]$ grep -E 'number of atoms|number of atomic types|number of electrons|Kohn-Sham states|kinetic-energy cutoff|charge density cutoff|convergence threshold|number of k points' pwxall.out
+     number of atoms/cell      =            6
+     number of atomic types    =            4
+     number of electrons       =        71.00
+     number of Kohn-Sham states=           43
+     kinetic-energy cutoff     =     120.0000  Ry
+     charge density cutoff     =     960.0000  Ry
+     scf convergence threshold =      1.0E-12
+     number of k points=   374  Gaussian smearing, width (Ry)=  0.0037
+[bcgong@localhost ph64]$
+```
+
+
+这里的 374 是程序经过对称性处理后列出的 k 点数，不能拿它和 `64×64×1` 的完整网格直接比较大小。六个原子、四种元素、120/960 Ry 截断、0.0037 Ry 展宽以及 `1.0E-12` 的电子阈值，都应与输入对应。
+
+## 运行中看队列，也看电子迭代
+
+在这个窗口实际使用的两个连续查看命令是：
+
+```text
+[bcgong@localhost ph64]$ watch -n 10 'squeue -j 18178 -o "%.10i %.16j %.8T %.10M %.6D %R"'
+```
+
+按 `Ctrl-C` 退出队列监视，再跟随程序输出：
+
+```text
+[bcgong@localhost ph64]$ tail -f pwxall.out
+```
+
+这里的 `Ctrl-C` 结束的是 `watch` 或 `tail -f`；已经交给 Slurm 的计算仍在后台运行。输出在一次较长的对角化期间可能暂时不增加，不能因此马上重复提交。
+
+初次查看时，程序进入了第一轮迭代：
+
+```text
+[bcgong@localhost ph64]$ tail -n 20 pwxall.out
+
+     Starting wfcs are   47 randomized atomic wfcs
+     Checking if some PAW data can be deallocated...
+       PAW data deallocated on   20 nodes for type:  1
+       PAW data deallocated on   27 nodes for type:  2
+       PAW data deallocated on   27 nodes for type:  3
+       PAW data deallocated on   22 nodes for type:  4
+
+     total cpu time spent up to now is       39.4 secs
+
+     Self-consistent Calculation
+
+     iteration #  1     ecut=   120.00 Ry     beta= 0.40
+     Davidson diagonalization with overlap
+
+---- Real-time Memory Report at c_bands before calling an iterative solver
+           800 MiB given to the printing process from OS
+             0 MiB allocation reported by mallinfo(arena+hblkhd)
+         53432 MiB available memory on the node where the printing process lives
+------------------
+[bcgong@localhost ph64]$
+```
+
+
+`iteration #` 是电子迭代编号。每一轮完成后，继续看 `total energy` 和 `estimated scf accuracy`。接受这次电子迭代时，要对照输入阈值检查最终误差和程序的收敛信息；相邻两轮总能量看起来接近，不能代替这个检查。
+
+在本机这个作业中，计算节点就是当前主机，因此还可以查看进程。这里只截取前四行：
+
+```text
+[bcgong@localhost ph64]$ ps -u bcgong -o pid,ppid,stat,etime,%cpu,%mem,args | grep '[p]w.x' | head -n 4
+124342 124325 S          02:18  0.0  0.0 /bin/sh /data/intel/oneapi/mpi/2021.5.0//bin/mpirun -np 32 <qe_bin>/pw.x -in pwxall.in
+124347 124342 S          02:18  0.0  0.0 mpiexec.hydra -np 32 <qe_bin>/pw.x -in pwxall.in
+124373 124364 R          02:17  100  0.3 <qe_bin>/pw.x -in pwxall.in
+124374 124364 R          02:17  100  0.3 <qe_bin>/pw.x -in pwxall.in
+[bcgong@localhost ph64]$
+```
+
+
+启动器本身占用 CPU 很少，后面的 `pw.x` 工作进程则在计算。这是当时的进程快照；在计算节点与登录节点分开的集群上，应使用该集群允许的节点监控方式，不能把登录节点的 `ps` 当成远端计算节点的状态。
+
+错误日志也单独检查：
+
+```text
+[bcgong@localhost ph64]$ wc -c pwxall.err _err.18178.log
+0 pwxall.err
+0 _err.18178.log
+0 total
+[bcgong@localhost ph64]$
+```
+
+
+两份文件在这次查看时都是零字节。运行中为空只表示截至这一刻没有写入错误，结束后还要再读一次。
+
+这台机器的历史记账命令返回：
+
+```text
+[bcgong@localhost ph64]$ sacct -j 18178 --format=JobID,State,ExitCode,Elapsed,MaxRSS
+Slurm accounting storage is disabled
+[bcgong@localhost ph64]$
+```
+
+
+因此这里不能从 `sacct` 获取最终退出码和内存统计。作业结束后要及时用 [scontrol](https://slurm.schedmd.com/scontrol.html) 读取 `scontrol show job 18178` 并保留结果，再结合程序输出、错误日志和保存文件判断。作业从 `squeue` 消失，只表示它不再排队或运行。
+
+## pwxall 结束后，怎样决定能否接 pwx
+
+下面是结束后要执行的检查命令；当前这一段先说明方法，不能当成已经通过的结果：
+
+```bash
+scontrol show job 18178
+tail -n 30 pwxall.out
+grep -E 'convergence has been achieved|estimated scf accuracy|^!|JOB DONE' pwxall.out | tail -n 8
+cat pwxall.err
+cat _err.18178.log
+grep -niE 'error in routine|convergence NOT achieved|eigenvalues not converged|MPI_ABORT|killed|out of memory|IEEE_' pwxall.out pwxall.err _out.18178.log _err.18178.log
+```
+
+先看调度状态与退出码，再看 QE 是否正常结束、电子迭代是否达到本输入的阈值。任何报错、未收敛本征值或异常退出，都需要先解释清楚；即使出现 `JOB DONE.`，也不能跳过它们。`grep` 没有输出时仍要读尾部和错误文件，因为一个关键词列表不可能覆盖全部故障。
+
+致密网格这一步还承担保存电子本征值数据的任务。核对本机 QE 7.1 的写出代码后，对应文件应位于 `out/srnsnse.a2Fsave`。它不是已经积分得到的 α²F 谱。结束后要核实文件非空、内部带数与 k 点数和本次输出一致，并确认记录的是 64×64×1 网格。
+
+进入粗网格 SCF 前，还要保留这份数据和致密网格的 XML 描述。两次 SCF 使用相同的 `prefix/outdir`，粗网格会更新 `.save` 里的内容；保存文件不能只看最后一次修改后的样子来追认上一步。
+
+这里验收的是“这一份固定结构 SCF 是否正常完成、能否用于下一步数据衔接”。结构优化、赝势适用性和 k/q/展宽对目标物理量的收敛仍是另外的检查，不能由这次 SCF 通过一并代替。
+
+## 串行衔接的当前进度
+
+作业 18178 已启动并进入电子迭代。`pwx` 尚未提交；等上述输出与数据检查完成后，再在同一窗口提交并继续记录。ph96 和声子脚本本轮没有启动。
+<!-- ph64-scf-session-end -->
 
 ## 已完成算例里的输出长什么样
 
@@ -419,7 +644,7 @@ elph_dir/elph.inp_lambda.10
 
 ## 下一步
 
-本材料先回到[结构优化](/Atlas/m/vc-relax/qe/)解决结构验收，再进行[固定结构 SCF](/Atlas/m/scf/qe/)。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
+本材料当前按上述顺序进行两步[固定结构 SCF](/Atlas/m/scf/qe/)；[结构优化](/Atlas/m/vc-relax/qe/)的验收问题仍保留。得到完整声子和电声输出后，继续读[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)与[谱函数、λ 表](/Atlas/m/eliashberg-a2f/qe/)。这些页面中的已完成算例会标出各自材料，阅读方法可以相接，数值不可混接。
 
 ```text
 结构验收 → 致密 k SCF（la2F）→ 粗 k SCF → 完整 q 网格声子 + EPC
