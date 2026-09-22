@@ -2,6 +2,7 @@
 // 方法页 /m/<method>/：标题 + 引擎按钮；未接入的引擎渲染为不可点的「未接入」徽标。
 import Base from '../../../layouts/Base.astro';
 import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
+import { availableManualIds } from '../../../lib/manual.js';
 
 export function getStaticPaths() {
   return methodList().map(({ slug, zh }) => ({
@@ -16,6 +17,7 @@ const method = methods[slug];
 const base = normalizeBase(import.meta.env.BASE_URL);
 const activeEngines = engines.filter((e) => (method.engines ?? []).includes(e.id));
 const placeholderEngines = method.placeholderEngines ?? [];
+const available = await availableManualIds();
 ---
 <Base title={`${zh} · Atlas`}>
   <article class="hub">
@@ -24,9 +26,12 @@ const placeholderEngines = method.placeholderEngines ?? [];
     <div class="engine-grid">
       {
         activeEngines.map((e) => (
-          <a class="engine" href={`${base}/m/${slug}/${e.id}/`}>
+          available.has(`${slug}/${e.id}`) ? <a class="engine" href={`${base}/m/${slug}/${e.id}/`}>
             <span class="engine-name">{e.name}</span>
-          </a>
+          </a> : <span class="engine engine-ph" aria-disabled="true">
+            <span class="engine-name">{e.name}</span>
+            <span class="ph-badge">尚无算例</span>
+          </span>
         ))
       }
       {

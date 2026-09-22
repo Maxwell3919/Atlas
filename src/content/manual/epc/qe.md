@@ -1,152 +1,184 @@
 参考：
 
-- QE 官方文档 INPUT_PW（la2F 键）：<https://www.quantum-espresso.org/Doc/INPUT_PW.html>
-- QE 官方文档 INPUT_PH（electron_phonon / el_ph_sigma）：<https://www.quantum-espresso.org/Doc/INPUT_PH.html>
-- PHonon 用户指南（EPC 与 lambda.x 章节）：<https://www.quantum-espresso.org/Doc/user_guide/>
+- [PHonon：interpolated 电声流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html)
+- [pw.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
+- [ph.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
 
-## 电声耦合（EPC）
+## 先把两套电子网格接对
 
-电声耦合矩阵元是超导 Tc 预测的原料：DFPT 求出每个 q 点上电子密度对原子位移的响应，与 phonon 一起组装成 λ.x 可消费的 elph 数据。这一页走通从结构到 elph 文件齐备的完整链路。
+继续使用 Sc₂C/ZrCl₂ 主算例的 `ph64`（QE 7.1，2026 年 6 月输出）。这里的两次 SCF 各有用途：密网格为费米面求和保存数据，粗网格衔接声子响应。下面是 2026-09-22 对留存输入和输出的读取，不是新提交记录。
 
-## 先分清两套 SCF
+```text
+[<user>@<cluster> 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
+ph64/pwx.in:K_POINTS automatic
+ph64/pwx.in-  16 16 1 0 0 0
+--
+ph64/pwxall.in:K_POINTS automatic
+ph64/pwxall.in-  64 64 1 0 0 0
+--
+ph96/pwxall.in:K_POINTS automatic
+ph96/pwxall.in-  96 96 1 0 0 0
+ph64/phx.in:  nq1=8
+ph64/phx.in:  nq2=8
+ph64/phx.in:  nq3=1
+ph96/phx.in:  nq1=8
+ph96/phx.in:  nq2=8
+ph96/phx.in:  nq3=1
+[<user>@<cluster> 2]$
+```
 
-体系里通常并存两套自洽，别混用：
+更正（2026-09-22）：原文把 `pwx` 写成 32×32×1，并称密网格 SCF 必须紧挨 ph.x、之后不能运行粗网格 SCF。这与本目录输入和运行次序不符。该 `interpolated` 路线先准备密网格数据，再做粗网格 SCF 和声子；不能把它与另一种电声流程混写。
 
-| SCF | k 网格 | 作用 |
-|---|---|---|
-| 普通 scf（pwx.in） | 32×32×1 | 供能带、DOS、费米面等电子结构 |
-| EPC 自洽（pwxall.in） | 64×64×1 + `la2F=.true.` | 专供电声链：算费米面平均量并落盘密网格波函数 |
+## 读取密网格输入与执行脚本
 
-**紧挨着 ph.x 的那次自洽必须是 pwxall**——密网格波函数是电声插值的数据源；若在 pwxall 之后再跑一次普通 scf，波函数被低密度版本覆盖，后面电声结果整个失真。真实工作流里 pwx（普通）与 pwxall（EPC）放在不同目录，互不覆盖。
-
-## 第一步：pwxall（EPC 自洽）
-
-相对普通 scf 只多两处：`la2F=.true.` 和更密的 k 网格。
-
-```bash
-[<user>@<cluster> ph64]$ cat > pwxall.in <<'EOF'
+```text
+[<user>@<cluster> ph64]$ cat pwxall.in
 &CONTROL
   calculation = 'scf'
   outdir = './out/'
-  prefix = '<prefix>'
+  prefix = 'zrclscc'
   pseudo_dir = '<赝势库路径>'
+! tprnfor = .true.
+! tstress = .true.
   verbosity = 'high'
 /
-
 &SYSTEM
-  ibrav = 0, nat = 6, ntyp = 4,
-  ecutwfc = 100, ecutrho = 800,
+  ibrav = 0,
+  nat = 6,
+  ntyp = 4,
+  ecutwfc = 100,
+  ecutrho = 800,
   input_dft = 'vdw-DF3-opt1'
-  la2F = .true.              ! 关键：打开 Eliashberg 谱函数计算
   occupations = 'smearing'
   smearing = 'gaussian'
   degauss = 3.7d-3
+  la2F=.true.
 /
-
 &ELECTRONS
   conv_thr = 1.0000000000d-12
   mixing_beta = 4.0000000000d-01
 /
-
+&ions
+/
+&cell
+/
 ATOMIC_SPECIES
-（与 scf 相同，略）
-
+Zr  91.224  Zr.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl  35.450  Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
+C   12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
 CELL_PARAMETERS (angstrom)
-! 此处放入你的结构块：三行晶胞矢量
-
+   3.308844553  -0.000000000   0.000000000
+  -1.654422277   2.865543440   0.000000000
+   0.000000000   0.000000000  40.000000000
 ATOMIC_POSITIONS (crystal)
-! 此处放入你的结构块：原子坐标行
-
+Zr            0.6666666667        0.3333333333        0.5694323199
+C             0.0000000000        0.0000000000        0.4417100192
+Cl            0.3333333333        0.6666666667        0.6133689415
+Cl            0.3333333333        0.6666666667        0.5201529798
+Sc            0.3333333333        0.6666666667        0.4128299130
+Sc            0.6666666667        0.3333333333        0.4719057887
 K_POINTS automatic
   64 64 1 0 0 0
-EOF
-```
-
-```bash
-pw.x -i pwxall.in > pwxall.out
-```
-
-## 第二步：ph.x（EPC 开关 + q 分批）
-
-EPC 版 phx.in 与纯声子版的差别只有三个键：
-
-```bash
-[<user>@<cluster> ph64]$ cat > phx.in <<'EOF'
-&inputph
-  tr2_ph = 1.0d-16
-  nmix_ph = 12
-  verbosity = 'high'
-  prefix = '<prefix>'
-  fildvscf = 'zrclsccdv'
-  amass(1) = 91.224
-  amass(2) = 35.450
-  amass(3) = 44.956
-  amass(4) = 12.011
-  outdir = './out/'
-  fildyn = 'zrclscc.dyn'
-  electron_phonon = 'interpolated'   ! EPC 模式：逐 q 写出电声矩阵元
-  el_ph_sigma = 0.001                ! 展宽起点
-  el_ph_nsigma = 20                  ! 生成 20 个展宽文件（0.001→0.020 Ry）
-  trans = .true.
-  ldisp = .true.
-  start_q = 1
-  last_q = 1
-  nq1 = 8
-  nq2 = 8
-  nq3 = 1
-/
-EOF
-```
-
-同样按 start_q/last_q 切四批（q=1；2–4；5–7；8–10）各自 sbatch 并行。每批跑完在对应 q 的输出目录里生成 `elph_dir/elph.inp_lambda.<q>`——这就是给 lambda.x 的原料，20 个展宽各一份文件。
-
-## 事故：批量 sed 之后丢了重定向
-
-一次批量改写提交脚本时，`pw.x < pwxall.in > pwxall.out` 被写成了 `pw.xpwxall.out`（少个空格、输入重定向整个丢失），作业秒退且没有任何 pw.x 输出。定位用 `cat -A` 看脚本末尾的不可见字符：
-
-```bash
-[<user>@<cluster> ph64]$ cat -A pwxall.slurm | tail -n 5
-mpirun -np 56 <qe_bin>/pw.xpwxall.out$
 [<user>@<cluster> ph64]$
 ```
 
-把执行行改回完整重定向再提交即可。教训：批量 sed 改脚本后，提交前先 `cat -A` 或 `bash -n` 过一遍。
+完整脚本如下。这里实用 32 个 MPI 进程；HfCl₂/PbO₂ 页面里的 56 属于另一台集群的另一份作业，不能为了统一排版改成同一个数。
 
-## 第三步：q2r（带 la2F）
+```text
+[<user>@<cluster> ph64]$ cat pwxall.slurm
+#!/bin/bash
 
-```bash
-[<user>@<cluster> ph64]$ cat > q2rx.in <<'EOF'
-&input
-zasr = 'crystal'
-fildyn = 'zrclscc.dyn'
-flfrc = 'zrclscc.fc'
-la2F = .true.                ! 必须带，否则 elph 数据链断裂
-/
-EOF
-```
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
 
-四批 q 全部 JOB DONE 后再执行；成功标志 `fft-check success`。
+#unlimit memory
+ulimit -s unlimited
+ulimit -l unlimited
 
-## 第四步：清点 elph 数据
+# load path
+source /data/intel/oneapi/setvars.sh
 
-lambda.x 需要的原料应齐备：
+cd $SLURM_SUBMIT_DIR
 
-```bash
-[<user>@<cluster> ph64]$ ls elph_dir/ | head
-elph.inp_lambda.1
-elph.inp_lambda.2
-...
+mpirun -np 32 <qe_bin>/pw.x<pwxall.in>pwxall.out
+#rm -r _*.log
 [<user>@<cluster> ph64]$
 ```
 
-10 个 q × 20 档展宽各一份。之后交给 lambda.x——输入文件与判读见 λ(ω) 谱函数页。
+同一脚本中的输入、输出文件名是一对。复制脚本后先 `tail -n 5 pwxall.slurm` 逐字检查；`bash -n` 只能查 shell 语法，像 `pw.xpwxall.out` 这样的错误文件名仍可能通过语法检查。
+
+## 按输出时间核对先后
+
+本目录三份输出的开头分别为：
+
+```text
+Program PWSCF v.7.1 starts on 19Jun2026 at  1: 2:52   # pwxall.out
+Program PWSCF v.7.1 starts on 19Jun2026 at  2:52:53   # pwx.out
+Program PHONON v.7.1 starts on 19Jun2026 at  3: 1:20  # phx.out
+```
+
+这与密网格 → 粗网格 → ph.x 的次序相符。时间顺序本身不能证明所有保存文件完整；重新运行前还要检查密网格保存产物、粗网格目录及 prefix 的对应关系，不应覆盖一套仍需使用的数据。
+
+密网格这次留下的 SCF 摘录：
+
+```text
+[<user>@<cluster> ph64]$ grep -E 'Program PWSCF|number of k points|convergence has been achieved|^!|JOB DONE' pwxall.out
+     Program PWSCF v.7.1 starts on 19Jun2026 at  1: 2:52
+     number of k points=   374  Gaussian smearing, width (Ry)=  0.0037
+!    total energy              =    -793.68227867 Ry
+     convergence has been achieved in  44 iterations
+   JOB DONE.
+[<user>@<cluster> ph64]$
+```
+
+![密电子网格 SCF 的误差随迭代变化](/Atlas/figures/scf-accuracy.svg)
+
+这里可以看到电子迭代误差如何下降到输入阈值附近。这是一次固定输入的 SCF 过程，不能替代 k 网格、q 网格或展宽的收敛测试。
+
+## 电声文件是一 q 一份
+
+声子页列出的四批 q 范围对应十个不可约 q 点。接着检查 lambda.x 要读取的文件：
+
+```text
+[<user>@<cluster> ph64]$ find elph_dir -maxdepth 1 -name 'elph.inp_lambda.*' -type f | sort -V; head -n 5 elph_dir/elph.inp_lambda.1; head -n 4 lambda.dat; tail -n 3 lambda.dat
+elph_dir/elph.inp_lambda.1
+elph_dir/elph.inp_lambda.2
+elph_dir/elph.inp_lambda.3
+elph_dir/elph.inp_lambda.4
+elph_dir/elph.inp_lambda.5
+elph_dir/elph.inp_lambda.6
+elph_dir/elph.inp_lambda.7
+elph_dir/elph.inp_lambda.8
+elph_dir/elph.inp_lambda.9
+elph_dir/elph.inp_lambda.10
+           0.000000      0.000000      0.000000    20    18
+  0.126180E-06  0.126180E-06  0.242364E-06  0.927933E-06  0.927933E-06  0.177037E-05
+  0.248278E-05  0.248278E-05  0.365571E-05  0.407124E-05  0.407124E-05  0.557880E-05
+  0.557880E-05  0.794309E-05  0.974618E-05  0.151549E-04  0.228509E-04  0.228509E-04
+     Gaussian Broadening:   0.001 Ry, ngauss=   0
+# degauss   lambda    int alpha2F  <log w>     N(Ef)
+  0.001    2.940003    2.902508    97.625   32.317854
+  0.002    2.062339    2.025444   100.907   29.723113
+  0.003    1.837986    1.801992   101.797   29.244028
+  0.018    0.840009    0.795808   118.455   24.677094
+  0.019    0.817430    0.772534   119.438   24.729924
+  0.020    0.796142    0.750607   120.400   24.781569
+[<user>@<cluster> ph64]$
+```
+
+第一行末尾的 20 与 18 分别对应本文件的展宽数和模数，后面会出现各档 Gaussian Broadening 数据。这里是十个 q 文件，每个文件内部有二十档展宽；原文的“十个 q × 二十档、各一份文件”会让人误找二百份文件，已更正。
+
+文件存在只是起点：逐 q 编号、坐标、模数与每档展宽都应相互对应。q2r 的实际警告保留在[声子页](/Atlas/m/phonon-dfpt/qe/)，不能只挑成功行进入下一步。
 
 ## 下一步
 
+读取[谱函数与 λ 表](/Atlas/m/eliashberg-a2f/qe/)，先观察它们随展宽如何变化。
+
 ```text
-DFPT 声子 + la2F 自洽（本页）
-    ↓ elph.inp_lambda.N 齐备
-λ(ω) 谱函数（lambda.x）
-    ↓
-Allen–Dynes Tc
+密 k SCF（la2F）→ 粗 k SCF → ph.x（q 网格 + EPC）
+                                      ↓
+                       逐 q 文件核对 → lambda.x
+                                      ↓
+                         展宽 / k / q 收敛分别检查
 ```

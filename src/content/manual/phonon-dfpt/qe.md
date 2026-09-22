@@ -1,265 +1,140 @@
 参考：
 
-- QE 官方文档 INPUT_PH：<https://www.quantum-espresso.org/Doc/INPUT_PH.html>
-- QE 官方文档 INPUT_Q2R：<https://www.quantum-espresso.org/Doc/INPUT_Q2R.html>
-- QE 官方文档 INPUT_MATDYN：<https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html>
-- PHonon 用户指南：<https://www.quantum-espresso.org/Doc/user_guide/>
+- [PHonon 用户指南](https://www.quantum-espresso.org/Doc/ph_user_guide/)
+- [ph.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
+- [q2r.x 输入](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html)
+- [matdyn.x 输入](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
 
-## Phonon 声子计算
+## 从十个 q 点到一张声子图
 
-声子描述的是晶格中原子偏离平衡位置的集体振动。通过计算全布里渊区的声子色散曲线，我们可以确认结构是否具有动力学稳定性（全区无虚频），这是进行后续性质分析的物理基石。
+先看这次计算最后得到的图，再沿文件往回找它是怎样生成的。每条线是一支声子频率；横轴是 Γ–M–K–Γ 路径，不是整片布里渊区。
 
-声子计算的数据流具有严格的单向依赖关系：
+![Sc2C/ZrCl2 沿 Γ–M–K–Γ 的插值声子频率，单位 cm⁻¹](/Atlas/figures/phonon.svg)
 
-```text
-优化后结构
-   ↓
-单点 static SCF (高收敛标准 conv_thr = 1d-12)
-   ↓
-Γ 点测试: gamma/ph.in → dynmat.x (检查 Γ 点声学支与虚频)
-   ↓ 确认无误
-全布里渊区: 8×8×1 q 网格分批 ph.x
-   ↓ 生成全套 .dyn 文件
-q2r.x (反变换至实空间力常数 .fc)
-   ↓
-matdyn.x (插值生成 Γ-M-K-Γ 声子谱)
-   ↓ 验收动力学稳定性
-[进入后续物理计算]
-```
+这里使用 Sc₂C/ZrCl₂ 主算例的 `ph64` 目录，输出标明 QE 7.1、运行于 2026 年 6 月；以下命令于 2026-09-22 读取这些已有文件。它与前面 HfCl₂/PbO₂ 的结构优化是两个独立算例，结构、赝势和保存目录不能交叉使用。本次没有重新提交计算，也没有把其他机器上的补充尝试并入这条链。页首在线手册用于查阅；涉及旧版本的具体行为，以本算例输出和对应版本文档复核。
 
-**每一步结束并检查后，再提交下一步，不要把这些 sbatch 一次全部执行。** 依赖链上前一步的产物是后一步的输入；q 分批之间没有依赖，可以并行，但 q2r 必须等全部 q 批完成。
+## 先核对电子网格与声子网格
 
-## 第一步：Γ 点之前的 static SCF
-
-进入 `10_phonon/gamma` 目录，SCF 沿用前面提取的候选几何，并把电子收敛阈值收紧到 `1d-12`（声子对密度精度的要求比普通静态 SCF 高）。`nbnd` 与后续密网格保持一致，避免读取本征值时带数不一致：
-
-```bash
-[<user>@<cluster> 10_phonon/gamma]$ cat > scf.in <<'EOF'
-&CONTROL
-  calculation = 'scf'
-  outdir = './out/'
-  prefix = '<prefix>'
-  pseudo_dir = '<赝势库路径>'
-  tprnfor = .true.
-  tstress = .true.
-  verbosity = 'high'
-/
-
-&SYSTEM
-  ibrav = 0
-  nat = 6
-  ntyp = 4
-  nbnd = 40
-  ecutwfc = 90
-  ecutrho = 720
-  input_dft = 'vdw-DF3-opt1'
-  force_symmorphic = .true.
-  occupations = 'smearing'
-  smearing = 'gaussian'
-  degauss = 3.7d-3
-/
-
-&ELECTRONS
-  conv_thr = 1.0d-12
-  electron_maxstep = 200
-  mixing_beta = 4.0d-01
-/
-
-ATOMIC_SPECIES
-（与结构优化相同，略）
-
-CELL_PARAMETERS (angstrom)
-! 此处放入你的结构块：三行晶胞矢量
-
-ATOMIC_POSITIONS (crystal)
-! 此处放入你的结构块：原子坐标行
-
-K_POINTS (automatic)
-24 24 1 0 0 0
-EOF
-```
-
-```bash
-[<user>@<cluster> 10_phonon/gamma]$ cat > scf.slurm <<'EOF'
-#!/bin/bash
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-# unlimit memory
-ulimit -s unlimited
-ulimit -l unlimited
-
-# load path
-source /data/intel/oneapi/setvars.sh
-
-export OMP_NUM_THREADS=1
-export MKL_NUM_THREADS=1
-
-cd $SLURM_SUBMIT_DIR
-
-mpirun -np 56 <qe_bin>/pw.x<scf.in>scf.out
-EOF
-```
-
-```bash
-sbatch scf.slurm
-```
-
-运行时查看：
-
-```bash
-squeue -u <user>
-tail -f scf.out
-```
-
-结束后检查电子收敛、错误、力与应力：
-
-```bash
-grep -E 'convergence has been achieved|convergence NOT achieved|JOB DONE|Error in routine' scf.out
-grep '^!' scf.out | tail -n 1
-grep 'the Fermi energy is' scf.out | tail -n 1
-grep -A9 'Forces acting on atoms' scf.out | tail -n 10
-grep -A4 'total   stress' scf.out | tail -n 5
-```
-
-先确认 SCF 正常收敛、每个原子的力与面内应力可接受；如果需要继续优化结构，就停在这里处理，统一更新后续输入，不要接声子。
-
-## 第二步：Γ 点声子
-
-同一个 `gamma` 目录准备 `ph.in`。保持与本目录 SCF 相同的 `prefix` 和 `outdir`，先只做 Γ 点，不开启 EPC：
-
-```bash
-[<user>@<cluster> 10_phonon/gamma]$ cat > ph.in <<'EOF'
-&INPUTPH
-  prefix = '<prefix>'
-  outdir = './out/'
-  tr2_ph = 1.0d-16
-  nmix_ph = 16
-  verbosity = 'high'
-  amass(1) = 178.49
-  amass(2) = 35.45
-  amass(3) = 207.20
-  amass(4) = 15.999
-  trans = .true.
-  epsil = .false.
-  fildyn = 'gamma.dyn'
-  ldisp = .false.
-  recover = .false.
-/
-0.0 0.0 0.0
-EOF
-```
-
-与 ldisp 网格模式不同：`ldisp=.false.` 时不用 nq1/nq2/nq3，而是像上面那样在文件末尾直接给出 q 点列表（这里就是 Γ 点 `0.0 0.0 0.0`）。Slurm 脚本与 scf 相同，只把执行行换成：
-
-```bash
-mpirun -np 56 <qe_bin>/ph.x<ph.in>ph.out
-```
-
-提交后一段时间，用这条看当前最有用的进度：
-
-```bash
-grep -E \
-'There are.*irreducible representations|Representation #|Self-consistent Calculation|iter #|Convergence has been achieved|End of self-consistent calculation|Diagonalizing|omega|JOB DONE' \
-ph.out | tail -n 100
-```
-
-典型输出结构如下（真实记录节选，附逐行解释）：
+目录叫 `ph64`，并不意味着声子用了 64×64×1。打开输入查看：
 
 ```text
-      iter #  14 total cpu time :   331.5 secs   av.it.:  22.4
-     End of self-consistent calculation      ← 该模式的 SCF 计算结束
-     Convergence has been achieved           ← 该模式已收敛（好消息）
-     Representation #   2 mode #   2         ← 正在处理第 2 个不可约表示
-     Self-consistent Calculation             ← 开始对该模式做 DFPT 自洽
-      iter #   1 total cpu time :   346.4 secs   av.it.:  10.8
-      ...
-      iter #  14 total cpu time :   630.8 secs   av.it.:  20.5
-     End of self-consistent calculation
-     Convergence has been achieved
-     Representation #   3 mode #   3
-      ...
+[<user>@<cluster> 2]$ grep -A1 K_POINTS ph64/pwx.in ph64/pwxall.in ph96/pwxall.in; grep -E 'nq[123]' ph64/phx.in ph96/phx.in
+ph64/pwx.in:K_POINTS automatic
+ph64/pwx.in-  16 16 1 0 0 0
+--
+ph64/pwxall.in:K_POINTS automatic
+ph64/pwxall.in-  64 64 1 0 0 0
+--
+ph96/pwxall.in:K_POINTS automatic
+ph96/pwxall.in-  96 96 1 0 0 0
+ph64/phx.in:  nq1=8
+ph64/phx.in:  nq2=8
+ph64/phx.in:  nq3=1
+ph96/phx.in:  nq1=8
+ph96/phx.in:  nq2=8
+ph96/phx.in:  nq3=1
+[<user>@<cluster> 2]$
 ```
 
-ph.x 在 Γ 点会把 3N 个原子位移按对称性分解成若干不可约表示，然后逐个求解 DFPT 线性响应；输出就是 `Representation # n → SCF iterations → Convergence → Representation # n+1` 的循环结构。全部表示收敛后出现频率表与 `JOB DONE.`。
+`pwx.in` 是 16×16×1 的粗电子网格，`pwxall.in` 保存 64×64×1 密电子网格的数据；`phx.in` 的 `nq1/nq2/nq3` 才是 8×8×1 声子网格。这里保留了 EPC 开关，密网格与粗网格的衔接见[电声耦合页](/Atlas/m/epc/qe/)。纯声子计算不需要照搬 EPC 部分。
 
-## 第三步：全布里渊区 8×8×1 分批
+## 每份输入负责哪些 q 点
 
-Γ 点确认无误后铺全网格。8×8×1 共 10 个不等价 q 点，按 `start_q/last_q` 切四批，每批一个输入文件、各自 sbatch 并行（批间无依赖）：
+先读取第一批输入。四种原子的质量与本算例的 Zr、Cl、Sc、C 顺序对应：
 
-| 文件 | start_q | last_q |
-|---|---|---|
-| phx.in | 1 | 1 |
-| phx1.in | 2 | 4 |
-| phx2.in | 5 | 7 |
-| input_tmp.in | 8 | 10 |
-
-四份文件除 `start_q/last_q` 外逐字相同（diff 核验过），namelist 形如：
-
-```fortran
-&inputph
-  tr2_ph = 1.0d-16
-  nmix_ph = 12
-  verbosity = 'high'
-  prefix = '<prefix>'
-  fildvscf = 'zrclsccdv'
-  amass(1) = 91.224
-  amass(2) = 35.450
-  amass(3) = 44.956
-  amass(4) = 12.011
-  outdir = './out/'
-  fildyn = 'zrclscc.dyn'
-  trans = .true.
-  ldisp = .true.
-  start_q = 1
-  last_q = 1
-  nq1 = 8
-  nq2 = 8
-  nq3 = 1
+```text
+[<user>@<cluster> ph64]$ cat phx.in
+  &inputph
+  tr2_ph=1.0d-16
+  nmix_ph=12
+  verbosity='high'
+  prefix='zrclscc'
+  fildvscf='zrclsccdv'
+  amass(1)=91.224
+  amass(2)=35.450
+  amass(3)=44.956
+  amass(4)=12.011
+  outdir='./out/'
+  fildyn='zrclscc.dyn'
+  electron_phonon='interpolated'
+  el_ph_sigma=0.001
+  el_ph_nsigma=20
+  trans=.true.
+  ldisp=.true.
+  start_q=1
+  last_q=1
+  nq1=8
+  nq2=8
+  nq3=1
 /
+[<user>@<cluster> ph64]$
 ```
 
-要接电声链时再加三个键（见电声耦合页）：`electron_phonon = 'interpolated'`、`el_ph_sigma = 0.001`、`el_ph_nsigma = 20`。验收照旧：
+不要只凭文件名猜分工，直接读取范围，再对照各自输出：
 
-```bash
-grep -l "JOB DONE" phx*.out
+```text
+[<user>@<cluster> ph64]$ grep -E 'start_q|last_q' phx.in phx1.in phx2.in phx3.in; grep 'JOB DONE' phx.out phx1.out phx2.out phx3.out
+phx.in:  start_q=1
+phx.in:  last_q=1
+phx1.in:  start_q=2
+phx1.in:  last_q=4
+phx2.in:  start_q=5
+phx2.in:  last_q=7
+phx3.in:  start_q=8
+phx3.in:  last_q=10
+phx.out:   JOB DONE.
+phx1.out:   JOB DONE.
+phx2.out:   JOB DONE.
+phx3.out:   JOB DONE.
+[<user>@<cluster> ph64]$
 ```
 
-## 第四步：q2r.x 合并力常数
+范围覆盖 1–10，四份输出都有结束标志。这只完成了最初的清点，还要检查各批错误、响应收敛、动力学矩阵是否非空，才能进行后处理。共同读取一个 SCF 目录也不意味着各批可以任意同时写同一套工作文件；新的并行任务必须核对独立工作目录和该版本的分批规则。
 
-全部 q 批 JOB DONE 之后：
+计算过程中可以另开终端运行 `tail -f phx.out`，或 `watch -n 5 "grep -E 'Representation|Convergence|Error' phx.out | tail -n 20"`。每个 representation 内部都有响应迭代，不要把某一个 representation 的收敛当成整批结束。
 
-```bash
-[<user>@<cluster> ph64]$ cat > q2rx.in <<'EOF'
+## q2r：先保留警告，再读取力常数
+
+本次留存的输入是：
+
+```text
+[<user>@<cluster> ph64]$ cat q2rx.in
 &input
-zasr = 'crystal'
-fildyn = 'zrclscc.dyn'
-flfrc = 'zrclscc.fc'
+zasr='crystal'
+fildyn='zrclscc.dyn'
+flfrc='zrclscc.fc'
+la2F=.true.
 /
-EOF
+[<user>@<cluster> ph64]$
+```
+```text
+[<user>@<cluster> ph64]$ grep 'fft-check warning' q2rx.out
+      fft-check warning: sum of imaginary terms = 2.414214E-08
+      fft-check warning: sum of imaginary terms = 1.207107E-08
+      fft-check warning: sum of imaginary terms = 2.414214E-08
+      fft-check warning: sum of imaginary terms = 1.207107E-08
+[<user>@<cluster> ph64]$
 ```
 
-```bash
-q2r.x -i q2rx.in > q2rx.out
-```
+文件中既有 `fft-check success`，也有上面的 warning。只 grep success 会漏掉它们。这里如实保留这次输出；是否影响目标频率，需要比较完整动力学矩阵、力常数和直接 q 点结果，不能凭 warning 数字较小就宣布通过。
 
-成功标志：输出出现 `fft-check success`，并生成 `zrclscc.fc`。`zasr='crystal'` 施加声学求和规则，消除 Γ 点小残差。
+## matdyn：把力常数沿路径展开
 
-## 第五步：matdyn.x 沿路径内插
-
-```bash
-[<user>@<cluster> ph64]$ cat > matdynxline.in <<'EOF'
+```text
+[<user>@<cluster> ph64]$ cat matdynxline.in
 &input
-  asr = 'crystal'
-  amass(1) = 91.224
-  amass(2) = 35.450
-  amass(3) = 44.956
-  amass(4) = 12.011
-  flfrc = 'zrclscc.fc'
-  flfrq = 'zrclscc.freq'
-  dos = .false.
+  asr='crystal'
+  amass(1)=91.224
+  amass(2)=35.450
+  amass(3)=44.956
+  amass(4)=12.011
+  flfrc='zrclscc.fc'
+  flfrq='zrclscc.freq'
+  la2F=.true.
+  dos=.false.
   q_in_band_form = .true.
   q_in_cryst_coord = .true.
+
 /
 4
 0.0000000000   0.0000000000   0.0000000000 50    !G
@@ -267,21 +142,21 @@ q2r.x -i q2rx.in > q2rx.out
 0.3333333333   0.3333333333   0.0000000000 50    !K
 0.0000000000   0.0000000000   0.0000000000  1    !G
 /
-EOF
+[<user>@<cluster> ph64]$
 ```
 
-```bash
-matdyn.x -i matdynxline.in > matdynxline.out
-```
+`zrclscc.freq.gp` 是本页作图读取的表。第一列为累计路径坐标，其余 18 列为这个六原子模型的频率。图中按原文件绘线，没有删除负值或人为把曲线抬到零以上。`asr='crystal'` 已是这次后处理的一部分，应与原始动力学矩阵的频率区分。
 
-六方体系 G-M-K-G 路径每段 50 个点。产物对号：`.dyn0`（q 清单）→ `.dyn1…dynN`（各 q 动力学矩阵）→ `.fc`（力常数）→ `.freq/.freq.gp`（色散频率）→ `matdyn.modes`（本矢）。
-
-拿到谱之后的第一件事是判虚频——见虚频/软模判据页。
+图的[数值摘录](/Atlas/data/teaching-extracts.json)保留了文件哈希；绘图脚本随网站源码保存，可复现本页图形。沿这条路径没有明显负值，并不足以代替完整 q 空间和数值收敛检查。
 
 ## 下一步
 
+继续[检查虚频与原始频率的差别](/Atlas/m/imaginary-phonon/qe/)，再决定是否进入[电声数据检查](/Atlas/m/epc/qe/)。
+
 ```text
-DFPT 声子（本页）
-    ↓ 谱无结构失稳
-虚频/软模判据 → 电声耦合（la2F 变体）→ λ(ω) 谱函数
+本算例的电子数据 → 分批 ph.x → 各批输出与 dyn 文件核对
+                                      ↓
+                                q2r → matdyn
+                                      ↓
+                        原始频率 / ASR 后频率 / 路径图对照
 ```

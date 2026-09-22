@@ -4,8 +4,13 @@
 import Base from '../layouts/Base.astro';
 import CowCat from '../components/CowCat.astro';
 import { categories, methods, normalizeBase } from '../data/methods.js';
+import { availableManualIds } from '../lib/manual.js';
 
 const base = normalizeBase(import.meta.env.BASE_URL);
+const available = await availableManualIds();
+const ready = (slug) => ['qe', 'vasp'].some((engine) => available.has(`${slug}/${engine}`));
+const publishedCategories = categories.map((c) => ({ ...c, order: c.order.filter(ready) })).filter((c) => c.order.length);
+const unpublished = categories.flatMap((c) => c.order).filter((slug) => !ready(slug));
 ---
 <Base title="Atlas · DFT 计算方法手册">
   <div class="home">
@@ -24,12 +29,18 @@ const base = normalizeBase(import.meta.env.BASE_URL);
       <div class="dir-inner">
         <div class="readme-slot">
           <a class="readme-entry" href={`${base}/readme/`}>
-            <span class="readme-label">README</span>
+            <span class="readme-label">README <small>作者说明尚未发布</small></span>
             <span class="readme-arrow" aria-hidden="true">→</span>
           </a>
         </div>
+        <div class="group reading-routes">
+          <h2>沿一个问题读下去</h2>
+          <p><a href={`${base}/m/vc-relax/qe/`}>结构优化的失败行</a> → <a href={`${base}/m/scf/qe/`}>固定结构 SCF</a> → <a href={`${base}/m/dos/qe/`}>DOS 图</a> / <a href={`${base}/m/bands/qe/`}>能带图</a></p>
+          <p><a href={`${base}/m/phonon-dfpt/qe/`}>逐 q 文件到声子图</a> → <a href={`${base}/m/imaginary-phonon/qe/`}>核对原始频率</a> → <a href={`${base}/m/eliashberg-a2f/qe/`}>读取展宽扫描</a></p>
+          <p><a href={`${base}/m/exfoliation-energy/vasp/`}>移动一层后，能量怎样变化</a></p>
+        </div>
         {
-          categories.map((c) => (
+          publishedCategories.map((c) => (
             <div class="group">
               <h2>{c.name}</h2>
               <ul>
@@ -42,6 +53,11 @@ const base = normalizeBase(import.meta.env.BASE_URL);
             </div>
           ))
         }
+        <details class="more-methods">
+          <summary>其他方法 · 尚无算例（{unpublished.length}）</summary>
+          <p>以下方法保留在目录中，已有正文的条目列在上方。</p>
+          <ul>{unpublished.map((slug) => <li>{methods[slug].zh}</li>)}</ul>
+        </details>
       </div>
     </section>
   </div>
@@ -169,6 +185,14 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     border-color: var(--accent);
     transform: translateY(-1px);
   }
+  .more-methods { margin-top: 2rem; color: var(--muted); font-size: .88rem; }
+  .readme-label small { font: .74rem -apple-system, sans-serif; color: var(--muted); margin-left: .65rem; }
+  .reading-routes { border-bottom: 1px solid var(--line); padding-bottom: 1.2rem; }
+  .reading-routes p { font-size: .88rem; margin: .55rem 0; }
+  .reading-routes a { border: none; background: none; border-radius: 0; padding: 0; color: var(--accent); }
+  .more-methods summary { cursor: pointer; }
+  .more-methods ul { columns: 2; padding-left: 1.2rem; }
+  @media (max-width: 560px) { .more-methods ul { columns: 1; } }
   @media (prefers-reduced-motion: reduce) {
     .dir, .readme-slot, .group { transition: none; }
   }

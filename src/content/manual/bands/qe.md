@@ -86,7 +86,7 @@ K_POINTS crystal_b
 EOF
 ```
 
-这里显式设了 `nbnd = 40`，理由来自 NSCF 的实测：自动只有 31 条 Kohn-Sham bands，而体系有 52 个电子，即无自旋极化下约 26 条占据带，只剩约 5 条空带。40 条给费米能级以上留出更合理的观察窗口。注意这个值用于画电子能带，并不是一个新的物理收敛参数。
+这里显式设了 `nbnd = 40`，理由来自 NSCF 的实测：自动只有 31 条 Kohn-Sham bands，而体系有 52 个电子，即无自旋极化下约 26 条占据带，只剩约 5 条空带。40 条给费米能级以上留出更合理的观察窗口。这里的空带数量需覆盖要看的能量窗口；若研究更高能量区或其他响应量，还应继续检查带数。
 
 ### Slurm 脚本与提交
 
@@ -166,7 +166,7 @@ EOF
 [<user>@<cluster> 08_bands]$
 ```
 
-三个产物各司其职：`.bands` 是原始本征值，`.gnu` 是 gnuplot 可直接画的网格数据，`.rap` 是重排后的辅助文件。`.gnu` 生成成功后再看头部：
+三个产物各司其职：`.bands` 是原始本征值，`.gnu` 是 gnuplot 可直接画的网格数据，`.rap` 含对称性分类信息。`.gnu` 生成成功后再看头部：
 
 ```bash
 [<user>@<cluster> 08_bands]$ head -n 20 HfCl2_PbO2.bands.gnu
@@ -193,7 +193,21 @@ EOF
 [<user>@<cluster> 08_bands]$
 ```
 
-两列分别是路径累计坐标和本征值（Ry 单位，画图时换算 Ry→eV）。同时把高对称路径坐标抓出来：
+两列分别是路径累计坐标和本征值。更正（2026-09-22）：第二列已经是 **eV**，不再乘 Ry→eV 的换算系数。该算例的 QE 7.2 输出直接写明了单位：
+
+```text
+[<user>@<cluster> 08_bands]$ grep -E 'Program BANDS|Plottable bands|high-symmetry' bands_pp.out; head -n 3 HfCl2_PbO2.bands.gnu
+     Program BANDS v.7.2 starts on  5Sep2026 at 14:44:42
+     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   0.0000
+     high-symmetry point:  0.5000 0.2887 0.0000   x coordinate   0.5774
+     high-symmetry point:  0.3333 0.5774 0.0000   x coordinate   0.9107
+     high-symmetry point:  0.0000 0.0000 0.0000   x coordinate   1.5774
+     Plottable bands (eV) written to file HfCl2_PbO2.bands.gnu
+    0.0000  -62.5594
+    0.0115  -62.5594
+    0.0231  -62.5594
+[<user>@<cluster> 08_bands]$
+```同时把高对称路径坐标抓出来：
 
 ```bash
 [<user>@<cluster> 08_bands]$ grep "high-symmetry point" bands_pp.out
@@ -226,14 +240,20 @@ K : 0.9107
 
 后面画能带统一做 E − E_F，把费米能级平移到 0 eV。
 
-### 下一步
+### 画出已有的无 SOC 能带
 
-`.bands.gnu`、`.bands.rap` 都已生成，无 SOC 能带后处理判定完成。下一步需要额外补充 SOC，而不是先做普通能带图收尾：这个体系含 Hf 和 Pb，都是较重元素，SOC 很可能显著改变费米能级附近的能带劈裂和交叉，真正用于后续讨论的电子结构应以 SOC 结果为主。
+![HfCl2/PbO2 无 SOC 能带，纵轴 E-EF，单位 eV](/Atlas/figures/bands.svg)
+
+本图读取上面的 `.bands.gnu`，减去同一记录的 SCF 费米能级 0.0483 eV，截取 −4 至 4 eV；没有再次换算能量单位。竖线来自 `bands_pp.out` 的路径坐标。先看接近零能量的交叉，再与 [DOS 图](/Atlas/m/dos/qe/)对照。
+
+这里展示已有候选几何上的无 SOC 结果。几何收敛、k 路径与实际结构对称性的对应，以及 SOC 的影响仍需分别检查；图画出来不等于这些检查已经完成。
+
+## 下一步
+
+需要轨道归属时进入[投影数据页](/Atlas/m/fatband/qe/)；涉及 Hf、Pb 附近能带劈裂的讨论，再建立可比较的 SOC 算例。
 
 ```text
-static SCF
-    ↓
-bands（本页，nbnd=40，151 k 点）→ bands.x → .gnu/.rap + 高对称点坐标
-    ↓
-SOC 补算（fully relativistic 赝势）
+同一结构的 SCF 电荷密度
+    ├─ 均匀 k 网格 NSCF → DOS / PDOS
+    └─ 路径 bands → bands.x → 本页能带图 → SOC 对照
 ```

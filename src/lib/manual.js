@@ -4,6 +4,11 @@
 import { getCollection } from 'astro:content';
 import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 
+export async function availableManualIds() {
+  const entries = await getCollection('manual');
+  return new Set(entries.filter((entry) => entry.body?.trim()).map((entry) => entry.id));
+}
+
 // 无内容文件时骨架使用的固定 7 节标题（仅用于占位骨架，不是内容契约）。
 export const MANUAL_SECTION_TITLES = [
   '需要 / 产出',
@@ -39,5 +44,6 @@ export async function loadManualBody(slug, engine) {
   if (!raw) return null;
   const processor = await getProcessor();
   const { code } = await processor.render(raw);
-  return code;
+  let section = 0;
+  return code.replace(/<h2(?:\s+id="[^"]*")?>/g, () => `<h2 id="section-${++section}">`);
 }

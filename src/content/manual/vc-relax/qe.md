@@ -4,7 +4,7 @@
 
 ## vc-relax（变胞结构优化）
 
-结构优化确保材料的初步稳定性：所有后续计算（static SCF、DOS、能带、声子）都要站在弛豫后的结构上，初步稳定的结构才能得到可靠结果。`vc-relax` 与普通 `relax` 的区别是它同时弛豫原子位置和晶胞；本例用 `cell_dofree = 'fixc'` 锁住真空方向 c，只放面内晶格自由度。注意：即使结构优化收敛，材料本身仍可能不稳定（声子出现虚频），那是另一层检查，不能混为一谈。
+这次先让原子位置和允许的晶胞自由度一起调整，观察力怎样变化。二维模型的真空方向不能随意跟着收缩，所以这里使用 `cell_dofree='fixc'`。下面保留这次没有达到 BFGS 收敛的过程：它适合用来学习检查输出，不能当成已接受结构的范例。
 
 ### 建目录、写输入文件
 
@@ -16,7 +16,7 @@
 [<user>@<cluster> QE]$ mkdir -p 05_relax
 [<user>@<cluster> QE]$ cd 05_relax
 
-[<user>@<cluster> 05_relax]$ cat > vc-relax.in <<'EOF'
+[<user>@<cluster> 05_relax]$ cat > rx.in <<'EOF'
 &CONTROL
   calculation = 'vc-relax'
   etot_conv_thr = 1.0000000000d-08
@@ -71,7 +71,7 @@ K_POINTS automatic
 24 24 1 0 0 0
 EOF
 
-[<user>@<cluster> 05_relax]$ cat vc-relax.in
+[<user>@<cluster> 05_relax]$ cat rx.in
 ```
 
 写完 `cat` 一遍回看，是防止 heredoc 手滑的最低成本检查。
@@ -98,7 +98,7 @@ EOF
 [<user>@<cluster> 05_relax]$
 ```
 
-np 后的 56 是这个任务占用的 MPI 进程数；`ulimit` 两行解除栈与内存限制（一般用来控制内存、时间类限制，此处不设限）。
+np 后的 56 是这个任务占用的 MPI 进程数；`ulimit -s` 设置栈限制，`ulimit -l` 设置可锁定内存限制；它们不能解除 Slurm 的时间或作业内存配额。
 
 ### 提交与监控
 
@@ -158,7 +158,23 @@ End final coordinates
 
 这是事后复核才发现的：上面的 grep 摘录并不完整，缺了收敛判定的关键证据。教训是：验收 vc-relax 要专门确认 BFGS 收敛标志，而不是看到 JOB DONE 就翻篇。
 
-### 提取最终几何
+### 把遗漏的失败行一起找出来
+
+2026-09-22 回到原输出重新查找，明确的失败原因就在结束段前面：
+
+```text
+[<user>@<cluster> 05_relax]$ grep -Ei 'bfgs failed|End of BFGS|JOB DONE' rx.out
+     bfgs failed after  30 scf cycles and  27 bfgs steps, convergence not achieved
+     End of BFGS Geometry Optimization
+   JOB DONE.
+[<user>@<cluster> 05_relax]$
+```
+
+![本次结构优化的总力变化，BFGS 未收敛](/Atlas/figures/relax-force.svg)
+
+力整体下降，但末段并非单调下降。图的横轴是输出中的力报告序号，不是保证接受的 BFGS 步数；判断优化通过仍需看明确的收敛条件。这正是保留失败行比只截取结尾更有用的地方。
+
+## 提取最终几何
 
 ```bash
 [<user>@<cluster> 05_relax]$ sed -n '/Begin final coordinates/,/End final coordinates/p' rx.out \
@@ -234,7 +250,7 @@ O             0.3333333333        0.6666666667        0.5147767817
 
 ### 下一步
 
-不要马上做 DOS。先用这个优化结构建立一个新的高精度 static SCF，确认最终总能、费米能级、力和应力，然后 DOS/PDOS、bands、phonon 都从这个 static 基准继续：
+下面的 [SCF 页](/Atlas/m/scf/qe/)记录已有候选几何上的电子计算，用于说明数据来源。正式性质计算前应先完成结构收敛检查，不能靠一次 static SCF 替代失败的优化：
 
 ```text
 vc-relax（本页，候选几何 + .inc 片段）

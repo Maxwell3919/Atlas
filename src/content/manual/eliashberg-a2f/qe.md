@@ -1,31 +1,36 @@
 参考：
 
-- QE PHonon 用户指南（lambda.x 章节）：<https://www.quantum-espresso.org/Doc/user_guide/>
-- Giustino, *Electron-phonon interactions from first principles*, Rev. Mod. Phys. 89, 015003 (2017)
+- [PHonon：电声系数与 lambda.x](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html)
+- [PHonon 用户指南](https://www.quantum-espresso.org/Doc/ph_user_guide/)
 
-## λ(ω) 谱函数：lambda.x
+## 先看 λ 随展宽怎样变化
 
-lambda.x 是 EPC 链的收口程序：把逐 q 的电声矩阵元汇总成 Eliashberg 谱函数 α²F(ω)、总耦合强度 λ 与对数平均声子频率 ω_log。这一页把它的输入文件逐行讲透，再讲输出怎么读。
+下面两条曲线来自 Sc₂C/ZrCl₂ 主算例 `ph64`、`ph96` 留存的 `lambda.dat`，对应密电子 k 网格 64×64×1 和 96×96×1；两者声子 q 网格同为 8×8×1。数据于 2026-09-22 重新读取。
 
-## 输入文件：lambdax.in 逐行讲
+![两个密电子网格下的 lambda 和公式 Tc 随展宽变化](/Atlas/figures/epc-broadening.svg)
 
-真实文件全文如下（数值均为实测体系 Sc2C/ZrCl2 链的原值）：
+两条线在部分区间几乎重合，却都继续随展宽变化。网格之间接近与展宽方向形成平台，是两件不同的事。图中 Tc 是留存输出中的公式值，不能当作已经收敛的预测值。
+
+## lambda.x 读取什么
+
+本算例输入原文如下：
 
 ```text
-10  0.12  1    ! emax (THz，取比最高声子模略高), lambda.x 自身展宽 degauss, 展宽类型
-    10         ! 参与计算电声矩阵元的 q 点总数
-    0.00000000  0.00000000  0.00000000   1.00  ! 第 1 个 q 点（Γ），qx qy qz + 权重
-    0.00000000  0.14433757  0.00000000   6.00  ! q 点与其简并度权重
+[<user>@<cluster> ph64]$ cat lambdax.in
+10  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method
+    10         ! Number of q-points for which EPC is calculated,
+    0.00000000  0.00000000  0.00000000   1.00  ! the first q-point, use kpoints.x program to calculate
+    0.00000000  0.14433757  0.00000000   6.00  ! q-points and their weight
     0.00000000  0.28867514  0.00000000   6.00  !
-    0.00000000  0.43301270  0.00000000   6.00  !
+    0.00000000  0.43301270  0.00000000   6.00  ! 4th q-point, qx,qy,qz
     0.00000000 -0.57735027  0.00000000   3.00  !
     0.12500000  0.21650635  0.00000000   6.00  !
     0.12500000  0.36084392  0.00000000  12.00  !
     0.12500000  0.50518149  0.00000000  12.00  !
     0.25000000  0.43301270  0.00000000   6.00  !
-    0.25000000  0.57735027  0.00000000   6.00  ! 最后一个 q 点
-elph_dir/elph.inp_lambda.1 ! 电声输出文件名，
-elph_dir/elph.inp_lambda.2 ! 顺序与上面 q 点一一对应
+    0.25000000  0.57735027  0.00000000   6.00  ! the last q-point
+elph_dir/elph.inp_lambda.1 ! elph output file names,
+elph_dir/elph.inp_lambda.2 ! in the same order as the q-points before
 elph_dir/elph.inp_lambda.3
 elph_dir/elph.inp_lambda.4
 elph_dir/elph.inp_lambda.5
@@ -34,61 +39,43 @@ elph_dir/elph.inp_lambda.7
 elph_dir/elph.inp_lambda.8
 elph_dir/elph.inp_lambda.9
 elph_dir/elph.inp_lambda.10
-0.1                      ! μ*，Allen–Dynes 公式中的库仑赝势
+0.1                      ! \mu the Coloumb coefficient in the modified
+                         ! Allen-Dynes formula for T_c (via \omega_log)
+[<user>@<cluster> ph64]$
 ```
 
-要点：
+q 点、权重和文件顺序必须逐项对应上游清单；不能从这段数字外观就猜坐标约定。尤其要核对权重总和与完整网格的关系，再按运行版本读取 lambda.x 的说明。这里保留原始输入用于复核，不将其认定为已经通过输入审计的通用模板。
 
-- **q 点与权重**：8×8×1 网格按对称性约化成 10 个点，权重是星形简并度（如 12 对应两条镜面等价方向）。q 坐标用晶体坐标。
-- **文件对应关系**：`elph.inp_lambda.N` 的 N 与 ph.x 分批的 q 编号一致——phx(q=1) 出第 1 份，phx1(q=2–4) 出第 2–4 份，以此类推。
-- **头行三个数**：emax 单位是 THz，取略高于最高声子模即可；中间的 0.12 是 lambda.x 积分 α²F 用的自身展宽（与 ph.x 的 el_ph_sigma 那套展宽是两回事，别混）；第三个数选展宽类型。
-- **μ\***：经验库仑赝势，0.1 是惯例起点，敏感性要单独扫（见 Allen–Dynes 页）。
-
-## 运行
-
-```bash
-[<user>@<cluster> ph64]$ lambda.x -i lambdax.in > lambdax.out
-```
-
-## 输出逐项读法
-
-输出里每档展宽一行（degauss 列来自 ph.x 的 el_ph_sigma×el_ph_nsigma 序列，0.001→0.020 Ry 共 20 档）：
+## 按表头读数
 
 ```text
-lambda = 0.312769 ( 0.224612 ) = 259.219 K N(Ef)= 22.787828 at degauss= 0.002
+[<user>@<cluster> ph64]$ head -n 4 lambda.dat; tail -n 3 lambda.dat
+# degauss   lambda    int alpha2F  <log w>     N(Ef)
+  0.001    2.940003    2.902508    97.625   32.317854
+  0.002    2.062339    2.025444   100.907   29.723113
+  0.003    1.837986    1.801992   101.797   29.244028
+  0.018    0.840009    0.795808   118.455   24.677094
+  0.019    0.817430    0.772534   119.438   24.729924
+  0.020    0.796142    0.750607   120.400   24.781569
+[<user>@<cluster> ph64]$
 ```
 
-- `lambda`：总电声耦合强度（括号内为分解部分）
-- `= 259.219 K`：ω_log，对数平均声子频率（单位 K）
-- `N(Ef)`：费米面态密度（states/spin/Ry/unit cell）
+第二列是 λ，第三列的表头为 `int alpha2F`，第四列为 `<log w>`。不要把第三列随意叫作“分解部分”。同目录 `lambdax.out` 给第四列标注 K；展宽列标注 Ry。
 
-输出末尾给出 α²F 谱数据文件（`alpha2F.dat`）与 Tc 列表。α²F(ω) 的读法：看 λ 随频率的累积在哪里陡升——低频声学支主导还是高频光学模主导，直接决定"软化驱动 vs 高频模驱动"的结论。
+在 0.001 Ry 与 0.020 Ry 两端，λ 从 2.940003 变到 0.796142。这个变化不能靠挑选较大的展宽或取区间平均消除。更正（2026-09-22）：旧文中 λ≈0.31、ω_log≈259 K 的片段不属于本次核对的这张主算例表，已从这条教案主线移出。
 
-## 展宽序列怎么读
+## 谱函数和累计耦合分开看
 
-ph.x 的 `el_ph_sigma=0.001, el_ph_nsigma=20` 生成了 20 档展宽，输出就扫出 20 行。读表策略：**从大展宽（收敛端）往小展宽读**，λ/ω_log 随展宽变小而漂移，开始明显偏离平台的位置就是不可信区。实测无应变体系在可信窗内：
-
-```text
-lambda = 0.31277  259.219  ... 0.32205  261.564  ... 0.28630  257.419
-```
-
-λ 稳定在 0.31–0.32，ω_log 稳定在 259–262 K。同体系拉伸 3% 时 λ 从 0.54 漂到 0.36，窗口窄得多——展宽敏感性随体系变差，判读窗口要逐算例重定。
-
-逐模线宽也在输出里（Γ 点）：
-
-```text
-lambda( 4) = 1.1124 gamma = 1534.64 GHz
-lambda( 7) = 3.5962 gamma = 9215.98 GHz
-```
-
-## 常见故障
-
-若输出全为 NaN：几乎都是某个 `elph.inp_lambda.N` 里负 w² 被 sqrt 放大成 NaN（诊断与修复见虚频/软模判据页——备份 elph_dir、awk 置零、重跑即恢复）。
+`alpha2F.dat` 记录随频率分布的谱函数；累计 λ(ω) 需要对 α²F(ω)/ω 积分，并核对频率单位与零频处理。谱峰高低与某频段对总 λ 的贡献并非同一个读数。先确认文件布局：本目录二十档展宽的数据存在换行，不能把每个物理频率误当作两条独立记录。
 
 ## 下一步
 
+进入[Allen–Dynes 页](/Atlas/m/allen-dynes/qe/)，把 λ、ω_log 与选定的 μ* 一起对应到同一行，再检查公式估计对数值设置的敏感性。
+
 ```text
-lambda.x（本页）
-    ↓ λ / ω_log / μ*
-Allen–Dynes Tc（含双网格判据）
+逐 q 电声数据 → lambda.x → lambda.dat / alpha2F.dat
+                                  ↓
+                 网格、权重、单位与展宽逐项核对
+                                  ↓
+                       同一行的 λ、ω_log → Tc
 ```
