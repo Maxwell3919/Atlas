@@ -1,0 +1,44 @@
+{
+  "scope": "Perfect-supercell unfolding validation; no defects, thermal broadening, gap convergence or relaxed-geometry claim.",
+  "pseudo_sha256": "e8d933754cd51c6bb4b2a809151f89e0647e53d878bab88d26e1b5a5d68d5217",
+  "pseudo_type": "NC",
+  "method": "Native bands_unfold.x and independent even/odd plane-wave projectors",
+  "native_weights_modified": false,
+  "k_header_note": "Native file prints Cartesian xk(i)/dimi. This is not a primitive fractional k coordinate for an anisotropic non-orthogonal supercell. Plots use validated input kpath.csv distances.",
+  "primitive": {
+    "nk": 40,
+    "nbnd": 8,
+    "max_norm_error": 1.2467804566540508e-13,
+    "max_coset_sum_error": 1.2467804566540508e-13,
+    "native_vs_pw_max_abs": 1.2467804566540508e-13,
+    "native_range": [
+      1.0,
+      1.0
+    ],
+    "max_xml_native_energy_difference_eV": 4.993840326816823e-07,
+    "max_xml_input_kdifference_tpiba": 1.3877787807814457e-16
+  },
+  "supercell": {
+    "nk": 40,
+    "nbnd": 24,
+    "max_norm_error": 3.5436098499985746e-12,
+    "max_coset_sum_error": 3.545386206837975e-12,
+    "native_vs_pw_max_abs": 3.9867436588063805e-06,
+    "native_range": [
+      0.0,
+      1.0
+    ],
+    "max_xml_native_energy_difference_eV": 4.997565441478002e-07,
+    "max_xml_input_kdifference_tpiba": 5.000444502911705e-13
+  },
+  "comparison": {
+    "primitive_eigenvalues_compared": 320,
+    "degenerate_groups": 238,
+    "energy_association_window_eV": 0.002,
+    "primitive_group_tolerance_eV": 0.0001,
+    "max_abs_centroid_difference_eV": 5.913463536622032e-07,
+    "RMS_centroid_difference_eV": 1.3470421246727048e-07,
+    "max_group_weight_error": 6.653960382685398e-06,
+    "energy_zero_eV": 6.230001317016027
+  }
+}

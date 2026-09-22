@@ -1,0 +1,42 @@
+[
+  {
+    "case": "al-fcc",
+    "energy_difference_meV_atom": -6.060929536033655e-08,
+    "parent_initial_warnings": 0,
+    "verification_initial_warnings": 0,
+    "verification_final_warnings": 0,
+    "verification_err_bytes": 1300
+  },
+  {
+    "case": "si-diamond",
+    "energy_difference_meV_atom": -3.779518920055125e-07,
+    "parent_initial_warnings": 1,
+    "verification_initial_warnings": 0,
+    "verification_final_warnings": 0,
+    "verification_err_bytes": 1300
+  },
+  {
+    "case": "alsi-b2",
+    "energy_difference_meV_atom": -6.890843451401452e-08,
+    "parent_initial_warnings": 3,
+    "verification_initial_warnings": 0,
+    "verification_final_warnings": 0,
+    "verification_err_bytes": 1300
+  },
+  {
+    "case": "al3si-l12",
+    "energy_difference_meV_atom": -1.0429488384033903e-06,
+    "parent_initial_warnings": 19,
+    "verification_initial_warnings": 0,
+    "verification_final_warnings": 0,
+    "verification_err_bytes": 1300
+  },
+  {
+    "case": "alsi3-l12",
+    "energy_difference_meV_atom": 5.030500460634357e-06,
+    "parent_initial_warnings": 0,
+    "verification_initial_warnings": 0,
+    "verification_final_warnings": 0,
+    "verification_err_bytes": 1300
+  }
+]

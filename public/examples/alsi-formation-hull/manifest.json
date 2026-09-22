@@ -1,0 +1,1331 @@
+{
+  "note": "Original and public hashes distinguish path redaction. Numerical data are not changed.",
+  "files": [
+    {
+      "file": "al-fcc/cutoff80/data-file-schema.xml",
+      "bytes": 204179,
+      "source_sha256": "13e6627bea8a570660eec8092f080d05ea0a77d102d95f1931d7254a1637c8b7",
+      "public_sha256": "13e6627bea8a570660eec8092f080d05ea0a77d102d95f1931d7254a1637c8b7"
+    },
+    {
+      "file": "al-fcc/cutoff80/run.sh",
+      "bytes": 436,
+      "source_sha256": "fa94c62d7c6a12b924e20d13f0e0b57b0211c40b01e8481e080144981cab3410",
+      "public_sha256": "9b3f8338ba2b48d5b54b44e7bb5baa7220485f8f62c688fbd13587b2a5984ba9"
+    },
+    {
+      "file": "al-fcc/cutoff80/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/cutoff80/scf.in",
+      "bytes": 708,
+      "source_sha256": "f4ef74c16612408b27370912be929fa08311c2692839c57a455c6d29af8933c5",
+      "public_sha256": "f4ef74c16612408b27370912be929fa08311c2692839c57a455c6d29af8933c5"
+    },
+    {
+      "file": "al-fcc/cutoff80/scf.out",
+      "bytes": 10969,
+      "source_sha256": "2157ed1560ae60a3ee936d74399230f992245dcca6f939a1067491b1298f87b6",
+      "public_sha256": "2157ed1560ae60a3ee936d74399230f992245dcca6f939a1067491b1298f87b6"
+    },
+    {
+      "file": "al-fcc/k12/data-file-schema.xml",
+      "bytes": 91839,
+      "source_sha256": "be8e2a21c6f45e5f95d80634fe97b3f679f3776ba15fc4487b74108fce79cd29",
+      "public_sha256": "be8e2a21c6f45e5f95d80634fe97b3f679f3776ba15fc4487b74108fce79cd29"
+    },
+    {
+      "file": "al-fcc/k12/run.sh",
+      "bytes": 431,
+      "source_sha256": "97fa74094d4979cd499281e5625ec51ca1096e0e1fc54907dad1a5c10109ade2",
+      "public_sha256": "959d4c5d0e40512bcb72bb07cbfecf0a37fbb978eee2f9ea320160800a3d0f6f"
+    },
+    {
+      "file": "al-fcc/k12/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/k12/scf.in",
+      "bytes": 707,
+      "source_sha256": "63d57efd6645ec8b2e786fc652cbec52693f7c35f1fa47ebb0ff787be427999d",
+      "public_sha256": "63d57efd6645ec8b2e786fc652cbec52693f7c35f1fa47ebb0ff787be427999d"
+    },
+    {
+      "file": "al-fcc/k12/scf.out",
+      "bytes": 24762,
+      "source_sha256": "30925e9c14c5377852a1bdbffd7ddae125374ef3ca1364776e6772ca0a9a5b32",
+      "public_sha256": "30925e9c14c5377852a1bdbffd7ddae125374ef3ca1364776e6772ca0a9a5b32"
+    },
+    {
+      "file": "al-fcc/k16/data-file-schema.xml",
+      "bytes": 136314,
+      "source_sha256": "bc5091192eb8ad5e7924258db4ea5e402716eb84b32e8fac6cd6d90afd095967",
+      "public_sha256": "bc5091192eb8ad5e7924258db4ea5e402716eb84b32e8fac6cd6d90afd095967"
+    },
+    {
+      "file": "al-fcc/k16/run.sh",
+      "bytes": 431,
+      "source_sha256": "1d2bc6641756ab36899d1d8b6a1fdebe6a5a7e9e9165f44c3bb7f7f733d52f24",
+      "public_sha256": "d1fa31c412e3853fb0aadb58f230290d242064cc09c2f147669cdff90c7e6f9e"
+    },
+    {
+      "file": "al-fcc/k16/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/k16/scf.in",
+      "bytes": 707,
+      "source_sha256": "44bdc3fd5639bbf2c967007f223e355ecf2639974a19063d01ae6c2095569356",
+      "public_sha256": "44bdc3fd5639bbf2c967007f223e355ecf2639974a19063d01ae6c2095569356"
+    },
+    {
+      "file": "al-fcc/k16/scf.out",
+      "bytes": 10667,
+      "source_sha256": "dd35119258d650fcf014f70fff1c207c51c4001cf53aa808976c54a91fbdfd2f",
+      "public_sha256": "dd35119258d650fcf014f70fff1c207c51c4001cf53aa808976c54a91fbdfd2f"
+    },
+    {
+      "file": "al-fcc/k20/data-file-schema.xml",
+      "bytes": 203921,
+      "source_sha256": "95e4a10ad639c3260056648ba3d37a040aabdf4e1af723e512dfdef282247187",
+      "public_sha256": "95e4a10ad639c3260056648ba3d37a040aabdf4e1af723e512dfdef282247187"
+    },
+    {
+      "file": "al-fcc/k20/run.sh",
+      "bytes": 431,
+      "source_sha256": "f534a81c6465659585283c0e1288ae91b7facc052db4feceb9311835e348b533",
+      "public_sha256": "c4ea493198a6b654f435bd8b810c6894f8dd95e550339e9b553c04f0a0348515"
+    },
+    {
+      "file": "al-fcc/k20/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/k20/scf.in",
+      "bytes": 707,
+      "source_sha256": "5f0888d8e0eb3ca6f794f79c95b13d28ca24376038117990432f802139797a6a",
+      "public_sha256": "5f0888d8e0eb3ca6f794f79c95b13d28ca24376038117990432f802139797a6a"
+    },
+    {
+      "file": "al-fcc/k20/scf.out",
+      "bytes": 10969,
+      "source_sha256": "0a2f252185f6f64a899874747d69a72404b0517089413b1791a4de2596d7e7e5",
+      "public_sha256": "0a2f252185f6f64a899874747d69a72404b0517089413b1791a4de2596d7e7e5"
+    },
+    {
+      "file": "al-fcc/k24/data-file-schema.xml",
+      "bytes": 299942,
+      "source_sha256": "c7737120738dc93d653799f0ef76d540db7318451cb430379e6f7e9207ee896c",
+      "public_sha256": "c7737120738dc93d653799f0ef76d540db7318451cb430379e6f7e9207ee896c"
+    },
+    {
+      "file": "al-fcc/k24/run.sh",
+      "bytes": 431,
+      "source_sha256": "793d715be429e00be7e07f883e1b172a7733ee895a94c04d93ab9cb1283a7a1d",
+      "public_sha256": "dd9e2fac4d77a84e2077b159c634621628837168451ba80aca0a087ab73b58fa"
+    },
+    {
+      "file": "al-fcc/k24/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/k24/scf.in",
+      "bytes": 761,
+      "source_sha256": "737903424fbd5e530d88b3708291cb84f3a7c570aaebf4cafc0533d38121d39e",
+      "public_sha256": "737903424fbd5e530d88b3708291cb84f3a7c570aaebf4cafc0533d38121d39e"
+    },
+    {
+      "file": "al-fcc/k24/scf.out",
+      "bytes": 9422,
+      "source_sha256": "35fd042233784290a283f1a16e3df91ba9722578acb88f5c4b2b50cea4bb0af8",
+      "public_sha256": "35fd042233784290a283f1a16e3df91ba9722578acb88f5c4b2b50cea4bb0af8"
+    },
+    {
+      "file": "al-fcc/pseudo-manifest.json",
+      "bytes": 457,
+      "source_sha256": "50e0d531b2f04d8457bdc909c6ac9d8abe3b36634e8c4ebc42f9c3bfa3e113a3",
+      "public_sha256": "50e0d531b2f04d8457bdc909c6ac9d8abe3b36634e8c4ebc42f9c3bfa3e113a3"
+    },
+    {
+      "file": "al-fcc/run.sh",
+      "bytes": 442,
+      "source_sha256": "0ffbfc74a12f133454823f7a111d6ce7a7ed332d26286e8c1243aa8ca34c42a9",
+      "public_sha256": "375f4fa88b13ec45c14d56576ca43cd8857c644e421d5e29efc35dd261a545f5"
+    },
+    {
+      "file": "al-fcc/sigma005/data-file-schema.xml",
+      "bytes": 203921,
+      "source_sha256": "39b3f6a6a4b1c1db4c70acf18974cd36d0d40b2c5c6bece5f669daba9f6dbcad",
+      "public_sha256": "39b3f6a6a4b1c1db4c70acf18974cd36d0d40b2c5c6bece5f669daba9f6dbcad"
+    },
+    {
+      "file": "al-fcc/sigma005/run.sh",
+      "bytes": 436,
+      "source_sha256": "b876b526ca34edf2f5c1c3bf7dfa02d66e84d72290095557be2848379ff1153a",
+      "public_sha256": "41f7aecb6073abc5ee026009cf1b2fc901802f11ef7bf45b105b05bd31ff7214"
+    },
+    {
+      "file": "al-fcc/sigma005/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/sigma005/scf.in",
+      "bytes": 708,
+      "source_sha256": "c0e7e8a3eb5e9da832f7d7495f86982a227bcd05a2dc4605d8b3100f42aa7842",
+      "public_sha256": "c0e7e8a3eb5e9da832f7d7495f86982a227bcd05a2dc4605d8b3100f42aa7842"
+    },
+    {
+      "file": "al-fcc/sigma005/scf.out",
+      "bytes": 10969,
+      "source_sha256": "62838184e1592924c8e8ae09d6230c7ab2475c723e973c166b2dac2067a49245",
+      "public_sha256": "62838184e1592924c8e8ae09d6230c7ab2475c723e973c166b2dac2067a49245"
+    },
+    {
+      "file": "al-fcc/vc-relax.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/vc-relax.in",
+      "bytes": 663,
+      "source_sha256": "6b36af3ed00b075306b4a45fcf2b5d3050819299cd3026bedfa6538edd7130d6",
+      "public_sha256": "6b36af3ed00b075306b4a45fcf2b5d3050819299cd3026bedfa6538edd7130d6"
+    },
+    {
+      "file": "al-fcc/vc-relax.out",
+      "bytes": 86233,
+      "source_sha256": "3bf231d3e4a9dc6021302691c357d8f6e5e43d9b8d90b24929564f6200deac27",
+      "public_sha256": "3bf231d3e4a9dc6021302691c357d8f6e5e43d9b8d90b24929564f6200deac27"
+    },
+    {
+      "file": "al-fcc/verify/data-file-schema.xml",
+      "bytes": 202595,
+      "source_sha256": "a579dce14987b9378607939c415c7d2a6f7a657e05ad7547f24ae0c74e84ed0e",
+      "public_sha256": "a579dce14987b9378607939c415c7d2a6f7a657e05ad7547f24ae0c74e84ed0e"
+    },
+    {
+      "file": "al-fcc/verify/run.sh",
+      "bytes": 434,
+      "source_sha256": "d0e25f5825a4e3e6c910ed7124ef6d40af94b1d7226393262d176c584951399c",
+      "public_sha256": "7f99aa92493eeced663c9e30e5ff27fbf6e639e19decc736a1e96cb45ec6905e"
+    },
+    {
+      "file": "al-fcc/verify/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al-fcc/verify/scf.in",
+      "bytes": 753,
+      "source_sha256": "a2b16919a5b4c16b536e8bb100f7bbcdafb7767ab6b0a8df9901af685866a20c",
+      "public_sha256": "a2b16919a5b4c16b536e8bb100f7bbcdafb7767ab6b0a8df9901af685866a20c"
+    },
+    {
+      "file": "al-fcc/verify/scf.out",
+      "bytes": 8584,
+      "source_sha256": "51519af3fa53966bf8ddcd4f5dd71ab0cb784a9f2006862d311f5247c91b759d",
+      "public_sha256": "51519af3fa53966bf8ddcd4f5dd71ab0cb784a9f2006862d311f5247c91b759d"
+    },
+    {
+      "file": "al3si-l12/cutoff80/data-file-schema.xml",
+      "bytes": 337632,
+      "source_sha256": "40110d265a272a2aa931443b66fa5702df87ff5c75689c791902cab4d18972c3",
+      "public_sha256": "40110d265a272a2aa931443b66fa5702df87ff5c75689c791902cab4d18972c3"
+    },
+    {
+      "file": "al3si-l12/cutoff80/run.sh",
+      "bytes": 439,
+      "source_sha256": "3bc7fcfa88f161ca03dca7b76a97ac31f3eba7382769923d448501aee504611a",
+      "public_sha256": "e9f99af84b1d7c4ad955d61232d50bbcabe95771bc0e1af78fe991181f605d00"
+    },
+    {
+      "file": "al3si-l12/cutoff80/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/cutoff80/scf.in",
+      "bytes": 894,
+      "source_sha256": "1f4debb30d256fae32cc34e15bd1b53f8fd2462921c67697999717f8a9d62f22",
+      "public_sha256": "1f4debb30d256fae32cc34e15bd1b53f8fd2462921c67697999717f8a9d62f22"
+    },
+    {
+      "file": "al3si-l12/cutoff80/scf.out",
+      "bytes": 12521,
+      "source_sha256": "1a5572855b0c920c026da6479d02a9e81421db9a125ed4d147e6b83bbb19f224",
+      "public_sha256": "1a5572855b0c920c026da6479d02a9e81421db9a125ed4d147e6b83bbb19f224"
+    },
+    {
+      "file": "al3si-l12/k12/data-file-schema.xml",
+      "bytes": 135203,
+      "source_sha256": "c7e1d06557b9527badd42542b0d964e54b1da8e8334f50e6e60f6a083df4d9d8",
+      "public_sha256": "c7e1d06557b9527badd42542b0d964e54b1da8e8334f50e6e60f6a083df4d9d8"
+    },
+    {
+      "file": "al3si-l12/k12/run.sh",
+      "bytes": 434,
+      "source_sha256": "3b99e78417d1addf373b2ecfe3ebbd682a5a9f80da4d8861707229c3acca23b0",
+      "public_sha256": "26d5eda03fb1af8bf42cc19f55a7d10f8365b0d82e77b663548050a81c79a4cb"
+    },
+    {
+      "file": "al3si-l12/k12/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/k12/scf.in",
+      "bytes": 893,
+      "source_sha256": "bdd2bbdcebb93358f6014c2b7482096805f8ddd3fc86f813898aa4605e616d80",
+      "public_sha256": "bdd2bbdcebb93358f6014c2b7482096805f8ddd3fc86f813898aa4605e616d80"
+    },
+    {
+      "file": "al3si-l12/k12/scf.out",
+      "bytes": 34721,
+      "source_sha256": "d18e41bf671b56e694dda8f6d9459b32d7f591461bf8af503c9a01372a1b66bc",
+      "public_sha256": "d18e41bf671b56e694dda8f6d9459b32d7f591461bf8af503c9a01372a1b66bc"
+    },
+    {
+      "file": "al3si-l12/k16/data-file-schema.xml",
+      "bytes": 216389,
+      "source_sha256": "d3e391c96ee68ea465fb10f0fa6396a889a4e6ead5b5f480a4c8a485515444e1",
+      "public_sha256": "d3e391c96ee68ea465fb10f0fa6396a889a4e6ead5b5f480a4c8a485515444e1"
+    },
+    {
+      "file": "al3si-l12/k16/run.sh",
+      "bytes": 434,
+      "source_sha256": "4727f602bf3306161e4e1ca82075671910b77772176d2dcf7ddcdcba6a20361a",
+      "public_sha256": "16d6f77e0ea6cb87b24505f259dd18b260766fe8e6a3612a968136c4379b6408"
+    },
+    {
+      "file": "al3si-l12/k16/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/k16/scf.in",
+      "bytes": 893,
+      "source_sha256": "32ba19eee255bc85891f31084fb9da7f37902057bf16311602bd7fe7d7b63b80",
+      "public_sha256": "32ba19eee255bc85891f31084fb9da7f37902057bf16311602bd7fe7d7b63b80"
+    },
+    {
+      "file": "al3si-l12/k16/scf.out",
+      "bytes": 12005,
+      "source_sha256": "2e2466359430e2b6f61c817b4620ea4e2467463239e2135f9d1d5d3510828ca7",
+      "public_sha256": "2e2466359430e2b6f61c817b4620ea4e2467463239e2135f9d1d5d3510828ca7"
+    },
+    {
+      "file": "al3si-l12/k20/data-file-schema.xml",
+      "bytes": 337632,
+      "source_sha256": "8a802a75663b862b907464fdcefd72ea6a62d8b447f58ecabd6800a52894b6db",
+      "public_sha256": "8a802a75663b862b907464fdcefd72ea6a62d8b447f58ecabd6800a52894b6db"
+    },
+    {
+      "file": "al3si-l12/k20/run.sh",
+      "bytes": 434,
+      "source_sha256": "4f45da666e33f0c13361007ed8f1de61337394b28d9e8729b2573ac447ef926a",
+      "public_sha256": "49061e8a710b2ab4390fc6842d9648e2c61f6a193c18e948c4957de3970b45f6"
+    },
+    {
+      "file": "al3si-l12/k20/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/k20/scf.in",
+      "bytes": 893,
+      "source_sha256": "c271e07359f300974fd5cfc48d8c3fa21b7ec4b3666cdb4b7047ba3e38858f41",
+      "public_sha256": "c271e07359f300974fd5cfc48d8c3fa21b7ec4b3666cdb4b7047ba3e38858f41"
+    },
+    {
+      "file": "al3si-l12/k20/scf.out",
+      "bytes": 12607,
+      "source_sha256": "07faad4a2a092e6b0b87e4d362d1b60a806d6043aeb9b933f916521af74cdab3",
+      "public_sha256": "07faad4a2a092e6b0b87e4d362d1b60a806d6043aeb9b933f916521af74cdab3"
+    },
+    {
+      "file": "al3si-l12/k24/data-file-schema.xml",
+      "bytes": 506970,
+      "source_sha256": "20f24c0d128c13be65bc004a9a26f6eb575f7de36e2a5ce3730564a87c03fcfc",
+      "public_sha256": "20f24c0d128c13be65bc004a9a26f6eb575f7de36e2a5ce3730564a87c03fcfc"
+    },
+    {
+      "file": "al3si-l12/k24/run.sh",
+      "bytes": 434,
+      "source_sha256": "dc268e61b1402172899a3929a140b894f714161053f066e68f5134a09f030d59",
+      "public_sha256": "650350ddf5d0244f1d56a11869c40363637da894f40e176608e0bc67d6a3d9bd"
+    },
+    {
+      "file": "al3si-l12/k24/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/k24/scf.in",
+      "bytes": 947,
+      "source_sha256": "0154a33efe6a56b4b22040830c3f68647b0d8fd8b1bf2edf78eccb7945ce6da8",
+      "public_sha256": "0154a33efe6a56b4b22040830c3f68647b0d8fd8b1bf2edf78eccb7945ce6da8"
+    },
+    {
+      "file": "al3si-l12/k24/scf.out",
+      "bytes": 11545,
+      "source_sha256": "ab67d55c0fde21bec2c36a48cbb8ac53d730552b7f2ed4edbd5df9f34b02652d",
+      "public_sha256": "ab67d55c0fde21bec2c36a48cbb8ac53d730552b7f2ed4edbd5df9f34b02652d"
+    },
+    {
+      "file": "al3si-l12/pseudo-manifest.json",
+      "bytes": 856,
+      "source_sha256": "5031ca9da8d7aeb9e81f7eb4da7bcf8daeb92bbed76f004e29e8bc0502416715",
+      "public_sha256": "5031ca9da8d7aeb9e81f7eb4da7bcf8daeb92bbed76f004e29e8bc0502416715"
+    },
+    {
+      "file": "al3si-l12/run.sh",
+      "bytes": 445,
+      "source_sha256": "b551ba701e0eb9cf4ba701b6d9af899500a63f952fb436468d0f08f96b3fbce2",
+      "public_sha256": "82cfeb2c95dca84348fa08f748788c287a110e3ad044bb56010d1e5960ce136d"
+    },
+    {
+      "file": "al3si-l12/sigma005/data-file-schema.xml",
+      "bytes": 337632,
+      "source_sha256": "5b582271c3191928d4c0c91f1ce9d653acb2f8e33ee223f3e077b10b859696f2",
+      "public_sha256": "5b582271c3191928d4c0c91f1ce9d653acb2f8e33ee223f3e077b10b859696f2"
+    },
+    {
+      "file": "al3si-l12/sigma005/run.sh",
+      "bytes": 439,
+      "source_sha256": "3937ed77d48a981415e383c6da2aeae757cbe0297bb09451c673d55c6ecf80b6",
+      "public_sha256": "83ff5000fc1dd4d32611b4120de40d597080235477eafceb3d97589a4b6186f9"
+    },
+    {
+      "file": "al3si-l12/sigma005/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/sigma005/scf.in",
+      "bytes": 894,
+      "source_sha256": "b2910b68a651f4d78b1a66692cfe5db6f50565455624bf1dacc23b69eff743d4",
+      "public_sha256": "b2910b68a651f4d78b1a66692cfe5db6f50565455624bf1dacc23b69eff743d4"
+    },
+    {
+      "file": "al3si-l12/sigma005/scf.out",
+      "bytes": 12478,
+      "source_sha256": "b5919c2a03fecf2baf17a5946e7c2672436cd7bb61f9fdbdb61a7a4571f41136",
+      "public_sha256": "b5919c2a03fecf2baf17a5946e7c2672436cd7bb61f9fdbdb61a7a4571f41136"
+    },
+    {
+      "file": "al3si-l12/vc-relax.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/vc-relax.in",
+      "bytes": 833,
+      "source_sha256": "8b5a96cfb553a38c7541590195a0e0cfe5b5680cc2e151c77a80b77aebb8b3b7",
+      "public_sha256": "8b5a96cfb553a38c7541590195a0e0cfe5b5680cc2e151c77a80b77aebb8b3b7"
+    },
+    {
+      "file": "al3si-l12/vc-relax.out",
+      "bytes": 180342,
+      "source_sha256": "f7b36558a551f1f8f0db5c739e0ab77593e19398874d75c3ffd259d4cf7fdaa6",
+      "public_sha256": "f7b36558a551f1f8f0db5c739e0ab77593e19398874d75c3ffd259d4cf7fdaa6"
+    },
+    {
+      "file": "al3si-l12/verify/data-file-schema.xml",
+      "bytes": 337179,
+      "source_sha256": "012cadd8c6c6bc3fbf38ce4facf0b863767b26ec99eff7dd84261a8f1c6e38ca",
+      "public_sha256": "012cadd8c6c6bc3fbf38ce4facf0b863767b26ec99eff7dd84261a8f1c6e38ca"
+    },
+    {
+      "file": "al3si-l12/verify/run.sh",
+      "bytes": 437,
+      "source_sha256": "2ae713a45cd464b60fde0d6842f8ab47c82a51842b84b4cd7ad98ecd8499e527",
+      "public_sha256": "2b686f9e7a30c15f0f1bc888059f2fe82c14e94f1c2113bf8d8bcfe25ee6612a"
+    },
+    {
+      "file": "al3si-l12/verify/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "al3si-l12/verify/scf.in",
+      "bytes": 939,
+      "source_sha256": "5c94721b8719f5dc9901be909320817856c59d64b072f4126904b5d2250b923f",
+      "public_sha256": "5c94721b8719f5dc9901be909320817856c59d64b072f4126904b5d2250b923f"
+    },
+    {
+      "file": "al3si-l12/verify/scf.out",
+      "bytes": 10013,
+      "source_sha256": "e2ce77bd6bf2a8f5331f7eb46ab035acb3d41d5b38d8fae4f8629d1e3fb35336",
+      "public_sha256": "e2ce77bd6bf2a8f5331f7eb46ab035acb3d41d5b38d8fae4f8629d1e3fb35336"
+    },
+    {
+      "file": "alsi-b2/cutoff80/data-file-schema.xml",
+      "bytes": 279751,
+      "source_sha256": "4dcc81653a168cb9b4c1203e52eaa8c0d13bb8199feadfa2dd62937b5bff992a",
+      "public_sha256": "4dcc81653a168cb9b4c1203e52eaa8c0d13bb8199feadfa2dd62937b5bff992a"
+    },
+    {
+      "file": "alsi-b2/cutoff80/run.sh",
+      "bytes": 437,
+      "source_sha256": "d062db633acfce82365feb030cc2e11810b5078798cb3a8b1c2d5909598cce8b",
+      "public_sha256": "dc91c06e40d7757c5733a18aa404acdf034b73bbee42d3442701c5f328f9b6a9"
+    },
+    {
+      "file": "alsi-b2/cutoff80/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/cutoff80/scf.in",
+      "bytes": 796,
+      "source_sha256": "b855cd3c4356a1e9905885747183ef8ac010723f8d07c91d43b8895fa98cbc9e",
+      "public_sha256": "b855cd3c4356a1e9905885747183ef8ac010723f8d07c91d43b8895fa98cbc9e"
+    },
+    {
+      "file": "alsi-b2/cutoff80/scf.out",
+      "bytes": 11542,
+      "source_sha256": "a46b50ff62e56d3447c027a99e213ce40bd71cce34832a91eebf09e762d79982",
+      "public_sha256": "a46b50ff62e56d3447c027a99e213ce40bd71cce34832a91eebf09e762d79982"
+    },
+    {
+      "file": "alsi-b2/k12/data-file-schema.xml",
+      "bytes": 116919,
+      "source_sha256": "f739e9221e7195eabd47386b5447f6ae21f60c56026b40db6125e1f871b85cd4",
+      "public_sha256": "f739e9221e7195eabd47386b5447f6ae21f60c56026b40db6125e1f871b85cd4"
+    },
+    {
+      "file": "alsi-b2/k12/run.sh",
+      "bytes": 432,
+      "source_sha256": "bc4dd0b22da06c4301677a7379b0680e34002ae046389bf776ff727dcb9b1c2b",
+      "public_sha256": "e93dfa907b603ca6420f519870a3f330395e10ba0099559068cb33ad6cbe4d50"
+    },
+    {
+      "file": "alsi-b2/k12/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/k12/scf.in",
+      "bytes": 795,
+      "source_sha256": "225ede7a77cd152f90c1c868092de5349e4d1328c39fa8512bed7386baee36a4",
+      "public_sha256": "225ede7a77cd152f90c1c868092de5349e4d1328c39fa8512bed7386baee36a4"
+    },
+    {
+      "file": "alsi-b2/k12/scf.out",
+      "bytes": 31493,
+      "source_sha256": "4686aa7823c67fb80524c824b946e34428e3b21b14dcd51b77f37358454fc29e",
+      "public_sha256": "4686aa7823c67fb80524c824b946e34428e3b21b14dcd51b77f37358454fc29e"
+    },
+    {
+      "file": "alsi-b2/k16/data-file-schema.xml",
+      "bytes": 182230,
+      "source_sha256": "00e03497b8796f5ef25d385007687629aebee35c4811497897e37cf6376c3345",
+      "public_sha256": "00e03497b8796f5ef25d385007687629aebee35c4811497897e37cf6376c3345"
+    },
+    {
+      "file": "alsi-b2/k16/run.sh",
+      "bytes": 432,
+      "source_sha256": "060e77e59a47c54911d04f0b31d7b4580d29318d8db07a435b23e654a4bc1610",
+      "public_sha256": "66d72fb38df79b9eb802c1c3887a32df52f53e0e2e45863f76be6b1fa3a0de53"
+    },
+    {
+      "file": "alsi-b2/k16/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/k16/scf.in",
+      "bytes": 795,
+      "source_sha256": "2782871775fa33bc536867c7924a02f83b067da030cdd7bb55a8b789b155aff8",
+      "public_sha256": "2782871775fa33bc536867c7924a02f83b067da030cdd7bb55a8b789b155aff8"
+    },
+    {
+      "file": "alsi-b2/k16/scf.out",
+      "bytes": 11930,
+      "source_sha256": "a8924d2c4a658c0e2bdef22975ae4546006ecdac0179a2478201f611fe022fb1",
+      "public_sha256": "a8924d2c4a658c0e2bdef22975ae4546006ecdac0179a2478201f611fe022fb1"
+    },
+    {
+      "file": "alsi-b2/k20/data-file-schema.xml",
+      "bytes": 279755,
+      "source_sha256": "88eea4a71ddc27399b716d3228c427c3e4783370a1aacb3d0b21c3bd8cde7051",
+      "public_sha256": "88eea4a71ddc27399b716d3228c427c3e4783370a1aacb3d0b21c3bd8cde7051"
+    },
+    {
+      "file": "alsi-b2/k20/run.sh",
+      "bytes": 432,
+      "source_sha256": "f2b1339382db778a062cbee07eee327e69ca133884870a287d11b7065c53ba6c",
+      "public_sha256": "0d48300f8c29f95664e8c55cc396c2396cb19784261281b397374f1e856ecab1"
+    },
+    {
+      "file": "alsi-b2/k20/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/k20/scf.in",
+      "bytes": 795,
+      "source_sha256": "1c1268db10aff974560561c78cc4faac7b9a40d5d16a415fd25a8b12689f890d",
+      "public_sha256": "1c1268db10aff974560561c78cc4faac7b9a40d5d16a415fd25a8b12689f890d"
+    },
+    {
+      "file": "alsi-b2/k20/scf.out",
+      "bytes": 12102,
+      "source_sha256": "7ad5482d0400ba9c506440e3e2b05af9299afffb85eea17f0481da542011b979",
+      "public_sha256": "7ad5482d0400ba9c506440e3e2b05af9299afffb85eea17f0481da542011b979"
+    },
+    {
+      "file": "alsi-b2/k24/data-file-schema.xml",
+      "bytes": 415966,
+      "source_sha256": "f3dbd7a0552ca32cf617bda52d2c945688141cb980298f9bf54626f98357c934",
+      "public_sha256": "f3dbd7a0552ca32cf617bda52d2c945688141cb980298f9bf54626f98357c934"
+    },
+    {
+      "file": "alsi-b2/k24/run.sh",
+      "bytes": 432,
+      "source_sha256": "bedc59a718379998792948d606613e1860b920449491e8fe6138807aa9e10e41",
+      "public_sha256": "9c89272c3978a423df0ee18d04c575b99b253af2b0f3ee190a2fad0aa897843b"
+    },
+    {
+      "file": "alsi-b2/k24/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/k24/scf.in",
+      "bytes": 849,
+      "source_sha256": "df2e3b95bcd3cf1d665e1a9b4787b68d382a5ee91ce7d6a026e821eb0f567195",
+      "public_sha256": "df2e3b95bcd3cf1d665e1a9b4787b68d382a5ee91ce7d6a026e821eb0f567195"
+    },
+    {
+      "file": "alsi-b2/k24/scf.out",
+      "bytes": 10648,
+      "source_sha256": "56d848927beaf1e3261763fc2b89b133d472f440030a5ed2d166a3c8fbe8863e",
+      "public_sha256": "56d848927beaf1e3261763fc2b89b133d472f440030a5ed2d166a3c8fbe8863e"
+    },
+    {
+      "file": "alsi-b2/pseudo-manifest.json",
+      "bytes": 856,
+      "source_sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a",
+      "public_sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a"
+    },
+    {
+      "file": "alsi-b2/run.sh",
+      "bytes": 443,
+      "source_sha256": "cbfc368455d24e09054cb46ba9656baf98dedb891841113da2049a161ae3a291",
+      "public_sha256": "050bbec8b30e58d237c2f6060773503c48fc8da6401f14002d10fd1afcc1401a"
+    },
+    {
+      "file": "alsi-b2/sigma005/data-file-schema.xml",
+      "bytes": 279751,
+      "source_sha256": "ba65dc37efa0a650d56c3bff2fc193808ca4f257c282ec12829035602081c641",
+      "public_sha256": "ba65dc37efa0a650d56c3bff2fc193808ca4f257c282ec12829035602081c641"
+    },
+    {
+      "file": "alsi-b2/sigma005/run.sh",
+      "bytes": 437,
+      "source_sha256": "88645517380f68e486bc5cbb0fc1d1c26d2d63f918e8da9b31f14ad85573a6de",
+      "public_sha256": "25eb1e66a1dfc3e7476f1b1f2674c5dd321c36df7c180cd36fb7f3ae52aae35f"
+    },
+    {
+      "file": "alsi-b2/sigma005/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/sigma005/scf.in",
+      "bytes": 796,
+      "source_sha256": "f535589aa58112b0cf94c1a121167f4f9533303d88fccba1d28624f6f90e2c72",
+      "public_sha256": "f535589aa58112b0cf94c1a121167f4f9533303d88fccba1d28624f6f90e2c72"
+    },
+    {
+      "file": "alsi-b2/sigma005/scf.out",
+      "bytes": 11671,
+      "source_sha256": "c502cb57be2137011434228597cd4038fc43ca7538b6d4150e1ff8b866e21252",
+      "public_sha256": "c502cb57be2137011434228597cd4038fc43ca7538b6d4150e1ff8b866e21252"
+    },
+    {
+      "file": "alsi-b2/vc-relax.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/vc-relax.in",
+      "bytes": 747,
+      "source_sha256": "1375b47eb6e72221f532c9bc3a7121362fdc3661946f44eb061a380faec6d438",
+      "public_sha256": "1375b47eb6e72221f532c9bc3a7121362fdc3661946f44eb061a380faec6d438"
+    },
+    {
+      "file": "alsi-b2/vc-relax.out",
+      "bytes": 155428,
+      "source_sha256": "5494cb210382390e339f3dfac88fae6122e8bfc924ce319a7762e8930804b580",
+      "public_sha256": "5494cb210382390e339f3dfac88fae6122e8bfc924ce319a7762e8930804b580"
+    },
+    {
+      "file": "alsi-b2/verify/data-file-schema.xml",
+      "bytes": 278162,
+      "source_sha256": "36ae54955a5f44d3f932e9bae57e0e0367df110e78fbd32953082b5cd425caa3",
+      "public_sha256": "36ae54955a5f44d3f932e9bae57e0e0367df110e78fbd32953082b5cd425caa3"
+    },
+    {
+      "file": "alsi-b2/verify/run.sh",
+      "bytes": 435,
+      "source_sha256": "79f832163049737885acc14e915fb743a7d402027d00a57aec14f6e9adffd1fb",
+      "public_sha256": "1d873a93293fd674125ecfc16159bb42f5d557f3b7f96de3ff837abdbc30b91d"
+    },
+    {
+      "file": "alsi-b2/verify/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi-b2/verify/scf.in",
+      "bytes": 841,
+      "source_sha256": "0f5e99616b47cf6cf2aeba610cead9f477ea3b31a9e48b98d81722b6a4a79d5e",
+      "public_sha256": "0f5e99616b47cf6cf2aeba610cead9f477ea3b31a9e48b98d81722b6a4a79d5e"
+    },
+    {
+      "file": "alsi-b2/verify/scf.out",
+      "bytes": 9331,
+      "source_sha256": "cfeebcc4d60153b1a45b4f154b17c7f22f6026c3d4606a5904d372dceab093d3",
+      "public_sha256": "cfeebcc4d60153b1a45b4f154b17c7f22f6026c3d4606a5904d372dceab093d3"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/data-file-schema.xml",
+      "bytes": 337632,
+      "source_sha256": "6dbb5487d5e6e02eb3790f8148739454bda79091f38e33c9f281a0e82178f6a7",
+      "public_sha256": "6dbb5487d5e6e02eb3790f8148739454bda79091f38e33c9f281a0e82178f6a7"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/run.sh",
+      "bytes": 439,
+      "source_sha256": "67d2917a610d062131cf49071ba5a4dabdf24307cec9b3d458422682f0816c81",
+      "public_sha256": "cde78f697973dd5fb9614b2a9561fafb65cadcca0e4cdb68c44734071363fb19"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/scf-cold-start.in",
+      "bytes": 894,
+      "source_sha256": "de23103bfcf26bb1163ff40a4dae37b9d3cc962d3b2bbc57f94d2e82076f49f3",
+      "public_sha256": "de23103bfcf26bb1163ff40a4dae37b9d3cc962d3b2bbc57f94d2e82076f49f3"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/scf.in",
+      "bytes": 947,
+      "source_sha256": "4e711dfc6650b995c8761b73e7aa4bb433eb460f5e01789cbc960c5bdf124068",
+      "public_sha256": "4e711dfc6650b995c8761b73e7aa4bb433eb460f5e01789cbc960c5bdf124068"
+    },
+    {
+      "file": "alsi3-l12/cutoff80/scf.out",
+      "bytes": 11368,
+      "source_sha256": "980891c3dbd32617484a3b019371c631029c94c94ba3cd348d03874b5669f943",
+      "public_sha256": "980891c3dbd32617484a3b019371c631029c94c94ba3cd348d03874b5669f943"
+    },
+    {
+      "file": "alsi3-l12/k12/data-file-schema.xml",
+      "bytes": 135046,
+      "source_sha256": "44432e3310337ad0bfa35cb17aeec15c79d7e51e0843900fc6fa9ab64ebcce81",
+      "public_sha256": "44432e3310337ad0bfa35cb17aeec15c79d7e51e0843900fc6fa9ab64ebcce81"
+    },
+    {
+      "file": "alsi3-l12/k12/run.sh",
+      "bytes": 434,
+      "source_sha256": "18791dcf137c4341953f661a41c5a91947c54bd68fcefcefa0c51ecff133118f",
+      "public_sha256": "67907abc51eecd32570e63a14a1597968ceda3f29b76b9a56740ebdf267e7727"
+    },
+    {
+      "file": "alsi3-l12/k12/scf-cold-start.in",
+      "bytes": 893,
+      "source_sha256": "d812f65e37123b8732daa2821e227143de4ee4d43709abd965766425ae71e9f9",
+      "public_sha256": "d812f65e37123b8732daa2821e227143de4ee4d43709abd965766425ae71e9f9"
+    },
+    {
+      "file": "alsi3-l12/k12/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/k12/scf.in",
+      "bytes": 946,
+      "source_sha256": "960fcdb2505c6ef2ad16d454d2f95b7a4f8f5c248f56616cbc26f8baf84d4cfe",
+      "public_sha256": "960fcdb2505c6ef2ad16d454d2f95b7a4f8f5c248f56616cbc26f8baf84d4cfe"
+    },
+    {
+      "file": "alsi3-l12/k12/scf.out",
+      "bytes": 32492,
+      "source_sha256": "70f58866730ecd3960d2dd5d9ba054290e89f478b9d63f24e1af7cafe07516e9",
+      "public_sha256": "70f58866730ecd3960d2dd5d9ba054290e89f478b9d63f24e1af7cafe07516e9"
+    },
+    {
+      "file": "alsi3-l12/k16/data-file-schema.xml",
+      "bytes": 216374,
+      "source_sha256": "f88de636f7a90ccd945eec7c8172e20d4db17f21517027083ecd169fc4847464",
+      "public_sha256": "f88de636f7a90ccd945eec7c8172e20d4db17f21517027083ecd169fc4847464"
+    },
+    {
+      "file": "alsi3-l12/k16/run.sh",
+      "bytes": 434,
+      "source_sha256": "f8df71fcdb058f736f60f1759779a494fac6161fabd947f4677ff655a005e9b2",
+      "public_sha256": "7bf13d3c6b701ca7864d52085581c97e86a13b8ed29f5330ca23e3fdb508950d"
+    },
+    {
+      "file": "alsi3-l12/k16/scf-cold-start.in",
+      "bytes": 893,
+      "source_sha256": "4d586bf29bf7c92e86cb3cffcd3bbefa1eb448f0048e86c97f188985f5414344",
+      "public_sha256": "4d586bf29bf7c92e86cb3cffcd3bbefa1eb448f0048e86c97f188985f5414344"
+    },
+    {
+      "file": "alsi3-l12/k16/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/k16/scf.in",
+      "bytes": 946,
+      "source_sha256": "fae2dcc7d245377024bb749718da293e792e7e9bf2f7ed1091232425bf016a9e",
+      "public_sha256": "fae2dcc7d245377024bb749718da293e792e7e9bf2f7ed1091232425bf016a9e"
+    },
+    {
+      "file": "alsi3-l12/k16/scf.out",
+      "bytes": 11243,
+      "source_sha256": "6dc119fee7a497c39116f716d3dc5e4cd85d0367f5e58004f5f01b3f33257b0f",
+      "public_sha256": "6dc119fee7a497c39116f716d3dc5e4cd85d0367f5e58004f5f01b3f33257b0f"
+    },
+    {
+      "file": "alsi3-l12/k20/data-file-schema.xml",
+      "bytes": 337631,
+      "source_sha256": "a84c72fa1382cc5642f9057224364def56388973e82cd143719867525fdb7a46",
+      "public_sha256": "a84c72fa1382cc5642f9057224364def56388973e82cd143719867525fdb7a46"
+    },
+    {
+      "file": "alsi3-l12/k20/run.sh",
+      "bytes": 434,
+      "source_sha256": "df0707c99bc0f500d8fc7796346ffa37d2513c134aa0e755359edd2861c0c31c",
+      "public_sha256": "f63c4a362c017ef4e399e824b9337708f156468a1a732283105188cf15db6a56"
+    },
+    {
+      "file": "alsi3-l12/k20/scf-cold-start.in",
+      "bytes": 893,
+      "source_sha256": "0e0f5fd58a9a6797d2df7cd226c8d97e9734450dcedad126cc357ea334f5fb1a",
+      "public_sha256": "0e0f5fd58a9a6797d2df7cd226c8d97e9734450dcedad126cc357ea334f5fb1a"
+    },
+    {
+      "file": "alsi3-l12/k20/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/k20/scf.in",
+      "bytes": 946,
+      "source_sha256": "8bc9d32b16b8a01d922918af70ab5d78f8a4f42297e4819d6013710a24998da4",
+      "public_sha256": "8bc9d32b16b8a01d922918af70ab5d78f8a4f42297e4819d6013710a24998da4"
+    },
+    {
+      "file": "alsi3-l12/k20/scf.out",
+      "bytes": 11243,
+      "source_sha256": "c6460dac290c949bff37b513ce41265ea117209767f45e1a812f41f64773da89",
+      "public_sha256": "c6460dac290c949bff37b513ce41265ea117209767f45e1a812f41f64773da89"
+    },
+    {
+      "file": "alsi3-l12/k24/data-file-schema.xml",
+      "bytes": 506970,
+      "source_sha256": "22b802d8cf3daf4c199a0a90aa770c3fc5182800220eebc485ea0faaea18dcaa",
+      "public_sha256": "22b802d8cf3daf4c199a0a90aa770c3fc5182800220eebc485ea0faaea18dcaa"
+    },
+    {
+      "file": "alsi3-l12/k24/run.sh",
+      "bytes": 434,
+      "source_sha256": "26ce2907e957fe0ce4f6b6704d10bff0fae9c57cc35e3863e5f61809b512e4ab",
+      "public_sha256": "2dbdc899538543c3baf39018f80f320c4b368b7ed057a452e5937e1c9519dd63"
+    },
+    {
+      "file": "alsi3-l12/k24/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/k24/scf.in",
+      "bytes": 947,
+      "source_sha256": "a1fbfb036aab69320e91770b8cc5d86651a55661a0cfd33b56cfd0d75d05cb56",
+      "public_sha256": "a1fbfb036aab69320e91770b8cc5d86651a55661a0cfd33b56cfd0d75d05cb56"
+    },
+    {
+      "file": "alsi3-l12/k24/scf.out",
+      "bytes": 11243,
+      "source_sha256": "cd244f67a429169a56602dad0a8f735a05f75c0fc017a59f490cc13174ee2869",
+      "public_sha256": "cd244f67a429169a56602dad0a8f735a05f75c0fc017a59f490cc13174ee2869"
+    },
+    {
+      "file": "alsi3-l12/pseudo-manifest.json",
+      "bytes": 856,
+      "source_sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a",
+      "public_sha256": "ff0a5e00f35f9a8f72984960bfd63f099f74b7f902148428b8af7d791985852a"
+    },
+    {
+      "file": "alsi3-l12/run.sh",
+      "bytes": 445,
+      "source_sha256": "7efa7de2df53eb1597d894e025013a3c64fc751c264af2f6b82a1b91f0b33952",
+      "public_sha256": "43a28dcabe8163c4f707302cd5ec44aba27d05fdf15f893475681edbf5edcf08"
+    },
+    {
+      "file": "alsi3-l12/sigma005/data-file-schema.xml",
+      "bytes": 337632,
+      "source_sha256": "347a5051f515e67d11898badbdb58ee5b1611a110367c3f573941515e1ef6248",
+      "public_sha256": "347a5051f515e67d11898badbdb58ee5b1611a110367c3f573941515e1ef6248"
+    },
+    {
+      "file": "alsi3-l12/sigma005/run.sh",
+      "bytes": 439,
+      "source_sha256": "dae0cf18da9715c3875e82bee6a11d9e6e62c4407d8eed405e9e8af971f2a472",
+      "public_sha256": "a7f2e19105666a72b742298064619e2f6c95d357bd9a22cc4c329493af158e3f"
+    },
+    {
+      "file": "alsi3-l12/sigma005/scf-cold-start.in",
+      "bytes": 894,
+      "source_sha256": "d5c78bf3755dc07d0499cc1c7cbf5f107740a66445b920f8e16bf7ef080f0f82",
+      "public_sha256": "d5c78bf3755dc07d0499cc1c7cbf5f107740a66445b920f8e16bf7ef080f0f82"
+    },
+    {
+      "file": "alsi3-l12/sigma005/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/sigma005/scf.in",
+      "bytes": 947,
+      "source_sha256": "c581c235c9b5c4de4ccf32bb96436a10e6fcdb0873091823acfedd986e6cf647",
+      "public_sha256": "c581c235c9b5c4de4ccf32bb96436a10e6fcdb0873091823acfedd986e6cf647"
+    },
+    {
+      "file": "alsi3-l12/sigma005/scf.out",
+      "bytes": 11368,
+      "source_sha256": "1dbd936b39403c3015ced83679e04629941ee432db70cc597fc2ac8c9d53b086",
+      "public_sha256": "1dbd936b39403c3015ced83679e04629941ee432db70cc597fc2ac8c9d53b086"
+    },
+    {
+      "file": "alsi3-l12/vc-relax.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/vc-relax.in",
+      "bytes": 833,
+      "source_sha256": "ad52a9d8dca91fd657b3a33aeb8de2732da9619ed390b0e6308af3a1e8181bff",
+      "public_sha256": "ad52a9d8dca91fd657b3a33aeb8de2732da9619ed390b0e6308af3a1e8181bff"
+    },
+    {
+      "file": "alsi3-l12/vc-relax.out",
+      "bytes": 204213,
+      "source_sha256": "2f075cbf64e997fd427e6915ec1828926292ed7714b20a19f027180aee3b4857",
+      "public_sha256": "2f075cbf64e997fd427e6915ec1828926292ed7714b20a19f027180aee3b4857"
+    },
+    {
+      "file": "alsi3-l12/verify/data-file-schema.xml",
+      "bytes": 337474,
+      "source_sha256": "b0718a7d4f297ffa311c17425402978f33d2c90e89e3db1d73a5fa0bb5182b10",
+      "public_sha256": "b0718a7d4f297ffa311c17425402978f33d2c90e89e3db1d73a5fa0bb5182b10"
+    },
+    {
+      "file": "alsi3-l12/verify/run.sh",
+      "bytes": 437,
+      "source_sha256": "f0775e3c4974ebb0e3d193fe3d354b3064dce5a1382b50e9a9b5407cc1650932",
+      "public_sha256": "f9fb6d19c011cf102875406f9cec75aa9214d11eda53749d58c76083c9273b41"
+    },
+    {
+      "file": "alsi3-l12/verify/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "alsi3-l12/verify/scf.in",
+      "bytes": 991,
+      "source_sha256": "42be21b1f09eef8b399a94010e1dac859d562b269ddb9235ae3ce89531251e10",
+      "public_sha256": "42be21b1f09eef8b399a94010e1dac859d562b269ddb9235ae3ce89531251e10"
+    },
+    {
+      "file": "alsi3-l12/verify/scf.out",
+      "bytes": 9733,
+      "source_sha256": "c07be8d2f067b3b7d0f3ca79381c5ad44b3a42647920a8129f691c105b116503",
+      "public_sha256": "c07be8d2f067b3b7d0f3ca79381c5ad44b3a42647920a8129f691c105b116503"
+    },
+    {
+      "file": "analyse_alsi.py",
+      "bytes": 8329,
+      "source_sha256": "a680148dcdd46d84bb0aa077b07a64814951bc989b432d3925960a73c018f997",
+      "public_sha256": "a680148dcdd46d84bb0aa077b07a64814951bc989b432d3925960a73c018f997"
+    },
+    {
+      "file": "energy-table.csv",
+      "bytes": 14464,
+      "source_sha256": "b836e4cfe53bb6d3c48bce133fe54f5f92aac65ecb12befae96f9e562c1ea79c",
+      "public_sha256": "b836e4cfe53bb6d3c48bce133fe54f5f92aac65ecb12befae96f9e562c1ea79c"
+    },
+    {
+      "file": "evidence/analysis-receipt.json",
+      "bytes": 16277,
+      "source_sha256": "47abc5265c450be2f8e45b0f7fab47fa65efeb6e57ef7af462e3be15d50b38b5",
+      "public_sha256": "47abc5265c450be2f8e45b0f7fab47fa65efeb6e57ef7af462e3be15d50b38b5"
+    },
+    {
+      "file": "evidence/draft-verification.json",
+      "bytes": 458,
+      "source_sha256": "927fb581dfd715931cac358fe4a16f02f01b29bd3548918a79471536934f9eb4",
+      "public_sha256": "927fb581dfd715931cac358fe4a16f02f01b29bd3548918a79471536934f9eb4"
+    },
+    {
+      "file": "evidence/verification-comparison.json",
+      "bytes": 1195,
+      "source_sha256": "3a8208901ae8fb2f636932b9ae37af03e73192c6b720d042cd22060fe1f0796f",
+      "public_sha256": "3a8208901ae8fb2f636932b9ae37af03e73192c6b720d042cd22060fe1f0796f"
+    },
+    {
+      "file": "formation-energy.csv",
+      "bytes": 2771,
+      "source_sha256": "397c1efcc50e0fa3075923cc765500ea3fb6b5a54b60506755a40d912e85f61f",
+      "public_sha256": "397c1efcc50e0fa3075923cc765500ea3fb6b5a54b60506755a40d912e85f61f"
+    },
+    {
+      "file": "formation-summary.csv",
+      "bytes": 381,
+      "source_sha256": "00305c2421dc31d42b200be3550c1bed524b0ec3d6a4edb4c030cda4812c0f57",
+      "public_sha256": "00305c2421dc31d42b200be3550c1bed524b0ec3d6a4edb4c030cda4812c0f57"
+    },
+    {
+      "file": "numerical-checks.csv",
+      "bytes": 1111,
+      "source_sha256": "5918a218ac3c054c07f15c6bb3d400764ec45bf197f7c206d91d0c3461e27da4",
+      "public_sha256": "5918a218ac3c054c07f15c6bb3d400764ec45bf197f7c206d91d0c3461e27da4"
+    },
+    {
+      "file": "plot_alsi.py",
+      "bytes": 4361,
+      "source_sha256": "13c87e7f348a0f8ef95002f7a164e8989e2722dd12b0c7c175b0ecb706621247",
+      "public_sha256": "13c87e7f348a0f8ef95002f7a164e8989e2722dd12b0c7c175b0ecb706621247"
+    },
+    {
+      "file": "plots/convex-hull.png",
+      "bytes": 72404,
+      "source_sha256": "6a50f63b2261571716c9a270ee9fa4de4b32539236e511800ddabad81d8f64f6",
+      "public_sha256": "6a50f63b2261571716c9a270ee9fa4de4b32539236e511800ddabad81d8f64f6"
+    },
+    {
+      "file": "plots/convex-hull.svg",
+      "bytes": 51916,
+      "source_sha256": "d7394d909fa0002266ef355b47d5c1206f708bafbd3ba3ffdcd8428be41f7299",
+      "public_sha256": "d7394d909fa0002266ef355b47d5c1206f708bafbd3ba3ffdcd8428be41f7299"
+    },
+    {
+      "file": "plots/formation-energy.png",
+      "bytes": 151458,
+      "source_sha256": "81b5a5b5c9109fb0400a9867f3f1ddb9ad07008eda19825d55ddb5b5fbdebca1",
+      "public_sha256": "81b5a5b5c9109fb0400a9867f3f1ddb9ad07008eda19825d55ddb5b5fbdebca1"
+    },
+    {
+      "file": "plots/formation-energy.svg",
+      "bytes": 64984,
+      "source_sha256": "59305d8c17d2215da60588ed43cb3aef764688e54d54df7527256881b50291f9",
+      "public_sha256": "59305d8c17d2215da60588ed43cb3aef764688e54d54df7527256881b50291f9"
+    },
+    {
+      "file": "pseudo/Al.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "bytes": 1500731,
+      "source_sha256": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e",
+      "public_sha256": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e"
+    },
+    {
+      "file": "pseudo/Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "bytes": 1513204,
+      "source_sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a",
+      "public_sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a"
+    },
+    {
+      "file": "si-diamond/cutoff80/data-file-schema.xml",
+      "bytes": 229677,
+      "source_sha256": "6b25bcf2102b34141000a038e85efdd64ec5ee20da619d3d2ceb48184829b182",
+      "public_sha256": "6b25bcf2102b34141000a038e85efdd64ec5ee20da619d3d2ceb48184829b182"
+    },
+    {
+      "file": "si-diamond/cutoff80/run.sh",
+      "bytes": 440,
+      "source_sha256": "5c974502874112a76589d9d4da6e8d23bc7881c76d4dc586a2e065d632818168",
+      "public_sha256": "19adb386c4d2f05fd1262a216a8ee1ed09e5b779810d8b2e286903211378f393"
+    },
+    {
+      "file": "si-diamond/cutoff80/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/cutoff80/scf.in",
+      "bytes": 759,
+      "source_sha256": "30bbbd93c1747549e1f4cac08e0a698c2cdc3cffc38466a941228dacdf1c690c",
+      "public_sha256": "30bbbd93c1747549e1f4cac08e0a698c2cdc3cffc38466a941228dacdf1c690c"
+    },
+    {
+      "file": "si-diamond/cutoff80/scf.out",
+      "bytes": 11184,
+      "source_sha256": "ee82c31c557afe53cb74e33a5a21aabfd5ebef63cb22730c53ad12be651b572b",
+      "public_sha256": "ee82c31c557afe53cb74e33a5a21aabfd5ebef63cb22730c53ad12be651b572b"
+    },
+    {
+      "file": "si-diamond/k12/data-file-schema.xml",
+      "bytes": 99744,
+      "source_sha256": "1c44562396e59d438fa4ce744e84c49bf9528a8ca22a593c52996c3dbfe8b58e",
+      "public_sha256": "1c44562396e59d438fa4ce744e84c49bf9528a8ca22a593c52996c3dbfe8b58e"
+    },
+    {
+      "file": "si-diamond/k12/run.sh",
+      "bytes": 435,
+      "source_sha256": "a13c6240e9aa8442de2f49a880221fde0b039322215d0d3bc7573bdb1e3a02b0",
+      "public_sha256": "d5ff8877b7df08c9e2f6321e440b5d932b69304412f59fa666b39bfab1912c01"
+    },
+    {
+      "file": "si-diamond/k12/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/k12/scf.in",
+      "bytes": 758,
+      "source_sha256": "55f1a5c84a2c57f53a8941b537b8e345633880c7ffe5698f9929017ecd8b5b70",
+      "public_sha256": "55f1a5c84a2c57f53a8941b537b8e345633880c7ffe5698f9929017ecd8b5b70"
+    },
+    {
+      "file": "si-diamond/k12/scf.out",
+      "bytes": 27132,
+      "source_sha256": "6a74c0b63c0733c1c9e135ec3479e77cd2eea81b2eb8dcc503a516ffba7dda67",
+      "public_sha256": "6a74c0b63c0733c1c9e135ec3479e77cd2eea81b2eb8dcc503a516ffba7dda67"
+    },
+    {
+      "file": "si-diamond/k16/data-file-schema.xml",
+      "bytes": 151303,
+      "source_sha256": "02dee2cabebf2e36dea76f201879ddf955ab605d977368264f133c51e047c36e",
+      "public_sha256": "02dee2cabebf2e36dea76f201879ddf955ab605d977368264f133c51e047c36e"
+    },
+    {
+      "file": "si-diamond/k16/run.sh",
+      "bytes": 435,
+      "source_sha256": "c36902d71a23d31585d1b5c2236b52e9ca3556baafe050bdb6520c60e48bd942",
+      "public_sha256": "724ae6b2eafbe4af4ec90ab9c41352bc4eb9f2b17e4530b699812edd030f6f1d"
+    },
+    {
+      "file": "si-diamond/k16/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/k16/scf.in",
+      "bytes": 758,
+      "source_sha256": "6be4715940bda607554f253a59e0231a5840bae0652bcaf264311b4766341c80",
+      "public_sha256": "6be4715940bda607554f253a59e0231a5840bae0652bcaf264311b4766341c80"
+    },
+    {
+      "file": "si-diamond/k16/scf.out",
+      "bytes": 11741,
+      "source_sha256": "17c12e0f7698f6996c32f920f7de3ca6e7ad38bde52dff51814da601e65ad1bb",
+      "public_sha256": "17c12e0f7698f6996c32f920f7de3ca6e7ad38bde52dff51814da601e65ad1bb"
+    },
+    {
+      "file": "si-diamond/k20/data-file-schema.xml",
+      "bytes": 229677,
+      "source_sha256": "75a719e1b29e1a457e58796232cfa8d55956311bd26e2fc057f493c1f07ea9d9",
+      "public_sha256": "75a719e1b29e1a457e58796232cfa8d55956311bd26e2fc057f493c1f07ea9d9"
+    },
+    {
+      "file": "si-diamond/k20/run.sh",
+      "bytes": 435,
+      "source_sha256": "db7f5865e08a775177ced87c5d3de575fa7314c6e0fbd087ce61400668d41171",
+      "public_sha256": "01bfa3949b03fff83a082b46a1d1b33d3d9710dff18686e9f31a80cd185b092a"
+    },
+    {
+      "file": "si-diamond/k20/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/k20/scf.in",
+      "bytes": 758,
+      "source_sha256": "5a2e5a3f272fc95737e84e33b92bf8db950322527904b9abb8f684e6d44ba7ea",
+      "public_sha256": "5a2e5a3f272fc95737e84e33b92bf8db950322527904b9abb8f684e6d44ba7ea"
+    },
+    {
+      "file": "si-diamond/k20/scf.out",
+      "bytes": 11784,
+      "source_sha256": "4266ad824a16bc83316cecb3413082bcb311edb830dd37d8709de5be7eaa6c06",
+      "public_sha256": "4266ad824a16bc83316cecb3413082bcb311edb830dd37d8709de5be7eaa6c06"
+    },
+    {
+      "file": "si-diamond/k24/data-file-schema.xml",
+      "bytes": 340511,
+      "source_sha256": "28a3a1f12cce7cc235db964abc3af9ded1b64976f61a9016a88f9c30a358e93f",
+      "public_sha256": "28a3a1f12cce7cc235db964abc3af9ded1b64976f61a9016a88f9c30a358e93f"
+    },
+    {
+      "file": "si-diamond/k24/run.sh",
+      "bytes": 435,
+      "source_sha256": "dfc16b068d8f8f778751fc75060d46752aac6edd0cdb588b833d879d26f9fc2a",
+      "public_sha256": "4034e4e46978c017ce3627beacbb2c9971f5136706269c21aafaa55a884dfe23"
+    },
+    {
+      "file": "si-diamond/k24/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/k24/scf.in",
+      "bytes": 812,
+      "source_sha256": "7b9c61c5c37774d6e2e3e2a64ca069e763b4f4baf56cc2d83ae994289131c6ff",
+      "public_sha256": "7b9c61c5c37774d6e2e3e2a64ca069e763b4f4baf56cc2d83ae994289131c6ff"
+    },
+    {
+      "file": "si-diamond/k24/scf.out",
+      "bytes": 9538,
+      "source_sha256": "91bc1fa7d63623014395fdfa0dace8482150a04837c93c20678c278e9e12a6ef",
+      "public_sha256": "91bc1fa7d63623014395fdfa0dace8482150a04837c93c20678c278e9e12a6ef"
+    },
+    {
+      "file": "si-diamond/pseudo-manifest.json",
+      "bytes": 457,
+      "source_sha256": "23cfc3504c2c59c9e99c9fddf25ac5e5b2e908059a4ce8b413f33beb6f6beb29",
+      "public_sha256": "23cfc3504c2c59c9e99c9fddf25ac5e5b2e908059a4ce8b413f33beb6f6beb29"
+    },
+    {
+      "file": "si-diamond/run.sh",
+      "bytes": 446,
+      "source_sha256": "7e9778e8399ecd45779388f3f22d3743bdecfbf9afe8b0047f80437279565a02",
+      "public_sha256": "1c9eb835e19f12015d2309cb1ec19ac5f66c873c218e0b0736c2e7d08e591729"
+    },
+    {
+      "file": "si-diamond/sigma005/data-file-schema.xml",
+      "bytes": 229677,
+      "source_sha256": "527f4e137b08f586ab10b414533ae3794cd175154748a8517a5e760fe8989826",
+      "public_sha256": "527f4e137b08f586ab10b414533ae3794cd175154748a8517a5e760fe8989826"
+    },
+    {
+      "file": "si-diamond/sigma005/run.sh",
+      "bytes": 440,
+      "source_sha256": "d95b0291f1a4fe41903ebe1deca502fa2a914ef46f23dfee89c0752f3a9cd589",
+      "public_sha256": "8d95dd5afdffcbc27933ea4ee496ae3e36a265e3a5d44abe89ec3b329d677908"
+    },
+    {
+      "file": "si-diamond/sigma005/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/sigma005/scf.in",
+      "bytes": 759,
+      "source_sha256": "917391d14011007c00f0f4f225dbf781adb58ca96ec330d17953843e5b094585",
+      "public_sha256": "917391d14011007c00f0f4f225dbf781adb58ca96ec330d17953843e5b094585"
+    },
+    {
+      "file": "si-diamond/sigma005/scf.out",
+      "bytes": 11184,
+      "source_sha256": "3e859b7603a918b2df06a42aa3c4ab5bfca9707b7a265a164182122867b94024",
+      "public_sha256": "3e859b7603a918b2df06a42aa3c4ab5bfca9707b7a265a164182122867b94024"
+    },
+    {
+      "file": "si-diamond/vc-relax.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/vc-relax.in",
+      "bytes": 705,
+      "source_sha256": "55c962dd376765c10533a112e74f118c72640efbe0fc3407a3da80165ed26420",
+      "public_sha256": "55c962dd376765c10533a112e74f118c72640efbe0fc3407a3da80165ed26420"
+    },
+    {
+      "file": "si-diamond/vc-relax.out",
+      "bytes": 98305,
+      "source_sha256": "cba08a3d3756200360f3443c3a17728aab62a57b3d71a312b63f99be6ec6de76",
+      "public_sha256": "cba08a3d3756200360f3443c3a17728aab62a57b3d71a312b63f99be6ec6de76"
+    },
+    {
+      "file": "si-diamond/verify/data-file-schema.xml",
+      "bytes": 228085,
+      "source_sha256": "5654a10094f752a43feca4a9f1769ef8dc3c9b0512e966fa712467c1e405c088",
+      "public_sha256": "5654a10094f752a43feca4a9f1769ef8dc3c9b0512e966fa712467c1e405c088"
+    },
+    {
+      "file": "si-diamond/verify/run.sh",
+      "bytes": 438,
+      "source_sha256": "e98e39b5bc6b685c822efade054adec94a3f978f6207b5b53d4f1408b78c7078",
+      "public_sha256": "f19dbe692b1fca47039697b8caec7b6eb6f2394468f66976ea383bd7eb560ef4"
+    },
+    {
+      "file": "si-diamond/verify/scf.err",
+      "bytes": 1300,
+      "source_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350",
+      "public_sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+    },
+    {
+      "file": "si-diamond/verify/scf.in",
+      "bytes": 804,
+      "source_sha256": "a15752e453a8537847f7b848612c0421b865b1b225e834ea245b33240dc5075a",
+      "public_sha256": "a15752e453a8537847f7b848612c0421b865b1b225e834ea245b33240dc5075a"
+    },
+    {
+      "file": "si-diamond/verify/scf.out",
+      "bytes": 8779,
+      "source_sha256": "5d569e8f22e352613add9d0a84d3dc060275bbdd27f3845741156565911bba14",
+      "public_sha256": "5d569e8f22e352613add9d0a84d3dc060275bbdd27f3845741156565911bba14"
+    },
+    {
+      "file": "sources/prototypes.json",
+      "bytes": 2105,
+      "source_sha256": "002508c41bb71283a463048ac392497c614c03b896ba9475f33e3cd9072ddb67",
+      "public_sha256": "002508c41bb71283a463048ac392497c614c03b896ba9475f33e3cd9072ddb67"
+    }
+  ]
+}

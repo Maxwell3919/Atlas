@@ -1,0 +1,11 @@
+&BANDS
+ prefix = 'si'
+ outdir = './tmp'
+ filband = 'bands.dat'
+ lsym = .false.
+ no_overlap = .true.
+ dim1 = 1
+ dim2 = 1
+ dim3 = 1
+ poors_man = .true.
+/

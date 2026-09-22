@@ -1,0 +1,8 @@
+Si perfect2x1x1 supercell:40 path points,320 primitive eigenvalues checked
+cell       nbnd   max|norm-1|   max|even+odd-1|   max|native-even|
+primitive     8   1.247e-13       1.247e-13       1.247e-13
+supercell    24   3.544e-12       3.545e-12       3.987e-06
+Degenerate-eigenspace centroid max/RMS difference(eV): 0.000000591 0.000000135
+Degenerate-eigenspace weight maximum error: 6.654e-06
+Reference energy: primitiveGammaVBM(eV)= 6.230001317
+Native Cartesian headers are not used as primitive fractional coordinates; input kpath was checked against XML and binary wfc headers.

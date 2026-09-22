@@ -1,0 +1,154 @@
+{
+  "method": "Fukui-Hatsugai-Suzuki determinant links of four occupied native QE/pw2wannier90 bands",
+  "phase_convention": "Arg(U1(k) U2(k+e1) conj(U1(k+e2)) conj(U2(k)))",
+  "surface": "fixed fractional k3, oriented reciprocal b1,b2 torus",
+  "spin": "nonmagnetic scalar calculation: one equivalent spin channel; four spatial bands, eight electrons",
+  "claim": "Discrete slice Chern calculation and internal numerical checks only; no full-zone insulating-gap or Z2 validation",
+  "numpy_version": "2.4.6",
+  "cases": [
+    {
+      "grid": 4,
+      "occupied_bands": 4,
+      "kpoints": 64,
+      "mmn_neighbors": 8,
+      "selected_links": 128,
+      "boundary_links": 32,
+      "min_link_singular_value": 0.6668967225520925,
+      "max_link_singular_value": 0.9984306510700022,
+      "min_abs_determinant": 0.5768445103517102,
+      "reciprocal_duality_error": 2.1510177372618955e-07,
+      "reverse_link_max_error": 9.999778782798785e-13,
+      "normalized_link_norm_error": 2.220446049250313e-16,
+      "max_abs_phase_rad": 9.87407539970122e-06,
+      "branch_margin_rad": 3.1415827795143936,
+      "random_gauge_trials": 12,
+      "max_gauge_flux_difference_rad": 1.3322676295501878e-15,
+      "max_gauge_chern_difference": 9.663150303948253e-17,
+      "slices": [
+        {
+          "grid": 4,
+          "k3_index": 0,
+          "k3_fraction": 0.0,
+          "plaquettes": 16,
+          "chern_raw": 1.5742511896878714e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 9.630714595403427e-06,
+          "plaquette_area_invA2": 0.2395422695621964
+        },
+        {
+          "grid": 4,
+          "k3_index": 1,
+          "k3_fraction": 0.25,
+          "plaquettes": 16,
+          "chern_raw": -6.222967392051429e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 9.87407539970122e-06,
+          "plaquette_area_invA2": 0.2395422695621964
+        },
+        {
+          "grid": 4,
+          "k3_index": 2,
+          "k3_fraction": 0.5,
+          "plaquettes": 16,
+          "chern_raw": 5.227911654457736e-18,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 9.729170227999187e-06,
+          "plaquette_area_invA2": 0.2395422695621964
+        },
+        {
+          "grid": 4,
+          "k3_index": 3,
+          "k3_fraction": 0.75,
+          "plaquettes": 16,
+          "chern_raw": -3.775905701702878e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 8.864300081739619e-06,
+          "plaquette_area_invA2": 0.2395422695621964
+        }
+      ],
+      "wall_seconds": 0.06200260482728481
+    },
+    {
+      "grid": 6,
+      "occupied_bands": 4,
+      "kpoints": 216,
+      "mmn_neighbors": 8,
+      "selected_links": 432,
+      "boundary_links": 72,
+      "min_link_singular_value": 0.7327451654775219,
+      "max_link_singular_value": 0.9993555587935145,
+      "min_abs_determinant": 0.6708310434825128,
+      "reciprocal_duality_error": 2.1510177372618955e-07,
+      "reverse_link_max_error": 1.0000333894311098e-12,
+      "normalized_link_norm_error": 2.220446049250313e-16,
+      "max_abs_phase_rad": 8.863247177697846e-06,
+      "branch_margin_rad": 3.1415837903426156,
+      "random_gauge_trials": 12,
+      "max_gauge_flux_difference_rad": 1.3322676295501878e-15,
+      "max_gauge_chern_difference": 1.822891731283659e-16,
+      "slices": [
+        {
+          "grid": 6,
+          "k3_index": 0,
+          "k3_fraction": 0.0,
+          "plaquettes": 36,
+          "chern_raw": -1.6980332546987815e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 3.947377860646066e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        },
+        {
+          "grid": 6,
+          "k3_index": 1,
+          "k3_fraction": 0.16666666666666666,
+          "plaquettes": 36,
+          "chern_raw": -1.55462966979859e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 8.863247177697846e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        },
+        {
+          "grid": 6,
+          "k3_index": 2,
+          "k3_fraction": 0.3333333333333333,
+          "plaquettes": 36,
+          "chern_raw": -2.903216529574664e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 6.946146470288364e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        },
+        {
+          "grid": 6,
+          "k3_index": 3,
+          "k3_fraction": 0.5,
+          "plaquettes": 36,
+          "chern_raw": -1.0260929242931728e-16,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 8.344797136447237e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        },
+        {
+          "grid": 6,
+          "k3_index": 4,
+          "k3_fraction": 0.6666666666666666,
+          "plaquettes": 36,
+          "chern_raw": 7.990651649977938e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 5.3141224392844526e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        },
+        {
+          "grid": 6,
+          "k3_index": 5,
+          "k3_fraction": 0.8333333333333334,
+          "plaquettes": 36,
+          "chern_raw": 2.3688182678563578e-17,
+          "chern_integer": 0,
+          "max_abs_phase_rad": 6.676991018078268e-06,
+          "plaquette_area_invA2": 0.10646323091653173
+        }
+      ],
+      "wall_seconds": 0.18221154808998108
+    }
+  ]
+}

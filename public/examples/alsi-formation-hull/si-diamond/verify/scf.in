@@ -1,0 +1,38 @@
+&CONTROL
+ calculation = 'scf'
+ prefix = 'si-diamond'
+ outdir = './tmp'
+ pseudo_dir = '../../pseudo'
+ tstress = .true.
+ tprnfor = .true.
+/
+&SYSTEM
+ ibrav = 0
+ nat = 2
+ ntyp = 1
+ nbnd = 8
+ ecutwfc = 80
+ ecutrho = 640
+ occupations = 'smearing'
+ smearing = 'mv'
+ degauss = 0.005
+/
+&ELECTRONS
+ startingpot = 'file'
+ startingwfc = 'file'
+ conv_thr = 1.0d-10
+ diagonalization = 'cg'
+ diago_cg_maxiter = 1000
+ diago_thr_init = 1.0d-10
+/
+ATOMIC_SPECIES
+Si 28.085 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+-2.734713867651 0.000000000000 2.734713867651
+0.000000000000 2.734713867651 2.734713867651
+-2.734713867651 2.734713867651 0.000000000000
+ATOMIC_POSITIONS crystal
+Si 0.000000000000 -0.000000000000 0.000000000000
+Si -0.250000000000 0.750000000000 -0.250000000000
+K_POINTS automatic
+20 20 20 0 0 0

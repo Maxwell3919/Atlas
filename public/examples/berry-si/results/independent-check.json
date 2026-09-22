@@ -1,0 +1,17 @@
+{
+  "source_files_unchanged": 30,
+  "polar_loop_checks": [
+    {
+      "grid": 4,
+      "independent_polar_loop_max_phase_error_rad": 1.6809843176712053e-15,
+      "raw_mmn_sha256": "d5d2ddea2e3f20a19380d54d501c2d0dadf241b2b3fd0692b824cd236ba87c63"
+    },
+    {
+      "grid": 6,
+      "independent_polar_loop_max_phase_error_rad": 1.5867497847067962e-15,
+      "raw_mmn_sha256": "27080bfc69fb36bab707ff7aa10402388c6d77c904106d051398a4075ab54e1d"
+    }
+  ],
+  "synthetic_link_chern": 0.9999999999999999,
+  "synthetic_scope": "Algorithm orientation and periodic-boundary check, not a Si/QE result"
+}

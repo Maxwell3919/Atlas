@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "pseudopotentials": [
+    {
+      "filename": "Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "sha256": "669fb75395a9d26973b0ea1ce8223bbcb30d3396c5d48bf5e794d1243c52375a",
+      "source": "QE pslibrary 1.0.0, independently downloaded and cmp verified",
+      "source_url": "https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "xc_functional": "PBE",
+      "relativistic": "scalar"
+    },
+    {
+      "filename": "Al.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "sha256": "cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e",
+      "source": "QE pslibrary 1.0.0, independently downloaded and cmp verified",
+      "source_url": "https://pseudopotentials.quantum-espresso.org/upf_files/Al.pbe-n-rrkjus_psl.1.0.0.UPF",
+      "xc_functional": "PBE",
+      "relativistic": "scalar"
+    }
+  ]
+}

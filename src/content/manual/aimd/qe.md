@@ -10,7 +10,7 @@
 
 ## 先准备同一份位置和初速度
 
-8 个原子的初速度来自固定种子 20260922 的正态分布，先减去质心速度，再按 21 个自由度归一化到 300 K。初速度和坐标都写进输入，因此两条 NVE 可以从同一个初态比较步长。生成过程保存在 `prepare_aimd.py`，具体初速度记录在 `initial-velocities.json`；没有从一次已经升温的轨迹中任意摘取几行。
+8 个原子的初速度来自固定种子 20260922 的正态分布，先减去质心速度，再按 21 个自由度归一化到 300 K。初速度和坐标都写进输入，因此两条 NVE 可以从同一个初态比较步长。最初的输入准备过程保存在 `prepare_aimd.py`，具体初速度记录在 `initial-velocities.json`；没有从一次已经升温的轨迹中任意摘取几行。
 
 下面是最终用于恒温轨迹的完整输入。`ATOMIC_POSITIONS crystal` 是超胞的分数坐标，`ATOMIC_VELOCITIES` 使用 QE 的原子单位，不是 Å/fs。
 
@@ -310,7 +310,7 @@ step,energy_sample_time_fs,position_time_fs,temperature_K,potential_Ry,kinetic_R
 python plot_aimd.py
 ```
 
-这会生成温度、能量与位移三组 PNG/PDF。原始提取代码为 [analyse_aimd.py](/Atlas/examples/al/aimd/analyse_aimd.py)，初态记录为 [initial-velocities.json](/Atlas/examples/al/aimd/initial-velocities.json)；输入生成代码为 [prepare_aimd.py](/Atlas/examples/al/prepare_aimd.py)。
+这会生成温度、能量与位移三组 PNG/PDF。原始提取代码为 [analyse_aimd.py](/Atlas/examples/al/aimd/analyse_aimd.py)，初态记录为 [initial-velocities.json](/Atlas/examples/al/aimd/initial-velocities.json)；最初的输入准备记录为 [prepare_aimd.py](/Atlas/examples/al/prepare_aimd.py)。它保留初态的生成过程；本页实际完成的三条路线使用后续调整过的 `nosym` 与 CG 设置，重跑时应使用上表各目录中的最终输入和 `run.slurm`，不能把最初的生成脚本当成最终三条路线的一键入口。
 
 | 分支 | 输入与脚本 | 完整 OUT | 数值与坐标 |
 |---|---|---|---|

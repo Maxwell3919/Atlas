@@ -1,0 +1,19 @@
+GRID 4x4x4: 64 k points, 4 occupied bands, 128 directed links
+  singular values: min=0.666896722552 max=0.998430651070; min|det M|=0.576844510352
+  reverse overlap residual=1.000e-12; max plaquette phase=9.874075e-06 rad
+  12 random U(4) gauges: max phase difference=1.332e-15 rad
+  k3=0.000000000: C=+1.574251189688e-17, integer=0, max|phase|=9.630715e-06
+  k3=0.250000000: C=-6.222967392051e-17, integer=0, max|phase|=9.874075e-06
+  k3=0.500000000: C=+5.227911654458e-18, integer=0, max|phase|=9.729170e-06
+  k3=0.750000000: C=-3.775905701703e-17, integer=0, max|phase|=8.864300e-06
+GRID 6x6x6: 216 k points, 4 occupied bands, 432 directed links
+  singular values: min=0.732745165478 max=0.999355558794; min|det M|=0.670831043483
+  reverse overlap residual=1.000e-12; max plaquette phase=8.863247e-06 rad
+  12 random U(4) gauges: max phase difference=1.332e-15 rad
+  k3=0.000000000: C=-1.698033254699e-17, integer=0, max|phase|=3.947378e-06
+  k3=0.166666667: C=-1.554629669799e-17, integer=0, max|phase|=8.863247e-06
+  k3=0.333333333: C=-2.903216529575e-17, integer=0, max|phase|=6.946146e-06
+  k3=0.500000000: C=-1.026092924293e-16, integer=0, max|phase|=8.344797e-06
+  k3=0.666666667: C=+7.990651649978e-17, integer=0, max|phase|=5.314122e-06
+  k3=0.833333333: C=+2.368818267856e-17, integer=0, max|phase|=6.676991e-06
+POSTPROCESS_CHECKS_PASSED; full-zone gap and material topological classification not established.

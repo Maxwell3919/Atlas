@@ -1,0 +1,38 @@
+{
+  "host": "maxwell",
+  "account": "maxwell",
+  "ordinary_directory_taskbook": "off",
+  "tmux": "atlas_al:3.1 pane%3",
+  "jobs": [
+    1981,
+    1982
+  ],
+  "MPI_ranks_each": 8,
+  "OMP_threads_each": 1,
+  "software_changes": "none; all QE binaries pre-existing",
+  "completed_programs": [
+    "primitive/scf",
+    "primitive/bands",
+    "primitive/bands_unfold",
+    "supercell/scf",
+    "supercell/bands",
+    "supercell/bands_unfold"
+  ],
+  "ops_authority_read_sha": "732cabfc1627d0e3b58923a5d97df29b7d35d987",
+  "pseudo_source": "https://pseudopotentials.quantum-espresso.org/upf_files/Si.pz-vbc.UPF",
+  "pseudo_sha256": "e8d933754cd51c6bb4b2a809151f89e0647e53d878bab88d26e1b5a5d68d5217",
+  "versions": {
+    "QE": "7.5"
+  },
+  "exe_source_sha256": {
+    "bin/pw.x": "e0fea3791f15e1a6fe344333a6150c64b5e7fc805d47d000d80e32db434e4983",
+    "bin/bands_unfold.x": "cd1cfb1d65a68fd2f510600e1b80c2d9cdfa9b84fe1ee82dbdd8e392e9b304b1",
+    "EPW/ZG/src/bands_unfold.f90": "586103ff26e463559c4cc00783793a5dd625d44b53dd7a6f6d03132991d8d2ee",
+    "Modules/io_base.f90": "f7953c8f0952d9cb22f48b6291252a36a9f8c14bbcff923d9b75adabcdea4755",
+    "PW/src/pw_restart_new.f90": "82dfdef8ded7f853b705762036fda7a7694e3a4af6e00e1bfeffa50d35cc46ef"
+  },
+  "plot_state": "Scripts supplied and py_compile checked; root renders local figures. No remote figure generation claimed.",
+  "scope": "Perfect-supercell unfolding validation; no defects, thermal broadening, gap convergence or relaxed-geometry claim.",
+  "unresolved": "No defect/thermal calculation or material band-gap convergence study. Native versus independent weights differ by3.99e-6 and remain unmodified.",
+  "analysis_development_note": "Initial binary-header check compared bohr^-1 to XML2pi/alat without unit conversion; corrected from pw_restart_new.f90. No QE calculation failed or reran."
+}

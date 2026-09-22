@@ -1,0 +1,42 @@
+&CONTROL
+ calculation = 'vc-relax'
+ prefix = 'si-diamond'
+ outdir = './tmp'
+ pseudo_dir = '../pseudo'
+ tstress = .true.
+ tprnfor = .true.
+ nstep = 60
+ etot_conv_thr = 1.0d-6
+ forc_conv_thr = 1.0d-4
+/
+&SYSTEM
+ ibrav = 2
+ A = 5.4300000000
+ nat = 2
+ ntyp = 1
+ nbnd = 8
+ ecutwfc = 60
+ ecutrho = 640
+ occupations = 'smearing'
+ smearing = 'mv'
+ degauss = 0.01
+/
+&ELECTRONS
+ conv_thr = 1.0d-10
+/
+&IONS
+ ion_dynamics = 'bfgs'
+/
+&CELL
+ cell_dynamics = 'bfgs'
+ press = 0.0
+ press_conv_thr = 0.1
+ cell_dofree = 'ibrav'
+/
+ATOMIC_SPECIES
+Si 28.085 Si.pbe-n-rrkjus_psl.1.0.0.UPF
+ATOMIC_POSITIONS alat
+Si 0.0000000000 0.0000000000 0.0000000000
+Si 0.2500000000 0.2500000000 0.2500000000
+K_POINTS automatic
+12 12 12 0 0 0

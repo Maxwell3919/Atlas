@@ -1,0 +1,64 @@
+{
+  "structure_source": "https://github.com/wannier-developers/wannier90/tree/v3.1.0/examples/example11",
+  "structure_note": "Same public diamond Si structure as example11; lattice parameter10.2bohr; no relaxation here. Fractional atom -0.25,0.75,-0.25 mapped to0.75,0.75,0.75.",
+  "transformation_matrix": [
+    [
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      1
+    ]
+  ],
+  "lattice_pc_A": [
+    [
+      -2.6988037756053,
+      0.0,
+      2.6988037756053
+    ],
+    [
+      0.0,
+      2.6988037756053,
+      2.6988037756053
+    ],
+    [
+      -2.6988037756053,
+      2.6988037756053,
+      0.0
+    ]
+  ],
+  "path_labels": [
+    "Gamma",
+    "X",
+    "W",
+    "L",
+    "Gamma"
+  ],
+  "path_vertex_indices_1based": [
+    1,
+    13,
+    19,
+    28,
+    40
+  ],
+  "path_vertex_distance_inv_A": [
+    0.0,
+    1.16406857067079,
+    1.746102856006185,
+    2.5692236360936325,
+    3.5773365900415777
+  ],
+  "nk": 40,
+  "pseudo_url": "https://pseudopotentials.quantum-espresso.org/upf_files/Si.pz-vbc.UPF",
+  "method_source": "https://gitlab.com/QEF/q-e/-/blob/qe-7.5/EPW/ZG/src/bands_unfold.f90",
+  "binary_io_source": "https://gitlab.com/QEF/q-e/-/blob/qe-7.5/Modules/io_base.f90",
+  "claimed_scope": "Perfect-supercell unfolding validation; no defects, thermal broadening, gap convergence or relaxed-geometry claim."
+}

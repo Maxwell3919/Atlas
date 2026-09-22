@@ -288,6 +288,14 @@ maxwell@maxwell:~/si-wannier/k4$ cat silicon.pw2wan
 
 ## 一份脚本里五个程序步骤的顺序
 
+下载包保留输入、输出和后处理数据，没有包含体积较大的 SCF/NSCF 保存目录。重新运行前，先在包根目录建立两个验证用的临时目录：
+
+```bash
+mkdir -p k4/validation/tmp k6/validation/tmp
+```
+
+这样脚本中的 `cp -r tmp/si.save validation/tmp/` 会得到 `validation/tmp/si.save/`。直接 DFT 路径计算需要这个 SCF 父目录；不要把 `si.save` 的内容误放到 `validation/tmp` 这一层。
+
 下面是实际提交的脚本。SCF 结束后，先复制 `si.save` 到独立的验证目录；随后 NSCF 在自己的 `tmp` 中继续写入均匀网格的波函数。这样后面直接 DFT 路径点的计算不会覆盖供接口读取的 NSCF 文件。
 
 ```console

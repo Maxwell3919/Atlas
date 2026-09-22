@@ -1,0 +1,16 @@
+case,axis,from_protocol,to_protocol,formation_change_meV_atom,within_1meV_atom
+al3si-l12,k mesh at sigma .01,k12,k16,2.1390542449021694,False
+al3si-l12,k mesh at sigma .01,k16,k20,-5.076193818438435,False
+al3si-l12,smearing at k20,k20,sigma005,-0.06347002967796445,True
+al3si-l12,wavefunction cutoff at k20,sigma005,cutoff80,-0.004486786419871658,True
+al3si-l12,k mesh at sigma .005,cutoff80,k24,-1.3439501380839851,False
+alsi-b2,k mesh at sigma .01,k12,k16,-0.8956700260837613,True
+alsi-b2,k mesh at sigma .01,k16,k20,-4.273801076632777,False
+alsi-b2,smearing at k20,k20,sigma005,-0.18433408479046065,True
+alsi-b2,wavefunction cutoff at k20,sigma005,cutoff80,-0.01127260190741941,True
+alsi-b2,k mesh at sigma .005,cutoff80,k24,-0.9297897981236924,True
+alsi3-l12,k mesh at sigma .01,k12,k16,0.5792089203894291,True
+alsi3-l12,k mesh at sigma .01,k16,k20,-1.8225438583899245,False
+alsi3-l12,smearing at k20,k20,sigma005,-0.11469924265150588,True
+alsi3-l12,wavefunction cutoff at k20,sigma005,cutoff80,-0.01493117437179059,True
+alsi3-l12,k mesh at sigma .005,cutoff80,k24,-0.17275786810000415,True

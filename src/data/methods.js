@@ -70,6 +70,8 @@ export const methods = {
     needs: ['relax'],
     produces: ['形成能 / 凸包距离'],
     engines: ['qe', 'vasp'],
+    needsByEngine: { qe: ['vc-relax'] },
+    producesByEngine: { qe: ['同协议元素参照的形成能'] },
   },
   'convex-hull': {
     zh: '凸包相图 / Energy-above-hull',
@@ -77,6 +79,7 @@ export const methods = {
     needs: ['formation-energy'],
     produces: ['凸包距离 / 相稳定性判定'],
     engines: ['qe', 'vasp'],
+    producesByEngine: { qe: ['有限候选集凸包 / 凸包距离'] },
   },
   'exfoliation-energy': {
     zh: '剥离能 / 解理能',
@@ -336,6 +339,8 @@ export const methods = {
     needs: ['bands', 'workfunction'],
     produces: ['能带对齐图'],
     engines: ['qe', 'vasp'],
+    needsByEngine: { vasp: ['workfunction', 'heterostructure-modeling'] },
+    producesByEngine: { vasp: ['冻结孤立层的真空参考能级'] },
   },
   'magnetic-gs': {
     zh: '磁基态',
@@ -386,6 +391,7 @@ export const methods = {
     needs: ['wannier90'],
     produces: ['Berry 曲率 / 陈数 / ℤ₂'],
     engines: ['qe', 'vasp'],
+    producesByEngine: { qe: ['占据态重叠相位 / 周期切片 Chern 和'] },
   },
 
   'carrier-mobility': {
