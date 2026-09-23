@@ -572,9 +572,9 @@ mp_mesh_k = .true.
 | 声子谱展宽 `degaussq` | 0.5 meV |
 | Fermi 窗口 `fsthick` | 1.0 eV |
 | 声学阈值 `eps_acoustic` | 0.1 cm⁻¹，约 0.0123984 meV |
-| 力常数 / 声学和规则 | `lifc=.true.`、`asr_typ='crystal'`；父链 `q2r.x` 使用 `zasr='simple'` |
+| 力常数 / 声学求和规则 | `lifc=.true.` 读取力常数；EPW 的 `asr_typ='crystal'` 施加平移声学求和规则 |
 
-父链的 `q2r.x` 使用 `zasr='simple'`。EPW 在 `lifc=.true.` 读取力常数后，又按 `asr_typ='crystal'` 施加声学和规则；这次粗矩阵、细积分和全 q 频率检查的原生输出均打印 `Imposed crystal ASR`。因此，父 q2r 的选项与 EPW 最终施加的选项要分别记下，不能把前者改写成后者。
+父链 `q2r.x` 输入中的 `zasr='simple'` 针对 Born 有效电荷，这份金属 Al 计算没有求 Born 电荷。EPW 在 `lifc=.true.` 读取力常数后，按 `asr_typ='crystal'` 对力常数施加声学求和规则；这次粗矩阵、细积分和全 q 频率检查的原生输出均打印 `Imposed crystal ASR`。两种参数的作用对象不同，应分别记录。[q2r 的 zasr 定义](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html#zasr)
 
 `interpolate-003` 在 8 个 MPI 进程上完成，EPW 报告墙钟时间 42.13 s，退出码为 0、stderr 为空。原生 `al.a2f` 有 500 行正频率点，范围为 0.0904076–45.2038042 meV。文件前三列是 ω、α²F(ω)、累计 λ(ω)，完整尾部说明如下：
 

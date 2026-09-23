@@ -1,73 +1,112 @@
-[QE 电子声子系数与 Tc 公式](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html) · [QE 7.5 lambda.x 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90) · [Allen–Dynes 原论文](https://doi.org/10.1103/PhysRevB.12.905) · [完整修正形式与频率矩](https://link.springer.com/article/10.1007/s10948-017-4295-y)
+[QE 电子声子系数与 Tc 公式](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html) · [QE 7.5 lambda.x 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90) · [QE 的 k 网格与展宽检查](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html) · [Allen–Dynes 原论文](https://doi.org/10.1103/PhysRevB.12.905)
 
-有了 λ 和 ω_log，代入公式得到一个温度只需要一行运算。真正费时间的是前面的电子网格、q 网格、声子稳定性与 EPC 积分检查。下面把这两件事连起来：先确认手上的数来自哪里，再明确 μ* 的假设，最后看同一份数据对电子展宽和 μ* 有多敏感。
-
-这里接着 [Al 的 α²F 计算](/Atlas/m/eliashberg-a2f/qe/) 的真实结果，输入与响应过程见 [完整 EPC 会话](/Atlas/m/epc/qe/)。本页使用单原子 fcc Al、32³ 致密电子网格、16³ SCF 网格和 4³ q 网格的 `lambda.x` 输出。该网格尚未证明收敛，因此下文温度是这组输入下的公式结果，不是已验证的 Al 超导转变温度。
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文运行绘图命令。
-
+这里把两条完整计算链的 Tc 曲线放在一起，实际求交点。材料选用单原子 fcc Al：第一条 `pwxall` 为 32³，第二条在新目录改成 48³；两边都接上 16³ 的 `pwx`、4³ q 网格的 `ph.x` 和各自的 `lambda.x`。两次计算采用同一组结构、赝势和参数，比较时只改变致密电子网格。
 
 <span id="tc-from-double-grid"></span>
 
-## 从两条 pwxall 计算链接到 Tc 对照
+## 两个目录各自跑到 lambda.x，再读两份 Tc 表
 
-`pwxall → pwx → ph.x` 这条原生路线的完整操作在 [EPC 页开头](/Atlas/m/epc/qe/#double-grid-pwxall)。先由较密电子 k 网格保存 `a2Fsave`，再由响应电子 k 网格留下 `.save`；`ph.x` 同时接上这两套电子数据，在独立的 q 网格上计算响应和 EPC。声子 q 网格与后处理插值网格都有自己的作用，不能用一个“网格很密”的描述代替它们。
+[完整 EPC 会话](/Atlas/m/epc/qe/#double-grid-pwxall)记录了两条路径，第二条的 `cp`、`vi`、完整 Slurm 脚本及作业验收在 [48³ 分支](/Atlas/m/epc/qe/#dense-k48-run)。这里直接接它们的结果，不重新写一次 SCF。
 
-这里可以直接沿已经完成的 Al 文件往下读：
+| 计算路径 | pwxall 致密 k | pwx 响应 k | 实算 q 网格 | 留给本页的原件 |
+|---|---|---|---|---|
+| `epc-q4` | 32×32×32 | 16×16×16 | 4×4×4，8 个不可约 q | 本目录的 8 个 `elph.inp_lambda.*`、`lambda.in/out/dat` |
+| `epc-q4-k48` | 48×48×48 | 16×16×16 | 4×4×4，8 个不可约 q | 新目录独立计算的同组文件 |
 
-| 顺序 | 本例的真文件或设置 | 完成后交给下一步什么 |
-|---|---|---|
-| `pwxall` 角色：`al.dense.in` | 32×32×32，`la2F=.true.` | `tmp/al.a2Fsave`；复制为 `al.a2Fsave.k32` 保留身份 |
-| `pwx` 角色：`al.scf.in` | 16×16×16，不开启 `la2F` | 当前 `tmp/al.save`；同时核对致密备份哈希未变 |
-| `ph.x`：`al.elph.in` | 4×4×4 q，`electron_phonon='interpolated'` | 8 个不可约 q 的动力学矩阵和逐模电声输出 |
-| 两条后处理 | `q2r → matdyn`；`lambda.x` 直接读逐 q 电声文件与权重 | 分别得到插值谱与直接求和谱，单位和积分方式分别核对 |
-| 本页的温度计算 | `lambda.out`、`lambda.dat`、`alpha2F.dat` | 读取 λ、ωlog 与输入 μ*，再复算并明确采用的公式 |
+两边的 `pwxall` 网格分别是响应网格的 2 倍、3 倍；响应网格又是 q 网格的 4 倍，所有网格均不偏移。`lambda.in` 使用相同的 q 权重、14 THz 谱上限、0.12 THz 频率展宽和 μ*=0.10。横轴 σ 则来自 `ph.x` 的十档电子积分展宽：0.005、0.010、…、0.050 Ry。这三个展宽概念要分开：SCF 占据的 `degauss=0.02 Ry` 没有在本图中扫描，谱函数的 0.12 THz 宽度也没有变化。
 
-[两次 SCF 输入](/Atlas/m/epc/qe/#double-grid-al-inputs)与[运行脚本](/Atlas/m/epc/qe/#double-grid-al-run)保留实际命令，不需要在这里重新抄一次 SCF。q 权重、频率范围和后处理输入继续读 [α²F 页](/Atlas/m/eliashberg-a2f/qe/)。
-
-这条 Al 链已得到完整的十组展宽输出。在下面将要读的原生 `lambda.out` 中，0.020 Ry 对应 λ=0.374486、ωlog=343.741 K，输入 μ*=0.10，打印 Tc=0.969 K。它不是只有一套准备好的输入，也不是由单个 Γ 点推出来的温度；本页后面的命令会从实际文件重放并交叉计算。它仍是所用有限网格下的公式结果，电子与 q 网格收敛尚未完成。
-
-若你找的是研究目录中 `ph64`、`ph96` 两种致密网格的对照，请先看[两条分支的设置与实际进度](/Atlas/m/epc/qe/#dense-k-branches)。`ph64` 内部是 64×64×1 致密电子网格与 16×16×1 响应电子网格；`ph96` 计划将致密网格换成 96×96×1，响应与 q 网格不变。一次 `ph.x` 使用自己分支的一份 `a2Fsave`。目前研究记录中的 `ph64` 尚未得到完整逐 q 结果，`ph96` 只有输入与脚本，因而这里没有该材料已经完成的 64/96 Tc 比较。
-
-下面先说明两条链最终怎样对照，再用 Al 原件复现一条曲线的打印值。后面的简化公式、含 f₁、f₂ 的完整 Allen–Dynes 公式和 EPW 方程求解各有自己的用途；比较公式版本不能替代比较两种致密 k 网格。
+第二条链已完成 8 个 q × 3 个模式 × 10 个展宽，共 240 条模式记录。两份响应 SCF 的电荷密度文件逐字节相同，32³ 与 48³ 的致密电子数据则各自保存；第二条从头执行了两次 SCF 和所有 q 响应。原生输入、输出、核验表及本节脚本可[一起下载](/Atlas/examples/al-dense-grid-tc-files.tar.gz)。解包后的 `k32/`、`k48/` 分别对应这两条路径。
 
 <span id="tc-two-dense-grids"></span>
 
-## 两条 lambda.x 的 Tc–σ 曲线怎样取交点
+## 两条 Tc(σ) 曲线的实际求交结果
 
-先在第一条路径中完成 `pwxall → pwx → phx → … → lambdax`，再换一个独立路径，只把 `pwxall` 改成另一组满足整数倍关系的致密网格，重复完整流程。以研究输入为例，两边分别用 64×64×1 和 96×96×1，响应网格同为 16×16×1，q 网格同为 8×8×1。前面的输入与提交过程从 [EPC 页](/Atlas/m/epc/qe/#dense-k-branches)接过来。
+在共同的 0.005—0.050 Ry 范围内，32³ 曲线在十个采样点上始终高于 48³；相邻点连接后也没有交点或重合区间。最小差值出现在 0.050 Ry：两边分别为 0.984588084 K 和 0.975366286 K，仍相差 0.009221798 K。这个点不能当作交点 Tc。
 
-把两次 `lambda.x` 的结果按同一个 σ 排到一起：
+![Al 的两条独立致密网格 Tc 曲线与求交结果](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.png)
 
-| 要配对的量 | 第一条路径 | 第二条路径 | 比较前核对 |
+[矢量 PDF](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.pdf) · [SVG](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.svg) · [逐点数据](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/paired-tc.csv) · [交点表](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/crossings.csv)
+
+左图保留十个实际展宽点和完整温度范围；右图只放大纵轴范围，便于看清两条曲线之间的差距。蓝色空心圆对应 32³，橙色方块对应 48³，本图没有交点标记，两条曲线在整个采样范围内分离。相邻点之间用直线连接，没有高阶平滑，也没有向计算范围外延长曲线。
+
+| 交点 | 所在展宽区间 / Ry | σ* / Ry | Tc* / K |
 |---|---|---|---|
-| 电子展宽 | σ₁、σ₂、… | 相同 σ₁、σ₂、… | 读取实际电声文件中的展宽，不能把输出行号直接当 σ |
-| λ | λ₆₄(σ) | λ₉₆(σ) | 同一 q 集合、权重和模式覆盖 |
-| ωlog | ωlog,₆₄(σ) | ωlog,₉₆(σ) | 相同积分范围、频率展宽与单位 |
-| Tc | Tc₆₄(σ) | Tc₉₆(σ) | 相同 μ* 与 Tc 公式 |
+| — | 0.005—0.050 | 无孤立交点 | — |
 
-第一幅图横轴画 σ（Ry），纵轴画 Tc（K），两条曲线分别对应两种 `pwxall` 网格。原始点保留标记，用直线连接相邻点；不要先做高阶平滑再找交点。另画 λ(σ) 与 ωlog(σ)，因为它们的误差有可能在 Tc 公式里部分抵消，让两条 Tc 曲线看起来相近。
+数据表中多保留的小数用于复算与差值检查，并不代表材料温度有这样的精度。这里的曲线由两次 `lambda.x` 实际读取的逐 q 文件按 QE 7.5 源码算法重建：它们逐行复现原生 Tc 的三位小数，只补回最终打印格式损失的位数。逐模 λ 在电声文件中本来就只有四位小数，DFT 网格和有限展宽造成的误差也仍然存在。
 
-这里要找的是 **Tc₆₄(σ*)=Tc₉₆(σ*)**。交点横坐标 σ* 是电子积分展宽，交点纵坐标 Tc* 才是候选温度。它与 EPW 线性方程中“本征值 η(T) 穿过 1”的判据是两件事，不能把两种图互相替代。
+直接对原生三位小数 Tc 表求交，得到 0 个孤立交点和 0 个重合区间。图和上表采用逐 q 原件重建值；两种精度下的全部结果分别保留在 `crossings.json` 中。
 
-`lambda.x` 每次读取本分支的逐 q 电声文件，按每个展宽分别代入 Tc 公式；它不会自动读取另一个目录的 Tc 曲线并求交点。叠图和求交属于两次计算结束后的数据处理。[QE 7.5 的逐展宽 Tc 输出](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90#L158-L165)
+## 在解包目录把两份输出配起来
 
-在共同的展宽点上计算差值 `dᵢ = Tc₆₄(σᵢ) − Tc₉₆(σᵢ)`。若相邻两个点的差值异号，则两条折线在这个区间内相交。用局部线性插值得到：
+下载包内已经保留计算结果。在本机的 `al-dense-grid-tc` 目录运行下面两条命令即可复算表格；这里运行的是读取与求交程序，前面的两次 DFT 计算已在 Maxwell 完成。
+
+```console
+$ python3 rebuild_tc.py k32 k48 --outdir comparison-k32-k48
+k32:10sigma rows reconstructed; native lambda/omega/Tc match their printed precision
+k48:10sigma rows reconstructed; native lambda/omega/Tc match their printed precision
+$ python3 compare_tc.py --a k32 --b k48 --out comparison-k32-k48
+Paired branches: k32 / k48; 10 common sigma points; mu*=0.10
+sigma_Ry  Tc_A_native_K  Tc_B_native_K  Delta_Tc_rebuilt_K
+   0.005          2.212          1.687        +0.525165797
+   0.010          0.916          0.898        +0.017265344
+   0.015          0.900          0.883        +0.017302112
+   0.020          0.969          0.854        +0.114568219
+   0.025          0.971          0.849        +0.122035939
+   0.030          0.955          0.868        +0.086939421
+   0.035          0.949          0.896        +0.053537300
+   0.040          0.955          0.925        +0.030184671
+   0.045          0.969          0.952        +0.017352448
+   0.050          0.985          0.975        +0.009221798
+All in-range intersections, reconstructed from native elph inputs:
+No isolated crossing in the sampled range.
+Native 0.001 K print check: 0 isolated points, 0 overlap intervals.
+Saved paired-tc.csv, crossings.csv, crossings.json.
+```
+
+前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。源码中的 q 坐标一致性检查被注释掉了，因此这一步另行核对文件顺序；只看到 `lambda.x` 产生了表格还不够。
+
+两个求和都使用星权重 `1, 8, 4, 6, 24, 12, 3, 6`，总和 64。程序以总权重归一化，每一档展宽独立求出 λ 和谱函数。计算 Tc 时使用输出括号外的逐 q 加权 λ；括号内的谱积分 λ 用来核对谱积分，不能换掉这一列后继续引用原来的 Tc。
+
+[重建脚本](/Atlas/examples/al-dense-grid-tc/rebuild_tc.py) · [配对与求交脚本](/Atlas/examples/al-dense-grid-tc/compare_tc.py) · [完整配对核验](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/crossings.json)
+
+## 从差值变号的区间算出交点
+
+令 `dᵢ = Tc₃₂(σᵢ) − Tc₄₈(σᵢ)`。相邻两个采样点的差值异号时，两条折线在这一区间相交：
 
 ```text
 σ*  = σᵢ − dᵢ × (σᵢ₊₁ − σᵢ) / (dᵢ₊₁ − dᵢ)
-Tc* = Tc₆₄(σᵢ) + [Tc₆₄(σᵢ₊₁) − Tc₆₄(σᵢ)] × (σ* − σᵢ) / (σᵢ₊₁ − σᵢ)
+Tc* = Tc₃₂(σᵢ) + [Tc₃₂(σᵢ₊₁) − Tc₃₂(σᵢ)] × (σ* − σᵢ) / (σᵢ₊₁ − σᵢ)
 ```
 
-这是相邻原始点之间的几何插值，精度受展宽步长和输出小数位限制。计算得到交点后，再检查该区间及相邻展宽点；需要更精细的位置时，补做对应的 EPC 展宽采样。增加绘图采样密度不会产生新的计算证据。
+这次共同采样范围内没有产生孤立交点，因此没有可代入本式的变号区间。
 
-若某个原始点的 `dᵢ=0`，先记录这个点，不必再用上式求一次；连续多个点相等时，应按重合区间处理。打印到有限小数位的相等，也不等于底层数值严格相同。
+脚本也保留恰落在采样点上的交点；若相邻采样点连续相等，则记录重合区间。原生打印值、由打印 λ/ωlog 复算的曲线和逐 q 原件重建的曲线分别保存在 JSON 中，方便核对舍入是否改变了交点数或位置。
 
-如果有多个交点，应全部列出，检查哪一段同时满足网格与展宽的稳定性，不能只挑一个接近期望温度的点。如果曲线在一段范围内基本重合，就报告这个区间和数值差异；如果没有交点，也不要在数据范围外延长曲线强行求交。两条曲线可能已经在误差范围内接近但没有严格相交，也可能仍相差很大，需要更密网格才能判断。
+交点纵坐标就是本项双分支对照提取的候选 Tc，横坐标则是对应的电子展宽。它与 [EPW 方程页](/Atlas/m/epw-eliashberg/qe/)中本征值 η(T) 穿过 1 的温度判据各有自己的图和数据。
 
-**交点是这项对照的候选取值，不是单独的收敛证明。** 官方手册要求同时检查 k 网格与 Gaussian 展宽；QE 开发者进一步说明，应在固定 σ 下增加 k 点，找结果不再明显变化的区间，再检查较小展宽的行为，并继续核对 q 网格。增加 q 网格后，需要重新检查 k–σ 稳定区。因而一处交叉、交叉后立即分开，不能据此认定 Tc 已收敛。尚未给定容差时，可以先报告差值、斜率趋势和候选点，不把它标为验收通过。[QE EPC 流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html) · [QE 开发者的收敛说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)
+## 再看两条路径的 λ 与 ωlog
 
-目前公开 Al 文件给出的是 32³ 致密网格的一条十点曲线。原生 0.020 Ry 行的 0.969 K 只用于下面的读取与公式复算；没有第二条同协议的原生曲线，就不能给它冠上“交点 Tc”。研究材料的 ph64/ph96 两条完整输出齐全后，按本节配对、作图和检查，再记录候选 Tc 及其支持范围。
+![两条 Al 致密网格分支的 λ 和对数平均频率](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.png)
+
+[矢量 PDF](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.pdf) · [SVG](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.svg)
+
+例如，在实际采样的 σ=0.050 Ry 处，32³ 与 48³ 的 λ 分别为 0.376041、0.375505，ωlog 分别为 340.145、340.031 K。本例在十个采样点上，48³ 的 λ 与 ωlog 都低于 32³，二者使 Tc 向同一方向变化。这组数据没有出现两项误差相互抵消形成交点的情况。
+
+本例固定了响应网格和 q 网格；这次两种致密采样的对照没有产生交点，不能从中指定一个交点 Tc。继续加密时，应在同一 σ 下比较结果，同时检查交点两侧是否形成稳定区；若改变真实 q 网格，也要重新核对 k 与展宽。QE 官方手册要求检查 k 网格和 Gaussian 展宽，[开发者的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)进一步强调固定 σ 的 k 收敛及稳定区向小展宽延伸。这里保留无交点的结果及全部差值。下一条 64³ 致密网格分支已经在独立目录提交，响应网格、q 网格、展宽和 μ* 保持相同；它的完整结果形成后，再作下一组对照。
+
+## 用同一份数据重绘
+
+```console
+$ python3 plot_tc_crossings.py --data comparison-k32-k48 --out figures --prefix al-k32-k48
+10 points per curve; 0 isolated intersections; 0 overlap intervals.
+Saved figures/al-k32-k48-tc.png, .svg, .pdf
+Saved figures/al-k32-k48-moments.png, .svg, .pdf
+```
+
+绘图需要 NumPy 和 Matplotlib。[绘图脚本](/Atlas/examples/al-dense-grid-tc/plot_tc_crossings.py)与[样式文件](/Atlas/examples/al-dense-grid-tc/atlas_plot_style.py)放在同一目录。脚本同时导出网页 PNG、可编辑 SVG 和宽 183 mm 的矢量 PDF；颜色、线型和标记共同区分两条路径，图上保留原始采样位置，表格保留全部数值。需要放大局部时，保留一幅完整范围图，并明确标注放大图的范围。
+
+下面继续展开 32³ 分支的原生输出和公式细节，核对 λ、ωlog 怎样进入 Tc；改变 μ* 或加入 f₁、f₂ 修正时，另作相应对照。它们回答公式与输入假设的问题，两种致密电子网格的实际比较已在上面完成。
 
 ## 先把“已有输出”变成一条能执行的命令
 

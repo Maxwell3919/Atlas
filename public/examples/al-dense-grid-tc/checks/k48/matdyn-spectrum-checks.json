@@ -1,0 +1,113 @@
+[
+  {
+    "sigma_Ry": 0.005,
+    "negative_rows": 145,
+    "min_a2F": -0.0104172,
+    "lambda_footer": 0.401403753731404,
+    "lambda_trapezoid": 0.4014040886325026,
+    "frequency_unit": "Ry",
+    "moment_status": "rejected_negative_spectrum"
+  },
+  {
+    "sigma_Ry": 0.01,
+    "negative_rows": 88,
+    "min_a2F": -0.000272648,
+    "lambda_footer": 0.36984275548543,
+    "lambda_trapezoid": 0.36984279149107907,
+    "frequency_unit": "Ry",
+    "moment_status": "rejected_negative_spectrum"
+  },
+  {
+    "sigma_Ry": 0.015,
+    "negative_rows": 5,
+    "min_a2F": -2.1151e-05,
+    "lambda_footer": 0.368024250731446,
+    "lambda_trapezoid": 0.36802423662844164,
+    "frequency_unit": "Ry",
+    "moment_status": "rejected_negative_spectrum"
+  },
+  {
+    "sigma_Ry": 0.02,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.364727120448169,
+    "lambda_trapezoid": 0.36472709474440135,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.36472709474440135,
+    "omega_log_K": 342.30332067814385,
+    "omega2_K": 362.60784590880894
+  },
+  {
+    "sigma_Ry": 0.025,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.362974477714894,
+    "lambda_trapezoid": 0.3629744224997435,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.3629744224997435,
+    "omega_log_K": 341.94744334323167,
+    "omega2_K": 362.769358093037
+  },
+  {
+    "sigma_Ry": 0.03,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.362935499971562,
+    "lambda_trapezoid": 0.36293548090245614,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.36293548090245614,
+    "omega_log_K": 341.0131024210811,
+    "omega2_K": 362.45107696352693
+  },
+  {
+    "sigma_Ry": 0.035,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.363427128670334,
+    "lambda_trapezoid": 0.3634271555266599,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.3634271555266599,
+    "omega_log_K": 339.9962825970455,
+    "omega2_K": 362.00861359464204
+  },
+  {
+    "sigma_Ry": 0.04,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.363513463872145,
+    "lambda_trapezoid": 0.36351344476234376,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.36351344476234376,
+    "omega_log_K": 339.19905497665906,
+    "omega2_K": 361.6639011976309
+  },
+  {
+    "sigma_Ry": 0.045,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.362708384792444,
+    "lambda_trapezoid": 0.3627084131784651,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.3627084131784651,
+    "omega_log_K": 338.7612287744571,
+    "omega2_K": 361.5300752463773
+  },
+  {
+    "sigma_Ry": 0.05,
+    "negative_rows": 0,
+    "min_a2F": 0.0,
+    "lambda_footer": 0.360899545327241,
+    "lambda_trapezoid": 0.3608995225634957,
+    "frequency_unit": "Ry",
+    "moment_status": "nonnegative_for_arithmetic",
+    "lambda_spectrum": 0.3608995225634957,
+    "omega_log_K": 338.701308685767,
+    "omega2_K": 361.63370715948986
+  }
+]

@@ -4,7 +4,7 @@
 
 所有数字属于同一个单原子 fcc Al、LDA-PZ 计算链。它尚未完成 k/q/截断能收敛；本页的积分闭合检查回答文件和数值有没有接对，不替代材料性质验收。原件在[Al 输入输出包](/Atlas/examples/al-lesson-files.tar.gz)，新增脚本和表放在包内 `al/tc-route/`。
 
-这里读完的是一条致密网格分支。要做两种 `pwxall` 网格的 Tc 对照，还需在第二个独立目录用新的致密网格重复 `pwxall → pwx → phx → … → lambdax`，然后将两份输出按相同电子展宽配对。目录组织见 [EPC 的两条路径](/Atlas/m/epc/qe/#dense-k-branches)，交点计算与稳定区判读见 [Tc–σ 曲线对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。
+本页逐项拆开的是 32³ 致密网格分支的输出。另一个独立目录把 `pwxall` 改为 48³，保持 16³ 响应网格、4³ q 网格和后处理输入相同，再走完 `pwxall → pwx → phx → … → lambdax`。两份谱各自给出 λ、ωlog 和 Tc，最后按相同电子展宽配对。新目录的真实操作见 [48³ 分支](/Atlas/m/epc/qe/#dense-k48-run)，两条曲线、求交结果与配套 λ/ωlog 图见 [Tc 对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。原生文件与复算脚本在[双分支下载包](/Atlas/examples/al-dense-grid-tc-files.tar.gz)中。
 
 ## q2r / matdyn 与 lambda.x 分别留下什么
 
@@ -127,7 +127,7 @@ MPI startup(): PMI server not found. Please set I_MPI_PMI_LIBRARY variable if it
 =------------------------------------------------------------------------------=
 ```
 
-本例 `q2r` 使用 `zasr='simple'`，`matdyn` 使用 `asr='simple'`，与输入全文相符。24³ 是插值积分网格，`ndos=400` 是输出频率采样，二者都不会新增上游的 DFPT 响应信息。
+本例 `q2r` 输入写有 `zasr='simple'`，它针对 Born 有效电荷；这份金属 Al 计算没有求 Born 电荷。对插值力常数施加平移声学求和规则的是 `matdyn` 中的 `asr='simple'`。24³ 是插值积分网格，`ndos=400` 是输出频率采样，二者都不会新增上游的 DFPT 响应信息。[q2r 的 zasr 定义](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html#zasr) · [matdyn 的 asr 定义](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html#asr)
 
 | 读到的字段 | 本例单位 | 在哪里使用 |
 |---|---|---|

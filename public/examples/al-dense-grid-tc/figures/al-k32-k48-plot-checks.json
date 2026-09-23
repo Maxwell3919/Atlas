@@ -1,0 +1,18 @@
+{
+  "rows_per_curve": 10,
+  "crossing_markers": 0,
+  "overlap_intervals": 0,
+  "x_range_Ry": [
+    0.005,
+    0.05
+  ],
+  "reconstructed_Tc_range_K": [
+    0.8485316333365439,
+    2.2121048547475515
+  ],
+  "figures": [
+    "al-k32-k48-tc",
+    "al-k32-k48-moments"
+  ],
+  "numerical_treatment": "lambda.x reconstruction from unmodified elph inputs, straight segments, full range plus explicitly magnified Tc view"
+}
