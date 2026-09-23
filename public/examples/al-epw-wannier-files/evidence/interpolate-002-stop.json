@@ -1,0 +1,12 @@
+{
+  "job": 2012,
+  "status": "stopped",
+  "time_utc": "2026-09-23T07:36:33.216072+00:00",
+  "last_observed_progress": {
+    "elapsed_seconds": 118,
+    "processed_selected_q": 942,
+    "total_selected_q": 13563
+  },
+  "reason": "Bound the teaching run runtime. Linear extrapolation ~28min beyond20min allocation. New independent24k/12q fine-grid calculation; not treated as convergence comparison.",
+  "scientific_acceptance": "not_assessed"
+}

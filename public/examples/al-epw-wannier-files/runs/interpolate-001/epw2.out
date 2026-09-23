@@ -1,0 +1,2492 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:17:29 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     K-points division:     npool     =       8
+     2264 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw2.in
+      Title line not specified: using 'default'.
+
+     Reading supplied temperature list.
+                      
+     ------------------------------------------------------------------------ 
+                   RESTART - RESTART - RESTART - RESTART                         
+     Restart is done without reading PWSCF save file.                  
+     Be aware that some consistency checks are therefore not done.                  
+     ------------------------------------------------------------------------ 
+                      
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       0.0000  a.u.
+     unit-cell volume          =       0.0000 (a.u.)^3
+     number of atoms/cell      =            0
+     number of atomic types    =            0
+     kinetic-energy cut-off    =       0.0000  Ry
+     charge density cut-off    =       0.0000  Ry
+     Exchange-correlation= not set
+                           (  -1  -1  -1  -1  -1  -1  -1)
+
+
+     celldm(1)=    0.00000  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = (  0.0000  0.0000  0.0000 )  
+               a(2) = (  0.0000  0.0000  0.0000 )  
+               a(3) = (  0.0000  0.0000  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = (  0.0000  0.0000  0.0000 )  
+               b(2) = (  0.0000  0.0000  0.0000 )  
+               b(3) = (  0.0000  0.0000  0.0000 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+
+ 
+     No symmetry!
+
+     G cutoff =    0.0000  (      0 G-vectors)     FFT grid: (  0,  0,  0)
+     number of k points=    0
+                       cart. coord. in units 2pi/a_0
+     EPW          :      0.00s CPU      0.00s WALL
+
+     EPW          :      0.00s CPU      0.00s WALL
+
+
+     -------------------------------------------------------------------
+     Using al.ukk from disk
+     -------------------------------------------------------------------
+
+     HDF5 is NOT used in the current build. Exciton-phonon coupling calculations are disabled.
+     Symmetries of Bravais lattice:  48
+     Symmetries of crystal:          48
+
+     Do not need to read .epb files; read .fmt files
+
+
+     Band disentanglement is used: nbndsub =    4
+     Use zone-centred Wigner-Seitz cells 
+     Number of WS vectors for electrons       93
+     Number of WS vectors for phonons       93
+     Number of WS vectors for electron-phonon       93
+     Maximum number of cores for efficient parallelization      279
+     Results may improve by using use_ws == .TRUE. 
+
+     Reading Hamiltonian, Dynamical matrix and EP vertex in Wann rep from file
+
+
+     Reading interatomic force constants
+
+     IFC last   -0.0002202
+     Norm of the difference between old and new effective charges:    0.0000000
+     Norm of the difference between old and new force-constants:    0.0000038
+     Imposed crystal ASR
+
+     Finished reading ifcs
+
+
+     EP vertexes are distributed into MPI processes
+
+
+     Finished reading Wann rep data from file
+
+     ===================================================================
+     Memory usage:  VmHWM =        41Mb
+                   VmPeak =      2857Mb
+     ===================================================================
+     
+     Using uniform q-mesh:    12   12   12
+     Size of q point mesh for interpolation:       1728
+     Using uniform MP k-mesh:    24   24   24
+     Size of k point mesh for interpolation:        413
+     Max number of k points per pool:               52
+
+     Fermi energy coarse grid =   7.745026 eV
+
+     Fermi energy is calculated from the fine k-mesh: Ef =   8.380648 eV
+
+     Warning: check if difference with Fermi level fine grid makes sense
+
+     ===================================================================
+
+              ibndmin =     1  ebndmin =     7.382 eV
+              ibndmax =     3  ebndmax =     9.370 eV
+
+
+     Number of ep-matrix elements per pool :         1404 ~=   10.97 Kb (@ 8 bytes/ DP)
+     Number selected, total            100            100
+     Number selected, total            200            205
+     Number selected, total            300            310
+     Number selected, total            400            411
+     Number selected, total            500            513
+     Number selected, total            600            613
+     Number selected, total            700            713
+     Number selected, total            800            813
+     Number selected, total            900            913
+     Number selected, total           1000           1013
+     Number selected, total           1100           1113
+     Number selected, total           1200           1213
+     Number selected, total           1300           1313
+     Number selected, total           1400           1418
+     Number selected, total           1500           1518
+     Number selected, total           1600           1629
+     We only need to compute     1693 q-points
+      
+
+     Entering adiabatic isotropic Eliashberg
+     Gaussian Broadening:   0.100000 eV, ngauss=   1
+     DOS =  0.129825 states/spin/eV/Unit Cell at Ef=  8.380648 eV
+     nmodes =         3
+     w_max (meV) =   45.2038042
+     Progression iq (fine) =          1 /       1693
+     Progression iq (fine) =          2 /       1693
+     Progression iq (fine) =          3 /       1693
+     Progression iq (fine) =          4 /       1693
+     Progression iq (fine) =          5 /       1693
+     Progression iq (fine) =          6 /       1693
+     Progression iq (fine) =          7 /       1693
+     Progression iq (fine) =          8 /       1693
+     Progression iq (fine) =          9 /       1693
+     Progression iq (fine) =         10 /       1693
+     Progression iq (fine) =         11 /       1693
+     Progression iq (fine) =         12 /       1693
+     Progression iq (fine) =         13 /       1693
+     Progression iq (fine) =         14 /       1693
+     Progression iq (fine) =         15 /       1693
+     Progression iq (fine) =         16 /       1693
+     Progression iq (fine) =         17 /       1693
+     Progression iq (fine) =         18 /       1693
+     Progression iq (fine) =         19 /       1693
+     Progression iq (fine) =         20 /       1693
+     Progression iq (fine) =         21 /       1693
+     Progression iq (fine) =         22 /       1693
+     Progression iq (fine) =         23 /       1693
+     Progression iq (fine) =         24 /       1693
+     Progression iq (fine) =         25 /       1693
+     Progression iq (fine) =         26 /       1693
+     Progression iq (fine) =         27 /       1693
+     Progression iq (fine) =         28 /       1693
+     Progression iq (fine) =         29 /       1693
+     Progression iq (fine) =         30 /       1693
+     Progression iq (fine) =         31 /       1693
+     Progression iq (fine) =         32 /       1693
+     Progression iq (fine) =         33 /       1693
+     Progression iq (fine) =         34 /       1693
+     Progression iq (fine) =         35 /       1693
+     Progression iq (fine) =         36 /       1693
+     Progression iq (fine) =         37 /       1693
+     Progression iq (fine) =         38 /       1693
+     Progression iq (fine) =         39 /       1693
+     Progression iq (fine) =         40 /       1693
+     Progression iq (fine) =         41 /       1693
+     Progression iq (fine) =         42 /       1693
+     Progression iq (fine) =         43 /       1693
+     Progression iq (fine) =         44 /       1693
+     Progression iq (fine) =         45 /       1693
+     Progression iq (fine) =         46 /       1693
+     Progression iq (fine) =         47 /       1693
+     Progression iq (fine) =         48 /       1693
+     Progression iq (fine) =         49 /       1693
+     Progression iq (fine) =         50 /       1693
+     Progression iq (fine) =         51 /       1693
+     Progression iq (fine) =         52 /       1693
+     Progression iq (fine) =         53 /       1693
+     Progression iq (fine) =         54 /       1693
+     Progression iq (fine) =         55 /       1693
+     Progression iq (fine) =         56 /       1693
+     Progression iq (fine) =         57 /       1693
+     Progression iq (fine) =         58 /       1693
+     Progression iq (fine) =         59 /       1693
+     Progression iq (fine) =         60 /       1693
+     Progression iq (fine) =         61 /       1693
+     Progression iq (fine) =         62 /       1693
+     Progression iq (fine) =         63 /       1693
+     Progression iq (fine) =         64 /       1693
+     Progression iq (fine) =         65 /       1693
+     Progression iq (fine) =         66 /       1693
+     Progression iq (fine) =         67 /       1693
+     Progression iq (fine) =         68 /       1693
+     Progression iq (fine) =         69 /       1693
+     Progression iq (fine) =         70 /       1693
+     Progression iq (fine) =         71 /       1693
+     Progression iq (fine) =         72 /       1693
+     Progression iq (fine) =         73 /       1693
+     Progression iq (fine) =         74 /       1693
+     Progression iq (fine) =         75 /       1693
+     Progression iq (fine) =         76 /       1693
+     Progression iq (fine) =         77 /       1693
+     Progression iq (fine) =         78 /       1693
+     Progression iq (fine) =         79 /       1693
+     Progression iq (fine) =         80 /       1693
+     Progression iq (fine) =         81 /       1693
+     Progression iq (fine) =         82 /       1693
+     Progression iq (fine) =         83 /       1693
+     Progression iq (fine) =         84 /       1693
+     Progression iq (fine) =         85 /       1693
+     Progression iq (fine) =         86 /       1693
+     Progression iq (fine) =         87 /       1693
+     Progression iq (fine) =         88 /       1693
+     Progression iq (fine) =         89 /       1693
+     Progression iq (fine) =         90 /       1693
+     Progression iq (fine) =         91 /       1693
+     Progression iq (fine) =         92 /       1693
+     Progression iq (fine) =         93 /       1693
+     Progression iq (fine) =         94 /       1693
+     Progression iq (fine) =         95 /       1693
+     Progression iq (fine) =         96 /       1693
+     Progression iq (fine) =         97 /       1693
+     Progression iq (fine) =         98 /       1693
+     Progression iq (fine) =         99 /       1693
+     Progression iq (fine) =        100 /       1693
+     Progression iq (fine) =        101 /       1693
+     Progression iq (fine) =        102 /       1693
+     Progression iq (fine) =        103 /       1693
+     Progression iq (fine) =        104 /       1693
+     Progression iq (fine) =        105 /       1693
+     Progression iq (fine) =        106 /       1693
+     Progression iq (fine) =        107 /       1693
+     Progression iq (fine) =        108 /       1693
+     Progression iq (fine) =        109 /       1693
+     Progression iq (fine) =        110 /       1693
+     Progression iq (fine) =        111 /       1693
+     Progression iq (fine) =        112 /       1693
+     Progression iq (fine) =        113 /       1693
+     Progression iq (fine) =        114 /       1693
+     Progression iq (fine) =        115 /       1693
+     Progression iq (fine) =        116 /       1693
+     Progression iq (fine) =        117 /       1693
+     Progression iq (fine) =        118 /       1693
+     Progression iq (fine) =        119 /       1693
+     Progression iq (fine) =        120 /       1693
+     Progression iq (fine) =        121 /       1693
+     Progression iq (fine) =        122 /       1693
+     Progression iq (fine) =        123 /       1693
+     Progression iq (fine) =        124 /       1693
+     Progression iq (fine) =        125 /       1693
+     Progression iq (fine) =        126 /       1693
+     Progression iq (fine) =        127 /       1693
+     Progression iq (fine) =        128 /       1693
+     Progression iq (fine) =        129 /       1693
+     Progression iq (fine) =        130 /       1693
+     Progression iq (fine) =        131 /       1693
+     Progression iq (fine) =        132 /       1693
+     Progression iq (fine) =        133 /       1693
+     Progression iq (fine) =        134 /       1693
+     Progression iq (fine) =        135 /       1693
+     Progression iq (fine) =        136 /       1693
+     Progression iq (fine) =        137 /       1693
+     Progression iq (fine) =        138 /       1693
+     Progression iq (fine) =        139 /       1693
+     Progression iq (fine) =        140 /       1693
+     Progression iq (fine) =        141 /       1693
+     Progression iq (fine) =        142 /       1693
+     Progression iq (fine) =        143 /       1693
+     Progression iq (fine) =        144 /       1693
+     Progression iq (fine) =        145 /       1693
+     Progression iq (fine) =        146 /       1693
+     Progression iq (fine) =        147 /       1693
+     Progression iq (fine) =        148 /       1693
+     Progression iq (fine) =        149 /       1693
+     Progression iq (fine) =        150 /       1693
+     Progression iq (fine) =        151 /       1693
+     Progression iq (fine) =        152 /       1693
+     Progression iq (fine) =        153 /       1693
+     Progression iq (fine) =        154 /       1693
+     Progression iq (fine) =        155 /       1693
+     Progression iq (fine) =        156 /       1693
+     Progression iq (fine) =        157 /       1693
+     Progression iq (fine) =        158 /       1693
+     Progression iq (fine) =        159 /       1693
+     Progression iq (fine) =        160 /       1693
+     Progression iq (fine) =        161 /       1693
+     Progression iq (fine) =        162 /       1693
+     Progression iq (fine) =        163 /       1693
+     Progression iq (fine) =        164 /       1693
+     Progression iq (fine) =        165 /       1693
+     Progression iq (fine) =        166 /       1693
+     Progression iq (fine) =        167 /       1693
+     Progression iq (fine) =        168 /       1693
+     Progression iq (fine) =        169 /       1693
+     Progression iq (fine) =        170 /       1693
+     Progression iq (fine) =        171 /       1693
+     Progression iq (fine) =        172 /       1693
+     Progression iq (fine) =        173 /       1693
+     Progression iq (fine) =        174 /       1693
+     Progression iq (fine) =        175 /       1693
+     Progression iq (fine) =        176 /       1693
+     Progression iq (fine) =        177 /       1693
+     Progression iq (fine) =        178 /       1693
+     Progression iq (fine) =        179 /       1693
+     Progression iq (fine) =        180 /       1693
+     Progression iq (fine) =        181 /       1693
+     Progression iq (fine) =        182 /       1693
+     Progression iq (fine) =        183 /       1693
+     Progression iq (fine) =        184 /       1693
+     Progression iq (fine) =        185 /       1693
+     Progression iq (fine) =        186 /       1693
+     Progression iq (fine) =        187 /       1693
+     Progression iq (fine) =        188 /       1693
+     Progression iq (fine) =        189 /       1693
+     Progression iq (fine) =        190 /       1693
+     Progression iq (fine) =        191 /       1693
+     Progression iq (fine) =        192 /       1693
+     Progression iq (fine) =        193 /       1693
+     Progression iq (fine) =        194 /       1693
+     Progression iq (fine) =        195 /       1693
+     Progression iq (fine) =        196 /       1693
+     Progression iq (fine) =        197 /       1693
+     Progression iq (fine) =        198 /       1693
+     Progression iq (fine) =        199 /       1693
+     Progression iq (fine) =        200 /       1693
+     Progression iq (fine) =        201 /       1693
+     Progression iq (fine) =        202 /       1693
+     Progression iq (fine) =        203 /       1693
+     Progression iq (fine) =        204 /       1693
+     Progression iq (fine) =        205 /       1693
+     Progression iq (fine) =        206 /       1693
+     Progression iq (fine) =        207 /       1693
+     Progression iq (fine) =        208 /       1693
+     Progression iq (fine) =        209 /       1693
+     Progression iq (fine) =        210 /       1693
+     Progression iq (fine) =        211 /       1693
+     Progression iq (fine) =        212 /       1693
+     Progression iq (fine) =        213 /       1693
+     Progression iq (fine) =        214 /       1693
+     Progression iq (fine) =        215 /       1693
+     Progression iq (fine) =        216 /       1693
+     Progression iq (fine) =        217 /       1693
+     Progression iq (fine) =        218 /       1693
+     Progression iq (fine) =        219 /       1693
+     Progression iq (fine) =        220 /       1693
+     Progression iq (fine) =        221 /       1693
+     Progression iq (fine) =        222 /       1693
+     Progression iq (fine) =        223 /       1693
+     Progression iq (fine) =        224 /       1693
+     Progression iq (fine) =        225 /       1693
+     Progression iq (fine) =        226 /       1693
+     Progression iq (fine) =        227 /       1693
+     Progression iq (fine) =        228 /       1693
+     Progression iq (fine) =        229 /       1693
+     Progression iq (fine) =        230 /       1693
+     Progression iq (fine) =        231 /       1693
+     Progression iq (fine) =        232 /       1693
+     Progression iq (fine) =        233 /       1693
+     Progression iq (fine) =        234 /       1693
+     Progression iq (fine) =        235 /       1693
+     Progression iq (fine) =        236 /       1693
+     Progression iq (fine) =        237 /       1693
+     Progression iq (fine) =        238 /       1693
+     Progression iq (fine) =        239 /       1693
+     Progression iq (fine) =        240 /       1693
+     Progression iq (fine) =        241 /       1693
+     Progression iq (fine) =        242 /       1693
+     Progression iq (fine) =        243 /       1693
+     Progression iq (fine) =        244 /       1693
+     Progression iq (fine) =        245 /       1693
+     Progression iq (fine) =        246 /       1693
+     Progression iq (fine) =        247 /       1693
+     Progression iq (fine) =        248 /       1693
+     Progression iq (fine) =        249 /       1693
+     Progression iq (fine) =        250 /       1693
+     Progression iq (fine) =        251 /       1693
+     Progression iq (fine) =        252 /       1693
+     Progression iq (fine) =        253 /       1693
+     Progression iq (fine) =        254 /       1693
+     Progression iq (fine) =        255 /       1693
+     Progression iq (fine) =        256 /       1693
+     Progression iq (fine) =        257 /       1693
+     Progression iq (fine) =        258 /       1693
+     Progression iq (fine) =        259 /       1693
+     Progression iq (fine) =        260 /       1693
+     Progression iq (fine) =        261 /       1693
+     Progression iq (fine) =        262 /       1693
+     Progression iq (fine) =        263 /       1693
+     Progression iq (fine) =        264 /       1693
+     Progression iq (fine) =        265 /       1693
+     Progression iq (fine) =        266 /       1693
+     Progression iq (fine) =        267 /       1693
+     Progression iq (fine) =        268 /       1693
+     Progression iq (fine) =        269 /       1693
+     Progression iq (fine) =        270 /       1693
+     Progression iq (fine) =        271 /       1693
+     Progression iq (fine) =        272 /       1693
+     Progression iq (fine) =        273 /       1693
+     Progression iq (fine) =        274 /       1693
+     Progression iq (fine) =        275 /       1693
+     Progression iq (fine) =        276 /       1693
+     Progression iq (fine) =        277 /       1693
+     Progression iq (fine) =        278 /       1693
+     Progression iq (fine) =        279 /       1693
+     Progression iq (fine) =        280 /       1693
+     Progression iq (fine) =        281 /       1693
+     Progression iq (fine) =        282 /       1693
+     Progression iq (fine) =        283 /       1693
+     Progression iq (fine) =        284 /       1693
+     Progression iq (fine) =        285 /       1693
+     Progression iq (fine) =        286 /       1693
+     Progression iq (fine) =        287 /       1693
+     Progression iq (fine) =        288 /       1693
+     Progression iq (fine) =        289 /       1693
+     Progression iq (fine) =        290 /       1693
+     Progression iq (fine) =        291 /       1693
+     Progression iq (fine) =        292 /       1693
+     Progression iq (fine) =        293 /       1693
+     Progression iq (fine) =        294 /       1693
+     Progression iq (fine) =        295 /       1693
+     Progression iq (fine) =        296 /       1693
+     Progression iq (fine) =        297 /       1693
+     Progression iq (fine) =        298 /       1693
+     Progression iq (fine) =        299 /       1693
+     Progression iq (fine) =        300 /       1693
+     Progression iq (fine) =        301 /       1693
+     Progression iq (fine) =        302 /       1693
+     Progression iq (fine) =        303 /       1693
+     Progression iq (fine) =        304 /       1693
+     Progression iq (fine) =        305 /       1693
+     Progression iq (fine) =        306 /       1693
+     Progression iq (fine) =        307 /       1693
+     Progression iq (fine) =        308 /       1693
+     Progression iq (fine) =        309 /       1693
+     Progression iq (fine) =        310 /       1693
+     Progression iq (fine) =        311 /       1693
+     Progression iq (fine) =        312 /       1693
+     Progression iq (fine) =        313 /       1693
+     Progression iq (fine) =        314 /       1693
+     Progression iq (fine) =        315 /       1693
+     Progression iq (fine) =        316 /       1693
+     Progression iq (fine) =        317 /       1693
+     Progression iq (fine) =        318 /       1693
+     Progression iq (fine) =        319 /       1693
+     Progression iq (fine) =        320 /       1693
+     Progression iq (fine) =        321 /       1693
+     Progression iq (fine) =        322 /       1693
+     Progression iq (fine) =        323 /       1693
+     Progression iq (fine) =        324 /       1693
+     Progression iq (fine) =        325 /       1693
+     Progression iq (fine) =        326 /       1693
+     Progression iq (fine) =        327 /       1693
+     Progression iq (fine) =        328 /       1693
+     Progression iq (fine) =        329 /       1693
+     Progression iq (fine) =        330 /       1693
+     Progression iq (fine) =        331 /       1693
+     Progression iq (fine) =        332 /       1693
+     Progression iq (fine) =        333 /       1693
+     Progression iq (fine) =        334 /       1693
+     Progression iq (fine) =        335 /       1693
+     Progression iq (fine) =        336 /       1693
+     Progression iq (fine) =        337 /       1693
+     Progression iq (fine) =        338 /       1693
+     Progression iq (fine) =        339 /       1693
+     Progression iq (fine) =        340 /       1693
+     Progression iq (fine) =        341 /       1693
+     Progression iq (fine) =        342 /       1693
+     Progression iq (fine) =        343 /       1693
+     Progression iq (fine) =        344 /       1693
+     Progression iq (fine) =        345 /       1693
+     Progression iq (fine) =        346 /       1693
+     Progression iq (fine) =        347 /       1693
+     Progression iq (fine) =        348 /       1693
+     Progression iq (fine) =        349 /       1693
+     Progression iq (fine) =        350 /       1693
+     Progression iq (fine) =        351 /       1693
+     Progression iq (fine) =        352 /       1693
+     Progression iq (fine) =        353 /       1693
+     Progression iq (fine) =        354 /       1693
+     Progression iq (fine) =        355 /       1693
+     Progression iq (fine) =        356 /       1693
+     Progression iq (fine) =        357 /       1693
+     Progression iq (fine) =        358 /       1693
+     Progression iq (fine) =        359 /       1693
+     Progression iq (fine) =        360 /       1693
+     Progression iq (fine) =        361 /       1693
+     Progression iq (fine) =        362 /       1693
+     Progression iq (fine) =        363 /       1693
+     Progression iq (fine) =        364 /       1693
+     Progression iq (fine) =        365 /       1693
+     Progression iq (fine) =        366 /       1693
+     Progression iq (fine) =        367 /       1693
+     Progression iq (fine) =        368 /       1693
+     Progression iq (fine) =        369 /       1693
+     Progression iq (fine) =        370 /       1693
+     Progression iq (fine) =        371 /       1693
+     Progression iq (fine) =        372 /       1693
+     Progression iq (fine) =        373 /       1693
+     Progression iq (fine) =        374 /       1693
+     Progression iq (fine) =        375 /       1693
+     Progression iq (fine) =        376 /       1693
+     Progression iq (fine) =        377 /       1693
+     Progression iq (fine) =        378 /       1693
+     Progression iq (fine) =        379 /       1693
+     Progression iq (fine) =        380 /       1693
+     Progression iq (fine) =        381 /       1693
+     Progression iq (fine) =        382 /       1693
+     Progression iq (fine) =        383 /       1693
+     Progression iq (fine) =        384 /       1693
+     Progression iq (fine) =        385 /       1693
+     Progression iq (fine) =        386 /       1693
+     Progression iq (fine) =        387 /       1693
+     Progression iq (fine) =        388 /       1693
+     Progression iq (fine) =        389 /       1693
+     Progression iq (fine) =        390 /       1693
+     Progression iq (fine) =        391 /       1693
+     Progression iq (fine) =        392 /       1693
+     Progression iq (fine) =        393 /       1693
+     Progression iq (fine) =        394 /       1693
+     Progression iq (fine) =        395 /       1693
+     Progression iq (fine) =        396 /       1693
+     Progression iq (fine) =        397 /       1693
+     Progression iq (fine) =        398 /       1693
+     Progression iq (fine) =        399 /       1693
+     Progression iq (fine) =        400 /       1693
+     Progression iq (fine) =        401 /       1693
+     Progression iq (fine) =        402 /       1693
+     Progression iq (fine) =        403 /       1693
+     Progression iq (fine) =        404 /       1693
+     Progression iq (fine) =        405 /       1693
+     Progression iq (fine) =        406 /       1693
+     Progression iq (fine) =        407 /       1693
+     Progression iq (fine) =        408 /       1693
+     Progression iq (fine) =        409 /       1693
+     Progression iq (fine) =        410 /       1693
+     Progression iq (fine) =        411 /       1693
+     Progression iq (fine) =        412 /       1693
+     Progression iq (fine) =        413 /       1693
+     Progression iq (fine) =        414 /       1693
+     Progression iq (fine) =        415 /       1693
+     Progression iq (fine) =        416 /       1693
+     Progression iq (fine) =        417 /       1693
+     Progression iq (fine) =        418 /       1693
+     Progression iq (fine) =        419 /       1693
+     Progression iq (fine) =        420 /       1693
+     Progression iq (fine) =        421 /       1693
+     Progression iq (fine) =        422 /       1693
+     Progression iq (fine) =        423 /       1693
+     Progression iq (fine) =        424 /       1693
+     Progression iq (fine) =        425 /       1693
+     Progression iq (fine) =        426 /       1693
+     Progression iq (fine) =        427 /       1693
+     Progression iq (fine) =        428 /       1693
+     Progression iq (fine) =        429 /       1693
+     Progression iq (fine) =        430 /       1693
+     Progression iq (fine) =        431 /       1693
+     Progression iq (fine) =        432 /       1693
+     Progression iq (fine) =        433 /       1693
+     Progression iq (fine) =        434 /       1693
+     Progression iq (fine) =        435 /       1693
+     Progression iq (fine) =        436 /       1693
+     Progression iq (fine) =        437 /       1693
+     Progression iq (fine) =        438 /       1693
+     Progression iq (fine) =        439 /       1693
+     Progression iq (fine) =        440 /       1693
+     Progression iq (fine) =        441 /       1693
+     Progression iq (fine) =        442 /       1693
+     Progression iq (fine) =        443 /       1693
+     Progression iq (fine) =        444 /       1693
+     Progression iq (fine) =        445 /       1693
+     Progression iq (fine) =        446 /       1693
+     Progression iq (fine) =        447 /       1693
+     Progression iq (fine) =        448 /       1693
+     Progression iq (fine) =        449 /       1693
+     Progression iq (fine) =        450 /       1693
+     Progression iq (fine) =        451 /       1693
+     Progression iq (fine) =        452 /       1693
+     Progression iq (fine) =        453 /       1693
+     Progression iq (fine) =        454 /       1693
+     Progression iq (fine) =        455 /       1693
+     Progression iq (fine) =        456 /       1693
+     Progression iq (fine) =        457 /       1693
+     Progression iq (fine) =        458 /       1693
+     Progression iq (fine) =        459 /       1693
+     Progression iq (fine) =        460 /       1693
+     Progression iq (fine) =        461 /       1693
+     Progression iq (fine) =        462 /       1693
+     Progression iq (fine) =        463 /       1693
+     Progression iq (fine) =        464 /       1693
+     Progression iq (fine) =        465 /       1693
+     Progression iq (fine) =        466 /       1693
+     Progression iq (fine) =        467 /       1693
+     Progression iq (fine) =        468 /       1693
+     Progression iq (fine) =        469 /       1693
+     Progression iq (fine) =        470 /       1693
+     Progression iq (fine) =        471 /       1693
+     Progression iq (fine) =        472 /       1693
+     Progression iq (fine) =        473 /       1693
+     Progression iq (fine) =        474 /       1693
+     Progression iq (fine) =        475 /       1693
+     Progression iq (fine) =        476 /       1693
+     Progression iq (fine) =        477 /       1693
+     Progression iq (fine) =        478 /       1693
+     Progression iq (fine) =        479 /       1693
+     Progression iq (fine) =        480 /       1693
+     Progression iq (fine) =        481 /       1693
+     Progression iq (fine) =        482 /       1693
+     Progression iq (fine) =        483 /       1693
+     Progression iq (fine) =        484 /       1693
+     Progression iq (fine) =        485 /       1693
+     Progression iq (fine) =        486 /       1693
+     Progression iq (fine) =        487 /       1693
+     Progression iq (fine) =        488 /       1693
+     Progression iq (fine) =        489 /       1693
+     Progression iq (fine) =        490 /       1693
+     Progression iq (fine) =        491 /       1693
+     Progression iq (fine) =        492 /       1693
+     Progression iq (fine) =        493 /       1693
+     Progression iq (fine) =        494 /       1693
+     Progression iq (fine) =        495 /       1693
+     Progression iq (fine) =        496 /       1693
+     Progression iq (fine) =        497 /       1693
+     Progression iq (fine) =        498 /       1693
+     Progression iq (fine) =        499 /       1693
+     Progression iq (fine) =        500 /       1693
+     Progression iq (fine) =        501 /       1693
+     Progression iq (fine) =        502 /       1693
+     Progression iq (fine) =        503 /       1693
+     Progression iq (fine) =        504 /       1693
+     Progression iq (fine) =        505 /       1693
+     Progression iq (fine) =        506 /       1693
+     Progression iq (fine) =        507 /       1693
+     Progression iq (fine) =        508 /       1693
+     Progression iq (fine) =        509 /       1693
+     Progression iq (fine) =        510 /       1693
+     Progression iq (fine) =        511 /       1693
+     Progression iq (fine) =        512 /       1693
+     Progression iq (fine) =        513 /       1693
+     Progression iq (fine) =        514 /       1693
+     Progression iq (fine) =        515 /       1693
+     Progression iq (fine) =        516 /       1693
+     Progression iq (fine) =        517 /       1693
+     Progression iq (fine) =        518 /       1693
+     Progression iq (fine) =        519 /       1693
+     Progression iq (fine) =        520 /       1693
+     Progression iq (fine) =        521 /       1693
+     Progression iq (fine) =        522 /       1693
+     Progression iq (fine) =        523 /       1693
+     Progression iq (fine) =        524 /       1693
+     Progression iq (fine) =        525 /       1693
+     Progression iq (fine) =        526 /       1693
+     Progression iq (fine) =        527 /       1693
+     Progression iq (fine) =        528 /       1693
+     Progression iq (fine) =        529 /       1693
+     Progression iq (fine) =        530 /       1693
+     Progression iq (fine) =        531 /       1693
+     Progression iq (fine) =        532 /       1693
+     Progression iq (fine) =        533 /       1693
+     Progression iq (fine) =        534 /       1693
+     Progression iq (fine) =        535 /       1693
+     Progression iq (fine) =        536 /       1693
+     Progression iq (fine) =        537 /       1693
+     Progression iq (fine) =        538 /       1693
+     Progression iq (fine) =        539 /       1693
+     Progression iq (fine) =        540 /       1693
+     Progression iq (fine) =        541 /       1693
+     Progression iq (fine) =        542 /       1693
+     Progression iq (fine) =        543 /       1693
+     Progression iq (fine) =        544 /       1693
+     Progression iq (fine) =        545 /       1693
+     Progression iq (fine) =        546 /       1693
+     Progression iq (fine) =        547 /       1693
+     Progression iq (fine) =        548 /       1693
+     Progression iq (fine) =        549 /       1693
+     Progression iq (fine) =        550 /       1693
+     Progression iq (fine) =        551 /       1693
+     Progression iq (fine) =        552 /       1693
+     Progression iq (fine) =        553 /       1693
+     Progression iq (fine) =        554 /       1693
+     Progression iq (fine) =        555 /       1693
+     Progression iq (fine) =        556 /       1693
+     Progression iq (fine) =        557 /       1693
+     Progression iq (fine) =        558 /       1693
+     Progression iq (fine) =        559 /       1693
+     Progression iq (fine) =        560 /       1693
+     Progression iq (fine) =        561 /       1693
+     Progression iq (fine) =        562 /       1693
+     Progression iq (fine) =        563 /       1693
+     Progression iq (fine) =        564 /       1693
+     Progression iq (fine) =        565 /       1693
+     Progression iq (fine) =        566 /       1693
+     Progression iq (fine) =        567 /       1693
+     Progression iq (fine) =        568 /       1693
+     Progression iq (fine) =        569 /       1693
+     Progression iq (fine) =        570 /       1693
+     Progression iq (fine) =        571 /       1693
+     Progression iq (fine) =        572 /       1693
+     Progression iq (fine) =        573 /       1693
+     Progression iq (fine) =        574 /       1693
+     Progression iq (fine) =        575 /       1693
+     Progression iq (fine) =        576 /       1693
+     Progression iq (fine) =        577 /       1693
+     Progression iq (fine) =        578 /       1693
+     Progression iq (fine) =        579 /       1693
+     Progression iq (fine) =        580 /       1693
+     Progression iq (fine) =        581 /       1693
+     Progression iq (fine) =        582 /       1693
+     Progression iq (fine) =        583 /       1693
+     Progression iq (fine) =        584 /       1693
+     Progression iq (fine) =        585 /       1693
+     Progression iq (fine) =        586 /       1693
+     Progression iq (fine) =        587 /       1693
+     Progression iq (fine) =        588 /       1693
+     Progression iq (fine) =        589 /       1693
+     Progression iq (fine) =        590 /       1693
+     Progression iq (fine) =        591 /       1693
+     Progression iq (fine) =        592 /       1693
+     Progression iq (fine) =        593 /       1693
+     Progression iq (fine) =        594 /       1693
+     Progression iq (fine) =        595 /       1693
+     Progression iq (fine) =        596 /       1693
+     Progression iq (fine) =        597 /       1693
+     Progression iq (fine) =        598 /       1693
+     Progression iq (fine) =        599 /       1693
+     Progression iq (fine) =        600 /       1693
+     Progression iq (fine) =        601 /       1693
+     Progression iq (fine) =        602 /       1693
+     Progression iq (fine) =        603 /       1693
+     Progression iq (fine) =        604 /       1693
+     Progression iq (fine) =        605 /       1693
+     Progression iq (fine) =        606 /       1693
+     Progression iq (fine) =        607 /       1693
+     Progression iq (fine) =        608 /       1693
+     Progression iq (fine) =        609 /       1693
+     Progression iq (fine) =        610 /       1693
+     Progression iq (fine) =        611 /       1693
+     Progression iq (fine) =        612 /       1693
+     Progression iq (fine) =        613 /       1693
+     Progression iq (fine) =        614 /       1693
+     Progression iq (fine) =        615 /       1693
+     Progression iq (fine) =        616 /       1693
+     Progression iq (fine) =        617 /       1693
+     Progression iq (fine) =        618 /       1693
+     Progression iq (fine) =        619 /       1693
+     Progression iq (fine) =        620 /       1693
+     Progression iq (fine) =        621 /       1693
+     Progression iq (fine) =        622 /       1693
+     Progression iq (fine) =        623 /       1693
+     Progression iq (fine) =        624 /       1693
+     Progression iq (fine) =        625 /       1693
+     Progression iq (fine) =        626 /       1693
+     Progression iq (fine) =        627 /       1693
+     Progression iq (fine) =        628 /       1693
+     Progression iq (fine) =        629 /       1693
+     Progression iq (fine) =        630 /       1693
+     Progression iq (fine) =        631 /       1693
+     Progression iq (fine) =        632 /       1693
+     Progression iq (fine) =        633 /       1693
+     Progression iq (fine) =        634 /       1693
+     Progression iq (fine) =        635 /       1693
+     Progression iq (fine) =        636 /       1693
+     Progression iq (fine) =        637 /       1693
+     Progression iq (fine) =        638 /       1693
+     Progression iq (fine) =        639 /       1693
+     Progression iq (fine) =        640 /       1693
+     Progression iq (fine) =        641 /       1693
+     Progression iq (fine) =        642 /       1693
+     Progression iq (fine) =        643 /       1693
+     Progression iq (fine) =        644 /       1693
+     Progression iq (fine) =        645 /       1693
+     Progression iq (fine) =        646 /       1693
+     Progression iq (fine) =        647 /       1693
+     Progression iq (fine) =        648 /       1693
+     Progression iq (fine) =        649 /       1693
+     Progression iq (fine) =        650 /       1693
+     Progression iq (fine) =        651 /       1693
+     Progression iq (fine) =        652 /       1693
+     Progression iq (fine) =        653 /       1693
+     Progression iq (fine) =        654 /       1693
+     Progression iq (fine) =        655 /       1693
+     Progression iq (fine) =        656 /       1693
+     Progression iq (fine) =        657 /       1693
+     Progression iq (fine) =        658 /       1693
+     Progression iq (fine) =        659 /       1693
+     Progression iq (fine) =        660 /       1693
+     Progression iq (fine) =        661 /       1693
+     Progression iq (fine) =        662 /       1693
+     Progression iq (fine) =        663 /       1693
+     Progression iq (fine) =        664 /       1693
+     Progression iq (fine) =        665 /       1693
+     Progression iq (fine) =        666 /       1693
+     Progression iq (fine) =        667 /       1693
+     Progression iq (fine) =        668 /       1693
+     Progression iq (fine) =        669 /       1693
+     Progression iq (fine) =        670 /       1693
+     Progression iq (fine) =        671 /       1693
+     Progression iq (fine) =        672 /       1693
+     Progression iq (fine) =        673 /       1693
+     Progression iq (fine) =        674 /       1693
+     Progression iq (fine) =        675 /       1693
+     Progression iq (fine) =        676 /       1693
+     Progression iq (fine) =        677 /       1693
+     Progression iq (fine) =        678 /       1693
+     Progression iq (fine) =        679 /       1693
+     Progression iq (fine) =        680 /       1693
+     Progression iq (fine) =        681 /       1693
+     Progression iq (fine) =        682 /       1693
+     Progression iq (fine) =        683 /       1693
+     Progression iq (fine) =        684 /       1693
+     Progression iq (fine) =        685 /       1693
+     Progression iq (fine) =        686 /       1693
+     Progression iq (fine) =        687 /       1693
+     Progression iq (fine) =        688 /       1693
+     Progression iq (fine) =        689 /       1693
+     Progression iq (fine) =        690 /       1693
+     Progression iq (fine) =        691 /       1693
+     Progression iq (fine) =        692 /       1693
+     Progression iq (fine) =        693 /       1693
+     Progression iq (fine) =        694 /       1693
+     Progression iq (fine) =        695 /       1693
+     Progression iq (fine) =        696 /       1693
+     Progression iq (fine) =        697 /       1693
+     Progression iq (fine) =        698 /       1693
+     Progression iq (fine) =        699 /       1693
+     Progression iq (fine) =        700 /       1693
+     Progression iq (fine) =        701 /       1693
+     Progression iq (fine) =        702 /       1693
+     Progression iq (fine) =        703 /       1693
+     Progression iq (fine) =        704 /       1693
+     Progression iq (fine) =        705 /       1693
+     Progression iq (fine) =        706 /       1693
+     Progression iq (fine) =        707 /       1693
+     Progression iq (fine) =        708 /       1693
+     Progression iq (fine) =        709 /       1693
+     Progression iq (fine) =        710 /       1693
+     Progression iq (fine) =        711 /       1693
+     Progression iq (fine) =        712 /       1693
+     Progression iq (fine) =        713 /       1693
+     Progression iq (fine) =        714 /       1693
+     Progression iq (fine) =        715 /       1693
+     Progression iq (fine) =        716 /       1693
+     Progression iq (fine) =        717 /       1693
+     Progression iq (fine) =        718 /       1693
+     Progression iq (fine) =        719 /       1693
+     Progression iq (fine) =        720 /       1693
+     Progression iq (fine) =        721 /       1693
+     Progression iq (fine) =        722 /       1693
+     Progression iq (fine) =        723 /       1693
+     Progression iq (fine) =        724 /       1693
+     Progression iq (fine) =        725 /       1693
+     Progression iq (fine) =        726 /       1693
+     Progression iq (fine) =        727 /       1693
+     Progression iq (fine) =        728 /       1693
+     Progression iq (fine) =        729 /       1693
+     Progression iq (fine) =        730 /       1693
+     Progression iq (fine) =        731 /       1693
+     Progression iq (fine) =        732 /       1693
+     Progression iq (fine) =        733 /       1693
+     Progression iq (fine) =        734 /       1693
+     Progression iq (fine) =        735 /       1693
+     Progression iq (fine) =        736 /       1693
+     Progression iq (fine) =        737 /       1693
+     Progression iq (fine) =        738 /       1693
+     Progression iq (fine) =        739 /       1693
+     Progression iq (fine) =        740 /       1693
+     Progression iq (fine) =        741 /       1693
+     Progression iq (fine) =        742 /       1693
+     Progression iq (fine) =        743 /       1693
+     Progression iq (fine) =        744 /       1693
+     Progression iq (fine) =        745 /       1693
+     Progression iq (fine) =        746 /       1693
+     Progression iq (fine) =        747 /       1693
+     Progression iq (fine) =        748 /       1693
+     Progression iq (fine) =        749 /       1693
+     Progression iq (fine) =        750 /       1693
+     Progression iq (fine) =        751 /       1693
+     Progression iq (fine) =        752 /       1693
+     Progression iq (fine) =        753 /       1693
+     Progression iq (fine) =        754 /       1693
+     Progression iq (fine) =        755 /       1693
+     Progression iq (fine) =        756 /       1693
+     Progression iq (fine) =        757 /       1693
+     Progression iq (fine) =        758 /       1693
+     Progression iq (fine) =        759 /       1693
+     Progression iq (fine) =        760 /       1693
+     Progression iq (fine) =        761 /       1693
+     Progression iq (fine) =        762 /       1693
+     Progression iq (fine) =        763 /       1693
+     Progression iq (fine) =        764 /       1693
+     Progression iq (fine) =        765 /       1693
+     Progression iq (fine) =        766 /       1693
+     Progression iq (fine) =        767 /       1693
+     Progression iq (fine) =        768 /       1693
+     Progression iq (fine) =        769 /       1693
+     Progression iq (fine) =        770 /       1693
+     Progression iq (fine) =        771 /       1693
+     Progression iq (fine) =        772 /       1693
+     Progression iq (fine) =        773 /       1693
+     Progression iq (fine) =        774 /       1693
+     Progression iq (fine) =        775 /       1693
+     Progression iq (fine) =        776 /       1693
+     Progression iq (fine) =        777 /       1693
+     Progression iq (fine) =        778 /       1693
+     Progression iq (fine) =        779 /       1693
+     Progression iq (fine) =        780 /       1693
+     Progression iq (fine) =        781 /       1693
+     Progression iq (fine) =        782 /       1693
+     Progression iq (fine) =        783 /       1693
+     Progression iq (fine) =        784 /       1693
+     Progression iq (fine) =        785 /       1693
+     Progression iq (fine) =        786 /       1693
+     Progression iq (fine) =        787 /       1693
+     Progression iq (fine) =        788 /       1693
+     Progression iq (fine) =        789 /       1693
+     Progression iq (fine) =        790 /       1693
+     Progression iq (fine) =        791 /       1693
+     Progression iq (fine) =        792 /       1693
+     Progression iq (fine) =        793 /       1693
+     Progression iq (fine) =        794 /       1693
+     Progression iq (fine) =        795 /       1693
+     Progression iq (fine) =        796 /       1693
+     Progression iq (fine) =        797 /       1693
+     Progression iq (fine) =        798 /       1693
+     Progression iq (fine) =        799 /       1693
+     Progression iq (fine) =        800 /       1693
+     Progression iq (fine) =        801 /       1693
+     Progression iq (fine) =        802 /       1693
+     Progression iq (fine) =        803 /       1693
+     Progression iq (fine) =        804 /       1693
+     Progression iq (fine) =        805 /       1693
+     Progression iq (fine) =        806 /       1693
+     Progression iq (fine) =        807 /       1693
+     Progression iq (fine) =        808 /       1693
+     Progression iq (fine) =        809 /       1693
+     Progression iq (fine) =        810 /       1693
+     Progression iq (fine) =        811 /       1693
+     Progression iq (fine) =        812 /       1693
+     Progression iq (fine) =        813 /       1693
+     Progression iq (fine) =        814 /       1693
+     Progression iq (fine) =        815 /       1693
+     Progression iq (fine) =        816 /       1693
+     Progression iq (fine) =        817 /       1693
+     Progression iq (fine) =        818 /       1693
+     Progression iq (fine) =        819 /       1693
+     Progression iq (fine) =        820 /       1693
+     Progression iq (fine) =        821 /       1693
+     Progression iq (fine) =        822 /       1693
+     Progression iq (fine) =        823 /       1693
+     Progression iq (fine) =        824 /       1693
+     Progression iq (fine) =        825 /       1693
+     Progression iq (fine) =        826 /       1693
+     Progression iq (fine) =        827 /       1693
+     Progression iq (fine) =        828 /       1693
+     Progression iq (fine) =        829 /       1693
+     Progression iq (fine) =        830 /       1693
+     Progression iq (fine) =        831 /       1693
+     Progression iq (fine) =        832 /       1693
+     Progression iq (fine) =        833 /       1693
+     Progression iq (fine) =        834 /       1693
+     Progression iq (fine) =        835 /       1693
+     Progression iq (fine) =        836 /       1693
+     Progression iq (fine) =        837 /       1693
+     Progression iq (fine) =        838 /       1693
+     Progression iq (fine) =        839 /       1693
+     Progression iq (fine) =        840 /       1693
+     Progression iq (fine) =        841 /       1693
+     Progression iq (fine) =        842 /       1693
+     Progression iq (fine) =        843 /       1693
+     Progression iq (fine) =        844 /       1693
+     Progression iq (fine) =        845 /       1693
+     Progression iq (fine) =        846 /       1693
+     Progression iq (fine) =        847 /       1693
+     Progression iq (fine) =        848 /       1693
+     Progression iq (fine) =        849 /       1693
+     Progression iq (fine) =        850 /       1693
+     Progression iq (fine) =        851 /       1693
+     Progression iq (fine) =        852 /       1693
+     Progression iq (fine) =        853 /       1693
+     Progression iq (fine) =        854 /       1693
+     Progression iq (fine) =        855 /       1693
+     Progression iq (fine) =        856 /       1693
+     Progression iq (fine) =        857 /       1693
+     Progression iq (fine) =        858 /       1693
+     Progression iq (fine) =        859 /       1693
+     Progression iq (fine) =        860 /       1693
+     Progression iq (fine) =        861 /       1693
+     Progression iq (fine) =        862 /       1693
+     Progression iq (fine) =        863 /       1693
+     Progression iq (fine) =        864 /       1693
+     Progression iq (fine) =        865 /       1693
+     Progression iq (fine) =        866 /       1693
+     Progression iq (fine) =        867 /       1693
+     Progression iq (fine) =        868 /       1693
+     Progression iq (fine) =        869 /       1693
+     Progression iq (fine) =        870 /       1693
+     Progression iq (fine) =        871 /       1693
+     Progression iq (fine) =        872 /       1693
+     Progression iq (fine) =        873 /       1693
+     Progression iq (fine) =        874 /       1693
+     Progression iq (fine) =        875 /       1693
+     Progression iq (fine) =        876 /       1693
+     Progression iq (fine) =        877 /       1693
+     Progression iq (fine) =        878 /       1693
+     Progression iq (fine) =        879 /       1693
+     Progression iq (fine) =        880 /       1693
+     Progression iq (fine) =        881 /       1693
+     Progression iq (fine) =        882 /       1693
+     Progression iq (fine) =        883 /       1693
+     Progression iq (fine) =        884 /       1693
+     Progression iq (fine) =        885 /       1693
+     Progression iq (fine) =        886 /       1693
+     Progression iq (fine) =        887 /       1693
+     Progression iq (fine) =        888 /       1693
+     Progression iq (fine) =        889 /       1693
+     Progression iq (fine) =        890 /       1693
+     Progression iq (fine) =        891 /       1693
+     Progression iq (fine) =        892 /       1693
+     Progression iq (fine) =        893 /       1693
+     Progression iq (fine) =        894 /       1693
+     Progression iq (fine) =        895 /       1693
+     Progression iq (fine) =        896 /       1693
+     Progression iq (fine) =        897 /       1693
+     Progression iq (fine) =        898 /       1693
+     Progression iq (fine) =        899 /       1693
+     Progression iq (fine) =        900 /       1693
+     Progression iq (fine) =        901 /       1693
+     Progression iq (fine) =        902 /       1693
+     Progression iq (fine) =        903 /       1693
+     Progression iq (fine) =        904 /       1693
+     Progression iq (fine) =        905 /       1693
+     Progression iq (fine) =        906 /       1693
+     Progression iq (fine) =        907 /       1693
+     Progression iq (fine) =        908 /       1693
+     Progression iq (fine) =        909 /       1693
+     Progression iq (fine) =        910 /       1693
+     Progression iq (fine) =        911 /       1693
+     Progression iq (fine) =        912 /       1693
+     Progression iq (fine) =        913 /       1693
+     Progression iq (fine) =        914 /       1693
+     Progression iq (fine) =        915 /       1693
+     Progression iq (fine) =        916 /       1693
+     Progression iq (fine) =        917 /       1693
+     Progression iq (fine) =        918 /       1693
+     Progression iq (fine) =        919 /       1693
+     Progression iq (fine) =        920 /       1693
+     Progression iq (fine) =        921 /       1693
+     Progression iq (fine) =        922 /       1693
+     Progression iq (fine) =        923 /       1693
+     Progression iq (fine) =        924 /       1693
+     Progression iq (fine) =        925 /       1693
+     Progression iq (fine) =        926 /       1693
+     Progression iq (fine) =        927 /       1693
+     Progression iq (fine) =        928 /       1693
+     Progression iq (fine) =        929 /       1693
+     Progression iq (fine) =        930 /       1693
+     Progression iq (fine) =        931 /       1693
+     Progression iq (fine) =        932 /       1693
+     Progression iq (fine) =        933 /       1693
+     Progression iq (fine) =        934 /       1693
+     Progression iq (fine) =        935 /       1693
+     Progression iq (fine) =        936 /       1693
+     Progression iq (fine) =        937 /       1693
+     Progression iq (fine) =        938 /       1693
+     Progression iq (fine) =        939 /       1693
+     Progression iq (fine) =        940 /       1693
+     Progression iq (fine) =        941 /       1693
+     Progression iq (fine) =        942 /       1693
+     Progression iq (fine) =        943 /       1693
+     Progression iq (fine) =        944 /       1693
+     Progression iq (fine) =        945 /       1693
+     Progression iq (fine) =        946 /       1693
+     Progression iq (fine) =        947 /       1693
+     Progression iq (fine) =        948 /       1693
+     Progression iq (fine) =        949 /       1693
+     Progression iq (fine) =        950 /       1693
+     Progression iq (fine) =        951 /       1693
+     Progression iq (fine) =        952 /       1693
+     Progression iq (fine) =        953 /       1693
+     Progression iq (fine) =        954 /       1693
+     Progression iq (fine) =        955 /       1693
+     Progression iq (fine) =        956 /       1693
+     Progression iq (fine) =        957 /       1693
+     Progression iq (fine) =        958 /       1693
+     Progression iq (fine) =        959 /       1693
+     Progression iq (fine) =        960 /       1693
+     Progression iq (fine) =        961 /       1693
+     Progression iq (fine) =        962 /       1693
+     Progression iq (fine) =        963 /       1693
+     Progression iq (fine) =        964 /       1693
+     Progression iq (fine) =        965 /       1693
+     Progression iq (fine) =        966 /       1693
+     Progression iq (fine) =        967 /       1693
+     Progression iq (fine) =        968 /       1693
+     Progression iq (fine) =        969 /       1693
+     Progression iq (fine) =        970 /       1693
+     Progression iq (fine) =        971 /       1693
+     Progression iq (fine) =        972 /       1693
+     Progression iq (fine) =        973 /       1693
+     Progression iq (fine) =        974 /       1693
+     Progression iq (fine) =        975 /       1693
+     Progression iq (fine) =        976 /       1693
+     Progression iq (fine) =        977 /       1693
+     Progression iq (fine) =        978 /       1693
+     Progression iq (fine) =        979 /       1693
+     Progression iq (fine) =        980 /       1693
+     Progression iq (fine) =        981 /       1693
+     Progression iq (fine) =        982 /       1693
+     Progression iq (fine) =        983 /       1693
+     Progression iq (fine) =        984 /       1693
+     Progression iq (fine) =        985 /       1693
+     Progression iq (fine) =        986 /       1693
+     Progression iq (fine) =        987 /       1693
+     Progression iq (fine) =        988 /       1693
+     Progression iq (fine) =        989 /       1693
+     Progression iq (fine) =        990 /       1693
+     Progression iq (fine) =        991 /       1693
+     Progression iq (fine) =        992 /       1693
+     Progression iq (fine) =        993 /       1693
+     Progression iq (fine) =        994 /       1693
+     Progression iq (fine) =        995 /       1693
+     Progression iq (fine) =        996 /       1693
+     Progression iq (fine) =        997 /       1693
+     Progression iq (fine) =        998 /       1693
+     Progression iq (fine) =        999 /       1693
+     Progression iq (fine) =       1000 /       1693
+     Progression iq (fine) =       1001 /       1693
+     Progression iq (fine) =       1002 /       1693
+     Progression iq (fine) =       1003 /       1693
+     Progression iq (fine) =       1004 /       1693
+     Progression iq (fine) =       1005 /       1693
+     Progression iq (fine) =       1006 /       1693
+     Progression iq (fine) =       1007 /       1693
+     Progression iq (fine) =       1008 /       1693
+     Progression iq (fine) =       1009 /       1693
+     Progression iq (fine) =       1010 /       1693
+     Progression iq (fine) =       1011 /       1693
+     Progression iq (fine) =       1012 /       1693
+     Progression iq (fine) =       1013 /       1693
+     Progression iq (fine) =       1014 /       1693
+     Progression iq (fine) =       1015 /       1693
+     Progression iq (fine) =       1016 /       1693
+     Progression iq (fine) =       1017 /       1693
+     Progression iq (fine) =       1018 /       1693
+     Progression iq (fine) =       1019 /       1693
+     Progression iq (fine) =       1020 /       1693
+     Progression iq (fine) =       1021 /       1693
+     Progression iq (fine) =       1022 /       1693
+     Progression iq (fine) =       1023 /       1693
+     Progression iq (fine) =       1024 /       1693
+     Progression iq (fine) =       1025 /       1693
+     Progression iq (fine) =       1026 /       1693
+     Progression iq (fine) =       1027 /       1693
+     Progression iq (fine) =       1028 /       1693
+     Progression iq (fine) =       1029 /       1693
+     Progression iq (fine) =       1030 /       1693
+     Progression iq (fine) =       1031 /       1693
+     Progression iq (fine) =       1032 /       1693
+     Progression iq (fine) =       1033 /       1693
+     Progression iq (fine) =       1034 /       1693
+     Progression iq (fine) =       1035 /       1693
+     Progression iq (fine) =       1036 /       1693
+     Progression iq (fine) =       1037 /       1693
+     Progression iq (fine) =       1038 /       1693
+     Progression iq (fine) =       1039 /       1693
+     Progression iq (fine) =       1040 /       1693
+     Progression iq (fine) =       1041 /       1693
+     Progression iq (fine) =       1042 /       1693
+     Progression iq (fine) =       1043 /       1693
+     Progression iq (fine) =       1044 /       1693
+     Progression iq (fine) =       1045 /       1693
+     Progression iq (fine) =       1046 /       1693
+     Progression iq (fine) =       1047 /       1693
+     Progression iq (fine) =       1048 /       1693
+     Progression iq (fine) =       1049 /       1693
+     Progression iq (fine) =       1050 /       1693
+     Progression iq (fine) =       1051 /       1693
+     Progression iq (fine) =       1052 /       1693
+     Progression iq (fine) =       1053 /       1693
+     Progression iq (fine) =       1054 /       1693
+     Progression iq (fine) =       1055 /       1693
+     Progression iq (fine) =       1056 /       1693
+     Progression iq (fine) =       1057 /       1693
+     Progression iq (fine) =       1058 /       1693
+     Progression iq (fine) =       1059 /       1693
+     Progression iq (fine) =       1060 /       1693
+     Progression iq (fine) =       1061 /       1693
+     Progression iq (fine) =       1062 /       1693
+     Progression iq (fine) =       1063 /       1693
+     Progression iq (fine) =       1064 /       1693
+     Progression iq (fine) =       1065 /       1693
+     Progression iq (fine) =       1066 /       1693
+     Progression iq (fine) =       1067 /       1693
+     Progression iq (fine) =       1068 /       1693
+     Progression iq (fine) =       1069 /       1693
+     Progression iq (fine) =       1070 /       1693
+     Progression iq (fine) =       1071 /       1693
+     Progression iq (fine) =       1072 /       1693
+     Progression iq (fine) =       1073 /       1693
+     Progression iq (fine) =       1074 /       1693
+     Progression iq (fine) =       1075 /       1693
+     Progression iq (fine) =       1076 /       1693
+     Progression iq (fine) =       1077 /       1693
+     Progression iq (fine) =       1078 /       1693
+     Progression iq (fine) =       1079 /       1693
+     Progression iq (fine) =       1080 /       1693
+     Progression iq (fine) =       1081 /       1693
+     Progression iq (fine) =       1082 /       1693
+     Progression iq (fine) =       1083 /       1693
+     Progression iq (fine) =       1084 /       1693
+     Progression iq (fine) =       1085 /       1693
+     Progression iq (fine) =       1086 /       1693
+     Progression iq (fine) =       1087 /       1693
+     Progression iq (fine) =       1088 /       1693
+     Progression iq (fine) =       1089 /       1693
+     Progression iq (fine) =       1090 /       1693
+     Progression iq (fine) =       1091 /       1693
+     Progression iq (fine) =       1092 /       1693
+     Progression iq (fine) =       1093 /       1693
+     Progression iq (fine) =       1094 /       1693
+     Progression iq (fine) =       1095 /       1693
+     Progression iq (fine) =       1096 /       1693
+     Progression iq (fine) =       1097 /       1693
+     Progression iq (fine) =       1098 /       1693
+     Progression iq (fine) =       1099 /       1693
+     Progression iq (fine) =       1100 /       1693
+     Progression iq (fine) =       1101 /       1693
+     Progression iq (fine) =       1102 /       1693
+     Progression iq (fine) =       1103 /       1693
+     Progression iq (fine) =       1104 /       1693
+     Progression iq (fine) =       1105 /       1693
+     Progression iq (fine) =       1106 /       1693
+     Progression iq (fine) =       1107 /       1693
+     Progression iq (fine) =       1108 /       1693
+     Progression iq (fine) =       1109 /       1693
+     Progression iq (fine) =       1110 /       1693
+     Progression iq (fine) =       1111 /       1693
+     Progression iq (fine) =       1112 /       1693
+     Progression iq (fine) =       1113 /       1693
+     Progression iq (fine) =       1114 /       1693
+     Progression iq (fine) =       1115 /       1693
+     Progression iq (fine) =       1116 /       1693
+     Progression iq (fine) =       1117 /       1693
+     Progression iq (fine) =       1118 /       1693
+     Progression iq (fine) =       1119 /       1693
+     Progression iq (fine) =       1120 /       1693
+     Progression iq (fine) =       1121 /       1693
+     Progression iq (fine) =       1122 /       1693
+     Progression iq (fine) =       1123 /       1693
+     Progression iq (fine) =       1124 /       1693
+     Progression iq (fine) =       1125 /       1693
+     Progression iq (fine) =       1126 /       1693
+     Progression iq (fine) =       1127 /       1693
+     Progression iq (fine) =       1128 /       1693
+     Progression iq (fine) =       1129 /       1693
+     Progression iq (fine) =       1130 /       1693
+     Progression iq (fine) =       1131 /       1693
+     Progression iq (fine) =       1132 /       1693
+     Progression iq (fine) =       1133 /       1693
+     Progression iq (fine) =       1134 /       1693
+     Progression iq (fine) =       1135 /       1693
+     Progression iq (fine) =       1136 /       1693
+     Progression iq (fine) =       1137 /       1693
+     Progression iq (fine) =       1138 /       1693
+     Progression iq (fine) =       1139 /       1693
+     Progression iq (fine) =       1140 /       1693
+     Progression iq (fine) =       1141 /       1693
+     Progression iq (fine) =       1142 /       1693
+     Progression iq (fine) =       1143 /       1693
+     Progression iq (fine) =       1144 /       1693
+     Progression iq (fine) =       1145 /       1693
+     Progression iq (fine) =       1146 /       1693
+     Progression iq (fine) =       1147 /       1693
+     Progression iq (fine) =       1148 /       1693
+     Progression iq (fine) =       1149 /       1693
+     Progression iq (fine) =       1150 /       1693
+     Progression iq (fine) =       1151 /       1693
+     Progression iq (fine) =       1152 /       1693
+     Progression iq (fine) =       1153 /       1693
+     Progression iq (fine) =       1154 /       1693
+     Progression iq (fine) =       1155 /       1693
+     Progression iq (fine) =       1156 /       1693
+     Progression iq (fine) =       1157 /       1693
+     Progression iq (fine) =       1158 /       1693
+     Progression iq (fine) =       1159 /       1693
+     Progression iq (fine) =       1160 /       1693
+     Progression iq (fine) =       1161 /       1693
+     Progression iq (fine) =       1162 /       1693
+     Progression iq (fine) =       1163 /       1693
+     Progression iq (fine) =       1164 /       1693
+     Progression iq (fine) =       1165 /       1693
+     Progression iq (fine) =       1166 /       1693
+     Progression iq (fine) =       1167 /       1693
+     Progression iq (fine) =       1168 /       1693
+     Progression iq (fine) =       1169 /       1693
+     Progression iq (fine) =       1170 /       1693
+     Progression iq (fine) =       1171 /       1693
+     Progression iq (fine) =       1172 /       1693
+     Progression iq (fine) =       1173 /       1693
+     Progression iq (fine) =       1174 /       1693
+     Progression iq (fine) =       1175 /       1693
+     Progression iq (fine) =       1176 /       1693
+     Progression iq (fine) =       1177 /       1693
+     Progression iq (fine) =       1178 /       1693
+     Progression iq (fine) =       1179 /       1693
+     Progression iq (fine) =       1180 /       1693
+     Progression iq (fine) =       1181 /       1693
+     Progression iq (fine) =       1182 /       1693
+     Progression iq (fine) =       1183 /       1693
+     Progression iq (fine) =       1184 /       1693
+     Progression iq (fine) =       1185 /       1693
+     Progression iq (fine) =       1186 /       1693
+     Progression iq (fine) =       1187 /       1693
+     Progression iq (fine) =       1188 /       1693
+     Progression iq (fine) =       1189 /       1693
+     Progression iq (fine) =       1190 /       1693
+     Progression iq (fine) =       1191 /       1693
+     Progression iq (fine) =       1192 /       1693
+     Progression iq (fine) =       1193 /       1693
+     Progression iq (fine) =       1194 /       1693
+     Progression iq (fine) =       1195 /       1693
+     Progression iq (fine) =       1196 /       1693
+     Progression iq (fine) =       1197 /       1693
+     Progression iq (fine) =       1198 /       1693
+     Progression iq (fine) =       1199 /       1693
+     Progression iq (fine) =       1200 /       1693
+     Progression iq (fine) =       1201 /       1693
+     Progression iq (fine) =       1202 /       1693
+     Progression iq (fine) =       1203 /       1693
+     Progression iq (fine) =       1204 /       1693
+     Progression iq (fine) =       1205 /       1693
+     Progression iq (fine) =       1206 /       1693
+     Progression iq (fine) =       1207 /       1693
+     Progression iq (fine) =       1208 /       1693
+     Progression iq (fine) =       1209 /       1693
+     Progression iq (fine) =       1210 /       1693
+     Progression iq (fine) =       1211 /       1693
+     Progression iq (fine) =       1212 /       1693
+     Progression iq (fine) =       1213 /       1693
+     Progression iq (fine) =       1214 /       1693
+     Progression iq (fine) =       1215 /       1693
+     Progression iq (fine) =       1216 /       1693
+     Progression iq (fine) =       1217 /       1693
+     Progression iq (fine) =       1218 /       1693
+     Progression iq (fine) =       1219 /       1693
+     Progression iq (fine) =       1220 /       1693
+     Progression iq (fine) =       1221 /       1693
+     Progression iq (fine) =       1222 /       1693
+     Progression iq (fine) =       1223 /       1693
+     Progression iq (fine) =       1224 /       1693
+     Progression iq (fine) =       1225 /       1693
+     Progression iq (fine) =       1226 /       1693
+     Progression iq (fine) =       1227 /       1693
+     Progression iq (fine) =       1228 /       1693
+     Progression iq (fine) =       1229 /       1693
+     Progression iq (fine) =       1230 /       1693
+     Progression iq (fine) =       1231 /       1693
+     Progression iq (fine) =       1232 /       1693
+     Progression iq (fine) =       1233 /       1693
+     Progression iq (fine) =       1234 /       1693
+     Progression iq (fine) =       1235 /       1693
+     Progression iq (fine) =       1236 /       1693
+     Progression iq (fine) =       1237 /       1693
+     Progression iq (fine) =       1238 /       1693
+     Progression iq (fine) =       1239 /       1693
+     Progression iq (fine) =       1240 /       1693
+     Progression iq (fine) =       1241 /       1693
+     Progression iq (fine) =       1242 /       1693
+     Progression iq (fine) =       1243 /       1693
+     Progression iq (fine) =       1244 /       1693
+     Progression iq (fine) =       1245 /       1693
+     Progression iq (fine) =       1246 /       1693
+     Progression iq (fine) =       1247 /       1693
+     Progression iq (fine) =       1248 /       1693
+     Progression iq (fine) =       1249 /       1693
+     Progression iq (fine) =       1250 /       1693
+     Progression iq (fine) =       1251 /       1693
+     Progression iq (fine) =       1252 /       1693
+     Progression iq (fine) =       1253 /       1693
+     Progression iq (fine) =       1254 /       1693
+     Progression iq (fine) =       1255 /       1693
+     Progression iq (fine) =       1256 /       1693
+     Progression iq (fine) =       1257 /       1693
+     Progression iq (fine) =       1258 /       1693
+     Progression iq (fine) =       1259 /       1693
+     Progression iq (fine) =       1260 /       1693
+     Progression iq (fine) =       1261 /       1693
+     Progression iq (fine) =       1262 /       1693
+     Progression iq (fine) =       1263 /       1693
+     Progression iq (fine) =       1264 /       1693
+     Progression iq (fine) =       1265 /       1693
+     Progression iq (fine) =       1266 /       1693
+     Progression iq (fine) =       1267 /       1693
+     Progression iq (fine) =       1268 /       1693
+     Progression iq (fine) =       1269 /       1693
+     Progression iq (fine) =       1270 /       1693
+     Progression iq (fine) =       1271 /       1693
+     Progression iq (fine) =       1272 /       1693
+     Progression iq (fine) =       1273 /       1693
+     Progression iq (fine) =       1274 /       1693
+     Progression iq (fine) =       1275 /       1693
+     Progression iq (fine) =       1276 /       1693
+     Progression iq (fine) =       1277 /       1693
+     Progression iq (fine) =       1278 /       1693
+     Progression iq (fine) =       1279 /       1693
+     Progression iq (fine) =       1280 /       1693
+     Progression iq (fine) =       1281 /       1693
+     Progression iq (fine) =       1282 /       1693
+     Progression iq (fine) =       1283 /       1693
+     Progression iq (fine) =       1284 /       1693
+     Progression iq (fine) =       1285 /       1693
+     Progression iq (fine) =       1286 /       1693
+     Progression iq (fine) =       1287 /       1693
+     Progression iq (fine) =       1288 /       1693
+     Progression iq (fine) =       1289 /       1693
+     Progression iq (fine) =       1290 /       1693
+     Progression iq (fine) =       1291 /       1693
+     Progression iq (fine) =       1292 /       1693
+     Progression iq (fine) =       1293 /       1693
+     Progression iq (fine) =       1294 /       1693
+     Progression iq (fine) =       1295 /       1693
+     Progression iq (fine) =       1296 /       1693
+     Progression iq (fine) =       1297 /       1693
+     Progression iq (fine) =       1298 /       1693
+     Progression iq (fine) =       1299 /       1693
+     Progression iq (fine) =       1300 /       1693
+     Progression iq (fine) =       1301 /       1693
+     Progression iq (fine) =       1302 /       1693
+     Progression iq (fine) =       1303 /       1693
+     Progression iq (fine) =       1304 /       1693
+     Progression iq (fine) =       1305 /       1693
+     Progression iq (fine) =       1306 /       1693
+     Progression iq (fine) =       1307 /       1693
+     Progression iq (fine) =       1308 /       1693
+     Progression iq (fine) =       1309 /       1693
+     Progression iq (fine) =       1310 /       1693
+     Progression iq (fine) =       1311 /       1693
+     Progression iq (fine) =       1312 /       1693
+     Progression iq (fine) =       1313 /       1693
+     Progression iq (fine) =       1314 /       1693
+     Progression iq (fine) =       1315 /       1693
+     Progression iq (fine) =       1316 /       1693
+     Progression iq (fine) =       1317 /       1693
+     Progression iq (fine) =       1318 /       1693
+     Progression iq (fine) =       1319 /       1693
+     Progression iq (fine) =       1320 /       1693
+     Progression iq (fine) =       1321 /       1693
+     Progression iq (fine) =       1322 /       1693
+     Progression iq (fine) =       1323 /       1693
+     Progression iq (fine) =       1324 /       1693
+     Progression iq (fine) =       1325 /       1693
+     Progression iq (fine) =       1326 /       1693
+     Progression iq (fine) =       1327 /       1693
+     Progression iq (fine) =       1328 /       1693
+     Progression iq (fine) =       1329 /       1693
+     Progression iq (fine) =       1330 /       1693
+     Progression iq (fine) =       1331 /       1693
+     Progression iq (fine) =       1332 /       1693
+     Progression iq (fine) =       1333 /       1693
+     Progression iq (fine) =       1334 /       1693
+     Progression iq (fine) =       1335 /       1693
+     Progression iq (fine) =       1336 /       1693
+     Progression iq (fine) =       1337 /       1693
+     Progression iq (fine) =       1338 /       1693
+     Progression iq (fine) =       1339 /       1693
+     Progression iq (fine) =       1340 /       1693
+     Progression iq (fine) =       1341 /       1693
+     Progression iq (fine) =       1342 /       1693
+     Progression iq (fine) =       1343 /       1693
+     Progression iq (fine) =       1344 /       1693
+     Progression iq (fine) =       1345 /       1693
+     Progression iq (fine) =       1346 /       1693
+     Progression iq (fine) =       1347 /       1693
+     Progression iq (fine) =       1348 /       1693
+     Progression iq (fine) =       1349 /       1693
+     Progression iq (fine) =       1350 /       1693
+     Progression iq (fine) =       1351 /       1693
+     Progression iq (fine) =       1352 /       1693
+     Progression iq (fine) =       1353 /       1693
+     Progression iq (fine) =       1354 /       1693
+     Progression iq (fine) =       1355 /       1693
+     Progression iq (fine) =       1356 /       1693
+     Progression iq (fine) =       1357 /       1693
+     Progression iq (fine) =       1358 /       1693
+     Progression iq (fine) =       1359 /       1693
+     Progression iq (fine) =       1360 /       1693
+     Progression iq (fine) =       1361 /       1693
+     Progression iq (fine) =       1362 /       1693
+     Progression iq (fine) =       1363 /       1693
+     Progression iq (fine) =       1364 /       1693
+     Progression iq (fine) =       1365 /       1693
+     Progression iq (fine) =       1366 /       1693
+     Progression iq (fine) =       1367 /       1693
+     Progression iq (fine) =       1368 /       1693
+     Progression iq (fine) =       1369 /       1693
+     Progression iq (fine) =       1370 /       1693
+     Progression iq (fine) =       1371 /       1693
+     Progression iq (fine) =       1372 /       1693
+     Progression iq (fine) =       1373 /       1693
+     Progression iq (fine) =       1374 /       1693
+     Progression iq (fine) =       1375 /       1693
+     Progression iq (fine) =       1376 /       1693
+     Progression iq (fine) =       1377 /       1693
+     Progression iq (fine) =       1378 /       1693
+     Progression iq (fine) =       1379 /       1693
+     Progression iq (fine) =       1380 /       1693
+     Progression iq (fine) =       1381 /       1693
+     Progression iq (fine) =       1382 /       1693
+     Progression iq (fine) =       1383 /       1693
+     Progression iq (fine) =       1384 /       1693
+     Progression iq (fine) =       1385 /       1693
+     Progression iq (fine) =       1386 /       1693
+     Progression iq (fine) =       1387 /       1693
+     Progression iq (fine) =       1388 /       1693
+     Progression iq (fine) =       1389 /       1693
+     Progression iq (fine) =       1390 /       1693
+     Progression iq (fine) =       1391 /       1693
+     Progression iq (fine) =       1392 /       1693
+     Progression iq (fine) =       1393 /       1693
+     Progression iq (fine) =       1394 /       1693
+     Progression iq (fine) =       1395 /       1693
+     Progression iq (fine) =       1396 /       1693
+     Progression iq (fine) =       1397 /       1693
+     Progression iq (fine) =       1398 /       1693
+     Progression iq (fine) =       1399 /       1693
+     Progression iq (fine) =       1400 /       1693
+     Progression iq (fine) =       1401 /       1693
+     Progression iq (fine) =       1402 /       1693
+     Progression iq (fine) =       1403 /       1693
+     Progression iq (fine) =       1404 /       1693
+     Progression iq (fine) =       1405 /       1693
+     Progression iq (fine) =       1406 /       1693
+     Progression iq (fine) =       1407 /       1693
+     Progression iq (fine) =       1408 /       1693
+     Progression iq (fine) =       1409 /       1693
+     Progression iq (fine) =       1410 /       1693
+     Progression iq (fine) =       1411 /       1693
+     Progression iq (fine) =       1412 /       1693
+     Progression iq (fine) =       1413 /       1693
+     Progression iq (fine) =       1414 /       1693
+     Progression iq (fine) =       1415 /       1693
+     Progression iq (fine) =       1416 /       1693
+     Progression iq (fine) =       1417 /       1693
+     Progression iq (fine) =       1418 /       1693
+     Progression iq (fine) =       1419 /       1693
+     Progression iq (fine) =       1420 /       1693
+     Progression iq (fine) =       1421 /       1693
+     Progression iq (fine) =       1422 /       1693
+     Progression iq (fine) =       1423 /       1693
+     Progression iq (fine) =       1424 /       1693
+     Progression iq (fine) =       1425 /       1693
+     Progression iq (fine) =       1426 /       1693
+     Progression iq (fine) =       1427 /       1693
+     Progression iq (fine) =       1428 /       1693
+     Progression iq (fine) =       1429 /       1693
+     Progression iq (fine) =       1430 /       1693
+     Progression iq (fine) =       1431 /       1693
+     Progression iq (fine) =       1432 /       1693
+     Progression iq (fine) =       1433 /       1693
+     Progression iq (fine) =       1434 /       1693
+     Progression iq (fine) =       1435 /       1693
+     Progression iq (fine) =       1436 /       1693
+     Progression iq (fine) =       1437 /       1693
+     Progression iq (fine) =       1438 /       1693
+     Progression iq (fine) =       1439 /       1693
+     Progression iq (fine) =       1440 /       1693
+     Progression iq (fine) =       1441 /       1693
+     Progression iq (fine) =       1442 /       1693
+     Progression iq (fine) =       1443 /       1693
+     Progression iq (fine) =       1444 /       1693
+     Progression iq (fine) =       1445 /       1693
+     Progression iq (fine) =       1446 /       1693
+     Progression iq (fine) =       1447 /       1693
+     Progression iq (fine) =       1448 /       1693
+     Progression iq (fine) =       1449 /       1693
+     Progression iq (fine) =       1450 /       1693
+     Progression iq (fine) =       1451 /       1693
+     Progression iq (fine) =       1452 /       1693
+     Progression iq (fine) =       1453 /       1693
+     Progression iq (fine) =       1454 /       1693
+     Progression iq (fine) =       1455 /       1693
+     Progression iq (fine) =       1456 /       1693
+     Progression iq (fine) =       1457 /       1693
+     Progression iq (fine) =       1458 /       1693
+     Progression iq (fine) =       1459 /       1693
+     Progression iq (fine) =       1460 /       1693
+     Progression iq (fine) =       1461 /       1693
+     Progression iq (fine) =       1462 /       1693
+     Progression iq (fine) =       1463 /       1693
+     Progression iq (fine) =       1464 /       1693
+     Progression iq (fine) =       1465 /       1693
+     Progression iq (fine) =       1466 /       1693
+     Progression iq (fine) =       1467 /       1693
+     Progression iq (fine) =       1468 /       1693
+     Progression iq (fine) =       1469 /       1693
+     Progression iq (fine) =       1470 /       1693
+     Progression iq (fine) =       1471 /       1693
+     Progression iq (fine) =       1472 /       1693
+     Progression iq (fine) =       1473 /       1693
+     Progression iq (fine) =       1474 /       1693
+     Progression iq (fine) =       1475 /       1693
+     Progression iq (fine) =       1476 /       1693
+     Progression iq (fine) =       1477 /       1693
+     Progression iq (fine) =       1478 /       1693
+     Progression iq (fine) =       1479 /       1693
+     Progression iq (fine) =       1480 /       1693
+     Progression iq (fine) =       1481 /       1693
+     Progression iq (fine) =       1482 /       1693
+     Progression iq (fine) =       1483 /       1693
+     Progression iq (fine) =       1484 /       1693
+     Progression iq (fine) =       1485 /       1693
+     Progression iq (fine) =       1486 /       1693
+     Progression iq (fine) =       1487 /       1693
+     Progression iq (fine) =       1488 /       1693
+     Progression iq (fine) =       1489 /       1693
+     Progression iq (fine) =       1490 /       1693
+     Progression iq (fine) =       1491 /       1693
+     Progression iq (fine) =       1492 /       1693
+     Progression iq (fine) =       1493 /       1693
+     Progression iq (fine) =       1494 /       1693
+     Progression iq (fine) =       1495 /       1693
+     Progression iq (fine) =       1496 /       1693
+     Progression iq (fine) =       1497 /       1693
+     Progression iq (fine) =       1498 /       1693
+     Progression iq (fine) =       1499 /       1693
+     Progression iq (fine) =       1500 /       1693
+     Progression iq (fine) =       1501 /       1693
+     Progression iq (fine) =       1502 /       1693
+     Progression iq (fine) =       1503 /       1693
+     Progression iq (fine) =       1504 /       1693
+     Progression iq (fine) =       1505 /       1693
+     Progression iq (fine) =       1506 /       1693
+     Progression iq (fine) =       1507 /       1693
+     Progression iq (fine) =       1508 /       1693
+     Progression iq (fine) =       1509 /       1693
+     Progression iq (fine) =       1510 /       1693
+     Progression iq (fine) =       1511 /       1693
+     Progression iq (fine) =       1512 /       1693
+     Progression iq (fine) =       1513 /       1693
+     Progression iq (fine) =       1514 /       1693
+     Progression iq (fine) =       1515 /       1693
+     Progression iq (fine) =       1516 /       1693
+     Progression iq (fine) =       1517 /       1693
+     Progression iq (fine) =       1518 /       1693
+     Progression iq (fine) =       1519 /       1693
+     Progression iq (fine) =       1520 /       1693
+     Progression iq (fine) =       1521 /       1693
+     Progression iq (fine) =       1522 /       1693
+     Progression iq (fine) =       1523 /       1693
+     Progression iq (fine) =       1524 /       1693
+     Progression iq (fine) =       1525 /       1693
+     Progression iq (fine) =       1526 /       1693
+     Progression iq (fine) =       1527 /       1693
+     Progression iq (fine) =       1528 /       1693
+     Progression iq (fine) =       1529 /       1693
+     Progression iq (fine) =       1530 /       1693
+     Progression iq (fine) =       1531 /       1693
+     Progression iq (fine) =       1532 /       1693
+     Progression iq (fine) =       1533 /       1693
+     Progression iq (fine) =       1534 /       1693
+     Progression iq (fine) =       1535 /       1693
+     Progression iq (fine) =       1536 /       1693
+     Progression iq (fine) =       1537 /       1693
+     Progression iq (fine) =       1538 /       1693
+     Progression iq (fine) =       1539 /       1693
+     Progression iq (fine) =       1540 /       1693
+     Progression iq (fine) =       1541 /       1693
+     Progression iq (fine) =       1542 /       1693
+     Progression iq (fine) =       1543 /       1693
+     Progression iq (fine) =       1544 /       1693
+     Progression iq (fine) =       1545 /       1693
+     Progression iq (fine) =       1546 /       1693
+     Progression iq (fine) =       1547 /       1693
+     Progression iq (fine) =       1548 /       1693
+     Progression iq (fine) =       1549 /       1693
+     Progression iq (fine) =       1550 /       1693
+     Progression iq (fine) =       1551 /       1693
+     Progression iq (fine) =       1552 /       1693
+     Progression iq (fine) =       1553 /       1693
+     Progression iq (fine) =       1554 /       1693
+     Progression iq (fine) =       1555 /       1693
+     Progression iq (fine) =       1556 /       1693
+     Progression iq (fine) =       1557 /       1693
+     Progression iq (fine) =       1558 /       1693
+     Progression iq (fine) =       1559 /       1693
+     Progression iq (fine) =       1560 /       1693
+     Progression iq (fine) =       1561 /       1693
+     Progression iq (fine) =       1562 /       1693
+     Progression iq (fine) =       1563 /       1693
+     Progression iq (fine) =       1564 /       1693
+     Progression iq (fine) =       1565 /       1693
+     Progression iq (fine) =       1566 /       1693
+     Progression iq (fine) =       1567 /       1693
+     Progression iq (fine) =       1568 /       1693
+     Progression iq (fine) =       1569 /       1693
+     Progression iq (fine) =       1570 /       1693
+     Progression iq (fine) =       1571 /       1693
+     Progression iq (fine) =       1572 /       1693
+     Progression iq (fine) =       1573 /       1693
+     Progression iq (fine) =       1574 /       1693
+     Progression iq (fine) =       1575 /       1693
+     Progression iq (fine) =       1576 /       1693
+     Progression iq (fine) =       1577 /       1693
+     Progression iq (fine) =       1578 /       1693
+     Progression iq (fine) =       1579 /       1693
+     Progression iq (fine) =       1580 /       1693
+     Progression iq (fine) =       1581 /       1693
+     Progression iq (fine) =       1582 /       1693
+     Progression iq (fine) =       1583 /       1693
+     Progression iq (fine) =       1584 /       1693
+     Progression iq (fine) =       1585 /       1693
+     Progression iq (fine) =       1586 /       1693
+     Progression iq (fine) =       1587 /       1693
+     Progression iq (fine) =       1588 /       1693
+     Progression iq (fine) =       1589 /       1693
+     Progression iq (fine) =       1590 /       1693
+     Progression iq (fine) =       1591 /       1693
+     Progression iq (fine) =       1592 /       1693
+     Progression iq (fine) =       1593 /       1693
+     Progression iq (fine) =       1594 /       1693
+     Progression iq (fine) =       1595 /       1693
+     Progression iq (fine) =       1596 /       1693
+     Progression iq (fine) =       1597 /       1693
+     Progression iq (fine) =       1598 /       1693
+     Progression iq (fine) =       1599 /       1693
+     Progression iq (fine) =       1600 /       1693
+     Progression iq (fine) =       1601 /       1693
+     Progression iq (fine) =       1602 /       1693
+     Progression iq (fine) =       1603 /       1693
+     Progression iq (fine) =       1604 /       1693
+     Progression iq (fine) =       1605 /       1693
+     Progression iq (fine) =       1606 /       1693
+     Progression iq (fine) =       1607 /       1693
+     Progression iq (fine) =       1608 /       1693
+     Progression iq (fine) =       1609 /       1693
+     Progression iq (fine) =       1610 /       1693
+     Progression iq (fine) =       1611 /       1693
+     Progression iq (fine) =       1612 /       1693
+     Progression iq (fine) =       1613 /       1693
+     Progression iq (fine) =       1614 /       1693
+     Progression iq (fine) =       1615 /       1693
+     Progression iq (fine) =       1616 /       1693
+     Progression iq (fine) =       1617 /       1693
+     Progression iq (fine) =       1618 /       1693
+     Progression iq (fine) =       1619 /       1693
+     Progression iq (fine) =       1620 /       1693
+     Progression iq (fine) =       1621 /       1693
+     Progression iq (fine) =       1622 /       1693
+     Progression iq (fine) =       1623 /       1693
+     Progression iq (fine) =       1624 /       1693
+     Progression iq (fine) =       1625 /       1693
+     Progression iq (fine) =       1626 /       1693
+     Progression iq (fine) =       1627 /       1693
+     Progression iq (fine) =       1628 /       1693
+     Progression iq (fine) =       1629 /       1693
+     Progression iq (fine) =       1630 /       1693
+     Progression iq (fine) =       1631 /       1693
+     Progression iq (fine) =       1632 /       1693
+     Progression iq (fine) =       1633 /       1693
+     Progression iq (fine) =       1634 /       1693
+     Progression iq (fine) =       1635 /       1693
+     Progression iq (fine) =       1636 /       1693
+     Progression iq (fine) =       1637 /       1693
+     Progression iq (fine) =       1638 /       1693
+     Progression iq (fine) =       1639 /       1693
+     Progression iq (fine) =       1640 /       1693
+     Progression iq (fine) =       1641 /       1693
+     Progression iq (fine) =       1642 /       1693
+     Progression iq (fine) =       1643 /       1693
+     Progression iq (fine) =       1644 /       1693
+     Progression iq (fine) =       1645 /       1693
+     Progression iq (fine) =       1646 /       1693
+     Progression iq (fine) =       1647 /       1693
+     Progression iq (fine) =       1648 /       1693
+     Progression iq (fine) =       1649 /       1693
+     Progression iq (fine) =       1650 /       1693
+     Progression iq (fine) =       1651 /       1693
+     Progression iq (fine) =       1652 /       1693
+     Progression iq (fine) =       1653 /       1693
+     Progression iq (fine) =       1654 /       1693
+     Progression iq (fine) =       1655 /       1693
+     Progression iq (fine) =       1656 /       1693
+     Progression iq (fine) =       1657 /       1693
+     Progression iq (fine) =       1658 /       1693
+     Progression iq (fine) =       1659 /       1693
+     Progression iq (fine) =       1660 /       1693
+     Progression iq (fine) =       1661 /       1693
+     Progression iq (fine) =       1662 /       1693
+     Progression iq (fine) =       1663 /       1693
+     Progression iq (fine) =       1664 /       1693
+     Progression iq (fine) =       1665 /       1693
+     Progression iq (fine) =       1666 /       1693
+     Progression iq (fine) =       1667 /       1693
+     Progression iq (fine) =       1668 /       1693
+     Progression iq (fine) =       1669 /       1693
+     Progression iq (fine) =       1670 /       1693
+     Progression iq (fine) =       1671 /       1693
+     Progression iq (fine) =       1672 /       1693
+     Progression iq (fine) =       1673 /       1693
+     Progression iq (fine) =       1674 /       1693
+     Progression iq (fine) =       1675 /       1693
+     Progression iq (fine) =       1676 /       1693
+     Progression iq (fine) =       1677 /       1693
+     Progression iq (fine) =       1678 /       1693
+     Progression iq (fine) =       1679 /       1693
+     Progression iq (fine) =       1680 /       1693
+     Progression iq (fine) =       1681 /       1693
+     Progression iq (fine) =       1682 /       1693
+     Progression iq (fine) =       1683 /       1693
+     Progression iq (fine) =       1684 /       1693
+     Progression iq (fine) =       1685 /       1693
+     Progression iq (fine) =       1686 /       1693
+     Progression iq (fine) =       1687 /       1693
+     Progression iq (fine) =       1688 /       1693
+     Progression iq (fine) =       1689 /       1693
+     Progression iq (fine) =       1690 /       1693
+     Progression iq (fine) =       1691 /       1693
+     Progression iq (fine) =       1692 /       1693
+     Progression iq (fine) =       1693 /       1693
+
+     eps_acoustic (mev) =   0.012398
+
+     dosef (1/ev) =   0.129825
+
+     l_sum =   0.245799
+
+     fsthick =   1.000000
+     write_a2f    :      0.00s CPU      0.00s WALL (       1 calls)
+ 
+     a2f_iso      :      2.68s CPU      3.24s WALL (       1 calls)
+ 
+     We computed a2f using image paralleilization !
+     ===================================================================
+     Memory usage:  VmHWM =        49Mb
+                   VmPeak =      2857Mb
+     ===================================================================
+
+
+     Finish writing dos file al.dos
+
+
+     Finish writing phdos files al.phdos and al.phdos_proj
+
+     Solve adiabatic FSR isotropic Eliashberg equations (image para)
+     ===================================================================
+
+
+     Finish reading a2f file
+
+     Electron-phonon coupling strength =    0.2458594
+ 
+     Estimated Tc using McMillan expression =   0.0130 K for muc =   0.1000
+  
+     Estimated Tc using Allen-Dynes modified McMillan expression =   0.0130 K
+  
+     Estimated Tc using SISSO machine learning model =   0.0154 K
+  
+     Estimated w_log =  27.2304 meV
+  
+     Estimated BCS superconducting gap using McMillan Tc =   0.0020 meV
+  
+  
+     WARNING WARNING WARNING 
+  
+     The code may crash since tempsmin =    1.000 K is larger than McMillan Tc =     0.013 K
+     Actual number of frequency points (     1) =    369 for uniform       sampling
+    
+     temp(  1) =      1.00000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     1) =    369
+     Cutoff frequency wscut =     0.2000 eV
+     Maximum frequency =         0.1995 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 369, nsiw(itemp) = 369
+        iter      ethr          znormi      deltai [meV]
+          1   2.923532E+00   1.240489E+00   1.038105E-03
+          2   8.241250E-01   1.240489E+00   7.959018E-04
+          3   6.141364E-01   1.240489E+00   5.650875E-04
+          4   2.145594E+00   1.240489E+00   1.819937E-04
+          5   6.215132E+01   1.240489E+00   2.916172E-06
+          6   4.415911E+00   1.240489E+00   5.392962E-07
+          7   5.688108E+01   1.240489E+00   9.313325E-09
+          8   9.704651E+01   1.240489E+00   9.493590E-11
+          9   3.034059E+00   1.240489E+00   2.353159E-11
+         10   1.337244E+02   1.240489E+00   1.745285E-13
+         11   8.134380E+01   1.240489E+00   2.118672E-15
+         12   1.394719E+01   1.240489E+00   1.444199E-16
+         13   9.239556E+00   1.240489E+00  -1.684129E-17
+         14   1.349738E+02   1.240489E+00   1.293899E-19
+         15   7.558419E+00   1.240489E+00  -1.964721E-20
+         16   2.889010E+01   1.240489E+00   6.133516E-22
+         17   4.495518E+00   1.240489E+00   1.238745E-22
+         18   6.927566E+00   1.240489E+00  -2.149434E-23
+         19   1.056732E+01   1.240489E+00   2.215066E-24
+         20   1.121881E+02   1.240489E+00   2.177938E-26
+         21   1.225210E+01   1.240489E+00   1.484048E-27
+         22   8.664804E+00   1.240489E+00  -1.912287E-28
+         23   3.028411E+01   1.240489E+00  -5.463791E-30
+         24   1.201498E+01   1.240489E+00   4.242933E-31
+         25   1.646471E+00   1.240489E+00  -8.739322E-31
+         26   2.037916E+01   1.240489E+00   4.397751E-32
+         27   1.035735E+01   1.240489E+00   4.201638E-33
+         28   6.645908E+00   1.240489E+00   5.153560E-34
+         29   5.531473E+01   1.240489E+00   9.699095E-36
+         30   1.688438E+01   1.240489E+00  -5.730467E-37
+         31   2.318135E+02   1.240489E+00   2.713799E-39
+         32   1.715870E+01   1.240489E+00  -1.537924E-40
+         33   2.002598E+01   1.240489E+00   8.110542E-42
+         34   1.138089E+01   1.240489E+00   6.736083E-43
+         35   7.072252E+00   1.240489E+00  -1.102289E-43
+         36   1.352961E+01   1.240489E+00   8.477353E-45
+         37   2.818002E+01   1.240489E+00  -3.256544E-46
+         38   4.832437E+01   1.240489E+00   7.305289E-48
+         39   5.384316E+00   1.240489E+00  -1.524082E-48
+         40   6.078434E+01   1.240489E+00  -2.579104E-50
+         41   6.701742E+01   1.240489E+00   3.625183E-52
+         42   3.722027E+00   1.240489E+00  -1.389328E-52
+         43   2.622961E+02   1.240489E+00  -5.763935E-55
+         44   5.898699E+00   1.240489E+00  -7.556486E-56
+         45   5.567032E+01   1.240489E+00   1.404539E-57
+         46   4.650299E+01   1.240489E+00   2.840435E-59
+         47   4.250781E+00   1.240489E+00  -8.850886E-60
+         48   1.003577E+01   1.240489E+00   1.027158E-60
+         49   2.106410E+02   1.240489E+00  -3.071494E-63
+         50   4.085214E+00   1.240489E+00   1.534275E-63
+         51   5.263805E+00   1.240489E+00  -3.602043E-64
+         52   4.133396E+02   1.240489E+00   4.073153E-67
+         53   3.670006E+00   1.240489E+00  -3.658167E-67
+         54   2.119888E+00   1.240489E+00  -1.052879E-67
+         55   4.042210E+01   1.240489E+00  -2.733796E-69
+         56   4.562483E+01   1.240489E+00  -5.546938E-71
+         57   4.256925E+00   1.240489E+00   1.663693E-71
+         58   1.067679E+02   1.240489E+00   1.671717E-73
+         59   1.712095E+01   1.240489E+00   9.573273E-75
+         60   1.764491E+00   1.240489E+00   3.127411E-75
+         61   2.202933E+02   1.240489E+00  -5.018466E-78
+         62   7.420188E+00   1.240489E+00   2.387262E-78
+         63   1.213711E+01   1.240489E+00  -1.761185E-79
+         64   1.994183E+00   1.240489E+00   1.991731E-79
+         65   6.054535E+01   1.240489E+00   3.589275E-81
+         66   7.931077E+00   1.240489E+00  -4.885306E-82
+         67   1.252204E+01   1.240489E+00   3.993764E-83
+         68   1.909821E+01   1.240489E+00  -2.268828E-84
+         69   8.828182E+00   1.240489E+00  -2.460137E-85
+         70   3.462508E+00   1.240489E+00  -5.245640E-86
+         71   5.711350E+00   1.240489E+00   1.077278E-86
+         72   2.050956E+01   1.240489E+00   5.345494E-88
+         73   4.772842E+01   1.240489E+00  -9.763543E-90
+         74   2.315181E+00   1.240489E+00   8.147788E-90
+         75   5.874397E+02   1.240489E+00  -6.599410E-93
+         76   2.087318E+00   1.240489E+00  -5.437770E-93
+         77   6.651596E-01   1.240489E+00  -2.658642E-93
+         78   3.735797E+00   1.240489E+00   9.939482E-94
+         79   1.138061E+02   1.240489E+00  -8.684888E-96
+         80   2.751415E+00   1.240489E+00  -2.418563E-96
+         81   5.997683E+00   1.240489E+00   4.643839E-97
+         82   3.982351E+01   1.240489E+00  -1.275199E-98
+         83   9.672667E+01   1.240489E+00  -1.492209-100
+         84   1.245510E-01   1.240489E+00  -1.212651-100
+         85   4.954889E+02   1.240489E+00  -3.712623-103
+         86   2.494646E+00   1.240489E+00   1.612406-103
+         87   5.402287E+00   1.240489E+00  -3.571518-104
+         88   5.670412E+00   1.240489E+00   7.375768-105
+         89   6.480492E+01   1.240489E+00  -1.229698-106
+         90   2.719898E+01   1.240489E+00   4.483087-108
+         91   4.141581E+00   1.240489E+00  -1.410434-108
+         92   8.900263E+01   1.240489E+00   1.699648-110
+         93   1.406775E+01   1.240489E+00  -1.373828-111
+         94   2.245299E+00   1.240489E+00  -3.844065-112
+         95   4.136463E+01   1.240489E+00  -9.891079-114
+         96   3.020372E+01   1.240489E+00   3.825481-115
+         97   1.557184E+01   1.240489E+00   1.398380-116
+         98   1.606766E+00   1.240489E+00  -3.029406-116
+         99   2.272676E+01   1.240489E+00   1.497792-117
+        100   1.736808E+02   1.240489E+00  -9.922288-120
+        101   2.760107E-01   1.240489E+00  -8.919128-120
+        102   5.951999E+01   1.240489E+00   1.610701-121
+        103   2.356270E+01   1.240489E+00  -6.929609-123
+        104   4.191204E+00   1.240489E+00   2.141025-123
+        105   7.348777E+01   1.240489E+00   3.351649-125
+        106   6.577518E+00   1.240489E+00  -5.389794-126
+        107   9.662483E+00   1.240489E+00   6.203145-127
+        108   4.261444E+00   1.240489E+00  -1.820211-127
+        109   7.265992E+01   1.240489E+00  -3.173148-129
+        110   7.837656E-01   1.240489E+00  -1.464812-129
+        111   2.496337E+01   1.240489E+00   5.846361-131
+        112   1.827010E+01   1.240489E+00  -2.862379-132
+        113   3.670232E+00   1.240489E+00   1.339262-132
+        114   5.198644E+01   1.240489E+00   2.164070-134
+        115   1.967927E+00   1.240489E+00  -2.442214-134
+        116   6.818721E+01   1.240489E+00  -4.029297-136
+        117   6.805817E+00   1.240489E+00  -4.282873-137
+        118   2.414166E+00   1.240489E+00   3.158266-137
+        119   3.141402E+01   1.240489E+00  -1.111077-138
+        120   1.017008E+01   1.240489E+00  -9.755386-140
+        121   8.881249E+00   1.240489E+00   1.136534-140
+        122   2.653385E+00   1.240489E+00  -7.189491-141
+        123   5.543923E+01   1.240489E+00   1.289808-142
+        124   1.112472E+01   1.240489E+00  -1.329555-143
+        125   4.564221E+00   1.240489E+00   3.643069-144
+        126   5.255976E+02   1.240489E+00   7.262886-147
+        127   5.871982E+00   1.240489E+00  -1.426913-147
+        128   3.838204E+02   1.240489E+00   1.287241-150
+        129   2.855768E+00   1.240489E+00  -2.055575-150
+        130   8.925144E+00   1.240489E+00   2.533041-151
+        131   7.904403E+00   1.240489E+00  -3.517762-152
+        132   8.451377E+01   1.240489E+00  -4.550388-154
+        133   2.114359E+01   1.240489E+00   2.039301-155
+        134            NaN            NaN            NaN
+        135            NaN            NaN            NaN
+        136            NaN            NaN            NaN
+        137            NaN            NaN            NaN
+        138            NaN            NaN            NaN
+        139            NaN            NaN            NaN
+        140            NaN            NaN            NaN
+        141            NaN            NaN            NaN
+        142            NaN            NaN            NaN
+        143            NaN            NaN            NaN
+        144            NaN            NaN            NaN
+        145            NaN            NaN            NaN
+        146            NaN            NaN            NaN
+        147            NaN            NaN            NaN
+        148            NaN            NaN            NaN
+        149            NaN            NaN            NaN
+        150            NaN            NaN            NaN
+        151            NaN            NaN            NaN
+        152            NaN            NaN            NaN
+        153            NaN            NaN            NaN
+        154            NaN            NaN            NaN
+        155            NaN            NaN            NaN
+        156            NaN            NaN            NaN
+        157            NaN            NaN            NaN
+        158            NaN            NaN            NaN
+        159            NaN            NaN            NaN
+        160            NaN            NaN            NaN
+        161            NaN            NaN            NaN
+        162            NaN            NaN            NaN
+        163            NaN            NaN            NaN
+        164            NaN            NaN            NaN
+        165            NaN            NaN            NaN
+        166            NaN            NaN            NaN
+        167            NaN            NaN            NaN
+        168            NaN            NaN            NaN
+        169            NaN            NaN            NaN
+        170            NaN            NaN            NaN
+        171            NaN            NaN            NaN
+        172            NaN            NaN            NaN
+        173            NaN            NaN            NaN
+        174            NaN            NaN            NaN
+        175            NaN            NaN            NaN
+        176            NaN            NaN            NaN
+        177            NaN            NaN            NaN
+        178            NaN            NaN            NaN
+        179            NaN            NaN            NaN
+        180            NaN            NaN            NaN
+        181            NaN            NaN            NaN
+        182            NaN            NaN            NaN
+        183            NaN            NaN            NaN
+        184            NaN            NaN            NaN
+        185            NaN            NaN            NaN
+        186            NaN            NaN            NaN
+        187            NaN            NaN            NaN
+        188            NaN            NaN            NaN
+        189            NaN            NaN            NaN
+        190            NaN            NaN            NaN
+        191            NaN            NaN            NaN
+        192            NaN            NaN            NaN
+        193            NaN            NaN            NaN
+        194            NaN            NaN            NaN
+        195            NaN            NaN            NaN
+        196            NaN            NaN            NaN
+        197            NaN            NaN            NaN
+        198            NaN            NaN            NaN
+        199            NaN            NaN            NaN
+        200            NaN            NaN            NaN
+        201            NaN            NaN            NaN
+        202            NaN            NaN            NaN
+        203            NaN            NaN            NaN
+        204            NaN            NaN            NaN
+        205            NaN            NaN            NaN
+        206            NaN            NaN            NaN
+        207            NaN            NaN            NaN
+        208            NaN            NaN            NaN
+        209            NaN            NaN            NaN
+        210            NaN            NaN            NaN
+        211            NaN            NaN            NaN
+        212            NaN            NaN            NaN
+        213            NaN            NaN            NaN
+        214            NaN            NaN            NaN
+        215            NaN            NaN            NaN
+        216            NaN            NaN            NaN
+        217            NaN            NaN            NaN
+        218            NaN            NaN            NaN
+        219            NaN            NaN            NaN
+        220            NaN            NaN            NaN
+        221            NaN            NaN            NaN
+        222            NaN            NaN            NaN
+        223            NaN            NaN            NaN
+        224            NaN            NaN            NaN
+        225            NaN            NaN            NaN
+        226            NaN            NaN            NaN
+        227            NaN            NaN            NaN
+        228            NaN            NaN            NaN
+        229            NaN            NaN            NaN
+        230            NaN            NaN            NaN
+        231            NaN            NaN            NaN
+        232            NaN            NaN            NaN
+        233            NaN            NaN            NaN
+        234            NaN            NaN            NaN
+        235            NaN            NaN            NaN
+        236            NaN            NaN            NaN
+        237            NaN            NaN            NaN
+        238            NaN            NaN            NaN
+        239            NaN            NaN            NaN
+        240            NaN            NaN            NaN
+        241            NaN            NaN            NaN
+        242            NaN            NaN            NaN
+        243            NaN            NaN            NaN
+        244            NaN            NaN            NaN
+        245            NaN            NaN            NaN
+        246            NaN            NaN            NaN
+        247            NaN            NaN            NaN
+        248            NaN            NaN            NaN
+        249            NaN            NaN            NaN
+        250            NaN            NaN            NaN
+        251            NaN            NaN            NaN
+        252            NaN            NaN            NaN
+        253            NaN            NaN            NaN
+        254            NaN            NaN            NaN
+        255            NaN            NaN            NaN
+        256            NaN            NaN            NaN
+        257            NaN            NaN            NaN
+        258            NaN            NaN            NaN
+        259            NaN            NaN            NaN
+        260            NaN            NaN            NaN
+        261            NaN            NaN            NaN
+        262            NaN            NaN            NaN
+        263            NaN            NaN            NaN
+        264            NaN            NaN            NaN
+        265            NaN            NaN            NaN
+        266            NaN            NaN            NaN
+        267            NaN            NaN            NaN
+        268            NaN            NaN            NaN
+        269            NaN            NaN            NaN
+        270            NaN            NaN            NaN
+        271            NaN            NaN            NaN
+        272            NaN            NaN            NaN
+        273            NaN            NaN            NaN
+        274            NaN            NaN            NaN
+        275            NaN            NaN            NaN
+        276            NaN            NaN            NaN
+        277            NaN            NaN            NaN
+        278            NaN            NaN            NaN
+        279            NaN            NaN            NaN
+        280            NaN            NaN            NaN
+        281            NaN            NaN            NaN
+        282            NaN            NaN            NaN
+        283            NaN            NaN            NaN
+        284            NaN            NaN            NaN
+        285            NaN            NaN            NaN
+        286            NaN            NaN            NaN
+        287            NaN            NaN            NaN
+        288            NaN            NaN            NaN
+        289            NaN            NaN            NaN
+        290            NaN            NaN            NaN
+        291            NaN            NaN            NaN
+        292            NaN            NaN            NaN
+        293            NaN            NaN            NaN
+        294            NaN            NaN            NaN
+        295            NaN            NaN            NaN
+        296            NaN            NaN            NaN
+        297            NaN            NaN            NaN
+        298            NaN            NaN            NaN
+        299            NaN            NaN            NaN
+        300            NaN            NaN            NaN
+        301            NaN            NaN            NaN
+        302            NaN            NaN            NaN
+        303            NaN            NaN            NaN
+        304            NaN            NaN            NaN
+        305            NaN            NaN            NaN
+        306            NaN            NaN            NaN
+        307            NaN            NaN            NaN
+        308            NaN            NaN            NaN
+        309            NaN            NaN            NaN
+        310            NaN            NaN            NaN
+        311            NaN            NaN            NaN
+        312            NaN            NaN            NaN
+        313            NaN            NaN            NaN
+        314            NaN            NaN            NaN
+        315            NaN            NaN            NaN
+        316            NaN            NaN            NaN
+        317            NaN            NaN            NaN
+        318            NaN            NaN            NaN
+        319            NaN            NaN            NaN
+        320            NaN            NaN            NaN
+        321            NaN            NaN            NaN
+        322            NaN            NaN            NaN
+        323            NaN            NaN            NaN
+        324            NaN            NaN            NaN
+        325            NaN            NaN            NaN
+        326            NaN            NaN            NaN
+        327            NaN            NaN            NaN
+        328            NaN            NaN            NaN
+        329            NaN            NaN            NaN
+        330            NaN            NaN            NaN
+        331            NaN            NaN            NaN
+        332            NaN            NaN            NaN
+        333            NaN            NaN            NaN
+        334            NaN            NaN            NaN
+        335            NaN            NaN            NaN
+        336            NaN            NaN            NaN
+        337            NaN            NaN            NaN
+        338            NaN            NaN            NaN
+        339            NaN            NaN            NaN
+        340            NaN            NaN            NaN
+        341            NaN            NaN            NaN
+        342            NaN            NaN            NaN
+        343            NaN            NaN            NaN
+        344            NaN            NaN            NaN
+        345            NaN            NaN            NaN
+        346            NaN            NaN            NaN
+        347            NaN            NaN            NaN
+        348            NaN            NaN            NaN
+        349            NaN            NaN            NaN
+        350            NaN            NaN            NaN
+        351            NaN            NaN            NaN
+        352            NaN            NaN            NaN
+        353            NaN            NaN            NaN
+        354            NaN            NaN            NaN
+        355            NaN            NaN            NaN
+        356            NaN            NaN            NaN
+        357            NaN            NaN            NaN
+        358            NaN            NaN            NaN
+        359            NaN            NaN            NaN
+        360            NaN            NaN            NaN
+        361            NaN            NaN            NaN
+        362            NaN            NaN            NaN
+        363            NaN            NaN            NaN
+        364            NaN            NaN            NaN
+        365            NaN            NaN            NaN
+        366            NaN            NaN            NaN
+        367            NaN            NaN            NaN
+        368            NaN            NaN            NaN
+        369            NaN            NaN            NaN
+        370            NaN            NaN            NaN
+        371            NaN            NaN            NaN
+        372            NaN            NaN            NaN
+        373            NaN            NaN            NaN
+        374            NaN            NaN            NaN
+        375            NaN            NaN            NaN
+        376            NaN            NaN            NaN
+        377            NaN            NaN            NaN
+        378            NaN            NaN            NaN
+        379            NaN            NaN            NaN
+        380            NaN            NaN            NaN
+        381            NaN            NaN            NaN
+        382            NaN            NaN            NaN
+        383            NaN            NaN            NaN
+        384            NaN            NaN            NaN
+        385            NaN            NaN            NaN
+        386            NaN            NaN            NaN
+        387            NaN            NaN            NaN
+        388            NaN            NaN            NaN
+        389            NaN            NaN            NaN
+        390            NaN            NaN            NaN
+        391            NaN            NaN            NaN
+        392            NaN            NaN            NaN
+        393            NaN            NaN            NaN
+        394            NaN            NaN            NaN
+        395            NaN            NaN            NaN
+        396            NaN            NaN            NaN
+        397            NaN            NaN            NaN
+        398            NaN            NaN            NaN
+        399            NaN            NaN            NaN
+        400            NaN            NaN            NaN
+        401            NaN            NaN            NaN
+        402            NaN            NaN            NaN
+        403            NaN            NaN            NaN
+        404            NaN            NaN            NaN
+        405            NaN            NaN            NaN
+        406            NaN            NaN            NaN
+        407            NaN            NaN            NaN
+        408            NaN            NaN            NaN
+        409            NaN            NaN            NaN
+        410            NaN            NaN            NaN
+        411            NaN            NaN            NaN
+        412            NaN            NaN            NaN
+        413            NaN            NaN            NaN
+        414            NaN            NaN            NaN
+        415            NaN            NaN            NaN
+        416            NaN            NaN            NaN
+        417            NaN            NaN            NaN
+        418            NaN            NaN            NaN
+        419            NaN            NaN            NaN
+        420            NaN            NaN            NaN
+        421            NaN            NaN            NaN
+        422            NaN            NaN            NaN
+        423            NaN            NaN            NaN
+        424            NaN            NaN            NaN
+        425            NaN            NaN            NaN
+        426            NaN            NaN            NaN
+        427            NaN            NaN            NaN
+        428            NaN            NaN            NaN
+        429            NaN            NaN            NaN
+        430            NaN            NaN            NaN
+        431            NaN            NaN            NaN
+        432            NaN            NaN            NaN
+        433            NaN            NaN            NaN
+        434            NaN            NaN            NaN
+        435            NaN            NaN            NaN
+        436            NaN            NaN            NaN
+        437            NaN            NaN            NaN
+        438            NaN            NaN            NaN
+        439            NaN            NaN            NaN
+        440            NaN            NaN            NaN
+        441            NaN            NaN            NaN
+        442            NaN            NaN            NaN
+        443            NaN            NaN            NaN
+        444            NaN            NaN            NaN
+        445            NaN            NaN            NaN
+        446            NaN            NaN            NaN
+        447            NaN            NaN            NaN
+        448            NaN            NaN            NaN
+        449            NaN            NaN            NaN
+        450            NaN            NaN            NaN
+        451            NaN            NaN            NaN
+        452            NaN            NaN            NaN
+        453            NaN            NaN            NaN
+        454            NaN            NaN            NaN
+        455            NaN            NaN            NaN
+        456            NaN            NaN            NaN
+        457            NaN            NaN            NaN
+        458            NaN            NaN            NaN
+        459            NaN            NaN            NaN
+        460            NaN            NaN            NaN
+        461            NaN            NaN            NaN
+        462            NaN            NaN            NaN
+        463            NaN            NaN            NaN
+        464            NaN            NaN            NaN
+        465            NaN            NaN            NaN
+        466            NaN            NaN            NaN
+        467            NaN            NaN            NaN
+        468            NaN            NaN            NaN
+        469            NaN            NaN            NaN
+        470            NaN            NaN            NaN
+        471            NaN            NaN            NaN
+        472            NaN            NaN            NaN
+        473            NaN            NaN            NaN
+        474            NaN            NaN            NaN
+        475            NaN            NaN            NaN
+        476            NaN            NaN            NaN
+        477            NaN            NaN            NaN
+        478            NaN            NaN            NaN
+        479            NaN            NaN            NaN
+        480            NaN            NaN            NaN
+        481            NaN            NaN            NaN
+        482            NaN            NaN            NaN
+        483            NaN            NaN            NaN
+        484            NaN            NaN            NaN
+        485            NaN            NaN            NaN
+        486            NaN            NaN            NaN
+        487            NaN            NaN            NaN
+        488            NaN            NaN            NaN
+        489            NaN            NaN            NaN
+        490            NaN            NaN            NaN
+        491            NaN            NaN            NaN
+        492            NaN            NaN            NaN
+        493            NaN            NaN            NaN
+        494            NaN            NaN            NaN
+        495            NaN            NaN            NaN
+        496            NaN            NaN            NaN
+        497            NaN            NaN            NaN
+        498            NaN            NaN            NaN
+        499            NaN            NaN            NaN
+        500            NaN            NaN            NaN
+     Convergence was not reached in nsiter =    500
+     Increase nsiter or reduce conv_thr_iaxis
+ 
+     Temp (itemp =   1) =    1.000 K  Free energy =          NaN meV
+ 
+     iaxis_imag   :      0.18s CPU      0.21s WALL (       1 calls)
+ 
+
+     Unfolding on the coarse grid
+     elphon_wrap  :      0.00s CPU      0.00s WALL (       1 calls)
+
+     INITIALIZATION: 
+
+
+
+
+     Electron-Phonon interpolation
+
+     wigner_seitz :      0.00s CPU      0.00s WALL (       1 calls)
+     DynW2B       :      0.07s CPU      0.07s WALL (    5149 calls)
+     HamW2B       :      0.97s CPU      1.11s WALL (  176280 calls)
+     ephW2Bp      :      0.10s CPU      0.12s WALL (    1693 calls)
+     ephW2B       :      0.62s CPU      0.72s WALL (   88036 calls)
+
+     ELIASHBERG   :      0.18s CPU      0.21s WALL (       1 calls)
+
+
+     Total program execution
+     EPW          :      3.11s CPU      3.75s WALL
+
+     % Copyright (C) 2016-2023 EPW-Collaboration                                    
+                                                                                    
+     ===============================================================================
+     Please consider citing the following papers.                                   
+                                                                                                 
+     % Paper describing the method on which EPW relies                                           
+       F. Giustino and M. L. Cohen and S. G. Louie, Phys. Rev. B 76, 165108 (2007)               
+                                                                                                 
+     % Papers describing the EPW software                                                        
+       H. Lee et al., npj Comput. Mater. 9, 156 (2023)                                           
+       S. Ponc\'e, E.R. Margine, C. Verdi and F. Giustino, Comput. Phys. Commun. 209, 116 (2016) 
+       J. Noffsinger et al., Comput. Phys. Commun. 181, 2140 (2010)                              
+                                                                                                 
+                                                                                             
+     % Since you used the [eliashberg] input,     please consider also citing                    
+       E. R. Margine and F. Giustino, Phys. Rev. B 87, 024505 (2013)                         
+                                                                                    
+     For your convenience, this information is also reported in the                 
+     functionality-dependent EPW.bib file.                                          
+     ===============================================================================
+                                                                                    

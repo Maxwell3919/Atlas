@@ -1,0 +1,247 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:12:57 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     K-points division:     npool     =       8
+     2314 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw1.in
+      Title line not specified: using 'default'.
+
+     The dis_win_min is specified as      -4.0000 eV
+              To get a correct nelec, calc_nelec_wann is set to .TRUE.
+              If you just want to control the lower bound of band manifold, 
+              try bands_skipped = 'exclude_bands = ...' instead.
+
+     No temperature supplied. Setting temps(:) to 300 K.
+
+     Reading xml data from directory:
+
+     ./tmp/al.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PZ
+                           (   1   1   0   0   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+ 
+     G-vector sticks info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Sum         313     313    109                 3527     3527     749
+ 
+     Using Slab Decomposition
+ 
+     Reading collected, re-writing distributed wavefunctions
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       5.2862  a.u.
+     unit-cell volume          =     104.4547 (a.u.)^3
+     number of atoms/cell      =            1
+     number of atomic types    =            1
+     kinetic-energy cut-off    =      40.0000  Ry
+     charge density cut-off    =     160.0000  Ry
+     Exchange-correlation= PZ
+                           (   1   1   0   0   0   0   0)
+
+
+     celldm(1)=    5.28625  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = ( -0.7071  0.0000  0.7071 )  
+               a(2) = (  0.0000  0.7071  0.7071 )  
+               a(3) = ( -0.7071  0.7071  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = ( -0.7071 -0.7071  0.7071 )  
+               b(2) = (  0.7071  0.7071  0.7071 )  
+               b(3) = ( -0.7071  0.7071 -0.7071 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+        1     Al     26.9815   tau( 1) = (    0.00000    0.00000    0.00000  )
+ 
+     49 Sym.Ops. (with q -> -q+G )
+
+
+     G cutoff =  113.2545  (   3527 G-vectors)     FFT grid: ( 24, 24, 24)
+     number of k points=   64  gaussian broad. (Ry)=  0.0200     ngauss =  -1
+                       cart. coord. in units 2pi/a_0
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0312500
+        k(    2) = (  -0.1767767   0.1767767  -0.1767767), wk =   0.0312500
+        k(    3) = (  -0.3535534   0.3535534  -0.3535534), wk =   0.0312500
+        k(    4) = (  -0.5303301   0.5303301  -0.5303301), wk =   0.0312500
+        k(    5) = (   0.1767767   0.1767767   0.1767767), wk =   0.0312500
+        k(    6) = (   0.0000000   0.3535534   0.0000000), wk =   0.0312500
+        k(    7) = (  -0.1767767   0.5303301  -0.1767767), wk =   0.0312500
+        k(    8) = (  -0.3535534   0.7071068  -0.3535534), wk =   0.0312500
+        k(    9) = (   0.3535534   0.3535534   0.3535534), wk =   0.0312500
+        k(   10) = (   0.1767767   0.5303301   0.1767767), wk =   0.0312500
+        k(   11) = (   0.0000000   0.7071068   0.0000000), wk =   0.0312500
+        k(   12) = (  -0.1767767   0.8838835  -0.1767767), wk =   0.0312500
+        k(   13) = (   0.5303301   0.5303301   0.5303301), wk =   0.0312500
+        k(   14) = (   0.3535534   0.7071068   0.3535534), wk =   0.0312500
+        k(   15) = (   0.1767767   0.8838835   0.1767767), wk =   0.0312500
+        k(   16) = (   0.0000000   1.0606602   0.0000000), wk =   0.0312500
+        k(   17) = (  -0.1767767  -0.1767767   0.1767767), wk =   0.0312500
+        k(   18) = (  -0.3535534   0.0000000   0.0000000), wk =   0.0312500
+        k(   19) = (  -0.5303301   0.1767767  -0.1767767), wk =   0.0312500
+        k(   20) = (  -0.7071068   0.3535534  -0.3535534), wk =   0.0312500
+        k(   21) = (   0.0000000   0.0000000   0.3535534), wk =   0.0312500
+        k(   22) = (  -0.1767767   0.1767767   0.1767767), wk =   0.0312500
+        k(   23) = (  -0.3535534   0.3535534   0.0000000), wk =   0.0312500
+        k(   24) = (  -0.5303301   0.5303301  -0.1767767), wk =   0.0312500
+        k(   25) = (   0.1767767   0.1767767   0.5303301), wk =   0.0312500
+        k(   26) = (   0.0000000   0.3535534   0.3535534), wk =   0.0312500
+        k(   27) = (  -0.1767767   0.5303301   0.1767767), wk =   0.0312500
+        k(   28) = (  -0.3535534   0.7071068   0.0000000), wk =   0.0312500
+        k(   29) = (   0.3535534   0.3535534   0.7071068), wk =   0.0312500
+        k(   30) = (   0.1767767   0.5303301   0.5303301), wk =   0.0312500
+        k(   31) = (   0.0000000   0.7071068   0.3535534), wk =   0.0312500
+        k(   32) = (  -0.1767767   0.8838835   0.1767767), wk =   0.0312500
+        k(   33) = (  -0.3535534  -0.3535534   0.3535534), wk =   0.0312500
+        k(   34) = (  -0.5303301  -0.1767767   0.1767767), wk =   0.0312500
+        k(   35) = (  -0.7071068   0.0000000   0.0000000), wk =   0.0312500
+        k(   36) = (  -0.8838835   0.1767767  -0.1767767), wk =   0.0312500
+        k(   37) = (  -0.1767767  -0.1767767   0.5303301), wk =   0.0312500
+        k(   38) = (  -0.3535534   0.0000000   0.3535534), wk =   0.0312500
+        k(   39) = (  -0.5303301   0.1767767   0.1767767), wk =   0.0312500
+        k(   40) = (  -0.7071068   0.3535534   0.0000000), wk =   0.0312500
+        k(   41) = (   0.0000000   0.0000000   0.7071068), wk =   0.0312500
+        k(   42) = (  -0.1767767   0.1767767   0.5303301), wk =   0.0312500
+        k(   43) = (  -0.3535534   0.3535534   0.3535534), wk =   0.0312500
+        k(   44) = (  -0.5303301   0.5303301   0.1767767), wk =   0.0312500
+        k(   45) = (   0.1767767   0.1767767   0.8838835), wk =   0.0312500
+        k(   46) = (   0.0000000   0.3535534   0.7071068), wk =   0.0312500
+        k(   47) = (  -0.1767767   0.5303301   0.5303301), wk =   0.0312500
+        k(   48) = (  -0.3535534   0.7071068   0.3535534), wk =   0.0312500
+        k(   49) = (  -0.5303301  -0.5303301   0.5303301), wk =   0.0312500
+        k(   50) = (  -0.7071068  -0.3535534   0.3535534), wk =   0.0312500
+        k(   51) = (  -0.8838835  -0.1767767   0.1767767), wk =   0.0312500
+        k(   52) = (  -1.0606602   0.0000000   0.0000000), wk =   0.0312500
+        k(   53) = (  -0.3535534  -0.3535534   0.7071068), wk =   0.0312500
+        k(   54) = (  -0.5303301  -0.1767767   0.5303301), wk =   0.0312500
+        k(   55) = (  -0.7071068  -0.0000000   0.3535534), wk =   0.0312500
+        k(   56) = (  -0.8838835   0.1767767   0.1767767), wk =   0.0312500
+        k(   57) = (  -0.1767767  -0.1767767   0.8838835), wk =   0.0312500
+        k(   58) = (  -0.3535534  -0.0000000   0.7071068), wk =   0.0312500
+        k(   59) = (  -0.5303301   0.1767767   0.5303301), wk =   0.0312500
+        k(   60) = (  -0.7071068   0.3535534   0.3535534), wk =   0.0312500
+        k(   61) = (   0.0000000   0.0000000   1.0606602), wk =   0.0312500
+        k(   62) = (  -0.1767767   0.1767767   0.8838835), wk =   0.0312500
+        k(   63) = (  -0.3535534   0.3535534   0.7071068), wk =   0.0312500
+        k(   64) = (  -0.5303301   0.5303301   0.5303301), wk =   0.0312500
+
+     PseudoPot. # 1 for Al read from file:
+     ./pseudo/Al.pz-vbc.UPF
+     MD5 check sum: f06ceae8da0fe5c02c98e3688433298c
+     Pseudo is Norm-conserving, Zval =  3.0
+     Generated by new atomic code, or converted to UPF format
+     Using radial grid of  171 points,  2 beta functions with: 
+                l(1) =   0
+                l(2) =   1
+     EPW          :      0.02s CPU      0.04s WALL
+
+     EPW          :      0.02s CPU      0.04s WALL
+
+     -------------------------------------------------------------------
+     Wannierization on  4 x  4 x  4 electronic grid
+     -------------------------------------------------------------------
+ 
+     Spin CASE ( default = unpolarized )
+ 
+     Initializing Wannier90
+ 
+ 
+     Initial Wannier projections
+ 
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   1
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   2
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   3
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   4
+
+      - Number of bands is (  6)
+      - Number of total bands is (  6)
+      - Number of excluded bands is (  0)
+      - Number of wannier functions is (  4)
+      - All guiding functions are given 
+ 
+  Reading data about k-point neighbours 
+ 
+      - All neighbours are found 
+ 
+     AMN
+      k points =    64 in    8 pools
+            1 of    8 on ionode
+            2 of    8 on ionode
+            3 of    8 on ionode
+            4 of    8 on ionode
+            5 of    8 on ionode
+            6 of    8 on ionode
+            7 of    8 on ionode
+            8 of    8 on ionode
+ 
+     AMN calculated
+ 
+     MMN
+      k points =    64 in    8 pools
+            1 of    8 on ionode
+            2 of    8 on ionode
+            3 of    8 on ionode
+            4 of    8 on ionode
+            5 of    8 on ionode
+            6 of    8 on ionode
+            7 of    8 on ionode
+            8 of    8 on ionode
+     MMN calculated
+ 
+     Running Wannier90

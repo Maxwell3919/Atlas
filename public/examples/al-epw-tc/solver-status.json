@@ -1,0 +1,155 @@
+[
+  {
+    "run": "linear-w010",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w010-lapack",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w010-refine",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w020",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.2,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w020-refine",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.2,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w040",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.4,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-w040-refine",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.4,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010",
+    "native_finish": false,
+    "stderr_bytes": 99,
+    "fatal": true,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T0.25",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T0.50",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T0.75",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.00",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.25",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.35",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.40",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.43",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-w010-T1.45",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  }
+]

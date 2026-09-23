@@ -1,10 +1,10 @@
 [q2r.x 输入](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x 输入](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [QE 7.5 lambda.x 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90) · [电子声子谱定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
 
-从[已完成的 Al EPC 会话](/Atlas/m/epc/qe/)接着做。前一页已经写出 32³ 致密 SCF、16³ 响应 SCF、4³ q 网格与八份完整电声文件，这里直接使用它们，不重写结构优化与 SCF。α²F 同时包含振动频率和电子声子耦合权重，因此声子 DOS 的峰不一定就是 λ 的主要来源。
+从[已完成的 Al 双网格 EPC 会话](/Atlas/m/epc/qe/#double-grid-pwxall)接着做。前一页的 `al.dense.in` 对应我们平时命名为 `pwxall.in` 的致密网格步骤：32³ 致密 SCF、16³ 响应 SCF、4³ q 网格最终留下八份完整电声文件。这里直接使用这些文件，不重写结构优化与 SCF。α²F 同时包含振动频率和电子声子耦合权重，因此声子 DOS 的峰不一定就是 λ 的主要来源。
 
 所有数字属于同一个单原子 fcc Al、LDA-PZ 计算链。它尚未完成 k/q/截断能收敛；本页的积分闭合检查回答文件和数值有没有接对，不替代材料性质验收。原件在[Al 输入输出包](/Atlas/examples/al-lesson-files.tar.gz)，新增脚本和表放在包内 `al/tc-route/`。
 
-## 两条谱函数后处理路线分别留下什么
+## q2r / matdyn 与 lambda.x 分别留下什么
 
 脚本先执行 `q2r.x`，把完整 q 网格的力常数和 EPC 数据一起变换到实空间，再交给 `matdyn.x`。两份输入如下。
 
@@ -299,7 +299,26 @@ python3 scripts/plot_tc_chain.py --data data --output figures
 
 原始输入、程序输出和独立检查脚本可以逐个查看：[al.dense.in](/Atlas/examples/al/epc-q4/al.dense.in), [al.dense.out](/Atlas/examples/al/epc-q4/al.dense.out), [al.scf.in](/Atlas/examples/al/epc-q4/al.scf.in), [al.scf.out](/Atlas/examples/al/epc-q4/al.scf.out), [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in), [al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out), [continue.slurm](/Atlas/examples/al/epc-q4/continue.slurm), [q2r.in](/Atlas/examples/al/epc-q4/q2r.in), [q2r.out](/Atlas/examples/al/epc-q4/q2r.out), [matdyn-dos.in](/Atlas/examples/al/epc-q4/matdyn-dos.in), [matdyn-dos.out](/Atlas/examples/al/epc-q4/matdyn-dos.out), [lambda.in](/Atlas/examples/al/epc-q4/lambda.in), [lambda.out](/Atlas/examples/al/epc-q4/lambda.out), [lambda.dat](/Atlas/examples/al/epc-q4/lambda.dat), [alpha2F.dat](/Atlas/examples/al/epc-q4/alpha2F.dat), [analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py), [tc-scan.csv](/Atlas/examples/al/epc-q4/tc-scan.csv)。绘图代码为 [plot_epc.py](/Atlas/examples/al/plot_epc.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。
 
-下一步：到 [Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/) 看 μ* 和输入 λ 怎样影响公式给出的 Tc；若要知道某个 q 点的哪个振动模式贡献较大，转到 [声子线宽](/Atlas/m/phonon-linewidth/qe/)。
+## 把完整谱函数交给 Tc 求解
+
+走到这里得到的是 α²F。若需要快速比较同一组数据的 μ* 敏感性，可以进入 [Allen–Dynes / McMillan 估算](/Atlas/m/allen-dynes/qe/)；若需要实际求解能隙方程，则进入 [EPW / Eliashberg Tc](/Atlas/m/epw-eliashberg/qe/)。后一页使用原始频率列和谱函数列，核对单位转换后的积分，再把整条曲线交给 EPW。只保留 λ 和 ωlog 两个数，已经不足以重建方程需要的频率依赖。
+
+EPW 的各向同性入口可以读取已有谱函数；各向异性求解还需要保留带、k 点和散射之间的分辨信息。因此，本页由 QE 双网格产生的谱可以接各向同性方程，但不能仅凭这个平均谱恢复各向异性能隙。具体文件要求见 [EPW 的 eliashberg 输入说明](https://docs.epw-code.org/Inputs/Inputs.html#eliashberg)。
+
+```text
+pwxall / dense-k → pwx / response-k → 完整逐 q EPC
+                                      ↓
+                       q2r + matdyn 或 lambda.x
+                                      ↓
+                             同一展宽的 α²F
+                        ┌─────────────┴─────────────┐
+                        ↓                           ↓
+                   λ、ωlog、频率矩               完整频率与谱列
+                        ↓                           ↓
+                 Allen–Dynes Tc 估算       EPW 各向同性 Eliashberg 方程
+```
+
+下一步：[Tc 公式估算](/Atlas/m/allen-dynes/qe/) · [EPW 方程求解](/Atlas/m/epw-eliashberg/qe/)；需要定位单 q、单模贡献时，转到 [声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 
 ```text
 同结构致密 SCF + 响应 SCF → 完整 q 网格 EPC → 逐 q、逐模 λ/γ

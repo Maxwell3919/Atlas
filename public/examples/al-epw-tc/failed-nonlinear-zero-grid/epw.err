@@ -1,0 +1,10 @@
+forrtl: severe (71): integer divide by zero
+Image              PC                Routine            Line        Source             
+libc.so.6          00000EE86EC45330  Unknown               Unknown  Unknown
+epw.x              000000000086EFBA  Unknown               Unknown  Unknown
+epw.x              00000000006950A2  Unknown               Unknown  Unknown
+epw.x              000000000040D363  Unknown               Unknown  Unknown
+epw.x              000000000040BC0D  Unknown               Unknown  Unknown
+libc.so.6          00000EE86EC2A1CA  Unknown               Unknown  Unknown
+libc.so.6          00000EE86EC2A28B  __libc_start_main     Unknown  Unknown
+epw.x              000000000040BB25  Unknown               Unknown  Unknown

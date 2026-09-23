@@ -1,0 +1,567 @@
+{
+  "files": [
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q1",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "75654b0dc50d44650638dfcdb36c9b1039468735f77174b76092bc84fc4cb051"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn1",
+      "copy": "phonon-save/al.dyn_q1",
+      "role": "DFPT dynamical matrix",
+      "bytes": 1458,
+      "sha256": "ff34ca785c3938e63b3fb028b3874b644707208fd103e9b2759d267399d9c870"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_2/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q2",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "20c62fa1be117f0bed37e3e179aec5856f062e31d494cd642e7d38d78e2201c3"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn2",
+      "copy": "phonon-save/al.dyn_q2",
+      "role": "DFPT dynamical matrix",
+      "bytes": 3964,
+      "sha256": "24a0047635ef7fe3df20f7aa32ff763e8370118dbf8b55e8bf94b96d7dd3351e"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_3/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q3",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "0d2fc9461887a917a2de62625ac2043d8e73fa99978c9dccbe6f2b804a28bdb7"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn3",
+      "copy": "phonon-save/al.dyn_q3",
+      "role": "DFPT dynamical matrix",
+      "bytes": 2532,
+      "sha256": "c83e1492f8ae451fc11f90c166d08837398e4ad5be393ef6d0e1174ca0114ab7"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_4/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q4",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "213a34188b94ad6ba7412d8ca0105bc2390e102941f3725e459fff476dbd53e7"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn4",
+      "copy": "phonon-save/al.dyn_q4",
+      "role": "DFPT dynamical matrix",
+      "bytes": 3248,
+      "sha256": "72cc9f555a52dbdfa3f01969d836596d8f4098be33b24f062fe959f900d3e644"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_5/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q5",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "c74f7e055b51cf6c10d5fed7bdc56c00a89ce9432ccc41b7e1b97df1dbae2d88"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn5",
+      "copy": "phonon-save/al.dyn_q5",
+      "role": "DFPT dynamical matrix",
+      "bytes": 9692,
+      "sha256": "568f1457afdc911c094525789fe53fa2afa8aaaad898bca3298dc10fd3bd1774"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_6/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q6",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "2460fad57cee830297b4d84ac1f0d5dc491239eb2b463a0c43b1a38438acb1f9"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn6",
+      "copy": "phonon-save/al.dyn_q6",
+      "role": "DFPT dynamical matrix",
+      "bytes": 5396,
+      "sha256": "927f1d4c0c94554681b0f326c3fed10475ae85c07cec7b53a46908d2882268f8"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_7/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q7",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "019b113c2af85c293c5fa1255fdda4644d6e9d33f2de4e844d1db2c8868cba1c"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn7",
+      "copy": "phonon-save/al.dyn_q7",
+      "role": "DFPT dynamical matrix",
+      "bytes": 2174,
+      "sha256": "d5dc8b6c650ba99a347fa64e2058c1ff62bd35654598d3be7702a8c86fabe58b"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.q_8/al.aldv1",
+      "copy": "phonon-save/al.dvscf_q8",
+      "role": "DFPT potential derivative",
+      "bytes": 663552,
+      "sha256": "55f6fba905ee7026e9c9f3266e54e47e02d763caeb6e153365660540ace700e1"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn8",
+      "copy": "phonon-save/al.dyn_q8",
+      "role": "DFPT dynamical matrix",
+      "bytes": 3248,
+      "sha256": "625ff004b130d30e86187f0d11a80ec22a59b58ffa62cdeb3d47016c7fe4e6a7"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.4.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.4.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "e8fab846272bcd44d70f53a98645fb6694acc4751c4f93a3978dd2e97de34c96"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.3.1.xml",
+      "copy": "phonon-save/al.phsave/elph.3.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 826103,
+      "sha256": "e2f6f49391354a9160ba0d2b583cc432eae752d1e251a1540cf3e9b8ab356739"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.6.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.6.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "8647d47a7b255543d8db04ef1a8a4fcfa9119ee3493fa9d1fd02e9cab863d4a0"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/status_run.xml",
+      "copy": "phonon-save/al.phsave/status_run.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 219,
+      "sha256": "6fbd68482ad2132097215ce578649e763153eaf89f268e6302bc6f69c388bb8b"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.6.xml",
+      "copy": "phonon-save/al.phsave/patterns.6.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1322,
+      "sha256": "02a710e8e65bb8d2711d49cea9df51402d32c6c5a84d511cf5b18c2dd8e35055"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.1.1.xml",
+      "copy": "phonon-save/al.phsave/elph.1.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 816231,
+      "sha256": "7fd7d99634a282d3bb951ec3f6fa2959fd4c36d8a80759c7584e3e32959fe7a3"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.3.xml",
+      "copy": "phonon-save/al.phsave/patterns.3.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1220,
+      "sha256": "554d5d9fe7569ef1ce1c017428a9a8d00b9f01672d376ae734717f895cb6817f"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.2.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.2.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "e89e1acd3262ea2a54acc35bce70b54ab18364dacbcab3af3d562e55c3201667"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.2.1.xml",
+      "copy": "phonon-save/al.phsave/elph.2.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1616522,
+      "sha256": "4e37f384a4d00103cd709f78dfe6cc8d992586fcb4e3de176a322c14c3f265ec"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.6.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.6.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "be3b7c84c19e95021988682fed0407cd3146e808d250ab3cbaa5a1bfae5e5bbd"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.1.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.1.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "4a33a8a4d68f8150df1a26c77335feeebb33368dda9778ade7d3acb055003bd4"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.5.3.xml",
+      "copy": "phonon-save/al.phsave/elph.5.3.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 4313037,
+      "sha256": "fa337ca96e17884d3ddc12342715ed04bdb9650636a938449c38e9d97a12b2ad"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.8.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.8.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "d9be94d7e123c4ee19848b4ca8f8ff26c23ba79d8e2357911b62ccc00edbdd06"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.8.xml",
+      "copy": "phonon-save/al.phsave/patterns.8.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1220,
+      "sha256": "cadd4a83a9a1df5cabfada514328b5e8b6688cf3047f34c0c99273d421d581d9"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.4.xml",
+      "copy": "phonon-save/al.phsave/patterns.4.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1220,
+      "sha256": "ca2fcb8e541be648e457c8a4cc71333f33d511d862979feaf0de22acaf6bc9f4"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.6.1.xml",
+      "copy": "phonon-save/al.phsave/elph.6.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 2298309,
+      "sha256": "8fdbda851bdba5fa009dc0c34d8e0010d509889131587fba404a393b89d20792"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.6.3.xml",
+      "copy": "phonon-save/al.phsave/dynmat.6.3.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "b37295b2b84e1e156a8d1b2d83dc172d711eda309ff7b22d6324f9018321a5e4"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.2.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.2.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "581eb4b913c9c02bc976075f97bcd087a737920d06205f59f054610d9ad566a8"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.3.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.3.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "7efd576d4083009a520d1064a96c6e9d60c6740b95616f296d9e430ab89bb0a9"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.4.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.4.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "7fbbe79943373234156890d262bc29d17d5e5624c70663d5310eb96f5ac6e48d"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.4.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.4.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "596eb9516417189a3117d574cec8a5d87388fca8fa48d82991ecc13cbe9b0615"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.8.1.xml",
+      "copy": "phonon-save/al.phsave/elph.8.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1166835,
+      "sha256": "3946aea19e587db5572159c9dc06463a8d6461b5f80709cd79d1146e40bfcfe9"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/control_ph.xml",
+      "copy": "phonon-save/al.phsave/control_ph.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1458,
+      "sha256": "c7962f40f235b5d36b06f5d4daf31dd00aa43a78981d463c977a0219c8a6b966"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.3.2.xml",
+      "copy": "phonon-save/al.phsave/elph.3.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1586711,
+      "sha256": "c5f0c1708bd3dd78836444b2e5486eb1c8e4a620bfaee8b9322a2e33f495377c"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.7.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.7.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "6e59195739c724222d2244f438298b2400366b6047db3de0d3adae87abcffc59"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.5.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.5.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "790d0d664ef1de0ac69336e67623f879b51fa674647beb2d9d370b8c5b98e970"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.6.3.xml",
+      "copy": "phonon-save/al.phsave/elph.6.3.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 2298309,
+      "sha256": "d22c03ab4e1ff08e7995377fcc51ef5f8409aff424ca02d0af4066ae8945b536"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.2.2.xml",
+      "copy": "phonon-save/al.phsave/elph.2.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 3104906,
+      "sha256": "7bb0eba67ba69d8106c0551a2717e6682dca21bb02e36ff6cde919473795e677"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.3.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.3.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "d672911f711211188fe83c1175f7d05d0cdd960f894d0e17b70b706c9a516718"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.4.1.xml",
+      "copy": "phonon-save/al.phsave/elph.4.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1283714,
+      "sha256": "a5c7f69fa46b08b72ad0f59742bd4cee5b7a38dc091d9de7179c610b419b375a"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.4.2.xml",
+      "copy": "phonon-save/al.phsave/elph.4.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 2465666,
+      "sha256": "ecda07d4a444aac6663036cb939f9aa5b7ff80c192f5262d1d279fe7c99c6320"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.5.3.xml",
+      "copy": "phonon-save/al.phsave/dynmat.5.3.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "3c6ac7123956419102e4dbb3f65c19427b35f79889c79990a8a0d5e3ecaa9e17"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.5.1.xml",
+      "copy": "phonon-save/al.phsave/elph.5.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 4313037,
+      "sha256": "8da38c9c39a26915df0f991e9c11537799f1c7be93020e81a7fd34f331c980b9"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.8.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.8.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "d47587c97b8a0d05b581908715be52f7db8cba13987729e00ed9baff35182847"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.8.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.8.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "3b99783ebcbf92a5658c97432557452d9da3fac5a4696186c62f430f2c66ffbe"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.5.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.5.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "195d6b31c706bdbf11734eb20e12932695966724a8883b5de7716d2c84b33df1"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.2.xml",
+      "copy": "phonon-save/al.phsave/patterns.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1220,
+      "sha256": "6adc9f0ab3ff8e96c02b72a997395d3e45c62dfc663f4f523ae76b7f0588da74"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.1.xml",
+      "copy": "phonon-save/al.phsave/patterns.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1118,
+      "sha256": "5fef48d379e2723b666905e5d9f78805cdbc757f3e3991c2490f7453fdfeb3c2"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.7.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.7.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "15e5e523e7eee1b39e44034a8bb62de0e9821d693e0fa385edd50ff814499df2"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.3.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.3.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "aa321632b1abdfcb1e5f06faca8bfa0a4aa98fdb7f709d36c96d99240f9b5be6"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.5.2.xml",
+      "copy": "phonon-save/al.phsave/elph.5.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 4313037,
+      "sha256": "b30487e693c4df7c69739d5fd85949d2e0b0fba8efd53e2c36e39b91d08fc4ea"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.7.2.xml",
+      "copy": "phonon-save/al.phsave/elph.7.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1327971,
+      "sha256": "cc40414e5c7ca0473e4ba71454fc04362824fd1070f79f505cb8a9b64db5eabc"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.7.xml",
+      "copy": "phonon-save/al.phsave/patterns.7.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1220,
+      "sha256": "bdedc1433a6de6c13733aa371ff8725374c21523346fc8b464f4628a480f4cb2"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.2.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.2.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "cc1c4bbb8268ead202f0ca2c97b561e0748909ebfd807c1db360c4162a123f31"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/patterns.5.xml",
+      "copy": "phonon-save/al.phsave/patterns.5.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 1322,
+      "sha256": "9b6125e03226e09ea47ab6d68f89498e20ec672e8334b1be876835d8a11944b2"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.5.0.xml",
+      "copy": "phonon-save/al.phsave/dynmat.5.0.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "694c5794c4d9dfce8542539e2fc17873e9b7447a3ee76e933d699b858d12549a"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.6.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.6.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "5e835c1ba8c061b47bc6d26737ed25a099e162cbcfbea55526326e837e9099ae"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.7.2.xml",
+      "copy": "phonon-save/al.phsave/dynmat.7.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "2b49e0cb62ca6adc396cf4bd30d970bd24ca1ab0ed1527839ddf674390fffbee"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.7.1.xml",
+      "copy": "phonon-save/al.phsave/elph.7.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 691395,
+      "sha256": "b3b510db16f14a492c896a774ac83595633da94a5272f2fd994ba6dacd2802ce"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.8.2.xml",
+      "copy": "phonon-save/al.phsave/elph.8.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 2241171,
+      "sha256": "a103f789c1e1422936da729867f32e633c62b70caca2eea503652a5d8da55944"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/dynmat.1.1.xml",
+      "copy": "phonon-save/al.phsave/dynmat.1.1.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 630,
+      "sha256": "278830c2956fb5e146ed0b2383bad355fd7a98fc928b3327b9ba6d1d25298d03"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/_ph0/al.phsave/elph.6.2.xml",
+      "copy": "phonon-save/al.phsave/elph.6.2.xml",
+      "role": "DFPT patterns and control",
+      "bytes": 2298309,
+      "sha256": "a3967264f84de5d1731bac7b916d162e82f4c717ce4c4ba1d376e2676d827192"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.fc",
+      "copy": "phonon-save/ifc.q2r",
+      "role": "q2r crystal ASR force constants",
+      "bytes": 19537,
+      "sha256": "87baa981a75e414ec31289b057f33613f87def3661f4082f28f0dda598b177a3"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.dyn0",
+      "copy": "evidence/al.dyn0",
+      "role": "q4 grid identity",
+      "bytes": 602,
+      "sha256": "3ff23b7a714c5a1b8b8b956dfb0b9dc6721865911d9344458830e9b160fdd048"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.scf.in",
+      "copy": "evidence/parent/al.scf.in",
+      "role": "parent evidence",
+      "bytes": 686,
+      "sha256": "b600bc1386d244a038e3ab97163b2b35abdd72f62397e26233b1ccdb34d05d60"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.scf.out",
+      "copy": "evidence/parent/al.scf.out",
+      "role": "parent evidence",
+      "bytes": 88449,
+      "sha256": "cb2d26824d45e6de18c16f71f922141dbe42568e1e2ee5029cbcecec0678b541"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.elph.in",
+      "copy": "evidence/parent/al.elph.in",
+      "role": "parent evidence",
+      "bytes": 240,
+      "sha256": "457f8aedf4d43538eda13503989626469f7d0959cadcdf5b35d8bc915e11bd49"
+    },
+    {
+      "source": "<PHONON_PARENT>/al.elph.out",
+      "copy": "evidence/parent/al.elph.out",
+      "role": "parent evidence",
+      "bytes": 101505,
+      "sha256": "b349d61f30996479081990a27581b0e793d1a334dd7646f52da2184fc6547493"
+    },
+    {
+      "source": "<PHONON_PARENT>/q2r.in",
+      "copy": "evidence/parent/q2r.in",
+      "role": "parent evidence",
+      "bytes": 69,
+      "sha256": "68d0120adf6233b896f5bfd35a78a8867ff350be16d6eaa833c137878ff38c00"
+    },
+    {
+      "source": "<PHONON_PARENT>/q2r.out",
+      "copy": "evidence/parent/q2r.out",
+      "role": "parent evidence",
+      "bytes": 5740,
+      "sha256": "19619ad4c94160f83b121c7f1c0543949df1a15fa72ac24dae0e0a27afa9d32a"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/al.save/data-file-schema.xml",
+      "copy": "runs/nscf-001/tmp/al.save/data-file-schema.xml",
+      "role": "parent SCF density seed",
+      "bytes": 136490,
+      "sha256": "ac9707dcda9c103bab8ae40a7a00d239eb46a76b950befbb69cb482de314d66f"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/al.save/charge-density.dat",
+      "copy": "runs/nscf-001/tmp/al.save/charge-density.dat",
+      "role": "parent SCF density seed",
+      "bytes": 98872,
+      "sha256": "716d9a462fddc68d09da2d76d091cdefdb26c27f61765e04feac039b11bb47b3"
+    },
+    {
+      "source": "<PHONON_PARENT>/tmp/al.save/Al.pz-vbc.UPF",
+      "copy": "runs/nscf-001/tmp/al.save/Al.pz-vbc.UPF",
+      "role": "parent SCF density seed",
+      "bytes": 30963,
+      "sha256": "4eab06b63f87f07ede2d5a193e6d993a09107167fd6b8647afa807342501d6e5"
+    }
+  ],
+  "density_parent_irreducible_k": 145,
+  "q_irreducible": 8,
+  "q_mesh": [
+    4,
+    4,
+    4
+  ],
+  "all_dvscf_bytes": 663552,
+  "SCF_JOB_DONE": 1,
+  "PH_JOB_DONE": 1
+}

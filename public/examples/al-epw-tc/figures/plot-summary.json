@@ -1,0 +1,25 @@
+{
+  "muc": 0.1,
+  "linear_brackets": [
+    {
+      "requested_wscut_eV": 0.1,
+      "Tc_low_K": 1.46,
+      "Tc_high_K": 1.47
+    },
+    {
+      "requested_wscut_eV": 0.2,
+      "Tc_low_K": 1.45,
+      "Tc_high_K": 1.46
+    },
+    {
+      "requested_wscut_eV": 0.4,
+      "Tc_low_K": 1.57,
+      "Tc_high_K": 1.58
+    }
+  ],
+  "nonlinear_valid_points": 9,
+  "nonlinear_quantity": "Delta at first positive imaginary Matsubara frequency, in meV",
+  "Allen_Dynes_native_estimate_K": 0.9826,
+  "failed_nonlinear_1p50K": "not plotted; no zero substituted",
+  "scientific_limit": "finite k/q sampling; fixed input muc cutoff sensitivity, not a converged material Tc"
+}

@@ -1,0 +1,11 @@
+{
+  "time_utc": "2026-09-23T07:22:28.021681+00:00",
+  "reason": "k8 refined frozen10 band RMS nearEF .126eV and max .549eV; enlarge frozen window to include a wider continuous electronic energy range. Actual fifth-band minimum over coarse512 points is14.179760eV; at most4 states below13.5eV.",
+  "changes": [
+    "dis_froz_max10 to13.5eV",
+    "dis_num_iter1000 to5000 because native disentanglement criterion not reached",
+    "epbread true reuses same fully computed Bloch EPW matrix elements; no recalculation of DFPT response"
+  ],
+  "projection": "same designed Al:sp3, not a claim about native centres",
+  "scientific_acceptance": "not_assessed"
+}

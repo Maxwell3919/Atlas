@@ -1,0 +1,51 @@
+&INPUTEPW
+ prefix = 'al'
+ amass(1) = 26.9815385
+ outdir = './tmp'
+ dvscf_dir = '../phonon-save'
+ elph = .false.
+ epbwrite = .false.
+ epbread = .false.
+ epwwrite = .true.
+ epwread = .false.
+ etf_mem = 0
+ epw_memdist = .true.
+ lifc = .true.
+ asr_typ = 'crystal'
+ nbndsub = 4
+ wannierize = .true.
+ num_iter = 1000
+ iprint = 2
+ dis_win_min = -4.0
+ dis_win_max = 26.0
+ dis_froz_min = -4.0
+ dis_froz_max = 13.5
+ proj(1) = 'Al:sp3'
+ wdata(1) = 'begin kpoint_path'
+ wdata(2) = 'G 0.0 0.0 0.0 X 0.5 0.0 0.5'
+ wdata(3) = 'X 0.5 0.0 0.5 W 0.5 0.25 0.75'
+ wdata(4) = 'W 0.5 0.25 0.75 L 0.5 0.5 0.5'
+ wdata(5) = 'L 0.5 0.5 0.5 G 0.0 0.0 0.0'
+ wdata(6) = 'G 0.0 0.0 0.0 K 0.375 0.375 0.75'
+ wdata(7) = 'end kpoint_path'
+ wdata(8) = 'bands_plot = .true.'
+ wdata(9) = 'bands_plot_format = gnuplot'
+ wdata(10) = 'bands_num_points = 40'
+ wdata(11) = 'dis_num_iter = 5000'
+ wdata(12) = 'num_print_cycles = 10'
+ wdata(13) = 'conv_window = 4'
+ wdata(14) = 'write_hr = .true.'
+ wdata(15) = 'use_ws_distance = .true.'
+ nk1 = 12
+ nk2 = 12
+ nk3 = 12
+ nq1 = 4
+ nq2 = 4
+ nq3 = 4
+ nkf1 = 1
+ nkf2 = 1
+ nkf3 = 1
+ nqf1 = 1
+ nqf2 = 1
+ nqf3 = 1
+/

@@ -1,0 +1,122 @@
+{
+  "k4_frozen10": {
+    "case": "k4_frozen10",
+    "kpath_points": 166,
+    "shared_parent_EF_eV": 8.4122,
+    "all_four_bands": {
+      "count": 664,
+      "rms_eV": 1.0452197012424471,
+      "max_abs_eV": 3.9300229031782727
+    },
+    "QE_energy_below10eV": {
+      "count": 282,
+      "rms_eV": 0.5172107057802798,
+      "max_abs_eV": 1.5244812005635406
+    },
+    "QE_energy_within1eV_of_EF": {
+      "count": 47,
+      "rms_eV": 0.6344769851354805,
+      "max_abs_eV": 1.5244812005635406
+    },
+    "QE_energy_within0p2eV_of_EF": {
+      "count": 11,
+      "rms_eV": 0.5889385174727303,
+      "max_abs_eV": 1.440239595752228
+    },
+    "disentanglement_local_criterion": false,
+    "wannierisation_local_criterion": true,
+    "pairing": "ascending eigenvalue rank at each identical k; spectral comparison, not orbital-character tracking",
+    "scope": "same 166-point line path; not a whole-Brillouin-zone error bound",
+    "scientific_acceptance": "not_assessed"
+  },
+  "k8_frozen10": {
+    "case": "k8_frozen10",
+    "kpath_points": 166,
+    "shared_parent_EF_eV": 8.4122,
+    "all_four_bands": {
+      "count": 664,
+      "rms_eV": 0.6189876253145399,
+      "max_abs_eV": 2.9209978908679624
+    },
+    "QE_energy_below10eV": {
+      "count": 282,
+      "rms_eV": 0.0897051857062375,
+      "max_abs_eV": 0.8899552395924282
+    },
+    "QE_energy_within1eV_of_EF": {
+      "count": 47,
+      "rms_eV": 0.12623577390128807,
+      "max_abs_eV": 0.548916826555109
+    },
+    "QE_energy_within0p2eV_of_EF": {
+      "count": 11,
+      "rms_eV": 0.08308983456957378,
+      "max_abs_eV": 0.1820298641050453
+    },
+    "disentanglement_local_criterion": false,
+    "wannierisation_local_criterion": true,
+    "pairing": "ascending eigenvalue rank at each identical k; spectral comparison, not orbital-character tracking",
+    "scope": "same 166-point line path; not a whole-Brillouin-zone error bound",
+    "scientific_acceptance": "not_assessed"
+  },
+  "k8_frozen13p5": {
+    "case": "k8_frozen13p5",
+    "kpath_points": 166,
+    "shared_parent_EF_eV": 8.4122,
+    "all_four_bands": {
+      "count": 664,
+      "rms_eV": 0.3581203479618127,
+      "max_abs_eV": 1.467820439665168
+    },
+    "QE_energy_below10eV": {
+      "count": 282,
+      "rms_eV": 0.08449481481570485,
+      "max_abs_eV": 0.28427013491195297
+    },
+    "QE_energy_within1eV_of_EF": {
+      "count": 47,
+      "rms_eV": 0.12234012269548589,
+      "max_abs_eV": 0.28427013491195297
+    },
+    "QE_energy_within0p2eV_of_EF": {
+      "count": 11,
+      "rms_eV": 0.1077876170768608,
+      "max_abs_eV": 0.2351339358949538
+    },
+    "disentanglement_local_criterion": true,
+    "wannierisation_local_criterion": true,
+    "pairing": "ascending eigenvalue rank at each identical k; spectral comparison, not orbital-character tracking",
+    "scope": "same 166-point line path; not a whole-Brillouin-zone error bound",
+    "scientific_acceptance": "not_assessed"
+  },
+  "k12_frozen13p5": {
+    "case": "k12_frozen13p5",
+    "kpath_points": 166,
+    "shared_parent_EF_eV": 8.4122,
+    "all_four_bands": {
+      "count": 664,
+      "rms_eV": 0.2852693644752731,
+      "max_abs_eV": 1.5398118534959195
+    },
+    "QE_energy_below10eV": {
+      "count": 282,
+      "rms_eV": 0.026951429733284987,
+      "max_abs_eV": 0.13600666040757226
+    },
+    "QE_energy_within1eV_of_EF": {
+      "count": 47,
+      "rms_eV": 0.02586607718598342,
+      "max_abs_eV": 0.09228166410504635
+    },
+    "QE_energy_within0p2eV_of_EF": {
+      "count": 11,
+      "rms_eV": 0.028563051196266658,
+      "max_abs_eV": 0.09228166410504635
+    },
+    "disentanglement_local_criterion": true,
+    "wannierisation_local_criterion": true,
+    "pairing": "ascending eigenvalue rank at each identical k; spectral comparison, not orbital-character tracking",
+    "scope": "same 166-point line path; not a whole-Brillouin-zone error bound",
+    "scientific_acceptance": "not_assessed"
+  }
+}

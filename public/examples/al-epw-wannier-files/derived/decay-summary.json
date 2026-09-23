@@ -1,0 +1,26 @@
+{
+  "decay.H": {
+    "rows": 1957,
+    "max_distance_angstrom": 23.7364068048643,
+    "global_max_abs_Ry": 0.760225652556204,
+    "outer20percent_distance_tail_max_abs_Ry": 9.801449268267535e-05,
+    "outer20percent_distance_tail_to_global_max": 0.0001289281575189007,
+    "scope": "diagnostic ratio, not an acceptance threshold"
+  },
+  "decay.epmate": {
+    "rows": 1957,
+    "max_distance_angstrom": 23.7364068049,
+    "global_max_abs_Ry": 0.0713627229,
+    "outer20percent_distance_tail_max_abs_Ry": 0.0001423637,
+    "outer20percent_distance_tail_to_global_max": 0.0019949308856879394,
+    "scope": "diagnostic ratio, not an acceptance threshold"
+  },
+  "decay.epmatp": {
+    "rows": 93,
+    "max_distance_angstrom": 7.9121356016,
+    "global_max_abs_Ry": 0.0713627229,
+    "outer20percent_distance_tail_max_abs_Ry": 0.0020792345,
+    "outer20percent_distance_tail_to_global_max": 0.029136143010036405,
+    "scope": "diagnostic ratio, not an acceptance threshold"
+  }
+}

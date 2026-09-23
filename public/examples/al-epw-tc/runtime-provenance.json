@@ -1,0 +1,17 @@
+{
+  "native_banner": "EPW v.6.0",
+  "QE_release_tree": "qe-7.5",
+  "source_reference": "https://github.com/QEF/q-e/tree/qe-7.5/EPW",
+  "sha256": {
+    "<qe_bin>/epw.x": "01f5d42ba351b979a5f459b4be26d255f84811a5c24fbf48378d22770f983c37",
+    "<qe_source>/EPW/src/supercond_iso.f90": "c4b12bfa565939f83dc647fa7db268657bb9611c0caf81283b42eb43d3eda2f3",
+    "<qe_source>/EPW/src/io/io_supercond.f90": "416ee21c65fd49b2a04894c2d5e18ffb1a5e8f7c223cab950a28f760cf56ec36",
+    "<qe_source>/EPW/src/supercond.f90": "ab901cfab3104b8d976dd1c391ad4c9b2e376e6316a5788ea33eb5c67591c332",
+    "<qe_source>/EPW/src/readin.f90": "34f79eb05bde1cd6ddfc7b0310d7a8b13f8bc941a362a5dd2b3743baa2fcf722"
+  },
+  "installation_changes": "none; reused existing Intel/oneAPI build and existing env.sh MKL compatibility loader",
+  "MPI_per_job": 1,
+  "OMP_threads": 1,
+  "slurm_allocated_CPUs_per_job": 2,
+  "advanced_audit": "EPW not automated; native files and release source inspected"
+}

@@ -1,0 +1,47 @@
+{
+  "source": "runs/interpolate-003/al.a2f",
+  "source_sha256": "f48a3230b47468b6fb813d9b5cabe6df5b7133ae1f13af1f2317300e3dd3cabf",
+  "positive_rows": 500,
+  "omega_min_meV": 0.0904076,
+  "omega_max_meV": 45.2038042,
+  "native_summed_elph_coupling": 0.3507955,
+  "native_cumulative_lambda_last": 0.3508982,
+  "lambda_trapezoid_from_rounded_export": 0.35089823789579455,
+  "omega_log_meV_from_rounded_export": 26.44613455752598,
+  "native_tail_metadata": [
+    "  #            0.3508982",
+    " Phonon smearing (meV)",
+    "  #            0.5000000",
+    "Electron smearing (eV)   0.1000000",
+    "Fermi window (eV)   1.0000000",
+    "DOS (eV)   0.2560645",
+    "Summed el-ph coupling    0.3507955"
+  ],
+  "coarse_k": [
+    12,
+    12,
+    12
+  ],
+  "coarse_q": [
+    4,
+    4,
+    4
+  ],
+  "fine_k": [
+    24,
+    24,
+    24
+  ],
+  "fine_q": [
+    12,
+    12,
+    12
+  ],
+  "electronic_smearing_eV": 0.1,
+  "phonon_smearing_meV": 0.5,
+  "Fermi_window_eV": 1.0,
+  "eps_acoustic_cm_1": 0.1,
+  "ASR": "parent q2r zasr=simple; EPW lifc=true rereads ifc.q2r and imposes asr_typ=crystal",
+  "scientific_acceptance": "not_assessed",
+  "convergence_status": "not assessed; one completed fine-grid case, larger fine case stopped for runtime"
+}

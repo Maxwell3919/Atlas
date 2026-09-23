@@ -1,0 +1,38 @@
+{
+  "source_sha256": "f48a3230b47468b6fb813d9b5cabe6df5b7133ae1f13af1f2317300e3dd3cabf",
+  "crystal_sha256": "d7eb5bf83ce9635747149b54582171bad4071f4f86ed00e59b55d557e356cbf2",
+  "nqstep": 500,
+  "min_frequency_meV": 0.0904076,
+  "max_frequency_meV": 45.2038042,
+  "source_columns": 3,
+  "lambda_epw_reader_rectangle": 0.35089823765906963,
+  "omega_log_meV": 26.446134570661506,
+  "omega_log_K_exactSI": 306.8946478701935,
+  "native_source_job": 2013,
+  "coarse_k": [
+    12,
+    12,
+    12
+  ],
+  "coarse_q": [
+    4,
+    4,
+    4
+  ],
+  "fine_k": [
+    24,
+    24,
+    24
+  ],
+  "fine_q": [
+    12,
+    12,
+    12
+  ],
+  "electronic_smearing_eV": 0.1,
+  "phonon_smearing_meV": 0.5,
+  "muc": 0.1,
+  "wscut_eV": 0.1,
+  "adaptation": "none; exact native al.a2f and crystal.fmt copied; nqstep500 skips footer naturally",
+  "material_Tc_acceptance": "not_assessed"
+}

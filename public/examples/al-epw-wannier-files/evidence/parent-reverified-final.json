@@ -1,0 +1,13 @@
+{
+  "recorded_utc": "2026-09-23T07:49:14.117913+00:00",
+  "all_original_source_files_unchanged": 79,
+  "phonon_copy_files_unchanged": 69,
+  "isolated_working_copy_updates": [
+    {
+      "file": "<EPW_WORK>/runs/nscf-001/tmp/al.save/data-file-schema.xml",
+      "status": "expected NSCF output schema update in isolated run directory",
+      "source_original_sha256": "ac9707dcda9c103bab8ae40a7a00d239eb46a76b950befbb69cb482de314d66f",
+      "NSCF_output_sha256": "81a77059c032df2e491f591e015da4845ff3b0e21187ce29ab644dfafb542a6f"
+    }
+  ]
+}

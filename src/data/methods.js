@@ -19,7 +19,7 @@ export const categories = [
   { id: 'stability', name: '稳定',     order: ['phonon-dfpt', 'phonon-finite-disp', 'imaginary-phonon', 'elastic-born', 'aimd', 'phdos', 'elastic-moduli', 'mlip-md', 'anharmonic-sscha'] },
   { id: 'electronic', name: '电子',    order: ['bands', 'band-gap', 'band-3d', 'band-unfolding', 'dos', 'fatband', 'fermi-surface', 'spin-texture', 'electrostatic-potential', 'fermi-nesting', 'effective-mass'] },
   { id: 'charge',    name: '电荷',     order: ['delta-charge', 'bader', 'elf', 'cohp', 'population-analysis'] },
-  { id: 'supercon',  name: '超导',     order: ['wannier90', 'epc', 'eliashberg-a2f', 'allen-dynes', 'phonon-linewidth', 'bkt-scaling'] },
+  { id: 'supercon',  name: '超导',     order: ['wannier90', 'epc', 'eliashberg-a2f', 'allen-dynes', 'epw-eliashberg', 'phonon-linewidth', 'bkt-scaling'] },
   { id: 'interface-magnet', name: '界面与磁', order: ['workfunction', 'band-alignment', 'magnetic-gs', 'dft-plus-u', 'mae', 'exchange-j', 'strain-doping-scan', 'heterostructure-modeling'] },
   { id: 'topo',      name: '拓扑',     subtitle: '有没有边缘态？', order: ['berry-chern'] },
   { id: 'transport', name: '输运',     subtitle: '迁移率多高？', order: ['carrier-mobility'] },
@@ -290,7 +290,7 @@ export const methods = {
     engines: ['qe', 'vasp'],
   },
   'epc': {
-    zh: '电声耦合 EPC',
+    zh: '电声耦合 EPC / 双网格',
     category: 'supercon',
     needs: ['wannier90', 'phonon-dfpt', 'phonon-finite-disp'],
     needsByEngine: { qe: ['scf', 'phonon-dfpt'] },
@@ -306,11 +306,19 @@ export const methods = {
     engines: ['qe', 'vasp'],
   },
   'allen-dynes': {
-    zh: 'Allen–Dynes / McMillan',
+    zh: 'Tc：Allen–Dynes / McMillan',
     category: 'supercon',
     needs: ['eliashberg-a2f'],
     produces: ['Tc 估算'],
     engines: ['qe', 'vasp'],
+  },
+  'epw-eliashberg': {
+    zh: 'Tc：EPW / Eliashberg 方程',
+    category: 'supercon',
+    needs: ['eliashberg-a2f'],
+    needsNote: '已有完整各向同性 α²F 可直接求解；从头生成谱函数时，按正文另一入口接上 DFPT 和 Wannier 插值。',
+    produces: ['超导能隙随温度变化', '线性化方程的 Tc'],
+    engines: ['qe'],
   },
   'phonon-linewidth': {
     zh: '声子线宽',

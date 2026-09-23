@@ -1,0 +1,30 @@
+{
+  "coarse_k": [
+    4,
+    4,
+    4
+  ],
+  "q": [
+    4,
+    4,
+    4
+  ],
+  "kpath_points": 166,
+  "all_four_bands": {
+    "count": 664,
+    "rms_eV": 1.0452197012424471,
+    "max_abs_eV": 3.9300229031782727
+  },
+  "QE_energy_below_frozen10eV": {
+    "count": 282,
+    "rms_eV": 0.5172107057802798,
+    "max_abs_eV": 1.5244812005635406
+  },
+  "QE_energy_within1eV_of_parent_EF": {
+    "count": 47,
+    "rms_eV": 0.6344769851354805,
+    "max_abs_eV": 1.5244812005635406
+  },
+  "comparison": "same ordered path from native al_band.kpt; QE eigenvalues are Hartree in XML converted to eV; native Wannier band data already eV",
+  "scientific_acceptance": "not_assessed"
+}

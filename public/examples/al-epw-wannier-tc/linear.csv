@@ -1,0 +1,16 @@
+run,T_K,max_eigenvalue,nsiw,actual_wscut_eV,iterations,requested_wscut_eV,muc,solver,complete,nsiter
+linear-coarse,0.25,1.3019302,739,0.1001,10,0.1,0.1,power,True,500
+linear-coarse,0.5,1.1300922,369,0.1,10,0.1,0.1,power,True,500
+linear-coarse,0.75,1.0298194,246,0.1001,11,0.1,0.1,power,True,500
+linear-coarse,1.0,0.9587645,185,0.1004,11,0.1,0.1,power,True,500
+linear-coarse,1.25,0.9037991,148,0.1005,12,0.1,0.1,power,True,500
+linear-coarse,1.5,0.8590236,123,0.1003,12,0.1,0.1,power,True,500
+linear-refine,0.82,1.0077843,225,0.1001,11,0.1,0.1,power,True,500
+linear-refine,0.83,1.0047199,223,0.1004,11,0.1,0.1,power,True,500
+linear-refine,0.84,1.0017989,220,0.1003,11,0.1,0.1,power,True,500
+linear-refine,0.85,0.9989208,217,0.1001,11,0.1,0.1,power,True,500
+linear-refine,0.86,0.9959791,215,0.1003,11,0.1,0.1,power,True,500
+linear-refine,0.87,0.9931824,212,0.1001,11,0.1,0.1,power,True,500
+linear-refine,0.88,0.990318,210,0.1003,11,0.1,0.1,power,True,500
+linear-refine,0.89,0.9874912,208,0.1005,11,0.1,0.1,power,True,500
+linear-refine,0.9,0.9848099,205,0.1001,11,0.1,0.1,power,True,500

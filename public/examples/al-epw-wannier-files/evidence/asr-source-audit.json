@@ -1,0 +1,19 @@
+{
+  "recorded_utc": "2026-09-23T07:51:20.157906+00:00",
+  "parent_q2r_input": "parent-evidence/q2r.in",
+  "parent_q2r_zasr": "simple",
+  "parent_fc_sha256": "87baa981a75e414ec31289b057f33613f87def3661f4082f28f0dda598b177a3",
+  "EPW_lifc": true,
+  "EPW_asr_typ": "crystal",
+  "native_evidence": [
+    "runs/coarse-002/epw-coarse.out:1877 Imposed crystal ASR",
+    "runs/interpolate-003/epw2.out:132 Imposed crystal ASR",
+    "runs/phononcheck-002/epw-phcheck.out:133 Imposed crystal ASR"
+  ],
+  "source_version": "QE7.5 EPW6.0",
+  "source_call": "EPW/src/io/io.f90:965 CALL set_asr2(asr_typ, nqc1, nqc2, nqc3, ifc, zstar, nat, ibrav_, tau_)",
+  "source_hash": "fdf67c3c4e1229a12a4a6d4b5fd798ed6d0e8a5f639848a18ff2ffd89fc58f5e",
+  "eps_acoustic_explicit_input_cm_1": 0.1,
+  "exclusion_source": "EPW/src/supercond_vertex.f90:571 IF(wq>eps_acoustic)",
+  "initial_notes_correction": "Parent q2r was simple; EPW crystal ASR was separately applied and is demonstrated by native stdout. No numerical artifact was changed."
+}

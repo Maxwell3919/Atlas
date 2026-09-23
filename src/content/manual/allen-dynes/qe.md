@@ -7,6 +7,30 @@
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文运行绘图命令。
 
 
+<span id="tc-from-double-grid"></span>
+
+## 如果你是从 pwxall 双电子网格路线过来的
+
+`pwxall → pwx → ph.x` 这条原生路线的完整操作在 [EPC 页开头](/Atlas/m/epc/qe/#double-grid-pwxall)。先由较密电子 k 网格保存 `a2Fsave`，再由响应电子 k 网格留下 `.save`；`ph.x` 同时接上这两套电子数据，在独立的 q 网格上计算响应和 EPC。声子 q 网格与后处理插值网格都有自己的作用，不能用一个“网格很密”的描述代替它们。
+
+这里可以直接沿已经完成的 Al 文件往下读：
+
+| 顺序 | 本例的真文件或设置 | 完成后交给下一步什么 |
+|---|---|---|
+| `pwxall` 角色：`al.dense.in` | 32×32×32，`la2F=.true.` | `tmp/al.a2Fsave`；复制为 `al.a2Fsave.k32` 保留身份 |
+| `pwx` 角色：`al.scf.in` | 16×16×16，不开启 `la2F` | 当前 `tmp/al.save`；同时核对致密备份哈希未变 |
+| `ph.x`：`al.elph.in` | 4×4×4 q，`electron_phonon='interpolated'` | 8 个不可约 q 的动力学矩阵和逐模电声输出 |
+| 两条后处理 | `q2r → matdyn`；`lambda.x` 直接读逐 q 电声文件与权重 | 分别得到插值谱与直接求和谱，单位和积分方式分别核对 |
+| 本页的温度计算 | `lambda.out`、`lambda.dat`、`alpha2F.dat` | 读取 λ、ωlog 与输入 μ*，再复算并明确采用的公式 |
+
+[两次 SCF 输入](/Atlas/m/epc/qe/#double-grid-al-inputs)与[运行脚本](/Atlas/m/epc/qe/#double-grid-al-run)保留实际命令，不需要在这里重新抄一次 SCF。q 权重、频率范围和后处理输入继续读 [α²F 页](/Atlas/m/eliashberg-a2f/qe/)。
+
+这条 Al 链已得到完整的十组展宽输出。在下面将要读的原生 `lambda.out` 中，0.020 Ry 对应 λ=0.374486、ωlog=343.741 K，输入 μ*=0.10，打印 Tc=0.969 K。它不是只有一套准备好的输入，也不是由单个 Γ 点推出来的温度；本页后面的命令会从实际文件重放并交叉计算。它仍是所用有限网格下的公式结果，电子与 q 网格收敛尚未完成。
+
+若你找的是研究目录中 `ph64`、`ph96` 两种致密网格的对照，请先看[两条分支的设置与实际进度](/Atlas/m/epc/qe/#dense-k-branches)。`ph64` 内部是 64×64×1 致密电子网格与 16×16×1 响应电子网格；`ph96` 计划将致密网格换成 96×96×1，响应与 q 网格不变。一次 `ph.x` 使用自己分支的一份 `a2Fsave`。目前研究记录中的 `ph64` 尚未得到完整逐 q 结果，`ph96` 只有输入与脚本，因而这里没有该材料已经完成的 64/96 Tc 比较。
+
+接下来先用 Al 原件复现 `lambda.x` 的打印值，再比较同一份谱的简化公式与含 f₁、f₂ 的完整 Allen–Dynes 公式。两种经验公式都需要声明 μ*；它们与通过温度依赖的 Eliashberg 方程求解能隙、再确定 Tc 的路线应分别记录。
+
 ## 先把“已有输出”变成一条能执行的命令
 
 前面的[完整 EPC](/Atlas/m/epc/qe/)和[α²F 页](/Atlas/m/eliashberg-a2f/qe/)已经提供真实父计算、八个不可约 q 的权重及 `lambda.in` 全文。这里不再提交 SCF 或 ph.x，而是在已有电声文件的副本上重放后处理。下面是在 Maxwell 独立 tmux 窗口中执行的命令，公开文本将工作路径简写。
@@ -285,7 +309,7 @@ python3 scripts/plot_tc_chain.py --data data --output figures
 
 下载：[完整 Al 包](/Atlas/examples/al-lesson-files.tar.gz) · [提取与复核脚本](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [绘图脚本](/Atlas/examples/al/tc-route/scripts/plot_tc_chain.py) · [λ、频率矩与 Tc 表](/Atlas/examples/al/tc-route/data/tc-formula-scan.csv) · [μ* 表](/Atlas/examples/al/tc-route/data/mu-star-scan.csv) · [单位与文件核验](/Atlas/examples/al/tc-route/data/tc-chain-checks.json)。
 
-下一步：回到 [α²F 与累计 λ](/Atlas/m/eliashberg-a2f/qe/)定位频段贡献；需要追到单 q、单模时继续读[声子线宽](/Atlas/m/phonon-linewidth/qe/)。
+下一步：把同一份完整谱交给 [EPW / Eliashberg 方程](/Atlas/m/epw-eliashberg/qe/)，比较相同 μ* 下的公式估算与方程求解；回到 [α²F 与累计 λ](/Atlas/m/eliashberg-a2f/qe/)可以定位频段贡献，需要追到单 q、单模时继续读[声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 
 ```text
 完整同协议逐 q EPC → q / 权重 / 模式 / 展宽 / 频率范围核对

@@ -1,0 +1,21 @@
+{
+  "source": "runs/phononcheck-002/phband.freq",
+  "source_sha256": "cabdd5b96b58fc1169763485b108e11b95bb172ddb418c3510c7cf028e36be40",
+  "q_count": 1728,
+  "mode_count": 5184,
+  "native_output_precision_meV": 0.0001,
+  "eps_acoustic_cm_1": 0.1,
+  "eps_acoustic_meV": 0.012398419301222386,
+  "minimum_printed_frequency_meV": -0.0,
+  "maximum_printed_frequency_meV": 41.0944,
+  "printed_negative_frequencies": 0,
+  "frequencies_at_or_below_eps": 3,
+  "gamma_printed_frequencies_meV": [
+    -0.0,
+    -0.0,
+    0.0
+  ],
+  "nonGamma_min_printed_frequency_meV": 5.9373,
+  "exclusion_rule": "EPW6 source supercond_vertex.f90 calculates alpha2F only for wq>eps_acoustic. Negative and lower frequencies contribute nothing.",
+  "claim_limit": "No finite imaginary frequency on this sampled q12 grid at printed precision; not a proof of dynamical stability everywhere or phonon convergence."
+}

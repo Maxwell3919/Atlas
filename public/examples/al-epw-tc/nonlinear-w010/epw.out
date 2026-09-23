@@ -1,0 +1,442 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:22:46 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI & OpenMP), running on       1 processor cores
+     Number of MPI processes:                 1
+     Threads/MPI process:                     1
+
+     MPI processes distributed on     1 nodes
+     3047 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw.in
+      Title line not specified: using 'default'.
+
+     Generating evenly spaced temperature list.
+                      
+     ------------------------------------------------------------------------ 
+                   RESTART - RESTART - RESTART - RESTART                         
+     Restart is done without reading PWSCF save file.                  
+     Be aware that some consistency checks are therefore not done.                  
+     ------------------------------------------------------------------------ 
+                      
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       0.0000  a.u.
+     unit-cell volume          =       0.0000 (a.u.)^3
+     number of atoms/cell      =            0
+     number of atomic types    =            0
+     kinetic-energy cut-off    =       0.0000  Ry
+     charge density cut-off    =       0.0000  Ry
+     Exchange-correlation= not set
+                           (  -1  -1  -1  -1  -1  -1  -1)
+
+
+     celldm(1)=    0.00000  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = (  0.0000  0.0000  0.0000 )  
+               a(2) = (  0.0000  0.0000  0.0000 )  
+               a(3) = (  0.0000  0.0000  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = (  0.0000  0.0000  0.0000 )  
+               b(2) = (  0.0000  0.0000  0.0000 )  
+               b(3) = (  0.0000  0.0000  0.0000 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+
+ 
+     No symmetry!
+
+     G cutoff =    0.0000  (      0 G-vectors)     FFT grid: (  0,  0,  0)
+     number of k points=    0
+                       cart. coord. in units 2pi/a_0
+
+     ===================================================================
+     Solve isotropic Eliashberg equations
+     ===================================================================
+
+
+     Finish reading a2f file
+
+     Electron-phonon coupling strength =    0.3745470
+ 
+     Estimated Tc using McMillan expression =   0.9701 K for muc =   0.1000
+  
+     Estimated Tc using Allen-Dynes modified McMillan expression =   0.9826 K
+  
+     Estimated Tc using SISSO machine learning model =   1.0276 K
+  
+     Estimated w_log =  29.6213 meV
+  
+     Estimated BCS superconducting gap using McMillan Tc =   0.1471 meV
+  
+  
+     WARNING WARNING WARNING 
+  
+     The code may crash since tempsmax =    2.000 K is larger than McMillan Tc =     0.970 K
+     Actual number of frequency points (     1) =    369 for uniform       sampling
+    
+     temp(  1) =      0.50000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     1) =    369
+     Cutoff frequency wscut =     0.1000 eV
+     Maximum frequency =         0.0998 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 369, nsiw(itemp) = 369
+        iter      ethr          znormi      deltai [meV]
+          1   1.991450E+00   1.341450E+00   1.640944E-01
+          2   6.605287E-02   1.341446E+00   1.709473E-01
+          3   5.506188E-02   1.341439E+00   1.797145E-01
+          4   3.113551E-02   1.341435E+00   1.854890E-01
+          5   1.938018E-01   1.341395E+00   2.293464E-01
+          6   4.908389E-02   1.341406E+00   2.187719E-01
+          7   1.131972E-02   1.341403E+00   2.212338E-01
+          8   2.481912E-03   1.341404E+00   2.206947E-01
+          9   9.157599E-05   1.341404E+00   2.206748E-01
+         10   1.452972E-05   1.341404E+00   2.206716E-01
+         11   9.014689E-08   1.341404E+00   2.206716E-01
+     Convergence was reached in nsiter =     11
+ 
+     Temp (itemp =   1) =    0.500 K  Free energy =    -0.000025 meV
+ 
+     iaxis_imag   :      0.01s CPU      0.01s WALL (       1 calls)
+ 
+     itemp =   1   total cpu time :     0.0 secs
+ 
+     Actual number of frequency points (     2) =    246 for uniform       sampling
+    
+     temp(  2) =      0.75000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     2) =    246
+     Cutoff frequency wscut =     0.1000 eV
+     Maximum frequency =         0.0997 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 246, nsiw(itemp) = 246
+        iter      ethr          znormi      deltai [meV]
+          1   2.138986E+00   1.341393E+00   2.278238E-01
+          2   6.228558E-02   1.341396E+00   2.264012E-01
+          3   3.649666E-02   1.341398E+00   2.240067E-01
+          4   1.232533E-02   1.341400E+00   2.215009E-01
+          5   3.369370E-02   1.341407E+00   2.143856E-01
+          6   1.211429E-02   1.341409E+00   2.118462E-01
+          7   2.509309E-03   1.341410E+00   2.113193E-01
+          8   6.927559E-05   1.341410E+00   2.113337E-01
+          9   2.557402E-05   1.341410E+00   2.113283E-01
+         10   1.464318E-06   1.341410E+00   2.113280E-01
+         11   2.783958E-07   1.341410E+00   2.113281E-01
+     Convergence was reached in nsiter =     11
+ 
+     Temp (itemp =   2) =    0.750 K  Free energy =    -0.000017 meV
+ 
+     iaxis_imag   :      0.01s CPU      0.01s WALL (       2 calls)
+ 
+     itemp =   2   total cpu time :     0.0 secs
+ 
+     Actual number of frequency points (     3) =    185 for uniform       sampling
+    
+     temp(  3) =      1.00000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     3) =    185
+     Cutoff frequency wscut =     0.1000 eV
+     Maximum frequency =         0.0999 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 185, nsiw(itemp) = 185
+        iter      ethr          znormi      deltai [meV]
+          1   2.160688E+00   1.341561E+00   2.164318E-01
+          2   6.524914E-02   1.341565E+00   2.142194E-01
+          3   4.075075E-02   1.341568E+00   2.107704E-01
+          4   1.908870E-02   1.341571E+00   2.070427E-01
+          5   7.144302E-02   1.341584E+00   1.933767E-01
+          6   2.671003E-02   1.341588E+00   1.883814E-01
+          7   7.262207E-03   1.341589E+00   1.870302E-01
+          8   2.190792E-04   1.341589E+00   1.870707E-01
+          9   6.836548E-05   1.341589E+00   1.870580E-01
+         10   8.225924E-06   1.341589E+00   1.870565E-01
+         11   5.061355E-08   1.341589E+00   1.870565E-01
+     Convergence was reached in nsiter =     11
+ 
+     Temp (itemp =   3) =    1.000 K  Free energy =    -0.000008 meV
+ 
+     iaxis_imag   :      0.01s CPU      0.01s WALL (       3 calls)
+ 
+     itemp =   3   total cpu time :     0.0 secs
+ 
+     Actual number of frequency points (     4) =    148 for uniform       sampling
+    
+     temp(  4) =      1.25000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     4) =    148
+     Cutoff frequency wscut =     0.1000 eV
+     Maximum frequency =         0.0998 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 148, nsiw(itemp) = 148
+        iter      ethr          znormi      deltai [meV]
+          1   2.175661E+00   1.341583E+00   1.902394E-01
+          2   6.820127E-02   1.341586E+00   1.875860E-01
+          3   4.529861E-02   1.341590E+00   1.835152E-01
+          4   2.722475E-02   1.341593E+00   1.788454E-01
+          5   1.503701E-01   1.341611E+00   1.556045E-01
+          6   8.380422E-02   1.341619E+00   1.436158E-01
+          7   4.147678E-02   1.341623E+00   1.379125E-01
+          8   5.050562E-03   1.341623E+00   1.372219E-01
+          9   1.961187E-04   1.341623E+00   1.372487E-01
+         10   5.695879E-05   1.341623E+00   1.372565E-01
+         11   2.857939E-06   1.341623E+00   1.372561E-01
+         12   8.052274E-07   1.341623E+00   1.372560E-01
+     Convergence was reached in nsiter =     12
+ 
+     Temp (itemp =   4) =    1.250 K  Free energy =    -0.000002 meV
+ 
+     iaxis_imag   :      0.01s CPU      0.01s WALL (       4 calls)
+ 
+     itemp =   4   total cpu time :     0.0 secs
+ 
+     Actual number of frequency points (     5) =    123 for uniform       sampling
+    
+     temp(  5) =      1.50000 K
+    
+     Solve isotropic Eliashberg equations on imaginary-axis
+    
+     Total number of frequency points nsiw(     5) =    123
+     Cutoff frequency wscut =     0.1000 eV
+     Maximum frequency =         0.0995 eV
+     broyden mixing factor =      0.70000
+    
+        startiw = 1, lastiw = 123, nsiw(itemp) = 123
+        iter      ethr          znormi      deltai [meV]
+          1   2.183066E+00   1.341460E+00   1.388140E-01
+          2   7.097578E-02   1.341462E+00   1.364237E-01
+          3   4.988043E-02   1.341464E+00   1.327291E-01
+          4   3.636486E-02   1.341467E+00   1.282058E-01
+          5   3.416998E-01   1.341483E+00   9.563070E-02
+          6   4.035948E-01   1.341494E+00   6.815412E-02
+          7   5.965695E-01   1.341500E+00   4.269270E-02
+          8   1.173890E+00   1.341503E+00   1.964101E-02
+          9   8.914760E-01   1.341504E+00   1.038420E-02
+         10   1.704148E+00   1.341504E+00   3.840126E-03
+         11   1.107117E+00   1.341504E+00   1.822457E-03
+         12   9.240241E+02   1.341504E+00  -1.974476E-06
+         13   1.206549E-01   1.341504E+00  -2.245356E-06
+         14   1.746992E+01   1.341504E+00   1.363305E-07
+         15   4.931328E+01   1.341504E+00  -2.821859E-09
+         16   5.471684E-01   1.341504E+00  -6.231474E-09
+         17   8.461805E+00   1.341504E+00   8.351143E-10
+         18   5.098880E+02   1.341504E+00   1.634685E-12
+         19   2.672037E+01   1.341504E+00  -6.351568E-14
+         20   6.802744E+00   1.341504E+00   1.095419E-14
+         21   3.783925E+01   1.341504E+00   2.820947E-16
+         22   2.173712E+01   1.341504E+00   1.240462E-17
+         23   2.685430E+00   1.341504E+00   3.365701E-18
+         24   1.282348E+03   1.341504E+00   2.622492E-21
+         25   4.060295E+01   1.341504E+00   6.303668E-23
+         26   7.253608E+00   1.341504E+00   7.637982E-24
+         27   5.680400E+02   1.341504E+00   1.342331E-26
+         28   8.618702E+00   1.341504E+00  -1.761699E-27
+         29   4.065062E+02   1.341504E+00  -4.323570E-30
+         30   6.837044E+00   1.341504E+00  -5.516819E-31
+         31   1.187626E+01   1.341504E+00   5.072464E-32
+         32   6.940869E+01   1.341504E+00  -7.414869E-34
+         33   5.753000E+01   1.341504E+00   1.312536E-35
+         34   1.924231E+00   1.341504E+00  -1.419435E-35
+         35   9.336799E+00   1.341504E+00  -1.373449E-36
+         36   2.026450E+01   1.341504E+00  -6.464092E-38
+         37   4.083426E+00   1.341504E+00  -1.270787E-38
+         38   1.104971E+01   1.341504E+00  -1.054161E-39
+         39   6.302581E+00   1.341504E+00   1.988146E-40
+         40   2.006041E+02   1.341504E+00   9.943957E-43
+         41   1.841669E+00   1.341504E+00  -1.169444E-42
+         42   2.263168E+00   1.341504E+00   9.272611E-43
+         43   1.070157E+01   1.341504E+00  -9.559003E-44
+         44   1.120888E+01   1.341504E+00  -7.828479E-45
+         45   1.453565E+00   1.341504E+00  -3.190817E-45
+         46   2.685092E+00   1.341504E+00  -8.659120E-46
+         47   7.063423E+00   1.341504E+00  -1.073983E-46
+         48   8.613671E+00   1.341504E+00  -1.117148E-47
+         49   1.138486E+01   1.341504E+00  -9.018611E-49
+         50   5.133850E+00   1.341504E+00   2.181919E-49
+         51   2.811299E+00   1.341504E+00   5.724869E-50
+         52   7.389743E+00   1.341504E+00   6.823307E-51
+         53   6.202984E+00   1.341504E+00  -1.311588E-51
+         54   2.454835E+01   1.341504E+00  -5.132622E-53
+         55   1.752728E+01   1.341504E+00  -2.769641E-54
+         56   4.084615E+00   1.341504E+00   8.983953E-55
+         57   3.668483E+00   1.341504E+00   1.924210E-55
+         58   1.209809E+01   1.341504E+00   1.468937E-56
+         59   1.510096E+01   1.341504E+00   9.123148E-58
+         60   1.263801E+01   1.341504E+00   6.690758E-59
+         61   8.435772E+00   1.341504E+00  -8.996915E-60
+         62   4.551473E+00   1.341504E+00  -1.620778E-60
+         63   1.600453E+01   1.341504E+00  -9.533364E-62
+         64   3.372959E+00   1.341504E+00  -2.178904E-62
+         65   9.601552E+00   1.341504E+00   2.534057E-63
+         66   1.277407E+01   1.341504E+00   1.839941E-64
+         67   2.226252E+00   1.341504E+00   5.701756E-65
+         68   1.302491E+00   1.341504E+00   2.475995E-65
+         69   7.748649E+00   1.341504E+00   2.829722E-66
+         70   1.046035E+01   1.341504E+00   2.469072E-67
+         71   8.426340E+00   1.341504E+00   2.619876E-68
+         72   8.434410E+00   1.341504E+00  -3.523321E-69
+         73   2.836623E-01   1.341504E+00  -2.745138E-69
+         74   5.141377E+00   1.341504E+00  -4.470325E-70
+         75   1.340964E+01   1.341504E+00   3.602465E-71
+         76   1.687645E+01   1.341504E+00   2.015010E-72
+         77   4.577089E+00   1.341504E+00   3.613347E-73
+         78   5.872253E+01   1.341504E+00   6.053328E-75
+         79   1.333885E+00   1.341504E+00  -1.812134E-74
+         80   1.058521E+01   1.341504E+00  -1.564286E-75
+         81   1.557728E+01   1.341504E+00  -9.436981E-77
+         82   9.635276E+00   1.341504E+00  -8.872287E-78
+         83   2.861979E+01   1.341504E+00   3.213139E-79
+         84   5.236256E-02   1.341504E+00   3.390106E-79
+         85   1.424377E+01   1.341504E+00   2.224024E-80
+         86   5.332343E+00   1.341504E+00   3.510464E-81
+         87   1.077497E+01   1.341504E+00  -3.592566E-82
+         88   5.841052E+00   1.341504E+00  -5.251193E-83
+         89   6.068981E+00   1.341504E+00  -7.427626E-84
+         90   2.508686E+00   1.341504E+00  -2.116713E-84
+         91   9.397046E+00   1.341504E+00  -2.035974E-85
+         92   1.313187E+01   1.341504E+00  -1.440892E-86
+         93   4.769421E+00   1.341504E+00  -2.496999E-87
+         94   4.960387E+00   1.341504E+00  -4.189243E-88
+         95   6.117810E+00   1.341504E+00   8.187364E-89
+         96   8.681370E-01   1.341504E+00   4.382459E-89
+         97   1.832998E+01   1.341504E+00  -2.529163E-90
+         98   9.254149E+00   1.341504E+00  -2.466019E-91
+         99   2.405571E+00   1.341504E+00  -7.240692E-92
+        100   4.632541E+00   1.341504E+00  -1.285423E-92
+        101   7.288799E+00   1.341504E+00   2.044862E-93
+        102   6.041814E+00   1.341504E+00   2.903319E-94
+        103   1.546758E+01   1.341504E+00   1.762903E-95
+        104   5.627468E+00   1.341504E+00   2.660172E-96
+        105   6.679420E+00   1.341504E+00   3.464238E-97
+        106   1.090153E+01   1.341504E+00  -3.498130E-98
+        107   8.872787E+00   1.341504E+00  -3.543959E-99
+        108   1.134026E+01   1.341504E+00  -2.871269-100
+        109   8.099785E+00   1.341504E+00   4.044870-101
+        110   2.464218E+00   1.341504E+00   1.167594-101
+        111   1.006429E+01   1.341504E+00   1.055394-102
+        112   5.627727E+00   1.341504E+00   1.592200-103
+        113   1.350663E+01   1.341504E+00   1.097128-104
+        114   1.516618E+01   1.341504E+00   6.783103-106
+        115   3.027111E+00   1.341504E+00   1.684355-106
+        116   1.413697E+00   1.341504E+00   6.981553-107
+        117   1.879051E+01   1.341504E+00   3.531049-108
+        118   1.723290E+00   1.341504E+00  -4.878851-108
+        119   2.021035E+01   1.341504E+00   2.540073-109
+        120   3.436174E+00   1.341504E+00   5.725002-110
+        121   4.090830E+00   1.341504E+00   1.124465-110
+        122   3.921746E+00   1.341504E+00   2.284986-111
+        123   1.499348E+01   1.341504E+00  -1.632896-112
+        124   2.582924E+00   1.341504E+00  -4.557732-113
+        125   1.493174E+01   1.341504E+00  -2.861043-114
+        126   2.167185E+00   1.341504E+00  -9.032983-115
+        127   4.083836E+00   1.341504E+00  -1.776761-115
+        128   9.493768E+01   1.341504E+00  -1.851922-117
+        129   3.480147E+00   1.341504E+00   7.468070-118
+        130   7.708769E+00   1.341504E+00   8.573349-119
+        131   6.494383E+01   1.341504E+00   1.296672-120
+        132   1.343091E+00   1.341504E+00  -3.790162-120
+        133   1.028486E+01   1.341504E+00  -3.358402-121
+        134   7.191830E+00   1.341504E+00  -4.098925-122
+        135   2.633396E+01   1.341504E+00  -1.498798-123
+        136   2.674105E+01   1.341504E+00  -5.404612-125
+        137   2.399454E+00   1.341504E+00   3.863835-125
+        138   3.650061E+00   1.341504E+00   8.311525-126
+        139   8.605431E+00   1.341504E+00  -1.092157-126
+        140   3.227458E+00   1.341504E+00   4.903756-127
+        141   2.495701E+01   1.341504E+00  -2.047864-128
+        142   4.527426E-01   1.341504E+00  -1.409192-128
+        143   6.758391E+00   1.341504E+00  -1.816129-129
+        144   4.187937E+00   1.341504E+00  -3.500321-130
+        145   9.135458E+01   1.341504E+00  -3.777097-132
+        146   1.431849E+00   1.341504E+00   8.778131-132
+        147   9.985418E+00   1.341504E+00   7.989937-133
+        148   2.258702E+00   1.341504E+00   2.451740-133
+        149   2.785153E+00   1.341504E+00   6.477493-134
+        150   3.187588E+01   1.341504E+00   1.970558-135
+        151   1.406539E+01   1.341504E+00  -1.508203-136
+        152   3.320368E+00   1.341504E+00  -3.490640-137
+        153   4.490563E+00   1.341504E+00  -6.357160-138
+        154   1.414476E+01   1.341504E+00   4.836694-139
+        155   4.783951E+00   1.341504E+00   8.362666-140
+        156   7.138451E+00   1.341504E+00   1.027580-140
+        157   5.089638E+01   1.341504E+00   1.979312-142
+        158   3.242441E+01   1.341504E+00   5.900896-144
+        159   1.521331E+00   1.341504E+00  -1.137050-143
+        160   1.421569E+00   1.341504E+00  -4.693708-144
+        161   3.456376E+01   1.341504E+00   1.397568-145
+        162   2.960763E+00   1.341504E+00  -7.128842-146
+        163   4.963284E+00   1.341504E+00  -1.195026-146
+        164   4.316475E+00   1.341504E+00   3.605912-147
+        165   7.877499E+00   1.341504E+00   4.060307-148
+        166   4.974606E+00   1.341504E+00   6.795587-149
+        167   1.637161E+01   1.341504E+00   3.911668-150
+        168   2.693770E+00   1.341504E+00  -2.309885-150
+        169   4.792926E+00   1.341504E+00  -3.987562-151
+
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     Error in routine mix_broyden (5):
+     factorization
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+     stopping ...

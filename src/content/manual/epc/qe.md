@@ -1,12 +1,139 @@
-[ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [QE 电子声子系数及谱函数定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
+[QE 双网格 EPC 流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html) · [ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [QE 电子声子系数及谱函数定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
 
-声子态密度把每个振动模式按频率计数。α²F 又多问了一件事：这些振动与费米面附近电子的耦合有多强？有很多声子模式的频段，不一定就是耦合贡献最大的频段。要画这张图，手里必须有电子声子矩阵元，只有声子频率表还不够。
+<span id="double-grid-pwxall"></span>
 
-下面从实际完成的 fcc Al 小体系开始，走完致密 SCF、响应 SCF 与完整逐 q EPC，再把文件交给谱函数和 Tc 页面。QE 版本为 7.5，单原子原胞采用 LDA-PZ 与官方 `Al.pz-vbc.UPF`，晶格常数为 3.95606780081 Å。结构来源及优化过程见 [晶胞优化](/Atlas/m/vc-relax/qe/)，DFPT 的输入结构和逐个响应迭代见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)。这里增加的是一套与 EPC 对应的致密电子网格和后处理，不能把普通声子目录的文件名改一改就当作 EPC 结果。
+## 从 pwxall、pwx 两套电子网格走到 Tc
 
-本例依次使用 32×32×32 致密电子网格、16×16×16 响应所依赖的 SCF 网格，以及完整的 4×4×4 q 网格。它们都是不平移的网格。这套网格用于展示一条能走通、可检查的计算路线；尚未通过更密 k/q 网格和截断能的收敛测试。
+这里把终端里常用的 `pwxall → pwx → ph.x` 路线接完整。`pwxall` 和 `pwx` 是输入文件与任务的命名，两次调用的程序都是 `pw.x`。在本页已经完成的 Al 算例中，对应真文件叫 `al.dense.in` 和 `al.scf.in`；后面的研究目录则直接使用 `pwxall.in` 和 `pwx.in`。
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文运行绘图命令。
+这条路线要分清三个网格：
+
+| 网格 | 本例 Al 设置 | 在这一段计算中负责什么 |
+|---|---|---|
+| 致密电子 k 网格，`pwxall` | 32×32×32 | 保存较密的电子本征值、k 点与权重，用于费米面附近的积分 |
+| 响应所用的电子 k 网格，`pwx` | 16×16×16 | 留下电荷密度、波函数与电子网格，供 `ph.x` 计算一阶响应和电声矩阵元 |
+| 声子 q 网格 | 4×4×4 | 选择真正进行 DFPT 响应计算的声子波矢；本例对称性约化后有 8 个不可约 q |
+
+`electron_phonon='interpolated'` 将响应电子网格上得到的电声矩阵元信息插值到致密电子网格，再结合致密网格的电子能量做费米面求和。加密第一行、第二行、第三行分别改变不同的数值近似，不能互相替代。输出中的 `Dense grid: ... FFT dimensions` 则是平面波变换用的实空间 FFT 网格，还要与这三行分开读。
+
+官方流程允许直接进行致密 SCF，也允许先 SCF、再在致密网格做 NSCF。本例实际采用前一种。官方同时要求致密网格覆盖后续用到的 k 与 k+q，所有相关网格都不偏移、包含 Γ；这要由实际网格关系核对。[QE 原生插值 EPC 流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html)
+
+<span id="dense-k-branches"></span>
+
+### ph64 与 ph96 是两条致密网格对照分支
+
+研究目录里的 `ph64` 和 `ph96` 指的是两种致密电子采样方案。每个目录内部都包含自己的 `pwxall → pwx → ph.x` 双电子网格链，响应电子网格与声子 q 网格保持相同，方便以后只比较致密电子采样的影响。
+
+| 实际目录或算例 | pwxall 致密 k | pwx 响应 k | DFPT q | 现有证据到哪一步 |
+|---|---|---|---|---|
+| Al 完整教学链，QE 7.5 | 32×32×32 | 16×16×16 | 4×4×4 | 两次 SCF、8 个不可约 q、两条谱函数后处理及 `lambda.x` 均有完整输出 |
+| SnSe₂/Sr₂N 的 `ph64`，QE 7.1 | 64×64×1 | 16×16×1 | 8×8×1 | 作业 18178、18179 完成两次 SCF；18180 的逐 q 响应仍未闭合，不能据此给该材料 Tc |
+| SnSe₂/Sr₂N 的 `ph96` | 96×96×1 | 16×16×1 | 8×8×1 | 已有输入和脚本；当前目录没有对应计算输出或 `a2Fsave`，尚不能形成 64/96 的结果对照 |
+
+这几套均使用 `0 0 0` 偏移。Al 的 32 可容纳 16 与 4 网格上的点；研究输入中的 64 和 96 都可容纳 16 与 8 网格上的点。这里满足的是所选规则网格的嵌套关系，结果对这些采样是否收敛仍需比较目标物理量。
+
+每条分支应保留自己的致密网格文件身份。一次 `ph.x` 从该分支的 `outdir/prefix.a2Fsave` 读入一套致密数据；它不会把 `ph64` 的 64 网格和 `ph96` 的 96 网格同时当作输入。后续比较时，分别从两条完整链得到 λ、ωlog、谱函数及同一 μ* 下的 Tc，并保持同一电子展宽、结构、赝势和其余参数。当前研究记录只支持输入方案已经分开，尚不支持一张完成的 64/96 Tc 对照表。
+
+### 先核对电子网格，再看文件有没有接对
+
+下面是在已经完成的 Al 目录重新读到的原件。`al.dense.in` 就承担 `pwxall` 的角色：
+
+```console
+maxwell@maxwell:~/al/epc-q4$ grep -A1 K_POINTS al.dense.in al.scf.in
+al.dense.in:K_POINTS automatic
+al.dense.in-32 32 32 0 0 0
+--
+al.scf.in:K_POINTS automatic
+al.scf.in-16 16 16 0 0 0
+maxwell@maxwell:~/al/epc-q4$ grep -n la2F al.dense.in al.scf.in
+al.dense.in:20: la2F = .true.
+```
+
+这两份输入只有致密电子步骤打开 `la2F`。它位于 `pw.x` 的 `&SYSTEM` 中，作用是写出专供这条 EPC 路线使用的电子信息；它没有计算声子，也没有在这里产生 λ 或 α²F。完整结构、截断能、带数与输入文件继续见[下面的两次 SCF 输入](/Atlas/m/epc/qe/#double-grid-al-inputs)。
+
+```console
+maxwell@maxwell:~/al/epc-q4$ head -1 tmp/al.a2Fsave
+           6         897
+```
+
+这里的 6 是带数，897 是这次对称性约化后保存的 k 点数，不能把它读成一个 897×897×897 网格。这个文件随后还保存电子本征值、k 坐标、权重、`32 32 32` 网格以及对称信息。它是格式化文本，但并非只有三列的谱函数表；不要直接把它作为 α²F 曲线加载。
+
+在本例 `prefix='al'`、`outdir='./tmp'` 的设置下，文件实际位于 `tmp/al.a2Fsave`。此前已经在致密 SCF 结束后，用普通复制保留了它和对应 XML：
+
+```console
+maxwell@maxwell:~/al/epc-q4$ cp tmp/al.a2Fsave al.a2Fsave.k32
+maxwell@maxwell:~/al/epc-q4$ cp tmp/al.save/data-file-schema.xml dense.data-file-schema.xml
+```
+
+接下来的响应 SCF 会更新当前 `tmp/al.save`。粗网格输入没有开启 `la2F`，本次保存的致密文件未被改写；实际提交脚本在粗网格 SCF 与 `ph.x` 之间使用 `cmp` 检查，比较不相同就停止该脚本。完整执行记录见[运行与检查](/Atlas/m/epc/qe/#double-grid-al-run)。
+
+现在重新读取两个 XML，可以同时看到被保留的致密父计算与当前响应父计算：
+
+```console
+maxwell@maxwell:~/al/epc-q4$ grep monkhorst_pack dense.data-file-schema.xml tmp/al.save/data-file-schema.xml
+dense.data-file-schema.xml:      <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+dense.data-file-schema.xml:        <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+tmp/al.save/data-file-schema.xml:      <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+tmp/al.save/data-file-schema.xml:        <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
+maxwell@maxwell:~/al/epc-q4$ cmp tmp/al.a2Fsave al.a2Fsave.k32 && sha256sum tmp/al.a2Fsave al.a2Fsave.k32
+2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
+2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
+```
+
+下载包将响应 XML 单独保存为 [response.data-file-schema.xml](/Atlas/examples/al/epc-q4/response.data-file-schema.xml)，便于在不附带整个波函数目录的情况下核对。只读下载文件时，在 `al/epc-q4` 中使用 `grep monkhorst_pack dense.data-file-schema.xml response.data-file-schema.xml`；上面的会话仍保留实际计算目录中的原位置。
+
+同一 XML 中输入段与输出段各记一行，所以这里每个网格出现两次。两个文件各自一致，当前 `.save` 为 16³，致密本征值文件仍与 32³ 备份逐字节相同。仅仅看见一个 `.a2Fsave` 文件名，不足以完成这项父链检查。
+
+若在自己的独立计算副本中误把粗网格的 `la2F` 也打开，它可能重新写同名文件。应在进入 `ph.x` 前停下，先检查输入与备份的来源；确认同结构、同协议、同带数的致密备份后，才用 `cp al.a2Fsave.k32 tmp/al.a2Fsave` 恢复，并重新比较哈希。若没有可信的致密备份，需要重新完成那一步。本例哈希一直相同，没有发生这次恢复操作；正在运行的 `ph.x` 目录也不应被覆盖文件。
+
+这里的行为已分别核对 QE 7.1 和 7.5 的版本源码：`punch` 仅在 `la2F` 为真时调用写出例程；`ph.x` 的 `elphsum` 从原先的 `outdir` 读取该文件，检查带数，并核对 q 是否落在致密网格中。两个版本在这条读写链上相符，计算文件仍应各自保持同一版本、同一物理设置。[QE 7.1 写出例程](https://github.com/QEF/q-e/blob/qe-7.1/PW/src/a2fmod.f90) · [QE 7.5 写出例程](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/a2fmod.f90) · [QE 7.5 致密积分读取](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/elphon.f90#L838-L943)
+
+`ph.x` 的 `nk1/nk2/nk3` 是另一组参数：显式设置它们会让声子程序在所指定电子网格上重新进行非自洽步骤。它们不负责声明 `a2Fsave` 中的致密网格。本例未填写这些参数，沿用响应父计算的电子网格；致密网格由已保存文件读入。保持这两个入口清楚，才不会把 32³ 同时填入所有看起来像网格的字段。[ph.x 电子网格参数](https://www.quantum-espresso.org/Doc/INPUT_PH.html#nk1)
+
+### 沿同一条链读到真正的 Tc 输出
+
+完整 Al 链中的 `al.dyn0` 已列出 4³ 网格与 8 个不可约 q，`elph_dir/elph.inp_lambda.1` 至 `.8` 对应这些实际响应。后处理由此分成两条：
+
+```text
+pwxall：致密电子网格 → outdir/prefix.a2Fsave ───────┐
+                                               │
+pwx：响应电子网格 → outdir/prefix.save ──────────┤
+                                               ↓
+                     ph.x：独立 q 网格 + interpolated EPC
+                             ├─ dyn 与 elph_dir/elph.* → q2r → matdyn → a2F.dos*
+                             └─ elph.inp_lambda.* + q 权重 → lambda.x
+                                                               ↓
+                                                   alpha2F.dat / λ / ωlog / Tc
+```
+
+`q2r/matdyn` 的谱与 `lambda.x` 的直接逐 q 求和谱需要分开读取；后者并不先读入 `matdyn` 的输出。本例 `lambda.x` 已经实际结束，文件末尾是：
+
+```console
+maxwell@maxwell:~/al/epc-q4$ tail -11 lambda.out
+lambda        omega_log          T_c
+   0.43038       355.877              2.212
+   0.37106       344.606              0.916
+   0.37030       343.420              0.900
+   0.37449       343.741              0.969
+   0.37461       343.537              0.971
+   0.37377       342.831              0.955
+   0.37358       342.006              0.949
+   0.37409       341.243              0.955
+   0.37502       340.631              0.969
+   0.37604       340.145              0.985
+```
+
+十行依次对应 0.005—0.050 Ry 的电子展宽。0.020 Ry 的第 4 行给出 λ≈0.37449、ωlog=343.741 K、μ*=0.10 下的原生公式结果 Tc=0.969 K；它来自这条已经完整跑通的 Al 双网格链。更密 k/q 网格的数值收敛尚未建立，因此这个温度用于复算与理解公式，不能直接当作材料预测。
+
+如果要保留完整 α²F 的频率结构，继续求解温度依赖的能隙函数和 Tc，可以转到 [EPW / Eliashberg 方程](/Atlas/m/epw-eliashberg/qe/)。其中分别记录读取本页谱函数的各向同性求解，以及从 DFPT、Wannier 插值重新生成谱的路线。两者都需要完整的谱或矩阵元，不能只把 λ、ωlog 两个数写进 EPW 就还原出原来的频率信息。
+
+继续沿这条路线：[Al 两次 SCF 的完整输入](/Atlas/m/epc/qe/#double-grid-al-inputs) → [原生执行脚本与运行检查](/Atlas/m/epc/qe/#double-grid-al-run) → [α²F、权重与谱积分](/Atlas/m/eliashberg-a2f/qe/) → [双网格结果如何进入 Tc 公式](/Atlas/m/allen-dynes/qe/#tc-from-double-grid)。研究材料的历史操作在[ph64/ph96 启动记录](/Atlas/m/epc/qe/#double-grid-research-record)中单独保留。
+
+下面按实际文件重走 Al 这条链。QE 版本为 7.5，单原子原胞采用 LDA-PZ 与官方 `Al.pz-vbc.UPF`，晶格常数为 3.95606780081 Å。结构来源及优化过程见[晶胞优化](/Atlas/m/vc-relax/qe/)，逐个响应迭代见[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)；这里接着看新增的致密电子步骤怎样与响应父计算配合。
+
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文读取和重绘。
+
+<span id="double-grid-al-inputs"></span>
 
 ## 把两次 SCF 的身份认清
 
@@ -133,6 +260,8 @@ maxwell@maxwell:~/al/epc-q4$ cat al.elph.in
 ```
 
 `electron_phonon='interpolated'` 对应这次实跑的路线；`fildvscf` 保存势的一阶变化。完整计算共生成 8 个不可约 q 点，每个点有 3 个振动模式。
+
+<span id="double-grid-al-run"></span>
 
 ## 按真实脚本串行运行与检查
 
@@ -281,6 +410,8 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 ```
 
 这条 Al 链已完成文件和算术核对，但还没有更密真实 k/q 网格与截断能的独立收敛证据。接着读 [α²F、λ 与频率矩](/Atlas/m/eliashberg-a2f/qe/)，然后到 [从 λ、ωlog 获取 Tc](/Atlas/m/allen-dynes/qe/)执行简式和完整 Allen–Dynes 的交叉计算。
+
+<span id="double-grid-research-record"></span>
 
 ## 另一份材料的实际启动记录
 

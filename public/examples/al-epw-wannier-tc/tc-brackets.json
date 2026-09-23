@@ -1,0 +1,13 @@
+[
+  {
+    "run": "linear-refine",
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1,
+    "T_low_K": 0.84,
+    "T_high_K": 0.85,
+    "eta_low": 1.0017989,
+    "eta_high": 0.9989208,
+    "linear_interpolation_K": 0.8462503040200133,
+    "claim": "conditional model crossing bracket; interpolation is a plotting estimate, not material accuracy"
+  }
+]

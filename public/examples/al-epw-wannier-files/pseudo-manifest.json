@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "pseudopotentials": [
+    {
+      "filename": "Al.pz-vbc.UPF",
+      "sha256": "4eab06b63f87f07ede2d5a193e6d993a09107167fd6b8647afa807342501d6e5",
+      "source": "QE public pseudopotential download, used by QE 7.5 official PHonon example03",
+      "source_url": "https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF",
+      "xc_functional": "SLA  PZ   NOGX NOGC",
+      "relativistic": "no"
+    }
+  ]
+}

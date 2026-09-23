@@ -1,0 +1,17 @@
+slurmstepd-compute-node: error: *** STEP 2012.0 ON compute-node CANCELLED AT 2026-09-23T15:36:32 ***
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source         forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          0000070794245330  Unknown               Unknown  Unknown
+libmkl_def.so.2    00000706F7A11FE7  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          0000102955845330  Unknown               Unknown  Unknown
+libmkl_def.so.2    00001028B90122BA  Unknown               Unknown  Unknown
+forrtl: error (78): process killed (SIGTERM)
+Image              PC                Routine            Line        Source             
+libc.so.6          000005D79D245330  Unknown               Unknown  Unknown
+libmkl_def.so.2    000005D700A1217E  Unknown               Unknown  Unknown
+    
+libc.so.6          00000FF047845330  Unknown               Unknown  Unknown
+libmkl_def.so.2    00000FEFAB012124  Unknown   

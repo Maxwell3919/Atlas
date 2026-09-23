@@ -1,0 +1,7 @@
+{
+  "job_id": 2001,
+  "status": "stopped",
+  "reason": "No first disentanglement row; installed libwannier.a comms.o has MPI allreduce while EPW calls wannier_run inside IF(meta_ionode). Retry same inputs with one rank tests MPI-world size mechanism.",
+  "time_utc": "2026-09-23T07:15:47.830319+00:00",
+  "scientific_acceptance": "not_assessed"
+}

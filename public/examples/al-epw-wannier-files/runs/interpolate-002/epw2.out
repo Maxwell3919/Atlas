@@ -1,0 +1,1682 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:33:41 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     8 processors
+
+     MPI processes distributed on     1 nodes
+     K-points division:     npool     =       8
+     3432 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw2.in
+      Title line not specified: using 'default'.
+
+     Reading supplied temperature list.
+                      
+     ------------------------------------------------------------------------ 
+                   RESTART - RESTART - RESTART - RESTART                         
+     Restart is done without reading PWSCF save file.                  
+     Be aware that some consistency checks are therefore not done.                  
+     ------------------------------------------------------------------------ 
+                      
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       0.0000  a.u.
+     unit-cell volume          =       0.0000 (a.u.)^3
+     number of atoms/cell      =            0
+     number of atomic types    =            0
+     kinetic-energy cut-off    =       0.0000  Ry
+     charge density cut-off    =       0.0000  Ry
+     Exchange-correlation= not set
+                           (  -1  -1  -1  -1  -1  -1  -1)
+
+
+     celldm(1)=    0.00000  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = (  0.0000  0.0000  0.0000 )  
+               a(2) = (  0.0000  0.0000  0.0000 )  
+               a(3) = (  0.0000  0.0000  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = (  0.0000  0.0000  0.0000 )  
+               b(2) = (  0.0000  0.0000  0.0000 )  
+               b(3) = (  0.0000  0.0000  0.0000 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+
+ 
+     No symmetry!
+
+     G cutoff =    0.0000  (      0 G-vectors)     FFT grid: (  0,  0,  0)
+     number of k points=    0
+                       cart. coord. in units 2pi/a_0
+     EPW          :      0.00s CPU      0.00s WALL
+
+     EPW          :      0.00s CPU      0.00s WALL
+
+
+     -------------------------------------------------------------------
+     Using al.ukk from disk
+     -------------------------------------------------------------------
+
+     HDF5 is NOT used in the current build. Exciton-phonon coupling calculations are disabled.
+     Symmetries of Bravais lattice:  48
+     Symmetries of crystal:          48
+
+     Do not need to read .epb files; read .fmt files
+
+
+     Band disentanglement is used: nbndsub =    4
+     Use zone-centred Wigner-Seitz cells 
+     Number of WS vectors for electrons     1957
+     Number of WS vectors for phonons       93
+     Number of WS vectors for electron-phonon       93
+     Maximum number of cores for efficient parallelization      279
+     Results may improve by using use_ws == .TRUE. 
+
+     Reading Hamiltonian, Dynamical matrix and EP vertex in Wann rep from file
+
+
+     Reading interatomic force constants
+
+     IFC last   -0.0002202
+     Norm of the difference between old and new effective charges:    0.0000000
+     Norm of the difference between old and new force-constants:    0.0000038
+     Imposed crystal ASR
+
+     Finished reading ifcs
+
+
+     EP vertexes are distributed into MPI processes
+
+
+     Finished reading Wann rep data from file
+
+     ===================================================================
+     Memory usage:  VmHWM =        63Mb
+                   VmPeak =      2878Mb
+     ===================================================================
+     
+     Using uniform q-mesh:    24   24   24
+     Size of q point mesh for interpolation:      13824
+     Using uniform MP k-mesh:    48   48   48
+     Size of k point mesh for interpolation:       2769
+     Max number of k points per pool:              347
+
+     Fermi energy coarse grid =   8.267833 eV
+
+     Fermi energy is calculated from the fine k-mesh: Ef =   8.415773 eV
+
+     ===================================================================
+
+              ibndmin =     1  ebndmin =     7.416 eV
+              ibndmax =     3  ebndmax =     9.416 eV
+
+
+     Number of ep-matrix elements per pool :         9369 ~=   73.20 Kb (@ 8 bytes/ DP)
+     Number selected, total            100            100
+     Number selected, total            200            200
+     Number selected, total            300            300
+     Number selected, total            400            401
+     Number selected, total            500            522
+     Number selected, total            600            622
+     Number selected, total            700            722
+     Number selected, total            800            822
+     Number selected, total            900            922
+     Number selected, total           1000           1032
+     Number selected, total           1100           1144
+     Number selected, total           1200           1244
+     Number selected, total           1300           1344
+     Number selected, total           1400           1444
+     Number selected, total           1500           1544
+     Number selected, total           1600           1661
+     Number selected, total           1700           1762
+     Number selected, total           1800           1862
+     Number selected, total           1900           1962
+     Number selected, total           2000           2062
+     Number selected, total           2100           2162
+     Number selected, total           2200           2278
+     Number selected, total           2300           2378
+     Number selected, total           2400           2478
+     Number selected, total           2500           2578
+     Number selected, total           2600           2678
+     Number selected, total           2700           2783
+     Number selected, total           2800           2889
+     Number selected, total           2900           2989
+     Number selected, total           3000           3089
+     Number selected, total           3100           3189
+     Number selected, total           3200           3289
+     Number selected, total           3300           3389
+     Number selected, total           3400           3492
+     Number selected, total           3500           3592
+     Number selected, total           3600           3692
+     Number selected, total           3700           3792
+     Number selected, total           3800           3892
+     Number selected, total           3900           3992
+     Number selected, total           4000           4092
+     Number selected, total           4100           4192
+     Number selected, total           4200           4292
+     Number selected, total           4300           4392
+     Number selected, total           4400           4492
+     Number selected, total           4500           4592
+     Number selected, total           4600           4692
+     Number selected, total           4700           4792
+     Number selected, total           4800           4892
+     Number selected, total           4900           4992
+     Number selected, total           5000           5092
+     Number selected, total           5100           5192
+     Number selected, total           5200           5292
+     Number selected, total           5300           5392
+     Number selected, total           5400           5492
+     Number selected, total           5500           5592
+     Number selected, total           5600           5692
+     Number selected, total           5700           5792
+     Number selected, total           5800           5892
+     Number selected, total           5900           5992
+     Number selected, total           6000           6092
+     Number selected, total           6100           6192
+     Number selected, total           6200           6292
+     Number selected, total           6300           6392
+     Number selected, total           6400           6492
+     Number selected, total           6500           6592
+     Number selected, total           6600           6692
+     Number selected, total           6700           6792
+     Number selected, total           6800           6892
+     Number selected, total           6900           6992
+     Number selected, total           7000           7092
+     Number selected, total           7100           7192
+     Number selected, total           7200           7292
+     Number selected, total           7300           7392
+     Number selected, total           7400           7492
+     Number selected, total           7500           7592
+     Number selected, total           7600           7692
+     Number selected, total           7700           7792
+     Number selected, total           7800           7892
+     Number selected, total           7900           7992
+     Number selected, total           8000           8092
+     Number selected, total           8100           8192
+     Number selected, total           8200           8292
+     Number selected, total           8300           8392
+     Number selected, total           8400           8492
+     Number selected, total           8500           8592
+     Number selected, total           8600           8692
+     Number selected, total           8700           8792
+     Number selected, total           8800           8892
+     Number selected, total           8900           8992
+     Number selected, total           9000           9092
+     Number selected, total           9100           9192
+     Number selected, total           9200           9292
+     Number selected, total           9300           9392
+     Number selected, total           9400           9492
+     Number selected, total           9500           9592
+     Number selected, total           9600           9692
+     Number selected, total           9700           9792
+     Number selected, total           9800           9892
+     Number selected, total           9900           9992
+     Number selected, total          10000          10092
+     Number selected, total          10100          10197
+     Number selected, total          10200          10299
+     Number selected, total          10300          10399
+     Number selected, total          10400          10499
+     Number selected, total          10500          10599
+     Number selected, total          10600          10699
+     Number selected, total          10700          10821
+     Number selected, total          10800          10921
+     Number selected, total          10900          11021
+     Number selected, total          11000          11121
+     Number selected, total          11100          11221
+     Number selected, total          11200          11341
+     Number selected, total          11300          11454
+     Number selected, total          11400          11554
+     Number selected, total          11500          11654
+     Number selected, total          11600          11754
+     Number selected, total          11700          11854
+     Number selected, total          11800          11984
+     Number selected, total          11900          12085
+     Number selected, total          12000          12185
+     Number selected, total          12100          12285
+     Number selected, total          12200          12385
+     Number selected, total          12300          12496
+     Number selected, total          12400          12612
+     Number selected, total          12500          12712
+     Number selected, total          12600          12812
+     Number selected, total          12700          12912
+     Number selected, total          12800          13012
+     Number selected, total          12900          13132
+     Number selected, total          13000          13237
+     Number selected, total          13100          13337
+     Number selected, total          13200          13437
+     Number selected, total          13300          13537
+     Number selected, total          13400          13637
+     Number selected, total          13500          13761
+     We only need to compute    13563 q-points
+      
+
+     Entering adiabatic isotropic Eliashberg
+     Gaussian Broadening:   0.100000 eV, ngauss=   1
+     DOS =  0.198788 states/spin/eV/Unit Cell at Ef=  8.415773 eV
+     nmodes =         3
+     w_max (meV) =   45.2038042
+     Progression iq (fine) =          1 /      13563
+     Progression iq (fine) =          2 /      13563
+     Progression iq (fine) =          3 /      13563
+     Progression iq (fine) =          4 /      13563
+     Progression iq (fine) =          5 /      13563
+     Progression iq (fine) =          6 /      13563
+     Progression iq (fine) =          7 /      13563
+     Progression iq (fine) =          8 /      13563
+     Progression iq (fine) =          9 /      13563
+     Progression iq (fine) =         10 /      13563
+     Progression iq (fine) =         11 /      13563
+     Progression iq (fine) =         12 /      13563
+     Progression iq (fine) =         13 /      13563
+     Progression iq (fine) =         14 /      13563
+     Progression iq (fine) =         15 /      13563
+     Progression iq (fine) =         16 /      13563
+     Progression iq (fine) =         17 /      13563
+     Progression iq (fine) =         18 /      13563
+     Progression iq (fine) =         19 /      13563
+     Progression iq (fine) =         20 /      13563
+     Progression iq (fine) =         21 /      13563
+     Progression iq (fine) =         22 /      13563
+     Progression iq (fine) =         23 /      13563
+     Progression iq (fine) =         24 /      13563
+     Progression iq (fine) =         25 /      13563
+     Progression iq (fine) =         26 /      13563
+     Progression iq (fine) =         27 /      13563
+     Progression iq (fine) =         28 /      13563
+     Progression iq (fine) =         29 /      13563
+     Progression iq (fine) =         30 /      13563
+     Progression iq (fine) =         31 /      13563
+     Progression iq (fine) =         32 /      13563
+     Progression iq (fine) =         33 /      13563
+     Progression iq (fine) =         34 /      13563
+     Progression iq (fine) =         35 /      13563
+     Progression iq (fine) =         36 /      13563
+     Progression iq (fine) =         37 /      13563
+     Progression iq (fine) =         38 /      13563
+     Progression iq (fine) =         39 /      13563
+     Progression iq (fine) =         40 /      13563
+     Progression iq (fine) =         41 /      13563
+     Progression iq (fine) =         42 /      13563
+     Progression iq (fine) =         43 /      13563
+     Progression iq (fine) =         44 /      13563
+     Progression iq (fine) =         45 /      13563
+     Progression iq (fine) =         46 /      13563
+     Progression iq (fine) =         47 /      13563
+     Progression iq (fine) =         48 /      13563
+     Progression iq (fine) =         49 /      13563
+     Progression iq (fine) =         50 /      13563
+     Progression iq (fine) =         51 /      13563
+     Progression iq (fine) =         52 /      13563
+     Progression iq (fine) =         53 /      13563
+     Progression iq (fine) =         54 /      13563
+     Progression iq (fine) =         55 /      13563
+     Progression iq (fine) =         56 /      13563
+     Progression iq (fine) =         57 /      13563
+     Progression iq (fine) =         58 /      13563
+     Progression iq (fine) =         59 /      13563
+     Progression iq (fine) =         60 /      13563
+     Progression iq (fine) =         61 /      13563
+     Progression iq (fine) =         62 /      13563
+     Progression iq (fine) =         63 /      13563
+     Progression iq (fine) =         64 /      13563
+     Progression iq (fine) =         65 /      13563
+     Progression iq (fine) =         66 /      13563
+     Progression iq (fine) =         67 /      13563
+     Progression iq (fine) =         68 /      13563
+     Progression iq (fine) =         69 /      13563
+     Progression iq (fine) =         70 /      13563
+     Progression iq (fine) =         71 /      13563
+     Progression iq (fine) =         72 /      13563
+     Progression iq (fine) =         73 /      13563
+     Progression iq (fine) =         74 /      13563
+     Progression iq (fine) =         75 /      13563
+     Progression iq (fine) =         76 /      13563
+     Progression iq (fine) =         77 /      13563
+     Progression iq (fine) =         78 /      13563
+     Progression iq (fine) =         79 /      13563
+     Progression iq (fine) =         80 /      13563
+     Progression iq (fine) =         81 /      13563
+     Progression iq (fine) =         82 /      13563
+     Progression iq (fine) =         83 /      13563
+     Progression iq (fine) =         84 /      13563
+     Progression iq (fine) =         85 /      13563
+     Progression iq (fine) =         86 /      13563
+     Progression iq (fine) =         87 /      13563
+     Progression iq (fine) =         88 /      13563
+     Progression iq (fine) =         89 /      13563
+     Progression iq (fine) =         90 /      13563
+     Progression iq (fine) =         91 /      13563
+     Progression iq (fine) =         92 /      13563
+     Progression iq (fine) =         93 /      13563
+     Progression iq (fine) =         94 /      13563
+     Progression iq (fine) =         95 /      13563
+     Progression iq (fine) =         96 /      13563
+     Progression iq (fine) =         97 /      13563
+     Progression iq (fine) =         98 /      13563
+     Progression iq (fine) =         99 /      13563
+     Progression iq (fine) =        100 /      13563
+     Progression iq (fine) =        101 /      13563
+     Progression iq (fine) =        102 /      13563
+     Progression iq (fine) =        103 /      13563
+     Progression iq (fine) =        104 /      13563
+     Progression iq (fine) =        105 /      13563
+     Progression iq (fine) =        106 /      13563
+     Progression iq (fine) =        107 /      13563
+     Progression iq (fine) =        108 /      13563
+     Progression iq (fine) =        109 /      13563
+     Progression iq (fine) =        110 /      13563
+     Progression iq (fine) =        111 /      13563
+     Progression iq (fine) =        112 /      13563
+     Progression iq (fine) =        113 /      13563
+     Progression iq (fine) =        114 /      13563
+     Progression iq (fine) =        115 /      13563
+     Progression iq (fine) =        116 /      13563
+     Progression iq (fine) =        117 /      13563
+     Progression iq (fine) =        118 /      13563
+     Progression iq (fine) =        119 /      13563
+     Progression iq (fine) =        120 /      13563
+     Progression iq (fine) =        121 /      13563
+     Progression iq (fine) =        122 /      13563
+     Progression iq (fine) =        123 /      13563
+     Progression iq (fine) =        124 /      13563
+     Progression iq (fine) =        125 /      13563
+     Progression iq (fine) =        126 /      13563
+     Progression iq (fine) =        127 /      13563
+     Progression iq (fine) =        128 /      13563
+     Progression iq (fine) =        129 /      13563
+     Progression iq (fine) =        130 /      13563
+     Progression iq (fine) =        131 /      13563
+     Progression iq (fine) =        132 /      13563
+     Progression iq (fine) =        133 /      13563
+     Progression iq (fine) =        134 /      13563
+     Progression iq (fine) =        135 /      13563
+     Progression iq (fine) =        136 /      13563
+     Progression iq (fine) =        137 /      13563
+     Progression iq (fine) =        138 /      13563
+     Progression iq (fine) =        139 /      13563
+     Progression iq (fine) =        140 /      13563
+     Progression iq (fine) =        141 /      13563
+     Progression iq (fine) =        142 /      13563
+     Progression iq (fine) =        143 /      13563
+     Progression iq (fine) =        144 /      13563
+     Progression iq (fine) =        145 /      13563
+     Progression iq (fine) =        146 /      13563
+     Progression iq (fine) =        147 /      13563
+     Progression iq (fine) =        148 /      13563
+     Progression iq (fine) =        149 /      13563
+     Progression iq (fine) =        150 /      13563
+     Progression iq (fine) =        151 /      13563
+     Progression iq (fine) =        152 /      13563
+     Progression iq (fine) =        153 /      13563
+     Progression iq (fine) =        154 /      13563
+     Progression iq (fine) =        155 /      13563
+     Progression iq (fine) =        156 /      13563
+     Progression iq (fine) =        157 /      13563
+     Progression iq (fine) =        158 /      13563
+     Progression iq (fine) =        159 /      13563
+     Progression iq (fine) =        160 /      13563
+     Progression iq (fine) =        161 /      13563
+     Progression iq (fine) =        162 /      13563
+     Progression iq (fine) =        163 /      13563
+     Progression iq (fine) =        164 /      13563
+     Progression iq (fine) =        165 /      13563
+     Progression iq (fine) =        166 /      13563
+     Progression iq (fine) =        167 /      13563
+     Progression iq (fine) =        168 /      13563
+     Progression iq (fine) =        169 /      13563
+     Progression iq (fine) =        170 /      13563
+     Progression iq (fine) =        171 /      13563
+     Progression iq (fine) =        172 /      13563
+     Progression iq (fine) =        173 /      13563
+     Progression iq (fine) =        174 /      13563
+     Progression iq (fine) =        175 /      13563
+     Progression iq (fine) =        176 /      13563
+     Progression iq (fine) =        177 /      13563
+     Progression iq (fine) =        178 /      13563
+     Progression iq (fine) =        179 /      13563
+     Progression iq (fine) =        180 /      13563
+     Progression iq (fine) =        181 /      13563
+     Progression iq (fine) =        182 /      13563
+     Progression iq (fine) =        183 /      13563
+     Progression iq (fine) =        184 /      13563
+     Progression iq (fine) =        185 /      13563
+     Progression iq (fine) =        186 /      13563
+     Progression iq (fine) =        187 /      13563
+     Progression iq (fine) =        188 /      13563
+     Progression iq (fine) =        189 /      13563
+     Progression iq (fine) =        190 /      13563
+     Progression iq (fine) =        191 /      13563
+     Progression iq (fine) =        192 /      13563
+     Progression iq (fine) =        193 /      13563
+     Progression iq (fine) =        194 /      13563
+     Progression iq (fine) =        195 /      13563
+     Progression iq (fine) =        196 /      13563
+     Progression iq (fine) =        197 /      13563
+     Progression iq (fine) =        198 /      13563
+     Progression iq (fine) =        199 /      13563
+     Progression iq (fine) =        200 /      13563
+     Progression iq (fine) =        201 /      13563
+     Progression iq (fine) =        202 /      13563
+     Progression iq (fine) =        203 /      13563
+     Progression iq (fine) =        204 /      13563
+     Progression iq (fine) =        205 /      13563
+     Progression iq (fine) =        206 /      13563
+     Progression iq (fine) =        207 /      13563
+     Progression iq (fine) =        208 /      13563
+     Progression iq (fine) =        209 /      13563
+     Progression iq (fine) =        210 /      13563
+     Progression iq (fine) =        211 /      13563
+     Progression iq (fine) =        212 /      13563
+     Progression iq (fine) =        213 /      13563
+     Progression iq (fine) =        214 /      13563
+     Progression iq (fine) =        215 /      13563
+     Progression iq (fine) =        216 /      13563
+     Progression iq (fine) =        217 /      13563
+     Progression iq (fine) =        218 /      13563
+     Progression iq (fine) =        219 /      13563
+     Progression iq (fine) =        220 /      13563
+     Progression iq (fine) =        221 /      13563
+     Progression iq (fine) =        222 /      13563
+     Progression iq (fine) =        223 /      13563
+     Progression iq (fine) =        224 /      13563
+     Progression iq (fine) =        225 /      13563
+     Progression iq (fine) =        226 /      13563
+     Progression iq (fine) =        227 /      13563
+     Progression iq (fine) =        228 /      13563
+     Progression iq (fine) =        229 /      13563
+     Progression iq (fine) =        230 /      13563
+     Progression iq (fine) =        231 /      13563
+     Progression iq (fine) =        232 /      13563
+     Progression iq (fine) =        233 /      13563
+     Progression iq (fine) =        234 /      13563
+     Progression iq (fine) =        235 /      13563
+     Progression iq (fine) =        236 /      13563
+     Progression iq (fine) =        237 /      13563
+     Progression iq (fine) =        238 /      13563
+     Progression iq (fine) =        239 /      13563
+     Progression iq (fine) =        240 /      13563
+     Progression iq (fine) =        241 /      13563
+     Progression iq (fine) =        242 /      13563
+     Progression iq (fine) =        243 /      13563
+     Progression iq (fine) =        244 /      13563
+     Progression iq (fine) =        245 /      13563
+     Progression iq (fine) =        246 /      13563
+     Progression iq (fine) =        247 /      13563
+     Progression iq (fine) =        248 /      13563
+     Progression iq (fine) =        249 /      13563
+     Progression iq (fine) =        250 /      13563
+     Progression iq (fine) =        251 /      13563
+     Progression iq (fine) =        252 /      13563
+     Progression iq (fine) =        253 /      13563
+     Progression iq (fine) =        254 /      13563
+     Progression iq (fine) =        255 /      13563
+     Progression iq (fine) =        256 /      13563
+     Progression iq (fine) =        257 /      13563
+     Progression iq (fine) =        258 /      13563
+     Progression iq (fine) =        259 /      13563
+     Progression iq (fine) =        260 /      13563
+     Progression iq (fine) =        261 /      13563
+     Progression iq (fine) =        262 /      13563
+     Progression iq (fine) =        263 /      13563
+     Progression iq (fine) =        264 /      13563
+     Progression iq (fine) =        265 /      13563
+     Progression iq (fine) =        266 /      13563
+     Progression iq (fine) =        267 /      13563
+     Progression iq (fine) =        268 /      13563
+     Progression iq (fine) =        269 /      13563
+     Progression iq (fine) =        270 /      13563
+     Progression iq (fine) =        271 /      13563
+     Progression iq (fine) =        272 /      13563
+     Progression iq (fine) =        273 /      13563
+     Progression iq (fine) =        274 /      13563
+     Progression iq (fine) =        275 /      13563
+     Progression iq (fine) =        276 /      13563
+     Progression iq (fine) =        277 /      13563
+     Progression iq (fine) =        278 /      13563
+     Progression iq (fine) =        279 /      13563
+     Progression iq (fine) =        280 /      13563
+     Progression iq (fine) =        281 /      13563
+     Progression iq (fine) =        282 /      13563
+     Progression iq (fine) =        283 /      13563
+     Progression iq (fine) =        284 /      13563
+     Progression iq (fine) =        285 /      13563
+     Progression iq (fine) =        286 /      13563
+     Progression iq (fine) =        287 /      13563
+     Progression iq (fine) =        288 /      13563
+     Progression iq (fine) =        289 /      13563
+     Progression iq (fine) =        290 /      13563
+     Progression iq (fine) =        291 /      13563
+     Progression iq (fine) =        292 /      13563
+     Progression iq (fine) =        293 /      13563
+     Progression iq (fine) =        294 /      13563
+     Progression iq (fine) =        295 /      13563
+     Progression iq (fine) =        296 /      13563
+     Progression iq (fine) =        297 /      13563
+     Progression iq (fine) =        298 /      13563
+     Progression iq (fine) =        299 /      13563
+     Progression iq (fine) =        300 /      13563
+     Progression iq (fine) =        301 /      13563
+     Progression iq (fine) =        302 /      13563
+     Progression iq (fine) =        303 /      13563
+     Progression iq (fine) =        304 /      13563
+     Progression iq (fine) =        305 /      13563
+     Progression iq (fine) =        306 /      13563
+     Progression iq (fine) =        307 /      13563
+     Progression iq (fine) =        308 /      13563
+     Progression iq (fine) =        309 /      13563
+     Progression iq (fine) =        310 /      13563
+     Progression iq (fine) =        311 /      13563
+     Progression iq (fine) =        312 /      13563
+     Progression iq (fine) =        313 /      13563
+     Progression iq (fine) =        314 /      13563
+     Progression iq (fine) =        315 /      13563
+     Progression iq (fine) =        316 /      13563
+     Progression iq (fine) =        317 /      13563
+     Progression iq (fine) =        318 /      13563
+     Progression iq (fine) =        319 /      13563
+     Progression iq (fine) =        320 /      13563
+     Progression iq (fine) =        321 /      13563
+     Progression iq (fine) =        322 /      13563
+     Progression iq (fine) =        323 /      13563
+     Progression iq (fine) =        324 /      13563
+     Progression iq (fine) =        325 /      13563
+     Progression iq (fine) =        326 /      13563
+     Progression iq (fine) =        327 /      13563
+     Progression iq (fine) =        328 /      13563
+     Progression iq (fine) =        329 /      13563
+     Progression iq (fine) =        330 /      13563
+     Progression iq (fine) =        331 /      13563
+     Progression iq (fine) =        332 /      13563
+     Progression iq (fine) =        333 /      13563
+     Progression iq (fine) =        334 /      13563
+     Progression iq (fine) =        335 /      13563
+     Progression iq (fine) =        336 /      13563
+     Progression iq (fine) =        337 /      13563
+     Progression iq (fine) =        338 /      13563
+     Progression iq (fine) =        339 /      13563
+     Progression iq (fine) =        340 /      13563
+     Progression iq (fine) =        341 /      13563
+     Progression iq (fine) =        342 /      13563
+     Progression iq (fine) =        343 /      13563
+     Progression iq (fine) =        344 /      13563
+     Progression iq (fine) =        345 /      13563
+     Progression iq (fine) =        346 /      13563
+     Progression iq (fine) =        347 /      13563
+     Progression iq (fine) =        348 /      13563
+     Progression iq (fine) =        349 /      13563
+     Progression iq (fine) =        350 /      13563
+     Progression iq (fine) =        351 /      13563
+     Progression iq (fine) =        352 /      13563
+     Progression iq (fine) =        353 /      13563
+     Progression iq (fine) =        354 /      13563
+     Progression iq (fine) =        355 /      13563
+     Progression iq (fine) =        356 /      13563
+     Progression iq (fine) =        357 /      13563
+     Progression iq (fine) =        358 /      13563
+     Progression iq (fine) =        359 /      13563
+     Progression iq (fine) =        360 /      13563
+     Progression iq (fine) =        361 /      13563
+     Progression iq (fine) =        362 /      13563
+     Progression iq (fine) =        363 /      13563
+     Progression iq (fine) =        364 /      13563
+     Progression iq (fine) =        365 /      13563
+     Progression iq (fine) =        366 /      13563
+     Progression iq (fine) =        367 /      13563
+     Progression iq (fine) =        368 /      13563
+     Progression iq (fine) =        369 /      13563
+     Progression iq (fine) =        370 /      13563
+     Progression iq (fine) =        371 /      13563
+     Progression iq (fine) =        372 /      13563
+     Progression iq (fine) =        373 /      13563
+     Progression iq (fine) =        374 /      13563
+     Progression iq (fine) =        375 /      13563
+     Progression iq (fine) =        376 /      13563
+     Progression iq (fine) =        377 /      13563
+     Progression iq (fine) =        378 /      13563
+     Progression iq (fine) =        379 /      13563
+     Progression iq (fine) =        380 /      13563
+     Progression iq (fine) =        381 /      13563
+     Progression iq (fine) =        382 /      13563
+     Progression iq (fine) =        383 /      13563
+     Progression iq (fine) =        384 /      13563
+     Progression iq (fine) =        385 /      13563
+     Progression iq (fine) =        386 /      13563
+     Progression iq (fine) =        387 /      13563
+     Progression iq (fine) =        388 /      13563
+     Progression iq (fine) =        389 /      13563
+     Progression iq (fine) =        390 /      13563
+     Progression iq (fine) =        391 /      13563
+     Progression iq (fine) =        392 /      13563
+     Progression iq (fine) =        393 /      13563
+     Progression iq (fine) =        394 /      13563
+     Progression iq (fine) =        395 /      13563
+     Progression iq (fine) =        396 /      13563
+     Progression iq (fine) =        397 /      13563
+     Progression iq (fine) =        398 /      13563
+     Progression iq (fine) =        399 /      13563
+     Progression iq (fine) =        400 /      13563
+     Progression iq (fine) =        401 /      13563
+     Progression iq (fine) =        402 /      13563
+     Progression iq (fine) =        403 /      13563
+     Progression iq (fine) =        404 /      13563
+     Progression iq (fine) =        405 /      13563
+     Progression iq (fine) =        406 /      13563
+     Progression iq (fine) =        407 /      13563
+     Progression iq (fine) =        408 /      13563
+     Progression iq (fine) =        409 /      13563
+     Progression iq (fine) =        410 /      13563
+     Progression iq (fine) =        411 /      13563
+     Progression iq (fine) =        412 /      13563
+     Progression iq (fine) =        413 /      13563
+     Progression iq (fine) =        414 /      13563
+     Progression iq (fine) =        415 /      13563
+     Progression iq (fine) =        416 /      13563
+     Progression iq (fine) =        417 /      13563
+     Progression iq (fine) =        418 /      13563
+     Progression iq (fine) =        419 /      13563
+     Progression iq (fine) =        420 /      13563
+     Progression iq (fine) =        421 /      13563
+     Progression iq (fine) =        422 /      13563
+     Progression iq (fine) =        423 /      13563
+     Progression iq (fine) =        424 /      13563
+     Progression iq (fine) =        425 /      13563
+     Progression iq (fine) =        426 /      13563
+     Progression iq (fine) =        427 /      13563
+     Progression iq (fine) =        428 /      13563
+     Progression iq (fine) =        429 /      13563
+     Progression iq (fine) =        430 /      13563
+     Progression iq (fine) =        431 /      13563
+     Progression iq (fine) =        432 /      13563
+     Progression iq (fine) =        433 /      13563
+     Progression iq (fine) =        434 /      13563
+     Progression iq (fine) =        435 /      13563
+     Progression iq (fine) =        436 /      13563
+     Progression iq (fine) =        437 /      13563
+     Progression iq (fine) =        438 /      13563
+     Progression iq (fine) =        439 /      13563
+     Progression iq (fine) =        440 /      13563
+     Progression iq (fine) =        441 /      13563
+     Progression iq (fine) =        442 /      13563
+     Progression iq (fine) =        443 /      13563
+     Progression iq (fine) =        444 /      13563
+     Progression iq (fine) =        445 /      13563
+     Progression iq (fine) =        446 /      13563
+     Progression iq (fine) =        447 /      13563
+     Progression iq (fine) =        448 /      13563
+     Progression iq (fine) =        449 /      13563
+     Progression iq (fine) =        450 /      13563
+     Progression iq (fine) =        451 /      13563
+     Progression iq (fine) =        452 /      13563
+     Progression iq (fine) =        453 /      13563
+     Progression iq (fine) =        454 /      13563
+     Progression iq (fine) =        455 /      13563
+     Progression iq (fine) =        456 /      13563
+     Progression iq (fine) =        457 /      13563
+     Progression iq (fine) =        458 /      13563
+     Progression iq (fine) =        459 /      13563
+     Progression iq (fine) =        460 /      13563
+     Progression iq (fine) =        461 /      13563
+     Progression iq (fine) =        462 /      13563
+     Progression iq (fine) =        463 /      13563
+     Progression iq (fine) =        464 /      13563
+     Progression iq (fine) =        465 /      13563
+     Progression iq (fine) =        466 /      13563
+     Progression iq (fine) =        467 /      13563
+     Progression iq (fine) =        468 /      13563
+     Progression iq (fine) =        469 /      13563
+     Progression iq (fine) =        470 /      13563
+     Progression iq (fine) =        471 /      13563
+     Progression iq (fine) =        472 /      13563
+     Progression iq (fine) =        473 /      13563
+     Progression iq (fine) =        474 /      13563
+     Progression iq (fine) =        475 /      13563
+     Progression iq (fine) =        476 /      13563
+     Progression iq (fine) =        477 /      13563
+     Progression iq (fine) =        478 /      13563
+     Progression iq (fine) =        479 /      13563
+     Progression iq (fine) =        480 /      13563
+     Progression iq (fine) =        481 /      13563
+     Progression iq (fine) =        482 /      13563
+     Progression iq (fine) =        483 /      13563
+     Progression iq (fine) =        484 /      13563
+     Progression iq (fine) =        485 /      13563
+     Progression iq (fine) =        486 /      13563
+     Progression iq (fine) =        487 /      13563
+     Progression iq (fine) =        488 /      13563
+     Progression iq (fine) =        489 /      13563
+     Progression iq (fine) =        490 /      13563
+     Progression iq (fine) =        491 /      13563
+     Progression iq (fine) =        492 /      13563
+     Progression iq (fine) =        493 /      13563
+     Progression iq (fine) =        494 /      13563
+     Progression iq (fine) =        495 /      13563
+     Progression iq (fine) =        496 /      13563
+     Progression iq (fine) =        497 /      13563
+     Progression iq (fine) =        498 /      13563
+     Progression iq (fine) =        499 /      13563
+     Progression iq (fine) =        500 /      13563
+     Progression iq (fine) =        501 /      13563
+     Progression iq (fine) =        502 /      13563
+     Progression iq (fine) =        503 /      13563
+     Progression iq (fine) =        504 /      13563
+     Progression iq (fine) =        505 /      13563
+     Progression iq (fine) =        506 /      13563
+     Progression iq (fine) =        507 /      13563
+     Progression iq (fine) =        508 /      13563
+     Progression iq (fine) =        509 /      13563
+     Progression iq (fine) =        510 /      13563
+     Progression iq (fine) =        511 /      13563
+     Progression iq (fine) =        512 /      13563
+     Progression iq (fine) =        513 /      13563
+     Progression iq (fine) =        514 /      13563
+     Progression iq (fine) =        515 /      13563
+     Progression iq (fine) =        516 /      13563
+     Progression iq (fine) =        517 /      13563
+     Progression iq (fine) =        518 /      13563
+     Progression iq (fine) =        519 /      13563
+     Progression iq (fine) =        520 /      13563
+     Progression iq (fine) =        521 /      13563
+     Progression iq (fine) =        522 /      13563
+     Progression iq (fine) =        523 /      13563
+     Progression iq (fine) =        524 /      13563
+     Progression iq (fine) =        525 /      13563
+     Progression iq (fine) =        526 /      13563
+     Progression iq (fine) =        527 /      13563
+     Progression iq (fine) =        528 /      13563
+     Progression iq (fine) =        529 /      13563
+     Progression iq (fine) =        530 /      13563
+     Progression iq (fine) =        531 /      13563
+     Progression iq (fine) =        532 /      13563
+     Progression iq (fine) =        533 /      13563
+     Progression iq (fine) =        534 /      13563
+     Progression iq (fine) =        535 /      13563
+     Progression iq (fine) =        536 /      13563
+     Progression iq (fine) =        537 /      13563
+     Progression iq (fine) =        538 /      13563
+     Progression iq (fine) =        539 /      13563
+     Progression iq (fine) =        540 /      13563
+     Progression iq (fine) =        541 /      13563
+     Progression iq (fine) =        542 /      13563
+     Progression iq (fine) =        543 /      13563
+     Progression iq (fine) =        544 /      13563
+     Progression iq (fine) =        545 /      13563
+     Progression iq (fine) =        546 /      13563
+     Progression iq (fine) =        547 /      13563
+     Progression iq (fine) =        548 /      13563
+     Progression iq (fine) =        549 /      13563
+     Progression iq (fine) =        550 /      13563
+     Progression iq (fine) =        551 /      13563
+     Progression iq (fine) =        552 /      13563
+     Progression iq (fine) =        553 /      13563
+     Progression iq (fine) =        554 /      13563
+     Progression iq (fine) =        555 /      13563
+     Progression iq (fine) =        556 /      13563
+     Progression iq (fine) =        557 /      13563
+     Progression iq (fine) =        558 /      13563
+     Progression iq (fine) =        559 /      13563
+     Progression iq (fine) =        560 /      13563
+     Progression iq (fine) =        561 /      13563
+     Progression iq (fine) =        562 /      13563
+     Progression iq (fine) =        563 /      13563
+     Progression iq (fine) =        564 /      13563
+     Progression iq (fine) =        565 /      13563
+     Progression iq (fine) =        566 /      13563
+     Progression iq (fine) =        567 /      13563
+     Progression iq (fine) =        568 /      13563
+     Progression iq (fine) =        569 /      13563
+     Progression iq (fine) =        570 /      13563
+     Progression iq (fine) =        571 /      13563
+     Progression iq (fine) =        572 /      13563
+     Progression iq (fine) =        573 /      13563
+     Progression iq (fine) =        574 /      13563
+     Progression iq (fine) =        575 /      13563
+     Progression iq (fine) =        576 /      13563
+     Progression iq (fine) =        577 /      13563
+     Progression iq (fine) =        578 /      13563
+     Progression iq (fine) =        579 /      13563
+     Progression iq (fine) =        580 /      13563
+     Progression iq (fine) =        581 /      13563
+     Progression iq (fine) =        582 /      13563
+     Progression iq (fine) =        583 /      13563
+     Progression iq (fine) =        584 /      13563
+     Progression iq (fine) =        585 /      13563
+     Progression iq (fine) =        586 /      13563
+     Progression iq (fine) =        587 /      13563
+     Progression iq (fine) =        588 /      13563
+     Progression iq (fine) =        589 /      13563
+     Progression iq (fine) =        590 /      13563
+     Progression iq (fine) =        591 /      13563
+     Progression iq (fine) =        592 /      13563
+     Progression iq (fine) =        593 /      13563
+     Progression iq (fine) =        594 /      13563
+     Progression iq (fine) =        595 /      13563
+     Progression iq (fine) =        596 /      13563
+     Progression iq (fine) =        597 /      13563
+     Progression iq (fine) =        598 /      13563
+     Progression iq (fine) =        599 /      13563
+     Progression iq (fine) =        600 /      13563
+     Progression iq (fine) =        601 /      13563
+     Progression iq (fine) =        602 /      13563
+     Progression iq (fine) =        603 /      13563
+     Progression iq (fine) =        604 /      13563
+     Progression iq (fine) =        605 /      13563
+     Progression iq (fine) =        606 /      13563
+     Progression iq (fine) =        607 /      13563
+     Progression iq (fine) =        608 /      13563
+     Progression iq (fine) =        609 /      13563
+     Progression iq (fine) =        610 /      13563
+     Progression iq (fine) =        611 /      13563
+     Progression iq (fine) =        612 /      13563
+     Progression iq (fine) =        613 /      13563
+     Progression iq (fine) =        614 /      13563
+     Progression iq (fine) =        615 /      13563
+     Progression iq (fine) =        616 /      13563
+     Progression iq (fine) =        617 /      13563
+     Progression iq (fine) =        618 /      13563
+     Progression iq (fine) =        619 /      13563
+     Progression iq (fine) =        620 /      13563
+     Progression iq (fine) =        621 /      13563
+     Progression iq (fine) =        622 /      13563
+     Progression iq (fine) =        623 /      13563
+     Progression iq (fine) =        624 /      13563
+     Progression iq (fine) =        625 /      13563
+     Progression iq (fine) =        626 /      13563
+     Progression iq (fine) =        627 /      13563
+     Progression iq (fine) =        628 /      13563
+     Progression iq (fine) =        629 /      13563
+     Progression iq (fine) =        630 /      13563
+     Progression iq (fine) =        631 /      13563
+     Progression iq (fine) =        632 /      13563
+     Progression iq (fine) =        633 /      13563
+     Progression iq (fine) =        634 /      13563
+     Progression iq (fine) =        635 /      13563
+     Progression iq (fine) =        636 /      13563
+     Progression iq (fine) =        637 /      13563
+     Progression iq (fine) =        638 /      13563
+     Progression iq (fine) =        639 /      13563
+     Progression iq (fine) =        640 /      13563
+     Progression iq (fine) =        641 /      13563
+     Progression iq (fine) =        642 /      13563
+     Progression iq (fine) =        643 /      13563
+     Progression iq (fine) =        644 /      13563
+     Progression iq (fine) =        645 /      13563
+     Progression iq (fine) =        646 /      13563
+     Progression iq (fine) =        647 /      13563
+     Progression iq (fine) =        648 /      13563
+     Progression iq (fine) =        649 /      13563
+     Progression iq (fine) =        650 /      13563
+     Progression iq (fine) =        651 /      13563
+     Progression iq (fine) =        652 /      13563
+     Progression iq (fine) =        653 /      13563
+     Progression iq (fine) =        654 /      13563
+     Progression iq (fine) =        655 /      13563
+     Progression iq (fine) =        656 /      13563
+     Progression iq (fine) =        657 /      13563
+     Progression iq (fine) =        658 /      13563
+     Progression iq (fine) =        659 /      13563
+     Progression iq (fine) =        660 /      13563
+     Progression iq (fine) =        661 /      13563
+     Progression iq (fine) =        662 /      13563
+     Progression iq (fine) =        663 /      13563
+     Progression iq (fine) =        664 /      13563
+     Progression iq (fine) =        665 /      13563
+     Progression iq (fine) =        666 /      13563
+     Progression iq (fine) =        667 /      13563
+     Progression iq (fine) =        668 /      13563
+     Progression iq (fine) =        669 /      13563
+     Progression iq (fine) =        670 /      13563
+     Progression iq (fine) =        671 /      13563
+     Progression iq (fine) =        672 /      13563
+     Progression iq (fine) =        673 /      13563
+     Progression iq (fine) =        674 /      13563
+     Progression iq (fine) =        675 /      13563
+     Progression iq (fine) =        676 /      13563
+     Progression iq (fine) =        677 /      13563
+     Progression iq (fine) =        678 /      13563
+     Progression iq (fine) =        679 /      13563
+     Progression iq (fine) =        680 /      13563
+     Progression iq (fine) =        681 /      13563
+     Progression iq (fine) =        682 /      13563
+     Progression iq (fine) =        683 /      13563
+     Progression iq (fine) =        684 /      13563
+     Progression iq (fine) =        685 /      13563
+     Progression iq (fine) =        686 /      13563
+     Progression iq (fine) =        687 /      13563
+     Progression iq (fine) =        688 /      13563
+     Progression iq (fine) =        689 /      13563
+     Progression iq (fine) =        690 /      13563
+     Progression iq (fine) =        691 /      13563
+     Progression iq (fine) =        692 /      13563
+     Progression iq (fine) =        693 /      13563
+     Progression iq (fine) =        694 /      13563
+     Progression iq (fine) =        695 /      13563
+     Progression iq (fine) =        696 /      13563
+     Progression iq (fine) =        697 /      13563
+     Progression iq (fine) =        698 /      13563
+     Progression iq (fine) =        699 /      13563
+     Progression iq (fine) =        700 /      13563
+     Progression iq (fine) =        701 /      13563
+     Progression iq (fine) =        702 /      13563
+     Progression iq (fine) =        703 /      13563
+     Progression iq (fine) =        704 /      13563
+     Progression iq (fine) =        705 /      13563
+     Progression iq (fine) =        706 /      13563
+     Progression iq (fine) =        707 /      13563
+     Progression iq (fine) =        708 /      13563
+     Progression iq (fine) =        709 /      13563
+     Progression iq (fine) =        710 /      13563
+     Progression iq (fine) =        711 /      13563
+     Progression iq (fine) =        712 /      13563
+     Progression iq (fine) =        713 /      13563
+     Progression iq (fine) =        714 /      13563
+     Progression iq (fine) =        715 /      13563
+     Progression iq (fine) =        716 /      13563
+     Progression iq (fine) =        717 /      13563
+     Progression iq (fine) =        718 /      13563
+     Progression iq (fine) =        719 /      13563
+     Progression iq (fine) =        720 /      13563
+     Progression iq (fine) =        721 /      13563
+     Progression iq (fine) =        722 /      13563
+     Progression iq (fine) =        723 /      13563
+     Progression iq (fine) =        724 /      13563
+     Progression iq (fine) =        725 /      13563
+     Progression iq (fine) =        726 /      13563
+     Progression iq (fine) =        727 /      13563
+     Progression iq (fine) =        728 /      13563
+     Progression iq (fine) =        729 /      13563
+     Progression iq (fine) =        730 /      13563
+     Progression iq (fine) =        731 /      13563
+     Progression iq (fine) =        732 /      13563
+     Progression iq (fine) =        733 /      13563
+     Progression iq (fine) =        734 /      13563
+     Progression iq (fine) =        735 /      13563
+     Progression iq (fine) =        736 /      13563
+     Progression iq (fine) =        737 /      13563
+     Progression iq (fine) =        738 /      13563
+     Progression iq (fine) =        739 /      13563
+     Progression iq (fine) =        740 /      13563
+     Progression iq (fine) =        741 /      13563
+     Progression iq (fine) =        742 /      13563
+     Progression iq (fine) =        743 /      13563
+     Progression iq (fine) =        744 /      13563
+     Progression iq (fine) =        745 /      13563
+     Progression iq (fine) =        746 /      13563
+     Progression iq (fine) =        747 /      13563
+     Progression iq (fine) =        748 /      13563
+     Progression iq (fine) =        749 /      13563
+     Progression iq (fine) =        750 /      13563
+     Progression iq (fine) =        751 /      13563
+     Progression iq (fine) =        752 /      13563
+     Progression iq (fine) =        753 /      13563
+     Progression iq (fine) =        754 /      13563
+     Progression iq (fine) =        755 /      13563
+     Progression iq (fine) =        756 /      13563
+     Progression iq (fine) =        757 /      13563
+     Progression iq (fine) =        758 /      13563
+     Progression iq (fine) =        759 /      13563
+     Progression iq (fine) =        760 /      13563
+     Progression iq (fine) =        761 /      13563
+     Progression iq (fine) =        762 /      13563
+     Progression iq (fine) =        763 /      13563
+     Progression iq (fine) =        764 /      13563
+     Progression iq (fine) =        765 /      13563
+     Progression iq (fine) =        766 /      13563
+     Progression iq (fine) =        767 /      13563
+     Progression iq (fine) =        768 /      13563
+     Progression iq (fine) =        769 /      13563
+     Progression iq (fine) =        770 /      13563
+     Progression iq (fine) =        771 /      13563
+     Progression iq (fine) =        772 /      13563
+     Progression iq (fine) =        773 /      13563
+     Progression iq (fine) =        774 /      13563
+     Progression iq (fine) =        775 /      13563
+     Progression iq (fine) =        776 /      13563
+     Progression iq (fine) =        777 /      13563
+     Progression iq (fine) =        778 /      13563
+     Progression iq (fine) =        779 /      13563
+     Progression iq (fine) =        780 /      13563
+     Progression iq (fine) =        781 /      13563
+     Progression iq (fine) =        782 /      13563
+     Progression iq (fine) =        783 /      13563
+     Progression iq (fine) =        784 /      13563
+     Progression iq (fine) =        785 /      13563
+     Progression iq (fine) =        786 /      13563
+     Progression iq (fine) =        787 /      13563
+     Progression iq (fine) =        788 /      13563
+     Progression iq (fine) =        789 /      13563
+     Progression iq (fine) =        790 /      13563
+     Progression iq (fine) =        791 /      13563
+     Progression iq (fine) =        792 /      13563
+     Progression iq (fine) =        793 /      13563
+     Progression iq (fine) =        794 /      13563
+     Progression iq (fine) =        795 /      13563
+     Progression iq (fine) =        796 /      13563
+     Progression iq (fine) =        797 /      13563
+     Progression iq (fine) =        798 /      13563
+     Progression iq (fine) =        799 /      13563
+     Progression iq (fine) =        800 /      13563
+     Progression iq (fine) =        801 /      13563
+     Progression iq (fine) =        802 /      13563
+     Progression iq (fine) =        803 /      13563
+     Progression iq (fine) =        804 /      13563
+     Progression iq (fine) =        805 /      13563
+     Progression iq (fine) =        806 /      13563
+     Progression iq (fine) =        807 /      13563
+     Progression iq (fine) =        808 /      13563
+     Progression iq (fine) =        809 /      13563
+     Progression iq (fine) =        810 /      13563
+     Progression iq (fine) =        811 /      13563
+     Progression iq (fine) =        812 /      13563
+     Progression iq (fine) =        813 /      13563
+     Progression iq (fine) =        814 /      13563
+     Progression iq (fine) =        815 /      13563
+     Progression iq (fine) =        816 /      13563
+     Progression iq (fine) =        817 /      13563
+     Progression iq (fine) =        818 /      13563
+     Progression iq (fine) =        819 /      13563
+     Progression iq (fine) =        820 /      13563
+     Progression iq (fine) =        821 /      13563
+     Progression iq (fine) =        822 /      13563
+     Progression iq (fine) =        823 /      13563
+     Progression iq (fine) =        824 /      13563
+     Progression iq (fine) =        825 /      13563
+     Progression iq (fine) =        826 /      13563
+     Progression iq (fine) =        827 /      13563
+     Progression iq (fine) =        828 /      13563
+     Progression iq (fine) =        829 /      13563
+     Progression iq (fine) =        830 /      13563
+     Progression iq (fine) =        831 /      13563
+     Progression iq (fine) =        832 /      13563
+     Progression iq (fine) =        833 /      13563
+     Progression iq (fine) =        834 /      13563
+     Progression iq (fine) =        835 /      13563
+     Progression iq (fine) =        836 /      13563
+     Progression iq (fine) =        837 /      13563
+     Progression iq (fine) =        838 /      13563
+     Progression iq (fine) =        839 /      13563
+     Progression iq (fine) =        840 /      13563
+     Progression iq (fine) =        841 /      13563
+     Progression iq (fine) =        842 /      13563
+     Progression iq (fine) =        843 /      13563
+     Progression iq (fine) =        844 /      13563
+     Progression iq (fine) =        845 /      13563
+     Progression iq (fine) =        846 /      13563
+     Progression iq (fine) =        847 /      13563
+     Progression iq (fine) =        848 /      13563
+     Progression iq (fine) =        849 /      13563
+     Progression iq (fine) =        850 /      13563
+     Progression iq (fine) =        851 /      13563
+     Progression iq (fine) =        852 /      13563
+     Progression iq (fine) =        853 /      13563
+     Progression iq (fine) =        854 /      13563
+     Progression iq (fine) =        855 /      13563
+     Progression iq (fine) =        856 /      13563
+     Progression iq (fine) =        857 /      13563
+     Progression iq (fine) =        858 /      13563
+     Progression iq (fine) =        859 /      13563
+     Progression iq (fine) =        860 /      13563
+     Progression iq (fine) =        861 /      13563
+     Progression iq (fine) =        862 /      13563
+     Progression iq (fine) =        863 /      13563
+     Progression iq (fine) =        864 /      13563
+     Progression iq (fine) =        865 /      13563
+     Progression iq (fine) =        866 /      13563
+     Progression iq (fine) =        867 /      13563
+     Progression iq (fine) =        868 /      13563
+     Progression iq (fine) =        869 /      13563
+     Progression iq (fine) =        870 /      13563
+     Progression iq (fine) =        871 /      13563
+     Progression iq (fine) =        872 /      13563
+     Progression iq (fine) =        873 /      13563
+     Progression iq (fine) =        874 /      13563
+     Progression iq (fine) =        875 /      13563
+     Progression iq (fine) =        876 /      13563
+     Progression iq (fine) =        877 /      13563
+     Progression iq (fine) =        878 /      13563
+     Progression iq (fine) =        879 /      13563
+     Progression iq (fine) =        880 /      13563
+     Progression iq (fine) =        881 /      13563
+     Progression iq (fine) =        882 /      13563
+     Progression iq (fine) =        883 /      13563
+     Progression iq (fine) =        884 /      13563
+     Progression iq (fine) =        885 /      13563
+     Progression iq (fine) =        886 /      13563
+     Progression iq (fine) =        887 /      13563
+     Progression iq (fine) =        888 /      13563
+     Progression iq (fine) =        889 /      13563
+     Progression iq (fine) =        890 /      13563
+     Progression iq (fine) =        891 /      13563
+     Progression iq (fine) =        892 /      13563
+     Progression iq (fine) =        893 /      13563
+     Progression iq (fine) =        894 /      13563
+     Progression iq (fine) =        895 /      13563
+     Progression iq (fine) =        896 /      13563
+     Progression iq (fine) =        897 /      13563
+     Progression iq (fine) =        898 /      13563
+     Progression iq (fine) =        899 /      13563
+     Progression iq (fine) =        900 /      13563
+     Progression iq (fine) =        901 /      13563
+     Progression iq (fine) =        902 /      13563
+     Progression iq (fine) =        903 /      13563
+     Progression iq (fine) =        904 /      13563
+     Progression iq (fine) =        905 /      13563
+     Progression iq (fine) =        906 /      13563
+     Progression iq (fine) =        907 /      13563
+     Progression iq (fine) =        908 /      13563
+     Progression iq (fine) =        909 /      13563
+     Progression iq (fine) =        910 /      13563
+     Progression iq (fine) =        911 /      13563
+     Progression iq (fine) =        912 /      13563
+     Progression iq (fine) =        913 /      13563
+     Progression iq (fine) =        914 /      13563
+     Progression iq (fine) =        915 /      13563
+     Progression iq (fine) =        916 /      13563
+     Progression iq (fine) =        917 /      13563
+     Progression iq (fine) =        918 /      13563
+     Progression iq (fine) =        919 /      13563
+     Progression iq (fine) =        920 /      13563
+     Progression iq (fine) =        921 /      13563
+     Progression iq (fine) =        922 /      13563
+     Progression iq (fine) =        923 /      13563
+     Progression iq (fine) =        924 /      13563
+     Progression iq (fine) =        925 /      13563
+     Progression iq (fine) =        926 /      13563
+     Progression iq (fine) =        927 /      13563
+     Progression iq (fine) =        928 /      13563
+     Progression iq (fine) =        929 /      13563
+     Progression iq (fine) =        930 /      13563
+     Progression iq (fine) =        931 /      13563
+     Progression iq (fine) =        932 /      13563
+     Progression iq (fine) =        933 /      13563
+     Progression iq (fine) =        934 /      13563
+     Progression iq (fine) =        935 /      13563
+     Progression iq (fine) =        936 /      13563
+     Progression iq (fine) =        937 /      13563
+     Progression iq (fine) =        938 /      13563
+     Progression iq (fine) =        939 /      13563
+     Progression iq (fine) =        940 /      13563
+     Progression iq (fine) =        941 /      13563
+     Progression iq (fine) =        942 /      13563
+     Progression iq (fine) =        943 /      13563
+     Progression iq (fine) =        944 /      13563
+     Progression iq (fine) =        945 /      13563
+     Progression iq (fine) =        946 /      13563
+     Progression iq (fine) =        947 /      13563
+     Progression iq (fine) =        948 /      13563
+     Progression iq (fine) =        949 /      13563
+     Progression iq (fine) =        950 /      13563
+     Progression iq (fine) =        951 /      13563
+     Progression iq (fine) =        952 /      13563
+     Progression iq (fine) =        953 /      13563
+     Progression iq (fine) =        954 /      13563
+     Progression iq (fine) =        955 /      13563
+     Progression iq (fine) =        956 /      13563
+     Progression iq (fine) =        957 /      13563
+     Progression iq (fine) =        958 /      13563
+     Progression iq (fine) =        959 /      13563
+     Progression iq (fine) =        960 /      13563
+     Progression iq (fine) =        961 /      13563
+     Progression iq (fine) =        962 /      13563
+     Progression iq (fine) =        963 /      13563
+     Progression iq (fine) =        964 /      13563
+     Progression iq (fine) =        965 /      13563
+     Progression iq (fine) =        966 /      13563
+     Progression iq (fine) =        967 /      13563
+     Progression iq (fine) =        968 /      13563
+     Progression iq (fine) =        969 /      13563
+     Progression iq (fine) =        970 /      13563
+     Progression iq (fine) =        971 /      13563
+     Progression iq (fine) =        972 /      13563
+     Progression iq (fine) =        973 /      13563
+     Progression iq (fine) =        974 /      13563
+     Progression iq (fine) =        975 /      13563
+     Progression iq (fine) =        976 /      13563
+     Progression iq (fine) =        977 /      13563
+     Progression iq (fine) =        978 /      13563
+     Progression iq (fine) =        979 /      13563
+     Progression iq (fine) =        980 /      13563
+     Progression iq (fine) =        981 /      13563
+     Progression iq (fine) =        982 /      13563
+     Progression iq (fine) =        983 /      13563
+     Progression iq (fine) =        984 /      13563
+     Progression iq (fine) =        985 /      13563
+     Progression iq (fine) =        986 /      13563
+     Progression iq (fine) =        987 /      13563
+     Progression iq (fine) =        988 /      13563
+     Progression iq (fine) =        989 /      13563
+     Progression iq (fine) =        990 /      13563
+     Progression iq (fine) =        991 /      13563
+     Progression iq (fine) =        992 /      13563
+     Progression iq (fine) =        993 /      13563
+     Progression iq (fine) =        994 /      13563
+     Progression iq (fine) =        995 /      13563
+     Progression iq (fine) =        996 /      13563
+     Progression iq (fine) =        997 /      13563
+     Progression iq (fine) =        998 /      13563
+     Progression iq (fine) =        999 /      13563
+     Progression iq (fine) =       1000 /      13563
+     Progression iq (fine) =       1001 /      13563
+     Progression iq (fine) =       1002 /      13563
+     Progression iq (fine) =       1003 /      13563
+     Progression iq (fine) =       1004 /      13563
+     Progression iq (fine) =       1005 /      13563
+     Progression iq (fine) =       1006 /      13563
+     Progression iq (fine) =       1007 /      13563
+     Progression iq (fine) =       1008 /      13563
+     Progression iq (fine) =       1009 /      13563
+     Progression iq (fine) =       1010 /      13563
+     Progression iq (fine) =       1011 /      13563
+     Progression iq (fine) =       1012 /      13563
+     Progression iq (fine) =       1013 /      13563
+     Progression iq (fine) =       1014 /      13563
+     Progression iq (fine) =       1015 /      13563
+     Progression iq (fine) =       1016 /      13563
+     Progression iq (fine) =       1017 /      13563
+     Progression iq (fine) =       1018 /      13563
+     Progression iq (fine) =       1019 /      13563
+     Progression iq (fine) =       1020 /      13563
+     Progression iq (fine) =       1021 /      13563
+     Progression iq (fine) =       1022 /      13563
+     Progression iq (fine) =       1023 /      13563
+     Progression iq (fine) =       1024 /      13563
+     Progression iq (fine) =       1025 /      13563
+     Progression iq (fine) =       1026 /      13563
+     Progression iq (fine) =       1027 /      13563
+     Progression iq (fine) =       1028 /      13563
+     Progression iq (fine) =       1029 /      13563
+     Progression iq (fine) =       1030 /      13563
+     Progression iq (fine) =       1031 /      13563
+     Progression iq (fine) =       1032 /      13563
+     Progression iq (fine) =       1033 /      13563
+     Progression iq (fine) =       1034 /      13563
+     Progression iq (fine) =       1035 /      13563
+     Progression iq (fine) =       1036 /      13563
+     Progression iq (fine) =       1037 /      13563
+     Progression iq (fine) =       1038 /      13563
+     Progression iq (fine) =       1039 /      13563
+     Progression iq (fine) =       1040 /      13563
+     Progression iq (fine) =       1041 /      13563
+     Progression iq (fine) =       1042 /      13563
+     Progression iq (fine) =       1043 /      13563
+     Progression iq (fine) =       1044 /      13563
+     Progression iq (fine) =       1045 /      13563
+     Progression iq (fine) =       1046 /      13563
+     Progression iq (fine) =       1047 /      13563
+     Progression iq (fine) =       1048 /      13563
+     Progression iq (fine) =       1049 /      13563
+     Progression iq (fine) =       1050 /      13563
+     Progression iq (fine) =       1051 /      13563
+     Progression iq (fine) =       1052 /      13563
+     Progression iq (fine) =       1053 /      13563
+     Progression iq (fine) =       1054 /      13563
+     Progression iq (fine) =       1055 /      13563
+     Progression iq (fine) =       1056 /      13563
+     Progression iq (fine) =       1057 /      13563
+     Progression iq (fine) =       1058 /      13563
+     Progression iq (fine) =       1059 /      13563
+     Progression iq (fine) =       1060 /      13563
+     Progression iq (fine) =       1061 /      13563
+     Progression iq (fine) =       1062 /      13563
+     Progression iq (fine) =       1063 /      13563
+     Progression iq (fine) =       1064 /      13563
+     Progression iq (fine) =       1065 /      13563
+     Progression iq (fine) =       1066 /      13563
+     Progression iq (fine) =       1067 /      13563
+     Progression iq (fine) =       1068 /      13563
+     Progression iq (fine) =       1069 /      13563
+     Progression iq (fine) =       1070 /      13563
+     Progression iq (fine) =       1071 /      13563
+     Progression iq (fine) =       1072 /      13563
+     Progression iq (fine) =       1073 /      13563
+     Progression iq (fine) =       1074 /      13563
+     Progression iq (fine) =       1075 /      13563
+     Progression iq (fine) =       1076 /      13563
+     Progression iq (fine) =       1077 /      13563
+     Progression iq (fine) =       1078 /      13563
+     Progression iq (fine) =       1079 /      13563
+     Progression iq (fine) =       1080 /      13563
+     Progression iq (fine) =       1081 /      13563
+     Progression iq (fine) =       1082 /      13563
+     Progression iq (fine) =       1083 /      13563
+     Progression iq (fine) =       1084 /      13563
+     Progression iq (fine) =       1085 /      13563
+     Progression iq (fine) =       1086 /      13563
+     Progression iq (fine) =       1087 /      13563
+     Progression iq (fine) =       1088 /      13563
+     Progression iq (fine) =       1089 /      13563
+     Progression iq (fine) =       1090 /      13563
+     Progression iq (fine) =       1091 /      13563
+     Progression iq (fine) =       1092 /      13563
+     Progression iq (fine) =       1093 /      13563
+     Progression iq (fine) =       1094 /      13563
+     Progression iq (fine) =       1095 /      13563
+     Progression iq (fine) =       1096 /      13563
+     Progression iq (fine) =       1097 /      13563
+     Progression iq (fine) =       1098 /      13563
+     Progression iq (fine) =       1099 /      13563
+     Progression iq (fine) =       1100 /      13563
+     Progression iq (fine) =       1101 /      13563
+     Progression iq (fine) =       1102 /      13563
+     Progression iq (fine) =       1103 /      13563
+     Progression iq (fine) =       1104 /      13563
+     Progression iq (fine) =       1105 /      13563
+     Progression iq (fine) =       1106 /      13563
+     Progression iq (fine) =       1107 /      13563
+     Progression iq (fine) =       1108 /      13563
+     Progression iq (fine) =       1109 /      13563
+     Progression iq (fine) =       1110 /      13563
+     Progression iq (fine) =       1111 /      13563
+     Progression iq (fine) =       1112 /      13563
+     Progression iq (fine) =       1113 /      13563
+     Progression iq (fine) =       1114 /      13563
+     Progression iq (fine) =       1115 /      13563
+     Progression iq (fine) =       1116 /      13563
+     Progression iq (fine) =       1117 /      13563
+     Progression iq (fine) =       1118 /      13563
+     Progression iq (fine) =       1119 /      13563
+     Progression iq (fine) =       1120 /      13563
+     Progression iq (fine) =       1121 /      13563
+     Progression iq (fine) =       1122 /      13563
+     Progression iq (fine) =       1123 /      13563
+     Progression iq (fine) =       1124 /      13563
+     Progression iq (fine) =       1125 /      13563
+     Progression iq (fine) =       1126 /      13563
+     Progression iq (fine) =       1127 /      13563
+     Progression iq (fine) =       1128 /      13563
+     Progression iq (fine) =       1129 /      13563
+     Progression iq (fine) =       1130 /      13563
+     Progression iq (fine) =       1131 /      13563
+     Progression iq (fine) =       1132 /      13563
+     Progression iq (fine) =       1133 /      13563
+     Progression iq (fine) =       1134 /      13563
+     Progression iq (fine) =       1135 /      13563
+     Progression iq (fine) =       1136 /      13563
+     Progression iq (fine) =       1137 /      13563
+     Progression iq (fine) =       1138 /      13563
+     Progression iq (fine) =       1139 /      13563
+     Progression iq (fine) =       1140 /      13563
+     Progression iq (fine) =       1141 /      13563
+     Progression iq (fine) =       1142 /      13563
+     Progression iq (fine) =       1143 /      13563
+     Progression iq (fine) =       1144 /      13563
+     Progression iq (fine) =       1145 /      13563
+     Progression iq (fine) =       1146 /      13563
+     Progression iq (fine) =       1147 /      13563
+     Progression iq (fine) =       1148 /      13563
+     Progression iq (fine) =       1149 /      13563
+     Progression iq (fine) =       1150 /      13563
+     Progression iq (fine) =       1151 /      13563
+     Progression iq (fine) =       1152 /      13563
+     Progression iq (fine) =       1153 /      13563
+     Progression iq (fine) =       1154 /      13563
+     Progression iq (fine) =       1155 /      13563
+     Progression iq (fine) =       1156 /      13563
+     Progression iq (fine) =       1157 /      13563
+     Progression iq (fine) =       1158 /      13563
+     Progression iq (fine) =       1159 /      13563
+     Progression iq (fine) =       1160 /      13563
+     Progression iq (fine) =       1161 /      13563
+     Progression iq (fine) =       1162 /      13563
+     Progression iq (fine) =       1163 /      13563
+     Progression iq (fine) =       1164 /      13563
+     Progression iq (fine) =       1165 /      13563
+     Progression iq (fine) =       1166 /      13563
+     Progression iq (fine) =       1167 /      13563
+     Progression iq (fine) =       1168 /      13563
+     Progression iq (fine) =       1169 /      13563
+     Progression iq (fine) =       1170 /      13563
+     Progression iq (fine) =       1171 /      13563
+     Progression iq (fine) =       1172 /      13563
+     Progression iq (fine) =       1173 /      13563
+     Progression iq (fine) =       1174 /      13563
+     Progression iq (fine) =       1175 /      13563
+     Progression iq (fine) =       1176 /      13563
+     Progression iq (fine) =       1177 /      13563
+     Progression iq (fine) =       1178 /      13563
+     Progression iq (fine) =       1179 /      13563
+     Progression iq (fine) =       1180 /      13563
+     Progression iq (fine) =       1181 /      13563
+     Progression iq (fine) =       1182 /      13563
+     Progression iq (fine) =       1183 /      13563
+     Progression iq (fine) =       1184 /      13563
+     Progression iq (fine) =       1185 /      13563
+     Progression iq (fine) =       1186 /      13563
+     Progression iq (fine) =       1187 /      13563
+     Progression iq (fine) =       1188 /      13563
+     Progression iq (fine) =       1189 /      13563
+     Progression iq (fine) =       1190 /      13563
+     Progression iq (fine) =       1191 /      13563
+     Progression iq (fine) =       1192 /      13563
+     Progression iq (fine) =       1193 /      13563
+     Progression iq (fine) =       1194 /      13563
+     Progression iq (fine) =       1195 /      13563
+     Progression iq (fine) =       1196 /      13563
+     Progression iq (fine) =       1197 /      13563
+     Progression iq (fine) =       1198 /      13563
+     Progression iq (fine) =       1199 /      13563
+     Progression iq (fine) =       1200 /      13563
+     Progression iq (fine) =       1201 /      13563
+     Progression iq (fine) =       1202 /      13563
+     Progression iq (fine) =       1203 /      13563
+     Progression iq (fine) =       1204 /      13563
+     Progression iq (fine) =       1205 /      13563
+     Progression iq (fine) =       1206 /      13563
+     Progression iq (fine) =       1207 /      13563
+     Progression iq (fine) =       1208 /      13563
+     Progression iq (fine) =       1209 /      13563
+     Progression iq (fine) =       1210 /      13563
+     Progression iq (fine) =       1211 /      13563
+     Progression iq (fine) =       1212 /      13563
+     Progression iq (fine) =       1213 /      13563
+     Progression iq (fine) =       1214 /      13563
+     Progression iq (fine) =       1215 /      13563
+     Progression iq (fine) =       1216 /      13563
+     Progression iq (fine) =       1217 /      13563
+     Progression iq (fine) =       1218 /      13563
+     Progression iq (fine) =       1219 /      13563
+     Progression iq (fine) =       1220 /      13563
+     Progression iq (fine) =       1221 /      13563
+     Progression iq (fine) =       1222 /      13563
+     Progression iq (fine) =       1223 /      13563
+     Progression iq (fine) =       1224 /      13563
+     Progression iq (fine) =       1225 /      13563
+     Progression iq (fine) =       1226 /      13563
+     Progression iq (fine) =       1227 /      13563
+     Progression iq (fine) =       1228 /      13563
+     Progression iq (fine) =       1229 /      13563
+     Progression iq (fine) =       1230 /      13563
+     Progression iq (fine) =       1231 /      13563
+     Progression iq (fine) =       1232 /      13563
+     Progression iq (fine) =       1233 /      13563
+     Progression iq (fine) =       1234 /      13563
+     Progression iq (fine) =       1235 /      13563
+     Progression iq (fine) =       1236 /      13563
+     Progression iq (fine) =       1237 /      13563
+     Progression iq (fine) =       1238 /      13563
+     Progression iq (fine) =       1239 /      13563
+     Progression iq (fine) =       1240 /      13563
+     Progression iq (fine) =       1241 /      13563
+     Progression iq (fine) =       1242 /      13563
+     Progression iq (fine) =       1243 /      13563
+     Progression iq (fine) =       1244 /      13563
+     Progression iq (fine) =       1245 /      13563
+     Progression iq (fine) =       1246 /      13563
+     Progression iq (fine) =       1247 /      13563
+     Progression iq (fine) =       1248 /      13563
+     Progression iq (fine) =       1249 /      13563
+     Progression iq (fine) =       1250 /      13563
+     Progression iq (fine) =       1251 /      13563
+     Progression iq (fine) =       1252 /      13563
+     Progression iq (fine) =       1253 /      13563
+     Progression iq (fine) =       1254 /      13563
+     Progression iq (fine) =       1255 /      13563
+     Progression iq (fine) =       1256 /      13563
+     Progression iq (fine) =       1257 /      13563
+     Progression iq (fine) =       1258 /      13563
+     Progression iq (fine) =       1259 /      13563
+     Progression iq (fine) =       1260 /      13563
+     Progression iq (fine) =       1261 /      13563
+     Progression iq (fine) =       1262 /      13563
+     Progression iq (fine) =       1263 /      13563
+     Progression iq (fine) =       1264 /      13563
+     Progression iq (fine) =       1265 /      13563
+     Progression iq (fine) =       1266 /      13563
+     Progression iq (fine) =       1267 /      13563
+     Progression iq (fine) =       1268 /      13563
+     Progression iq (fine) =       1269 /      13563
+     Progression iq (fine) =       1270 /      13563
+     Progression iq (fine) =       1271 /      13563
+     Progression iq (fine) =       1272 /      13563
+     Progression iq (fine) =       1273 /      13563
+     Progression iq (fine) =       1274 /      13563
+     Progression iq (fine) =       1275 /      13563
+     Progression iq (fine) =       1276 /      13563
+     Progression iq (fine) =       1277 /      13563
+     Progression iq (fine) =       1278 /      13563
+     Progression iq (fine) =       1279 /      13563
+     Progression iq (fine) =       1280 /      13563
+     Progression iq (fine) =       1281 /      13563
+     Progression iq (fine) =       1282 /      13563
+     Progression iq (fine) =       1283 /      13563
+     Progression iq (fine) =       1284 /      13563
+     Progression iq (fine) =       1285 /      13563
+     Progression iq (fine) =       1286 /      13563
+     Progression iq (fine) =       1287 /      13563
+     Progression iq (fine) =       1288 /      13563
+     Progression iq (fine) =       1289 /      13563
+     Progression iq (fine) =       1290 /      13563
+     Progression iq (fine) =       1291 /      13563
+     Progression iq (fine) =       1292 /      13563
+     Progression iq (fine) =       1293 /      13563
+     Progression iq (fine) =       1294 /      13563
+     Progression iq (fine) =       1295 /      13563
+     Progression iq (fine) =       1296 /      13563
+     Progression iq (fine) =       1297 /      13563
+     Progression iq (fine) =       1298 /      13563
+     Progression iq (fine) =       1299 /      13563
+     Progression iq (fine) =       1300 /      13563
+     Progression iq (fine) =       1301 /      13563
+     Progression iq (fine) =       1302 /      13563
+     Progression iq (fine) =       1303 /      13563
+     Progression iq (fine) =       1304 /      13563
+     Progression iq (fine) =       1305 /      13563
+     Progression iq (fine) =       1306 /      13563
+     Progression iq (fine) =       1307 /      13563
+     Progression iq (fine) =       1308 /      13563
+     Progression iq (fine) =       1309 /      13563
+     Progression iq (fine) =       1310 /      13563
+     Progression iq (fine) =       1311 /      13563
+     Progression iq (fine) =       1312 /      13563
+     Progression iq (fine) =       1313 /      13563
+     Progression iq (fine) =       1314 /      13563
+     Progression iq (fine) =       1315 /      13563
+     Progression iq (fine) =       1316 /      13563
+     Progression iq (fine) =       1317 /      13563
+     Progression iq (fine) =       1318 /      13563
+     Progression iq (fine) =       1319 /      13563
+     Progression iq (fine) =       1320 /      13563
+     Progression iq (fine) =       1321 /      13563
+     Progression iq (fine) =       1322 /      13563
+     Progression iq (fine) =       1323 /      13563
+     Progression iq (fine) =       1324 /      13563
+     Progression iq (fine) =       1325 /      13563
+     Progression iq (fine) =       1326 /      13563
+     Progression iq (fine) =       1327 /      13563
+     Progression iq (fine) =       1328 /      13563
+     Progression iq (fine) =       1329 /      13563
+     Progression iq (fine) =       1330 /      13563
+     Progression iq (fine) =       1331 /      13563
+     Progression iq (fine) =       1332 /      13563
+     Progression iq (fine) =       1333 /      13563
+     Progression iq (fine) =       1334 /      13563
+     Progression iq (fine) =       1335 /      13563
+     Progression iq (fine) =       1336 /      13563
+     Progression iq (fine) =       1337 /      13563
+     Progression iq (fine) =       1338 /      13563
+     Progression iq (fine) =       1339 /      13563
+     Progression iq (fine) =       1340 /      13563
+     Progression iq (fine) =       1341 /      13563
+     Progression iq (fine) =       1342 /      13563
+     Progression iq (fine) =       1343 /      13563
+     Progression iq (fine) =       1344 /      13563
+     Progression iq (fine) =       1345 /      13563
+     Progression iq (fine) =       1346 /      13563
+     Progression iq (fine) =       1347 /      13563
+     Progression iq (fine) =       1348 /      13563
+     Progression iq (fine) =       1349 /      13563
+     Progression iq (fine) =       1350 /      13563
+     Progression iq (fine) =       1351 /      13563
+     Progression iq (fine) =       1352 /      13563
+     Progression iq (fine) =       1353 /      13563
+     Progression iq (fine) =       1354 /      13563
+     Progression iq (fine) =       1355 /      13563
+     Progression iq (fine) =       1356 /      13563
+     Progression iq (fine) =       1357 /      13563
+     Progression iq (fine) =       1358 /      13563
+     Progression iq (fine) =       1359 /      13563
+     Progression iq (fine) =       1360 /      13563
+     Progression iq (fine) =       1361 /      13563
+     Progression iq (fine) =       1362 /      13563
+     Progression iq (fine) =       1363 /      13563
+     Progression iq (fine) =       1364 /      13563
+     Progression iq (fine) =       1365 /      13563
+     Progression iq (fine) =       1366 /      13563
+     Progression iq (fine) =       1367 /      13563
+     Progression iq (fine) =       1368 /      13563
+     Progression iq (fine) =       1369 /      13563
+     Progression iq (fine) =       1370 /      13563
+     Progression iq (fine) =       1371 /      13563
+     Progression iq (fine) =       1372 /      13563
+     Progression iq (fine) =       1373 /      13563
+     Progression iq (fine) =       1374 /      13563
+     Progression iq (fine) =       1375 /      13563
+     Progression iq (fine) =       1376 /      13563

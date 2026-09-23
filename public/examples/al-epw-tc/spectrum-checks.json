@@ -1,0 +1,27 @@
+{
+  "source_sha256": "02cfe80e9d905af7687aa1c92fbf6a7a8051576ef9a3fbce85cc797c21c430ba",
+  "source_shape": [
+    2000,
+    11
+  ],
+  "selected_sigma_Ry": 0.02,
+  "source_spectrum_width_THz": 0.12,
+  "source_mu_star": 0.1,
+  "solver_mu_star": 0.1,
+  "source_xml_sha256": "ac9707dcda9c103bab8ae40a7a00d239eb46a76b950befbb69cb482de314d66f",
+  "frequency_conversion_meV_per_THz": 4.135667696923859,
+  "removed_rows": [
+    {
+      "omega_THz": 0,
+      "alpha2F": 0
+    }
+  ],
+  "nqstep": 1999,
+  "omega_max_meV": 57.89934775693402,
+  "epw_rectangle_lambda": 0.37454699239805433,
+  "trapz_lambda_printed_grid": 0.3745445563188833,
+  "epw_omega_log_K": 343.74096331806055,
+  "max_print_rounding_step_deviation_THz": 9.649824912577858e-05,
+  "crystal_adapter": "QE XML physical fields; amass uses native Rydberg mass unit AMU_RY=AMU_SI/ELECTRONMASS_SI/2, fixed ntypx=10 with unused species slots zero; no computed Wannier centers; trailing comments are skipped records in EPW6.0 isotropic fila2f reader",
+  "material_Tc_acceptance": "not assessed"
+}

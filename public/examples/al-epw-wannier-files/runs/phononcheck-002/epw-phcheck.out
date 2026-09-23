@@ -1,0 +1,246 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:40:46 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     3026 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw-phcheck.in
+      Title line not specified: using 'default'.
+
+     Suggestion: epw_memdist == .true. can reduce the memory usage when etf_mem == 0.
+
+     No temperature supplied. Setting temps(:) to 300 K.
+                      
+     ------------------------------------------------------------------------ 
+                   RESTART - RESTART - RESTART - RESTART                         
+     Restart is done without reading PWSCF save file.                  
+     Be aware that some consistency checks are therefore not done.                  
+     ------------------------------------------------------------------------ 
+                      
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       0.0000  a.u.
+     unit-cell volume          =       0.0000 (a.u.)^3
+     number of atoms/cell      =            0
+     number of atomic types    =            0
+     kinetic-energy cut-off    =       0.0000  Ry
+     charge density cut-off    =       0.0000  Ry
+     Exchange-correlation= not set
+                           (  -1  -1  -1  -1  -1  -1  -1)
+
+
+     celldm(1)=    0.00000  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = (  0.0000  0.0000  0.0000 )  
+               a(2) = (  0.0000  0.0000  0.0000 )  
+               a(3) = (  0.0000  0.0000  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = (  0.0000  0.0000  0.0000 )  
+               b(2) = (  0.0000  0.0000  0.0000 )  
+               b(3) = (  0.0000  0.0000  0.0000 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+
+ 
+     No symmetry!
+
+     G cutoff =    0.0000  (      0 G-vectors)     FFT grid: (  0,  0,  0)
+     number of k points=    0
+                       cart. coord. in units 2pi/a_0
+     EPW          :      0.00s CPU      0.00s WALL
+
+     EPW          :      0.00s CPU      0.00s WALL
+
+
+     -------------------------------------------------------------------
+     Using al.ukk from disk
+     -------------------------------------------------------------------
+
+     HDF5 is NOT used in the current build. Exciton-phonon coupling calculations are disabled.
+     Symmetries of Bravais lattice:  48
+     Symmetries of crystal:          48
+
+     Do not need to read .epb files; read .fmt files
+
+
+     Band disentanglement is used: nbndsub =    4
+     Use zone-centred Wigner-Seitz cells 
+     Number of WS vectors for electrons     1957
+     Number of WS vectors for phonons       93
+     Number of WS vectors for electron-phonon       93
+     Maximum number of cores for efficient parallelization      279
+     Results may improve by using use_ws == .TRUE. 
+
+     Reading Hamiltonian, Dynamical matrix and EP vertex in Wann rep from file
+
+
+     Reading interatomic force constants
+
+     IFC last   -0.0002202
+     Norm of the difference between old and new effective charges:    0.0000000
+     Norm of the difference between old and new force-constants:    0.0000038
+     Imposed crystal ASR
+
+     Finished reading ifcs
+
+
+     Finished reading Wann rep data from file
+
+     ===================================================================
+     Memory usage:  VmHWM =       185Mb
+                   VmPeak =      2684Mb
+     ===================================================================
+     
+     Using q-mesh file: qmesh12.dat
+     Size of q point mesh for interpolation:       1728
+     Using uniform k-mesh:     1    1    1
+     Size of k point mesh for interpolation:          1
+     Max number of k points per pool:                1
+
+     Fermi energy coarse grid =   8.267833 eV
+
+     ===================================================================
+
+     Fermi energy is read from the input file: Ef =   8.412200 eV
+
+     ===================================================================
+
+              ibndmin =     1  ebndmin =    -3.167 eV
+              ibndmax =     4  ebndmax =    21.471 eV
+
+
+     Number of ep-matrix elements per pool :           48 ~=    0.38 Kb (@ 8 bytes/ DP)
+     Number selected, total         100         100
+     Number selected, total         200         200
+     Number selected, total         300         300
+     Number selected, total         400         400
+     Number selected, total         500         500
+     Number selected, total         600         600
+     Number selected, total         700         700
+     Number selected, total         800         800
+     Number selected, total         900         900
+     Number selected, total        1000        1000
+     Number selected, total        1100        1100
+     Number selected, total        1200        1200
+     Number selected, total        1300        1300
+     Number selected, total        1400        1400
+     Number selected, total        1500        1500
+     Number selected, total        1600        1600
+     Number selected, total        1700        1700
+     We only need to compute     1728 q-points
+      
+     Progression iq (fine) =        100/      1728
+     Progression iq (fine) =        200/      1728
+     Progression iq (fine) =        300/      1728
+     Progression iq (fine) =        400/      1728
+     Progression iq (fine) =        500/      1728
+     Progression iq (fine) =        600/      1728
+     Progression iq (fine) =        700/      1728
+     Progression iq (fine) =        800/      1728
+     Progression iq (fine) =        900/      1728
+     Progression iq (fine) =       1000/      1728
+     Progression iq (fine) =       1100/      1728
+     Progression iq (fine) =       1200/      1728
+     Progression iq (fine) =       1300/      1728
+     Progression iq (fine) =       1400/      1728
+     Progression iq (fine) =       1500/      1728
+     Progression iq (fine) =       1600/      1728
+     Progression iq (fine) =       1700/      1728
+     ===================================================================
+     Memory usage:  VmHWM =       193Mb
+                   VmPeak =      2685Mb
+     ===================================================================
+
+
+     Unfolding on the coarse grid
+     elphon_wrap  :      0.00s CPU      0.00s WALL (       1 calls)
+
+     INITIALIZATION: 
+
+
+
+
+     Electron-Phonon interpolation
+     ep-interp    :     13.37s CPU     13.39s WALL (    1728 calls)
+
+     wigner_seitz :      0.00s CPU      0.00s WALL (       1 calls)
+     DynW2B       :      0.02s CPU      0.02s WALL (    1728 calls)
+     HamW2B       :      0.12s CPU      0.13s WALL (    5187 calls)
+     ephW2Bp      :     11.95s CPU     11.97s WALL (    1728 calls)
+     ephW2B       :      0.11s CPU      0.11s WALL (    1728 calls)
+     vmeW2B       :      0.57s CPU      0.57s WALL (    3456 calls)
+
+
+
+     Total program execution
+     EPW          :     13.67s CPU     13.77s WALL
+
+     % Copyright (C) 2016-2023 EPW-Collaboration                                    
+                                                                                    
+     ===============================================================================
+     Please consider citing the following papers.                                   
+                                                                                                 
+     % Paper describing the method on which EPW relies                                           
+       F. Giustino and M. L. Cohen and S. G. Louie, Phys. Rev. B 76, 165108 (2007)               
+                                                                                                 
+     % Papers describing the EPW software                                                        
+       H. Lee et al., npj Comput. Mater. 9, 156 (2023)                                           
+       S. Ponc\'e, E.R. Margine, C. Verdi and F. Giustino, Comput. Phys. Commun. 209, 116 (2016) 
+       J. Noffsinger et al., Comput. Phys. Commun. 181, 2140 (2010)                              
+                                                                                                 
+                                                                                    
+     For your convenience, this information is also reported in the                 
+     functionality-dependent EPW.bib file.                                          
+     ===============================================================================
+                                                                                    

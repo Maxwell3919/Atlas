@@ -1,0 +1,787 @@
+                                                                                      
+                                       ``:oss/                                        
+                           `.+s+.     .+ys--yh+     `./ss+.                           
+                          -sh//yy+`   +yy   +yy    -+h+-oyy                           
+                          -yh- .oyy/.-sh.   .syo-.:sy-  /yh                           
+                 `.-.`    `yh+   -oyyyo.     `/syys:    oys      `.`                  
+               `/+ssys+-` `sh+      `                   oys`   .:osyo`                
+               -yh- ./syyooyo`                          .sys+/oyo--yh/                
+               `yy+    .-:-.                             `-/+/:`  -sh-                
+                /yh.                                              oys                 
+          ``..---hho---------`   .---------..`      `.-----.`    -hd+---.             
+       `./osmNMMMMMMMMMMMMMMMs. +NNMMMMMMMMNNmh+.   yNMMMMMNm-  oNMMMMMNmo++:`        
+       +sy--/sdMMMhyyyyyyyNMMh- .oyNMMmyyyyyhNMMm+` -yMMMdyyo:` .oyyNMMNhs+syy`       
+       -yy/   /MMM+.`-+/``mMMy-   `mMMh:`````.dMMN:` `MMMy-`-dhhy```mMMy:``+hs        
+        -yy+` /MMMo:-mMM+`-oo/.    mMMh:     `dMMN/`  dMMm:`dMMMMy..MMMo-.+yo`        
+         .sys`/MMMMNNMMMs-         mMMmyooooymMMNo:   oMMM/sMMMMMM++MMN//oh:          
+          `sh+/MMMhyyMMMs- `-`     mMMMMMMMMMNmy+-`   -MMMhMMMsmMMmdMMd/yy+           
+    `-/+++oyy-/MMM+.`/hh/.`mNm:`   mMMd+/////:-.`      NMMMMMd/:NMMMMMy:/yyo/:.`      
+   +os+//:-..-oMMMo:--:::-/MMMo. .-mMMd+---`           hMMMMN+. oMMMMMo. `-+osyso:`   
+   syo     `mNMMMMMNNNNNNNNMMMo.oNNMMMMMNNNN:`         +MMMMs:`  dMMMN/`     ``:syo   
+   /yh`     :syyyyyyyyyyyyyyyy+.`+syyyyyyyyo:`         .oyys:`   .oyys:`        +yh   
+   -yh-        ````````````````    `````````              ``        ``          oys   
+   -+h/------------------------::::::::://////++++++++++++++++++++++///////::::/yd:   
+   shdddddddddddddddddddddddddddddhhhhhhhhyyyyyssssssssssssssssyyyyyyyhhhhhhhddddh`   
+                                                                                      
+ Lee, H., Poncé, S., Bushick, K., Hajinazar, S., Lafuente-Bartolome, J.,Leveillee, J.,
+    Lian, C., Lihm, J., Macheda, F., Mori, H., Paudyal, H., Sio, W., Tiwari, S.,      
+ Zacharias, M., Zhang, X., Bonini, N., Kioupakis, E., Margine, E.R., and Giustino F., 
+                                                     npj Comput Mater 9, 156 (2023)   
+                                                                                      
+
+     Program EPW v.6.0 starts on 23Sep2026 at 15:15:50 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     2323 MiB available memory on the printing compute node when the environment starts
+ 
+     Reading input from epw1.in
+      Title line not specified: using 'default'.
+
+     The dis_win_min is specified as      -4.0000 eV
+              To get a correct nelec, calc_nelec_wann is set to .TRUE.
+              If you just want to control the lower bound of band manifold, 
+              try bands_skipped = 'exclude_bands = ...' instead.
+
+     No temperature supplied. Setting temps(:) to 300 K.
+
+     Reading xml data from directory:
+
+     ./tmp/al.save/
+
+     IMPORTANT: XC functional enforced from input :
+     Exchange-correlation= PZ
+                           (   1   1   0   0   0   0   0)
+     Any further DFT definition will be discarded
+     Please, verify this is what you really want
+
+ 
+     G-vector sticks info
+     --------------------
+     sticks:   dense  smooth     PW     G-vecs:    dense   smooth      PW
+     Sum         313     313    109                 3527     3527     749
+ 
+     Using Slab Decomposition
+ 
+     Reading collected, re-writing distributed wavefunctions
+
+     default                                                                    
+
+     bravais-lattice index     =            0
+     lattice parameter (a_0)   =       5.2862  a.u.
+     unit-cell volume          =     104.4547 (a.u.)^3
+     number of atoms/cell      =            1
+     number of atomic types    =            1
+     kinetic-energy cut-off    =      40.0000  Ry
+     charge density cut-off    =     160.0000  Ry
+     Exchange-correlation= PZ
+                           (   1   1   0   0   0   0   0)
+
+
+     celldm(1)=    5.28625  celldm(2)=    0.00000  celldm(3)=    0.00000
+     celldm(4)=    0.00000  celldm(5)=    0.00000  celldm(6)=    0.00000
+
+     crystal axes: (cart. coord. in units of a_0)
+               a(1) = ( -0.7071  0.0000  0.7071 )  
+               a(2) = (  0.0000  0.7071  0.7071 )  
+               a(3) = ( -0.7071  0.7071  0.0000 )  
+
+     reciprocal axes: (cart. coord. in units 2 pi/a_0)
+               b(1) = ( -0.7071 -0.7071  0.7071 )  
+               b(2) = (  0.7071  0.7071  0.7071 )  
+               b(3) = ( -0.7071  0.7071 -0.7071 )  
+
+
+     Atoms inside the unit cell: 
+
+   Cartesian axes
+
+     site n.  atom      mass           positions (a_0 units)
+        1     Al     26.9815   tau( 1) = (    0.00000    0.00000    0.00000  )
+ 
+     49 Sym.Ops. (with q -> -q+G )
+
+
+     G cutoff =  113.2545  (   3527 G-vectors)     FFT grid: ( 24, 24, 24)
+     number of k points=   64  gaussian broad. (Ry)=  0.0200     ngauss =  -1
+                       cart. coord. in units 2pi/a_0
+        k(    1) = (   0.0000000   0.0000000   0.0000000), wk =   0.0312500
+        k(    2) = (  -0.1767767   0.1767767  -0.1767767), wk =   0.0312500
+        k(    3) = (  -0.3535534   0.3535534  -0.3535534), wk =   0.0312500
+        k(    4) = (  -0.5303301   0.5303301  -0.5303301), wk =   0.0312500
+        k(    5) = (   0.1767767   0.1767767   0.1767767), wk =   0.0312500
+        k(    6) = (   0.0000000   0.3535534   0.0000000), wk =   0.0312500
+        k(    7) = (  -0.1767767   0.5303301  -0.1767767), wk =   0.0312500
+        k(    8) = (  -0.3535534   0.7071068  -0.3535534), wk =   0.0312500
+        k(    9) = (   0.3535534   0.3535534   0.3535534), wk =   0.0312500
+        k(   10) = (   0.1767767   0.5303301   0.1767767), wk =   0.0312500
+        k(   11) = (   0.0000000   0.7071068   0.0000000), wk =   0.0312500
+        k(   12) = (  -0.1767767   0.8838835  -0.1767767), wk =   0.0312500
+        k(   13) = (   0.5303301   0.5303301   0.5303301), wk =   0.0312500
+        k(   14) = (   0.3535534   0.7071068   0.3535534), wk =   0.0312500
+        k(   15) = (   0.1767767   0.8838835   0.1767767), wk =   0.0312500
+        k(   16) = (   0.0000000   1.0606602   0.0000000), wk =   0.0312500
+        k(   17) = (  -0.1767767  -0.1767767   0.1767767), wk =   0.0312500
+        k(   18) = (  -0.3535534   0.0000000   0.0000000), wk =   0.0312500
+        k(   19) = (  -0.5303301   0.1767767  -0.1767767), wk =   0.0312500
+        k(   20) = (  -0.7071068   0.3535534  -0.3535534), wk =   0.0312500
+        k(   21) = (   0.0000000   0.0000000   0.3535534), wk =   0.0312500
+        k(   22) = (  -0.1767767   0.1767767   0.1767767), wk =   0.0312500
+        k(   23) = (  -0.3535534   0.3535534   0.0000000), wk =   0.0312500
+        k(   24) = (  -0.5303301   0.5303301  -0.1767767), wk =   0.0312500
+        k(   25) = (   0.1767767   0.1767767   0.5303301), wk =   0.0312500
+        k(   26) = (   0.0000000   0.3535534   0.3535534), wk =   0.0312500
+        k(   27) = (  -0.1767767   0.5303301   0.1767767), wk =   0.0312500
+        k(   28) = (  -0.3535534   0.7071068   0.0000000), wk =   0.0312500
+        k(   29) = (   0.3535534   0.3535534   0.7071068), wk =   0.0312500
+        k(   30) = (   0.1767767   0.5303301   0.5303301), wk =   0.0312500
+        k(   31) = (   0.0000000   0.7071068   0.3535534), wk =   0.0312500
+        k(   32) = (  -0.1767767   0.8838835   0.1767767), wk =   0.0312500
+        k(   33) = (  -0.3535534  -0.3535534   0.3535534), wk =   0.0312500
+        k(   34) = (  -0.5303301  -0.1767767   0.1767767), wk =   0.0312500
+        k(   35) = (  -0.7071068   0.0000000   0.0000000), wk =   0.0312500
+        k(   36) = (  -0.8838835   0.1767767  -0.1767767), wk =   0.0312500
+        k(   37) = (  -0.1767767  -0.1767767   0.5303301), wk =   0.0312500
+        k(   38) = (  -0.3535534   0.0000000   0.3535534), wk =   0.0312500
+        k(   39) = (  -0.5303301   0.1767767   0.1767767), wk =   0.0312500
+        k(   40) = (  -0.7071068   0.3535534   0.0000000), wk =   0.0312500
+        k(   41) = (   0.0000000   0.0000000   0.7071068), wk =   0.0312500
+        k(   42) = (  -0.1767767   0.1767767   0.5303301), wk =   0.0312500
+        k(   43) = (  -0.3535534   0.3535534   0.3535534), wk =   0.0312500
+        k(   44) = (  -0.5303301   0.5303301   0.1767767), wk =   0.0312500
+        k(   45) = (   0.1767767   0.1767767   0.8838835), wk =   0.0312500
+        k(   46) = (   0.0000000   0.3535534   0.7071068), wk =   0.0312500
+        k(   47) = (  -0.1767767   0.5303301   0.5303301), wk =   0.0312500
+        k(   48) = (  -0.3535534   0.7071068   0.3535534), wk =   0.0312500
+        k(   49) = (  -0.5303301  -0.5303301   0.5303301), wk =   0.0312500
+        k(   50) = (  -0.7071068  -0.3535534   0.3535534), wk =   0.0312500
+        k(   51) = (  -0.8838835  -0.1767767   0.1767767), wk =   0.0312500
+        k(   52) = (  -1.0606602   0.0000000   0.0000000), wk =   0.0312500
+        k(   53) = (  -0.3535534  -0.3535534   0.7071068), wk =   0.0312500
+        k(   54) = (  -0.5303301  -0.1767767   0.5303301), wk =   0.0312500
+        k(   55) = (  -0.7071068  -0.0000000   0.3535534), wk =   0.0312500
+        k(   56) = (  -0.8838835   0.1767767   0.1767767), wk =   0.0312500
+        k(   57) = (  -0.1767767  -0.1767767   0.8838835), wk =   0.0312500
+        k(   58) = (  -0.3535534  -0.0000000   0.7071068), wk =   0.0312500
+        k(   59) = (  -0.5303301   0.1767767   0.5303301), wk =   0.0312500
+        k(   60) = (  -0.7071068   0.3535534   0.3535534), wk =   0.0312500
+        k(   61) = (   0.0000000   0.0000000   1.0606602), wk =   0.0312500
+        k(   62) = (  -0.1767767   0.1767767   0.8838835), wk =   0.0312500
+        k(   63) = (  -0.3535534   0.3535534   0.7071068), wk =   0.0312500
+        k(   64) = (  -0.5303301   0.5303301   0.5303301), wk =   0.0312500
+
+     PseudoPot. # 1 for Al read from file:
+     ./pseudo/Al.pz-vbc.UPF
+     MD5 check sum: f06ceae8da0fe5c02c98e3688433298c
+     Pseudo is Norm-conserving, Zval =  3.0
+     Generated by new atomic code, or converted to UPF format
+     Using radial grid of  171 points,  2 beta functions with: 
+                l(1) =   0
+                l(2) =   1
+     EPW          :      0.02s CPU      0.02s WALL
+
+     EPW          :      0.02s CPU      0.02s WALL
+
+     -------------------------------------------------------------------
+     Wannierization on  4 x  4 x  4 electronic grid
+     -------------------------------------------------------------------
+ 
+     Spin CASE ( default = unpolarized )
+ 
+     Initializing Wannier90
+ 
+ 
+     Initial Wannier projections
+ 
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   1
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   2
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   3
+     (   0.00000   0.00000   0.00000) :  l =  -3 mr =   4
+
+      - Number of bands is (  6)
+      - Number of total bands is (  6)
+      - Number of excluded bands is (  0)
+      - Number of wannier functions is (  4)
+      - All guiding functions are given 
+ 
+  Reading data about k-point neighbours 
+ 
+      - All neighbours are found 
+ 
+     AMN
+      k points =    64 in    1 pools
+            1 of   64 on ionode
+            2 of   64 on ionode
+            3 of   64 on ionode
+            4 of   64 on ionode
+            5 of   64 on ionode
+            6 of   64 on ionode
+            7 of   64 on ionode
+            8 of   64 on ionode
+            9 of   64 on ionode
+           10 of   64 on ionode
+           11 of   64 on ionode
+           12 of   64 on ionode
+           13 of   64 on ionode
+           14 of   64 on ionode
+           15 of   64 on ionode
+           16 of   64 on ionode
+           17 of   64 on ionode
+           18 of   64 on ionode
+           19 of   64 on ionode
+           20 of   64 on ionode
+           21 of   64 on ionode
+           22 of   64 on ionode
+           23 of   64 on ionode
+           24 of   64 on ionode
+           25 of   64 on ionode
+           26 of   64 on ionode
+           27 of   64 on ionode
+           28 of   64 on ionode
+           29 of   64 on ionode
+           30 of   64 on ionode
+           31 of   64 on ionode
+           32 of   64 on ionode
+           33 of   64 on ionode
+           34 of   64 on ionode
+           35 of   64 on ionode
+           36 of   64 on ionode
+           37 of   64 on ionode
+           38 of   64 on ionode
+           39 of   64 on ionode
+           40 of   64 on ionode
+           41 of   64 on ionode
+           42 of   64 on ionode
+           43 of   64 on ionode
+           44 of   64 on ionode
+           45 of   64 on ionode
+           46 of   64 on ionode
+           47 of   64 on ionode
+           48 of   64 on ionode
+           49 of   64 on ionode
+           50 of   64 on ionode
+           51 of   64 on ionode
+           52 of   64 on ionode
+           53 of   64 on ionode
+           54 of   64 on ionode
+           55 of   64 on ionode
+           56 of   64 on ionode
+           57 of   64 on ionode
+           58 of   64 on ionode
+           59 of   64 on ionode
+           60 of   64 on ionode
+           61 of   64 on ionode
+           62 of   64 on ionode
+           63 of   64 on ionode
+           64 of   64 on ionode
+ 
+     AMN calculated
+ 
+     MMN
+      k points =    64 in    1 pools
+            1 of   64 on ionode
+            2 of   64 on ionode
+            3 of   64 on ionode
+            4 of   64 on ionode
+            5 of   64 on ionode
+            6 of   64 on ionode
+            7 of   64 on ionode
+            8 of   64 on ionode
+            9 of   64 on ionode
+           10 of   64 on ionode
+           11 of   64 on ionode
+           12 of   64 on ionode
+           13 of   64 on ionode
+           14 of   64 on ionode
+           15 of   64 on ionode
+           16 of   64 on ionode
+           17 of   64 on ionode
+           18 of   64 on ionode
+           19 of   64 on ionode
+           20 of   64 on ionode
+           21 of   64 on ionode
+           22 of   64 on ionode
+           23 of   64 on ionode
+           24 of   64 on ionode
+           25 of   64 on ionode
+           26 of   64 on ionode
+           27 of   64 on ionode
+           28 of   64 on ionode
+           29 of   64 on ionode
+           30 of   64 on ionode
+           31 of   64 on ionode
+           32 of   64 on ionode
+           33 of   64 on ionode
+           34 of   64 on ionode
+           35 of   64 on ionode
+           36 of   64 on ionode
+           37 of   64 on ionode
+           38 of   64 on ionode
+           39 of   64 on ionode
+           40 of   64 on ionode
+           41 of   64 on ionode
+           42 of   64 on ionode
+           43 of   64 on ionode
+           44 of   64 on ionode
+           45 of   64 on ionode
+           46 of   64 on ionode
+           47 of   64 on ionode
+           48 of   64 on ionode
+           49 of   64 on ionode
+           50 of   64 on ionode
+           51 of   64 on ionode
+           52 of   64 on ionode
+           53 of   64 on ionode
+           54 of   64 on ionode
+           55 of   64 on ionode
+           56 of   64 on ionode
+           57 of   64 on ionode
+           58 of   64 on ionode
+           59 of   64 on ionode
+           60 of   64 on ionode
+           61 of   64 on ionode
+           62 of   64 on ionode
+           63 of   64 on ionode
+           64 of   64 on ionode
+     MMN calculated
+ 
+     Running Wannier90
+ 
+     Wannier Function centers (cartesian, alat) and spreads (ang):
+ 
+     (   0.21460  -0.00644   0.31115) :   1.51846
+     (   0.18277   0.02586  -0.28388) :   1.57507
+     (  -0.15790   0.30135   0.04123) :   1.62833
+     (  -0.20761  -0.30413   0.02235) :   1.51737
+ 
+     -------------------------------------------------------------------
+     WANNIER      :      1.41s CPU      1.44s WALL (       1 calls)
+     -------------------------------------------------------------------
+     HDF5 is NOT used in the current build. Exciton-phonon coupling calculations are disabled.
+
+     Dipole matrix elements calculated
+ 
+
+     Calculating kgmap
+
+     Progress kgmap: ########################################
+     kmaps        :      0.01s CPU      0.01s WALL (       1 calls)
+     Symmetries of Bravais lattice:  48
+     Symmetries of crystal:          48
+
+     Reading interatomic force constants
+
+     IFC last   -0.0002202
+     Norm of the difference between old and new effective charges:    0.0000000
+     Norm of the difference between old and new force-constants:    0.0000038
+     Imposed crystal ASR
+
+     Finished reading ifcs
+
+
+
+     ===================================================================
+     irreducible q point #    1
+     ===================================================================
+
+     Symmetries of small group of q: 48
+          in addition sym. q -> -q+G:
+ 
+     Number of q in the star =    1
+     List of q in the star:
+          1   0.000000000   0.000000000   0.000000000
+     Imposing acoustic sum rule on the dynamical matrix
+ 
+        q(    1 ) = (   0.0000000   0.0000000   0.0000000 )
+
+
+     ===================================================================
+     irreducible q point #    2
+     ===================================================================
+
+     Symmetries of small group of q:  6
+ 
+     Number of q in the star =    8
+     List of q in the star:
+          1  -0.176776695   0.176776695  -0.176776695
+          2   0.176776695  -0.176776695  -0.176776695
+          3   0.176776695  -0.176776695   0.176776695
+          4   0.176776695   0.176776695   0.176776695
+          5  -0.176776695  -0.176776695  -0.176776695
+          6  -0.176776695  -0.176776695   0.176776695
+          7  -0.176776695   0.176776695   0.176776695
+          8   0.176776695   0.176776695  -0.176776695
+     Message from routine init_vloc:
+     Interpolation table for Vloc re-allocated
+ 
+        q(    2 ) = (  -0.1767767   0.1767767  -0.1767767 )
+        q(    3 ) = (   0.1767767  -0.1767767  -0.1767767 )
+        q(    4 ) = (   0.1767767  -0.1767767   0.1767767 )
+        q(    5 ) = (   0.1767767   0.1767767   0.1767767 )
+        q(    6 ) = (  -0.1767767  -0.1767767  -0.1767767 )
+        q(    7 ) = (  -0.1767767  -0.1767767   0.1767767 )
+        q(    8 ) = (  -0.1767767   0.1767767   0.1767767 )
+        q(    9 ) = (   0.1767767   0.1767767  -0.1767767 )
+
+
+     ===================================================================
+     irreducible q point #    3
+     ===================================================================
+
+     Symmetries of small group of q: 12
+          in addition sym. q -> -q+G:
+ 
+     Number of q in the star =    4
+     List of q in the star:
+          1   0.353553391  -0.353553391   0.353553391
+          2   0.353553391   0.353553391   0.353553391
+          3  -0.353553391   0.353553391   0.353553391
+          4   0.353553391   0.353553391  -0.353553391
+ 
+        q(   10 ) = (   0.3535534  -0.3535534   0.3535534 )
+        q(   11 ) = (   0.3535534   0.3535534   0.3535534 )
+        q(   12 ) = (  -0.3535534   0.3535534   0.3535534 )
+        q(   13 ) = (   0.3535534   0.3535534  -0.3535534 )
+
+
+     ===================================================================
+     irreducible q point #    4
+     ===================================================================
+
+     Symmetries of small group of q:  8
+ 
+     Number of q in the star =    6
+     List of q in the star:
+          1   0.000000000   0.353553391   0.000000000
+          2   0.000000000  -0.353553391   0.000000000
+          3   0.353553391   0.000000000   0.000000000
+          4   0.000000000   0.000000000   0.353553391
+          5   0.000000000   0.000000000  -0.353553391
+          6  -0.353553391   0.000000000   0.000000000
+ 
+        q(   14 ) = (   0.0000000   0.3535534   0.0000000 )
+        q(   15 ) = (   0.0000000  -0.3535534   0.0000000 )
+        q(   16 ) = (   0.3535534   0.0000000   0.0000000 )
+        q(   17 ) = (   0.0000000   0.0000000   0.3535534 )
+        q(   18 ) = (   0.0000000   0.0000000  -0.3535534 )
+        q(   19 ) = (  -0.3535534   0.0000000   0.0000000 )
+
+
+     ===================================================================
+     irreducible q point #    5
+     ===================================================================
+
+     Symmetries of small group of q:  2
+ 
+     Number of q in the star =   24
+     List of q in the star:
+          1   0.530330086  -0.176776695   0.530330086
+          2   0.530330086  -0.176776695  -0.530330086
+          3  -0.530330086  -0.176776695  -0.530330086
+          4  -0.530330086  -0.176776695   0.530330086
+          5  -0.530330086   0.176776695  -0.530330086
+          6  -0.176776695   0.530330086  -0.530330086
+          7  -0.530330086   0.530330086  -0.176776695
+          8   0.530330086   0.176776695   0.530330086
+          9  -0.530330086   0.176776695   0.530330086
+         10   0.530330086   0.176776695  -0.530330086
+         11  -0.530330086   0.530330086   0.176776695
+         12  -0.176776695   0.530330086   0.530330086
+         13   0.176776695   0.530330086  -0.530330086
+         14  -0.176776695  -0.530330086  -0.530330086
+         15   0.530330086   0.530330086  -0.176776695
+         16   0.530330086  -0.530330086   0.176776695
+         17  -0.530330086  -0.530330086  -0.176776695
+         18   0.176776695  -0.530330086   0.530330086
+         19  -0.530330086  -0.530330086   0.176776695
+         20   0.176776695   0.530330086   0.530330086
+         21  -0.176776695  -0.530330086   0.530330086
+         22   0.530330086   0.530330086   0.176776695
+         23   0.176776695  -0.530330086  -0.530330086
+         24   0.530330086  -0.530330086  -0.176776695
+ 
+        q(   20 ) = (   0.5303301  -0.1767767   0.5303301 )
+        q(   21 ) = (   0.5303301  -0.1767767  -0.5303301 )
+        q(   22 ) = (  -0.5303301  -0.1767767  -0.5303301 )
+        q(   23 ) = (  -0.5303301  -0.1767767   0.5303301 )
+        q(   24 ) = (  -0.5303301   0.1767767  -0.5303301 )
+        q(   25 ) = (  -0.1767767   0.5303301  -0.5303301 )
+        q(   26 ) = (  -0.5303301   0.5303301  -0.1767767 )
+        q(   27 ) = (   0.5303301   0.1767767   0.5303301 )
+        q(   28 ) = (  -0.5303301   0.1767767   0.5303301 )
+        q(   29 ) = (   0.5303301   0.1767767  -0.5303301 )
+        q(   30 ) = (  -0.5303301   0.5303301   0.1767767 )
+        q(   31 ) = (  -0.1767767   0.5303301   0.5303301 )
+        q(   32 ) = (   0.1767767   0.5303301  -0.5303301 )
+        q(   33 ) = (  -0.1767767  -0.5303301  -0.5303301 )
+        q(   34 ) = (   0.5303301   0.5303301  -0.1767767 )
+        q(   35 ) = (   0.5303301  -0.5303301   0.1767767 )
+        q(   36 ) = (  -0.5303301  -0.5303301  -0.1767767 )
+        q(   37 ) = (   0.1767767  -0.5303301   0.5303301 )
+        q(   38 ) = (  -0.5303301  -0.5303301   0.1767767 )
+        q(   39 ) = (   0.1767767   0.5303301   0.5303301 )
+        q(   40 ) = (  -0.1767767  -0.5303301   0.5303301 )
+        q(   41 ) = (   0.5303301   0.5303301   0.1767767 )
+        q(   42 ) = (   0.1767767  -0.5303301  -0.5303301 )
+        q(   43 ) = (   0.5303301  -0.5303301  -0.1767767 )
+
+
+     ===================================================================
+     irreducible q point #    6
+     ===================================================================
+
+     Symmetries of small group of q:  4
+ 
+     Number of q in the star =   12
+     List of q in the star:
+          1   0.353553391   0.000000000   0.353553391
+          2  -0.353553391   0.000000000   0.353553391
+          3  -0.353553391   0.000000000  -0.353553391
+          4   0.353553391   0.000000000  -0.353553391
+          5   0.000000000   0.353553391  -0.353553391
+          6  -0.353553391   0.353553391   0.000000000
+          7   0.000000000   0.353553391   0.353553391
+          8   0.000000000  -0.353553391  -0.353553391
+          9   0.353553391   0.353553391   0.000000000
+         10   0.353553391  -0.353553391   0.000000000
+         11  -0.353553391  -0.353553391   0.000000000
+         12   0.000000000  -0.353553391   0.353553391
+ 
+        q(   44 ) = (   0.3535534   0.0000000   0.3535534 )
+        q(   45 ) = (  -0.3535534   0.0000000   0.3535534 )
+        q(   46 ) = (  -0.3535534   0.0000000  -0.3535534 )
+        q(   47 ) = (   0.3535534  -0.0000000  -0.3535534 )
+        q(   48 ) = (   0.0000000   0.3535534  -0.3535534 )
+        q(   49 ) = (  -0.3535534   0.3535534   0.0000000 )
+        q(   50 ) = (  -0.0000000   0.3535534   0.3535534 )
+        q(   51 ) = (   0.0000000  -0.3535534  -0.3535534 )
+        q(   52 ) = (   0.3535534   0.3535534   0.0000000 )
+        q(   53 ) = (   0.3535534  -0.3535534   0.0000000 )
+        q(   54 ) = (  -0.3535534  -0.3535534   0.0000000 )
+        q(   55 ) = (   0.0000000  -0.3535534   0.3535534 )
+
+
+     ===================================================================
+     irreducible q point #    7
+     ===================================================================
+
+     Symmetries of small group of q: 16
+          in addition sym. q -> -q+G:
+ 
+     Number of q in the star =    3
+     List of q in the star:
+          1   0.000000000  -0.707106781   0.000000000
+          2  -0.707106781   0.000000000   0.000000000
+          3   0.000000000   0.000000000  -0.707106781
+ 
+        q(   56 ) = (   0.0000000  -0.7071068   0.0000000 )
+        q(   57 ) = (  -0.7071068   0.0000000   0.0000000 )
+        q(   58 ) = (   0.0000000   0.0000000  -0.7071068 )
+
+
+     ===================================================================
+     irreducible q point #    8
+     ===================================================================
+
+     Symmetries of small group of q:  8
+ 
+     Number of q in the star =    6
+     List of q in the star:
+          1  -0.353553391  -0.707106781   0.000000000
+          2   0.000000000   0.707106781   0.353553391
+          3   0.000000000  -0.707106781  -0.353553391
+          4   0.353553391   0.707106781   0.000000000
+          5  -0.707106781  -0.353553391   0.000000000
+          6   0.000000000  -0.353553391  -0.707106781
+ 
+        q(   59 ) = (  -0.3535534  -0.7071068   0.0000000 )
+        q(   60 ) = (   0.0000000   0.7071068   0.3535534 )
+        q(   61 ) = (   0.0000000  -0.7071068  -0.3535534 )
+        q(   62 ) = (   0.3535534   0.7071068   0.0000000 )
+        q(   63 ) = (  -0.7071068  -0.3535534   0.0000000 )
+        q(   64 ) = (  -0.0000000  -0.3535534  -0.7071068 )
+
+     Writing epmatq on .epb files
+
+
+     The .epb files have been correctly written
+
+
+     Band disentanglement is used: nbndsub =    4
+     Use zone-centred Wigner-Seitz cells 
+     Number of WS vectors for electrons       93
+     Number of WS vectors for phonons       93
+     Number of WS vectors for electron-phonon       93
+     Maximum number of cores for efficient parallelization      279
+     Results may improve by using use_ws == .TRUE. 
+
+     Inside velocity step 1
+ 
+
+     Velocity matrix elements calculated
+ 
+ 
+     Bloch2wane:          1 /         64
+     Bloch2wane:          2 /         64
+     Bloch2wane:          3 /         64
+     Bloch2wane:          4 /         64
+     Bloch2wane:          5 /         64
+     Bloch2wane:          6 /         64
+     Bloch2wane:          7 /         64
+     Bloch2wane:          8 /         64
+     Bloch2wane:          9 /         64
+     Bloch2wane:         10 /         64
+     Bloch2wane:         11 /         64
+     Bloch2wane:         12 /         64
+     Bloch2wane:         13 /         64
+     Bloch2wane:         14 /         64
+     Bloch2wane:         15 /         64
+     Bloch2wane:         16 /         64
+     Bloch2wane:         17 /         64
+     Bloch2wane:         18 /         64
+     Bloch2wane:         19 /         64
+     Bloch2wane:         20 /         64
+     Bloch2wane:         21 /         64
+     Bloch2wane:         22 /         64
+     Bloch2wane:         23 /         64
+     Bloch2wane:         24 /         64
+     Bloch2wane:         25 /         64
+     Bloch2wane:         26 /         64
+     Bloch2wane:         27 /         64
+     Bloch2wane:         28 /         64
+     Bloch2wane:         29 /         64
+     Bloch2wane:         30 /         64
+     Bloch2wane:         31 /         64
+     Bloch2wane:         32 /         64
+     Bloch2wane:         33 /         64
+     Bloch2wane:         34 /         64
+     Bloch2wane:         35 /         64
+     Bloch2wane:         36 /         64
+     Bloch2wane:         37 /         64
+     Bloch2wane:         38 /         64
+     Bloch2wane:         39 /         64
+     Bloch2wane:         40 /         64
+     Bloch2wane:         41 /         64
+     Bloch2wane:         42 /         64
+     Bloch2wane:         43 /         64
+     Bloch2wane:         44 /         64
+     Bloch2wane:         45 /         64
+     Bloch2wane:         46 /         64
+     Bloch2wane:         47 /         64
+     Bloch2wane:         48 /         64
+     Bloch2wane:         49 /         64
+     Bloch2wane:         50 /         64
+     Bloch2wane:         51 /         64
+     Bloch2wane:         52 /         64
+     Bloch2wane:         53 /         64
+     Bloch2wane:         54 /         64
+     Bloch2wane:         55 /         64
+     Bloch2wane:         56 /         64
+     Bloch2wane:         57 /         64
+     Bloch2wane:         58 /         64
+     Bloch2wane:         59 /         64
+     Bloch2wane:         60 /         64
+     Bloch2wane:         61 /         64
+     Bloch2wane:         62 /         64
+     Bloch2wane:         63 /         64
+     Bloch2wane:         64 /         64
+
+     Writing Hamiltonian, Dynamical matrix and EP vertex in Wann rep to file
+
+     ===================================================================
+     Memory usage:  VmHWM =        92Mb
+                   VmPeak =      2573Mb
+     ===================================================================
+     
+     Using uniform q-mesh:     1    1    1
+     Size of q point mesh for interpolation:          1
+     Using uniform k-mesh:     1    1    1
+     Size of k point mesh for interpolation:          1
+     Max number of k points per pool:                1
+
+     Fermi energy coarse grid =   7.745026 eV
+
+     Fermi energy is calculated from the fine k-mesh: Ef =  21.326270 eV
+
+     Warning: check if difference with Fermi level fine grid makes sense
+
+     ===================================================================
+
+              ibndmin =     1  ebndmin =    -3.167 eV
+              ibndmax =     4  ebndmax =    22.401 eV
+
+
+     Number of ep-matrix elements per pool :           48 ~=    0.38 Kb (@ 8 bytes/ DP)
+     We only need to compute        1 q-points
+      
+     ===================================================================
+     Memory usage:  VmHWM =        92Mb
+                   VmPeak =      2573Mb
+     ===================================================================
+
+
+     Unfolding on the coarse grid
+     elphon_wrap  :     12.59s CPU     13.10s WALL (       1 calls)
+     dvqpsi_us3   :     11.34s CPU     11.73s WALL (   12288 calls)
+     com_dvloc    :      0.92s CPU      0.96s WALL (   12288 calls)
+                                        0.00s GPU  (   12288 calls)
+     dvqpsi_us_on :      0.24s CPU      0.25s WALL (   12288 calls)
+     calbec       :      0.28s CPU      0.29s WALL (   41984 calls)
+     fft          :      0.00s CPU      0.00s WALL (       3 calls)
+     ffts         :      0.68s CPU      0.71s WALL (   12288 calls)
+     fftw         :      8.15s CPU      8.42s WALL (  149666 calls)
+
+     INITIALIZATION: 
+
+     init_vloc    :      0.00s CPU      0.00s WALL (       1 calls)
+     init_us_1    :      0.00s CPU      0.00s WALL (       1 calls)
+
+
+
+     Electron-Phonon interpolation
+     ep-interp    :      0.00s CPU      0.00s WALL (       1 calls)
+
+     Ham: step 1  :      0.00s CPU      0.00s WALL (       1 calls)
+     Ham: step 2  :      0.00s CPU      0.00s WALL (       1 calls)
+     ep: step 1   :      0.00s CPU      0.00s WALL (      64 calls)
+     ep: step 2   :      0.03s CPU      0.03s WALL (      64 calls)
+     wigner_seitz :      0.00s CPU      0.00s WALL (       1 calls)
+     DynW2B       :      0.00s CPU      0.00s WALL (       1 calls)
+     HamW2B       :      0.00s CPU      0.02s WALL (      70 calls)
+     ephW2Bp      :      0.00s CPU      0.00s WALL (       1 calls)
+     ephW2B       :      0.00s CPU      0.00s WALL (       1 calls)
+     vmeW2B       :      0.00s CPU      0.00s WALL (       2 calls)
+
+
+
+     Total program execution
+     EPW          :     14.17s CPU     14.76s WALL
+
+     % Copyright (C) 2016-2023 EPW-Collaboration                                    
+                                                                                    
+     ===============================================================================
+     Please consider citing the following papers.                                   
+                                                                                                 
+     % Paper describing the method on which EPW relies                                           
+       F. Giustino and M. L. Cohen and S. G. Louie, Phys. Rev. B 76, 165108 (2007)               
+                                                                                                 
+     % Papers describing the EPW software                                                        
+       H. Lee et al., npj Comput. Mater. 9, 156 (2023)                                           
+       S. Ponc\'e, E.R. Margine, C. Verdi and F. Giustino, Comput. Phys. Commun. 209, 116 (2016) 
+       J. Noffsinger et al., Comput. Phys. Commun. 181, 2140 (2010)                              
+                                                                                                 
+                                                                                    
+     For your convenience, this information is also reported in the                 
+     functionality-dependent EPW.bib file.                                          
+     ===============================================================================
+                                                                                    

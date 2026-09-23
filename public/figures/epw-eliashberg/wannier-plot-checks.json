@@ -1,0 +1,48 @@
+{
+  "states_per_case": 664,
+  "path_points": 166,
+  "shared_parent_EF_eV": 8.4122,
+  "selected_states": 47,
+  "statistics": [
+    {
+      "case": "k4_frozen10",
+      "selected_states": 47,
+      "rms_meV": 634.4769851354805,
+      "max_abs_meV": 1524.4812005635406
+    },
+    {
+      "case": "k8_frozen10",
+      "selected_states": 47,
+      "rms_meV": 126.23577390128807,
+      "max_abs_meV": 548.916826555109
+    },
+    {
+      "case": "k8_frozen13p5",
+      "selected_states": 47,
+      "rms_meV": 122.34012269548589,
+      "max_abs_meV": 284.27013491195294
+    },
+    {
+      "case": "k12_frozen13p5",
+      "selected_states": 47,
+      "rms_meV": 25.86607718598342,
+      "max_abs_meV": 92.28166410504635
+    }
+  ],
+  "special_point_labels": [
+    "\u0393",
+    "X",
+    "W",
+    "L",
+    "\u0393",
+    "K"
+  ],
+  "special_point_positions_inv_angstrom": [
+    0.0,
+    1.58824,
+    2.3823601,
+    3.5054154,
+    4.8808716,
+    6.5654546
+  ]
+}

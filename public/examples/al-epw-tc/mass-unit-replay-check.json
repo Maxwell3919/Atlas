@@ -1,0 +1,17 @@
+{
+  "comparison": {
+    "linear.csv": {
+      "same": true,
+      "old_rows": 42,
+      "new_rows": 42
+    },
+    "gap.csv": {
+      "same": true,
+      "old_rows": 13,
+      "new_rows": 13
+    }
+  },
+  "reason": "native crystal.fmt stores amass in atomic Rydberg mass units; converted from XML amu with same QE7.5 constants",
+  "observation": "isotropic fila2f branch did not use mass in kernels; replay retained all printed eigenvalues/gaps",
+  "native_mass_Al": 24592.167936039576
+}

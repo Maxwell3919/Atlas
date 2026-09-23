@@ -1,0 +1,29 @@
+[
+  {
+    "run": "linear-coarse",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "linear-refine",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  },
+  {
+    "run": "nonlinear-T0.25",
+    "native_finish": true,
+    "stderr_bytes": 0,
+    "fatal": false,
+    "iteration_limit": false,
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1
+  }
+]

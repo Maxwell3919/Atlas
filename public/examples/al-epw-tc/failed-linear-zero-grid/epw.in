@@ -1,0 +1,23 @@
+&inputepw
+ prefix = 'al'
+ ep_coupling = .false.
+ elph = .false.
+ epwread = .true.
+ epwwrite = .false.
+ wannierize = .false.
+ eliashberg = .true.
+ liso = .true.
+ laniso = .false.
+ limag = .true.
+ lpade = .false.
+ fila2f = '../al-sigma020.a2f'
+ nqstep = 1999
+ muc = 0.10
+ wscut = 0.10
+ nsiter = 500
+ conv_thr_iaxis = 1.0d-6
+ nstemp = 7
+ temps = 0.50 2.00
+ tc_linear = .true.
+ tc_linear_solver = 'power'
+/

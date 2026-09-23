@@ -1,0 +1,26 @@
+begin projections
+ Al:sp3
+end projections
+num_wann =   4
+iprint =   2
+dis_win_min =    -4.000000000000
+dis_win_max =    26.000000000000
+dis_froz_min =    -4.000000000000
+dis_froz_max =    10.000000000000
+num_iter =    1000
+write_bvec = .true.
+ begin kpoint_path
+ G 0.0 0.0 0.0 X 0.5 0.0 0.5
+ X 0.5 0.0 0.5 W 0.5 0.25 0.75
+ W 0.5 0.25 0.75 L 0.5 0.5 0.5
+ L 0.5 0.5 0.5 G 0.0 0.0 0.0
+ G 0.0 0.0 0.0 K 0.375 0.375 0.75
+ end kpoint_path
+ bands_plot = .true.
+ bands_plot_format = gnuplot
+ bands_num_points = 40
+ dis_num_iter = 1000
+ num_print_cycles = 10
+ conv_window = 4
+ write_hr = .true.
+ use_ws_distance = .true.

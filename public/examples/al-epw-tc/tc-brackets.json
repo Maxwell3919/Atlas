@@ -1,0 +1,35 @@
+[
+  {
+    "run": "linear-w010-refine",
+    "requested_wscut_eV": 0.1,
+    "muc": 0.1,
+    "T_low_K": 1.46,
+    "T_high_K": 1.47,
+    "eta_low": 1.0002425,
+    "eta_high": 0.9984385,
+    "linear_interpolation_K": 1.461344235033259,
+    "claim": "conditional model crossing bracket; interpolation is a plotting estimate, not material accuracy"
+  },
+  {
+    "run": "linear-w020-refine",
+    "requested_wscut_eV": 0.2,
+    "muc": 0.1,
+    "T_low_K": 1.45,
+    "T_high_K": 1.46,
+    "eta_low": 1.0008521,
+    "eta_high": 0.9989809,
+    "linear_interpolation_K": 1.4545537622915772,
+    "claim": "conditional model crossing bracket; interpolation is a plotting estimate, not material accuracy"
+  },
+  {
+    "run": "linear-w040-refine",
+    "requested_wscut_eV": 0.4,
+    "muc": 0.1,
+    "T_low_K": 1.57,
+    "T_high_K": 1.58,
+    "eta_low": 1.0007327,
+    "eta_high": 0.999031,
+    "linear_interpolation_K": 1.5743056943056941,
+    "claim": "conditional model crossing bracket; interpolation is a plotting estimate, not material accuracy"
+  }
+]

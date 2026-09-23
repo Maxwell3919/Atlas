@@ -1,0 +1,22 @@
+{
+  "case_id": "fcc-Al-EPW-teaching",
+  "protocol_id": "Al-PZ-NC-40-160-mv0.02-q4-EPW6",
+  "qe_version": "7.5",
+  "epw_version": "6.0",
+  "task_type": "epc",
+  "taskbook": "off",
+  "objective": "Execute a homogeneous full-BZ NSCF, Wannier transformation, fine-grid EPC interpolation and native Eliashberg spectrum for an educational example.",
+  "observables": [
+    "Wannier spreads and band fidelity",
+    "alpha2F",
+    "lambda",
+    "omega_log",
+    "isotropic Tc"
+  ],
+  "scientific_tolerance": null,
+  "tolerance_status": "not_supplied; no numerical convergence acceptance is claimed",
+  "scientific_acceptance": "not_assessed",
+  "user_execution_authorization": "explicit live known-structure small QE runs on idle Maxwell and Preston; installation permitted; isolated ordinary directories",
+  "parent_protocol": "NC nonrelativistic LDA PZ; fixed fcc cell a=3.95606780081072 angstrom; 40/160 Ry; 6 bands; cold smearing .02 Ry; response SCF16^3, phonon q4^3",
+  "time_utc": "2026-09-23T07:10:41.446174+00:00"
+}

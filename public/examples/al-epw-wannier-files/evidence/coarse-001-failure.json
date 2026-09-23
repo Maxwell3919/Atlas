@@ -1,0 +1,8 @@
+{
+  "job": 2010,
+  "status": "failed",
+  "cause": "Separated Wannier/coarse stages omitted native al.bvec and al.mmn needed by vmebloch2wan; raw coarse Bloch coupling files completed first.",
+  "recovery": "new attempt coarse-002 copies native al.bvec/al.mmn and reads all8 same-pool al.epb files with epbread=true,epbwrite=false",
+  "scientific_acceptance": "not_assessed",
+  "time_utc": "2026-09-23T07:32:39.745816+00:00"
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "label": "QE7.5-pw-input",
+    "url": "https://www.quantum-espresso.org/Doc/INPUT_PW.html",
+    "sha256": "6778f93ea5bd088cd3f07ef0e686767f4cbb669f7394595ff7116e083d8c9d41",
+    "bytes": 454859,
+    "retrieved_utc": "2026-09-23T07:26:01.727943+00:00",
+    "scope": "live source receipt only; current input page says6.1, tutorials say6.0"
+  },
+  {
+    "label": "EPW6-tutorial-01",
+    "url": "https://docs.epw-code.org/tutorials/tutorial_01/index.html",
+    "sha256": "6880de6e1febd2c3a930ed0adf18311ac4ef7e5cc02afcc4a788870d9176bae5",
+    "bytes": 106978,
+    "retrieved_utc": "2026-09-23T07:26:03.754652+00:00",
+    "scope": "live source receipt only; current input page says6.1, tutorials say6.0"
+  },
+  {
+    "label": "EPW6-tutorial-04",
+    "url": "https://docs.epw-code.org/tutorials/tutorial_04/index.html",
+    "sha256": "c6301f5d84493743bfbd252646b0b341eac4f478047fa1847e6c30c7454f39c6",
+    "bytes": 130511,
+    "retrieved_utc": "2026-09-23T07:26:05.570299+00:00",
+    "scope": "live source receipt only; current input page says6.1, tutorials say6.0"
+  },
+  {
+    "label": "EPW-current-input",
+    "url": "https://docs.epw-code.org/Inputs/Inputs.html",
+    "sha256": "8e1358e117d3aeaac4bbbb40692b0ba502d486875defe2eebcc303d873cff0ec",
+    "bytes": 372302,
+    "retrieved_utc": "2026-09-23T07:26:07.506317+00:00",
+    "scope": "live source receipt only; current input page says6.1, tutorials say6.0"
+  }
+]

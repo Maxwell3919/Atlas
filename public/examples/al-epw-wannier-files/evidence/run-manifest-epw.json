@@ -1,0 +1,259 @@
+{
+  "recorded_utc": "2026-09-23T07:48:40.926013+00:00",
+  "programs": {
+    "QE": "7.5",
+    "EPW": "6.0"
+  },
+  "protocol": "fcc Al, NC LDA-PZ Al.pz-vbc, nonmagnetic, a=3.95606780081072 Angstrom, 40/160Ry, parent q4 cubed",
+  "final_route": [
+    "nscf-003",
+    "wannier-005",
+    "coarse-001 raw Bloch epb only",
+    "coarse-002",
+    "interpolate-003",
+    "phononcheck-002"
+  ],
+  "scientific_acceptance": "not assessed; convergence/physical tolerance not supplied",
+  "runs": [
+    {
+      "run": "bandcheck-001",
+      "job_id": "2004",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:17:32+08:00",
+      "finish": "2026-09-23T15:17:35+08:00",
+      "inputs": [
+        {
+          "file": "runs/bandcheck-001/al.bands.in",
+          "sha256": "b26119c5f10d8f4b145846f497057954439f16e25a7c3d74473701fb89016da9"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2004-final.txt"
+    },
+    {
+      "run": "coarse-001",
+      "job_id": "2010",
+      "status": "failed: missing native al.bvec/al.mmn after all raw epb files written",
+      "shell_exit_status": "1",
+      "start": "2026-09-23T15:29:54+08:00",
+      "finish": "2026-09-23T15:31:34+08:00",
+      "inputs": [
+        {
+          "file": "runs/coarse-001/epw-coarse.in",
+          "sha256": "5c102ca2d70d38ef36f767bf1247707c471dc5d2d0f5aea88eab85cd7e10f916"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2010-final.txt"
+    },
+    {
+      "run": "coarse-002",
+      "job_id": "2011",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:32:41+08:00",
+      "finish": "2026-09-23T15:32:52+08:00",
+      "inputs": [
+        {
+          "file": "runs/coarse-002/epw-coarse.in",
+          "sha256": "9a011bfcfaef85730422c019154501aac0357a2b20fac1b19236c5c37a7b1ad8"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2011-final.txt"
+    },
+    {
+      "run": "interpolate-001",
+      "job_id": "2003",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:17:29+08:00",
+      "finish": "2026-09-23T15:17:33+08:00",
+      "inputs": [
+        {
+          "file": "runs/interpolate-001/epw2.in",
+          "sha256": "41c68ddd53538de6e8ca9870605968e898dc8424f3c9c2f8289a6a9fe9f5d82e"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2003-final.txt"
+    },
+    {
+      "run": "interpolate-002",
+      "job_id": "2012",
+      "status": "stopped: bounded runtime; no completed spectrum",
+      "shell_exit_status": null,
+      "start": "2026-09-23T15:33:41+08:00",
+      "finish": null,
+      "inputs": [
+        {
+          "file": "runs/interpolate-002/epw2.in",
+          "sha256": "0391519581486f6fc62578f9fae5ed6208945b43261c693acaf39a0fe13beaab"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2012-final.txt"
+    },
+    {
+      "run": "interpolate-003",
+      "job_id": "2013",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:36:35+08:00",
+      "finish": "2026-09-23T15:37:18+08:00",
+      "inputs": [
+        {
+          "file": "runs/interpolate-003/epw2.in",
+          "sha256": "f357e40d5c5735badf1cf4d79ee6d4915da5fbe0bbb2233a6b99f429b6540abe"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2013-final.txt"
+    },
+    {
+      "run": "nscf-001",
+      "job_id": "2000",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:11:32+08:00",
+      "finish": "2026-09-23T15:11:33+08:00",
+      "inputs": [
+        {
+          "file": "runs/nscf-001/al.nscf.in",
+          "sha256": "ef637fd7f4346df5d66bb39fefafcbc1e17c788437b93868ee707c0b7b83ee10"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2000-final.txt"
+    },
+    {
+      "run": "nscf-002",
+      "job_id": "2005",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:19:17+08:00",
+      "finish": "2026-09-23T15:19:21+08:00",
+      "inputs": [
+        {
+          "file": "runs/nscf-002/al.nscf.in",
+          "sha256": "14c0892de9921aa27e893cf6f7046d8b21f259bef25afe4943ff34e8664436fd"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2005-final.txt"
+    },
+    {
+      "run": "nscf-003",
+      "job_id": "2008",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:24:35+08:00",
+      "finish": "2026-09-23T15:24:46+08:00",
+      "inputs": [
+        {
+          "file": "runs/nscf-003/al.nscf.in",
+          "sha256": "fe115f2115d5b587e38111bd8a92df9296a9a5e7aedae9e7b89e31abd53ad781"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2008-final.txt"
+    },
+    {
+      "run": "phononcheck-001",
+      "job_id": "2014",
+      "status": "failed: filqf conflicts with nqf for band_plot",
+      "shell_exit_status": "1",
+      "start": "2026-09-23T15:38:06+08:00",
+      "finish": "2026-09-23T15:38:06+08:00",
+      "inputs": [
+        {
+          "file": "runs/phononcheck-001/epw-phcheck.in",
+          "sha256": "434b95fa3c094662692738732f302f6be8a10b701bc16f640137cd0e1734e635"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2014-final.txt"
+    },
+    {
+      "run": "phononcheck-002",
+      "job_id": "2015",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:40:46+08:00",
+      "finish": "2026-09-23T15:41:00+08:00",
+      "inputs": [
+        {
+          "file": "runs/phononcheck-002/epw-phcheck.in",
+          "sha256": "b5425629411616a5dd0ddcbd9281054bd63d5aec67c8ac4cb9d7447f302debcb"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2015-final.txt"
+    },
+    {
+      "run": "wannier-001",
+      "job_id": "2001",
+      "status": "stopped: installed MPI Wannier library incompatible with single-master EPW library invocation",
+      "shell_exit_status": null,
+      "start": "2026-09-23T15:12:57+08:00",
+      "finish": null,
+      "inputs": [
+        {
+          "file": "runs/wannier-001/epw1.in",
+          "sha256": "260ff7187925d5327bfb1a9ac6ba661d0a24b1fa4845aaabfc95e6b7768a2b01"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2001-final.txt"
+    },
+    {
+      "run": "wannier-002",
+      "job_id": "2002",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:15:49+08:00",
+      "finish": "2026-09-23T15:16:05+08:00",
+      "inputs": [
+        {
+          "file": "runs/wannier-002/epw1.in",
+          "sha256": "260ff7187925d5327bfb1a9ac6ba661d0a24b1fa4845aaabfc95e6b7768a2b01"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2002-final.txt"
+    },
+    {
+      "run": "wannier-003",
+      "job_id": "2006",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:19:50+08:00",
+      "finish": "2026-09-23T15:21:48+08:00",
+      "inputs": [
+        {
+          "file": "runs/wannier-003/epw1.in",
+          "sha256": "b86de1f1a828bdfbc84db8a0c87ac84e56c4bcb8aa6de0b486514f541417fe73"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2006-final.txt"
+    },
+    {
+      "run": "wannier-004",
+      "job_id": "2007",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:22:29+08:00",
+      "finish": "2026-09-23T15:22:46+08:00",
+      "inputs": [
+        {
+          "file": "runs/wannier-004/epw1.in",
+          "sha256": "19b12be5c5e1bdbf3ed6479a3e769fb58c4a432f39aedccfdcf0722a1c1c20c9"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2007-final.txt"
+    },
+    {
+      "run": "wannier-005",
+      "job_id": "2009",
+      "status": "completed; inspect native scientific convergence separately",
+      "shell_exit_status": "0",
+      "start": "2026-09-23T15:25:08+08:00",
+      "finish": "2026-09-23T15:26:22+08:00",
+      "inputs": [
+        {
+          "file": "runs/wannier-005/epw1.in",
+          "sha256": "cc322a129fdb796dd7fa98f64f3d93a120b2a9cae976447a8db6ab64135636a7"
+        }
+      ],
+      "scheduler_evidence": "evidence/scontrol-2009-final.txt"
+    }
+  ]
+}

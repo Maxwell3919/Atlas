@@ -1,0 +1,11 @@
+{
+  "spectrum_points": 500,
+  "spectrum_lambda_native_cumulative": 0.3508982,
+  "linear_points": 15,
+  "Tc_bracket_K": [
+    0.84,
+    0.85
+  ],
+  "muc": 0.1,
+  "requested_wscut_eV": 0.1
+}

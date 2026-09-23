@@ -1,0 +1,35 @@
+{
+  "recorded_utc": "2026-09-23T07:12:55.277298+00:00",
+  "status": "manually reviewed teaching execution; no automated input-ready claim",
+  "k_grid": "64 full BZ points confirmed in NSCF output and XML; all six eigenvalues finite; compatible 4^3 q grid",
+  "input_windows_eV": {
+    "outer": [
+      -4,
+      26
+    ],
+    "frozen": [
+      -4,
+      10
+    ]
+  },
+  "window_reason": "Observed coarse NSCF eigenvalue range -3.16656 to25.94110 eV; at most four states below10eV; four initial Al sp3 projections. These are designed initial guesses, not native centres.",
+  "QE_guard": "input core and pseudopotential pass; scientific plan/ancestry blocked because no physical tolerance/human acceptance bundle is supplied. Reference mirror absent on Maxwell; retrieval command failed.",
+  "official_sources": [
+    {
+      "url": "https://www.quantum-espresso.org/Doc/INPUT_PW.html",
+      "version": "7.5; matched live"
+    },
+    {
+      "url": "https://docs.epw-code.org/tutorials/tutorial_04/index.html",
+      "version": "QE7.5 EPW6.0, live explicit tutorial"
+    },
+    {
+      "url": "https://docs.epw-code.org/tutorials/tutorial_01/index.html",
+      "version": "QE7.5 EPW6.0, live explicit tutorial"
+    },
+    {
+      "url": "https://docs.epw-code.org/Inputs/Inputs.html",
+      "version": "6.1 current; version mismatch explicitly retained. Version6.0 examples/source and native output are decisive."
+    }
+  ]
+}
