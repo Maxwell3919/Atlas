@@ -1,0 +1,535 @@
+{
+  "selected_case": {
+    "name": "diamond-k10-80",
+    "mesh": [
+      10,
+      10,
+      10
+    ],
+    "cutoff": 80.0,
+    "rho": 640.0,
+    "ef": 13.303723406563595,
+    "ho": 13.303723406563595,
+    "lu": 17.47543716752998,
+    "native_icohp": -9.60394,
+    "cumulative_at_zero": -9.60338,
+    "trapezoid_at_zero": -9.603353799999999,
+    "charge_spilling": 1.11,
+    "total_spilling": 9.26,
+    "bonds": [
+      {
+        "index": 1,
+        "atoms": [
+          1,
+          2
+        ],
+        "distance_A": 1.54578,
+        "translation": [
+          0,
+          -1,
+          0
+        ],
+        "icohp_eV": -9.60394,
+        "vector_A": [
+          0.8924573661879095,
+          -0.8924573661879095,
+          -0.8924573661879095
+        ],
+        "xml_distance_A": 1.545781501826562
+      },
+      {
+        "index": 2,
+        "atoms": [
+          1,
+          2
+        ],
+        "distance_A": 1.54578,
+        "translation": [
+          1,
+          -1,
+          0
+        ],
+        "icohp_eV": -9.60394,
+        "vector_A": [
+          -0.8924573661879095,
+          -0.8924573661879095,
+          0.8924573661879095
+        ],
+        "xml_distance_A": 1.545781501826562
+      },
+      {
+        "index": 3,
+        "atoms": [
+          1,
+          2
+        ],
+        "distance_A": 1.54578,
+        "translation": [
+          0,
+          0,
+          0
+        ],
+        "icohp_eV": -9.60394,
+        "vector_A": [
+          0.8924573661879095,
+          0.8924573661879095,
+          0.8924573661879095
+        ],
+        "xml_distance_A": 1.545781501826562
+      },
+      {
+        "index": 4,
+        "atoms": [
+          1,
+          2
+        ],
+        "distance_A": 1.54578,
+        "translation": [
+          0,
+          -1,
+          1
+        ],
+        "icohp_eV": -9.60394,
+        "vector_A": [
+          -0.8924573661879095,
+          0.8924573661879095,
+          -0.8924573661879095
+        ],
+        "xml_distance_A": 1.545781501826562
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "diamond-k6",
+      "mesh": [
+        6,
+        6,
+        6
+      ],
+      "cutoff": 60.0,
+      "rho": 640.0,
+      "ef": 13.307869601971609,
+      "ho": 13.307869601971609,
+      "lu": 17.461831376952663,
+      "native_icohp": -9.608662500000001,
+      "cumulative_at_zero": -9.60613,
+      "trapezoid_at_zero": -9.6059959,
+      "charge_spilling": 1.12,
+      "total_spilling": 9.23,
+      "bonds": [
+        {
+          "index": 1,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60866,
+          "vector_A": [
+            0.8924573661879095,
+            -0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 2,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            1,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60866,
+          "vector_A": [
+            -0.8924573661879095,
+            -0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 3,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "icohp_eV": -9.60867,
+          "vector_A": [
+            0.8924573661879095,
+            0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 4,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            1
+          ],
+          "icohp_eV": -9.60866,
+          "vector_A": [
+            -0.8924573661879095,
+            0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        }
+      ]
+    },
+    {
+      "name": "diamond-k8",
+      "mesh": [
+        8,
+        8,
+        8
+      ],
+      "cutoff": 60.0,
+      "rho": 640.0,
+      "ef": 13.304802761983872,
+      "ho": 13.304802761983872,
+      "lu": 17.439270199734327,
+      "native_icohp": -9.60499,
+      "cumulative_at_zero": -9.60392,
+      "trapezoid_at_zero": -9.603853800000001,
+      "charge_spilling": 1.11,
+      "total_spilling": 9.24,
+      "bonds": [
+        {
+          "index": 1,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60499,
+          "vector_A": [
+            0.8924573661879095,
+            -0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 2,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            1,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60499,
+          "vector_A": [
+            -0.8924573661879095,
+            -0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 3,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "icohp_eV": -9.60499,
+          "vector_A": [
+            0.8924573661879095,
+            0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 4,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            1
+          ],
+          "icohp_eV": -9.60499,
+          "vector_A": [
+            -0.8924573661879095,
+            0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        }
+      ]
+    },
+    {
+      "name": "diamond-k10",
+      "mesh": [
+        10,
+        10,
+        10
+      ],
+      "cutoff": 60.0,
+      "rho": 640.0,
+      "ef": 13.30446209610128,
+      "ho": 13.30446209610128,
+      "lu": 17.476008758556404,
+      "native_icohp": -9.60405,
+      "cumulative_at_zero": -9.6035,
+      "trapezoid_at_zero": -9.6034612,
+      "charge_spilling": 1.11,
+      "total_spilling": 9.26,
+      "bonds": [
+        {
+          "index": 1,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60405,
+          "vector_A": [
+            0.8924573661879095,
+            -0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 2,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            1,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60405,
+          "vector_A": [
+            -0.8924573661879095,
+            -0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 3,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "icohp_eV": -9.60405,
+          "vector_A": [
+            0.8924573661879095,
+            0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 4,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            1
+          ],
+          "icohp_eV": -9.60405,
+          "vector_A": [
+            -0.8924573661879095,
+            0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        }
+      ]
+    },
+    {
+      "name": "diamond-k10-80",
+      "mesh": [
+        10,
+        10,
+        10
+      ],
+      "cutoff": 80.0,
+      "rho": 640.0,
+      "ef": 13.303723406563595,
+      "ho": 13.303723406563595,
+      "lu": 17.47543716752998,
+      "native_icohp": -9.60394,
+      "cumulative_at_zero": -9.60338,
+      "trapezoid_at_zero": -9.603353799999999,
+      "charge_spilling": 1.11,
+      "total_spilling": 9.26,
+      "bonds": [
+        {
+          "index": 1,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60394,
+          "vector_A": [
+            0.8924573661879095,
+            -0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 2,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            1,
+            -1,
+            0
+          ],
+          "icohp_eV": -9.60394,
+          "vector_A": [
+            -0.8924573661879095,
+            -0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 3,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "icohp_eV": -9.60394,
+          "vector_A": [
+            0.8924573661879095,
+            0.8924573661879095,
+            0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        },
+        {
+          "index": 4,
+          "atoms": [
+            1,
+            2
+          ],
+          "distance_A": 1.54578,
+          "translation": [
+            0,
+            -1,
+            1
+          ],
+          "icohp_eV": -9.60394,
+          "vector_A": [
+            -0.8924573661879095,
+            0.8924573661879095,
+            -0.8924573661879095
+          ],
+          "xml_distance_A": 1.545781501826562
+        }
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "from": "diamond-k6",
+      "to": "diamond-k8",
+      "absolute_mean_change_eV": 0.0036724999999995234,
+      "maximum_single_bond_change_eV": 0.0036799999999992394
+    },
+    {
+      "from": "diamond-k8",
+      "to": "diamond-k10",
+      "absolute_mean_change_eV": 0.0009399999999999409,
+      "maximum_single_bond_change_eV": 0.0009399999999999409
+    },
+    {
+      "from": "diamond-k10",
+      "to": "diamond-k10-80",
+      "absolute_mean_change_eV": 0.00011000000000116472,
+      "maximum_single_bond_change_eV": 0.00011000000000116472
+    }
+  ],
+  "figure_export": {
+    "width_mm": 183,
+    "paper_font_pt": [
+      5,
+      7
+    ],
+    "paper_panel_font_pt": 8,
+    "pdf_fonttype": 42,
+    "web_png_dpi": 300,
+    "gridlines": false
+  }
+}

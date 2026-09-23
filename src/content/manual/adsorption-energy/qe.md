@@ -535,7 +535,7 @@ plots/adsorption-checks.png and plots/adsorption-checks.svg
 
 左图保持统一的气相参考定义，右图单独显示各项相对基线的变化。横轴上的真空数值指初始设置；原子优化后实际的跨周期 H 层间空隙略有改变。原始每项能量、最大力和输入输出 SHA 在 [energy-table.csv](/Atlas/examples/h-al111-adsorption/energy-table.csv)，三能差与参数变化在 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv)。
 
-要在本机重画，把 [plot_adsorption.py](/Atlas/examples/h-al111-adsorption/plot_adsorption.py)、[structures.json](/Atlas/examples/h-al111-adsorption/structures.json) 和 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv) 放到同一目录，运行 `python3 plot_adsorption.py`。需要 Python、NumPy 和 Matplotlib；程序同时生成两幅 PNG 与 SVG。重新从原始输入输出提取，则使用 [analyse_adsorption.py](/Atlas/examples/h-al111-adsorption/analyse_adsorption.py)，并保留对应目录里的 XML 与审计文件。
+要在本机重画，把 [plot_adsorption.py](/Atlas/examples/h-al111-adsorption/plot_adsorption.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/h-al111-adsorption/atlas_plot_style.py)）、[structures.json](/Atlas/examples/h-al111-adsorption/structures.json) 和 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv) 放到同一目录，运行 `python3 plot_adsorption.py`。需要 Python、NumPy 和 Matplotlib；程序同时生成两幅 PNG 与 SVG。重新从原始输入输出提取，则使用 [analyse_adsorption.py](/Atlas/examples/h-al111-adsorption/analyse_adsorption.py)，并保留对应目录里的 XML 与审计文件。
 
 能量差和力一起回看后，接下来把洁净与吸附表面同时改到 12×12×1，重新做内部优化。起点使用各自 6 网格优化的最终坐标，晶胞、赝势、截断、展宽和中层约束全部保留。实际输入差别可以直接用 diff 核对：
 

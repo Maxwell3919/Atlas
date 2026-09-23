@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import json
 import numpy as np
@@ -8,7 +11,7 @@ root=Path(__file__).resolve().parent
 summary=json.loads((root/'fit-summary.json').read_text())
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,
                      'axes.spines.right':False,'svg.fonttype':'none','savefig.dpi':200})
-colors={'harmonic':'#5d626a','effective':'#2469a8','small':'#ca802c','validation':'#3a8660'}
+colors={'harmonic':'#5d626a','effective':'#0072b2','small':'#e69f00','validation':'#009e73'}
 def bands(name): return np.genfromtxt(root/(name+'-bands.csv'),delimiter=',',skip_header=1)
 def decorate(ax):
     ticks=summary['fits'][-1]['bands']['boundaries_inv_A']
@@ -27,7 +30,7 @@ for seg in range(5):
         axes[1].plot(fit[rows,1],fit[rows,branch],color=colors['effective'],lw=1.15)
 for ax in axes:decorate(ax)
 axes[0].set_title('Small-displacement amplitude check')
-axes[0].set_ylabel('Frequency(0.01 Å) − frequency(0.005 Å) [GHz]')
+axes[0].set_ylabel('Frequency difference (GHz)')
 axes[1].set_title('One finite-temperature fitting demonstration')
 axes[1].set_ylabel('Frequency [THz]')
 axes[1].plot([],[],color=colors['harmonic'],ls='--',label='Small displacement: 0.005 Å')

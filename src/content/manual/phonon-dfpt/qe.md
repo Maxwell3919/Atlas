@@ -311,7 +311,7 @@ maxwell@maxwell:~/al/dfpt$ head -6 al.freq.gp
   0.070711      33.6004   33.6004   62.3325
   0.088388      41.9005   41.9005   77.4626
 ```
-第一列是路径距离，后面 3 列分别对应三支声子频率，单位 cm⁻¹。[绘图脚本](/Atlas/examples/al/plot_phonon.py) 直接读取这 4 列，按节点位置加标签，不再手工抄频率。
+第一列是路径距离，后面 3 列分别对应三支声子频率，单位 cm⁻¹。[绘图脚本](/Atlas/examples/al/plot_phonon.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取这 4 列，按节点位置加标签，不再手工抄频率。
 
 ```bash
 python3 plot_phonon.py

@@ -1,198 +1,8 @@
-[ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [QE 电子声子系数及谱函数定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
+[q2r.x 输入](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x 输入](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [QE 7.5 lambda.x 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90) · [电子声子谱定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
 
-声子态密度把每个振动模式按频率计数。α²F 又多问了一件事：这些振动与费米面附近电子的耦合有多强？有很多声子模式的频段，不一定就是耦合贡献最大的频段。要画这张图，手里必须有电子声子矩阵元，只有声子频率表还不够。
+从[已完成的 Al EPC 会话](/Atlas/m/epc/qe/)接着做。前一页已经写出 32³ 致密 SCF、16³ 响应 SCF、4³ q 网格与八份完整电声文件，这里直接使用它们，不重写结构优化与 SCF。α²F 同时包含振动频率和电子声子耦合权重，因此声子 DOS 的峰不一定就是 λ 的主要来源。
 
-下面用一份实际完成的 fcc Al 小体系计算，从逐 q 文件走到 α²F，再积分回 λ。QE 版本为 7.5，单原子原胞采用 LDA-PZ 与官方 `Al.pz-vbc.UPF`，晶格常数为 3.95606780081 Å。结构来源及优化过程见 [晶胞优化](/Atlas/m/vc-relax/qe/)，DFPT 的输入结构和逐个响应迭代见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)。这里增加的是一套与 EPC 对应的致密电子网格和后处理，不能把普通声子目录的文件名改一改就当作 EPC 结果。
-
-本例依次使用 32×32×32 致密电子网格、16×16×16 响应所依赖的 SCF 网格，以及完整的 4×4×4 q 网格。它们都是不平移的网格。这套网格用于展示一条能走通、可检查的计算路线；尚未通过更密 k/q 网格和截断能的收敛测试。
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文运行绘图命令。
-
-## 把两次 SCF 的身份认清
-
-先看第一次 SCF。`la2F=.true.` 让程序为后续 EPC 保存致密网格的本征值数据。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cat al.dense.in
-&CONTROL
- calculation = 'scf'
- prefix = 'al'
- pseudo_dir = '<赝势库路径>'
- outdir = './tmp'
- tstress = .true.
- tprnfor = .true.
- verbosity = 'high'
-/
-&SYSTEM
- ibrav = 0
- nat = 1
- ntyp = 1
- ecutwfc = 40
- ecutrho = 160
- occupations = 'smearing'
- smearing = 'mv'
- degauss = 0.02
- nbnd = 6
- la2F = .true.
-/
-&ELECTRONS
- conv_thr = 1.0d-12
-/
-ATOMIC_SPECIES
-Al 26.9815385 Al.pz-vbc.UPF
-ATOMIC_POSITIONS crystal
-Al 0.00000000000000 0.00000000000000 0.00000000000000
-CELL_PARAMETERS angstrom
--1.97803390040536 0.00000000000000 1.97803390040536
-0.00000000000000 1.97803390040536 1.97803390040536
--1.97803390040536 1.97803390040536 0.00000000000000
-K_POINTS automatic
-32 32 32 0 0 0
-```
-
-这份文件的 `outdir` 为 `./tmp`。因此本次实际生成的文件是 `tmp/al.a2Fsave`。第一次脚本把它误写成当前目录下的 `al.a2Fsave`，致密 SCF 已完成，随后的 `cp` 失败。应先读 SCF 末尾与文件位置，避免把脚本退出误判成电子自洽失败。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ tail -10 al.dense.out
-     Parallel routines
- 
-     PWSCF        :      8.06s CPU      9.34s WALL
-
- 
-   This run was terminated on:  22: 6:27  22Sep2026            
-
-=------------------------------------------------------------------------------=
-   JOB DONE.
-=------------------------------------------------------------------------------=
-```
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cp tmp/al.a2Fsave al.a2Fsave.k32
-maxwell@maxwell:~/al/epc-q4$ cp tmp/al.save/data-file-schema.xml dense.data-file-schema.xml
-
-```
-
-保存致密网格文件后，第二次 SCF 使用下列输入。原胞、赝势、截断能、展宽和前缀均保持相同，电子网格换成 16³。保存在同一个 `tmp` 下的当前电荷密度随后供 ph.x 读取；先前另存的 `al.a2Fsave.k32` 用来核对致密网格数据没有被替换。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cat al.scf.in
-&CONTROL
- calculation = 'scf'
- prefix = 'al'
- pseudo_dir = '<赝势库路径>'
- outdir = './tmp'
- tstress = .true.
- tprnfor = .true.
- verbosity = 'high'
-/
-&SYSTEM
- ibrav = 0
- nat = 1
- ntyp = 1
- ecutwfc = 40
- ecutrho = 160
- occupations = 'smearing'
- smearing = 'mv'
- degauss = 0.02
- nbnd = 6
-/
-&ELECTRONS
- conv_thr = 1.0d-12
-/
-ATOMIC_SPECIES
-Al 26.9815385 Al.pz-vbc.UPF
-ATOMIC_POSITIONS crystal
-Al 0.00000000000000 0.00000000000000 0.00000000000000
-CELL_PARAMETERS angstrom
--1.97803390040536 0.00000000000000 1.97803390040536
-0.00000000000000 1.97803390040536 1.97803390040536
--1.97803390040536 1.97803390040536 0.00000000000000
-K_POINTS automatic
-16 16 16 0 0 0
-```
-
-接着是 ph.x 输入。这里 `el_ph_sigma=0.005` 表示双 δ 积分的电子展宽间距，配合 `el_ph_nsigma=10`，实际输出 0.005、0.010、…、0.050 Ry 十组数据。它与 SCF 中 `degauss=0.02` 的作用不同。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cat al.elph.in
-&INPUTPH
- prefix = 'al'
- outdir = './tmp'
- fildyn = 'al.dyn'
- fildvscf = 'aldv'
- electron_phonon = 'interpolated'
- el_ph_sigma = 0.005
- el_ph_nsigma = 10
- amass(1) = 26.9815385
- tr2_ph = 1.0d-14
- ldisp = .true.
- nq1 = 4
- nq2 = 4
- nq3 = 4
-/
-```
-
-`electron_phonon='interpolated'` 对应这次实跑的路线；`fildvscf` 保存势的一阶变化。完整计算共生成 8 个不可约 q 点，每个点有 3 个振动模式。
-
-## 按真实脚本串行运行与检查
-
-致密 SCF 已经正常结束后，实际提交了下面的继续运行脚本。脚本中的 `cmp` 没有输出且返回成功，才会继续到 ph.x；`set -e` 会在前面的命令失败时停止脚本。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cat continue.slurm
-#!/bin/bash
-#SBATCH --job-name=atlas-al-epc4
-#SBATCH --nodes=1
-#SBATCH --ntasks=8
-#SBATCH --cpus-per-task=1
-#SBATCH --time=01:00:00
-#SBATCH --output=_out.%j.log
-#SBATCH --error=_err.%j.log
-ulimit -s unlimited
-ulimit -l unlimited
-source /opt/intel/oneapi/setvars.sh
-export OMP_NUM_THREADS=1
-cd "$SLURM_SUBMIT_DIR"
-set -e
-cp tmp/al.a2Fsave al.a2Fsave.k32
-cp tmp/al.save/data-file-schema.xml dense.data-file-schema.xml
-mpirun -np 8 <qe_bin>/pw.x -in al.scf.in > al.scf.out 2> al.scf.err
-cmp tmp/al.a2Fsave al.a2Fsave.k32
-mpirun -np 8 <qe_bin>/ph.x -in al.elph.in > al.elph.out 2> al.elph.err
-<qe_bin>/q2r.x -in q2r.in > q2r.out 2> q2r.err
-<qe_bin>/matdyn.x -in matdyn-dos.in > matdyn-dos.out 2> matdyn-dos.err
-```
-
-```console
-maxwell@maxwell:~/al/epc-q4$ sbatch continue.slurm
-Submitted batch job 1970
-```
-
-队列里的任务消失只说明它不再处于排队或运行状态。运行期间可用 `squeue -j 1970` 查看调度状态，用 `tail -f al.elph.out` 看响应迭代；退出实时查看按 Ctrl+C，不会终止后台任务。结束后读取 ph.x 的末尾，并检查每个 q 点是否有频率、十组展宽和完整模式行。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ tail -12 al.elph.out
-     h_psi:calbec :      5.28s CPU      6.36s WALL (  859163 calls)
-     s_psi_bgrp   :      1.64s CPU      1.96s WALL ( 1409957 calls)
- 
- 
-     PHONON       :   6m 3.20s CPU   6m35.37s WALL
-
- 
-   This run was terminated on:  22:14:10  22Sep2026            
-
-=------------------------------------------------------------------------------=
-   JOB DONE.
-=------------------------------------------------------------------------------=
-```
-
-```console
-maxwell@maxwell:~/al/epc-q4$ sha256sum tmp/al.a2Fsave al.a2Fsave.k32
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
-```
-
-这两个散列一致，说明后续步骤使用的致密网格文件与保存下来的那一份相同。它只是文件身份检查；电子网格是否足够密，仍要改变网格计算比较。
+所有数字属于同一个单原子 fcc Al、LDA-PZ 计算链。它尚未完成 k/q/截断能收敛；本页的积分闭合检查回答文件和数值有没有接对，不替代材料性质验收。原件在[Al 输入输出包](/Atlas/examples/al-lesson-files.tar.gz)，新增脚本和表放在包内 `al/tc-route/`。
 
 ## 两条谱函数后处理路线分别留下什么
 
@@ -226,7 +36,7 @@ maxwell@maxwell:~/al/epc-q4$ cat matdyn-dos.in
 
 `matdyn.x` 的 24³ 是对已有实空间数据的积分网格，并没有增加真实计算的 DFPT q 点。它生成 `a2F.dos1` 到 `a2F.dos10`，编号依次对应十组电子展宽；同目录的 `lambda` 文件记录该路线的 λ 和对数平均频率。
 
-这里 `nk1/nk2/nk3` 虽然名字带 k，在 `matdyn.x` 中却是声子 DOS 积分使用的 q 网格。增加它们可以检查后处理积分的离散误差，但无法补回原先 4³ DFPT 网格没有提供的力常数范围。`asr='crystal'` 处理平移声学求和规则，也不会自动修复电子声子矩阵元或证明材料没有虚频。
+这里 `nk1/nk2/nk3` 虽然名字带 k，在 `matdyn.x` 中却是声子 DOS 积分使用的 q 网格。增加它们可以检查后处理积分的离散误差，但无法补回原先 4³ DFPT 网格没有提供的力常数范围。`asr='simple'` 处理平移声学求和规则，也不会自动修复电子声子矩阵元或证明材料没有虚频。
 
 同样的 `la2F` 出现在不同程序里，要跟着程序名读：`pw.x` 负责保存致密电子本征值，`q2r.x` 处理配套 EPC 实空间数据，`matdyn.x` 才在这条插值路线中输出谱函数。仅在普通声子后处理中打开最后一个开关，并不能产生前面从未计算的耦合。三份程序输入与逐 q 文件必须属于同一次完整计算链。
 
@@ -250,6 +60,83 @@ maxwell@maxwell:~/al/epc-q4$ tail -3 a2F.dos4
        0.302405E-02    0.000000E+00    0.000000E+00    0.000000E+00    0.000000E+00
   lambda =  0.374096616223644         Delta =   7.569579561024077E-006
 ```
+
+
+## 输入之后，程序实际留下了什么
+
+原作业按顺序执行这两条命令。先读齐同一 q 网格及其电声数据，再让 matdyn 读新写出的实空间文件；第一步失败时不能继续拿旧的 `al.fc` 画图。
+
+```bash
+<qe_bin>/q2r.x -in q2r.in > q2r.out 2> q2r.err
+<qe_bin>/matdyn.x -in matdyn-dos.in > matdyn-dos.out 2> matdyn-dos.err
+```
+
+```console
+maxwell@maxwell:~/al/epc-q4$ tail -18 q2r.out
+ Broadening =      0.045
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+ Broadening =      0.050
+      q-space grid ok, #points =   64
+
+      fft-check success (sum of imaginary terms < 10^-12)
+ 
+     Q2R          :      0.01s CPU      0.01s WALL
+
+ 
+   This run was terminated on:  22:14:11  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+```
+```console
+maxwell@maxwell:~/al/epc-q4$ cat matdyn-dos.out
+MPI startup(): PMI server not found. Please set I_MPI_PMI_LIBRARY variable if it is not a singleton case.
+
+     Program MATDYN v.7.5 starts on 22Sep2026 at 22:14:11 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Parallel version (MPI), running on     1 processors
+
+     MPI processes distributed on     1 nodes
+     1755 MiB available memory on the printing compute node when the environment starts
+ 
+     Message from routine matdyn:
+     Z* not found in file al.fc, TO-LO splitting at q=0 will be absent!
+ 
+     MATDYN       :     26.00s CPU     26.11s WALL
+
+ 
+   This run was terminated on:  22:14:38  22Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=
+```
+
+本例 `q2r` 使用 `zasr='simple'`，`matdyn` 使用 `asr='simple'`，与输入全文相符。24³ 是插值积分网格，`ndos=400` 是输出频率采样，二者都不会新增上游的 DFPT 响应信息。
+
+| 读到的字段 | 本例单位 | 在哪里使用 |
+|---|---|---|
+| `alpha2F.dat` 第一列 | THz，普通频率 ν | 直接求和谱的 λ 与频率矩 |
+| `a2F.dos*` 第一列 | Ry 对应的频率能量 | matdyn 插值谱；先确认单位再比较横轴 |
+| `lambda.dat` 的 log w | K | 可直接代入 Tc 公式 |
+| `el_ph_sigma` 与谱列标题 | Ry | 电子双 δ 积分的展宽 |
+| `lambda.in` 的 0.12 | THz | 频率轴 Gaussian 参数宽度 |
+| `lambda.in` 末行 0.10 | 无量纲 | Tc 采用的 μ* 假设 |
+
+普通频率 ν 与角频率 ω 的单位转换分别写成 hν/kB 与 ħω/kB，两者相等，不能再多乘一次 2π。`lambda.f90` 固定使用 47.9924 K/THz；已经打印成 K 的 ωlog 不需要重复转换。它从逐 q 文件的有限小数频率平方重建最高模式约为 9.936533 THz，ph.x 原文打印为 9.936574 THz，差别是文本精度与常数使用造成的，不能强行当作同一全精度读数。
 
 另一条路线是 `lambda.x`：直接读取这 8 个 q 点的 `elph.inp_lambda.*`，按星权重求和并在频率轴做 Gaussian 展宽。本页主图使用这条路线，文件名是 `alpha2F.dat`，频率单位为 THz。两个文件名很相似，单位和积分方式却不同，应分别保存与标注。
 
@@ -345,13 +232,72 @@ Native calculation completed; scientific convergence not established.
 
 0.005 Ry 的结果明显偏离更宽的几组。后面几组接近，只能说明在当前网格上对这一段展宽不太敏感；没有更密电子网格和真实 q 网格对照，不能据此宣布 λ 已收敛。图中也保留了 matdyn 路线的结果。这次 matdyn 在 0.005 Ry 的谱中还有 146 行负值，最小值为 −0.00554175；0.010 Ry 有 9 行微小负值。原文件保留这些数值，不取绝对值或截零；这些列需要继续检查实空间插值与 q 网格，不能作为已接受的非负谱使用。两条路线的数值积分与插值不同，尤其在较大展宽时差别可见，不能从其中各挑一个数拼成一组结果。
 
-要重新画图，将 `epc-q4` 与绘图脚本放在同一个 Al 数据目录，安装 NumPy、Matplotlib，在该目录运行：
 
-```bash
-python plot_epc.py
+## 从同一份谱同时提取 λ、ωlog 与二阶矩
+
+普通频率 ν 采用同一固定单位时，三个积分分别为：
+
+**λspec = 2∫ α²F(ν)/ν dν**
+
+**νlog = exp{(2/λspec)∫ [α²F(ν)/ν] ln(ν) dν}**
+
+**ν̄₂ = {(2/λspec)∫ α²F(ν)ν dν}<sup>1/2</sup>**
+
+对数可理解为先对 `ν/(1 THz)` 取对数，最终恢复 THz。计算频率矩的归一化 λ 要由同一份谱得到；不能把另一条插值路线的 λ 填进分母。零频点不直接做除法或取对数。本例零频谱为零，可以从正频点积分；这不是允许在其他材料中删掉异常低频峰或实质性虚频。
+
+新增脚本从八份电声原件重建 QE 7.5 的 2000 点 Gaussian 谱，复现程序的内部积分，再对已打印的谱做梯形积分，区分打印舍入与错列、错单位。对负谱不取绝对值、不裁零，也不为它生成可接受的频率矩。
+
+```console
+maxwell@maxwell:~/al/tc-route$ mkdir -p evidence
+maxwell@maxwell:~/al/tc-route$ python3 scripts/verify_tc_chain.py --source <工作目录>/al/epc-q4 --output data > evidence/verify.out
+```
+```console
+maxwell@maxwell:~/al/tc-route$ cat evidence/verify.out
+q points=8; weights=64; modes=3; widths=10; mode records=240
+printed-omega^2 reconstruction=0.087851..9.936533 THz; negative omega^2=0
+ph.x printed maximum=9.936574 THz; frequency difference comes from printed w2 precision
+lambda.x grid=2000 points, 0..14 THz; Gaussian parameter=0.12 THz
+sigma_Ry lambda_qsum lambda_spectrum omega_log_K omega2_K Tc_QE_K Tc_full_AD_K
+0.005 0.43037813 0.43043738 355.87701 370.56657 2.212105 2.248232
+0.010 0.37106094 0.37111797 344.60678 363.11888 0.915532 0.928052
+0.015 0.37029531 0.37035355 343.41976 362.60101 0.900170 0.912494
+0.020 0.37448594 0.37454456 343.74087 363.33106 0.969044 0.982511
+0.025 0.37461250 0.37467149 343.53737 363.44354 0.970568 0.984079
+0.030 0.37377344 0.37383269 342.83124 363.00639 0.954746 0.968016
+0.035 0.37358125 0.37364098 342.00604 362.39378 0.949304 0.962508
+0.040 0.37408594 0.37414604 341.24361 361.79075 0.955437 0.968761
+0.045 0.37502188 0.37508257 340.63107 361.29676 0.969100 0.982670
+0.050 0.37604063 0.37610138 340.14505 360.89644 0.984588 0.998426
+sigma=0.020: f1=1.01206929; f2=1.00080168; spectral simple Tc=0.970016 K
+matdyn negative rows by width: 146, 9, 0, 0, 0, 0, 0, 0, 0, 0
+Cross-check completed. Material Tc convergence is not established.
 ```
 
-原始输入、程序输出和独立检查脚本可以逐个查看：[al.dense.in](/Atlas/examples/al/epc-q4/al.dense.in), [al.dense.out](/Atlas/examples/al/epc-q4/al.dense.out), [al.scf.in](/Atlas/examples/al/epc-q4/al.scf.in), [al.scf.out](/Atlas/examples/al/epc-q4/al.scf.out), [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in), [al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out), [continue.slurm](/Atlas/examples/al/epc-q4/continue.slurm), [q2r.in](/Atlas/examples/al/epc-q4/q2r.in), [q2r.out](/Atlas/examples/al/epc-q4/q2r.out), [matdyn-dos.in](/Atlas/examples/al/epc-q4/matdyn-dos.in), [matdyn-dos.out](/Atlas/examples/al/epc-q4/matdyn-dos.out), [lambda.in](/Atlas/examples/al/epc-q4/lambda.in), [lambda.out](/Atlas/examples/al/epc-q4/lambda.out), [lambda.dat](/Atlas/examples/al/epc-q4/lambda.dat), [alpha2F.dat](/Atlas/examples/al/epc-q4/alpha2F.dat), [analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py), [tc-scan.csv](/Atlas/examples/al/epc-q4/tc-scan.csv)。绘图代码为 [plot_epc.py](/Atlas/examples/al/plot_epc.py)。
+`Tc_full_AD_K` 是脚本从同一非负谱求得的含 f₁、f₂ 结果，不是 QE 原生打印值。具体公式与 μ* 接着到 [Tc 页](/Atlas/m/allen-dynes/qe/)逐项代入。
+
+![同一电子展宽下，两条谱函数路线及累计 λ](/Atlas/examples/al/tc-route/figures/a2f-route-check.png)
+
+图中固定 0.020 Ry，将 Ry 横轴换成 THz 后比较原值。两条离散处理接近不等于真实 q 网格已收敛。
+
+![matdyn 原生负值与零附近放大](/Atlas/examples/al/tc-route/figures/a2f-negative-values.png)
+
+右幅只改变查看范围，没有修改数据。0.005 Ry 的 146 行负值和 0.010 Ry 的 9 行微小负值需要继续排查；直接求和谱非负，不会自动消除这条插值路线的问题。
+
+在公开包内运行提取与绘图：
+
+在解包后的 `al` 目录中执行：
+
+```bash
+cd tc-route
+python3 scripts/verify_tc_chain.py --source ../epc-q4 --output data
+python3 scripts/plot_tc_chain.py --data data --output figures
+```
+
+提取只需 Python 标准库，绘图使用 NumPy、Matplotlib。脚本保留原始符号，不再乘自旋因子；网页 PNG 用大字号，PDF 用 7 pt 正文、8 pt 黑色粗体面板标记和可编辑字体，不加背景网格。
+
+新增下载：[提取与交叉计算](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [绘图脚本](/Atlas/examples/al/tc-route/scripts/plot_tc_chain.py) · [λ、频率矩与公式表](/Atlas/examples/al/tc-route/data/tc-formula-scan.csv) · [两条谱及累计积分](/Atlas/examples/al/tc-route/data/spectra-and-integrals.csv) · [源文件与单位核验](/Atlas/examples/al/tc-route/data/tc-chain-checks.json)。
+
+原始输入、程序输出和独立检查脚本可以逐个查看：[al.dense.in](/Atlas/examples/al/epc-q4/al.dense.in), [al.dense.out](/Atlas/examples/al/epc-q4/al.dense.out), [al.scf.in](/Atlas/examples/al/epc-q4/al.scf.in), [al.scf.out](/Atlas/examples/al/epc-q4/al.scf.out), [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in), [al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out), [continue.slurm](/Atlas/examples/al/epc-q4/continue.slurm), [q2r.in](/Atlas/examples/al/epc-q4/q2r.in), [q2r.out](/Atlas/examples/al/epc-q4/q2r.out), [matdyn-dos.in](/Atlas/examples/al/epc-q4/matdyn-dos.in), [matdyn-dos.out](/Atlas/examples/al/epc-q4/matdyn-dos.out), [lambda.in](/Atlas/examples/al/epc-q4/lambda.in), [lambda.out](/Atlas/examples/al/epc-q4/lambda.out), [lambda.dat](/Atlas/examples/al/epc-q4/lambda.dat), [alpha2F.dat](/Atlas/examples/al/epc-q4/alpha2F.dat), [analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py), [tc-scan.csv](/Atlas/examples/al/epc-q4/tc-scan.csv)。绘图代码为 [plot_epc.py](/Atlas/examples/al/plot_epc.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。
 
 下一步：到 [Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/) 看 μ* 和输入 λ 怎样影响公式给出的 Tc；若要知道某个 q 点的哪个振动模式贡献较大，转到 [声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 

@@ -539,7 +539,7 @@ Interpolation comparison is limited to these 13 points; no full-grid convergence
 
 ## 下载后重新画图
 
-将 `k4`、`k6`、`direct-bands.csv`、`validation-errors.csv` 与 [plot_wannier.py](/Atlas/examples/si-wannier/plot_wannier.py) 放在同一目录，运行：
+将 `k4`、`k6`、`direct-bands.csv`、`validation-errors.csv` 与 [plot_wannier.py](/Atlas/examples/si-wannier/plot_wannier.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-wannier/atlas_plot_style.py)） 放在同一目录，运行：
 
 ```bash
 python plot_wannier.py

@@ -2481,179 +2481,179 @@
     },
     {
       "file": "examples/al/figures/aimd-displacement.pdf",
-      "bytes": 18475,
-      "public_sha256": "4c5f02c8803f56d6830c4de9c86bde8ac30408bab9c03c98774f361f9db1e872",
+      "bytes": 25719,
+      "public_sha256": "82318bf36eb39e336691cc7685cb92fe19a9124931734952ddde9f57ccd4aca5",
       "source_sha256": "4c5f02c8803f56d6830c4de9c86bde8ac30408bab9c03c98774f361f9db1e872"
     },
     {
       "file": "examples/al/figures/aimd-displacement.png",
-      "bytes": 99683,
-      "public_sha256": "5f1b848c576b82fa0874c78b3a4dd1c86487e1cdc1d0875cd9dc029ffbddc877",
+      "bytes": 112841,
+      "public_sha256": "6f3591a352a433890258eb594fc801670f6a672890a0a3310168bf46a877fdbe",
       "source_sha256": "5f1b848c576b82fa0874c78b3a4dd1c86487e1cdc1d0875cd9dc029ffbddc877"
     },
     {
       "file": "examples/al/figures/aimd-energy.pdf",
-      "bytes": 20804,
-      "public_sha256": "eef8fe7efe4aa64e26634518b17ce18d633710ec8cb2fcdd13dca577dd234286",
+      "bytes": 36438,
+      "public_sha256": "f824ca6f7f3d57f6995ea95a891a6303faa8f0c4d30580336003790d196bd4e4",
       "source_sha256": "eef8fe7efe4aa64e26634518b17ce18d633710ec8cb2fcdd13dca577dd234286"
     },
     {
       "file": "examples/al/figures/aimd-energy.png",
-      "bytes": 156805,
-      "public_sha256": "aafc576cbbbbc295d8004fb9183fc79e9a81ab47371cf9a538341ac98e319458",
+      "bytes": 197645,
+      "public_sha256": "b23e5e4c0c95d23d944ed38b39b360e542fe91688371bbfc9419075c4f924225",
       "source_sha256": "aafc576cbbbbc295d8004fb9183fc79e9a81ab47371cf9a538341ac98e319458"
     },
     {
       "file": "examples/al/figures/aimd-temperature.pdf",
-      "bytes": 20418,
-      "public_sha256": "1637387a038e18700143141cd8a862ca09e28b786f681a4b5498ba9adfde7977",
+      "bytes": 36516,
+      "public_sha256": "d9181185a8ca7b8f33b3195f52f7f9fd01ee10da6a3099918671522116eb6efc",
       "source_sha256": "1637387a038e18700143141cd8a862ca09e28b786f681a4b5498ba9adfde7977"
     },
     {
       "file": "examples/al/figures/aimd-temperature.png",
-      "bytes": 160526,
-      "public_sha256": "71f477219d2e963c75572acb35907012d6ad8b4a6785293f1e6e6dfbcbadb500",
+      "bytes": 181198,
+      "public_sha256": "c230e11a12957cb5b42536d22b26f093241108a573920dd3e6da24f05bfa13f9",
       "source_sha256": "71f477219d2e963c75572acb35907012d6ad8b4a6785293f1e6e6dfbcbadb500"
     },
     {
       "file": "examples/al/figures/allen-dynes.pdf",
-      "bytes": 22203,
-      "public_sha256": "50718d79b6b14b85c8f18aabacc4ece53e7031a54911a73b848df01226ba7d61"
+      "bytes": 43407,
+      "public_sha256": "3ed164e0a775687ed8e2e4cc65994a0cd79abba9bd4308ecdc604869ff3a40ef"
     },
     {
       "file": "examples/al/figures/allen-dynes.png",
-      "bytes": 102460,
-      "public_sha256": "b03a55686f2843a6d3678c4d0a91ffc964a485c7dbbca8fa41f45885e54eee38"
+      "bytes": 122225,
+      "public_sha256": "484e1fb5c9e05a67fba5701fc73829beae05018966b029343527c2e69fcc4d9b"
     },
     {
       "file": "examples/al/figures/elastic-kmesh.pdf",
-      "bytes": 15000,
-      "public_sha256": "d3e6646903fc201d5c2860d691cddb4594eac4f0c3bf7e5e7d650bad83b2353b",
+      "bytes": 20774,
+      "public_sha256": "2d26673bcca308edfd71a6b20ce1f5a5c5fbe216a86d0e85aa3a9401e145222c",
       "source_sha256": "d3e6646903fc201d5c2860d691cddb4594eac4f0c3bf7e5e7d650bad83b2353b"
     },
     {
       "file": "examples/al/figures/elastic-kmesh.png",
-      "bytes": 80140,
-      "public_sha256": "ca753429496a28b93b02b51fcc63ddcde48e016819669dc062b5a6e2ab429b84",
+      "bytes": 89936,
+      "public_sha256": "1bec4466781b92e748d11b02689b4a9402d14b5513596a2437138bec666fd1ae",
       "source_sha256": "ca753429496a28b93b02b51fcc63ddcde48e016819669dc062b5a6e2ab429b84"
     },
     {
       "file": "examples/al/figures/elastic-moduli.pdf",
-      "bytes": 14232,
-      "public_sha256": "0a185944f143609bf80a8f63c1274e0c2494a34835be2d3aa2583d3b6273fca3",
+      "bytes": 20082,
+      "public_sha256": "df55d782a879e3ccb463726a73806aaccffdeafcb5bff06b10f127dd757a1493",
       "source_sha256": "0a185944f143609bf80a8f63c1274e0c2494a34835be2d3aa2583d3b6273fca3"
     },
     {
       "file": "examples/al/figures/elastic-moduli.png",
-      "bytes": 75420,
-      "public_sha256": "c392899568ec5ae3956771213d64e28a18d33c7330b61eb15ff488b5c8c77d5a",
+      "bytes": 83850,
+      "public_sha256": "ce020cac5cfcb4eccc4cf777a35e3f254e046bb4fc8ed11ea3cf09b3578ad1e0",
       "source_sha256": "c392899568ec5ae3956771213d64e28a18d33c7330b61eb15ff488b5c8c77d5a"
     },
     {
       "file": "examples/al/figures/eliashberg-a2f.pdf",
-      "bytes": 31914,
-      "public_sha256": "fa5af8f6f35880e351ac52930efa46857d7104addfca3d78612dbdab6b5cc73c"
+      "bytes": 53097,
+      "public_sha256": "cb865e8579e3ba8daf7400c7b4dab81233dd7d8e04cae1e8274aa429f765cfe3"
     },
     {
       "file": "examples/al/figures/eliashberg-a2f.png",
-      "bytes": 151442,
-      "public_sha256": "8533a8bfa8b68b3c5cc6b099c1b1135386ffb580b595f03ebdb911726f020ebe"
+      "bytes": 172033,
+      "public_sha256": "209b1b01abe3ba51756d7acb24e2d0181971d15188370b492fc2729b9314c235"
     },
     {
       "file": "examples/al/figures/epc-smearing.pdf",
-      "bytes": 21560,
-      "public_sha256": "85850997658ad45972e308f13a449bdfb79280948c05837d1bfc1e57b5497be9"
+      "bytes": 42995,
+      "public_sha256": "43cfc0bf8209f8298a506014e29df27d838e4cfef0334ace2b553b50b26675a8"
     },
     {
       "file": "examples/al/figures/epc-smearing.png",
-      "bytes": 119856,
-      "public_sha256": "975bdf8d5ce012d7a02aa620806fe751aabc6957c015fc098fb9eec26143ccf8"
+      "bytes": 148197,
+      "public_sha256": "be6187bcdd2ec34ed6c23d48185a02789b924900564cee7162eab014b3de2e4a"
     },
     {
       "file": "examples/al/figures/fermi-nesting.pdf",
-      "bytes": 18824,
-      "public_sha256": "ef218d8f93632001ce92d885e03f49f204edbff1970bcc71bf120583536ea3be",
+      "bytes": 35771,
+      "public_sha256": "10917f3b39ee758a57e18052e3cf83a776edc81ef75f01ece3d09c0ab1fa6b50",
       "source_sha256": "ef218d8f93632001ce92d885e03f49f204edbff1970bcc71bf120583536ea3be"
     },
     {
       "file": "examples/al/figures/fermi-nesting.png",
-      "bytes": 162077,
-      "public_sha256": "35a770238ca0f7c992b706c2a01e9995d22113722ac2ba4b2f75fa7e4730cc7c",
+      "bytes": 194691,
+      "public_sha256": "0650dfc8c9c9a74b5dce366b9587c9254b304fa192038184aa84b87fcbf72f48",
       "source_sha256": "35a770238ca0f7c992b706c2a01e9995d22113722ac2ba4b2f75fa7e4730cc7c"
     },
     {
       "file": "examples/al/figures/fermi-slices.pdf",
-      "bytes": 16232,
-      "public_sha256": "3198dad23c82252cc0f32f0302dc3be4d83d9f87ade50f6ac9ff9984a2a3ceb7",
+      "bytes": 25404,
+      "public_sha256": "3e05f20b407de6d7ebe44da146617461db809253b2e0dbc4e8fa65c39d9989cc",
       "source_sha256": "3198dad23c82252cc0f32f0302dc3be4d83d9f87ade50f6ac9ff9984a2a3ceb7"
     },
     {
       "file": "examples/al/figures/fermi-slices.png",
-      "bytes": 109381,
-      "public_sha256": "0dd2d42696d65b42fbd1aa6c18fe1989ef3c572b3b858182c05a08869d0eeeb1",
+      "bytes": 118033,
+      "public_sha256": "68f6d4218456d190bb44e70e89eee6e25defd4ddf73f65e5e70dd98eb4492970",
       "source_sha256": "0dd2d42696d65b42fbd1aa6c18fe1989ef3c572b3b858182c05a08869d0eeeb1"
     },
     {
       "file": "examples/al/figures/fermi-surface.html",
       "bytes": 3221721,
-      "public_sha256": "91de64f3884d0f51c57f5c279047a6e6357c44d38fc6f70f442c29deb917cc29",
+      "public_sha256": "5af44710745ffc83051011cc9b461f632be1a2cf594cfb691e25e15e713b891a",
       "source_sha256": "91de64f3884d0f51c57f5c279047a6e6357c44d38fc6f70f442c29deb917cc29"
     },
     {
       "file": "examples/al/figures/finite-displacement.pdf",
-      "bytes": 23973,
-      "public_sha256": "1e294118d321111704d64e85c394e0fdd61da3dd20d2e275209c277f6d98bc9b",
+      "bytes": 41734,
+      "public_sha256": "b82a06537bf2d6ae7007e5eebe1d0dadaf4ce97797d0aa4fc254e6af780b6359",
       "source_sha256": "1e294118d321111704d64e85c394e0fdd61da3dd20d2e275209c277f6d98bc9b"
     },
     {
       "file": "examples/al/figures/finite-displacement.png",
-      "bytes": 242190,
-      "public_sha256": "f26d15f6df330ff3683c3514dc60ab15968bcc04d96dc95e4a24219c4ee9d744",
+      "bytes": 273436,
+      "public_sha256": "d07c25e73ca4c3d338e4278f5d994d45ad54da008e1d19452f7d947a199da7d8",
       "source_sha256": "f26d15f6df330ff3683c3514dc60ab15968bcc04d96dc95e4a24219c4ee9d744"
     },
     {
       "file": "examples/al/figures/phdos.pdf",
-      "bytes": 17904,
-      "public_sha256": "e72fe4cbfa93f4eaced29d91b49a7afeddbd82bdb6cce83c5c65f2aff3877930",
+      "bytes": 27063,
+      "public_sha256": "bd3363a0396cca0aed2b8af23e71fe1fb6cff72f40482d25154d3ddc9d67fe03",
       "source_sha256": "e72fe4cbfa93f4eaced29d91b49a7afeddbd82bdb6cce83c5c65f2aff3877930"
     },
     {
       "file": "examples/al/figures/phdos.png",
-      "bytes": 98432,
-      "public_sha256": "fd1da4cc700d45c1dc1167454586a46caa6cacc240940a340278114d992411ec",
+      "bytes": 111309,
+      "public_sha256": "99d2e3238a9d4431bc10a17609a2d6b61e8ef6ca06e076f9df69776d06b54790",
       "source_sha256": "fd1da4cc700d45c1dc1167454586a46caa6cacc240940a340278114d992411ec"
     },
     {
       "file": "examples/al/figures/phonon-dfpt.pdf",
-      "bytes": 12450,
-      "public_sha256": "51b99fb1436db0bfcc81c23c18127644b3385f407b362c414c1a0c53f573979a",
+      "bytes": 22254,
+      "public_sha256": "7e0683fde23356a3b60d37f6671382ebce3cc5bbb81a0e13b0247ebac675d1ba",
       "source_sha256": "51b99fb1436db0bfcc81c23c18127644b3385f407b362c414c1a0c53f573979a"
     },
     {
       "file": "examples/al/figures/phonon-dfpt.png",
-      "bytes": 102468,
-      "public_sha256": "8240a153b0334a67ea6e5593bc7d3119faa81d2ffb0d7124023884f3b37a9a1c",
+      "bytes": 114172,
+      "public_sha256": "adf1fd57cc8491799f36e4b1d0291a369d4d3b4a2f848edeac5f47090415b878",
       "source_sha256": "8240a153b0334a67ea6e5593bc7d3119faa81d2ffb0d7124023884f3b37a9a1c"
     },
     {
       "file": "examples/al/figures/phonon-linewidth.pdf",
-      "bytes": 22085,
-      "public_sha256": "c6fc5f74903fd577f9b0a46da867e593213a1ee8ebcc5c633d01302770bfedd0"
+      "bytes": 39803,
+      "public_sha256": "a614d2792beb5c54b7067a39e9c56087ae51887efd2f86663723d6fb2d213f71"
     },
     {
       "file": "examples/al/figures/phonon-linewidth.png",
-      "bytes": 74496,
-      "public_sha256": "ec703247912a63e15628aecb44c93fb857dfcd462e6af0ed0d760648546bd3a4"
+      "bytes": 88240,
+      "public_sha256": "eca5bc6577687d52801c5d267149d4242a4837473936d61c8dc61de2e42dc307"
     },
     {
       "file": "examples/al/figures/strain-scan.png",
-      "bytes": 122714,
-      "public_sha256": "0b53d7cb9fc6b70a45971febd38e8d02353fd3619be038c42cf3b7b4132aff49"
+      "bytes": 147162,
+      "public_sha256": "d9c4cc9ad9f0df22e752a409197a9ba409769c27f1871431eb857ec86088a4c5"
     },
     {
       "file": "examples/al/figures/strain-scan.svg",
-      "bytes": 66591,
-      "public_sha256": "83655f1e341eb6353fd4a44b34552aa121c87fa60bc1d29a8c9bdf928ea00cca"
+      "bytes": 22245,
+      "public_sha256": "cb98fffb3e1da9d347d79d3885a01004930936c11bc86872435490945e068090"
     },
     {
       "file": "examples/al/finite-disp/analyse.py",
@@ -2939,55 +2939,55 @@
     },
     {
       "file": "examples/al/plot_aimd.py",
-      "bytes": 2945,
-      "public_sha256": "fa6ee728708fd00f1b3d0d83f35917f694c9b48ba5096633f960bce7d2313efc",
+      "bytes": 3028,
+      "public_sha256": "38744851ab41e560f9a3cbea030d486f6e47fe41e97375087bb4318a1d2ef666",
       "source_sha256": "fa6ee728708fd00f1b3d0d83f35917f694c9b48ba5096633f960bce7d2313efc"
     },
     {
       "file": "examples/al/plot_elastic.py",
-      "bytes": 748,
-      "public_sha256": "b9d7167df92bf6cef858ef619deeb4b264ad6fdd77edfcf6b36373735c08aac1",
+      "bytes": 831,
+      "public_sha256": "ed349875bb371db90564087c5573f1f878c0b186f531fb252471f829b30003ff",
       "source_sha256": "b9d7167df92bf6cef858ef619deeb4b264ad6fdd77edfcf6b36373735c08aac1"
     },
     {
       "file": "examples/al/plot_epc.py",
-      "bytes": 3646,
-      "public_sha256": "1d89f83f6b5867571544cdf299c8c864abdc1c9480e077a699e683ad21a3ef31"
+      "bytes": 3729,
+      "public_sha256": "552a666187e4adb713731b606d6b9750d705c36fa94e18c398fdcb9fe6b23db8"
     },
     {
       "file": "examples/al/plot_fermi.py",
-      "bytes": 2051,
-      "public_sha256": "c635b377e86f47390bfd67842672b72a5cf99882c53d8ae8fba4f291171d4c21",
+      "bytes": 2134,
+      "public_sha256": "5eebb64dbf7506ce5095244df048dbd17f81e25480302157454f3e07f5afa695",
       "source_sha256": "c635b377e86f47390bfd67842672b72a5cf99882c53d8ae8fba4f291171d4c21"
     },
     {
       "file": "examples/al/plot_finite.py",
-      "bytes": 1221,
-      "public_sha256": "133a238a240ef5c6a153b79591bb5f9a5c21ef06cea8e50fd33f9db6866208bd",
+      "bytes": 1304,
+      "public_sha256": "0b380f7df3328c3acc94bfb779ca3dbf60e96539eff854451c819f3c8f567c9b",
       "source_sha256": "133a238a240ef5c6a153b79591bb5f9a5c21ef06cea8e50fd33f9db6866208bd"
     },
     {
       "file": "examples/al/plot_nesting.py",
-      "bytes": 781,
-      "public_sha256": "82f161c47b90d26fa949087eacd2c621179055e1f056904938ded34ccc97e6fb",
+      "bytes": 864,
+      "public_sha256": "5622255bcc12869fe8090d7346b9b5bf53288b1c8153aa16c81eae54a9848e63",
       "source_sha256": "82f161c47b90d26fa949087eacd2c621179055e1f056904938ded34ccc97e6fb"
     },
     {
       "file": "examples/al/plot_phdos.py",
-      "bytes": 655,
-      "public_sha256": "082fb867563161de95eeb4f1b51986dee7422e590bcb5de756a186a368ba62dd",
+      "bytes": 738,
+      "public_sha256": "268a50d6e99c9c944c7f8f0243cfdef0725457e5dcfe533e0e991658d2d2b739",
       "source_sha256": "af1ef53a50d4365a88748f8f5cfaf66928cd45bb8bb4ca11330672637c4e6067"
     },
     {
       "file": "examples/al/plot_phonon.py",
-      "bytes": 642,
-      "public_sha256": "6b6ab09eb96915a979f882a237a7adadfa0cf5a5187c4a33d744256f7f8f3de7",
+      "bytes": 725,
+      "public_sha256": "67b93158f1a11a04fbb661fa2341d8d2238b7a249632a080c801829619930c3e",
       "source_sha256": "6b6ab09eb96915a979f882a237a7adadfa0cf5a5187c4a33d744256f7f8f3de7"
     },
     {
       "file": "examples/al/plot_strain.py",
-      "bytes": 1284,
-      "public_sha256": "8bbddfa1cde5978f7d04e844f6251a739436a2c167762a5b6ea36ff83324f1e1"
+      "bytes": 1367,
+      "public_sha256": "5841bf95cdccf681f68c594e425271d45884c5b90703715051104a7dcb880b70"
     },
     {
       "file": "examples/al/prepare_aimd.py",

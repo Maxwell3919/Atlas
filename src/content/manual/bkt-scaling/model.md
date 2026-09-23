@@ -4,7 +4,7 @@
 
 这里是独立的经典统计模型，使用 Python 与 NumPy，不读取 DFT 输入，也没有将参数对应到 SnSe₂/Sr₂N 或其他材料。以 J 作为能量单位、J/kB 作为温度单位；程序令 J=kB=1，因此输入 0.92 表示 kB·T/J=0.92。下文和原始输出中的 T/J 是这一约定下的简写，不能直接标为 K。一次 Monte Carlo sweep 是抽样操作，不是飞秒、皮秒或真实自旋动力学时间。
 
-[下载完整算例](/Atlas/examples/xy-bkt-files.tar.gz)后，可以查看全部随机种子、热化记录、抽样序列和末态构型。[mc.py](/Atlas/examples/xy-bkt/mc.py) 是完整计算输入，[analyse.py](/Atlas/examples/xy-bkt/analyse.py) 提取相位刚度与误差，[verify.py](/Atlas/examples/xy-bkt/verify.py) 核对保存数据，[plot.py](/Atlas/examples/xy-bkt/plot.py) 重新作图。
+[下载完整算例](/Atlas/examples/xy-bkt-files.tar.gz)后，可以查看全部随机种子、热化记录、抽样序列和末态构型。[mc.py](/Atlas/examples/xy-bkt/mc.py) 是完整计算输入，[analyse.py](/Atlas/examples/xy-bkt/analyse.py) 提取相位刚度与误差，[verify.py](/Atlas/examples/xy-bkt/verify.py) 核对保存数据，[plot.py](/Atlas/examples/xy-bkt/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/xy-bkt/atlas_plot_style.py)） 重新作图。
 
 ## 把模型、边界和一次更新说清楚
 
@@ -162,6 +162,14 @@ python3 plot.py
 ```
 
 它读取原始 CSV 和末态构型，输出 `figures/xy-helicity.png`、`xy-configurations.png`、`xy-sampling.png` 及对应 PDF。图中连线连接实际计算的六个温度点。
+
+相位刚度图读取 `results/helicity.csv` 的 18 行汇总，即 3 个尺寸各 6 个温度。横轴来自 `temperature_J`，纵轴来自 `Y_J`，误差棒使用 `display_error_J`：它取链内分块误差与两个种子之间误差估计的较大者。重画时不要误选单个种子的标准差，也不要把这列再除以样本数。`reference_2T_over_pi` 保存了同一温度的参考值；曲线交点仍只属于这些有限尺寸与离散温度的比较。
+
+加长抽样图读取 `results/extension-comparison.csv`，能量分块记录则来自 `extended/` 中对应两条 L=24、T/J=0.92 链的 `series.csv`。快照读取按名称排序后选定的 L=24 低温与高温目录，并从其中的 `run.json` 取种子。要换一份快照，应同时换它的 `final-angles.csv`、`final-vortices.csv` 与标题中的种子，不能只换箭头图而留下另一条链的缺陷标记。
+
+论文图使用 [Nature 要求的可编辑矢量输出](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)时，在创建画布前选择已安装的 Arial/Helvetica 并设置 `pdf.fonttype=42`；保留现有 PDF 保存步骤即可，字体与布局需重新导出。网页图使用适合屏幕的字号，论文副本再按最终版面检查 5—7 pt 正文与 8 pt 面板号。文字、图例和坐标保持黑色，尺寸 L 用不同标记或线型辅助区分颜色。
+
+快照里箭头方向已经表示角度；若继续用颜色编码角度，应补上带弧度单位的色标，否则可使用单色箭头。q=+1 和 q=−1 继续用圆圈与方框区分，不能只剩红蓝颜色。坐标表示格点位置，可标为 `x / a`、`y / a`，其中 a 是方格间距；这不是材料的 Å 坐标。`2T/π` 参考线、误差棒和周期边界附近的涡旋都保留，不能在整理画面时删掉。
 
 若要重新运行，把四份 Python 脚本复制到一个新的空目录，先做 `--benchmark`，再按 `--base → --extended → analyse.py → verify.py` 的顺序执行。`mc.py` 会拒绝覆盖已有 case 目录；这使原始抽样记录可以保留下来比较。已有包中的 `base/` 与 `extended/` 是结果，不要在原处重跑后覆盖。
 

@@ -156,7 +156,7 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 ## 先看截面，再转动三维等值面
 
-[plot_fermi.py](/Atlas/examples/al/plot_fermi.py) 读两个网格目录里的 `fermi-grid.npz`，生成二维截面对照与一个可在浏览器中旋转的三维 HTML。需要 NumPy、Matplotlib 和 Plotly；在下载的 Al 示例根目录运行：
+[plot_fermi.py](/Atlas/examples/al/plot_fermi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读两个网格目录里的 `fermi-grid.npz`，生成二维截面对照与一个可在浏览器中旋转的三维 HTML。需要 NumPy、Matplotlib 和 Plotly；在下载的 Al 示例根目录运行：
 
 ```bash
 python3 plot_fermi.py

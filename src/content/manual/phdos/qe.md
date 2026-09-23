@@ -2,7 +2,7 @@
 
 声子色散告诉我们一条指定路径上的频率怎样变化。声子态密度换了一个问法：在整个布里渊区里，有多少振动模式落在这一小段频率内？路径上的点再密，也不能代替布里渊区积分。
 
-这里接着 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的结果做。例子是新计算的单原子 fcc Al 原胞，使用 QE 7.5 和官方示例中的 `Al.pz-vbc.UPF`。这次完整计算了 4×4×4 q 网格；下面每一个文件都来自同一个 Al 结构、同一份 SCF 电荷密度。结构优化与 SCF 的步骤见 [晶胞优化](/Atlas/m/vc-relax/qe/) 和 [SCF](/Atlas/m/scf/qe/)，在这里从声子计算已经结束的目录开始。
+这里接着 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的结果做。例子是新计算的单原子 fcc Al 原胞，使用 QE 7.5 和官方示例中的 `Al.pz-vbc.UPF`。这次完整计算了 4×4×4 q 网格；下面每一个文件都来自同一个 Al 结构、同一份 SCF 电荷密度。本次 Al 的结构与父 SCF 设置在上面的 DFPT 算例中核对，在这里从声子计算已经结束的目录开始。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -138,18 +138,6 @@ maxwell@maxwell:~/al/dfpt$ head -8 al.phdos.dat
 ```
 第一列是频率，单位 cm⁻¹；第二列是总 DOS；第三列是这里唯一一个原子的投影贡献。单原子原胞只有 3 条声子支，所以对总 DOS 积分应接近 3，而不是电子 DOS 中常见的电子态数。文件开头的约 −0.000003 cm⁻¹ 在这个计算中对应数值零，不能据此画出一个有物理意义的负频峰。
 
-## 把积分数和图放在一起检查
-
-解包本页开头的 Al 算例并保留目录结构，在 `al` 目录运行[绘图脚本](/Atlas/examples/al/plot_phdos.py)。脚本从 `dfpt/al.phdos.dat` 和 `dfpt/al.phdos32.dat` 读取 24³、32³ 两份数据；[单独下载的原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat)也应放回对应的 `dfpt` 子目录。它先输出积分再画曲线，这样能发现列读错、单位弄错或数据截断的问题。
-
-```bash
-python3 plot_phdos.py
-```
-
-本次 24³ 网格的积分是 **2.99953038**；32³ 网格为 **2.99931874**。完整频率范围是约 0—332 cm⁻¹。两次积分都应与 3 对照，而不是强行归一化后再宣布通过。
-
-<figure><img src="/Atlas/examples/al/figures/phdos.png" alt="Al 声子态密度，24与32网格积分比较" loading="lazy"/><figcaption>同一份 4×4×4 DFPT 力常数上的两种积分网格。曲线是实际输出的 DOS，没有手工平滑或补点。</figcaption></figure>
-
 换 32³ 的过程只改变后处理积分网格，保留原输出：
 
 ```console
@@ -167,6 +155,28 @@ maxwell@maxwell:~/al/dfpt$ cat matdyn-dos32.in
  fldos='al.phdos32.dat'
 /
 ```
+保存后仍在 `al/dfpt` 目录运行第二份输入，再检查它自己的输出与错误文件：
+
+```bash
+<qe_bin>/matdyn.x -in matdyn-dos32.in > matdyn-dos32.out 2> matdyn-dos32.err
+tail -n 14 matdyn-dos32.out
+cat matdyn-dos32.err
+```
+
+本次保存的 [matdyn-dos32.out](/Atlas/examples/al/dfpt/matdyn-dos32.out) 记录了 22.21 s WALL 与 `JOB DONE.`，[matdyn-dos32.err](/Atlas/examples/al/dfpt/matdyn-dos32.err) 为空。`fldos` 使用新的文件名，因此两份 `al.phdos*.dat` 都会保留。先完成这一步，再运行同时读取两份数据的绘图脚本。
+
+## 把积分数和图放在一起检查
+
+解包本页开头的 Al 算例并保留目录结构，在 `al` 目录运行[绘图脚本](/Atlas/examples/al/plot_phdos.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。脚本从 `dfpt/al.phdos.dat` 和 `dfpt/al.phdos32.dat` 读取 24³、32³ 两份数据；[单独下载的原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat)也应放回对应的 `dfpt` 子目录。它先输出积分再画曲线，这样能发现列读错、单位弄错或数据截断的问题。
+
+```bash
+python3 plot_phdos.py
+```
+
+本次 24³ 网格的积分是 **2.99953038**；32³ 网格为 **2.99931874**。完整频率范围是约 0—332 cm⁻¹。两次积分都应与 3 对照，而不是强行归一化后再宣布通过。
+
+<figure><img src="/Atlas/examples/al/figures/phdos.png" alt="Al 声子态密度，24与32网格积分比较" loading="lazy"/><figcaption>同一份 4×4×4 DFPT 力常数上的两种积分网格。曲线是实际输出的 DOS，没有手工平滑或补点。</figcaption></figure>
+
 比较时要分开两个问题：积分网格变密后峰形和积分是否稳定；原始 DFPT q 网格变密后力常数是否稳定。这里已完成前一项检查的两组计算，后一项仍需独立 q 网格系列。当前这张图可以用于理解声子 DOS 和检查数据链条，不能直接作为 Al 声子谱已数值收敛的证明。
 
 下一步可以回到 [声子色散](/Atlas/m/phonon-dfpt/qe/) 对照峰主要来自哪些近乎平坦的声子支，也可以到 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查低频端的残差。

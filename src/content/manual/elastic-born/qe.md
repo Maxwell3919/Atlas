@@ -202,7 +202,7 @@ strain     C11       C12       C44       B         GH        E        nu
 
 <figure><img src="/Atlas/examples/al/figures/elastic-kmesh.png" alt="Al 三个弹性分量和体模量随k网格变化" loading="lazy"/><figcaption>同一组 ±0.5% 应变的电子网格检查。不同分量对网格的敏感程度明显不同。</figcaption></figure>
 
-[绘图脚本](/Atlas/examples/al/plot_elastic.py) 读取 `elastic/kmesh-comparison.csv` 与原始应力表，在本地运行 `python3 plot_elastic.py`；图上的点由这些计算逐项得到。
+[绘图脚本](/Atlas/examples/al/plot_elastic.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读取 `elastic/kmesh-comparison.csv` 与原始应力表，在本地运行 `python3 plot_elastic.py`；图上的点由这些计算逐项得到。
 
 ## 最后才把常数代入 Born 条件
 

@@ -1,0 +1,46 @@
+{
+  "case": "Si, two equal-mass atoms, Gamma, fixed example geometry",
+  "numpy_version": "2.3.4",
+  "alat_angstrom": 5.3976075512106,
+  "scope": "Diagnostics of rounded filout displacements; no new phonon calculation",
+  "maximum_imaginary_component": 0.0,
+  "sets": {
+    "no": {
+      "max_norm_deviation": 3.094489522403876e-07,
+      "max_gram_deviation": 2.220446049250313e-16,
+      "acoustic_translation_projector_frobenius": 7.611305586242616e-16,
+      "optical_translation_projector_frobenius": 6.568167990716596e-16,
+      "acoustic_frequency_range_cm-1": [
+        -5.586079,
+        -5.586079
+      ],
+      "optical_frequency_range_cm-1": [
+        523.722542,
+        523.722542
+      ]
+    },
+    "crystal": {
+      "max_norm_deviation": 4.353459053252351e-07,
+      "max_gram_deviation": 1.0149477919684467e-06,
+      "acoustic_translation_projector_frobenius": 5.985736033119142e-16,
+      "optical_translation_projector_frobenius": 5.768888059150692e-16,
+      "acoustic_frequency_range_cm-1": [
+        -9e-06,
+        8e-06
+      ],
+      "optical_frequency_range_cm-1": [
+        523.722542,
+        523.722542
+      ]
+    }
+  },
+  "subspace_comparison": {
+    "acoustic_projector_frobenius": 4.164227186762188e-16,
+    "optical_projector_frobenius": 6.843874359417885e-16
+  },
+  "sha256": {
+    "si-no.modes": "149db19222c742a711044f4f97d713e423bd19961e5a61373f96d38f53e623ec",
+    "si-crystal.modes": "a6b0d2a190ad4e4e20683a883e44af070e5518585fbcfac8ab27d0ca06ffe67f",
+    "si.dynG": "4c11750ce1aae956fc9bda343ad599de985718a6c4c2ae33fd99745f45b6a937"
+  }
+}

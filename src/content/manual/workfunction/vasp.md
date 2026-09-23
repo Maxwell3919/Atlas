@@ -220,6 +220,16 @@ Direct
 
 LOCPOT 的前半部分像 POSCAR：标题、缩放系数、三条晶格矢量、元素和数量、坐标。空行后出现 `60 60 280`，表示网格沿三个晶格方向各有这么多点；再往后才是势值，x 最快变化，z 最慢。总共应读到 60×60×280 = 1,008,000 个标量值。
 
+把网格值记为 Vᵢⱼₖ，在第 k 个平面上取 V̄ₖ=ΣᵢⱼVᵢⱼₖ/(60×60)。这里的平均只消去面内 x、y 起伏，保留沿 z 的变化；没有再作沿 z 的滑动平均。对于本例的正交法向，zₖ=k×18.357298/280，k 从 0 到 279，不重复 18.357298 Å 的周期端点。对应的核心操作是：
+
+```python
+field = np.asarray(values).reshape((nz, ny, nx))
+planar = field.mean(axis=(1, 2))
+z = np.arange(nz) * normal_height / nz
+```
+
+`normal_height` 来自晶胞体积除以面内面积；它不是斜晶胞第三矢量长度的一概替代名称。原文件的数值已经以 eV 表示，这里没有 CHGCAR 那样的体积归一化。
+
 下载包中的 `plane_average.py` 按这个结构读取文件，先检查网格尺寸、数值个数和有限性，再对每个 z 平面的 60×60 个值求平均。它把结果写成两列文本，而不去改动 LOCPOT：
 
 ```text
@@ -229,6 +239,8 @@ normal height = 18.3572980000 A; output = PLANAR_AVERAGE.dat
 window 1.00:3.00 A  N=30  mean=3.306283412 eV  std=1.5602e-05 eV  range=6.06972e-05 eV
 window 15.00:17.00 A  N=31  mean=3.306265353 eV  std=3.89608e-05 eV  range=0.000145996 eV
 ```
+
+输出中的 `std` 是所选空间窗口内网格值的标准差，不是来自多次独立计算的误差条，也不能代替真空厚度或截断能的收敛检查。`range` 则是同一窗口内最大值减最小值；当曲线仍有系统斜率时，两者都应连着整条曲线解释。
 
 两个冒号区间单位为 Å，表示统计 1–3 Å 和 15–17 Å 的平台。第一侧有 30 个采样平面，平均值 3.306283412 eV，最大与最小值相差约 0.0000607 eV；第二侧有 31 个平面，平均值 3.306265353 eV，起伏约 0.0001460 eV。两侧平均相差约 0.0000181 eV，与这个上下对称单层应有的近似一致平台相符。
 
@@ -264,9 +276,13 @@ z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM 
 python3 plot_workfunction.py
 ```
 
-脚本读取 `PLANAR_AVERAGE.dat` 与 `workfunction-summary.json`，上图保留整个晶胞的势、费米能和两个浅色统计窗口，下图把真空平台附近放大到 ±0.002 eV，输出 `workfunction-z.png` 和 `workfunction-z.pdf`。保留这两个尺度，既能看清原子区，也能看见真空中是否仍有倾斜。
+新的 [作图数据与脚本](/Atlas/examples/workfunction-figure-files.tar.gz) 读取同一份 `PLANAR_AVERAGE.dat` 与 `workfunction-summary.json`，输出 SVG、PDF 和 PNG。解包进入 `workfunction-figure` 后执行 `python3 plot_workfunction.py` 即可重画。
 
-![SnSe₂ 平面平均势、费米能与两侧真空平台](/Atlas/examples/vasp/snse2_workfunction/workfunction-z.png)
+主图把左侧窗口的 V_vac=3.306283412 eV 选为绘图零点：整条 V̄(z) 与 E_F 同时减去这个数，Φ 因而保持不变。上方主图的纵轴是 eV；下方两幅放大图仍以同一个左侧真空势为参考，但改用 meV，分别只显示 1–3 Å 与 15–17 Å 的原始采样点。两侧没有各自归零，因此右侧约 −0.0181 meV 的均值差仍保留在图中。
+
+原子区势阱很深，在全晶胞图上看似平坦的真空部分仍可能有细微结构。放大图用于检查平台起伏和窗口位置；它的细刻度不代表整个功函数已经具有相同的材料预测精度。
+
+![SnSe₂ 平面平均势与费米能采用共同真空零点，两侧平台分别放大](/Atlas/examples/workfunction-figure/workfunction-z.svg)
 
 下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 E_F。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 

@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 import csv,json
 import numpy as np
 import matplotlib
@@ -10,7 +13,7 @@ def read(name):
     return rows,np.array([[float(r[k]) for k in ['x_A','y_A','z_A']] for r in rows])
 r=json.load(open('model-check.json'));cell=np.array(r['reference']['cell'])
 old,po=read('reference-atoms.csv');new,pn=read('gap3p0-atoms.csv')
-colors={'Sn':'#76559b','Se':'#cf8231','Sr':'#337b9e','N':'#33956c'}
+colors={'Sn':'#cc79a7','Se':'#e69f00','Sr':'#0072b2','N':'#009e73'}
 markers={'Sn':'o','Se':'o','Sr':'s','N':'D'}
 fig,axes=plt.subplots(1,3,figsize=(11.5,6),layout='constrained',gridspec_kw={'width_ratios':[1.3,1,1]})
 ax=axes[0]

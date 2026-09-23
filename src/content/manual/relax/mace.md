@@ -146,7 +146,12 @@ BFGS:   15 21:28:05      -42.953872        0.000627
 
 将 `optimization.csv` 和 [plot.py](/Atlas/examples/mace-si/si-relax/plot.py) 下载到同一个本地目录，运行 `python3 plot.py`。完整绘图代码如下：
 
+绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-relax/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
+
 ```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import numpy as np
 import matplotlib
@@ -156,7 +161,7 @@ import matplotlib.pyplot as plt
 data = np.genfromtxt("optimization.csv", delimiter=",", names=True)
 plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
 fig, axes = plt.subplots(2, 1, figsize=(7, 6), sharex=True, layout="constrained")
-axes[0].plot(data["step"], 1000 * (data["energy_eV"] - data["energy_eV"][0]) / 8, "o-", color="#176B87")
+axes[0].plot(data["step"], 1000 * (data["energy_eV"] - data["energy_eV"][0]) / 8, "o-", color="#0072b2")
 axes[0].set_ylabel("Energy change (meV/atom)")
 axes[0].set_title("Diamond Si: fixed-cell MACE relaxation")
 axes[1].semilogy(data["step"], data["fmax_eV_A"], "o-", color="#B45309")

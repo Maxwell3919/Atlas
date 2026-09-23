@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv
 import numpy as np
@@ -12,7 +15,7 @@ def main():
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':180})
     fig,axs=plt.subplots(1,2,figsize=(10,4.5),layout='constrained')
     e=np.array([float(r['adsorption_eV_H']) for r in energies])
-    axs[0].bar([0,1],e,width=.55,color=['#2463a7','#d17b3d'])
+    axs[0].bar([0,1],e,width=.55,color=['#0072b2','#d55e00'])
     axs[0].set_xticks([0,1],['12×12×1\nrelaxed','16×16×1\nfixed k12 geometry'])
     axs[0].set_ylabel('Adsorption energy (eV/H)');axs[0].axhline(0,color='#657081',lw=.7)
     axs[0].set_title('Matched clean / adsorbed slabs; same H₂ reference')
@@ -21,9 +24,9 @@ def main():
     if np.all(e>0):axs[0].set_ylim(0,max(e)*1.4)
     f12=np.array([float(r['max_force_k12_Ry_Bohr']) for r in forces]);f16=np.array([float(r['max_force_k16_Ry_Bohr']) for r in forces])
     x=np.arange(len(forces));w=.32
-    axs[1].bar(x-w/2,f12,w,label='12×12×1 relaxed',color='#2463a7')
-    axs[1].bar(x+w/2,f16,w,label='16×16×1 fixed geometry',color='#d17b3d')
-    axs[1].axhline(2e-4,color='#8e2e2e',ls='--',lw=1,label='2×10⁻⁴ Ry/Bohr force condition')
+    axs[1].bar(x-w/2,f12,w,label='12×12×1 relaxed',color='#0072b2')
+    axs[1].bar(x+w/2,f16,w,label='16×16×1 fixed geometry',color='#d55e00')
+    axs[1].axhline(2e-4,color='#333333',ls='--',lw=1,label='2×10⁻⁴ Ry/Bohr force condition')
     axs[1].set_xticks(x,['Clean slab','Adsorbed slab']);axs[1].set_ylabel('Largest absolute force component (Ry/Bohr)')
     axs[1].ticklabel_format(axis='y',style='sci',scilimits=(0,0))
     axs[1].set_ylim(0,max(2e-4,float(f12.max()),float(f16.max()))*1.5)

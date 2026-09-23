@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv
 import numpy as np
@@ -11,10 +14,10 @@ energy=np.array([float(x['energy_Ry']) for x in rows])
 sxx=[float(x['sigma_xx_GPa']) for x in rows]
 syy=[float(x['sigma_yy_GPa']) for x in rows]
 fig,axes=plt.subplots(1,2,figsize=(9,3.8),layout='constrained')
-axes[0].plot(e,(energy-energy.min())*13.605693122994*1000,'o-',color='#246a90')
+axes[0].plot(e,(energy-energy.min())*13.605693122994*1000,'o-',color='#0072b2')
 axes[0].set(xlabel='Applied x strain (%)',ylabel='F - lowest sampled F (meV/atom)')
-axes[1].plot(e,sxx,'o-',label='Tensile-positive stress xx',color='#246a90')
-axes[1].plot(e,syy,'s-',label='Tensile-positive stress yy',color='#c4772d')
+axes[1].plot(e,sxx,'o-',label='Tensile-positive stress xx',color='#0072b2')
+axes[1].plot(e,syy,'s-',label='Tensile-positive stress yy',color='#d55e00')
 axes[1].set(xlabel='Applied x strain (%)',ylabel='Stress (GPa)')
 axes[1].legend(frameon=False,fontsize=8)
 for ax in axes:

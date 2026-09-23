@@ -703,10 +703,15 @@ python3 plot_unfold.py
 <details>
 <summary>绘图脚本 plot_unfold.py</summary>
 
+绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/si-unfolding/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
+
 ```python
 """Run beside summary.json after analyse_unfold.py; matplotlib/numpy only.
 Display raw native spectral weights; no weight rescaling or invented broadening.
 """
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv,json
 import numpy as np
@@ -749,7 +754,7 @@ comp=list(csv.DictReader((R/'primitive-comparison.csv').open()))
 errenergy=np.array([max(abs(float(x['delta_eV'])) for x in comp if int(x['ik'])==i) for i in indices])
 fig,axs=plt.subplots(1,3,figsize=(12,3.7),layout='constrained')
 for ax,y,title,label in zip(axs,[errnorm,errnative,errenergy*1e6],['Wavefunction normalization','Native versus independent projector','Unfolded versus primitive DFT'],['max |norm − 1|','max |weight difference|','max |energy difference| (μeV)']):
- ax.plot(indices,y,'o-',ms=3,lw=.8,color='#246a73');ax.set_title(title,fontsize=10);ax.set_xlabel('Path-point index');ax.set_ylabel(label)
+ ax.plot(indices,y,'o-',ms=3,lw=.8,color='#009e73');ax.set_title(title,fontsize=10);ax.set_xlabel('Path-point index');ax.set_ylabel(label)
  if ax!=axs[2]:ax.set_yscale('log')
  ax.grid(alpha=.2)
 for ext in ['png','svg']:fig.savefig(R/f'unfolding-audit.{ext}',dpi=220)

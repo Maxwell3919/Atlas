@@ -152,7 +152,7 @@ kx_tpiba,ky_tpiba,kz_tpiba,kx_inv_A,ky_inv_A,kz_inv_A,band5_eV
 
 其中 `band5_eV` 是每个点的第 5 条能带。图中的零点采用这个立方网格内采样到的最小值，并不宣称它就是连续函数的精确谷底。x 的间隔只有 0.02，采样最低点落在 0.85 附近；[有效质量](/Atlas/m/effective-mass/qe/)中更细的线采样把谷底进一步定位到约 0.8443。
 
-将[完整三维数据表](/Atlas/examples/si-pbe/band3d/cube.csv)、[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)放回示例目录后运行：
+将[完整三维数据表](/Atlas/examples/si-pbe/band3d/cube.csv)、[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）放回示例目录后运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py band3d

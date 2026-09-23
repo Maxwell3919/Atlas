@@ -1,0 +1,100 @@
+SYSTEM = SnS2
+
+########## about parallelation ###########
+   LPLANE =.TRUE.
+   NPAR = 4
+   NSIM = 4
+##########################################
+
+############### about I/O ################
+   ISTART =      0    job   : 0-new  1-cont  2-samecut
+#  ICHARG =      1    charge: 1-file 2-atom 10+ const
+##########################################
+
+########### about switch control ##########
+   LWAVE = F                 whether write WAVECAR
+   LCHARG = T                whether write CHGCAR and CHG
+#  LVTOT = T                 whether write LOCPOT
+   LCORR = T
+   LREAL = A                 projection done in reciprocal space
+   LASPH = T                 whether include non-spherical contributions
+#  LMIXTAU = F               whether kinetic energy density through mixer
+   LORBIT = 11               DOSCAR and lm decomposed PROCAR file
+#  LBERRY = F                whether evaluate the Berry phase expression
+#  LNONCOLLINEAR = T         whether perform non-colli-mag calculation
+#  LSORBIT = F               whether perform soc calculation
+#  LORBMOM = T               Whether write orbital magnetic moment
+#  LDAU = T                  whether perform LDA+U calculation
+#  LDAUTYPE = 2              :2-default,only(U-J)is meaningfull
+#  LDAUL =   -1 -1 2          :-1=no on-site terms added;  1=p;  2=d 3=f
+#  LDAUU =  0 0 3 
+#  LDAUJ = 0 0 0 
+#  LDAUPRINT = 0             :0=silent; 1=write occupancy matrix to OUTCAR;  2=idem 1.,plus potential matrix dumped to stdout
+#  LHFCALC = F               whether perform HSE calculation
+#  LOPTICS = F               whether calculates dielectric matrix
+###########################################
+
+############# about ionic relax ############
+   ISIF = 2
+   IBRION = -1               :-1-no update 0-MD 1-quasi-New 2-CG
+#  NSW = 200                 :ionic step number
+#  EDIFFG = -0.01            :break condition for ionic relaxation loop
+#  PSTRESS = 50              :about external presssure
+#  IDIPOL = 3                :slab calculation corrections
+#  POTIM = 0.5               :dynamics-timestep relax-with default is OK
+#  NBLOCK = 1                :with default is OK
+#  KBLOCK = NSW              :with default is OK
+#  TEBEG = 270               :start temperature for dynamics
+#  TEEND = 270               :end temperature for dynamics
+#  SMASS = -3                :ensemble for dynamics
+###########################################
+
+########### about electron scf ############
+#  VCA =  0.75 0.25 1.00 1.00 1.00
+#  NELECT = 226.5
+   ENCUT = 400 eV
+   GGA = PE
+#  METAGGA = MBJ
+   VOSKOWN = 1
+   EDIFF = 1E-6              :break condition for electron scf loop
+   NELMIN = 4                :min electron step
+   NELM =  160               :max electron step
+#  NELMDL = -6               :with default is often OK
+#  GGA_COMPAT = F            
+##############################################
+
+############### about magnetic ###############
+#  ISPIN = 2                 :1-without or 2-with spin polarized
+#  MAGMOM =   16*0  4*3  :magnetic moment for per atom
+#  SAXIS = 0 0 1             :quantisation axis for soc caiculation
+#############################################
+
+############### about mixer ###############
+#  IMIX = 1
+   AMIX = 0.1                 fast converge for slab,molecules,clusters
+   BMIX = 0.0001
+   AMIX_MAG = 0.4
+   BMIX_MAG = 0.0001
+   MAXMIX = 80
+   LMAXMIX = 4                d-elements-4 f-elements-6
+   IVDW = 11
+###########################################
+
+############### other important parameter ###############
+   ALGO = N
+   PREC = Accurate
+#  ISYM = 2
+   ISMEAR = 0                 :-5-tet -1-fermi 0-gauss
+   SIGMA  = 0.05              :boadening in eV
+#  NBANDS = 240               :with default is often OK
+#  NEDOS = 2700
+########################################################
+
+##################k-mesh################# with default is often OK
+#  NGX = 16
+#  NGY = 16
+#  NGZ = 16
+#  NGXF = 32
+#  NGYF = 32
+#  NGZF = 32
+########################################

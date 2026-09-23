@@ -1,0 +1,55 @@
+ running on   16 total cores
+ distrk:  each k-point on   16 cores,    1 groups
+ distr:  one band on    4 cores,    4 groups
+ using from now: INCAR     
+ vasp.5.4.4.18Apr17-6-g9f103f2a35 (build Feb 26 2024 21:30:50) complex          
+  
+ POSCAR found type information on POSCAR  I  Hf
+ POSCAR found :  2 types and      18 ions
+ scaLAPACK will be used
+ LDA part: xc-table for Pade appr. of Perdew
+
+ ----------------------------------------------------------------------------- 
+|                                                                             |
+|           W    W    AA    RRRRR   N    N  II  N    N   GGGG   !!!           |
+|           W    W   A  A   R    R  NN   N  II  NN   N  G    G  !!!           |
+|           W    W  A    A  R    R  N N  N  II  N N  N  G       !!!           |
+|           W WW W  AAAAAA  RRRRR   N  N N  II  N  N N  G  GGG   !            |
+|           WW  WW  A    A  R   R   N   NN  II  N   NN  G    G                |
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      One of the lattice vectors is very long (>50 A), but AMIN is rather    |
+|      large. This can spoil convergence since charge sloshing might occur    |
+|      along the long lattice vector. If problems with convergence are        |
+|      observed, try to decrease AMIN to a smaller values (e.g. 0.01).        |
+|      Note: this warning only applies if the selfconsistency cycle is used.  |
+|                                                                             |
+ ----------------------------------------------------------------------------- 
+
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ FFT: planning ...
+ WAVECAR not read
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1     0.943996860305E+03    0.94400E+03   -0.56683E+04  7992   0.109E+03
+DAV:   2     0.349291698200E+02   -0.90907E+03   -0.88347E+03  8336   0.263E+02
+DAV:   3    -0.620574431615E+02   -0.96987E+02   -0.93814E+02  7808   0.748E+01
+DAV:   4    -0.679536616585E+02   -0.58962E+01   -0.57741E+01  9640   0.180E+01
+DAV:   5    -0.681609846661E+02   -0.20732E+00   -0.20556E+00  9392   0.338E+00    0.166E+02
+DAV:   6    -0.102791169865E+05   -0.10211E+05   -0.10354E+05  9584   0.346E+02    0.701E+03
+DAV:   7    -0.117757418167E+05   -0.14966E+04   -0.93619E+03 10464   0.316E+02    0.114E+03
+DAV:   8    -0.623559638860E+04    0.55401E+04   -0.20981E+05 12232   0.526E+02    0.104E+03
+DAV:   9    -0.728099396099E+04   -0.10454E+04   -0.94557E+03 12712   0.336E+02    0.370E+02
+DAV:  10    -0.301328668792E+04    0.42677E+04   -0.97991E+03 12176   0.166E+02    0.497E+02
+DAV:  11    -0.245028961029E+04    0.56300E+03   -0.28387E+03 10384   0.125E+02    0.374E+02
+DAV:  12    -0.173969388634E+04    0.71060E+03   -0.25653E+03 11336   0.994E+01    0.903E+02
+DAV:  13    -0.201562405697E+04   -0.27593E+03   -0.70379E+02  8640   0.524E+01    0.212E+03
+DAV:  14    -0.365581366257E+04   -0.16402E+04   -0.17730E+03  9496   0.427E+01    0.281E+03
+DAV:  15    -0.529308422516E+04   -0.16373E+04   -0.44601E+02  8608   0.468E+01    0.290E+03
+DAV:  16    -0.546046617912E+04   -0.16738E+03   -0.75877E+01  9680   0.164E+01    0.293E+03
+DAV:  17    -0.210190846322E+02    0.54394E+04   -0.66302E+04 12032   0.212E+02    0.119E+03
+DAV:  18    -0.311511118597E+04   -0.30941E+04   -0.27063E+04 12776   0.367E+02    0.749E+02
+DAV:  19    -0.347445571077E+04   -0.35934E+03   -0.96277E+04 11152   0.494E+02    0.104E+03
+DAV:  20    -0.448825455093E+04   -0.10138E+04   -0.81033E+03 10000   0.303E+02    0.213E+03
+DAV:  21    -0.475632235635E+04   -0.26807E+03   -0.12329E+03 10888   0.107E+02    0.289E+03
+DAV:  22    -0.442440350754E+04    0.33192E+03   -0.15219E+02 11056   0.465E+01    0.295E+03

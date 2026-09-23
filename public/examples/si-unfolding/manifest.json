@@ -27,9 +27,9 @@
     },
     {
       "file": "plot_unfold.py",
-      "bytes": 3512,
+      "bytes": 3595,
       "source_sha256": "2c554e91d1db94e6c0322a39929a1418a1ba19bbd861e76310deb228a5a993c6",
-      "public_sha256": "2c554e91d1db94e6c0322a39929a1418a1ba19bbd861e76310deb228a5a993c6"
+      "public_sha256": "49e6add69e042666ba1091765d6f8ad288a3ba1cb7bf19b90fde0540be8c8be7"
     },
     {
       "file": "primitive/_err.1981.log",
@@ -813,27 +813,27 @@
     },
     {
       "file": "unfolded-bands.png",
-      "bytes": 550920,
+      "bytes": 616998,
       "source_sha256": "20842d34a32cb75005ee1c195e5f3fa6e47fa65a759370bbf1381f6d47eb154e",
-      "public_sha256": "20842d34a32cb75005ee1c195e5f3fa6e47fa65a759370bbf1381f6d47eb154e"
+      "public_sha256": "a3cd155c31320a704bae5fcb8b5d80c585ab6f51de820d712fa273f745b1e5cf"
     },
     {
       "file": "unfolded-bands.svg",
-      "bytes": 564206,
+      "bytes": 524090,
       "source_sha256": "a0c75f0eefb1d0cb7cd65d2415eb8870f93114db8a77aca5a2e7f714ff67a690",
-      "public_sha256": "a0c75f0eefb1d0cb7cd65d2415eb8870f93114db8a77aca5a2e7f714ff67a690"
+      "public_sha256": "a72c1504976f79af41001e69643a175e288028714b6119a37cbea6df4ca43ff1"
     },
     {
       "file": "unfolding-audit.png",
-      "bytes": 151085,
+      "bytes": 203031,
       "source_sha256": "e638aa2f68231f07d96d877e97083dbbd4befc1bb8233c28e494fc5e571fdfbc",
-      "public_sha256": "e638aa2f68231f07d96d877e97083dbbd4befc1bb8233c28e494fc5e571fdfbc"
+      "public_sha256": "0fefea952d90b67cc39a82697b82c765ba46432a4234cf5b3e4a330ce8440c25"
     },
     {
       "file": "unfolding-audit.svg",
-      "bytes": 80105,
+      "bytes": 45458,
       "source_sha256": "41e5523151ab33cf96480b195751367bd8c32378b6376fd660a927b0954f4c54",
-      "public_sha256": "41e5523151ab33cf96480b195751367bd8c32378b6376fd660a927b0954f4c54"
+      "public_sha256": "c0f76e37e3a2dacea787b8d7a337da78c8849b043930a2f73cd8cb309e3d0f03"
     },
     {
       "file": "wavefunction-audit.csv",

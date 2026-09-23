@@ -1,10 +1,13 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 r=Path(__file__).resolve().parent;d=np.loadtxt(r/"dfpt/al.freq.gp")
 assert d.shape==(161,4), d.shape
 fig,ax=plt.subplots(figsize=(7,4.3),layout="constrained")
-for i in range(1,4):ax.plot(d[:,0],d[:,i],lw=1.6,color="#236990")
+for i in range(1,4):ax.plot(d[:,0],d[:,i],lw=1.6,color="#0072b2")
 ticks=d[[0,40,80,120,160],0]
 ax.set_xticks(ticks,["Γ","X","W","L","Γ"])
 for x in ticks:ax.axvline(x,color="0.8",lw=.7)

@@ -3,6 +3,9 @@
 Requires numpy and matplotlib. No DFT calculation is performed.
 Charts show archived outputs and their limitations, not accepted predictions.
 """
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import json
 import numpy as np
@@ -13,7 +16,7 @@ import matplotlib.pyplot as plt
 ROOT=Path(__file__).resolve().parents[1]
 D=json.loads((ROOT/'public/data/teaching-extracts.json').read_text())
 OUT=ROOT/'public/figures'; OUT.mkdir(exist_ok=True)
-BLUE='#2450ae'; ORANGE='#b6682b'; INK='#292b30'
+BLUE='#0072b2'; ORANGE='#d55e00'; INK='#292b30'
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':11,'axes.spines.top':False,'axes.spines.right':False,'axes.labelcolor':INK,'text.color':INK,'xtick.color':INK,'ytick.color':INK,'svg.fonttype':'none','axes.prop_cycle':plt.cycler(color=[BLUE,ORANGE])})
 def finish(fig,name,title,subtitle):
  fig.suptitle(title,x=.10,y=.98,ha='left',fontsize=15,fontweight='bold')
@@ -49,12 +52,6 @@ finish(fig,'dos','HfCl2/PbO2: DOS and projected DOS','Without SOC; E_F = 0.050 e
 fig,ax=plt.subplots(figsize=(8,4.8));a=np.array(D['potential']);ax.plot(a[:,0],a[:,1]);ax.axhline(-2.4741,color=ORANGE,ls='--',label='E_F = -2.4741 eV');ax.legend(frameon=False)
 ax.set(xlabel='z (Å)',ylabel='Planar-averaged potential (eV)',xlim=(0,a[-1,0]))
 finish(fig,'potential','SnSe2: saved planar-average profile','Legacy LVTOT calculation; vacuum-window and potential-choice checks remain open.')
-
-fig,(ax,tail)=plt.subplots(1,2,figsize=(9,4.6),gridspec_kw={'width_ratios':[1.3,1]});a=np.array(D['exfoliation']);y=(a[:,1]-a[0,1])*1000
-ax.plot(a[:,0],y,'o-',markersize=3);sel=a[:,0]>=14;tail.plot(a[sel,0],y[sel],'o-',markersize=4);tail.set_title('Tail: focused vertical scale',fontsize=10)
-for t in [ax,tail]:t.set(xlabel='Layer displacement (Å)',ylabel='E(d) - E(0) (meV/cell)')
-ax.set_ylim(bottom=0)
-finish(fig,'exfoliation','HfI2: layer-separation energy','21 archived fixed-geometry points; three atoms displaced, 18 atoms in the cell.')
 
 fig,ax=plt.subplots(figsize=(8,4.8));a=np.array(D['phonon']);ax.plot(a[:,0],a[:,1:],color=BLUE,lw=.7);ax.axhline(0,color=INK,lw=.7)
 ticks=[a[0,0],a[50,0],a[100,0],a[-1,0]]

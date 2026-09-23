@@ -4,7 +4,7 @@
 
 本次使用 Maxwell 上实际运行的 4×4×4 和 6×6×6 网格，后处理在 Talos 完成。材料是金刚石 Si，QE 与 `pw2wannier90.x` 都为 7.5，赝势为 `Si.pbe-n-van.UPF`，平面波截断能为 40/320 Ry。两套 NSCF 都保留四条占据带，没有加入 SOC，也没有自旋极化。这里不重新计算 SCF，也不从四轨道模型的单位投影矩阵生成重叠。
 
-可以下载[完整后处理示例](/Atlas/examples/berry-si-files.tar.gz)，其中包括两套原始重叠矩阵、邻接表、输入输出和 XML 摘录，另有 [分析脚本](/Atlas/examples/berry-si/analyse.py)、[独立核对脚本](/Atlas/examples/berry-si/verify.py) 与 [绘图脚本](/Atlas/examples/berry-si/plot.py)。公开输入输出只改写了机器上的绝对路径；mmn、nnkp、win 和 eig 保留原始字节，哈希在包内列出。
+可以下载[完整后处理示例](/Atlas/examples/berry-si-files.tar.gz)，其中包括两套原始重叠矩阵、邻接表、输入输出和 XML 摘录，另有 [分析脚本](/Atlas/examples/berry-si/analyse.py)、[独立核对脚本](/Atlas/examples/berry-si/verify.py) 与 [绘图脚本](/Atlas/examples/berry-si/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/berry-si/atlas_plot_style.py)）。公开输入输出只改写了机器上的绝对路径；mmn、nnkp、win 和 eig 保留原始字节，哈希在包内列出。
 
 ## 先看重叠文件，而不是先找一个 Chern 数字
 

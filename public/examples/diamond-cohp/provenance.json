@@ -1,0 +1,44 @@
+{
+  "model": "Fixed two-atom diamond, scalar nonmagnetic PBE PAW",
+  "qe_version": "7.5",
+  "lobster_version": "6.0.0",
+  "scf_jobs": [
+    865,
+    867,
+    868,
+    869
+  ],
+  "lobster_jobs": [
+    866,
+    870,
+    871,
+    872,
+    873,
+    874
+  ],
+  "pseudo_sha256": "f147c19f79e4539c4490226dc2b68560f335e4a2008b1c7b2fdda94f2456ad32",
+  "public_script_path_redactions": [
+    "diamond-k6/run-lobster.sh",
+    "diamond-k6/run.sh",
+    "diamond-k8/run-lobster.sh",
+    "diamond-k8/run.sh",
+    "diamond-k10/run-lobster.sh",
+    "diamond-k10/run.sh",
+    "diamond-k10-80/run-lobster.sh",
+    "diamond-k10-80/run.sh",
+    "basis-koga/run-lobster.sh",
+    "basis-pbe/run-lobster.sh"
+  ],
+  "numerical_source_files_modified": false,
+  "basis": "Bunge C 2s 2p, 8 bands, Gaussian 0.2 eV",
+  "comparison_criterion_eV_per_bond": 0.02,
+  "criterion_scope": "Predeclared lesson comparison, not a universal accuracy threshold",
+  "limitations": [
+    "Geometry not reoptimized",
+    "Density cutoff not independently scanned",
+    "High empty-state completeness not established",
+    "ICOHP is a band-energy partition, not bond dissociation energy"
+  ],
+  "energy_zero": "COHPCAR E-EF; EF equals the QE VBM in this example",
+  "spin": "One nonmagnetic block already includes occupations; do not double it"
+}

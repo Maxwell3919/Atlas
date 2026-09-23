@@ -230,7 +230,9 @@ segment,distance_inv_A,q1,q2,q3,frequency_1_THz,frequency_2_THz,frequency_3_THz,
 
 Γ 点的三支声学频率在约 `±2e-7 THz` 的数值范围内，另外三支为约 `11.9107 THz`。这里保留输出中的微小负号，没有为了让图好看而把负数取绝对值。结合接近机器精度的平移求和残差，这三支对应应当为零的平移模；这项判断不适用于任意幅度的负频率。
 
-[plot.py](/Atlas/examples/mace-si/si-effective-fc/plot.py)只依赖 NumPy 与 Matplotlib，读取本目录的 CSV、JSON、NPZ 和预测力数组。把[数据包](/Atlas/examples/mace-si/si-effective-fc/public-bundle.tar.gz)中、[清单](/Atlas/examples/mace-si/si-effective-fc/public-files.json)列出的文件放在同一目录后，可在本机执行：
+[plot.py](/Atlas/examples/mace-si/si-effective-fc/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-effective-fc/atlas_plot_style.py)）只依赖 NumPy 与 Matplotlib，读取本目录的 CSV、JSON、NPZ 和预测力数组。把[数据包](/Atlas/examples/mace-si/si-effective-fc/public-bundle.tar.gz)中、[清单](/Atlas/examples/mace-si/si-effective-fc/public-files.json)列出的文件放在同一目录后，可在本机执行：
+
+色散来自 `harmonic-0.005-bands.csv`、`harmonic-0.01-bands.csv`、`effective-40-bands.csv` 和 `effective-60-bands.csv`。曲线本身使用 THz，差值图把两组对应频率相减后乘 1000，才变成 GHz；这一步不会重新拟合力常数。`fit-summary.json` 提供高对称点的位置，不能用等间隔刻度代替真实路径长度。
 
 ```bash
 python3 plot.py
@@ -245,6 +247,12 @@ python3 plot.py
 ![样本数量、独立预测力、实际轨迹温度与色散敏感性](/Atlas/examples/mace-si/si-effective-fc/fit-validation.svg)
 
 第二组把误差曲线、独立轨迹的预测力、两段轨迹实际温度和 40→60 帧的色散变化放在一起。虽然独立力 RMSE 的变化已经很小，40 帧与 60 帧模型沿路径的最大频率差仍有 **0.214015 THz**。因此“力误差曲线看起来平了”不足以说明声子已经不再依赖样本。
+
+误差随样本数的曲线直接读取 `learning-curve.csv`，三列分别对应训练段、同轨迹后段与独立速度种子，不能合并成一条“测试误差”。力散点使用 `independent-dataset.npz` 中的 MACE 力，以及 `effective-60-independent-prediction.npy` 中二阶模型的预测力；两者按同一帧、原子和分量排列。它比较的是二阶模型与 MACE，图轴不能改写成 DFT 力。
+
+论文排版时，可以把两张复合图分别导出成 `effective-phonons.pdf` 与 `fit-validation.pdf`。在创建画布前设置 Arial/Helvetica、`pdf.fonttype=42`、`svg.fonttype='none'`，并在各次 `plt.close(fig)` 之前保存 PDF；网页 SVG 保持原本可读尺寸。频率轴写成 `Frequency (THz)`，差值轴写成 `Frequency difference (GHz)`，图注说明差的顺序。独立力散点较密，可以只将散点图层栅格化，保留轴线、刻度和文字为矢量。
+
+按照 [Nature 图稿规格](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)移除背景网格时，仍应保留表示高对称点边界的竖线与零频参考线。采样区间的浅色区域表达实际训练和验证时段，也应有明确图例。颜色同时配合实线、虚线或标记；移动图例、精简图内标题可以腾出空间，但不要删掉样本敏感性面板或放大后的 GHz 差值。
 
 ### 把导出的文件重新读回来
 

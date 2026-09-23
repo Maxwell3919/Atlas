@@ -168,7 +168,7 @@ n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.1
 
 <figure><img src="/Atlas/examples/al/figures/finite-displacement.png" alt="Al有限位移声子的位移幅度与超胞比较" loading="lazy"/><figcaption>左侧比较同一超胞的两种位移幅度；右侧在相同原胞等效电子采样密度下比较两种超胞。不同检查分别呈现，不混成一条收敛结论。</figcaption></figure>
 
-[plot_finite.py](/Atlas/examples/al/plot_finite.py) 直接读取各目录的 `bands.csv`，将 Phonopy 的 THz 乘以 33.35640952 转为 cm⁻¹，并按 Γ—X—W—L—Γ 的分段端点放标签。下载整个 Al 示例的数据结构后，在本机运行：
+[plot_finite.py](/Atlas/examples/al/plot_finite.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取各目录的 `bands.csv`，将 Phonopy 的 THz 乘以 33.35640952 转为 cm⁻¹，并按 Γ—X—W—L—Γ 的分段端点放标签。下载整个 Al 示例的数据结构后，在本机运行：
 
 ```bash
 python3 plot_finite.py

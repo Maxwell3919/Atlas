@@ -127,11 +127,15 @@ const sections = body ? [...body.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)]
   }
 
   /* 自由叙述正文排版：行高宽松，标题/表格/代码走 CSS 变量，明暗皆可读 */
-  .md-body { line-height: 1.95; }
+  .md-body { line-height: 1.85; }
   .route-note { color: var(--muted); font-size: .88rem; }
   .contents { margin: 1rem 0; font-size: .9rem; }
   .contents summary { cursor: pointer; color: var(--accent); }
   .md-body :global(img) { display: block; width: 100%; height: auto; margin: 1.4rem 0 .8rem; background: white; border: 1px solid var(--line); border-radius: 6px; }
+  .md-body :global(.research-figure) { margin:1.3rem 0 1rem; }
+  .md-body :global(.research-figure img) { margin:0 0 .35rem; border-radius:0; }
+  .md-body :global(.research-figure figcaption) { font-size:.8rem; color:var(--muted); line-height:1.65; }
+  .md-body :global(.figure-downloads) { display:block; margin-top:.35rem; }
   .md-body :global(h2) {
     font-size: 1.18rem;
     margin: 2.4rem 0 0.7rem;

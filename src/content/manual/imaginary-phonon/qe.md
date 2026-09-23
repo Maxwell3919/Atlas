@@ -329,13 +329,34 @@ Si Gamma phonon
 
 简并的三个模式可以在同一子空间内重新选取方向，所以两次 `.modes` 的逐个向量不必逐项相同。判断整体平移时看各原子之间的相对运动，比较光学频率时看整个简并组。
 
+这里还要区分位移文件的含义。输入里的 `filout` 写出的是先除以原子质量平方根、再归一化的**原子位移**；`fileig` 才对应动力学矩阵的正交本征矢输出。本次没有设置 `fileig`，后面画箭头只读两份 `.modes`。这两个 Si 质量相同，质量因子不会改变两个原子之间的相对方向；换成不同质量的多元素结构时，不能把位移分量直接当成等权的本征矢分量。[dynmat.x 的文件定义](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)说明了这一区别。
+
+`filmol` 另存了可供 Molden 显示的文件。把这份已有结果复制到后处理目录后，先看它的频率表：
+
+```text
+[talos@talos-MS-7D54 si-gamma-modes]$ head -n 8 si-no.mold
+[Molden Format]
+[FREQ]
+    0.00
+    0.00
+    0.00
+  523.72
+  523.72
+  523.72
+[talos@talos-MS-7D54 si-gamma-modes]$
+```
+
+这份 **`si-no.mold` 的负频率标签已经丢失**：它属于未施加 ASR 的分支，却把前三支写成了 `0.00`。因此，不能根据 Molden 中的零值判断虚频已经消失；频率的符号和数值仍回到原始 `.dyn`、`ph.out` 和对应 `.modes` 核对。文件后面的位移段可以帮助查看原子运动，但显示文件不能替代这些数值记录。
+
+另外，两份历史输入都没有设置 `filxsf`，因而先后写入默认的 `dynmat.axsf`；下载包保留的是后运行的 `crystal` 分支。若复跑时还想对照两套 XCrySDen 文件，可用 `vi` 分别给两个输入设置 `filxsf='si-no.axsf'`、`filxsf='si-crystal.axsf'` 后再运行。不能把一份默认文件当作两次结果。
+
 ## 把六个模式画在一起，保留零附近的细节
 
 下面的图直接读取两份 `.modes`。左图放大声学模式，右图展示光学模式，各自的纵轴范围已经标明；负频率没有被截成零。
 
 ![同一 Si Γ 点矩阵的 ASR 前后频率对照](/Atlas/examples/si-pbe/gamma-phonon/si-gamma-asr.svg)
 
-把[si-no.modes](/Atlas/examples/si-pbe/gamma-phonon/si-no.modes)、[si-crystal.modes](/Atlas/examples/si-pbe/gamma-phonon/si-crystal.modes)和[plot_asr.py](/Atlas/examples/si-pbe/gamma-phonon/plot_asr.py)放在同一本地目录，使用装有 NumPy 和 Matplotlib 的 Python 运行：
+把[si-no.modes](/Atlas/examples/si-pbe/gamma-phonon/si-no.modes)、[si-crystal.modes](/Atlas/examples/si-pbe/gamma-phonon/si-crystal.modes)和[plot_asr.py](/Atlas/examples/si-pbe/gamma-phonon/plot_asr.py)（同时下载 [atlas_plot_style.py](/Atlas/examples/atlas_plot_style.py)，放在同一目录）放在同一本地目录，使用装有 NumPy 和 Matplotlib 的 Python 运行：
 
 ```bash
 python3 plot_asr.py
@@ -354,6 +375,46 @@ def frequencies(filename):
     return result
 ```
 
+
+## 频率变了，原子的相对运动有没有变
+
+频率对照之后，再把位移本身画出来。下图 a、b 都取自未施加 ASR 的 `si-no.modes`，分别显示第 1 和第 4 个模式；c 把两组文件的六个模式都纳入比较。
+
+![Si Γ 点的同向、反相位移与 ASR 前后平移成分](/Atlas/examples/si-pbe/gamma-phonon/mode-character/si-gamma-mode-character.svg)
+
+两个原子的位置从同一份 `si.dynG` 头部读取，图 a、b 是笛卡尔坐标的 xy 投影，第二个原子的 z 坐标为 1.3494 Å。第 1 个模式里两个箭头同向，原子之间的相对位置不变；第 4 个模式里箭头反向，两个原子发生相对运动。箭头使用共同的绘图比例 `0.60 Å × 归一化位移分量`，只为看清方向，不代表计算得到的热振幅，也不是虚频模式的一段实际时间轨迹。
+
+为了不只靠肉眼看箭头，这里对两个等质量原子定义平移成分：
+
+`P_T = ‖u₁ + u₂‖² / [2(‖u₁‖² + ‖u₂‖²)]`
+
+`u₁`、`u₂` 是一个模式下两原子的三维位移。完全同向同幅时 `P_T=1`，完全反相时 `P_T=0`。分母保留实际范数，避免 `.modes` 小数截断造成的归一化偏差进入比例。这个等权公式只用于本页两个同质量 Si 的 Γ 点比较；它不是可直接套到任意多元素材料的声学支分类器。
+
+[analyse_modes.py](/Atlas/examples/si-pbe/gamma-phonon/mode-character/analyse_modes.py)逐个读取六个模式下的两行复数位移，先检查 Γ 点、原子数、有限值和打印精度内的归一化，再生成[逐模诊断表](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-diagnostics.csv)、[原子位置与位移表](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-vectors.csv)和[检查记录](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-checks.json)。在装有 NumPy 的 Talos 后处理目录中实际执行的输出为：
+
+```text
+[talos@talos-MS-7D54 si-gamma-modes]$ python3 analyse_modes.py
+ASR=no: modes=6, atoms=2, max |norm-1|=3.094e-07
+  translation fraction: 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000
+ASR=crystal: modes=6, atoms=2, max |norm-1|=4.353e-07
+  translation fraction: 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000
+acoustic projector difference: 5.489e-16
+optical projector difference: 5.439e-16
+Wrote mode-diagnostics.csv, mode-vectors.csv, mode-checks.json
+[talos@talos-MS-7D54 si-gamma-modes]$
+```
+
+两组结果的前三个模式都完全落在平移子空间内，后三个都属于反相运动。末两行比较的是每组三个模式张成的**整个子空间**：脚本先对组内向量正交化，再比较投影矩阵，而不是要求 ASR 前后的第 1 个模式逐项相等。约 `10⁻¹⁶` 的差值是这份已打印位移的线性代数比较结果，不是 DFT 频率精度；它说明这里的方向重选没有改变平移组与光学组的性质。约 `10⁻⁷` 的范数偏差则与向量只保留六位小数相符。
+
+在本机复画时，保留下载包里的 `gamma-phonon/mode-character` 子目录；它包含同一份原始矩阵、两份 `.modes` 和两个脚本。从解包后的 `si-pbe` 进入该目录，先更新诊断表，再调用[plot_modes.py](/Atlas/examples/si-pbe/gamma-phonon/mode-character/plot_modes.py)：
+
+```bash
+cd gamma-phonon/mode-character
+python3 analyse_modes.py
+python3 plot_modes.py
+```
+
+绘图脚本读取刚生成的两个 CSV，输出 `si-gamma-mode-character.svg`、`.pdf` 和 300 dpi 的 `.png`。原子位置用 Å，平移成分无量纲；原始负频率写在对应面板上。SVG 留作网页图，PDF 用于排版，PNG 用于预览。脚本设置 `svg.fonttype='none'` 和 `pdf.fonttype=42` 保留可编辑文字；论文排版时再按实际栏宽调整字号，不把网页图缩成难读的小字。
 
 本次可写下的结论是：这份固定 Si 输入在 Γ 点出现的三支负频率属于整体平移模式；施加 ASR 后，它们回到数值零附近，而光学组基本不变。这支持把该现象作为平移声学和规则偏差来处理。这里没有扫描其它 q 点，也没有针对这些频率完成 cutoff、电子网格和响应阈值的比较，因此不能把结论扩展成“整个材料已通过动力学稳定性验证”。
 

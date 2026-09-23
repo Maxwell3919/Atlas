@@ -1,0 +1,22 @@
+{
+  "blocks": [
+    {
+      "minimum": 7.1308e-05, 
+      "points": 46656, 
+      "spin": "up", 
+      "maximum": 0.13286
+    }, 
+    {
+      "minimum": 0.00011024, 
+      "points": 46656, 
+      "spin": "down", 
+      "maximum": 0.3339
+    }
+  ], 
+  "grid": [
+    36, 
+    36, 
+    36
+  ], 
+  "slice_fractional_z": 0.0
+}

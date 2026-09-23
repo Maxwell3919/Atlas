@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')

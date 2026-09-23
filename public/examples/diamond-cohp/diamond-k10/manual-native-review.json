@@ -1,0 +1,10 @@
+{
+  "scope": "Manual native-output review; not a qe_guard pass",
+  "native_run_completed": true,
+  "scf_converged": true,
+  "early_eigensolver_warnings": "retained in original output; absent in final electronic iteration",
+  "automated_gate": "blocked: advanced assignments outside supported parser",
+  "pseudopotential_sha256": "f147c19f79e4539c4490226dc2b68560f335e4a2008b1c7b2fdda94f2456ad32",
+  "source_verified": true,
+  "private_job_execution_authorized": true
+}

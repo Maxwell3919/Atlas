@@ -1,0 +1,38 @@
+&CONTROL
+ calculation = 'scf'
+ prefix = 'diamond'
+ outdir = './tmp'
+ pseudo_dir = '../pseudo'
+ wf_collect = .true.
+ tprnfor = .true.
+ tstress = .true.
+ verbosity = 'high'
+/
+&SYSTEM
+ ibrav = 2
+ celldm(1) = 6.746
+ nat = 2
+ ntyp = 1
+ nbnd = 8
+ ecutwfc = 80
+ ecutrho = 640
+ occupations = 'fixed'
+ nspin = 1
+ nosym = .true.
+ noinv = .false.
+/
+&ELECTRONS
+ conv_thr = 1.0d-10
+ diagonalization = 'cg'
+ diago_cg_maxiter = 200
+ diago_thr_init = 1.0d-8
+ diago_full_acc = .true.
+/
+ATOMIC_SPECIES
+ C 12.011 C.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS alat
+ C 0.00 0.00 0.00
+ C 0.25 0.25 0.25
+K_POINTS automatic
+ 10 10 10 0 0 0
+

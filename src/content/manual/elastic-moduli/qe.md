@@ -37,6 +37,16 @@ Hill 平均取两者中点 $G_H=(G_V+G_R)/2$。用 B 与 G_H 可继续得到
 
 ## 用同一个脚本重新读原始输出
 
+下载包带有 [analyse.py](/Atlas/examples/al/elastic/analyse.py)、`cases.json` 和 12 份原始 SCF 输出，不包含计算主机的 `.venv`。本机已有 NumPy 时，从解包后的 `al` 根目录执行下面三行；分析在 `elastic` 中读取输入，最后回到稍后绘图使用的目录：
+
+```bash
+cd elastic
+python3 analyse.py
+cd ..
+```
+
+下面保留原计算主机的命令与输出，其中 `../.venv/bin/python` 是当时使用的 Python 环境路径：
+
 ```console
 maxwell@maxwell:~/al/elastic$ ../.venv/bin/python analyse.py
 All 12 SCFs: one JOB DONE., electronic convergence, empty stderr.
@@ -56,7 +66,7 @@ E = 9*B*G / (3*B + G)
 nu = (3*B - 2*G) / (2*(3*B + G))
 ```
 
-完整脚本与 [实际结果表](/Atlas/examples/al/elastic/elastic-results.csv) 一起提供，表中的小数可以从原始应力输出重算。
+完整脚本与 [实际结果表](/Atlas/examples/al/elastic/elastic-results.csv) 一起提供，表中的小数可以从原始应力输出重算。这里的 `analyse.py` 对应 16³ 网格的三种应变幅度；下面的 24³、32³、40³、48³ 结果分别保存在包内 `elastic-k24` 至 `elastic-k48` 的同名结果表中，各目录也保留自己的输入、SCF 输出和分析脚本。
 
 ## 为什么 B 看起来稳定，E 却变化很大
 
@@ -74,7 +84,7 @@ B 使用 C₁₁+2C₁₂ 的组合；这批计算里两个分量的变化部分
 
 <figure><img src="/Atlas/examples/al/figures/elastic-moduli.png" alt="Al 的B、Hill剪切模量和杨氏模量网格检查" loading="lazy"/><figcaption>同一组弹性计算导出的多晶平均。图同时展示 B、G_H 和 E，而不是只画最稳定的那一个量。</figcaption></figure>
 
-在下载的 Al 示例目录中运行 [plot_elastic.py](/Atlas/examples/al/plot_elastic.py)：
+在下载的 Al 示例目录中运行 [plot_elastic.py](/Atlas/examples/al/plot_elastic.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）：
 
 ```bash
 python3 plot_elastic.py

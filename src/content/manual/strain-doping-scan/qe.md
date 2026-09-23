@@ -180,7 +180,7 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 python3 plot_strain.py
 ```
 
-[完整绘图脚本](/Atlas/examples/al/plot_strain.py) 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
+[完整绘图脚本](/Atlas/examples/al/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
 
 如果继续计算应变下的能带、声子或 EPC，每个应变点都要沿用自己的晶胞与自洽密度。参考 [能带](/Atlas/m/bands/qe/)、[DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 和 [电子声子谱函数](/Atlas/m/eliashberg-a2f/qe/) 的相应步骤，不要混用无应变目录的密度或动力学矩阵。
 

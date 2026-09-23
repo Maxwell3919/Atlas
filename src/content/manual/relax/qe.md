@@ -232,7 +232,7 @@ End final coordinates
 
 ![位移后的 Si 在固定晶胞优化中的能量和总力变化](/Atlas/examples/si-pbe/plots/relax.png)
 
-绘图命令使用[同一绘图脚本](/Atlas/examples/si-pbe/plot_si.py)，左图减去最终能量，右图直接使用 OUT 中报告的总力。最后一点标注的是输出中的舍入值；逐分量的验收仍以上面那段力为准。
+绘图命令使用[同一绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)），左图减去最终能量，右图直接使用 OUT 中报告的总力。最后一点标注的是输出中的舍入值；逐分量的验收仍以上面那段力为准。
 
 这条路线得到的是固定示例晶胞下、给定约束和 PBE 设置下的一次成功 BFGS 优化。要把结构用于能带、声子或力常数，继续核对那些量对 k 网格、截断和电子阈值的敏感性；本次操作不能代替全布里渊区的动力学稳定性检查。
 

@@ -1,0 +1,8 @@
+COHPStartEnergy -25
+COHPEndEnergy 15
+COHPSteps 2001
+basisSet Koga
+basisFunctions C 2s 2p
+gaussianSmearingWidth 0.2
+printTotalSpilling
+cohpGenerator from 1.4 to 1.7

@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt

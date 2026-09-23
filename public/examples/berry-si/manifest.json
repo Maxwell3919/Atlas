@@ -11,7 +11,7 @@
       "file": "SHA256SUMS",
       "bytes": 4290,
       "source_sha256": "d7de51c72cfb1713a075f1edfbf4fa55cc3dd20b01f9020b74877571a1144cbb",
-      "public_sha256": "d7de51c72cfb1713a075f1edfbf4fa55cc3dd20b01f9020b74877571a1144cbb"
+      "public_sha256": "fab54adcca0a83956dc99facdd5b6cbdd83fc9a6ed7341c42a781a14efbc085a"
     },
     {
       "file": "analyse.err",
@@ -33,33 +33,33 @@
     },
     {
       "file": "figures/berry-checks.pdf",
-      "bytes": 18772,
+      "bytes": 35027,
       "source_sha256": "c0c7171fa37bfcc75a48789f46e1bcd73b29dc53174bece1a4accf7816685a42",
-      "public_sha256": "c0c7171fa37bfcc75a48789f46e1bcd73b29dc53174bece1a4accf7816685a42"
+      "public_sha256": "38c1c59e923ed80340f837fd437ecf7fd7ae2b3a6b05669b667cc2490ab44579"
     },
     {
       "file": "figures/berry-checks.png",
-      "bytes": 122501,
+      "bytes": 167722,
       "source_sha256": "46dc7bb52bc570f18f295a57f4353985c2eeac2d826716e8aefad4cbeecbcfac",
-      "public_sha256": "46dc7bb52bc570f18f295a57f4353985c2eeac2d826716e8aefad4cbeecbcfac"
+      "public_sha256": "3c2f50ecc9ed388a6140f755ada668e70601b9607c2ef424ddf8e9f8230e29e2"
     },
     {
       "file": "figures/berry-slices.pdf",
-      "bytes": 22795,
+      "bytes": 43416,
       "source_sha256": "5b2b3bb9001148510ff454c759063b1e7758e2accdd0c8430acd8c1d2c95cb19",
-      "public_sha256": "5b2b3bb9001148510ff454c759063b1e7758e2accdd0c8430acd8c1d2c95cb19"
+      "public_sha256": "feea1279f1e880011456438f7fd21521be41c689243e69748ededccf1d74a99d"
     },
     {
       "file": "figures/berry-slices.png",
-      "bytes": 121236,
+      "bytes": 211110,
       "source_sha256": "7c2bcf391c00371870640d802e21bf7edf9bcf982d8ec1d8c2c2882603b42c9e",
-      "public_sha256": "7c2bcf391c00371870640d802e21bf7edf9bcf982d8ec1d8c2c2882603b42c9e"
+      "public_sha256": "86f68065b09c6133968e5929699ddc828294f6bdabcd9b93c8ea021331405d29"
     },
     {
       "file": "plot.py",
-      "bytes": 2849,
+      "bytes": 2932,
       "source_sha256": "01558316498a9480a982baa32dd14eae19b30d2854224d94b9531147371afd01",
-      "public_sha256": "01558316498a9480a982baa32dd14eae19b30d2854224d94b9531147371afd01"
+      "public_sha256": "ab97ed1868a4f748b80678d8a9b2d4e5aa469b4fb20248ace6de466bd2b8abe7"
     },
     {
       "file": "publication.json",

@@ -305,7 +305,7 @@ AlSi₃ 的原始输入保留在下载包中，便于核对这次输出。如果
 
 例如这组 24³ 结果中，Al 为 `-5.0395901951 Ry/atom`，Si 两原子原胞为 `-22.8402546465 Ry`，所以 Si 参考需要先除以 2。B2 AlSi 的 `-16.4206511902 Ry/cell` 减去 1 个 Al 和 1 个 Si 的参考后，再除以 2，得到 `0.265762 eV/atom`。
 
-提取程序 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py) 会从实际输入、OUT 和 XML 生成下表，同时留下各文件的 SHA。画图程序 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py) 只读取 CSV，因此可以把数据拉到本机绘图。
+提取程序 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py) 会从实际输入、OUT 和 XML 生成下表，同时留下各文件的 SHA。画图程序 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 只读取 CSV，因此可以把数据拉到本机绘图。
 
 ```console
 [preston@preston-System-Product-Name alsi-formation-hull]$ python3 analyse_alsi.py

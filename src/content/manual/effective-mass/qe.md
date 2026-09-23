@@ -235,7 +235,7 @@ transverse-z       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
 
 这些是给定 PBE、赝势、晶胞和无 SOC 模型下的方向质量；并没有由此得到实验温度下的输运质量，也没有计算散射时间。带边简并、强非抛物线或明显 SOC 混合时，还要重新检查跟踪的是哪一个分支。
 
-[纵向原始数据](/Atlas/examples/si-pbe/mass/longitudinal.csv)、[窗口和父密度对照表](/Atlas/examples/si-pbe/mass/mass-checks.csv)、[质量复核脚本](/Atlas/examples/si-pbe/analyse_mass_checks.py)都可以下载。画下面这张图只需[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)和对应 CSV/JSON：
+[纵向原始数据](/Atlas/examples/si-pbe/mass/longitudinal.csv)、[窗口和父密度对照表](/Atlas/examples/si-pbe/mass/mass-checks.csv)、[质量复核脚本](/Atlas/examples/si-pbe/analyse_mass_checks.py)都可以下载。画下面这张图只需[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）和对应 CSV/JSON：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py mass

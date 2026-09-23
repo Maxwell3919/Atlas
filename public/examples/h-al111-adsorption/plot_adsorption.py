@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv,json
 import numpy as np
@@ -36,14 +39,14 @@ def main():
     fig,axs=plt.subplots(1,2,figsize=(10,4.2),layout='constrained')
     labels=['6×6×1\n15 Å initial gap','8×8×1\nfixed geometry','20 Å initial gap\nfixed geometry','12 Å H₂ box\nfixed bond']
     values=[float(r['adsorption_eV_H']) for r in rows]
-    axs[0].bar(range(4),values,color=['#2463a7','#5195ba','#5195ba','#5195ba'],width=.6)
-    axs[0].axhline(0,color='#657081',lw=.8);axs[0].set_xticks(range(4),labels,fontsize=8)
+    axs[0].bar(range(4),values,color=['#0072b2','#56b4e9','#56b4e9','#56b4e9'],width=.6)
+    axs[0].axhline(0,color='#657081',lw=.8);axs[0].set_xticks(range(4),labels,fontsize=8,rotation=20,ha='right')
     axs[0].set_ylabel('Adsorption energy (eV/H)');axs[0].set_title('Gas H₂ reference; two adsorbed H per cell')
     for i,v in enumerate(values):axs[0].annotate(f'{v:.4f}',(i,v),xytext=(0,5 if v>=0 else -13),textcoords='offset points',ha='center',fontsize=8)
     delta=[float(r['change_from_baseline_meV_H']) for r in rows[1:]]
     axs[1].axhspan(-10,10,color='#dde8f0',alpha=.8,label='±10 meV/H comparison line')
-    axs[1].plot(range(3),delta,'o',ms=7,color='#cc7033');axs[1].axhline(0,color='#657081',lw=.8)
-    axs[1].set_xticks(range(3),['k: 6→8','vacuum: +5 Å','H₂ box: 10→12 Å'])
+    axs[1].plot(range(3),delta,'o',ms=7,color='#d55e00');axs[1].axhline(0,color='#657081',lw=.8)
+    axs[1].set_xticks(range(3),['k: 6→8','vacuum: +5 Å','H₂ box: 10→12 Å'],rotation=20,ha='right')
     axs[1].set_ylabel('Change from baseline (meV/H)');axs[1].set_title('One numerical change at a time')
     axs[1].legend(fontsize=8);axs[1].grid(axis='y',alpha=.15)
     save(fig,'adsorption-checks')

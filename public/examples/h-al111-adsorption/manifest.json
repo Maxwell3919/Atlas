@@ -778,51 +778,51 @@
     },
     {
       "file": "plot_adsorption.py",
-      "bytes": 3300,
+      "bytes": 3429,
       "source_sha256": "2234f0e8fd355472b287955cf849b155fa6d9dcb84b40324fa5063deff754be1",
-      "public_sha256": "2234f0e8fd355472b287955cf849b155fa6d9dcb84b40324fa5063deff754be1"
+      "public_sha256": "fb82e715fcc9c511ce343695ecc6dbb31d0df63518819895a96c91d609853eac"
     },
     {
       "file": "plot_refinement.py",
-      "bytes": 2351,
+      "bytes": 2434,
       "source_sha256": "8ce298629ebad9eba36aafa2d36f69ef4ec8eed63b50d5b16e78f3693c3abec9",
-      "public_sha256": "8ce298629ebad9eba36aafa2d36f69ef4ec8eed63b50d5b16e78f3693c3abec9"
+      "public_sha256": "e94001dfc6f1a914367ca850df4a63cc4b289bfdcb67f3061b4deb34b237fec6"
     },
     {
       "file": "plots/adsorption-checks.png",
-      "bytes": 78212,
+      "bytes": 185520,
       "source_sha256": "3859f2dae581ec7606894227e4be325b8548f8e86559d1eb40972e38cd2b9073",
-      "public_sha256": "31b7e6e2f42fb21b4c43c4578359c58546131100bdfc65005130aeab825757bc"
+      "public_sha256": "ecc36326783adc4627b71c96a2bc8a0372a3a0a789c75360329b44c3d23b6340"
     },
     {
       "file": "plots/adsorption-checks.svg",
-      "bytes": 59148,
+      "bytes": 17808,
       "source_sha256": "e4b4dbfd8fcbc4e4c48cc1e9eb778e5cfd29ff1543de22d661d32c2e725c6b89",
-      "public_sha256": "f881daee9d5e8d2bb4194feea8a0290f26555a5a60e1dafebe74f60f7332d8ef"
+      "public_sha256": "ed573244681ccc636d46c9ffc8d97a46b9bd2526fbf2611a3ffc12c2b743f6ba"
     },
     {
       "file": "plots/k12-k16-refinement.png",
-      "bytes": 101637,
+      "bytes": 175825,
       "source_sha256": "ea307f822fbe593c911251fabfb98ac71e61d6ec76742655c48769ed9a4464b6",
-      "public_sha256": "f8a0450f47c9ff45252a039014808b2e2fd360af2b6ca7714da8ce0cc011ad43"
+      "public_sha256": "644e6010f96f1f78675271ff5437c40155f5597f54299f5bbb3de954af78520f"
     },
     {
       "file": "plots/k12-k16-refinement.svg",
-      "bytes": 64342,
+      "bytes": 17083,
       "source_sha256": "f01888be4c0d25da930d96044e0ec781135c1ead80ebaaace8c8444acb487fc5",
-      "public_sha256": "d917cb12857714699553cb14c63a4b31c87829e861c04986f26cff16a9800bee"
+      "public_sha256": "0051c6672890b3ae2ac5457d8f88fd4e02568974c166485a7f6341ad5d38dbd1"
     },
     {
       "file": "plots/structures.png",
-      "bytes": 65908,
+      "bytes": 110611,
       "source_sha256": "16bb9c913dcdafe60c2ce6dee5ab54ff78654bda041e7bce951e8371a922282b",
-      "public_sha256": "f58ec9f9f2fef74fe85eee1d741b31575fc5f1f5ae226a86df9f6bcd1f652e56"
+      "public_sha256": "826b7dff5a194f5e046589901cf8e1d7865726dd4637045259c5c2aff857a929"
     },
     {
       "file": "plots/structures.svg",
-      "bytes": 65995,
+      "bytes": 27615,
       "source_sha256": "92b7b6b51182c1425bdfb522379b9478a1a7995738b4cf8d7e4fb0d56a90984f",
-      "public_sha256": "62476d74eebb5d172dbdfc4406706e2c81b9a92551e23587f53e2f54fee5572e"
+      "public_sha256": "9d2ec28ff7f9c06142c032424653c8deb7888921ac4c94133728c9fcbcdb861d"
     },
     {
       "file": "pseudo/Al.pbe-n-rrkjus_psl.1.0.0.UPF",

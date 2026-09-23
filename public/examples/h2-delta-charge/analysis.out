@@ -1,0 +1,8 @@
+AB NELECT=2.0 integral=2.0000000029 e mag(OSZICAR)=-0.0000 mag(grid)=-0.0000000000
+A NELECT=1.0 integral=1.0000000012 e mag(OSZICAR)=1.0000 mag(grid)=1.0000000012
+B NELECT=1.0 integral=1.0000000012 e mag(OSZICAR)=-1.0000 mag(grid)=-1.0000000012
+grid = 144 144 144; points = 2985984; volume = 1000.000000 A^3
+integral_delta = 4.362638146422e-10 e; accumulated = 0.2578313944 e; depleted = -0.2578313940 e
+delta_n range = -0.0555594237 to 0.8029641058 e/A^3
+cumulative endpoint = 4.362638192728e-10 e
+Wrote CHGDIFF.vasp, delta-charge.cube, delta-planar.csv, delta-y5.csv, charge-difference-summary.json

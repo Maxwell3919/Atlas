@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import raw from '../data/plotting.md?raw';
+import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
+const processor = await createSatteriMarkdownProcessor({syntaxHighlight:false, smartypants:false, gfm:true});
+const {code} = await processor.render(raw);
+---
+<Base title="科研图的后处理与导出 · Atlas">
+  <article class="plotting">
+    <h1>科研图的后处理与导出</h1>
+    <div set:html={code} />
+  </article>
+</Base>
+<style>
+  .plotting { padding-top:1.4rem; }
+  h1 { font-size:1.9rem; }
+  .plotting :global(h2) { margin:2.2rem 0 .7rem; font-size:1.2rem; }
+  .plotting :global(p) { margin:.6rem 0; }
+  .plotting :global(img) { display:block; width:100%; height:auto; background:white; margin:1.3rem 0 .8rem; }
+  .plotting :global(ul) { padding-left:1.3rem; }
+</style>

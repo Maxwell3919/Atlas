@@ -332,7 +332,7 @@ ecutrho,rho320,320,-22.83858862,0.02503447533917406
 ```
 
 
-[下载能量表](/Atlas/examples/si-pbe/convergence.csv)、[下载提取脚本](/Atlas/examples/si-pbe/analyse_si.py)和[下载绘图脚本](/Atlas/examples/si-pbe/plot_si.py)放在同一组示例目录。提取脚本读取原始 OUT；绘图脚本读取 CSV，不需要波函数文件。安装好 Python、NumPy、Matplotlib 后，在 `si-pbe` 目录运行：
+[下载能量表](/Atlas/examples/si-pbe/convergence.csv)、[下载提取脚本](/Atlas/examples/si-pbe/analyse_si.py)和[下载绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）放在同一组示例目录。提取脚本读取原始 OUT；绘图脚本读取 CSV，不需要波函数文件。安装好 Python、NumPy、Matplotlib 后，在 `si-pbe` 目录运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py convergence

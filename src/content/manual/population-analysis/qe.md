@@ -195,7 +195,7 @@ atom,total_electrons,s_electrons,p_electrons,pz_electrons,px_electrons,py_electr
 ```
 
 
-画图时分别把 s、p 叠加，保留 4 个价电子的参照线。[布居表](/Atlas/examples/si-pbe/population-cg/lowdin.csv)、[完整 projwfc.out](/Atlas/examples/si-pbe/population-cg/projwfc.out)和[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)可直接下载。
+画图时分别把 s、p 叠加，保留 4 个价电子的参照线。[布居表](/Atlas/examples/si-pbe/population-cg/lowdin.csv)、[完整 projwfc.out](/Atlas/examples/si-pbe/population-cg/projwfc.out)和[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）可直接下载。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py population

@@ -1,0 +1,68 @@
+{
+  "cases": {
+    "A": {
+      "integral_e": 1.000000001216176, 
+      "mag_OSZICAR_muB": 1.0, 
+      "mag_grid_muB": 1.0000000012163717, 
+      "nelect": 1.0
+    }, 
+    "AB": {
+      "integral_e": 2.0000000028688443, 
+      "mag_OSZICAR_muB": -0.0, 
+      "mag_grid_muB": -5.128198494200487e-15, 
+      "nelect": 2.0
+    }, 
+    "B": {
+      "integral_e": 1.0000000012164043, 
+      "mag_OSZICAR_muB": -1.0, 
+      "mag_grid_muB": -1.0000000012161938, 
+      "nelect": 1.0
+    }
+  }, 
+  "cumulative_endpoint_e": 4.3626381927278495e-10, 
+  "definition": "total-charge first block: AB - A - B; density = stored_value / cell_volume", 
+  "delta_integral_e": 4.3626381464217716e-10, 
+  "grid": [
+    144, 
+    144, 
+    144
+  ], 
+  "maximum_delta_n_e_A3": 0.8029641057900001, 
+  "minimum_delta_n_e_A3": -0.05555942373199997, 
+  "negative_integral_e": -0.2578313940025911, 
+  "positions_A": [
+    [
+      5.0, 
+      5.0, 
+      4.63
+    ], 
+    [
+      5.0, 
+      5.0, 
+      5.37
+    ]
+  ], 
+  "positive_integral_e": 0.2578313944388549, 
+  "potcar_sha256": "c7c1440066f80b3689496d8a45f8df6af183c40e59b514734edddfaa6840a3be", 
+  "sha256": {
+    "A/CHGCAR": "56f23e72f9e50c587ae93867681481e307b6c8023d7f024d9bc2d4857296056c", 
+    "A/INCAR": "58e788ebaa47aa49d0f82fecfcab2ff1b18f4242c4cb2ef6062f119cdc9ccfc3", 
+    "A/KPOINTS": "185fe1e8e1febc7833cfa1205342340218e7602b5b5367705d13896b22c4b267", 
+    "A/OSZICAR": "f4f636b95d7a30837bb417b1bba4e6f6dc6f8b32f5dcf88fe6c0c97d62dcc786", 
+    "A/OUTCAR": "ba7d46010e2ce543445149e80124d9d0997ffb7080e4604d8f918b5add26f165", 
+    "A/POSCAR": "b103fe20f43471afed6963db04947cf192333348c608d417ce75a508de719170", 
+    "AB/CHGCAR": "c2f141fcb0b5c22142565426a17a794ef65c29a924a07ddb723153167c9608a1", 
+    "AB/INCAR": "5e863f13e6c67ee5d88e5777eadc590ed7832f0e8effc54153dc67a70b575457", 
+    "AB/KPOINTS": "185fe1e8e1febc7833cfa1205342340218e7602b5b5367705d13896b22c4b267", 
+    "AB/OSZICAR": "d64b524d383c630bcb5698c2dd7c1635b1d1cf3ee06ba26571e2065dc0ac5c45", 
+    "AB/OUTCAR": "2f9b1101057c4f4b28a688a4e4b6a192b34687430439ec80433263ae7b0aefd7", 
+    "AB/POSCAR": "c8f5ff94421af495c7799f66b38e81a49f447758c3bded8878bd85b1afaad8e5", 
+    "B/CHGCAR": "543ca256886ea7ded5442e289506e96c3ebda671ce59a3e771f1624430416b52", 
+    "B/INCAR": "b0abe47fc66d03c7ed83eb2f10d7f98c4fa2c1f2562baa755f8d9f8f366d7e27", 
+    "B/KPOINTS": "185fe1e8e1febc7833cfa1205342340218e7602b5b5367705d13896b22c4b267", 
+    "B/OSZICAR": "dc6674c924dad4652c2ff8bad9b84bb800ac8ba641541c136d124af3b0e32371", 
+    "B/OUTCAR": "0e090da55aeb3a3032a487e9ed3f8595cfc0415302d856899dc5fe70d6a94ad1", 
+    "B/POSCAR": "8e13329278a7c39494338cea0ac299e9398ac39875c83b0ed481af695a39e687"
+  }, 
+  "volume_A3": 1000.0
+}

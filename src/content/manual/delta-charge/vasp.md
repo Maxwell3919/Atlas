@@ -1,213 +1,344 @@
-参考：
+[VASP：CHGCAR 文件结构](https://vasp.at/wiki/CHGCAR) · [VASP：细 FFT 网格 NGXF](https://vasp.at/wiki/NGXF) · [VASP：初始磁矩 MAGMOM](https://vasp.at/wiki/MAGMOM)
 
-- [VASP：CHGCAR 的结构与网格](https://vasp.at/wiki/CHGCAR)
-- [VASPKIT：两个片段的差分电荷](https://vaspkit.com/tutorials.html#charge-density-difference)
-- [VESTA 官方手册：VASP 体数据与等值面](https://jp-minerals.org/vesta/archives/VESTA_Manual.pdf)
-
-## 把两层放在一起，电子密度在哪里改变了？
-
-这里比较同一构型的三份电子密度：完整异质结 AB、只保留上面一层的 A、只保留下面一层的 B。计算的是
+把两个 H 原子放在一起，成键后哪些地方的电子密度增加了，哪些地方减少了？这里用一个固定键长的 H₂ 小体系，把同一晶胞中的三份真实计算连起来：完整分子 AB，以及在原位置各保留一个 H 的 A、B。
 
 ```text
 Δn(r) = n_AB(r) − n_A(r) − n_B(r)
 ```
 
-Δn 为正表示这个位置的电子密度增加，为负表示减少。它描述相对于两个冻结片段的空间重排；仅凭正负等值面的形状，还不能读出某一层净转移了多少电子。
+这里的 n 是电子数密度，正值表示相对于冻结原子参考的电子积累，负值表示电子耗尽。它不是带负号的电荷密度 −en；也不能把正值区域的积分直接当成从一个 H 转移给另一个 H 的电子数。
 
-本例是 Sc₂C/ZrCl₂，原子顺序为 `Zr C Cl Sc`，个数为 `1 1 2 2`。A 取 ZrCl₂，B 取 Sc₂C。三份计算必须保留相同晶胞、相同坐标原点，以及片段在 AB 中原本的位置。删掉另一层之后，不再移动剩下的原子，否则减出来的密度还会混入几何变化。
+[下载输入、小体积原始输出、分析与绘图脚本](/Atlas/examples/h2-delta-charge-files.tar.gz)，解压为 `h2-delta-charge`。三份密度单独提供：[AB/CHGCAR.gz](/Atlas/examples/h2-delta-charge/AB/CHGCAR.gz)、[A/CHGCAR.gz](/Atlas/examples/h2-delta-charge/A/CHGCAR.gz)、[B/CHGCAR.gz](/Atlas/examples/h2-delta-charge/B/CHGCAR.gz)。分别放回解压目录的 AB、A、B 子目录，保留文件名 `CHGCAR.gz`，解析程序可以直接读取，不必先解压。只重新画图时，包内 CSV 已经足够。POTCAR 正文不随包分发；重新运行 VASP 需要自行准备有使用权限的同一份 H 赝势，并核对包内指纹。
 
-### 先读晶胞和网格，再拆结构
+## 三份结构，保留同一个坐标系
 
-保存的母体 SCF 读取记录是：
+本例人为构造一个边长 10 Å 的立方晶胞，两个 H 在 (5,5,4.63) 和 (5,5,5.37) Å，键长 0.74 Å。本轮没有优化这个键长，它只是用来观察成键电子密度的明确几何。对照原子保持在分子里的位置，删去另一个原子后没有移到原点，也没有单独弛豫。
 
-```text
-[bcgong@localhost cod]$ grep -n "dimension x,y,z" ../scf/OUTCAR
-515:   dimension x,y,z NGX =    28 NGY =   28 NGZ =  294
-516:   dimension x,y,z NGXF=    56 NGYF=   56 NGZF=  588
+下面是现场直接读回的三个 POSCAR：
+
+```console
+[bcgong@localhost grid144]$ cat AB/POSCAR A/POSCAR B/POSCAR
+H2 charge difference AB
+1.0
+10.0 0.0 0.0
+0.0 10.0 0.0
+0.0 0.0 10.0
+H
+2
+Cartesian
+5.000000 5.000000 4.630000
+5.000000 5.000000 5.370000
+
+H2 charge difference A
+1.0
+10.0 0.0 0.0
+0.0 10.0 0.0
+0.0 0.0 10.0
+H
+1
+Cartesian
+5.000000 5.000000 4.630000
+
+H2 charge difference B
+1.0
+10.0 0.0 0.0
+0.0 10.0 0.0
+0.0 0.0 10.0
+H
+1
+Cartesian
+5.000000 5.000000 5.370000
+[bcgong@localhost grid144]$
 ```
 
-这是两套 FFT 网格。`NGX/NGY/NGZ` 是粗网格；CHGCAR 中写出的电子密度使用 `NGXF/NGYF/NGZF` 的细网格。本例三份 CHGCAR 的密度网格都应当是 **56×56×588**，共有 **1,843,968** 个网格值。不能将 28×28×294 和 56×56×588 当作两种都能接受的 CHGCAR 尺寸。
+三份晶胞矩阵完全相同；AB 有两个原子，A 和 B 各一个。不同原子数会让 CHGCAR 的结构头长度不同，所以不能按同一个固定行号跳过表头，然后直接相减整个文本。
 
-母体结构头部留下了另一条重要信息：
+## 先让电子协议和 FFT 网格一致
 
-```text
-[bcgong@localhost cod]$ head -n 10 ../scf/CONTCAR
-Sc2C
-    1.00000000000000
-      3.3268753886372542   -0.0000000000982961    0.0000000000000000
-     -1.6634376949064786    2.8811586017376438    0.0000000000000000
-      0.0000000000000001   -0.0000000000000005   39.5675948821758965
-    Zr   C    Cl   Sc
-      1     1     2     2
- Direct
-   0.6666666667000030  0.3333333332999970  0.5707895733199777
-   0.0000000000000000  0.0000000000000000  0.4406509079136001
-```
+这一轮重新计算的目录叫 `grid144`。完整分子实际使用的输入为：
 
-标题虽然写着 `Sc2C`，元素行却明确包含 Zr、C、Cl、Sc，因此不能靠第一行标题识别材料。这里没有 `Selective dynamics` 行，坐标从第 9 行开始；这份文件的原子编号与拆分方式为：
-
-| AB 中的原子编号 | 元素 | 保留在哪个片段 |
-|---|---|---|
-| 1 | Zr | A |
-| 2 | C | B |
-| 3、4 | Cl | A |
-| 5、6 | Sc | B |
-
-整理自己的文件时，先复制再在 `vi` 中删掉另一组原子的坐标，保留晶胞和剩余坐标原值。下面是这种手动整理的命令写法，保存后用 `cat` 逐行核对：
-
-```bash
-mkdir -p AB part_A part_B
-cp ../scf/CONTCAR AB/POSCAR
-cp AB/POSCAR part_A/POSCAR
-cp AB/POSCAR part_B/POSCAR
-vi part_A/POSCAR
-cat part_A/POSCAR
-vi part_B/POSCAR
-cat part_B/POSCAR
-```
-
-A 的元素与个数应改成 `Zr Cl`、`1 2`，只留 Zr 和两个 Cl 的三行坐标；B 改成 `C Sc`、`1 2`，只留 C 和两个 Sc。晶胞仍是原来的三条矢量。换成有选择性约束、速度块或不同原子顺序的 POSCAR 时，坐标行号会变，不能照着旧行号剪切。
-
-### POTCAR 要跟着元素顺序一起拆
-
-原记录中曾直接寻找普通 `Zr` 目录，得到文件不存在的错误。继续读取母体 POTCAR 的标识，才确认实际使用的是半芯态版本：
-
-```text
-[bcgong@localhost cod]$ grep "TITEL" ../scf/POTCAR
-    TITEL  = PAW_PBE Zr_sv 04Jan2005
-    TITEL  = PAW_PBE C 08Apr2002
-    TITEL  = PAW_PBE Cl 06Sep2000
-    TITEL  = PAW_PBE Sc_sv 07Sep2000
-```
-
-因此 AB 可以复制母体 POTCAR；A 要按 `Zr_sv → Cl` 拼接，B 按 `C → Sc_sv` 拼接。原子个数不会决定 POTCAR 中重复多少份势，**原子类型的顺序**才决定各数据集怎样匹配 POSCAR。
-
-```bash
-cp ../scf/POTCAR AB/POTCAR
-POT_DIR="<赝势库路径>"
-cat "$POT_DIR/Zr_sv/POTCAR" "$POT_DIR/Cl/POTCAR" > part_A/POTCAR
-cat "$POT_DIR/C/POTCAR" "$POT_DIR/Sc_sv/POTCAR" > part_B/POTCAR
-grep TITEL part_A/POTCAR
-grep TITEL part_B/POTCAR
-```
-
-最后两条命令应分别核对到 `Zr_sv、Cl` 和 `C、Sc_sv`。这里只展示技术标识，不公开 POTCAR 数据本体。若计算中手动设过 `NELECT`，拆分后还要核对片段的电荷状态；不能把完整体系的 `NELECT` 原样留在少了原子的片段里。
-
-### 固定几何，分别得到三份自洽密度
-
-本例保存的 [INCAR 记录](/Atlas/examples/sc2c-zrcl2-charge/INCAR.record.txt) 中，关键设置如下：
-
-```ini
-IBRION = -1
-NSW = 0
-ENCUT = 520
-EDIFF = 1E-6
-NELM = 160
-LCHARG = .TRUE.
-LWAVE = .FALSE.
-LREAL = A
-LASPH = .TRUE.
+```console
+[bcgong@localhost grid144]$ cat AB/INCAR
+SYSTEM = H2 fixed geometry charge difference
+ISTART = 0
+ICHARG = 2
+ENCUT = 400
 PREC = Accurate
+EDIFF = 1E-8
+NELM = 100
+ALGO = Normal
 ISMEAR = 0
-SIGMA = 0.05
-NGX = 28
-NGY = 28
-NGZ = 294
-NGXF = 56
-NGYF = 56
-NGZF = 588
+SIGMA = 0.02
+ISPIN = 2
+MAGMOM = 1 -1
+ISYM = 0
+NBANDS = 8
+LORBIT = 11
+LREAL = .FALSE.
+LASPH = .TRUE.
+LMAXMIX = 2
+NCORE = 1
+NSW = 0
+IBRION = -1
+LWAVE = .FALSE.
+LCHARG = .TRUE.
+NGX = 72
+NGY = 72
+NGZ = 72
+NGXF = 144
+NGYF = 144
+NGZF = 144
+[bcgong@localhost grid144]$
 ```
 
-`IBRION=-1` 与 `NSW=0` 固定原子位置；`LCHARG` 写出 CHGCAR；这份输入关闭了 WAVECAR 输出，因此结束后没有 WAVECAR 本身不是异常。三份计算沿用相同的截断能、k 点网格、泛函、展宽和对应元素的赝势。显式固定 FFT 尺寸是为了让减法在同一空间网格上进行，仍需从输出核对实际使用的网格。
+`ISTART=0`、`ICHARG=2` 让三项各自从原子叠加电荷开始做自洽。这里需要的是三个独立自洽结果，不能把 AB 的密度直接复制成 A、B 的最终密度。`IBRION=-1`、`NSW=0` 保持结构不动。
 
-`EDIFF=1E-6` 控制各自 SCF 的电子能量停止条件，不能直接换算成差分密度的误差。Δn 是三份密度相减，若其中一份还在明显变化，残差也会进入正负区域；收紧电子阈值时，应观察全胞积分和关心区域的密度是否稳定。`ISMEAR=0` 与 `SIGMA=0.05` 采用相同的 Gaussian 占据展宽，但三个体系会分别求自己的费米能，不能人为把片段的费米能对齐后再修改密度。
+三项统一使用 400 eV 截断、`PREC=Accurate`、Gaussian 展宽 `SIGMA=0.02 eV` 和 `EDIFF=1E-8 eV`。相同设置是逐点相减的前提；这个例子没有额外扫描截断、盒长与展宽，所以不把这些数当成所有分子的推荐收敛值。
 
-原记录使用 `LREAL=A`，即自动优化的实空间投影。它是一项数值近似，不能因为三个目录都写成 A 就判定其误差已抵消；比较时要一并保留相同的 ENCUT、PREC 和投影设置。若要把很弱的差分区域作为定量依据，可在相同几何上另做倒空间投影的对照，再比较密度和积分变化。现有记录只包含实空间投影设置，后续定量比较还需补上这项对照。
+`ISPIN=2` 让单个 H 可以得到一个未配对电子。A 的初始 `MAGMOM=1`，B 为 `−1`，分子为 `1 -1`；除了 `SYSTEM` 和 `MAGMOM`，三份 INCAR 的电子参数逐项一致。MAGMOM 是初始条件，最终磁矩还要从输出和密度积分验证，不能只按输入预期填写。
 
-准备输入时可以逐个目录复制并查看：
+`LCHARG=.TRUE.` 写出后面要相减的 CHGCAR。`LWAVE=.FALSE.` 关闭波函数写出；本次目录内的 WAVECAR 是零字节文件，不能拿它当成可用重启文件。`LREAL=.FALSE.` 在倒空间处理投影，`LASPH=.TRUE.` 保留 PAW 球内非球形贡献；这些选择在三份输入中保持一致。
 
-```bash
-cp INCAR AB/INCAR
-cp INCAR part_A/INCAR
-cp INCAR part_B/INCAR
-cp ../scf/KPOINTS AB/KPOINTS
-cp ../scf/KPOINTS part_A/KPOINTS
-cp ../scf/KPOINTS part_B/KPOINTS
-cat AB/INCAR
-cat AB/KPOINTS
+密度使用 144×144×144 的细网格，粗网格为 72×72×72。这两套网格各有用途，不能只保证最终 CHGCAR 的行数一致，却忽略电子计算本身的网格警告。
+
+本例前一次 48³/96³ 尝试虽然结束并写出了密度，OUTCAR 仍明确提醒：
+
+```console
+[bcgong@localhost grid144]$ grep -A 8 -B 2 "Your FFT grids" ../AB/OUTCAR
+|           W    W  A    A  R    R  N    N  II  N    N   GGGG   !!!           |
+|                                                                             |
+|      Your FFT grids (NGX,NGY,NGZ) are not sufficient for an accurate        |
+|      calculation.                                                           |
+|      The results might be wrong                                             |
+|      good settings for NGX NGY and  NGZ are                                 |
+|                        70  70  and  70                                      |
+|     Mind: This setting results in a small but reasonable wrap around error  |
+|     It is also necessary to adjust these  values to the FFT routines you use|
+|                                                                             |
+ -----------------------------------------------------------------------------
+[bcgong@localhost grid144]$
 ```
 
-提交脚本沿用已在该主机核验的 `script_std`。保存的资料没有脚本全文和这三次任务的完成摘要，所以这里不列新的任务号，也不把排队命令当作计算已经通过。实际提交后，在对应目录用 `tail -f OSZICAR` 观察电子迭代，用 `tail -n 40 OUTCAR` 查看最新结果，再检查调度器日志。
+因此这次把三项一起改为 72³/144³ 后重新计算。这个处理修复了程序明确报告的网格不足；它不是已经完成系统性的网格收敛测试。旧尝试没有被混进下面三份密度中。
 
-一次静态 VASP 计算的文件可以这样读：
+孤立分子用大盒子与 Γ 点作周期近似，实际 KPOINTS 为：
 
-| 文件 | 在这个步骤看什么 |
-|---|---|
-| `OUTCAR` | 开头的实际输入、元素与电子数、FFT 网格；中间的电子迭代、能量、力；末尾的运行与计时信息 |
-| `OSZICAR` | 电子步能量变化的摘要，查看是否因达到 `NELM` 上限而停下 |
-| `CHGCAR` | 结构头、细 FFT 网格和密度数据，是下一步相减的输入 |
-| `CONTCAR` | 本次输出结构；静态任务中出现它并不能证明做过结构优化 |
-| `WAVECAR` | 波函数重启文件；本例 `LWAVE=.FALSE.` 不要求生成它 |
-
-可以从这些位置开始查，A、B、AB 分别检查：
-
-```bash
-head -n 80 OUTCAR
-grep -E 'NELECT|NGXF|NGYF|NGZF' OUTCAR
-tail -n 20 OSZICAR
-tail -n 40 OUTCAR
+```console
+[bcgong@localhost grid144]$ cat AB/KPOINTS
+Gamma for an isolated molecule in a periodic box
+0
+Gamma
+1 1 1
+0 0 0
+[bcgong@localhost grid144]$
 ```
 
-末尾有计时信息说明程序走到了结束段，电子步也必须满足本次的收敛条件。对于这里定义的中性冻结片段，还应有 `NELECT(AB) = NELECT(A) + NELECT(B)`。这保证三份密度的总电子数彼此配平；随后 Δn 在全晶胞的积分应接近零，而不是靠更换等值面把不平衡掩盖掉。
+盒长仍需按研究问题检查。仅仅用了 Γ 点和 10 Å 晶胞，并不自动证明周期镜像效应可以忽略。
 
-### 在 CHGCAR 里找到真正要相减的数据块
+## 三份 SCF 串行完成，再读输出
 
-先用 `head -n 20 AB/CHGCAR` 和两个片段的同类命令查看文件开头。不同原子数会让网格行落在不同行，不能固定抓同一个行号。文件布局可以按下面的顺序辨认：
+AB 的真实提交脚本如下。此现场用 4 个 MPI 进程；A、B 脚本对应各自目录，电子参数不变。
+
+```console
+[bcgong@localhost grid144]$ cat AB/run.slurm
+#!/bin/bash
+#SBATCH --job-name=atlas-h2g144-AB
+#SBATCH --nodes=1
+#SBATCH --ntasks=4
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:05:00
+#SBATCH -o _out.%j.log
+#SBATCH -e _err.%j.log
+ulimit -s unlimited
+ulimit -l unlimited
+source /data/intel/oneapi/setvars.sh
+export OMP_NUM_THREADS=1
+unset SLURM_CPUS_PER_TASK
+export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19
+cd "$SLURM_SUBMIT_DIR"
+mpirun -np 4 <vasp_bin>/vasp_std > out
+[bcgong@localhost grid144]$
+```
+
+`OMP_NUM_THREADS=1` 避免每个 MPI 进程再启动额外线程。`I_MPI_PIN_PROCESSOR_LIST` 是这个节点现场使用的核绑定，换机器应遵循其调度配置。这里按 AB、A、B 的次序串行提交，每项结束并核对之后才继续下一项。
+
+```console
+[bcgong@localhost AB]$ sbatch run.slurm
+Submitted batch job 18203
+[bcgong@localhost AB]$ tail -4 out
+DAV:  26    -0.675757525392E+01   -0.96419E-07   -0.89909E-10    32   0.964E-05    0.141E-05
+DAV:  27    -0.675757527955E+01   -0.25634E-07   -0.32106E-10    32   0.582E-05    0.892E-06
+DAV:  28    -0.675757528376E+01   -0.42084E-08   -0.20943E-11    32   0.152E-05
+   1 F= -.67575753E+01 E0= -.67575753E+01  d E =-.395750E-14  mag=    -0.0000
+[bcgong@localhost AB]$ grep -E "Your FFT grids|aborting loop|Elapsed time" OUTCAR
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+                         Elapsed time (sec):       37.584
+[bcgong@localhost AB]$ cd ../A
+[bcgong@localhost A]$ sbatch run.slurm
+Submitted batch job 18204
+[bcgong@localhost A]$ tail -3 out
+DAV:  31    -0.111553427162E+01   -0.37212E-07    0.11147E-11    40   0.712E-07    0.109E-07
+DAV:  32    -0.111553427860E+01   -0.69796E-08    0.21005E-11    32   0.517E-07
+   1 F= -.11155343E+01 E0= -.11155343E+01  d E =-.379612E-12  mag=     1.0000
+[bcgong@localhost A]$ grep -E "Your FFT grids|aborting loop|Elapsed time" OUTCAR
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+                         Elapsed time (sec):       43.484
+[bcgong@localhost A]$ cd ../B
+[bcgong@localhost B]$ sbatch run.slurm
+Submitted batch job 18205
+[bcgong@localhost B]$ grep -E "Your FFT grids|aborting loop|Elapsed time" OUTCAR
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+                         Elapsed time (sec):       42.155
+[bcgong@localhost B]$ cd ..
+```
+
+`aborting loop because EDIFF is reached` 在这里表示电子循环达到所设精度后退出，不是程序异常。三项分别耗时 37.584、43.484、42.155 秒，末尾都有完整运行统计，也不再出现 FFT 网格不足提示。
+
+等待时可在对应目录运行 `tail -f out` 或 `watch -n 2 "tail -n 8 out"`；Ctrl-C 退出的是监视。看到文件不再增长以后，仍要读收敛与正常结束段，不能只看任务已离开队列。
+
+## OUT 的头部、电子迭代与末尾分别告诉我们什么
+
+先看 AB 的标准输出开头：
+
+```console
+[bcgong@localhost grid144]$ head -n 24 AB/out
+ running on    4 total cores
+ distrk:  each k-point on    4 cores,    1 groups
+ distr:  one band on    1 cores,    4 groups
+ using from now: INCAR     
+ vasp.5.4.4.18Apr17-6-g9f103f2a35 (build Feb 26 2024 21:30:50) complex          
+  
+ POSCAR found type information on POSCAR  H 
+ POSCAR found :  1 types and       2 ions
+ scaLAPACK will be used
+ LDA part: xc-table for Pade appr. of Perdew
+ POSCAR, INCAR and KPOINTS ok, starting setup
+ FFT: planning ...
+ WAVECAR not read
+ entering main loop
+       N       E                     dE             d eps       ncg     rms          rms(c)
+DAV:   1     0.330307833686E+01    0.33031E+01   -0.36026E+02    32   0.737E+01
+DAV:   2    -0.473855047208E+01   -0.80416E+01   -0.80416E+01    32   0.253E+01
+DAV:   3    -0.523992505854E+01   -0.50137E+00   -0.50137E+00    40   0.977E+00
+DAV:   4    -0.524239736218E+01   -0.24723E-02   -0.24723E-02    32   0.677E-01
+DAV:   5    -0.524242226125E+01   -0.24899E-04   -0.24899E-04    32   0.648E-02    0.455E+00
+DAV:   6    -0.656955046096E+01   -0.13271E+01   -0.55591E+00    32   0.924E+00    0.337E+00
+DAV:   7    -0.655514804124E+01    0.14402E-01   -0.10946E+00    32   0.371E+00    0.163E+00
+DAV:   8    -0.660675599031E+01   -0.51608E-01   -0.24393E-01    32   0.135E+00    0.950E-01
+DAV:   9    -0.674177913766E+01   -0.13502E+00   -0.19305E-01    32   0.123E+00    0.399E-01
+[bcgong@localhost grid144]$
+```
+
+这里确认了 VASP 版本、实际 4 个进程、1 种元素和 2 个原子。`WAVECAR not read` 与本次从头计算的输入一致。`DAV` 行是电子迭代，列中有当前能量、能量变化 dE、本征值求解变化 d eps 与残差；它们属于迭代过程，前几步的能量不能用作最终结果。
+
+再读 OUTCAR 中与这次密度对应的实际参数：
+
+```console
+[bcgong@localhost grid144]$ grep -E "NELECT|dimension x,y,z|aborting loop|Elapsed time" AB/OUTCAR
+   dimension x,y,z NGX =    72 NGY =   72 NGZ =   72
+   dimension x,y,z NGXF=   144 NGYF=  144 NGZF=  144
+   dimension x,y,z NGX =    70 NGY =   70 NGZ =   70
+   NELECT =       2.0000    total number of electrons
+------------------------ aborting loop because EDIFF is reached ----------------------------------------
+                         Elapsed time (sec):       37.584
+[bcgong@localhost grid144]$
+```
+
+输出中的实际粗、细网格为 72³ 和 144³。另一个 70³ 行是程序给出的网格尺度信息，不应覆盖已经明确写出的实际设置；最终还要从 CHGCAR 表头核对密度数组的真实尺寸。电子数 `NELECT=2` 是完整 H₂ 的价电子数，A、B 各为 1。
+
+目录中的文件有不同分工：`out` 和 `OSZICAR` 便于看电子步，`OUTCAR` 保留实际参数、能量、磁矩、力与结束统计；`CHGCAR` 提供总密度和磁化密度网格；`vasprun.xml` 是结构化输出；`CONTCAR` 保存最终结构。这个固定构型例子中没有新的离子移动。
+
+## 读 CHGCAR 时，把总密度与磁化密度分开
+
+先看 AB/CHGCAR 的头部：
+
+```console
+[bcgong@localhost grid144]$ head -n 15 AB/CHGCAR
+H2 fixed geometry charge difference     
+   1.00000000000000     
+    10.000000    0.000000    0.000000
+     0.000000   10.000000    0.000000
+     0.000000    0.000000   10.000000
+   H 
+     2
+Direct
+  0.500000  0.500000  0.463000
+  0.500000  0.500000  0.537000
+ 
+  144  144  144
+ -.14180101703E-06 0.15839254613E-05 0.82756458881E-05 0.18919626660E-04 0.24598790238E-04
+ 0.17342576419E-04 0.32962757902E-05 -.14502942528E-05 0.91047738927E-05 0.21835186348E-04
+ 0.20713305658E-04 0.74212176581E-05 -.14663704630E-05 0.36751736964E-05 0.14473913947E-04
+[bcgong@localhost grid144]$
+```
+
+结构头后面的 `144 144 144` 才是第一份体数据的网格尺寸，共 2,985,984 个值。数值按 x 最快、再 y、再 z 的顺序存放。第一块是 `n↑+n↓`，后面还包括 PAW 单中心信息和第二块 `n↑−n↓`；不能把后续所有数字都当成同一份总密度接在一起。
+
+在这份文件的写出约定下，设第一块原始值为 Dᵢ，晶胞体积 V=1000 Å³：
 
 ```text
-POSCAR 格式的晶胞、元素、个数与原子坐标
-    ↓ 空行
-NGXF  NGYF  NGZF
-    ↓
-第一块：NGXF×NGYF×NGZF 个总电子密度网格值
-    ↓
-PAW augmentation occupancies
+n_i = D_i / V                         单位：e/Å³
+NELECT = Σ_i D_i / Ngrid
+Δn_i = (D_AB,i − D_A,i − D_B,i) / V
+∫ Δn(r) dr ≈ Σ_i (D_AB,i − D_A,i − D_B,i) / Ngrid
 ```
 
-这里三份文件的网格行都应是 `56 56 588`。密度数据一行可以有多个数，直到第一块的 1,843,968 个值读完；它们之后的 PAW 信息不是新的空间网格。自旋极化计算还可能有后续磁化密度块，不能把它们与第一块总电子密度混在一起。
+这里的网格体积元是 V/Ngrid。保留原始数组再按实际体积换算，可以同时检查单位和电子数；不需要用未知比例把积分强行调整成期望值。
 
-同时看晶胞矢量是否一致。仅仅有相同的 `56 56 588` 不够：若晶胞尺寸或原点不同，同一个数组下标对应的实空间位置就不同，逐点相减没有意义。
+[analyze_charge.py](/Atlas/examples/h2-delta-charge/analyze_charge.py) 逐份检查完整电子收敛与正常退出、同一晶胞、同一网格、同一 k 点和赝势指纹。它还核对 A、B 的坐标确实等于 AB 中对应原子的坐标，并分别积分总密度与磁化密度。实际执行得到：
 
-### 用 VASPKIT 相减，然后在 VESTA 中保留单位
+```console
+[bcgong@localhost grid144]$ python -B analyze_charge.py | tee analysis.out
+AB NELECT=2.0 integral=2.0000000029 e mag(OSZICAR)=-0.0000 mag(grid)=-0.0000000000
+A NELECT=1.0 integral=1.0000000012 e mag(OSZICAR)=1.0000 mag(grid)=1.0000000012
+B NELECT=1.0 integral=1.0000000012 e mag(OSZICAR)=-1.0000 mag(grid)=-1.0000000012
+grid = 144 144 144; points = 2985984; volume = 1000.000000 A^3
+integral_delta = 4.362638146422e-10 e; accumulated = 0.2578313944 e; depleted = -0.2578313940 e
+delta_n range = -0.0555594237 to 0.8029641058 e/A^3
+cumulative endpoint = 4.362638192728e-10 e
+Wrote CHGDIFF.vasp, delta-charge.cube, delta-planar.csv, delta-y5.csv, charge-difference-summary.json
+[bcgong@localhost grid144]$
+```
 
-三份 SCF 与网格核对完成后运行：
+AB 的总密度积分为 2.0000000029 e，A、B 各为 1.0000000012 e。第二块积分与 OSZICAR 的最终磁矩相符：分子约为 0，两个冻结原子分别约为 +1、−1 μB。后面的差分使用三份文件的第一块，并没有把磁化密度当成总电子数密度。
+
+差分的全胞积分为 4.36×10⁻¹⁰ e，与零相符；正值区域积累 0.2578313944 e，负值区域耗尽 0.2578313940 e，二者相抵。这个数是相对于指定冻结参考的空间重排量。H₂ 两个相同原子具有对称性，它不能被解读为“0.258 e 从 A 转移到了 B”。
+
+## 用切片、平面平均和累计积分读同一份数据
+
+包内的 [plot_charge.py](/Atlas/examples/h2-delta-charge/plot_charge.py)（同时下载 [atlas_plot_style.py](/Atlas/examples/atlas_plot_style.py)，放在同一目录） 读取 [delta-y5.csv](/Atlas/examples/h2-delta-charge/delta-y5.csv)、[delta-planar.csv](/Atlas/examples/h2-delta-charge/delta-planar.csv) 与 [charge-difference-summary.json](/Atlas/examples/h2-delta-charge/charge-difference-summary.json)。在装有 NumPy 和 Matplotlib 的本机运行：
 
 ```bash
-vaspkit -task 314
+cd h2-delta-charge
+python3 plot_charge.py
 ```
 
-按当前 VASPKIT 官方教程，出现文件名输入提示时，把三个文件名放在**同一行，以空格分隔**：
+它生成 `h2-charge-difference.png/pdf/svg` 和 `plot-checks.json`。
 
-```text
-AB/CHGCAR part_A/CHGCAR part_B/CHGCAR
+![固定 H₂ 相对于两个冻结 H 原子的电子密度重排](/Atlas/examples/h2-delta-charge/h2-charge-difference.png)
+
+左图是穿过两个 H 的 y=5 Å 切片，圆点标出真实原子坐标。颜色使用保留实际极值的线性对称范围；橙实线与蓝虚线分别标出正、负等值线，便于看见幅度较小的耗尽区域。曲线没有通过插值改变原始密度数值。这里 Δn 的最小、最大值分别为 −0.0555594、+0.8029641 e/Å³。
+
+中图先在 xy 平面平均，再乘以面积 A=100 Å²，得到每单位 z 长度的电子数变化，单位 e/Å。右图从晶胞边界 z=0 开始累计积分，单位为 e。累计曲线在晶胞另一端返回近零，与全胞守恒检查一致；局部曲线的正负取决于选定边界与区域，不能用其最大值替代 Bader 分区后的净电荷。
+
+如果需要三维等值面，先把三份 CHGCAR.gz 放回子目录，再运行：
+
+```bash
+python3 analyze_charge.py
 ```
 
-顺序表示 `AB − A − B`，结果文件名为 `CHGDIFF.vasp`。以上是命令与输入方式；现有记录没有收录本例的 VASPKIT 完整结束输出、密度积分或最终 VESTA 工程，因而这里不附一张无法核对来源的等值面图。
+程序会另写 `CHGDIFF.vasp` 与 `delta-charge.cube`。前者保留 AB 的几何头，只有用于可视化的差分标量块，不是用于重启 SCF 的完整 CHGCAR。Cube 文件把长度换成 bohr、密度换成 e/bohr³，并按 Cube 的 z 最快次序写出；不能给两种文件使用同一个未经换算的等值面数值。完整网格转换由脚本完成，不必手工剪贴百万行数据。
 
-在本机打开 `CHGDIFF.vasp` 后，先核对晶胞和两层原子的相对位置，再进入 `Properties → Isosurfaces`，建立数值绝对值相同的一正一负两层等值面。给两者使用不同颜色，并在图注写明哪一色代表电子增加、哪一色代表电子减少。侧视界面时保持两层都在显示范围内；只看一个剪裁很窄的区域，容易把层内重排看成层间转移。
+这条路线已经把三份真实输入、SCF、网格相减、单位、电子数与图像对应起来。它展示的是固定 0.74 Å 几何、10 Å 周期盒和当前参数下的重排，未对键长、盒长、截断或密度极值作系统收敛。研究异质结时仍按同一个坐标系拆分片段，并另行核验片段的电荷与自旋参考态。
 
-**等值面数值必须带上实际单位。** VESTA 手册说明，直接读取 VASP CHG/CHGCAR 类文件时，会用以 bohr³ 计的晶胞体积归一化，密度单位为 bohr⁻³。若想表达 `0.005 e/Å³`，换成相应数值约为 `0.000741 bohr⁻³`；不能在界面里输入 0.005 后直接把图注写成 e/Å³。处理过的 `.vasp` 文件也应核对其写出约定和导入方式。
-
-保存图片的同时保存 `.vesta` 工程，留下输入文件、正负等值面数值、单位、颜色与视角。以后更换体系时，先比较这些设置，再比较等值面大小。
-
-下一步：需要原子或层的净电子转移，进入[Bader 电荷](/Atlas/m/bader/vasp/)；希望结合局域成键特征理解同一界面，继续看[ELF](/Atlas/m/elf/vasp/)。
+下一步：若要给空间区域分配净电子数，可接 [Bader 分析](/Atlas/m/bader/vasp/)；若要看电子局域特征，可接 [ELF](/Atlas/m/elf/vasp/)。这两种量与 Δn 的定义不同，需要各自读取对应的输出。
 
 ```text
-同一 AB 几何 → 保持晶胞与原位坐标，拆成 A / B
-                     ↓
-            三份 SCF → 电子数、收敛与细网格检查
-                     ↓
-            AB − A − B → 密度积分与 VESTA 单位检查
-                     ↓
-                等值面图 → Bader / ELF
+固定 AB 几何 → 原位保留 A、B → 匹配参数的三份 SCF
+                                  ↓
+                        CHGCAR 结构、网格、电子数
+                                  ↓
+                       第一密度块 AB − A − B
+                                  ↓
+                    切片 / 平面平均 / 累计积分
 ```

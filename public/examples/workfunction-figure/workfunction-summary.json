@@ -1,0 +1,33 @@
+{
+  "indirect_gap_eV": 0.7672730000000001, 
+  "nkpoints": 108, 
+  "electrons": 26, 
+  "vbm_eV": -2.690722, 
+  "windows": [
+    {
+      "hi_A": 3.0, 
+      "range_eV": 6.069721202184297e-05, 
+      "std_eV": 1.560196291454302e-05, 
+      "vacuum_minus_fermi_eV": 5.7845834123897575, 
+      "lo_A": 1.0, 
+      "mean_eV": 3.306283412389758, 
+      "vacuum_minus_vbm_eV": 5.997005412389758, 
+      "vacuum_minus_cbm_eV": 5.229732412389758, 
+      "n": 30
+    }, 
+    {
+      "hi_A": 17.0, 
+      "range_eV": 0.00014599575727070047, 
+      "std_eV": 3.896078582365854e-05, 
+      "vacuum_minus_fermi_eV": 5.78456535323047, 
+      "lo_A": 15.0, 
+      "mean_eV": 3.3062653532304704, 
+      "vacuum_minus_vbm_eV": 5.9969873532304705, 
+      "vacuum_minus_cbm_eV": 5.22971435323047, 
+      "n": 31
+    }
+  ], 
+  "bands": 20, 
+  "cbm_eV": -1.923449, 
+  "fermi_eV": -2.4783
+}

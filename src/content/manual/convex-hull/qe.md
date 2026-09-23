@@ -65,7 +65,7 @@ plots/convex-hull.png and plots/convex-hull.svg
 
 蓝线连接本集合中的下凸包顶点；方块是三个构造的中间候选；竖直虚线的长度就是表中的能量差。图的横轴是原子分数，纵轴已除以每个晶胞的总原子数。两种端元的零点来自形成能定义，原始 DFT 总能本身都不是零。
 
-绘图只需要 Python、NumPy、Matplotlib 和 CSV。把 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py) 与 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 放在同一目录，运行 `python3 plot_alsi.py hull`；图像写入 `plots/convex-hull.png` 和 `plots/convex-hull.svg`。要同时重画形成能与参数差值图，再加入 [numerical-checks.csv](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 并运行 `python3 plot_alsi.py all`。
+绘图只需要 Python、NumPy、Matplotlib 和 CSV。把 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 与 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 放在同一目录，运行 `python3 plot_alsi.py hull`；图像写入 `plots/convex-hull.png` 和 `plots/convex-hull.svg`。要同时重画形成能与参数差值图，再加入 [numerical-checks.csv](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 并运行 `python3 plot_alsi.py all`。
 
 ## 把 32³ 的同一组候选再放上来
 

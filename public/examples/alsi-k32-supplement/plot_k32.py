@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Plot the k24/k32 comparison and the finite candidate hull from CSV only."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import argparse,csv
 import numpy as np

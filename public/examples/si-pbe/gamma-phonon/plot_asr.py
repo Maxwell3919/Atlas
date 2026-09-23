@@ -3,6 +3,9 @@
 Run next to si-no.modes and si-crystal.modes. Needs NumPy and Matplotlib.
 Numbers are read from files; negative frequencies are never clipped.
 """
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv
 import re
@@ -33,8 +36,8 @@ for ax, indices, title in [(axes[0], np.arange(3), "Acoustic modes (zoom)"),
                             (axes[1], np.arange(3, 6), "Optical modes")]:
     x = indices + 1
     ax.scatter(x - .08, raw[indices], s=70, facecolors="none",
-               edgecolors="#2450ae", linewidths=1.6, label="ASR = no", zorder=3)
-    ax.scatter(x + .08, asr[indices], s=50, marker="x", color="#b6682b",
+               edgecolors="#0072b2", linewidths=1.6, label="ASR = no", zorder=3)
+    ax.scatter(x + .08, asr[indices], s=50, marker="x", color="#d55e00",
                linewidths=1.8, label="ASR = crystal", zorder=3)
     ax.set(xticks=x, xlabel="Mode index", title=title, ylabel="Frequency (cm$^{-1}$)")
     ax.grid(axis="y", alpha=.18)

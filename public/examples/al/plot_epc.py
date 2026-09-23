@@ -1,6 +1,9 @@
 """Run from the downloaded Al bundle root: python plot_epc.py.
 Inputs stay in epc-q4/. Figures are written to figures/.
 """
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import csv
 import numpy as np
@@ -10,7 +13,7 @@ import matplotlib.pyplot as plt
 r=Path(__file__).resolve().parent;d=r/'epc-q4';out=r/'figures';out.mkdir(exist_ok=True)
 a=np.loadtxt(d/'alpha2F.dat')
 s=np.genfromtxt(d/'tc-scan.csv',delimiter=',',names=True)
-colors=['#238a8d','#b76536','#6761a8']
+colors=['#009e73','#d55e00','#cc79a7']
 plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':220})
 def save(fig,name):
     fig.savefig(out/(name+'.png'),bbox_inches='tight');fig.savefig(out/(name+'.pdf'),bbox_inches='tight');plt.close(fig)

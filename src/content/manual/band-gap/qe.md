@@ -209,7 +209,7 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 
 随后沿同一个 `12³` 父密度的 Γ–X 谷做密集采样，局部拟合把谷底定位在 `kx≈0.84430088×2π/a`。与同父密度的 VBM 相减，得到约 **0.54017968 eV**。这一细化步骤的输入、点距和窗口检查都在[有效质量](/Atlas/m/effective-mass/qe/)页，不在这里重走一次。
 
-将[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)与示例数据放在同一目录后运行：
+将[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）与示例数据放在同一目录后运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py gap

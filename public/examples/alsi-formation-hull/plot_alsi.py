@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Plot the actual tables produced by analyse_alsi.py; no QE installation needed."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import argparse,csv
 import numpy as np
@@ -8,7 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 ROOT=Path(__file__).resolve().parent
-BLUE='#2463a7';ORANGE='#d56925';GRAY='#657081'
+BLUE='#0072b2';ORANGE='#d55e00';GRAY='#657081'
 LABELS={'al-fcc':'Al (fcc)','al3si-l12':'Al₃Si (L1₂)','alsi-b2':'AlSi (B2)','alsi3-l12':'AlSi₃ (L1₂)','si-diamond':'Si (diamond)'}
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':180})
 def read(name):
@@ -28,7 +31,7 @@ def formation():
     axes[0].set_xticks(x,[LABELS[r['case']].replace(' ','\n',1) for r in rows]);axes[0].set_ylim(0,max(y)*1.2)
     axes[0].set_ylabel('Formation energy (eV/atom)');axes[0].set_title('Same reference energies and protocol')
     transitions=[('k12','k16','k:12→16'),('k16','k20','k:16→20'),('k20','sigma005','σ:0.01→0.005'),('sigma005','cutoff80','cutoff:60→80'),('cutoff80','k24','k:20→24')]
-    colors=[BLUE,ORANGE,'#328d77']
+    colors=[BLUE,ORANGE,'#009e73']
     for case,col in zip([r['case'] for r in rows],colors):
         yy=[float(next(c for c in checks if c['case']==case and c['from_protocol']==a and c['to_protocol']==b)['formation_change_meV_atom']) for a,b,_ in transitions]
         axes[1].plot(np.arange(len(transitions)),yy,'o-',label=LABELS[case],color=col,ms=5)

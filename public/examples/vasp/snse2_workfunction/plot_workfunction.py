@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 import json
 import numpy as np
 import matplotlib
@@ -8,8 +11,8 @@ r=json.load(open('workfunction-summary.json'))
 fig,axes=plt.subplots(2,1,figsize=(8,6.4),gridspec_kw={'height_ratios':[2,1]},layout='constrained')
 a,b=axes
 a.plot(z,v,color='#25313c',lw=1.3,label='Planar electrostatic potential')
-a.axhline(r['fermi_eV'],color='#b34b37',ls='--',lw=1,label='E_F = %.4f eV'%r['fermi_eV'])
-colors=['#128473','#c87627']
+a.axhline(r['fermi_eV'],color='#d55e00',ls='--',lw=1,label='E_F = %.4f eV'%r['fermi_eV'])
+colors=['#009e73','#d55e00']
 for i,w in enumerate(r['windows']):
     c=colors[i%len(colors)]
     for ax in axes: ax.axvspan(w['lo_A'],w['hi_A'],color=c,alpha=.13)

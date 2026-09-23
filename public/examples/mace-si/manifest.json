@@ -15,8 +15,8 @@
     {
       "file": "examples/mace-si/si-relax/plot.py",
       "source_sha256": "44248d64b0018774ceb3bfcb681d461cfbdd4ff95e1fe40104cad5ca895fd039",
-      "public_sha256": "44248d64b0018774ceb3bfcb681d461cfbdd4ff95e1fe40104cad5ca895fd039",
-      "bytes": 977
+      "public_sha256": "cbabe82efc3f5433831d52d31dfc226b6a059ef2a7d075ffcb09a1593037a50d",
+      "bytes": 1060
     },
     {
       "file": "examples/mace-si/si-relax/relax.log",
@@ -51,8 +51,8 @@
     {
       "file": "examples/mace-si/si-relax/relaxation.svg",
       "source_sha256": "48109594a0206d85ac6253734f55655a3cea336d33e081e5f4946c15401c65f5",
-      "public_sha256": "48109594a0206d85ac6253734f55655a3cea336d33e081e5f4946c15401c65f5",
-      "bytes": 55802
+      "public_sha256": "de01c6200f52032a0f0918544a407b1c904282b2463cd3492a686826404c4233",
+      "bytes": 27534
     },
     {
       "file": "examples/mace-si/si-relax/result.json",
@@ -63,8 +63,8 @@
     {
       "file": "examples/mace-si/si-relax/relaxation.png",
       "source_sha256": "74c133bdfbc298ff9c0942d764eede8a2e9175ac4b426278c031817310a4b794",
-      "public_sha256": "74c133bdfbc298ff9c0942d764eede8a2e9175ac4b426278c031817310a4b794",
-      "bytes": 86997
+      "public_sha256": "6739d29e51371c54e093da33632e0527f788cdbb893dc0ff74bdfbdc37492689",
+      "bytes": 113418
     },
     {
       "file": "examples/mace-si/si-vc-relax/initial.extxyz",
@@ -81,8 +81,8 @@
     {
       "file": "examples/mace-si/si-vc-relax/plot.py",
       "source_sha256": "1d49f03c82665ce993ffd94911401576f4866291d0317530a3aa39349699da80",
-      "public_sha256": "1d49f03c82665ce993ffd94911401576f4866291d0317530a3aa39349699da80",
-      "bytes": 1098
+      "public_sha256": "90ec1a98117d907f050a65ad277318303bf033e4c40df670330a41ede01585f8",
+      "bytes": 1181
     },
     {
       "file": "examples/mace-si/si-vc-relax/relaxed.cif",
@@ -117,8 +117,8 @@
     {
       "file": "examples/mace-si/si-vc-relax/cell-relaxation.svg",
       "source_sha256": "ea7eeaba2abbf3a1be6fab6ce07763b0d2f118881cad3fd5760b5a2ba3741f8a",
-      "public_sha256": "ea7eeaba2abbf3a1be6fab6ce07763b0d2f118881cad3fd5760b5a2ba3741f8a",
-      "bytes": 75785
+      "public_sha256": "52d5a99409a9b2928870769242ceee0e28d9a5a805113b9f2952df2ec0702e5f",
+      "bytes": 37429
     },
     {
       "file": "examples/mace-si/si-vc-relax/vc-relax.traj",
@@ -129,8 +129,8 @@
     {
       "file": "examples/mace-si/si-vc-relax/cell-relaxation.png",
       "source_sha256": "c2761aff4e05c2daed0bef4d4b1a8e1f2d64e8c87cb612cc4845299637ce7412",
-      "public_sha256": "c2761aff4e05c2daed0bef4d4b1a8e1f2d64e8c87cb612cc4845299637ce7412",
-      "bytes": 119229
+      "public_sha256": "91ef15051f5e3d5f19d77d4c3d5a5064b0c0c7039dbff2de973ec170a19c28c8",
+      "bytes": 157791
     },
     {
       "file": "examples/mace-si/si-md/check_trajectory.py",
@@ -219,8 +219,8 @@
     {
       "file": "examples/mace-si/si-md/plot.py",
       "source_sha256": "2156bbf17e84dd8e7e044c96d03e601b7887ccad90527c1802a5835a359ac1c2",
-      "public_sha256": "2156bbf17e84dd8e7e044c96d03e601b7887ccad90527c1802a5835a359ac1c2",
-      "bytes": 1325
+      "public_sha256": "8cdf7e5aa1ab6a184e3bc9b9ce8a8ab77afb9b67935abe9627e88632c8482139",
+      "bytes": 1408
     },
     {
       "file": "examples/mace-si/si-md/trajectory-check.json",
@@ -249,14 +249,14 @@
     {
       "file": "examples/mace-si/si-md/md-check.svg",
       "source_sha256": "22bc4d4a1c99e64f981c7a6f5be73589797b0a416bf277225019e7b4a66f7725",
-      "public_sha256": "22bc4d4a1c99e64f981c7a6f5be73589797b0a416bf277225019e7b4a66f7725",
-      "bytes": 75962
+      "public_sha256": "dc1484ee9647985cd38b04b81998dea58847aa7fffaaf02ea8da44e5f5e79302",
+      "bytes": 36602
     },
     {
       "file": "examples/mace-si/si-md/md-check.png",
       "source_sha256": "ab2a828720ef9631768f5e8be4eab2f10bccb060442d84f206f7d4d1a7417dd9",
-      "public_sha256": "ab2a828720ef9631768f5e8be4eab2f10bccb060442d84f206f7d4d1a7417dd9",
-      "bytes": 273676
+      "public_sha256": "7bad11fb0b80e195c823b35d1aae3682bf04adbb03eb98a13d5174d93678a57c",
+      "bytes": 359607
     }
   ]
 }

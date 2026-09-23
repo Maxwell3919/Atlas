@@ -71,6 +71,14 @@ maxwell@maxwell:~/al/fermi/k32-cg$ cat grid-info.json
 ```
 这份摘要记录了 32768 个真实 k 点、E_F、跨过费米能的带号和源 XML 哈希。不能对一条能带路径直接做下面的循环卷积，因为路径上的数组不是一个周期三维均匀网格。
 
+下载包中的 [extract_fermi.py](/Atlas/examples/al/fermi/extract_fermi.py) 会重新读取两套 NSCF 的 XML、标准输出和错误文件，再生成 `fermi-grid.npz` 与四份嵌套 CSV。本机已有 NumPy 时，在解包后的 `al` 根目录执行：
+
+```bash
+python3 fermi/extract_fermi.py
+```
+
+后面的 `.venv/bin/python` 是原计算主机的环境路径，不随包提供。包内两处 `tmp/al.save/` 保留了这个提取步骤需要的 XML，却没有完整电荷密度与波函数；它们足以重算这里的 J(q)，不能直接用于继续运行 QE。若只要重画现有曲线，可以跳过提取，直接使用后面的四份 CSV。
+
 ```console
 maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi.py
 k=24^3 nks=13824 EF=8.39793432 eV crossing bands=[2, 3]; all grid cells assigned once
@@ -121,7 +129,7 @@ q_fraction_along_b1_plus_b3,J_eV_minus2,J_over_J0
 
 <figure><img src="/Atlas/examples/al/figures/fermi-nesting.png" alt="Al Γ到X方向的费米面几何嵌套网格与窗口比较" loading="lazy"/><figcaption>左：原始 J(q)；右：J(q)/J(0)。四条曲线来自两个真实网格与两个后处理窗口。</figcaption></figure>
 
-[plot_nesting.py](/Atlas/examples/al/plot_nesting.py) 读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。在下载的 Al 示例根目录运行：
+[plot_nesting.py](/Atlas/examples/al/plot_nesting.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。在下载的 Al 示例根目录运行：
 
 ```bash
 python3 plot_nesting.py

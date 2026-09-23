@@ -427,8 +427,8 @@
     },
     {
       "file": "examples/si-pbe/gamma-phonon/asr-comparison.csv",
-      "public_sha256": "2b814d6db73c2ca2d391623f571c656cf33cb7eb7a2a02d2967f23c5c714796f",
-      "bytes": 222
+      "public_sha256": "d63c26f117a5570ac0ef71537295ec73a44d5fe4a3e9800616e44f6db3a2e755",
+      "bytes": 229
     },
     {
       "file": "examples/si-pbe/gamma-phonon/dynmat-crystal.err.txt",
@@ -482,8 +482,8 @@
     },
     {
       "file": "examples/si-pbe/gamma-phonon/plot_asr.py",
-      "public_sha256": "334fbdf4d65228c9925aef8e9761385721f86c838a881f5c1ee6cdf72bbcf514",
-      "bytes": 2500
+      "public_sha256": "99040354b2fe0a7e3a8b0b385d524447547458d896de1fc8da5be6777d1d3ae0",
+      "bytes": 2583
     },
     {
       "file": "examples/si-pbe/gamma-phonon/run.sh",
@@ -517,18 +517,18 @@
     },
     {
       "file": "examples/si-pbe/gamma-phonon/si-gamma-asr.pdf",
-      "public_sha256": "f2315c401c0ef2ceaff8c625802e1f8c712de6583783684e190d3d3727321198",
-      "bytes": 21183
+      "public_sha256": "a79563f533adc0e3038df39383e785eba82e680117eda24ec1d8e2dbde4a86a8",
+      "bytes": 41075
     },
     {
       "file": "examples/si-pbe/gamma-phonon/si-gamma-asr.png",
-      "public_sha256": "ba445eed6f1aecf020211227b921dc8ccd7c760eed19677388918870fde41eec",
-      "bytes": 86533
+      "public_sha256": "3bd04b63ca0f7b416bcb19e5a2d17096e60eba09d12bb026b688f20f39aeff7a",
+      "bytes": 123544
     },
     {
       "file": "examples/si-pbe/gamma-phonon/si-gamma-asr.svg",
-      "public_sha256": "63e74d60a007f661aadf95732f994c10f8c2ae57966df08d56c0fdf0d90b18b9",
-      "bytes": 30413
+      "public_sha256": "3240232a86b04a13d541f3df6b408212d8a3667530adebab5a6ff9a7af2ea3bd",
+      "bytes": 24224
     },
     {
       "file": "examples/si-pbe/gamma-phonon/si-no.modes",
@@ -1067,132 +1067,132 @@
     },
     {
       "file": "examples/si-pbe/plot_bands.py",
-      "public_sha256": "1f00727f31fa699d57bc41c2f5b29e9962ef6040addae18dec0a0ce1e8d90249",
-      "bytes": 920
+      "public_sha256": "fd9298f91a33fc46506c9165e3f7453b9f2f52e0488baf3991afefa96a93f7c5",
+      "bytes": 1003
     },
     {
       "file": "examples/si-pbe/plot_si.py",
       "source_sha256": "6736616ab884bd6cc29c2d68e1d917abd8f075698af6cbbb9118a3acdf190fff",
-      "public_sha256": "6736616ab884bd6cc29c2d68e1d917abd8f075698af6cbbb9118a3acdf190fff",
-      "bytes": 9213
+      "public_sha256": "cbca14d1af580b816e74f0524d1aaa0380cdca776a0478035b387c483d4abd03",
+      "bytes": 9669
     },
     {
       "file": "examples/si-pbe/plots/band-3d.png",
       "source_sha256": "32abaf78db4090591f57769494c5de2c822408440ebbd33d3f427bbe6cf35c28",
-      "public_sha256": "32abaf78db4090591f57769494c5de2c822408440ebbd33d3f427bbe6cf35c28",
-      "bytes": 454457
+      "public_sha256": "3620f3a9af3204540a8ae94bdec6377b3203d2f183ee444249478c1dbbc9a177",
+      "bytes": 298743
     },
     {
       "file": "examples/si-pbe/plots/band-3d.svg",
       "source_sha256": "3e751fe0945e266d08c34c79d4e4efea5cdce51fe3306d0bd5546824510592e5",
-      "public_sha256": "3e751fe0945e266d08c34c79d4e4efea5cdce51fe3306d0bd5546824510592e5",
-      "bytes": 88855
+      "public_sha256": "d95e0e1cca34271f722e16b41b36bd67a8f1e295efd23b1d2acbdaced77bd1c5",
+      "bytes": 49175
     },
     {
       "file": "examples/si-pbe/plots/band-gap.png",
       "source_sha256": "41b61df85471db54199505a1ac54c5b4f1ecab76ca72b13f686c56ad17cb7cac",
-      "public_sha256": "41b61df85471db54199505a1ac54c5b4f1ecab76ca72b13f686c56ad17cb7cac",
-      "bytes": 215639
+      "public_sha256": "19bad24ca9266a627c0b7e1c4bc807a6fb8c0c7558c0aa62c4b8d0c706cedf7d",
+      "bytes": 183283
     },
     {
       "file": "examples/si-pbe/plots/band-gap.svg",
       "source_sha256": "cb1f223bce9fad2760b06fa78e4c20b8be8f2ffcb1419848337b404327494add",
-      "public_sha256": "cb1f223bce9fad2760b06fa78e4c20b8be8f2ffcb1419848337b404327494add",
-      "bytes": 73707
+      "public_sha256": "f47426d642422212bc223ada14d18b9cffca96f0cae27772abca4b961f01b7ca",
+      "bytes": 19858
     },
     {
       "file": "examples/si-pbe/plots/bands-direct.png",
-      "public_sha256": "bb53b3263566e1685f728c6c217f04d1826536440b8cf553bb5a28d1be385e33",
-      "bytes": 211180
+      "public_sha256": "f9f95a8ed6a12a890f405df224f6bc4763fb8a6fa20c6e7be0e2d9d0e02a8a25",
+      "bytes": 213176
     },
     {
       "file": "examples/si-pbe/plots/bands-direct.svg",
-      "public_sha256": "5ecb6cec93008bf5e8001ad0247b27bc0852bf75016490b03ab53499c07f0699",
-      "bytes": 54380
+      "public_sha256": "75e5bcee74f8e6fd678cd23953b3a1da4f7f2133b1d40a6d8329f20527a7b99e",
+      "bytes": 35139
     },
     {
       "file": "examples/si-pbe/plots/bands.png",
       "source_sha256": "287c6c699188d45ce0045c3c13c460ade32dbc3b912eca4b4705446e06371fe7",
-      "public_sha256": "287c6c699188d45ce0045c3c13c460ade32dbc3b912eca4b4705446e06371fe7",
-      "bytes": 270070
+      "public_sha256": "0075b063e7d1e064aa00f04e969a12b484f920d1315f264e5db928cc4904e493",
+      "bytes": 209831
     },
     {
       "file": "examples/si-pbe/plots/bands.svg",
       "source_sha256": "7b79953e35bbf0850b22affe24d1f7f51c7910ae14650c666bd42867fb1fcf3e",
-      "public_sha256": "7b79953e35bbf0850b22affe24d1f7f51c7910ae14650c666bd42867fb1fcf3e",
-      "bytes": 55106
+      "public_sha256": "10d4bef97a19762426d13dba4ba81b3239d6da82510d33040e1bb75bb790c7ed",
+      "bytes": 34637
     },
     {
       "file": "examples/si-pbe/plots/convergence.png",
       "source_sha256": "27c461f7e49554837baa44a205fe3cb2afe7a404044274e75331cddf776b7258",
-      "public_sha256": "27c461f7e49554837baa44a205fe3cb2afe7a404044274e75331cddf776b7258",
-      "bytes": 214572
+      "public_sha256": "f4726ce02c68b4a7d3a7747889bbf2e6f31f5970d5e13231bd3cfa161b844ae2",
+      "bytes": 193880
     },
     {
       "file": "examples/si-pbe/plots/convergence.svg",
       "source_sha256": "0c3e9976cc070783a766caaa58922df62a88d688a618e7090e329e15c9c25414",
-      "public_sha256": "0c3e9976cc070783a766caaa58922df62a88d688a618e7090e329e15c9c25414",
-      "bytes": 76325
+      "public_sha256": "ba60ea05ecd5942f2fae3e058d59ba963c82b485de5bfac76e62fa46fca52028",
+      "bytes": 25143
     },
     {
       "file": "examples/si-pbe/plots/dos.png",
       "source_sha256": "2401d5787ba29cd287ec817707333afcae27ddc829c193d3c2c5ce1b645f9b65",
-      "public_sha256": "2401d5787ba29cd287ec817707333afcae27ddc829c193d3c2c5ce1b645f9b65",
-      "bytes": 169110
+      "public_sha256": "f54fd82c1e75842ad3c2a9e51f03d9794837e54e7aca4077db9f97ecfedecd0e",
+      "bytes": 124994
     },
     {
       "file": "examples/si-pbe/plots/dos.svg",
       "source_sha256": "ee2bdd29ca3fffab61fe36e46720a994314786c324bb6482b69202144d3809df",
-      "public_sha256": "ee2bdd29ca3fffab61fe36e46720a994314786c324bb6482b69202144d3809df",
-      "bytes": 117927
+      "public_sha256": "598b60c391e14dbe14092517e0d8b3b0ca683dcbce25a6fa37c985785ac7b2c9",
+      "bytes": 83285
     },
     {
       "file": "examples/si-pbe/plots/effective-mass.png",
       "source_sha256": "b9e2bd1f1d092b7167b06fa92b9bc5d9e8b1044aa837a02dec99b68a7c704809",
-      "public_sha256": "b9e2bd1f1d092b7167b06fa92b9bc5d9e8b1044aa837a02dec99b68a7c704809",
-      "bytes": 190439
+      "public_sha256": "efabe12ead5c6431fe280b562baace88c48030039db71c091a84bab0375f72bd",
+      "bytes": 158144
     },
     {
       "file": "examples/si-pbe/plots/effective-mass.svg",
       "source_sha256": "37e579ab9b4c8b6c3bba8ac9ed35a2d164afde1bb37a3a6fe21677781061d8e5",
-      "public_sha256": "37e579ab9b4c8b6c3bba8ac9ed35a2d164afde1bb37a3a6fe21677781061d8e5",
-      "bytes": 60083
+      "public_sha256": "6b33fb61361136be72281abcf91b78ee7b529071534f4a0842d63163abd89274",
+      "bytes": 23440
     },
     {
       "file": "examples/si-pbe/plots/fatband.png",
       "source_sha256": "e1e955aa3de743bf033a54d3be56d5dcb7bfdbc0d4e0922d1be89b6e1d36ed9a",
-      "public_sha256": "e1e955aa3de743bf033a54d3be56d5dcb7bfdbc0d4e0922d1be89b6e1d36ed9a",
-      "bytes": 687689
+      "public_sha256": "0817288b6e7958555b1118460bd0ef1296a21c7d3fc770ea6ce725fa20ec0a3b",
+      "bytes": 507978
     },
     {
       "file": "examples/si-pbe/plots/fatband.svg",
       "source_sha256": "e8ed181f9dd142ecfa4b56e3f9105e753362666bd1cc525b6df7aee14baa6da6",
-      "public_sha256": "e8ed181f9dd142ecfa4b56e3f9105e753362666bd1cc525b6df7aee14baa6da6",
-      "bytes": 1343877
+      "public_sha256": "4dc6748ffcdc0cd6f8287097f38af7fbe41c2f36a3bbd7c6fc567520ee777e05",
+      "bytes": 1349743
     },
     {
       "file": "examples/si-pbe/plots/population-analysis.png",
       "source_sha256": "f877f427467ce39c336a44d87617574a550f97bd7412b5bdf4b78b1306dacc43",
-      "public_sha256": "f877f427467ce39c336a44d87617574a550f97bd7412b5bdf4b78b1306dacc43",
-      "bytes": 68960
+      "public_sha256": "3f2caadfb648a18da77f1754411eed57d7b3d7aad41b141485ac482351af8398",
+      "bytes": 51734
     },
     {
       "file": "examples/si-pbe/plots/population-analysis.svg",
       "source_sha256": "e7412f6f22d19ca261de63ffa895391450e009bd8e771ece38371f3ba75ba247",
-      "public_sha256": "e7412f6f22d19ca261de63ffa895391450e009bd8e771ece38371f3ba75ba247",
-      "bytes": 38184
+      "public_sha256": "46aec45d70ee0a2fa2e9ab0a400400a16371d0ca0e309266883e090cb0f464a7",
+      "bytes": 10801
     },
     {
       "file": "examples/si-pbe/plots/relax.png",
       "source_sha256": "573546c710b5fa3caec9ec6bbd5be6487f78f947fbceb78d4a107d37ceee9e44",
-      "public_sha256": "573546c710b5fa3caec9ec6bbd5be6487f78f947fbceb78d4a107d37ceee9e44",
-      "bytes": 163796
+      "public_sha256": "00724e27b18c8e932f78a6a3921cf31f8cc4aa9c33b62ba97fa85542f5cf6afd",
+      "bytes": 129476
     },
     {
       "file": "examples/si-pbe/plots/relax.svg",
       "source_sha256": "8b082dca7549bbc167bcb6f673b66a99f4d682c7cbf44b1ee0341a5acf64e177",
-      "public_sha256": "8b082dca7549bbc167bcb6f673b66a99f4d682c7cbf44b1ee0341a5acf64e177",
-      "bytes": 50147
+      "public_sha256": "0425a834683405d4df4f5c37dc43eca1cb9b9e9bc9c27b01628c5a624fb5d29c",
+      "bytes": 17210
     },
     {
       "file": "examples/si-pbe/population-cg/atomic_proj.xml",

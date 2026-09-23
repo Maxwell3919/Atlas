@@ -1,3 +1,6 @@
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import argparse,csv,json
 import numpy as np
@@ -7,7 +10,7 @@ import matplotlib.pyplot as plt
 ROOT=Path(__file__).resolve().parent
 OUT=ROOT/'plots';OUT.mkdir(exist_ok=True)
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False,'figure.dpi':130,'savefig.dpi':300,'axes.titleweight':'bold'})
-BLUE='#2463a5';ORANGE='#d98920';GRAY='#667080'
+BLUE='#0072b2';ORANGE='#e69f00';GRAY='#667080'
 
 def read(name):return np.genfromtxt(ROOT/name,delimiter=',',names=True,encoding='utf-8')
 def save(fig,name):
@@ -18,7 +21,7 @@ def convergence():
     fig,axes=plt.subplots(1,3,figsize=(12,3.6),layout='constrained')
     for ax,param,label in zip(axes,['ecutwfc','ecutrho','kmesh'],['Wavefunction cutoff (Ry)','Charge-density cutoff (Ry)','Uniform mesh n × n × n']):
         r=[x for x in rows if x['parameter']==param];x=[float(v['setting']) for v in r];y=[float(v['delta_meV_per_atom_vs_last']) for v in r]
-        ax.plot(x,y,'o-',color=BLUE);ax.set_xlabel(label);ax.set_ylabel('Energy relative to last point (meV/atom)');clean(ax)
+        ax.plot(x,y,'o-',color=BLUE);ax.set_xlabel(label);ax.set_ylabel('ΔE vs last point (meV/atom)');clean(ax)
         if param=='kmesh':ax.set_yscale('symlog',linthresh=.1);ax.axhline(1,color=ORANGE,ls='--',label='Example comparison: 1 meV/atom');ax.legend(fontsize=8)
         ax.set_title({'ecutwfc':'Fixed 640 Ry, 8³ mesh','ecutrho':'Fixed 60 Ry, 8³ mesh','kmesh':'Fixed 60 / 640 Ry'}[param],fontsize=11)
     save(fig,'convergence')
@@ -38,7 +41,8 @@ def gap():
     m=read('mass/longitudinal.csv');fit=json.loads((ROOT/'mass/mass-fits.json').read_text())[1]
     dense=next(x for x in r if x['directory']=='gap24-k12-cg');axes[1].plot(m['kx_tpiba'],m['band5_eV']-dense['vbm_eV'],color=BLUE)
     axes[1].scatter([fit['minimum_k_tpiba']],[fit['minimum_energy_eV']-dense['vbm_eV']],color=ORANGE,zorder=4)
-    axes[1].set_xlabel('kx (2π/a), ky = kz = 0');axes[1].set_ylabel('Conduction band relative to VBM (eV)');axes[1].set_title('Local Γ–X valley refinement; 12³ parent density',fontsize=10)
+    axes[0].margins(y=.20)
+    axes[1].set_xlabel('kx (2π/a), ky = kz = 0');axes[1].set_ylabel('Conduction energy − VBM (eV)');axes[1].set_title('Local Γ–X valley refinement; 12³ parent density',fontsize=10)
     for ax in axes:clean(ax)
     save(fig,'band-gap')
 def mass():
@@ -75,6 +79,11 @@ def fatband():
             q=r[r['iband']==ib];ax.plot(q['path_distance_tpiba'],q['energy_eV']-vbm,color='#b6bdc7',lw=.65,zorder=1);ax.scatter(q['path_distance_tpiba'],q['energy_eV']-vbm,s=34*q[weight],color=color,alpha=.75,edgecolors='none',zorder=2)
         for tick in ticks:ax.axvline(tick,color='#e0e3e8',lw=.65,zorder=0)
         ax.axhline(0,color=GRAY,ls='--',lw=.7);ax.set_xticks(ticks,labels);ax.set_xlim(ticks[0],ticks[-1]);ax.set_ylim(-13,7);ax.set_title(title);ax.set_ylabel('Energy − VBM (eV)')
+        handles=[ax.scatter([],[],s=34*w,color='#555555',edgecolors='none',label=f'{w:g}') for w in (.25,.5,1.)]
+        ax.legend(handles=handles,title='Projection weight (point area)',ncol=3,
+                  loc='lower left',bbox_to_anchor=(0,1.015),frameon=False,fontsize=8)
+        ax.set_title('',loc='center')
+        ax.set_title(title,loc='left',pad=55)
     save(fig,'fatband')
 def bands():
     r=read('bands-cg/fatband.csv');vbm=r['energy_eV'][r['iband']==4].max();fig,ax=plt.subplots(figsize=(8,4.6),layout='constrained');idx=[1,25,37,49,73,97,121];ticks=[r['path_distance_tpiba'][r['ik']==i][0] for i in idx]

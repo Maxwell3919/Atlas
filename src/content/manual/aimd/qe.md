@@ -308,7 +308,7 @@ step,energy_sample_time_fs,position_time_fs,temperature_K,potential_Ry,kinetic_R
 
 ![短时间原子位移](/Atlas/examples/al/figures/aimd-displacement.png)
 
-图中 RMS 位移是相对初始原子位置的短时变化，没有据此拟合扩散系数。要重新出图，把 `aimd` 子目录和 [plot_aimd.py](/Atlas/examples/al/plot_aimd.py) 放在同一 Al 数据目录，运行：
+图中 RMS 位移是相对初始原子位置的短时变化，没有据此拟合扩散系数。要重新出图，把 `aimd` 子目录和 [plot_aimd.py](/Atlas/examples/al/plot_aimd.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 放在同一 Al 数据目录，运行：
 
 ```bash
 python plot_aimd.py

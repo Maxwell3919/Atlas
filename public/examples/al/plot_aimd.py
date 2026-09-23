@@ -1,4 +1,7 @@
 """Plot the verified QE Al AIMD records from the Al bundle root."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
 from pathlib import Path
 import numpy as np
 import matplotlib
@@ -6,7 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 r=Path(__file__).resolve().parent;d=r/'aimd';out=r/'figures';out.mkdir(exist_ok=True)
 plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':220})
-colors=['#278b87','#bd693b','#6653a5']
+colors=['#009e73','#d55e00','#cc79a7']
 def data(name):return np.genfromtxt(d/name/'thermo.csv',delimiter=',',names=True)
 def save(fig,name):
     fig.tight_layout();fig.savefig(out/(name+'.png'),bbox_inches='tight');fig.savefig(out/(name+'.pdf'),bbox_inches='tight');plt.close(fig)

@@ -1,0 +1,5 @@
+case,actual_k,ICOHP_mean_eV_per_bond,ICOHP_bond_range_eV,charge_spilling_percent,total_spilling_percent,native_COHP_integral_at_zero,independent_trapezoid_at_zero,ICOHPLIST_minus_COHP_zero_eV,native_DOS_integral_zero,native_DOS_integral_gap_midpoint
+diamond-k10,504,-9.60405,0.0,1.11,9.26,-9.6035,-9.603461200000005,-0.0005500000000004945,7.99696,8.0
+diamond-k10-80,504,-9.60394,0.0,1.11,9.26,-9.60338,-9.603353800000011,-0.000560000000000116,7.99696,8.0
+diamond-k6,112,-9.608662500000001,9.999999999621423e-06,1.12,9.23,-9.60613,-9.605995899999995,-0.0025325000000009368,7.98611,8.0
+diamond-k8,260,-9.60499,0.0,1.11,9.24,-9.60392,-9.603853800000024,-0.0010700000000003485,7.99414,8.0

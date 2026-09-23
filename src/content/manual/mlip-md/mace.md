@@ -243,41 +243,39 @@ MD_INTEGRATION_ACCEPTED
 
 ### 把温度和积分误差画在同一张图里
 
-把 [warmup.log](/Atlas/examples/mace-si/si-md/warmup.log)、[nve-1fs.csv](/Atlas/examples/mace-si/si-md/nve-1fs.csv)、[nve-0p5fs.csv](/Atlas/examples/mace-si/si-md/nve-0p5fs.csv) 和 [plot.py](/Atlas/examples/mace-si/si-md/plot.py) 放在同一目录，运行 `python3 plot.py`。绘图只需要 NumPy 与 Matplotlib；不需要在本机再加载 MACE 模型。
+把 [warmup.log](/Atlas/examples/mace-si/si-md/warmup.log)、[nve-1fs.csv](/Atlas/examples/mace-si/si-md/nve-1fs.csv)、[nve-0p5fs.csv](/Atlas/examples/mace-si/si-md/nve-0p5fs.csv) 和 [plot.py](/Atlas/examples/mace-si/si-md/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-md/atlas_plot_style.py)） 放在同一目录，运行 `python3 plot.py`。绘图只需要 NumPy 与 Matplotlib；不需要在本机再加载 MACE 模型。
+
+CSV 中的 `time_ps` 已经是 ps，`total_eV_atom` 已经除过原子数。画每原子能量变化时，只需减去该条轨迹第一行的总能，再把 eV 换成 meV：
 
 ```python
 import numpy as np
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
-warmup = np.loadtxt("warmup.log", skiprows=1)
 one = np.genfromtxt("nve-1fs.csv", delimiter=",", names=True)
 half = np.genfromtxt("nve-0p5fs.csv", delimiter=",", names=True)
-plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
-fig, axes = plt.subplots(3, 1, figsize=(8, 9), layout="constrained")
-axes[0].plot(warmup[:, 0], warmup[:, 4], color="#6D28D9")
-axes[0].axhline(300, color="#666666", linestyle="--", linewidth=1)
-axes[0].set(title="64-atom Si with MACE-MP-0 small", ylabel="Temperature (K)",
-            xlabel="Bussi warmup time (ps)")
-for data, label, color in [(one, "1.0 fs", "#176B87"), (half, "0.5 fs", "#B45309")]:
-    delta = 1000 * (data["total_eV_atom"] - data["total_eV_atom"][0])
-    axes[1].plot(data["time_ps"], delta, label=label, color=color)
-    axes[2].plot(data["time_ps"], data["temperature_K"], label=label, color=color)
-axes[1].set(ylabel="Energy change (meV/atom)", xlabel="NVE time (ps)")
-axes[2].set(ylabel="Temperature (K)", xlabel="NVE time (ps)")
-for ax in axes:
-    ax.grid(alpha=0.18)
-for ax in axes[1:]:
-    ax.legend(frameon=False, title="Time step")
-fig.savefig("md-check.svg")
-fig.savefig("md-check.png", dpi=180)
-print("md-check.svg", "md-check.png")
+delta_one = 1000 * (one["total_eV_atom"] - one["total_eV_atom"][0])
+delta_half = 1000 * (half["total_eV_atom"] - half["total_eV_atom"][0])
 ```
+
+两张 CSV 各有 101 行记录，覆盖同一个 0—0.5 ps 区间；它们第一行的总能与初始动量一致，因此这里比较的是相同初态下的步长误差。不要再把能量除以 64，也不要把积分步号当成时间。`warmup.log` 的第一列是时间，最后一列是温度，其中能量列按整个超胞记录；本图只从它读取热化温度，不与 NVE 表的每原子能量列直接拼接。
 
 ![64 原子 Si 的热化温度和两种步长的 NVE 能量检查](/Atlas/examples/mace-si/si-md/md-check.svg)
 
 第一幅图看热浴交换能量时的温度起伏；第二幅图从两条轨迹各自的初始总能中减去同一个基准，放大每原子能量的微小变化；第三幅图保留真实温度波动。不能用一条平滑温度曲线代替能量守恒检验，也不能把 NVT 中的总能变化按 NVE 的标准判错。
+
+### 将同一份数据导出成论文图
+
+网页图保留足够大的刻度与图例。准备论文图时，在绘图脚本建立画布之前选用本机已安装的 Arial 或 Helvetica，设置 `pdf.fonttype=42` 和 `svg.fonttype='none'`，使 PDF 嵌入 TrueType 字体、SVG 保留文字；画完后在保存 PNG/SVG 的位置另存 PDF：
+
+```python
+plt.rcParams.update({"font.family": "Arial", "pdf.fonttype": 42,
+                     "svg.fonttype": "none", "text.color": "black",
+                     "axes.labelcolor": "black", "xtick.color": "black",
+                     "ytick.color": "black", "axes.grid": False})
+# 上面的设置放在创建 figure 之前；下面一行放在绘图完成之后。
+fig.savefig("md-check.pdf", bbox_inches="tight", facecolor="white")
+```
+
+这段是导出设置，不能替代前面的读表与画线。绘图循环也要关闭背景网格，保留表示目标温度的 300 K 参考线。两种步长除了使用不同颜色，还应使用不同线型，图例文字保持黑色。按 [Nature 图稿规格](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)排论文尺寸时，常规文字为 5—7 pt、面板号为 8 pt；这个字号要求不直接用于网页。最后在实际版面大小打开 PDF，检查单位、负号和两条能量曲线能否分辨，确认字体确实嵌入，而不是只看 PNG 是否清晰。
 
 本机已有 ASE 时，可以下载 [nve-1fs.traj](/Atlas/examples/mace-si/si-md/nve-1fs.traj)，用 `ase gui nve-1fs.traj` 打开并拖动帧滑块，观察原子运动。`.traj` 保留多个时刻以及计算属性；[末帧结构](/Atlas/examples/mace-si/si-md/nve-1fs-final.extxyz) 适合接着准备下一次计算，但只有一帧。
 

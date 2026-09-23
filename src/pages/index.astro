@@ -47,11 +47,13 @@ const unpublished = categories.flatMap((c) => c.order).filter((slug) => !ready(s
             </div>
           ))
         }
-        <details class="more-methods">
-          <summary>其他方法 · 尚无算例（{unpublished.length}）</summary>
-          <p>以下方法保留在目录中，已有正文的条目列在上方。</p>
-          <ul>{unpublished.map((slug) => <li>{methods[slug].zh}</li>)}</ul>
-        </details>
+        {unpublished.length > 0 && (
+          <details class="more-methods">
+            <summary>其他方法 · 尚无算例（{unpublished.length}）</summary>
+            <p>以下方法保留在目录中，已有正文的条目列在上方。</p>
+            <ul>{unpublished.map((slug) => <li>{methods[slug].zh}</li>)}</ul>
+          </details>
+        )}
       </div>
     </section>
   </div>

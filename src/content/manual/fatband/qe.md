@@ -179,8 +179,7 @@ Submitted batch job 799
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 25 bands-cg/atomic_proj.xml
 <PROJECTIONS>
-  <HEADER NUMBER_OF_BANDS="8" NUMBER_OF_K-POINTS="121" NUMBER_OF_SPIN_COMPONENTS="1" NUMBER_OF_ATOMIC_WFC="8" NUMBER_OF_ELECTRONS="8.0000000000000000" FERMI_ENE
-RGY="0.47017480096667780"/>
+  <HEADER NUMBER_OF_BANDS="8" NUMBER_OF_K-POINTS="121" NUMBER_OF_SPIN_COMPONENTS="1" NUMBER_OF_ATOMIC_WFC="8" NUMBER_OF_ELECTRONS="8.0000000000000000" FERMI_ENERGY="0.47017480096667780"/>
   <EIGENSTATES>
     <K-POINT Weight="1.6528925619834711E-002">
    0.000000000000000E+00   0.000000000000000E+00   0.000000000000000E+00
@@ -222,6 +221,8 @@ projection_norm = Si_s_weight + Si_p_weight
 
 还有一个容易混淆的单位：本次 `atomic_proj.xml` 的 `E` 值以 Ry 存储，而 `data-file-schema.xml` 的本征值以 Hartree 存储。[提取脚本](/Atlas/examples/si-pbe/analyse_si.py)用后者的能量画图，并独立把前者乘以 `13.605693122994`，逐点核对二者在 `10⁻⁶ eV` 内一致；k 坐标也逐点核对。只有通过配对后才把能量和权重写在同一行。
 
+`NUMBER_OF_SPIN_COMPONENTS=1` 与 `ATOMIC_WFC` 的 `spin=1` 对应本次非自旋数据。`|cⱼ|²` 是该归一化波函数投到轨道的无量纲权重，画胖带不再乘自旋简并 2；否则权重与点面积都会错。自旋极化计算须把 k 点、带号、自旋共同作为配对键，本例脚本不能未经检查直接套用。
+
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 6 bands-cg/fatband.csv
 ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si_p_weight,projection_norm
@@ -256,7 +257,7 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 运行末尾确认 `projwfc.x` 正常结束。[完整输出](/Atlas/examples/si-pbe/bands-cg/projwfc.out)尾部还会打印 Löwdin 数字，但这次输入的是能带路径，不把它用于布里渊区积分的布居结论；[布居分析](/Atlas/m/population-analysis/qe/)另用均匀 `18³` 网格演示。
 
-画图使用[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)：
+画图使用[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py fatband
@@ -265,7 +266,15 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 ![Si 的逐 k 逐带 s 和 p 权重胖带图](/Atlas/examples/si-pbe/plots/fatband.png)
 
-两幅图采用同一条路径、同一个能量零点和同一种点面积标度。能量减去这条路径包含的价带顶；蓝色点面积与 s 权重成正比，橙色点面积与 p 权重成正比，灰色细线帮助追踪能带。点的半径没有再线性放大，因而不能把“看起来粗一倍”直接理解为权重正好大一倍。
+两幅图使用同一路径和参考 `E−6.397028957255 eV`。节点索引仍为 `1、25、37、49、73、97、121`，横轴是实际坐标的累计距离，而非等距 k 点编号；节点和长度见[普通能带页](/Atlas/m/bands/qe/)。
+
+蓝色点面积正比于 s 权重，橙色点面积正比于 p 权重，灰色细线保留本征能带。两个面板必须使用相同面积标度，不能各自把最强点归一化到一样大。`scatter(..., s=...)` 的 s 是面积，权重翻倍意味着面积翻倍、半径仅增为 √2 倍，不能凭直径直接读权重。
+
+Γ 点最深价带几乎完全投到 s，权重约 0.9960；价带顶三条带主要投到 p，各约 0.9604。沿路径移动，点面积随轨道混合变化。简并处单条分支的分量可能依赖该子空间的基选择，读它们合计的 s/p 性质更稳妥。
+
+还有一个明确的弱投影点：K→Γ 段第 53 个 k 点 `(0.625,0.625,0)×2π/a`，第 7 条带位于 `E−VBM=6.224118 eV`；s 为 `0.0168803`，p 为 `0.0446863`，合计仅 `0.0615665`。灰色能带仍存在，两个面板的点却都小，表示所选 s/p 空间对该空态覆盖很少。不能说这条带消失，也不能随意将剩余约 94% 命名为未计算的某个轨道。
+
+没有把 s+p 强制归一化为 1，正是为了保留这种区别。完整 CSV 的投影和范围约 `0.06157–0.99705`，不同态的表示质量差别很大，不能只报告最大值接近 1。
 
 这张图展示了固定 Si 晶胞、PBE、无 SOC 模型下的轨道组成。要分原子、分层或画 d 轨道，可以沿用相同的逐态合并方式，先根据本次 `Atomic states used for projection` 建立分组。没有出现在赝势投影态表中的轨道，不能靠改图例得到。
 
