@@ -4,6 +4,8 @@
 
 所有数字属于同一个单原子 fcc Al、LDA-PZ 计算链。它尚未完成 k/q/截断能收敛；本页的积分闭合检查回答文件和数值有没有接对，不替代材料性质验收。原件在[Al 输入输出包](/Atlas/examples/al-lesson-files.tar.gz)，新增脚本和表放在包内 `al/tc-route/`。
 
+这里读完的是一条致密网格分支。要做两种 `pwxall` 网格的 Tc 对照，还需在第二个独立目录用新的致密网格重复 `pwxall → pwx → phx → … → lambdax`，然后将两份输出按相同电子展宽配对。目录组织见 [EPC 的两条路径](/Atlas/m/epc/qe/#dense-k-branches)，交点计算与稳定区判读见 [Tc–σ 曲线对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。
+
 ## q2r / matdyn 与 lambda.x 分别留下什么
 
 脚本先执行 `q2r.x`，把完整 q 网格的力常数和 EPC 数据一起变换到实空间，再交给 `matdyn.x`。两份输入如下。
