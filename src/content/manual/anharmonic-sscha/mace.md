@@ -283,6 +283,20 @@ DATA_AND_EXPORT_CHECKS_FINISHED
 
 下一步可以回到[机器学习势 MD](/Atlas/m/mlip-md/mace/)延长采样，或沿[有限位移声子](/Atlas/m/phonon-finite-disp/qe/)另做势模型与 DFT 的力和谐性频率对照。若要计算 SSCHA 自由能及其 Hessian，需要另接[SSCHA 官方流程](https://sscha.eu/Tutorials/tutorial_06_the_SSCHA_with_MLP/)，这里的二阶拟合结果不能直接代替那一步。
 
+## 文献中的非谐声子重整化与温度演化后处理范式（附 DOI）
+
+在强非谐晶格动力学、量子核效应（SSCHA）与电荷密度波（CDW）/软模相变研究中，文献常采用“简谐虚频 vs 非谐稳定化叠画”或“连续温度演化彩虹色散”来直观呈现有限温度与量子涨落对声子谱的重整化：
+
+1. **简谐近似（Harmonic）虚频坍塌与 SSCHA 非谐量子重整化对比**（Monacelli 等，*J. Phys.: Condens. Matter* **33**, 363001 (2021)，DOI: [10.1088/1361-648X/ac066b](https://doi.org/10.1088/1361-648X/ac066b)）：
+   在同一高对称路径声子图上，用灰/黑虚线绘制简谐近似下因经典鞍点失稳而产生的巨幅虚频分支（$\omega < 0$），同时用醒目的红色实线叠加 SSCHA 包含量子核涨落与高阶非谐修正后的正定声子谱，一眼展现非谐效应对超导氢化物晶格的稳定化作用。
+
+![简谐虚频与 SSCHA 非谐重整化声子谱对比示例（DOI: 10.1088/1361-648X/ac066b）](/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg)
+
+2. **多温度序列声子软模连续演化图**（Chen 等，*Phys. Rev. B* 2026，DOI: [10.1103/l89c-t2s4](https://doi.org/10.1103/l89c-t2s4)）：
+   使用从低温（深蓝）到高温（鲜红）的连续渐变色系在同一坐标系内叠画多组有限温度非谐声子谱，清晰追踪特定声子分支随温度降低逐步软化直至跨过零频线（$\omega = 0$）诱发晶格失稳的临界过程。
+
+![非谐声子随温度连续演化与软模相变示例（DOI: 10.1103/l89c-t2s4）](/Atlas/figures/literature/M5_SSCHA_TempEvolution_CoTe2_Chen2026_Fig1e.jpg)
+
 ```text
 已核验模型与结构
     ↓
@@ -295,3 +309,4 @@ DATA_AND_EXPORT_CHECKS_FINISHED
     ├→ 独立速度种子轨迹验证
     └→ phonopy 色散 → 样本数与频率变化检查
 ```
+

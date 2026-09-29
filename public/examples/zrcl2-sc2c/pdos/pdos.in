@@ -1,0 +1,10 @@
+&PROJWFC
+  outdir = './out/'
+  prefix = 'zrclscc'
+  ngauss=0,
+  degauss = 2.2d-3
+  DeltaE=0.005
+  lsym=.true.
+  filpdos='zrclscc',
+  filproj='zrclscc',
+/

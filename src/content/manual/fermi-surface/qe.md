@@ -170,6 +170,33 @@ python3 plot_fermi.py
 
 两次计算得到 E_F=8.39793432 eV 和 8.38150272 eV，相差约 0.01643 eV。画图时各自减去各自的 E_F，并比较口袋形状随网格的变化。这里确认了第二、第三带穿越费米能这一观察；细小口袋的尺寸、连接方式和后续嵌套峰，仍需要更密网格与展宽检查。
 
+## 二维异质结 ZrCl₂/Sc₂C：从 BXSF 网格重建六角第一布里渊区费米面等能线
+
+除直接读取 XML 外，QE 的 `fs.x` 后处理程序（或开启相应网格输出）会生成 XCrySDen 格式的 `_fs.bxsf` 文件。文件头部记录费米能级（Ry）与倒格矢基矢，随后按 `BAND: iband` 逐带列出覆盖 `[0, 1] × [0, 1] × [0, 1]` 周期倒格元胞的 `(N₁+1) × (N₂+1) × (N₃+1)` 能量网格。
+
+对于二维六角晶系材料（如 **`ZrCl₂/Sc₂C`**，[`FS/zrclscc_fs.bxsf`](/Atlas/examples/zrcl2-sc2c/FS/zrclscc_fs.bxsf) 采用 `37 × 37 × 1` 网格，穿过费米能级 `E_F = 0.202305 Ry = 2.7525 eV` 的是 **Band 26** 与 **Band 27**），如果直接在分数坐标 `[0, 1] × [0, 1]` 的菱形周期元胞上画等值线，Γ 点会被切在四个角上，无法看清围绕 Γ 与 K 的旋转对称性。在 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 中，标准后处理步骤是：
+1. 将周期性网格平铺到 `[-1, 1] × [-1, 1]` 超网格，并乘以平面倒格基矢 `b₁ = (1, 1/√3)`、`b₂ = (0, 2/√3)` 变换到笛卡尔倒空间 `(k_x, k_y)`；
+2. 构造六角形 Wigner–Seitz 第一布里渊区边界（顶点为 6 个 K/K' 点，边中点为 6 个 M 点），使用 `Polygon` 裁剪路径将 `E_n(k_x, k_y) = E_F` 的零等能线严格裁剪在第一布里渊区内；
+3. 将二维费米面面板与左侧的 Fatbands、PDOS 组合为三联图：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 的轨道胖带、水平 PDOS 与二维六角第一布里渊区费米面（Band 26 与 Band 27）" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构与二维费米面（右面板）联立图。右面板在六角形 Wigner–Seitz 第一布里渊区中精确绘制了 Band 26（深蓝，Γ 点六瓣空穴口袋与 K 点三角形口袋）和 Band 27（锈红，Γ 点内圈电子口袋），虚线连接 Γ–M–K–Γ 不可约楔区。</figcaption></figure>
+
+## 文献费米面与范霍夫奇点后处理审美解析（附 DOI 溯源）
+
+在二维与层状材料文献中，费米面后处理不仅要画出 `E(k) = E_F` 的几何轨迹，还要揭示**多能带口袋嵌套**、**鞍点范霍夫奇点（VHS）**以及**三维表面态/体态投影**。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其构图范式：
+
+### 1. 二维色散等高线热力图与六重鞍点范霍夫奇点（VHS）精确定位
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_2DContour_SixSaddleVHS_In2Te2_Zolyomi2014_Fig4.jpg" alt="二维六角布里渊区全平面能量等高线热力图与六个鞍点范霍夫奇点标记" loading="lazy"/><figcaption>文献案例 1：在二维六角第一布里渊区上绘制目标能带的全平面能量等高线与色标热力图，直观标出围绕 Γ 点对称分布的六个鞍点（Saddle Points）及其对应的范霍夫奇点等能线拓扑转变（Lifshitz transition）。图片来源：Zólyomi et al., <em>Phys. Rev. B</em> <strong>89</strong>, 205416 (2014)，<a href="https://doi.org/10.1103/PhysRevB.89.205416" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.89.205416</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当费米能级附近存在平带或鞍点（如 `ZrCl₂/Sc₂C` 在 `Γ–M` 方向的近费米鞍点）时，除了画单一能量 `E = E_F` 的线条外，用全布里渊区等高线填充图（`contourf` + `contour`）展示 `E(k_x, k_y)` 的曲率，能直接看清掺杂或应变如何驱动费米面发生 Lifshitz 拓扑相变。
+
+### 2. 三维体布里渊区费米面、表面态谱函数与 ARPES 实验切面的多维对照
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="三维费米面、表面布里渊区投影与角分辨光电子能谱 ARPES 等能面切面对照图" loading="lazy"/><figcaption>文献案例 2：将第一性原理计算的费米面/等能面切面、k_z 色散以及角分辨光电子能谱（ARPES）实验强度图并排对齐，用高对比虚线标出理论能带在实验谱上的精确轨迹。图片来源：<em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+
+- **审美与后处理要点**：在与实验 ARPES 对比时，理论计算的二维费米面切片应采用与实验动量窗口一致的 `(k_x, k_y)` 单位（`Å⁻¹`），并在半侧叠绘理论等能线、另一半保留无遮挡的谱函数热力图。
+
 下一步到 [费米面嵌套](/Atlas/m/fermi-nesting/qe/) 看怎样将这些真实网格变成 J(q)，以及为什么几何面看起来能重合，不等于已经算出了电荷密度波或超导。
 
 ```text

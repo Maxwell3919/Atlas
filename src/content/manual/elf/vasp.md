@@ -166,6 +166,18 @@ python3 plot_elf.py
 
 这张图的 x 轴仍是 Å，纵轴直接使用原始 ELF，实线与虚线区分两个通道。该线上的最大值分别为 0.11271 与 0.26030；整个 z=0 面的最大值则为 0.13286 与 0.33390。线、面与三维块的取值范围应分别说明，不能用全空间最大值替代图中截面的值。线段只连接已有采样点，不是更高分辨率的新计算。
 
+## 文献电子局域函数（ELF）与电子化合物后处理审美解析（附 DOI 溯源）
+
+在层状氮化物、碳化物（如本手册研究的 `Sr₂N` 与 `Sc₂C` 基元）以及二维电子化合物（Electrides）文献中，`ELFCAR` 最经典的用途是识别晶格间隙或表面空腔中不依附于任何原子核的**局域化间隙电子（Interstitial Anionic Electrons）**。下面引入二维电子化合物领域奠基性的文献原图（附原始 DOI 号）解析其多维联立制图范式：
+
+### 二维电子化合物 Ca₂N：三维 ELF 等值面 + 二维晶面切片 + 局部态密度联立展示
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_Ca2N_Lee2013_Fig3.png" alt="二维电子化合物 [Ca₂N]⁺·e⁻ 的电子局域函数 ELF 三维等值面、二维切片与能带/局域态密度联立图" loading="lazy"/><figcaption>文献案例：二维层状电子化合物 Ca₂N（与本手册 SnSe₂/Sr₂N 中的 Sr₂N 同构）的电子结构与 ELF 综合后处理。图中将能带/PDOS、三维晶体结构中的间隙电子分布以及穿过层间空腔的二维 ELF 彩图切片同框整合，直接证实层间二维阴离子电子气（2D electron gas in interlayer space）的存在。图片来源：Lee et al., <em>Nature</em> <strong>494</strong>, 336 (2013)，<a href="https://doi.org/10.1038/nature11812" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nature11812</a>。</figcaption></figure>
+
+- **审美与后处理要点**：
+  1. **三维等值面与二维切片互补**：三维等值面（通常取 `ELF = 0.55–0.75`）展示间隙电子笼或二维电子层的连通拓扑，而穿过高对称晶面（如 `(110)` 面）的二维连续色标切片（`0.0–1.0`）则定量给出原子核壳层、共价键与层间空腔的局域化梯度；
+  2. **与费米面附近部分电荷密度（PARCHG）联动**：将 `ELFCAR` 切片与费米能级附近窄能量窗口的波函数模方（`PARCHG`）以及能带投影并排放置，能够无可辩驳地证明“ELF 局域高值区恰好就是穿过费米能级的巡游导带电子”。
+
 ```text
 收敛的共线自旋 SCF + LELF + NPAR=1
   └─ ELFCAR → 结构头与两套自旋网格检查

@@ -143,6 +143,25 @@ python3 plot_model.py
 
 ![移动一层前后的面内配准、法向层间距与周期空隙](/Atlas/examples/vasp/snse2-sr2n-model/heterostructure-model.png)
 
+## 文献中的异质结高对称堆叠与层间耦合后处理范式（附 DOI）
+
+在报道二维异质结建模、多高对称堆叠（Stacking Registry）筛选与层间结合强度时，文献常将俯视/侧视几何配准图与结合能或剥离能曲线联动展示：
+
+1. **六种高对称堆叠构型（Type I–VI）俯视与侧视矩阵排版**（Bu 等，*Phys. Chem. Chem. Phys.* 2025，DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）：
+   在 $\text{WS}_2/\text{Sc}_2\text{C}$ 异质结中，将不同层间面内平移对应的高对称堆叠构型统一采用“上俯视 + 下侧视”对齐排列，清晰展示界面处过渡金属与表面终端原子的正对（top）、桥位（bridge）与空位（hollow）几何配准关系。
+
+![异质结六种高对称堆叠俯视与侧视矩阵示例（DOI: 10.1039/D5CP01402F）](/Atlas/figures/literature/M1_StackingRegistry_WS2_Sc2C_Bu2025_Fig2.jpg)
+
+2. **TMD 与 MXene 构件单元及多相堆叠对称性对照图**（Bekaert 等，*Nanoscale* **12**, 17360 (2020)，DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）：
+   并排展示 $\text{TaS}_2$ 与 $\text{Ta}_2\text{N}$ 的H/T 相构件及层间配位环境，用虚线框与对称轴标出界面单胞边界与层间距定义。
+
+![TaS2 与 Ta2N 构件及层间配准示例（DOI: 10.1039/D0NR03875J）](/Atlas/figures/literature/M1_Structure_TaS2_vs_Ta2N_Bekaert2020_Fig1.jpg)
+
+3. **层间剥离能曲线与经典二维材料基准带对照**（*Mater. Today Commun.* **33**, 104176 (2022)，DOI: [10.1016/j.mtcomm.2022.104176](https://doi.org/10.1016/j.mtcomm.2022.104176)）：
+   随层间距拉伸绘制归一化剥离能演化曲线，并在同一纵轴上叠加石墨烯、$\text{MoS}_2$ 等典型范德华材料与准离子层状材料的剥离能对比，定量界定层间作用强度。
+
+![层间剥离能曲线与典型二维材料对比示例（DOI: 10.1016/j.mtcomm.2022.104176）](/Atlas/figures/literature/M1_Exfoliation_vdW_vs_Ionic_CaCl_Chen2023_Fig5a.jpg)
+
 下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
 
 ```text
@@ -153,3 +172,4 @@ python3 plot_model.py
              ├─ 面内伸长与取向核对 → 俯视和侧视图
              └─ 新 POSCAR → 后续结构优化或层间距扫描
 ```
+

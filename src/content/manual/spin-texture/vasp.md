@@ -150,8 +150,23 @@ columns charge,mx,my,mz; output spin-path.dat
 
 ![SnSe₂/Sr₂N 路径上的三个自旋投影](/Atlas/examples/vasp/snse2_sr2n_spin/spin-path.png)
 
+## 文献中的自旋纹理与自旋-能谷锁定后处理范式（附 DOI）
+
+在含自旋轨道耦合（SOC）的非中心对称二维材料（如 2H-TMD、Janus 单层及二维铁磁体）中，文献常将能带自旋投影与布里渊区能谷结构、实空间自旋密度结合展示：
+
+1. **布里渊区能谷三维能带曲面与自旋-能谷锁定（Spin-Valley Locking）示意图**（Saito 等，*Nat. Phys.* **12**, 144 (2016)，DOI: [10.1038/nphys3580](https://doi.org/10.1038/nphys3580)）：
+   在六角布里渊区顶角 $\pm K$ 能谷上绘制三维自旋劈裂能带口袋，并用红/蓝色彩与上下箭头标出面外自旋极化方向 $S_z$ 在 $+K$ 与 $-K$ 谷之间的时间反演反对称锁定关系，是讨论 Ising 超导与能谷电子学的经典视觉范式。
+
+![自旋-能谷锁定与 Ising 自旋劈裂能谷示意图（DOI: 10.1038/nphys3580）](/Atlas/figures/literature/M7_SpinValleyLocking_MoS2_Lu2015_Fig4a.jpg)
+
+2. **实空间自旋极化电荷密度与磁交换路径映射**（*J. Phys.: Condens. Matter* **34**, 465802 (2022)，DOI: [10.1088/1361-648X/ac96bb](https://doi.org/10.1088/1361-648X/ac96bb)）：
+   当体系存在本征磁序时，可进一步结合实空间自旋密度等值面（$\rho_\uparrow - \rho_\downarrow$）与近邻磁交换耦合参数 $J_1, J_2, J_3$ 标定自旋极化局域轨道来源。
+
+![实空间自旋密度等值面与近邻交换路径示意图（DOI: 10.1088/1361-648X/ac96bb）](/Atlas/figures/literature/M7_SpinDensity_Exchange_LaH2_Fig2ab.jpg)
+
 ```text
 SOC SCF 的电荷密度与费米能
   └─ Γ–M–K–Γ 固定电荷能带 → PROCAR 的四组投影
                                 └─ 沿线路径长度 + 相对 SCF 能量 → 三分量着色能带
 ```
+

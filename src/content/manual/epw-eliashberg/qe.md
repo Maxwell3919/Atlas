@@ -754,6 +754,28 @@ python3 plot_native_tc.py
 
 至此，这一条真实的“QE 粗网格 → Wannier → EPW 精细网格谱 → Eliashberg 求解”已连通。0.84–0.85 K 应始终连同这组网格、展宽、μ*、截断和各向同性近似一起陈述。它没有代替上游的插值质量检查，也没有证明粗 q 网格、精细积分网格或材料 Tc 已经收敛。
 
+## 文献 EPW 各向异性 Eliashberg 超导能隙后处理审美解析（附 DOI 溯源）
+
+当从本页演示的各向同性（Isotropic）Eliashberg 方程进一步推进到全布里渊区各向异性（Anisotropic）Migdal–Eliashberg 方程求解时，核心输出是在每个温度 `T` 下费米面各采样点 `(n, k)` 的超导能隙分布 `Δ_nk(T)`。下面引入三幅代表性文献原图（均附原始 DOI 号）解析其经典后处理构图：
+
+### 1. 双能隙超导体 MgB₂ 的能隙随温度闭合散点束与三维费米面能隙映射
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_FS_MgB2_EPW2016_Fig21.jpg" alt="EPW 计算的 MgB₂ 各向异性超导能隙 Δ_nk(T) 随温度闭合曲线及费米面 σ/π 口袋能隙色标投影" loading="lazy"/><figcaption>文献案例 1：EPW 官方基准算例 MgB₂ 的各向异性超导能隙 Δ_nk(T) 随温度演化图， clearly 分离高能隙 σ 带（6.5–7.5 meV）与低能隙 π 带（1.5–2.5 meV），并在图内嵌入按 Δ_nk 着色的三维费米面。图片来源：Poncé et al., <em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>。</figcaption></figure>
+
+- **审美与后处理要点**：在各向异性求解中，同一个温度 `T` 对应成千上万个 `Δ_nk(iω₀, T)`（或延拓到实轴的准粒子能隙 `Δ_nk(ω=Δ, T)`）。将所有 `(n, k)` 点的能隙以能量直方图或垂直散点条绘制在每个温度刻度上，并在右上角嵌入低温极限下的三维费米面 `Δ_nk` 颜色热力图，能够直接揭示多能隙超导体的配对来源。
+
+### 2. 各向异性能隙分布的小提琴核密度统计图（Violin Plot）
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="各向异性超导能隙 Δ(T) 的小提琴概率密度分布与费米面能隙投影" loading="lazy"/><figcaption>文献案例 2：使用小提琴统计图（Violin Plot）展示各向异性超导能隙 Δ(T) 在每个温度下的核密度分布包络与中位数趋势线，左下方嵌入费米面能隙分布。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当精细 k 网格采样点极多（例如 `60³` 或 `120×120×1`）时，直接画散点会导致严重的视觉重叠（Overplotting）。改用**小提琴核密度包络（Violin Plot）+ 平均值/中位数虚线拟合**，既保留了能隙分布的双峰或多峰细节，又使 `Δ(T) → 0` 的相变边界极其干净。
+
+### 3. 二维材料中费米面口袋分辨的能隙直方图与实验对比
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe₂ 按不同费米面口袋分组着色的各向异性超导能隙分布与温度演化" loading="lazy"/><figcaption>文献案例 3：将费米面上的 (n, k) 点按所属几何口袋（Γ 口袋 vs K 口袋）分类着色，同步绘制能隙随温度演化与低温能隙直方图。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
+
+- **审美与后处理要点**：对于类似 `NbSe₂` 或本手册 [`ZrCl₂/Sc₂C`](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record) 这样同时拥有 Γ 口袋和 K 口袋的二维六角超导体，在后处理脚本中按 `(k_x, k_y)` 所在区域给能隙数据打上口袋标签（Pocket Label），即可在 `Δ(T)` 图中直接看清不同口袋之间的能隙各向异性。
+
 下一步：把[原生双网格 EPC](/Atlas/m/epc/qe/#double-grid-pwxall)、[谱函数积分](/Atlas/m/eliashberg-a2f/qe/)和[Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/)放回同一组物理设置下比较。真正做材料 Tc 时，沿每一条分支分别检查结构、声子、粗细 k/q 网格、展宽和截断，不能从不同目录各挑一个数拼成结果。
 
 ```text

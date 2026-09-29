@@ -1,0 +1,9 @@
+&input
+    asr='simple',
+    flfrc='srnsnse.fc',
+    flfrq='srnsnse.dos.freq',
+    dos=.true.,
+    fldos='srnsnse.phdos',
+    nk1=48, nk2=48, nk3=1,
+    ndos=400
+ /

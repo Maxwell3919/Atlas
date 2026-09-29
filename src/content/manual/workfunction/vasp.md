@@ -284,6 +284,25 @@ python3 plot_workfunction.py
 
 ![SnSe₂ 平面平均势与费米能采用共同真空零点，两侧平台分别放大](/Atlas/examples/workfunction-figure/workfunction-z.svg)
 
+## 文献中的平面平均静电势与功函数后处理范式（附 DOI）
+
+在二维材料、Janus 极化单层及异质界面体系中，将平面平均静电势 $V_{\text{eff}}(z)$ 与晶体结构侧视图或平面差分电荷 $\Delta\rho(z)$ 沿同一法向坐标耦合，是直观呈现功函数与界面偶极矩的经典后处理范式：
+
+1. **平面平均静电势曲线与原子模型背景直接叠绘**（Zhang 等，*Phys. Chem. Chem. Phys.* 2025，DOI: [10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)）：
+   在半透明的异质结侧视球棍模型上直接叠加 $V_{\text{eff}}(z)$ 曲线，使每一处深势阱与对应原子平面在空间上一一对齐；同时用水平虚线标出 $E_F$ 与两侧真空平台，以双向箭头直接给出功函数 $\Phi$ 与界面势能差 $\Delta V$。
+
+![静电势曲线与原子结构侧视图直接叠绘示例（DOI: 10.1039/D5CP02349A）](/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg)
+
+2. **$V_{\text{eff}}(z)$ 与平面平均差分电荷 $\Delta\rho(z)$ 共享 $z$ 轴上下联动**（Huang 等，*J. Phys. Chem. C* 2025，DOI: [10.1021/acs.jpcc.5c02913](https://doi.org/10.1021/acs.jpcc.5c02913)）：
+   上方子图绘制平面平均静电势与功函数标注，下方子图严格共享 $z$ 轴绘制 $\Delta\rho(z)$ 及其正负着色填充，直观揭示界面电荷转移诱导偶极矩并改变两侧真空能级的物理因果链。
+
+![平面平均静电势与差分电荷共享 z 轴上下联动示例（DOI: 10.1021/acs.jpcc.5c02913）](/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg)
+
+3. **Janus 单层偶极修正真空台阶与双表面 VBM/CBM 耦合标定**（Haastrup 等，*2D Mater.* **5**, 042002 (2018)，DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）：
+   对于打破镜面对称的 Janus MoSSe 单层，将偶极修正后的双侧真空平台台阶 $\Delta V_{\text{vac}}$ 与两侧表面各自的 VBM/CBM 绝对位置画在同一张平面平均势图中，清晰区分上下表面的电离势与电子亲和能差异。
+
+![Janus MoSSe 偶极台阶与带边标定示例（DOI: 10.1088/2053-1583/aacfc1）](/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg)
+
 下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 E_F。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
 ```text
@@ -294,3 +313,4 @@ python3 plot_workfunction.py
        └─ LOCPOT → 平面平均 → 平坦真空窗口
                                     └─ V_vac − E_F；同时注明带隙中的化学势
 ```
+

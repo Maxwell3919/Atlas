@@ -148,6 +148,30 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 
 共线自旋极化时，`pdos_tot` 变为 `E、DOSup、DOSdw、PDOSup、PDOSdw`；原子文件也分别给 up/down 的 ldos 和 m 分量。按同一自旋、同一能量点求和后，再合并通道。本例非磁数据已含自旋简并，不再乘 2。
 
+## 二维异质结 ZrCl₂/Sc₂C：轨道分辨 PDOS 与能带鞍点的共享能量轴对准
+
+在多元素金属异质结中，除 `dos.x` 输出的总态密度外，更常用 `projwfc.x` 生成按原子和角动量量子数拆解的分波态密度（PDOS，`*.pdos_atm#*(Symbol)_wfc#*(l)`）。在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，我们将各原子的正交化原子轨道投影按物理角色归并为四组主导通道：`Zr-4d`、`Sc-3d`、`C-2p` 与 `Cl-3p`，并将其旋转为**水平 PDOS 面板（X 轴为 DOS，Y 轴为 `E − E_F`）**与左侧 Fatbands 严密对齐：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 的轨道投影能带、共享能量纵轴的水平分波态密度 PDOS 与二维费米面" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的轨道分辨 PDOS（中面板）与 Fatbands（左面板）共享 E − E_F 纵轴。灰色半透明填充为四组主轨道之和，深蓝（Zr-4d）与青绿（Sc-3d）主导费米能级处的巡游态，锈红（C-2p）在 E − E_F ∈ [−1.8, 0.2] eV 内与之发生强 p–d 杂化。</figcaption></figure>
+
+通过共享能量纵轴，可以直接验证中面板 `E − E_F ≈ −0.08 eV` 处的尖锐态密度峰并非数值噪声，而是精准对应左面板 `Γ–M` 路径上的能带鞍点（Saddle-Point Van Hove Singularity）。这一紧贴费米能级的态密度高峰，也解释了为什么在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)中，极窄展宽（`σ ≤ 0.003 Ry`）下 `N_σ(EF)` 对致密 k 网格密度高度敏感。
+
+## 文献态密度（DOS / PDOS）后处理审美解析（附 DOI 溯源）
+
+在文献中，分波态密度（PDOS）最核心的审美原则是**避免独立成图造成能量标尺割裂**，而是将其横置拼接在能带图右侧，或与晶体轨道哈密顿布居（COHP）并排对照。下面引入两幅代表性文献原图（附原始 DOI 号）解析其构图范式：
+
+### 1. 多体系对比中的能带 + 水平分波 DOS + 费米面模块化联立
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_Ta2N_Sc2C_Bekaert2020_Fig5.jpg" alt="二维 Sc₂C 与相关体系的轨道着色能带、共享能量轴水平 PDOS 及二维费米面对比联立图" loading="lazy"/><figcaption>文献案例 1：二维氮/碳化物体系（含 Sc₂C 基元）的能带、水平原子/轨道分辨 PDOS 与六角费米面联立对比。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+
+- **审美与后处理要点**：水平 PDOS 面板使用与左侧 Fatbands 完全一致的轨道/元素配色方案（例如过渡金属 d 轨道用冷色调，轻元素 p 轨道用暖色调），省去重复图例，使读者一眼看清费米能级处 `N(E_F)` 的主导轨道来源。
+
+### 2. 能带 + 水平元素分辨 DOS + 负向/正向 COHP 成键–反键共享能量轴联立
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="三维费米面、电子能带、水平元素分辨 DOS 与 COHP 成键反键分析四联图" loading="lazy"/><figcaption>文献案例 2：将三维/二维费米面、高对称路径能带、水平元素分辨 DOS 与 −COHP 成键/反键谱沿同一能量纵轴 E − E_F 顺序拼接。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> (2026)，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当费米能级恰好落在 PDOS 尖峰上时，在水平 DOS 右侧再并排加上共享能量轴的 [COHP](/Atlas/m/cohp/qe/) 面板，可以同时回答“费米面处态密度有多高（DOS）”以及“这些费米面态究竟是成键态还是导致结构失稳的反键态（COHP）”。
+
 ## 下一步
 
 需要 s/p 总贡献时进入 [投影与布居](/Atlas/m/population-analysis/qe/)；需要知道每个 k、每条带的 s/p 权重时进入 [胖带](/Atlas/m/fatband/qe/)。后者保留 k 分辨信息，与沿整个布里渊区积分的 PDOS 用途不同。

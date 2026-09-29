@@ -2014,10 +2014,270 @@ grep -niE 'Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT|
 
 本次还要求计算电声耦合，因此要另外检查 `elph_dir` 中对应的逐 q 数据，确认模数与本体系的 18 个模式相符，展宽记录与 `el_ph_nsigma=20` 配套，且没有混入旧质量、其他网格或其他材料的结果。完整文件尚未生成前，不能把 Sc₂C/ZrCl₂ 的 λ 表接到这条计算链上。
 
-动力学矩阵齐全且核对通过后，才接 `q2r.x → matdyn.x`；电声文件、权重及频率积分范围也检查完后，再准备本材料的 `lambda.x` 输入。结构 BFGS、赝势与泛函适用性、k/q 网格和展宽收敛仍需分别验收，不能由 ph.x 正常结束一并代替。本次只提交 ph.x，后处理和 ph96 尚未启动。
+动力学矩阵齐全且核对通过后，才接 `q2r.x → matdyn.x`；电声文件、权重及频率积分范围也检查完后，再准备本材料的 `lambda.x` 输入。结构 BFGS、赝势与泛函适用性、k/q 网格和展宽收敛仍需分别验收，不能由 ph.x 正常结束一并代替。
 <!-- ph64-phonon-session-end -->
 
+## 质量修正后的高频声子范围、q=1..2 电声核对与四批依赖链续算
+
+在单作业 `phx.slurm`（作业 18180）完成前两个不可约 q 点（`q = 1` Γ 点与 `q = 2` `(0, 0.144338, 0)`）后，结合实空间力常数对角化与逐模电声输出，可以立即核实两项直接决定后续积分正确性的数值事实：
+
+1. **N 原子质量恢复后的声子带宽越过了旧 `lambdax.in` 的 10 THz 上限**：
+   在旧目录 `config3/ph64` 中，由于 `amass(2)=118.71` 覆盖了 N 的质量，全部 18 条声子支被人为压低到 `8.59 THz`（`286.6 cm⁻¹`）以下，旧 `lambdax.in` 第一行写的 `10 0.12 0`（积分上限 `emax = 10 THz`）表面上没有触发截断。将 N 恢复为真实原子质量 `14.007`、Sn 设为 `amass(3)=118.71` 后，利用 [q2rx.in](/Atlas/examples/snse2-sr2n/ph64/q2rx.in) 与 [matdynxline.in](/Atlas/examples/snse2-sr2n/ph64/matdynxline.in) 重新生成的色散 [srnsnse.freq.gp](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp) 和原子投影声子态密度 [srnsnse.phdos](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos) 显示：由轻原子 N 主导的高频面内与面外光学支（`ν = 16–18`）在 Γ 点升至 `10.74 THz`（`358.17 cm⁻¹`），在 Γ–M 路径附近最高达到 `11.95 THz`（`398.5 cm⁻¹`）。若沿用旧的 `emax = 10 THz`，N 原子的高频振动模式会被 `lambda.x` 截去。因此新目录的 [lambdax.in](/Atlas/examples/snse2-sr2n/ph64/lambdax.in) 第一行已更新为 `12 0.12 0`（`emax = 12 THz`）。
+2. **前两个不可约 q 点的逐模耦合与低频阈值行为**：
+   在 `q = 1`（Γ 点）处，最高频 N 光学支 `ν = 18`（`10.7377 THz`）在 `σ = 0.040 Ry` 下给出 `λ = 0.0183`、`γ = 27.71 GHz`；在 `q = 2` 处，第一支声学模 `ν = 1` 的频率为 `0.5844 THz`（`19.49 cm⁻¹`），因低于 QE 7.1 `elph.f90` 中 `20 cm⁻¹` 的低频阈值，程序将其 `λ` 置为 `0.0000`（保留 `γ = 0.08 GHz`），而紧邻的 `ν = 2`（`0.7615 THz = 25.40 cm⁻¹`）与 `ν = 3`（`1.2260 THz = 40.89 cm⁻¹`）分别给出显著耦合 `λ = 0.0644` 与 `0.0421`。
+
+为了避免 10 个不可约 q 点在单个超长作业中因排队或意外中断而丢失进度，`ph64` 与 `ph96` 均将 `8×8×1` q 网格拆分为四段串行批次：[phx.in](/Atlas/examples/snse2-sr2n/ph64/phx.in)（`start_q=1, last_q=3`）、[phx1.in](/Atlas/examples/snse2-sr2n/ph64/phx1.in)（`start_q=4, last_q=5, recover=.true.`）、[phx2.in](/Atlas/examples/snse2-sr2n/ph64/phx2.in)（`start_q=6, last_q=7, recover=.true.`）和 [phx3.in](/Atlas/examples/snse2-sr2n/ph64/phx3.in)（`start_q=8, last_q=10, recover=.true.`），并通过 Slurm 的 `afterok` 依赖链一次性排入队列：
+
+```text
+[bcgong@localhost ph64]$ head -n 5 lambdax.in
+12 0.12 0
+       10
+    0.000000000   0.000000000   0.000000000   1.00
+    0.000000000   0.144337567   0.000000000   6.00
+    0.000000000   0.288675135   0.000000000   6.00
+[bcgong@localhost ph64]$ grep -E 'start_q|last_q|recover' phx.in phx1.in phx2.in phx3.in
+phx.in:  start_q=1
+phx.in:  last_q=3
+phx1.in:  start_q=4
+phx1.in:  last_q=5
+phx1.in:  recover=.true.
+phx2.in:  start_q=6
+phx2.in:  last_q=7
+phx2.in:  recover=.true.
+phx3.in:  start_q=8
+phx3.in:  last_q=10
+phx3.in:  recover=.true.
+[bcgong@localhost ph64]$ squeue -u bcgong -o "%.10i %.16j %.8T %.10M %.6D %R"
+     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
+     18344     pwxall.slurm  RUNNING      56:17      1 localhost
+     18345        pwx.slurm  PENDING       0:00      1 (Dependency)
+     18346        phx.slurm  PENDING       0:00      1 (Dependency)
+     18347       phx1.slurm  PENDING       0:00      1 (Dependency)
+     18348       phx2.slurm  PENDING       0:00      1 (Dependency)
+     18349       phx3.slurm  PENDING       0:00      1 (Dependency)
+     18350       q2rx.slurm  PENDING       0:00      1 (Dependency)
+     18351 matdynxline.slur  PENDING       0:00      1 (Dependency)
+     18352    lambdax.slurm  PENDING       0:00      1 (Dependency)
+     18353     pwxall.slurm  PENDING       0:00      1 (Dependency)
+     18354        pwx.slurm  PENDING       0:00      1 (Dependency)
+     18355        phx.slurm  PENDING       0:00      1 (Dependency)
+     18356       phx1.slurm  PENDING       0:00      1 (Dependency)
+     18357       phx2.slurm  PENDING       0:00      1 (Dependency)
+     18358       phx3.slurm  PENDING       0:00      1 (Dependency)
+     18359       q2rx.slurm  PENDING       0:00      1 (Dependency)
+     18360 matdynxline.slur  PENDING       0:00      1 (Dependency)
+     18361    lambdax.slurm  PENDING       0:00      1 (Dependency)
+```
+
+下图把 `SnSe₂/Sr₂N` 的两步 SCF 收敛轨迹、质量恢复前后的声子色散与原子分辨 PHDOS（共享频率纵轴），以及已完成的 `q = 1, 2` 逐模电声耦合 `λ_qν` 放在同一张四轴联立诊断图中：
+
+<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的两步 SCF 收敛、质量恢复前后的声子色散与 PHDOS，以及 q=1,2 逐模电声耦合诊断" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的阶段性后处理核验：（左）64×64×1 致密 SCF 与 16×16×1 粗网格 SCF 的电子残差收敛；（中）错误质量（M_N = 118.71，灰色虚线）与恢复真实质量（M_N = 14.007，深蓝与锈红实线）后的声子色散及共享频率轴的原子投影 PHDOS，红虚线标出旧 emax = 10 THz 截断线；（右）q = 1（Γ）与 q = 2 在 σ = 0.040 Ry 下的逐模耦合强度 λ_qν 及 20 cm⁻¹ 低频截断线。</figcaption></figure>
+
+配套输入、阶段性输出与绘图脚本保存在 [`snse2-sr2n/ph64`](/Atlas/examples/snse2-sr2n/ph64/plot_snse2_sr2n.py) 与 [`snse2-sr2n/ph96`](/Atlas/examples/snse2-sr2n/ph96/lambdax.in) 中。待 18344–18361 依赖链走完 10 个 q 点后，即可用同一套脚本直接输出 `64×64×1` 与 `96×96×1` 的完整 `Tc(σ)` 对照。
 
 </details>
+
+<span id="zrcl2-sc2c-k64-k96-record"></span>
+
+## 二维异质结 ZrCl₂/Sc₂C 的 64×64×1 与 96×96×1 完整双网格对照及谱积分审计
+
+前面的三维金属 Al（`32³` 对 `48³`）演示了单作业串行脚本，但两条 `Tc(σ)` 曲线在采样区间内没有交点；而 `SnSe₂/Sr₂N` 仍在分批执行 DFPT。本节记录另一份已经在 `bcgong` 上把 **`64×64×1`（`ph64`）与 `96×96×1`（`ph96`）两套致密电子网格、10 个不可约 q 点、20 档电子展宽全部算完**的二维超导异质结体系：**`ZrCl₂/Sc₂C`**（0.15% 双轴拉伸应变构型）。
+
+这份完整记录回答三个在实际科研后处理中最关键的问题：
+1. 电子轨道投影能带（Fatbands）、分波态密度（PDOS）与二维费米面（Fermi Surface）如何与电声耦合模式相互印证；
+2. 为什么拿到 `lambdax.out` 后必须核对每一行的直接求和 `lambda` 与括号内的谱积分 `( int alpha2F )`——以及如何发现并修复 `emax = 10 THz` 对碳原子高频光学支（`12.38–17.11 THz`）的截断；
+3. 当 `64×64×1` 与 `96×96×1` 的 `Tc(σ)` 曲线出现真实交点（`σ* ≈ 0.0036 Ry`，`Tc ≈ 13.58 K`）时，如何读取交点附近的物理参数并布置加密复核计算（`ph64.1` 与 `ph96.1`）。
+
+### 体系设置、两套双网格分支与四批 q 点跑通记录
+
+`ZrCl₂/Sc₂C` 原胞含 6 个原子（1 个 Zr、2 个 Cl、2 个 Sc、1 个 C，共 18 条声子支），采用 `vdw-DF3-opt1` 泛函、PAW 赝势与 `ecutwfc = 80 Ry`、`ecutrho = 800 Ry`、SCF 展宽 `degauss = 0.01 Ry`。两套双网格分支的目录结构与参数对照如下：
+
+| 分支目录 | 致密电子网格 (`pwxall.in`) | 响应粗网格 (`pwx.in`) | 声子 q 网格 (`phx*.in`) | 双 δ 展宽步长与档数 | `lambdax.in` 积分上限 |
+| --- | --- | --- | --- | --- | --- |
+| `ph64` | 64 × 64 × 1 (`la2F=.true.`) | 16 × 16 × 1 | 8 × 8 × 1（10 个不可约 q，分 4 批） | `el_ph_sigma=0.001`，20 档（`0.001–0.020 Ry`） | 原始 `10 THz` → 修正后 `18.0 THz` |
+| `ph96` | 96 × 96 × 1 (`la2F=.true.`) | 16 × 16 × 1 | 8 × 8 × 1（10 个不可约 q，分 4 批） | `el_ph_sigma=0.001`，20 档（`0.001–0.020 Ry`） | 原始 `10 THz` → 修正后 `18.0 THz` |
+| `ph64.1` / `ph96.1` | 64 × 64 × 1 / 96 × 96 × 1 | 16 × 16 × 1 | 8 × 8 × 1（10 个不可约 q，分 4 批） | `el_ph_sigma=0.0005`，20 档（`0.0005–0.0100 Ry`） | `18.0 THz`（交点区加密复核） |
+
+在 `ph64` 与 `ph96` 中，8×8×1 声子网格生成的 10 个不可约 q 点同样按 `phx.in`（`q = 1..3`）、`phx1.in`（`q = 4..5`）、`phx2.in`（`q = 6..7`）、`phx3.in`（`q = 8..10`）分四批运行完成，随后执行 `q2rx.in → matdynxline.in → lambdax.in`。完整输入与原生输出可直接在 [`zrcl2-sc2c/ph64`](/Atlas/examples/zrcl2-sc2c/ph64/pwxall.in) 与 [`zrcl2-sc2c/ph96`](/Atlas/examples/zrcl2-sc2c/ph96/pwxall.in) 中查阅：
+
+```text
+[bcgong@localhost ph64]$ ls -1 zrclscc.dyn* elph_dir/elph.inp_lambda.*
+elph_dir/elph.inp_lambda.1
+elph_dir/elph.inp_lambda.2
+elph_dir/elph.inp_lambda.3
+elph_dir/elph.inp_lambda.4
+elph_dir/elph.inp_lambda.5
+elph_dir/elph.inp_lambda.6
+elph_dir/elph.inp_lambda.7
+elph_dir/elph.inp_lambda.8
+elph_dir/elph.inp_lambda.9
+elph_dir/elph.inp_lambda.10
+zrclscc.dyn0
+zrclscc.dyn1
+zrclscc.dyn2
+zrclscc.dyn3
+zrclscc.dyn4
+zrclscc.dyn5
+zrclscc.dyn6
+zrclscc.dyn7
+zrclscc.dyn8
+zrclscc.dyn9
+zrclscc.dyn10
+[bcgong@localhost ph64]$ diff ../ph64/pwxall.in ../ph96/pwxall.in
+47c47
+<   64 64 1 0 0 0
+---
+>   96 96 1 0 0 0
+```
+
+### 第一步后处理：电子结构三联图（Fatbands + PDOS + 二维费米面）
+
+在分析声子线宽之前，先从 [`zrcl2-sc2c/pdos/fatbands.projwfc_up`](/Atlas/examples/zrcl2-sc2c/pdos/pdos.in) 与 [`zrcl2-sc2c/FS/zrclscc_fs.bxsf`](/Atlas/examples/zrcl2-sc2c/FS/fs.in) 提取费米能级（`EF = 2.7525 eV`）附近的轨道组成与费米面拓扑。为什么两条能带穿过费米面会产生强电声耦合？单看总 DOS 曲线无法分辨层间杂化，必须将**高对称路径轨道权重能带（Fatbands）**、**共享能量纵轴的水平分波态密度（PDOS）**与**第一布里渊区二维费米面等能线**组合为耦合三联图：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面拓扑" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构耦合后处理：（左）沿 Γ–M–K–Γ 路径的轨道分辨 Fatbands，散点面积正比于 Zr-4d（深蓝）、Sc-3d（青绿）、C-2p（锈红）与 Cl-3p（琥珀）的 Lowdin 投影权重；（中）共享 E − EF 纵轴的水平轨道分辨 PDOS；（右）由 36×36×1 BXSF 网格提取的 Band 26（深蓝，围绕 Γ 的六瓣空穴口袋与围绕 K 的三角形口袋）和 Band 27（锈红，围绕 Γ 的内圈电子口袋）二维费米面等能线。</figcaption></figure>
+
+从图中可以直接读出三项物理信息：
+- 穿过费米能级的第 26、27 条能带由 **`Zr-4d`（深蓝）与 `Sc-3d`（青绿）巡游 d 电子**共同主导，同时在 `E − EF ∈ [−1.8, 0.2] eV` 区间内与 **`C-2p`（锈红）**发生显著共价杂化；
+- 在 Γ–M 方向接近 `E − EF ≈ −0.08 eV` 处存在平坦的鞍点色散，对应中间面板 PDOS 在费米能级紧邻下方的尖锐范霍夫峰（Van Hove peak）；
+- 右侧六角布里渊区中，Band 26 与 Band 27 在 Γ 点周围形成同心双口袋，Band 26 还在 K 点周围形成三角形口袋。这两组口袋之间的区中心小动量散射（`q → Γ`）与区间散射（`q ≈ Γ–M / Γ–K`）正是下方声子线宽峰值的动量来源。
+
+### 第二步后处理：从 `lambda` 与 `int alpha2F` 的偏差揪出 `emax = 10 THz` 截断
+
+打开 `ph64` 与 `ph96` 最初由 `lambdax.in`（首行 `10 0.12 0`）生成的 [`lambdax.out`](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.out)，对比每一行的直接求和 `lambda` 与括号内的谱积分 `( int alpha2F )`：
+
+```text
+[bcgong@localhost ph64]$ head -n 6 lambdax.out
+     lambda = 2.752100 (   2.735107 )  <log w>=   82.893 K  N(Ef)= 33.489293 at degauss= 0.001
+     lambda = 2.660669 (   2.641664 )  <log w>=   83.643 K  N(Ef)= 33.368889 at degauss= 0.002
+     lambda = 2.450830 (   2.429377 )  <log w>=   83.332 K  N(Ef)= 32.023508 at degauss= 0.003
+     lambda = 2.244684 (   2.222666 )  <log w>=   81.531 K  N(Ef)= 30.228660 at degauss= 0.004
+     lambda = 2.099616 (   2.077265 )  <log w>=   79.486 K  N(Ef)= 28.918150 at degauss= 0.005
+     lambda = 2.008568 (   1.985469 )  <log w>=   77.772 K  N(Ef)= 28.203097 at degauss= 0.006
+```
+
+在前面的 Al 算例中，括号内外两个数仅相差 `6 × 10⁻⁵`；而这里的 `2.450830` 与 `2.429377` 相差超过 `0.021`（在高展宽处差距更扩大到 `0.052`）！为什么 `alpha2F.dat` 的频率积分会系统性地漏掉一部分耦合？检查 `q = 1`（Γ 点）的 [`elph_dir/elph.inp_lambda.1`](/Atlas/examples/zrcl2-sc2c/ph64/elph_dir/elph.inp_lambda.1) 和声子色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 即可定位原因：
+
+```text
+[bcgong@localhost ph64]$ sed -n '45,65p' elph_dir/elph.inp_lambda.1
+     Gaussian Broadening:   0.003 Ry, ngauss=   0
+     DOS = 32.023508 states/spin/Ry/Unit Cell at Ef=  2.753693 eV
+     lambda(    1)=  0.0000   gamma=    0.00 GHz
+     lambda(    2)=  0.0000   gamma=    0.00 GHz
+     lambda(    3)=  0.0000   gamma=    0.00 GHz
+     lambda(    4)=  0.0897   gamma=    3.61 GHz
+     lambda(    5)=  0.0897   gamma=    3.61 GHz
+     lambda(    6)=  0.0149   gamma=    0.94 GHz
+     lambda(    7)=  0.6531   gamma=   53.03 GHz
+     lambda(    8)=  0.6531   gamma=   53.03 GHz
+     lambda(    9)=  0.0365   gamma=    4.69 GHz
+     lambda(   10)=  0.0566   gamma=    8.67 GHz
+     lambda(   11)=  0.0566   gamma=    8.67 GHz
+     lambda(   12)=  0.0232   gamma=    4.06 GHz
+     lambda(   13)=  0.0014   gamma=    0.40 GHz
+     lambda(   14)=  0.0014   gamma=    0.40 GHz
+     lambda(   15)=  0.0004   gamma=    0.13 GHz
+     lambda(   16)=  0.0663   gamma=  102.07 GHz
+     lambda(   17)=  0.0663   gamma=  102.07 GHz
+     lambda(   18)=  0.2512   gamma=  685.94 GHz
+```
+
+`ZrCl₂/Sc₂C` 的声子谱明显分成两个频段：
+- `0–9.65 THz`：由重原子 Zr、Sc、Cl 主导的声学支与中低频光学支，其中 `ν = 7, 8`（`2.80 THz`）在 Γ 点给出 `λ = 0.6531`；
+- `12.38–17.11 THz`（`413–571 cm⁻¹`）：由轻原子 C 主导的三条高频光学支（`ν = 16, 17, 18`），其中面外振动模 `ν = 18`（`16.51 THz`）在 Γ 点的声子线宽高达 **`γ = 685.94 GHz`**，单模耦合强度达到 **`λ = 0.2512`**！
+
+因为原始 `lambdax.in` 把频率网格上限设成了 `emax = 10 THz`，QE 7.1 的 `lambda.f90` 在直接求和 `lambda` 时把全部 18 个模式加了进去，却在构造 `α²F(ω)` 网格和对数频率矩 `ω_log` 时把 `10 THz` 以上的三条碳光学支全部丢弃了！将 `lambdax.in` 首行修正为 `18.0 0.12 0`（覆盖至 `18 THz`），重新运行 `lambda.x` 得到 [`lambdax.emax18.out`](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.emax18.out) 与 [`alpha2F.emax18.dat`](/Atlas/examples/zrcl2-sc2c/ph64/alpha2F.emax18.dat)：
+
+```text
+[bcgong@localhost ph64]$ head -n 6 lambdax.emax18.out
+     lambda = 2.752100 (   2.752169 )  <log w>=   84.623 K  N(Ef)= 33.489293 at degauss= 0.001
+     lambda = 2.660669 (   2.660734 )  <log w>=   85.622 K  N(Ef)= 33.368889 at degauss= 0.002
+     lambda = 2.450830 (   2.450893 )  <log w>=   85.654 K  N(Ef)= 32.023508 at degauss= 0.003
+     lambda = 2.244684 (   2.244743 )  <log w>=   84.084 K  N(Ef)= 30.228660 at degauss= 0.004
+     lambda = 2.099616 (   2.099672 )  <log w>=   82.226 K  N(Ef)= 28.918150 at degauss= 0.005
+     lambda = 2.008568 (   2.008623 )  <log w>=   80.692 K  N(Ef)= 28.203097 at degauss= 0.006
+```
+
+修正 `emax = 18 THz` 后，直接求和 `2.450830` 与谱积分 `2.450893` 重新吻合到 `6 × 10⁻⁵` 以内；由于补回了高频碳光学支的对数权重，`ω_log` 在 `σ = 0.003 Ry` 处从 `83.332 K` 升至 `85.654 K`（在 `σ = 0.020 Ry` 处从 `69.927 K` 升至 `78.590 K`）。下图用共享频率纵轴（`0–18 THz`）的三联图完整呈现这一耦合机制与截断审计：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散与电声耦合权重、原子投影 PHDOS 以及 Eliashberg 谱函数 α²F(ω) 与累计 λ(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C（96×96×1 致密电子网格）的声子与电声耦合三联图：（左）沿 Γ–M–K–Γ 的声子色散，散点面积正比于耦合强度 λ_qν，颜色编码声子线宽 γ_qν（GHz），红虚线标出旧 emax = 10 THz 截断位置，上方黄色背景标出 12.38–17.11 THz 的 C-2p 光学支；（中）共享频率轴的原子分辨声子态密度 PHDOS（Zr、Sc、Cl 集中在 0–9.7 THz，C 独占 12.4–17.1 THz）；（右）修正至 emax = 18 THz 后的 Eliashberg 谱函数 α²F(ω) 与缩放后的累计电声耦合曲线 0.36 × λ(ω)。</figcaption></figure>
+
+### 第三步后处理：64×64×1 与 96×96×1 的 Tc(σ) 交点定位及加密复核链
+
+把 `ph64`（`64×64×1`）与 `ph96`（`96×96×1`）在全部 20 档双 δ 展宽（`σ = 0.001–0.020 Ry`）下的 `N_σ(EF)`、`λ(σ)`、`ω_log(σ)` 与 `Tc(σ)`（固定 `μ* = 0.10`）放在一起对比，可以看到二维体系致密电子网格收敛的典型特征：
+
+| 电子展宽 `σ` (Ry) | `N_64(EF)` | `N_96(EF)` | `λ_64` | `λ_96` | `ω_log,64` (K, 18 THz) | `ω_log,96` (K, 18 THz) | `Tc,64` (K, 18 THz) | `Tc,96` (K, 18 THz) | `ΔTc = Tc,64 − Tc,96` (K) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `0.001` | 33.489 | 34.477 | 2.7521 | 2.6606 | 84.623 | 85.442 | 14.950 | 14.844 | `+0.106` |
+| `0.002` | 33.369 | 32.911 | 2.6607 | 2.6177 | 85.622 | 86.178 | 14.872 | 14.844 | `+0.028` |
+| `0.003` | 32.024 | 31.832 | 2.4508 | 2.4418 | 85.654 | 86.166 | 14.234 | 14.293 | `−0.059` |
+| `0.004` | 30.229 | 30.229 | 2.2447 | 2.2300 | 84.084 | 84.331 | 13.309 | 13.297 | `+0.012` |
+| `0.005` | 28.918 | 28.919 | 2.0996 | 2.0840 | 82.226 | 82.345 | 12.502 | 12.463 | `+0.039` |
+| `0.010` | 27.606 | 27.606 | 1.8832 | 1.8705 | 79.092 | 79.139 | 11.186 | 11.138 | `+0.048` |
+| `0.020` | 25.495 | 25.495 | 1.7875 | 1.7848 | 78.590 | 78.600 | 10.692 | 10.682 | `+0.010` |
+
+从上表和下面两张配对收敛图可以直接读出：
+1. **费米面态密度 `N_σ(EF)` 的双网格合并区**：当 `σ ≥ 0.004 Ry` 时，`64×64×1` 与 `96×96×1` 的 `N_σ(EF)` 已经吻合到小数点后三位（`30.229 states/spin/Ry/cell`）；而在 `σ = 0.001–0.003 Ry` 的极窄展宽区，由于费米能级紧邻范霍夫鞍点，粗于 `96×96×1` 的网格会出现离散采样振荡。
+2. **`Tc(σ)` 零差交点与谱截断伪交点的区分**：在旧的 `emax = 10 THz` 下，由于高频碳模式缺失导致 `ω_log` 随 `σ` 扭曲，`ΔTc(σ) = Tc,64 − Tc,96` 在 `σ ≈ 0.00175 Ry` 和 `0.0031 Ry` 处先后两次穿过零线；而在修正为完整谱积分 `emax = 18 THz` 后，在 `N_σ(EF)` 刚刚进入网格收敛区的 **`σ* ≈ 0.0036 Ry`** 处，两条曲线形成清晰的真实交点，对应 **`Tc ≈ 13.58 K`**（`λ ≈ 2.33`，`ω_log ≈ 84.9 K`，`μ* = 0.10`）。
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png" alt="ZrCl₂/Sc₂C 在 64×64×1 与 96×96×1 致密电子网格下的 Allen–Dynes Tc(σ) 收敛与零差交点定位" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 双致密网格（64×64×1 对 96×96×1）的 Allen–Dynes Tc(σ) 配对检验：（左）完整谱积分（emax = 18 THz，实线）与截断谱积分（emax = 10 THz，虚线）下的 Tc(σ) 曲线，青色圆圈标出 σ* ≈ 0.0036 Ry 处的网格交点（Tc ≈ 13.58 K）；（右）网格差值曲线 ΔTc(σ) = Tc,64 − Tc,96，展示完整谱积分在 σ* ≈ 0.0036 Ry 处的单一稳定零交点与 ph64.1/ph96.1 的加密采样区间。</figcaption></figure>
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png" alt="ZrCl₂/Sc₂C 在 64×64×1 与 96×96×1 网格下的费米面态密度 N_σ(EF)、耦合常数 λ(σ) 与对数频率矩 ω_log(σ)" loading="lazy"/><figcaption>决定 Tc(σ) 走的三个底层物理量随电子展宽 σ 的同步演化：（左）双 δ 积分关联的费米面态密度 N_σ(EF)，在 σ ≥ 0.004 Ry 完全重合；（中）直接求和 λ 与 emax = 10 THz 截断下的谱积分 int α²F 对比；（右）补回碳原子高频光学支后对数频率矩 ω_log(σ) 的系统性回升（+1.7 至 +8.7 K）。</figcaption></figure>
+
+为了把 `σ ∈ [0.001, 0.005] Ry` 交点窗口的分辨率再提高一倍，`bcgong` 上新建了 [`ph64.1`](/Atlas/examples/zrcl2-sc2c/ph64.1/phx.in) 与 [`ph96.1`](/Atlas/examples/zrcl2-sc2c/ph96.1/phx.in) 两个加密分支：复用已验证的 `out/` 与 `lambdax.in`（`18 0.12 0`），将 `phx*.in` 中的 `el_ph_sigma` 从 `0.001` 加密为 **`0.0005 Ry`**（20 档覆盖 `0.0005–0.0100 Ry`），并通过 Slurm 依赖链（作业 `18326–18343`）自动依次执行：
+
+```text
+[bcgong@localhost 0015]$ diff -u ph64/phx.in ph64.1/phx.in
+--- ph64/phx.in
++++ ph64.1/phx.in
+@@ -11,7 +11,7 @@
+   outdir='./out/'
+   fildyn='zrclscc.dyn'
+   electron_phonon='interpolated'
+-  el_ph_sigma=0.001
++  el_ph_sigma=0.0005
+   el_ph_nsigma=20
+   trans=.true.
+   ldisp=.true.
+[bcgong@localhost 0015]$ head -n 2 ph64.1/lambdax.in ph96.1/lambdax.in
+==> ph64.1/lambdax.in <==
+18 0.12 0
+       10
+
+==> ph96.1/lambdax.in <==
+18 0.12 0
+       10
+```
+
+本节全部四张后处理联立图均可由 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 配合 [`atlas_plot_style.py`](/Atlas/examples/zrcl2-sc2c/atlas_plot_style.py) 从公开算例目录 [`/Atlas/examples/zrcl2-sc2c/`](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.emax18.out) 直接重绘。
+
+<span id="epc-literature-aesthetics"></span>
+
+## 文献电声耦合与超导后处理审美解析（附 DOI 溯源）
+
+在整理本页的 `ZrCl₂/Sc₂C` 与 `SnSe₂/Sr₂N` 后处理图件时，我们遵循了高水平超导与声子文献的**多维耦合联立制图范式**——拒绝孤立展示单一曲线，而是通过共享频率轴或动量轴，把“微观振动投影 → 动量分辨线宽 → 能量积分谱函数 → 费米面各向异性超导能隙”串成一条严密的视觉证据链。下面引入四幅具有代表性的文献原图（均标注原始出处与 DOI 号），解析其构图逻辑与适用场景：
+
+### 1. 五联全息电声耦合工作流：Fat-Phonon + 原子 PHDOS + Eliashberg α²F(ω)/λ(ω) + 布里渊区路径
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散线宽投影、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与累计 λ(ω) 多面板联立图" loading="lazy"/><figcaption>文献案例 1：二维金属氢化物 h-AlH₂ 的全链路电声后处理联立图。左面板在声子色散上叠加不同电子展宽 σ 下的模式线宽圆圈；中面板对齐频率轴展示 Al 与 H 的分波声子态密度（PHDOS）；右面板同步绘制 Eliashberg 谱函数 α²F(ω) 与阶梯上升的累计耦合强度 λ(ω)。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
+
+- **审美与后处理要点**：这幅图是各向同性/双网格 DFPT 电声计算最经典的“黄金三联+辅助小图”模板。三个主面板**严格共享纵轴（频率 ω）**，视线从左向右平移即可确认：哪一段高对称路径上的软化声子支（左）产生了局域态密度峰（中），并在对应频段把累计 `λ(ω)` 推上台阶（右）。我们在上方绘制 [`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 时即采用了这一共享频率轴三联架构，并在此基础上增加了 `emax = 10 THz` 与 `18 THz` 的截断审计标注。
+
+### 2. Eliashberg 谱函数与特定高耦合振动本征矢的图内嵌合
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="二维过渡金属硫族与氮碳化物体系的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及关键声子振动模式实空间箭头嵌入图" loading="lazy"/><figcaption>文献案例 2：在 α²F(ω) 与累计 λ(ω) 主峰旁直接嵌入对应频率处的实空间原子位移本征矢（声子振动箭头）。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+
+- **审美与后处理要点**：单纯画一条 `α²F(ω)` 曲线只能告诉读者“某个频率有峰”，而 Bekaert 等人将 `matdyn.modes`（或 `dynmat.x`）提取出的**关键模式原子位移矢量（箭头长短正比于振幅）**直接作为内嵌小图指向对应的 `α²F(ω)` 尖峰，直观区分面内剪切模（in-plane shearing）与面外呼吸模（out-of-plane breathing）对超导配对的贡献。
+
+### 3. 声子色散上的线宽散点编码（Fat-Phonon Linewidth）
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 散点半径叠加图" loading="lazy"/><figcaption>文献案例 3：二维电子化合物 Ba₂N 的声子色散与声子线宽 γ_qν 散点叠加表达。底层灰黑实线保持色散骨架清晰，彩色半透明圆圈的面积编码对应 (q, ν) 处的电声线宽大小。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当体系有 18 条甚至更多声子支时，如果直接把整条曲线加粗成宽带，在声子支交叉处会糊成一团。采用**细实线画本征色散骨架 + 半透明散点（`alpha ≈ 0.75`）编码 `γ_qν` 或 `λ_qν`**，既能精确看清简并劈裂，又能一眼锁定 Γ 点光学支或特定动量处的科恩反常（Kohn anomaly）。
+
+### 4. 各向异性超导能隙 Δ_nk(T) 的小提琴分布图与费米面三维着色
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="超导能隙随温度演化的小提琴统计分布图与费米面能隙热力投影" loading="lazy"/><figcaption>文献案例 4：各向异性 Migdal–Eliashberg 方程求解的超导能隙 Δ(T) 随温度演化的小提琴统计分布（Violin Plot）及费米面能隙分布内嵌图。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当从 Allen–Dynes 公式进一步走向[各向异性 EPW–Eliashberg 求解](/Atlas/m/epw-eliashberg/qe/)时，每个温度 T 下费米面上有成千上万个 `(n, k)` 能隙值。使用**小提琴核密度包络（Violin Plot）**代替传统的粗糙散点带，并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分叉、各向异性展宽以及在 `T → Tc` 处的闭合相变。
 
 下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。

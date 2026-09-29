@@ -331,6 +331,22 @@ python3 analyze_charge.py
 
 这条路线已经把三份真实输入、SCF、网格相减、单位、电子数与图像对应起来。它展示的是固定 0.74 Å 几何、10 Å 周期盒和当前参数下的重排，未对键长、盒长、截断或密度极值作系统收敛。研究异质结时仍按同一个坐标系拆分片段，并另行核验片段的电荷与自旋参考态。
 
+## 文献差分电荷密度（CDD）后处理审美解析（附 DOI 溯源）
+
+在二维范德华异质结与界面接触文献中，差分电荷密度 `Δρ(r) = ρ_AB(r) − ρ_A(r) − ρ_B(r)` 的标准后处理范式是将**三维实空间正负等值面（3D Isosurface）**与**沿法向 z 轴的平面平均曲线 `Δρ(z)`** 严格按原子坐标 `z` 对齐叠绘。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其构图设计：
+
+### 1. 一维平面平均差分电荷曲线与三维实空间等值面的共享 z 轴嵌套
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_1D_3D_ZrI2_Hetero_Zhang2025_Fig5.jpg" alt="二维异质结沿法向 z 的平面平均差分电荷密度曲线 Δρ(z) 与三维正负等值面嵌套对比图" loading="lazy"/><figcaption>文献案例 1：将沿法向 z 的平面平均差分电荷密度 Δρ(z) 曲线与三维原子结构及正负差分电荷等值面（黄/青双色区分电子积累与耗尽）按相同的 z 坐标标尺同框叠绘。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+
+- **审美与后处理要点**：单放一张 VESTA 导出的三维等值面图无法给出定量幅值，而单放一条一维 `Δρ(z)` 曲线又让读者难以对准具体原子层。将三维结构+等值面旋转至侧视图（Side View）并严格缩放到与一维 `Δρ(z)` 坐标轴相同的 `z` 范围，同时对 `Δρ(z) > 0` 与 `< 0` 区域分别填充与三维等值面一致的黄/青（或红/蓝）半透明色块，能达到极高的视觉自洽性。
+
+### 2. 异质界面区定量电荷转移标注与双色正负填充
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_InterfaceGap_WS2_Sc2C_Bu2025_Fig9a.jpg" alt="WS₂/Sc₂C 异质结的平面平均差分电荷密度曲线、界面间隙阴影区与三维等值面并排对照图" loading="lazy"/><figcaption>文献案例 2：WS₂/Sc₂C 异质结的平面平均差分电荷 Δρ(z) 与三维正负等值面侧视图并排对准，用竖直虚线标出界面层间区（Interlayer Gap）并注明净转移电荷量 Δq。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
+
+- **审美与后处理要点**：在异质界面中心用竖直虚线标出零交叉面（Zero-crossing interface plane），将一维积分或 [Bader 分区](/Atlas/m/bader/vasp/)得到的净转移电子数 `ΔQ` 与转移方向箭头直接标注在界面间隙处，使电子重排方向一目了然。
+
 下一步：若要给空间区域分配净电子数，可接 [Bader 分析](/Atlas/m/bader/vasp/)；若要看电子局域特征，可接 [ELF](/Atlas/m/elf/vasp/)。这两种量与 Δn 的定义不同，需要各自读取对应的输出。
 
 ```text

@@ -1,0 +1,32 @@
+
+     Program MATDYN v.7.2 starts on 29Sep2026 at 11:35: 3 
+
+     This program is part of the open-source Quantum ESPRESSO suite
+     for quantum simulation of materials; please cite
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
+         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
+         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
+          URL http://www.quantum-espresso.org", 
+     in publications or presentations arising from this work. More details at
+     http://www.quantum-espresso.org/quote
+
+     Serial multi-threaded version, running on   32 processor cores
+     2873 MiB available memory on the printing compute node when the environment starts
+
+ Norm of the difference between old and new effective charges:    0.00000000000000000000
+
+ Norm of the difference between old and new force-constants:   0.00017100655909439453
+
+     Message from routine matdyn:
+     Z* not found in file srnsnse.fc, TO-LO splitting at q=0 will be absent!
+     Message from routine matdyn:
+     Z* not found in file srnsnse.fc, TO-LO splitting at q=0 will be absent!
+
+     MATDYN       :      0.20s CPU      0.21s WALL
+
+
+   This run was terminated on:  11:35: 3  29Sep2026            
+
+=------------------------------------------------------------------------------=
+   JOB DONE.
+=------------------------------------------------------------------------------=

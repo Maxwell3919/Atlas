@@ -179,6 +179,22 @@ python3 plot_bader_grid.py
 
 `plot_bader_grid.py` 直接读取 CSV，保存同名 SVG、PDF 和 PNG。比较异质结构时可以沿用提取思路，但应把等价原子检查改成自己关心的原子组或层，并重新确定 ZVAL；本例没有给出异质结构的电荷转移量。
 
+## 文献 Bader 电荷与有效电荷后处理审美解析（附 DOI 溯源）
+
+在拿到 `ACF.dat` 的表格数字后，如何避免在论文正文中堆砌枯燥的原子电荷列表？高水平文献通常将 Bader 电荷转移量与**界面层间距、隧穿势垒高度（TBH）**或**动力学 Born 有效电荷 `Z*`** 建立定量关联散点图。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其后处理构图：
+
+### 1. 界面 Bader 电荷转移量、隧穿势垒与层间距的多参量散点关联图
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Bader_TBH_vs_Distance_MetalMoS2_Fig2.jpg" alt="不同金属与二维半导体接触界面的 Bader 电荷转移量、隧穿势垒高度与界面距离关联散点图" loading="lazy"/><figcaption>文献案例 1：将一系列金属/二维半导体异质界面的 Bader 净电荷转移量、界面隧穿势垒高度（Tunneling Barrier Height）与平衡层间距 d 绘制在双轴/分类关联图中，用背景色块区分弱范德华接触与强准共价接触区。图片来源：<em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D4CP04577G" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D4CP04577G</a>。</figcaption></figure>
+
+- **审美与后处理要点**：比较多个体系的 Bader 电荷时，以关键几何参量（如界面距离 `d` 或电负性差）为横轴、Bader 转移电子数 `ΔQ` 为纵轴绘制带数据标签的散点图，比单纯列一张 Markdown/LaTeX 表格更能揭示物理规律。
+
+### 2. 静态 Bader 电荷与动力学 Born 有效电荷的对角线相关性散点图
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Born_vs_Bader_C2DB_Gjerding2021_Fig16.jpg" alt="二维材料数据库中静态 Bader 电荷与动力学 Born 有效电荷的面内/面外分量相关性散点对比图" loading="lazy"/><figcaption>文献案例 2：在二维材料数据库（C2DB）尺度上对比静态拓扑分区得到的 Bader 电荷与 DFPT 响应得到的 Born 有效电荷 Z*（区分面内与面外分量），以 y = x 对角线作为标尺揭示极化增强效应。图片来源：Gjerding et al., <em>2D Mater.</em> <strong>8</strong>, 044002 (2021)，<a href="https://doi.org/10.1088/2053-1583/ac1059" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/ac1059</a>。</figcaption></figure>
+
+- **审美与后处理要点**：静态 Bader 电荷反映基态电荷密度的空间零通量面积分，而 Born 有效电荷 `Z*` 反映原子位移引起的动态极化响应。将二者画在以 `y = x` 为基准线的正方形散点图中，可以直观展示共价极化与跨带杂化导致的反常有效电荷。
+
 下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
 
 ```text

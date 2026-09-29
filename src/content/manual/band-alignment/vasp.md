@@ -368,6 +368,25 @@ python3 plot_alignment.py
 
 ![同一共同晶胞中两份冻结孤立层的双侧真空势与参考能级](/Atlas/figures/band-alignment-vasp/band-alignment.png)
 
+## 文献中的能带对齐与肖特基势垒后处理范式（附 DOI）
+
+在半导体异质结、金半接触与二维材料数据库研究中，除了单体系双侧真空参考图，文献常采用以下三种后处理布局展示能带对齐与界面势垒演化：
+
+1. **平面平均势与宏观平均势（Macroscopic Average）提取 VBO/CBO**（Dawber 等，*Rev. Mod. Phys.* **77**, 1083 (2005)，DOI: [10.1103/RevModPhys.77.1083](https://doi.org/10.1103/RevModPhys.77.1083)）：
+   在无真空或超晶格界面体系中，将振荡剧烈的平面平均静电势（虚线）通过周期滑动窗口滤波得到平滑的宏观平均势（实线），以此对齐两侧体相参考能级并直接标出价带偏移（VBO）与导带偏移（CBO）。
+
+![平面平均势与宏观平均势提取能带偏移示例（DOI: 10.1103/RevModPhys.77.1083）](/Atlas/figures/literature/M3_MacroscopicAverage_VBO_CBO_Dawber2005_Fig26b.jpg)
+
+2. **多泛函绝对带边阶梯并排对照图**（Haastrup 等，*2D Mater.* **5**, 042002 (2018)，DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）：
+   以绝对真空能级（$E_{\text{vac}} = 0\text{ eV}$）为统一纵轴，将多个二维材料在 PBE、HSE06 与 $G_0W_0$ 下的 VBM 与 CBM 画成阶梯色块柱，直观展示泛函修正对带隙宽度及 Type-I/II/III 跨材料对齐类别的系统影响。
+
+![多泛函绝对带边阶梯对齐图示例（DOI: 10.1088/2053-1583/aacfc1）](/Atlas/figures/literature/M3_BandAlignment_MultiFunctional_TMDs_C2DB2018_Fig21.jpg)
+
+3. **外加电场调控肖特基势垒相图**（Yi 等，*Appl. Surf. Sci.* 2024，DOI: [10.1016/j.apsusc.2024.161730](https://doi.org/10.1016/j.apsusc.2024.161730)）：
+   在金属/半导体异质结中追踪电子型（$\Phi_{Bn}$）与空穴型（$\Phi_{Bp}$）肖特基势垒随法向外电场的演化曲线，并用分色背景标出 p-type Schottky、n-type Schottky 与 Ohmic 接触相区及临界转变电场。
+
+![外电场调控肖特基势垒相图示例（DOI: 10.1016/j.apsusc.2024.161730）](/Atlas/figures/literature/M3_SchottkyBarrier_Efield_PhaseDiagram_ZrCl2_Yi2023_Fig8a.jpg)
+
 下一步若要看接触后的变化，转到 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，在同一异质结构晶胞与冻结几何下比较 AB、A、B 的电荷；若要读整个异质结构的势变化，转到 [静电势](/Atlas/m/electrostatic-potential/vasp/)。这两类结果再与实际界面能带结合，才能继续讨论接触后的能级重排。
 
 ```text
@@ -380,3 +399,4 @@ python3 plot_alignment.py
                  └─ 每个能级减去对应表面的真空势
                       └─ 孤立层参考图 → 后续直接检查界面体系
 ```
+

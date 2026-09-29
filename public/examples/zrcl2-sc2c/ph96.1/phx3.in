@@ -1,0 +1,23 @@
+  &inputph
+  tr2_ph=1.0d-16
+  nmix_ph=12
+  verbosity='high'
+  prefix='zrclscc'
+  fildvscf='zrclsccdv'
+  amass(1)=91.224
+  amass(2)=35.450
+  amass(3)=44.956
+  amass(4)=12.011
+  outdir='./out/'
+  fildyn='zrclscc.dyn'
+  electron_phonon='interpolated'
+  el_ph_sigma=0.0005
+  el_ph_nsigma=20
+  trans=.true.
+  ldisp=.true.
+  start_q=8
+  last_q=10
+  nq1=8
+  nq2=8
+  nq3=1
+/

@@ -1,0 +1,9 @@
+&input
+    asr='simple',
+    flfrc='zrclscc.fc',
+    flfrq='zrclscc.dos.freq',
+    dos=.true.,
+    fldos='zrclscc.phdos',
+    nk1=48, nk2=48, nk3=1,
+    ndos=400
+ /

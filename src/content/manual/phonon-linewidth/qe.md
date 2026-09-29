@@ -176,6 +176,40 @@ python plot_epc.py
 
 全部原始逐 q 文件：[q1](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.1), [q2](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.2), [q3](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.3), [q4](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.4), [q5](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.5), [q6](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.6), [q7](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.7), [q8](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.8)。还可对照 [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in)、[al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out) 和 [q-weight-source.json](/Atlas/examples/al/epc-q4/q-weight-source.json)。
 
+## 二维异质结 ZrCl₂/Sc₂C 与 SnSe₂/Sr₂N：高频光学支大线宽与中低频大耦合的同步编码
+
+在含轻重元素的多原子体系中，由 Allen 公式连接的声子线宽 `γ_qν` 与无量纲模式耦合常数 `λ_qν = γ_qν / [π N(EF) ω_qν²]` 具有截然不同的频率标度。以本手册实跑的 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）与 **`SnSe₂/Sr₂N`**（[分批 DFPT 记录](/Atlas/m/epc/qe/#double-grid-research-record)）为例：
+
+1. **在 `ZrCl₂/Sc₂C` 的 Γ 点（`q = 1`，`σ = 0.003 Ry`）**：
+   - 第 18 支碳原子面外光学模（`ω = 16.51 THz`）拥有全谱最大的声子线宽 **`γ = 685.94 GHz`**（第 16、17 支简并面内碳光学模 `12.71 THz` 也达到 `γ = 102.07 GHz`），但由于分母中的 `ω_qν²` 很大，其单模无量纲耦合为 **`λ = 0.2512`**；
+   - 第 7、8 支过渡金属中低频光学模（`ω = 2.80 THz`）的声子线宽为 **`γ = 53.03 GHz`**，不足第 18 支的十分之一，却因频率低而给出全谱最大的单模耦合 **`λ = 0.6531`**！
+   因此，在后处理绘图中若只编码 `γ_qν`，读者会误以为全部超导配对都来自高频碳支；若只编码 `λ_qν`，则会忽略高频碳光学支的巨大电声矩阵元和 `emax = 10 THz` 截断风险。下图在声子色散骨架上同时采用**散点面积编码 `λ_qν`、颜色色标编码 `γ_qν`（GHz）**，使两类主导模式在同一面板中一目了然：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散双编码（面积编码 λ_qν、颜色编码 γ_qν）、PHDOS 与 α²F(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的声子线宽 γ_qν 与无量纲耦合 λ_qν 联立后处理：（左）声子色散上散点面积正比于 λ_qν，颜色深浅对应 γ_qν（GHz），直观区分 Γ 点 16.51 THz 碳光学支的巨型线宽（γ ≈ 686 GHz）与 2.80 THz 支的巨型无量纲耦合（λ = 0.653）；（中、右）共享频率轴的原子分辨 PHDOS 与 Eliashberg 谱函数。</figcaption></figure>
+
+2. **在 `SnSe₂/Sr₂N` 的前两个不可约 q 点（`q = 1, 2`）**：
+   右面板火柴杆图（Stem Plot）对比了 `q = 1`（Γ）与 `q = 2`（`(0, 0.144338, 0)`）的 18 个模式。在 `q = 2` 处，第一支声学模 `ν = 1` 的频率为 `0.5844 THz`（`19.49 cm⁻¹`），原件 [`elph.inp_lambda.2`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.2) 打印了非零线宽 `γ = 0.08 GHz`，但因频率低于 QE 7.1 `elph.f90` 的 `20 cm⁻¹` 阈值，程序将其 `λ(1)` 强制写为 `0.0000`；而紧邻的 `ν = 2`（`0.7615 THz = 25.40 cm⁻¹`）跨过阈值后立即给出 `λ(2) = 0.0644`。在后处理图中标出 `20 cm⁻¹` 竖线，能避免把低频区的零 `λ` 误判为电声矩阵元严格为零。
+
+<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的 SCF 收敛、质量恢复声子色散与 q=1,2 逐模 λ_qν 诊断" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的阶段性后处理诊断：右面板以火柴杆图对比 q = 1（Γ）与 q = 2 的逐模 λ_qν，琥珀色点线标出 QE 的 20 cm⁻¹ 低频截断阈值，红虚线标出旧 emax = 10 THz 截断线。</figcaption></figure>
+
+下载本算例：[ZrCl₂/Sc₂C elph.inp_lambda.1](/Atlas/examples/zrcl2-sc2c/ph96/elph_dir/elph.inp_lambda.1) · [ZrCl₂/Sc₂C gam.lines](/Atlas/examples/zrcl2-sc2c/ph96/gam.lines) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
+
+## 文献声子线宽与电子散射耦合后处理审美解析（附 DOI 溯源）
+
+如何把动量分辨的声子线宽 `γ_qν` 与声子色散、电子磁化率或费米面嵌套清晰结合？下面引入两幅代表性文献图件（均标注原始 DOI 号）解析其视觉设计：
+
+### 1. 声子色散上的半透明线宽气泡叠加（Fat-Phonon Bubbles）
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与声子线宽 γ_qν 气泡半径叠加图" loading="lazy"/><figcaption>文献案例 1：二维电子化合物 Ba₂N 的声子色散与模式分辨声子线宽 γ_qν 叠加图。底层实线绘制声子本征频率，彩色半透明圆圈的半径编码对应模式的电声线宽 γ_qν。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
+
+- **审美与后处理要点**：绘制 Fat-Phonon 时，切忌将线宽直接映射为曲线线宽（`linewidth`），否则在光学支密集交叉处会完全遮挡简并点。使用**固定细线宽绘制连续色散骨架 + 降采样半透明散点（`scatter`）编码 `γ_qν`**，并在图内放置 1–2 个标准线宽比例尺圆圈，是兼顾定量可读性与视觉通透感的最佳实践。
+
+### 2. 广义电子磁化率 χ'(q)、嵌套函数 χ''(q) 与声子线宽 γ_qν 的共动量路径对齐
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="沿相同高对称动量路径上下堆叠的电子磁化率实部、费米面嵌套函数虚部与声子线宽对比图" loading="lazy"/><figcaption>文献案例 2：将广义电子磁化率实部 χ'(q)、费米面嵌套函数 χ''(q) 与声子线宽 γ_qν 沿同一条高对称 q 路径（Γ–X–S–Y–Γ）上下对齐堆叠。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当声子线宽在某个非零波矢 `q*` 出现尖峰时，读者最关心它是源于**[费米面几何嵌套](/Atlas/m/fermi-nesting/qe/)**（`χ''(q)` 同步出现同位置尖峰）还是源于**电声耦合矩阵元增强**（`χ''(q)` 平坦而 `γ_qν` 激增）。将三者共享横轴 `q` 垂直堆叠，并用贯穿上下的竖直参考线锁定峰值动量，可以直接给出无可辩驳的物理判据。
+
 下一步：到 [α²F](/Atlas/m/eliashberg-a2f/qe/) 把逐模贡献汇总到频率轴，再到 [Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/) 看这一组 λ 与 ω_log 在明确 μ* 下给出什么结果。
 
 ```text

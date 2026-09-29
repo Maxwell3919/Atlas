@@ -104,4 +104,40 @@ install()
 
 最终保留原始输入输出、提取后的 CSV 或 NPZ、可执行绘图脚本、矢量 PDF 和网页预览。若需要改图，回到数据和脚本修改；不要在图片上挪动数据点、删除不顺眼的负频，或把图上的文字数值改成希望得到的答案。
 
+## 多面板物理联动与文献级后处理审美解析
+
+高水平计算物理与材料科学图表不仅追求字体、线宽和色标的克制，更强调**跨物理量的多面板空间对齐（Multi-panel Physical Coupling）**：把共享同一能量轴、频率轴或实空间法向坐标的物理量并排/上下紧贴组合，使读者无需跨图寻找因果链。
+
+### 本站算例的多面板联动重绘实例
+
+在 `ZrCl₂/Sc₂C` 与 `SnSe₂/Sr₂N` 异质结计算中，脚本 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 与 [`plot_snse2_sr2n.py`](/Atlas/examples/snse2-sr2n/ph64/plot_snse2_sr2n.py) 采用 `GridSpec` 将核心后处理合并为高信息密度联排图：
+
+1. **电子结构三联图（共享 $E - E_F$ 纵轴）**：左面板展示非自洽能带与穿过费米能级的金属导带（蓝线高亮），中间面板叠加原子投影分波态密度（PDOS），右面板列出各原子在 $E_F$ 处的态密度贡献份额，直观建立“能带色散 $\rightarrow$ 轨道杂化 $\rightarrow$ 费米面权重”链条。
+
+![ZrCl₂/Sc₂C 电子能带、PDOS 与费米面原子权重三联图](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png)
+
+2. **晶格动力学与电声耦合三联图（共享频率纵轴）**：左面板在灰线声子色散上叠加热力气泡展示模分辨电声线宽 $\gamma_{\mathbf{q}\nu}$，中间面板展示投影声子态密度（PhDOS），右面板展示 Eliashberg 谱函数 $\alpha^2F(\omega)$ 与累积积分 $\lambda(\omega)$，清晰呈现“哪些声子模式贡献了主体电声耦合”。
+
+![ZrCl₂/Sc₂C 声子色散、声子线宽、PhDOS 与 Eliashberg 谱函数三联图](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png)
+
+3. **电子网格加密（k64 vs k96）对电声与 $T_c$ 展宽收敛的四面板诊断**：在同一张图中对比 $64\times 64\times 1$ 与 $96\times 96\times 1$ 密集电子网格下的 $\lambda(\sigma)$、$N(E_F,\sigma)$、$T_c(\sigma)$ 随高斯展宽的演化及两套网格在各对称性 $\mathbf{q}$ 点的 $\lambda_{\mathbf{q}}$ 一致性。
+
+![ZrCl₂/Sc₂C 在 k64 与 k96 网格下的电声耦合与 Tc 收敛对比](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png)
+
+4. **全网格 DFPT 电声耦合诊断与原子质量参数避坑实例**：左面板展示 `SnSe₂/Sr₂N` 在 64 个不可约 $\mathbf{q}$ 点上的单点模分辨 $\lambda_{\mathbf{q}\nu}$（$\mathbf{q}_1=\Gamma, \mathbf{q}_2$），右面板对比 `SCF.in` 修正 `Sr`/`Se` 原子质量前后的全路径声子色散偏移，提醒算例复现时务必核查 `ATOMIC_SPECIES` 质量列。
+
+![SnSe₂/Sr₂N 单 q 点模分辨电声耦合与原子质量修正前后声子谱对比](/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png)
+
+### 各计算模块文献后处理范式与 DOI 索引
+
+本站各方法手册在算例末尾引入了代表性文献的后处理构图范式，所有引用图均标注原始论文 DOI，供科研制图时对照参考：
+
+- **异质结建模与层间作用**：六种高对称堆叠俯/侧视矩阵排版（DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）、构件对称性对照（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）、剥离能曲线与范德华基准带对比（DOI: [10.1016/j.mtcomm.2022.104176](https://doi.org/10.1016/j.mtcomm.2022.104176)）——详见 [异质结建模](/Atlas/m/heterostructure-modeling/vasp/)。
+- **电子能带、投影与费米面**：多构型轨道投影能带矩阵（DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）、能带+PDOS+实空间波函数模方联动（DOI: [10.1021/acs.jpcc.3c08135](https://doi.org/10.1021/acs.jpcc.3c08135)）、二维六角布里渊区多口袋费米面与嵌套向量（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)、[10.1103/PhysRevB.96.094526](https://doi.org/10.1103/PhysRevB.96.094526)）——详见 [能带](/Atlas/m/bands/qe/)、[投影能带](/Atlas/m/fatband/qe/)、[DOS](/Atlas/m/dos/qe/)、[费米面](/Atlas/m/fermi-surface/qe/)、[费米面嵌套](/Atlas/m/fermi-nesting/qe/)。
+- **静电势、功函数与能带对齐**：静电势叠加球棍结构侧视图（DOI: [10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)）、静电势与差分电荷共享 $z$ 轴联动（DOI: [10.1021/acs.jpcc.5c02913](https://doi.org/10.1021/acs.jpcc.5c02913)）、Janus 偶极台阶与多泛函带边阶梯图（DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）、宏观平均势提取 VBO/CBO（DOI: [10.1103/RevModPhys.77.1083](https://doi.org/10.1103/RevModPhys.77.1083)）、外电场肖特基势垒相图（DOI: [10.1016/j.apsusc.2024.161730](https://doi.org/10.1016/j.apsusc.2024.161730)）——详见 [功函数](/Atlas/m/workfunction/vasp/)、[能带对齐](/Atlas/m/band-alignment/vasp/)。
+- **电荷转移、ELF 与化学键（COHP）**：三维等值面与平面平均 $\Delta\rho(z)$ 联动（DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）、ELF 截面与 Bader 电荷转移矩阵（DOI: [10.1016/j.mtcomm.2022.104176](https://doi.org/10.1016/j.mtcomm.2022.104176)、[10.1103/PhysRevB.96.094526](https://doi.org/10.1103/PhysRevB.96.094526)）、COHP 成键/反键镜像填色与键长-ICOHP 标度关系（DOI: [10.1038/s41524-024-01488-z](https://doi.org/10.1038/s41524-024-01488-z)、[10.1021/acs.jpcc.4c04065](https://doi.org/10.1021/acs.jpcc.4c04065)）——详见 [差分电荷](/Atlas/m/delta-charge/vasp/)、[Bader 电荷](/Atlas/m/bader/vasp/)、[ELF](/Atlas/m/elf/vasp/)、[COHP](/Atlas/m/cohp/qe/)。
+- **声子谱、非谐重整化与电声超导**：声子色散+声子线宽+PhDOS+$\alpha^2F(\omega)$ 四联耦合图（DOI: [10.1103/PhysRevB.96.094526](https://doi.org/10.1103/PhysRevB.96.094526)、[10.1039/D2CP04106E](https://doi.org/10.1039/D2CP04106E)、[10.1021/acs.jpcc.3c08135](https://doi.org/10.1021/acs.jpcc.3c08135)）、SSCHA 非谐重整化与温度软模演化（DOI: [10.1088/1361-648X/ac066b](https://doi.org/10.1088/1361-648X/ac066b)、[10.1103/l89c-t2s4](https://doi.org/10.1103/l89c-t2s4)）、各向异性 Eliashberg 超导能隙随温度闭合与费米面投影（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）——详见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)、[Eliashberg 谱函数](/Atlas/m/eliashberg-a2f/qe/)、[Allen–Dynes 超导 Tc](/Atlas/m/allen-dynes/qe/)、[EPW 各向异性超导](/Atlas/m/epw-eliashberg/qe/)、[SSCHA 非谐声子](/Atlas/m/anharmonic-sscha/mace/)。
+- **自旋纹理与 Berry 曲率拓扑**：自旋-能谷锁定三维能带口袋（DOI: [10.1038/nphys3580](https://doi.org/10.1038/nphys3580)）、二维布里渊区 Berry 曲率热力图与量子反常霍尔边缘态（DOI: [10.1088/1361-648X/ac96bb](https://doi.org/10.1088/1361-648X/ac96bb)、[10.1038/s41524-025-01732-0](https://doi.org/10.1038/s41524-025-01732-0)）——详见 [自旋纹理](/Atlas/m/spin-texture/vasp/)、[Berry 曲率与陈数](/Atlas/m/berry-chern/qe/)。
+
 继续阅读：[能带](/Atlas/m/bands/qe/)、[DOS](/Atlas/m/dos/qe/)、[虚频](/Atlas/m/imaginary-phonon/qe/)、[α²F](/Atlas/m/eliashberg-a2f/qe/)、[Tc 的完整提取](/Atlas/m/allen-dynes/qe/)、[差分电荷](/Atlas/m/delta-charge/vasp/)。
+

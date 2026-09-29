@@ -1,0 +1,120 @@
+#!/bin/bash
+# Author: 武长江 at 2022.3.10
+# 这个程序用来计算电声耦合强度分布λ_qv
+# 输入文件为QE计算出的 elph.gamma.*(γ_qv) 与 *.freq.gp(ω_qv)
+# 输出文件为 elph.lambda_qv 与 elph.lambda_qv.gp
+# 具体计算公式可参考 http://indico.ictp.it/event/8301/session/96/contribution/534/material/0/0.pdf
+
+read_omega_qv(){
+    echo "请输入 omega_qv 的文件名(*.freq.gp):"
+    read omega_file_name
+    if [[ -n $omega_file_name ]]
+    then
+        awk '{for(i=2;i<NF;i++)printf("%s ",$i);print $NF}' $omega_file_name > mod_omega.dat
+        # awk 删掉第一列, 即BZ中轨迹
+    else
+        echo "输入为空！"
+        exit 1
+    fi
+}
+read_and_modify_gamma_qv(){
+    echo "请输入 gamma_qv 的文件名(elph.gamma.*):"
+    read gamma_file_name
+
+    line_num_omega=$(awk 'END{print NR}' "$omega_file_name")
+    # 数据中取样点数目
+    line_num_gamma=$(awk 'END{print NR-1}' "$gamma_file_name")
+    n_merge=$(echo "$line_num_gamma"/"$line_num_omega" | bc -l)
+    # n_merge即为对 gamma_qv 文件多少行为一个单位进行处理
+
+    if [[ -n $gamma_file_name ]]
+    then
+        awk -v n="$n_merge" '{if(NR%n!=1)ORS=" ";else ORS="\n "}1' $gamma_file_name | sed -e '1d' > mod_gamma_tmp.dat
+        # awk将将每n_merge行合并成一行, sed -e是删除第一行(&plot nbnd=x, nks=y/)
+        awk '{for(i=4;i<NF;i++)printf("%s ",$i);print $NF}' mod_gamma_tmp.dat > mod_gamma.dat 
+        # awk 删除前三列, 即BZ中轨迹, 留下的为轨迹点对应的数据
+        rm -f mod_gamma_tmp.dat
+    else
+        echo "输入为空！"
+        exit 1
+    fi
+}
+
+calculate_lambda_qv(){
+    echo "请输入费米面处态密度 N_EF :"
+    read N_ef
+    if [[ -n $N_ef ]]
+    then
+        awk -v CONVFMT='%.12f' -v N_ef="$N_ef" '{getline o < "mod_omega.dat"; split(o,s1)}
+		    {for(i=1;i<=NF;i++) 
+			    if( s1[i] + 0 != 0)
+                    $i=($i)/(3.1415926535897*N_ef*s1[i]**2)
+                else
+                    $i=0.0
+                ;print}' mod_gamma.dat > elph.lambda_qv
+        # bash编程嵌套awk编程
+        # getline o < "mod_omega.dat" 从 mod_omega.dat 中获取一行, 保存在变量o中
+        # split(o,s1)  拆分内容o（与默认输入行拆分相同）并保存在变量s1中
+        # for(i=1;i<=NF;i++) 从第一列开始循环, 直到最后一列
+        # if( s1[i]+0 != 0)  由于gamma点附近频率为0, 会报错fatal: division by zero attempted, 因此筛选出非0值
+        # $i=($i)/(3.1415926535*$N_ef*s1[i]*s1[i])  lambda_qv计算公式, 详见脚本顶部链接
+        # print打印修改后的输入行 - 如果需要, 可以使用格式化
+        # N_ef使用时要用 -v 参数传递进awk, 是因为若直接使用($N_ef)会与awk变量混淆, 被认为代表着第$N_ef列数据, 因此必须这样表示引用的是shell变量
+        # CONVFMT='%.12f' 表示输出格式默认为12位浮点数, 默认为6位, 精度不太够
+    else
+        echo "输入为空！"
+        exit 1
+    fi
+}
+
+modify_lambda_qv(){
+    nbnd=$(awk 'END{print NF}' "$omega_file_name")
+    # 读取 nbnd 值(数据列数), 注意这个值会比实际大1, 因为第一列是BZ轨迹
+    seq_nbnd=$(seq 2 $nbnd)
+    # 生成从2到nbnd数组, 从2开始正好契合第一列留给BZ轨迹的情况
+    mod_lambda_qv_tmp=$(paste "$omega_file_name" elph.lambda_qv)
+    # 将 omega_qv 与 lambda_qv 的数据粘合在一起
+    if [ -f "elph.lambda_qv.gp" ]; then rm -f elph.lambda_qv.gp; fi
+    # 由于之后会重复试用追加(>>)操作, 在此清理之前的旧数据
+
+    for i in $seq_nbnd
+    do
+         echo "$mod_lambda_qv_tmp" | awk -v CONVFMT='%.12f' -v i="$i" -v nbnd="$nbnd" '{print $1,$(i),$(i+nbnd-1)}' >> elph.lambda_qv.gp
+        # 对输入的这一行数据, 按照第一列坐标, 第二列第i条带, 第三列第i条的强度进行处理
+        # 每处理完一条带后追加一个空行, 方便处理
+    done
+    # 处理一下输出文件。变成第一列坐标, 第二列omega_qv, 第三列lambda_qv, 便于origin直接作图
+}
+
+main(){
+    read_omega_qv
+    read_and_modify_gamma_qv
+    calculate_lambda_qv
+
+    echo "是否进行数据处理以便于Origin作图? 视数据量而定可能比较耗时 [y/N]"
+    # 由于数据处理比较耗时, 询问是否进行处理
+    read answer
+    answer=${answer:-"no"}
+    # 将默认值设置为no
+    
+    case $answer in
+        [yY][eE][sS]|[yY])
+		    echo "进行处理, 时间可能稍长, 请耐心等待"
+            modify_lambda_qv
+            rm -f mod_gamma.dat mod_omega.dat
+            echo "脚本运行结束, 最终输出文件为elph.lambda_qv与elph.lambda_qv.gp"
+            exit 0
+		    ;;
+        [nN][oO]|[nN])
+       	    ;;
+        *)
+		    echo "输入错误, 默认不进行处理。"
+		    ;;
+    esac
+    # 采用case处理, 不区分大小写并且单字与单词输入均可, 对用户友好
+
+    rm -f mod_gamma.dat mod_omega.dat
+    echo "脚本运行结束, 最终输出文件为elph.lambda_qv"
+}
+
+main

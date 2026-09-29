@@ -156,6 +156,20 @@ python3 plot.py
 
 下一步先沿 [Wannier 父链](/Atlas/m/wannier90/qe/) 核对物理模型与需要保留的能带。如果要把离散切片结果用于材料结论，需要用同一协议检查占据态与未占据态在整个布里渊区的分离，并继续检查采样与基组；不能把本页的四带数据直接补称含 SOC 的拓扑结果。
 
+## 文献中的 Berry 曲率分布与拓扑陈数后处理范式（附 DOI）
+
+在时间反演破缺的磁性二维材料与量子反常霍尔效应（QAHE）研究中，文献常将高对称路径或二维倒空间上的 Berry 曲率 $\Omega_z(\mathbf{k})$ 与反常霍尔电导率平台、手性边缘态（Chiral Edge States）组合展示：
+
+1. **高对称路径与二维布里渊区 Berry 曲率热力图**（*J. Phys.: Condens. Matter* **34**, 465802 (2022)，DOI: [10.1088/1361-648X/ac96bb](https://doi.org/10.1088/1361-648X/ac96bb)）：
+   在倒空间二维平面内绘制 $\Omega_z(\mathbf{k})$ 分布并叠加六角第一布里渊区边界与高对称点（$\Gamma, K, K', M$），直观定位由 SOC 打开能隙的避免交叉点所贡献的 Berry 曲率尖峰及谷间符号差异。
+
+![二维布里渊区 Berry 曲率热力图示例（DOI: 10.1088/1361-648X/ac96bb）](/Atlas/figures/literature/M7_BerryCurvature_2DMap_LaH2_Fig5b.jpg)
+
+2. **量子反常霍尔整数量化平台与 Wannier Green 函数手性边缘态联排**（*npj Comput. Mater.* **11**, 132 (2025)，DOI: [10.1038/s41524-025-01732-0](https://doi.org/10.1038/s41524-025-01732-0)）：
+   将能隙内整数量化的反常霍尔电导率平台（$\sigma_{xy} = C e^2/h$）与半无限边界 Green 函数计算的能量-动量手性边缘态谱函数并排展示，清晰验证体边对应关系（Bulk-Boundary Correspondence）。
+
+![量子反常霍尔平台与手性边缘态谱函数联排示例（DOI: 10.1038/s41524-025-01732-0）](/Atlas/figures/literature/M7_QAHE_ChiralEdge_TbCl_Fig4cd.jpg)
+
 ```text
 同一结构 SCF → 全网格 NSCF → pw2wannier90 原始 mmn + nnkp
                                    ↓
@@ -167,3 +181,4 @@ python3 plot.py
                                    ↓
                  网格对照 / 随机规范 / 独立回路核对
 ```
+

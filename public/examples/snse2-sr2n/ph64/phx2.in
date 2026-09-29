@@ -1,0 +1,23 @@
+  &inputph
+  tr2_ph=1.0d-16
+  nmix_ph=12
+  verbosity='high'
+  prefix='srnsnse'
+  fildvscf='srnsnsedv'
+  amass(1)=87.620
+  amass(2)=14.007
+  amass(3)=118.71
+  amass(4)=78.971
+  outdir='./out/'
+  fildyn='srnsnse.dyn'
+  electron_phonon='interpolated'
+  el_ph_sigma=0.002
+  el_ph_nsigma=20
+  trans=.true.
+  start_q=5
+  last_q=7
+  ldisp=.true.
+  nq1=8
+  nq2=8
+  nq3=1
+/

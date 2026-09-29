@@ -137,6 +137,28 @@ python3 plot_nesting.py
 
 还要留意 Γ 点为什么总是很高。J(0) 是 W(k) 与自身完全重合的结果；对这种自相关定义，q=0 的大值本身就是自然结果。它不能被直接命名为某个有限波矢的不稳定性。要讨论 CDW，需进一步计算相关的电子响应和声子，并检查电子—声子耦合；要讨论超导，仍需 [EPC](/Atlas/m/epc/qe/) 和后续谱函数链条。
 
+## 二维异质结 ZrCl₂/Sc₂C：多口袋费米面几何与动量分辨电声散射的交叉印证
+
+在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，将费米面拓扑（[`zrcl2-sc2c-electronic.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png) 右面板）与动量分辨声子线宽 `γ_qν`（[`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 左面板）对照，可以清楚看到几何嵌套 `J(q)` 与真实电声散射之间的联系与区别：
+- Band 26（深蓝）与 Band 27（锈红）在 Γ 点周围形成同心双口袋，同时 Band 26 在 K 点周围形成三角形口袋；
+- 口袋内的小动量散射（`q → Γ`）与连接 Γ 六瓣口袋平直边缘的区间散射向量，分别对应声子谱在 Γ 点光学支（`γ_Γ,18 ≈ 686 GHz`）以及 `Γ–M` / `Γ–K` 中段中低频支的线宽增强。
+
+## 文献费米面嵌套与电子磁化率后处理审美解析（附 DOI 溯源）
+
+在研究电荷密度波（CDW）或声子软化机制时，高水平文献通常将**费米面上的嵌套矢量箭头标注**与**高对称路径上的电子磁化率 `χ'(q)` / 嵌套函数 `χ''(q)` / 声子线宽 `γ_qν`** 联立展示。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其视觉设计：
+
+### 1. 二维费米面轮廓上的特征嵌套波矢 q_i 直接标注
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_FS_NestingVectors_CoTe2_Chen2026_Fig2c.jpg" alt="二维六角布里渊区费米面口袋轮廓与连接平直费米面片段的特征嵌套波矢箭头标注" loading="lazy"/><figcaption>文献案例 1：在二维六角第一布里渊区的费米面等能线图上，直接用醒目的彩色箭头标出连接平行费米面片段的特征嵌套波矢（如 q₁ = 1/4 a* 等），直观对应超胞 CDW 重构的周期性。图片来源：Chen et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/l89c-t2s4" target="_blank" rel="noopener noreferrer">DOI: 10.1103/l89c-t2s4</a>。</figcaption></figure>
+
+- **审美与后处理要点**：在二维费米面图上标注嵌套波矢 `q_CDW` 时，箭头起点和终点必须精确落在平行的费米面等能线段上，并同时画出第一布里渊区六边形和高对称点（`Γ, M, K`），让读者一眼看出 `q_CDW` 与倒格矢公度比（如 `1/3 a*` 或 `1/4 a*`）的几何关系。
+
+### 2. 广义磁化率实部 χ'(q)、嵌套函数虚部 χ''(q) 与声子线宽 γ_qν 的垂直对齐三联图
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="沿同一高对称动量路径垂直对齐的电子磁化率实部 χ'(q)、嵌套函数虚部 χ''(q) 与声子线宽 γ_qν" loading="lazy"/><figcaption>文献案例 2：沿相同高对称 q 路径垂直堆叠电子磁化率实部 χ'(q)、费米面嵌套函数 χ''(q) 与声子线宽 γ_qν，检验嵌套峰与电声线宽峰是否共位。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
+
+- **审美与后处理要点**：单画一张 `J(q)` 或 `χ''(q)` 往往无法服众，因为 `q → 0` 处总有平凡的自相关发散峰。将 `χ'(q)`、`χ''(q)` 与 `γ_qν` 沿同一条高对称路径上下对齐排列，才能厳格区分“纯几何嵌套驱动的失稳”与“电声矩阵元驱动的失稳”。
+
 下一步可以继续加密 k 网格并交叉检查窗口，或者返回 [费米面三维图](/Atlas/m/fermi-surface/qe/) 看同一个 q 实际连接哪两块面。
 
 ```text

@@ -1,0 +1,46 @@
+&CONTROL
+  calculation = 'scf'
+  outdir = './out/'
+  prefix = 'srnsnse'
+  pseudo_dir = './pseudo/'
+  tprnfor = .true.
+  tstress = .true.
+  verbosity = 'high'
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 6,
+  ntyp = 4,
+  ecutwfc = 120,
+  ecutrho = 960,
+  input_dft = 'vdw-DF3-opt1'
+  occupations = 'smearing'
+  smearing = 'gaussian'
+  degauss = 3.7d-3
+/
+&ELECTRONS 
+  conv_thr = 1.0000000000d-12
+  mixing_beta = 4.0000000000d-01
+/
+&ions
+/
+&cell
+/
+ATOMIC_SPECIES
+Sr  87.620  Sr.pbe-spn-kjpaw_psl.1.0.0.UPF
+N   14.007  N.pbe-n-kjpaw_psl.1.0.0.UPF 
+Sn  118.71  Sn.pbe-dn-kjpaw_psl.1.0.0.UPF
+Se  78.971  Se.pbe-dn-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS (angstrom)
+   3.915211298  -0.000000000   0.000000000
+  -1.957605649   3.390672445   0.000000000
+   0.000000000   0.000000000  40.000000000
+ATOMIC_POSITIONS (crystal)
+Sr            0.3333333333        0.6666666667        0.4858621609
+Sr            0.6666666667        0.3333333333        0.4189402327
+Sn            0.3333333333        0.6666666667        0.5848669832
+Se            0.0000000000        0.0000000000        0.6229981775
+Se            0.6666666667        0.3333333333        0.5395777160
+N             0.0000000000        0.0000000000        0.4476047279
+K_POINTS automatic
+  16 16 1 0 0 0 

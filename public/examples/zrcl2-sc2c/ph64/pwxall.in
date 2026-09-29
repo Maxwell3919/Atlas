@@ -1,0 +1,47 @@
+&CONTROL
+  calculation = 'scf'
+  outdir = './out/'
+  prefix = 'zrclscc'
+  pseudo_dir = './pseudo/'
+! tprnfor = .true.
+! tstress = .true.
+  verbosity = 'high'
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 6,
+  ntyp = 4,
+  ecutwfc = 100,
+  ecutrho = 800,
+  input_dft = 'vdw-DF3-opt1'
+  occupations = 'smearing'
+  smearing = 'gaussian'
+  degauss = 3.7d-3
+  la2F=.true.
+/
+&ELECTRONS
+  conv_thr = 1.0000000000d-12
+  mixing_beta = 4.0000000000d-01
+/
+&ions
+/
+&cell
+/
+ATOMIC_SPECIES
+Zr  91.224  Zr.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl  35.450  Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
+C   12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS (angstrom)
+   3.358477221  -0.000000000   0.000000000
+  -1.679238611   2.908526592   0.000000000
+   0.000000000   0.000000000  40.000000000
+ATOMIC_POSITIONS (crystal)
+Zr            0.6666666667        0.3333333333        0.5686381679
+C             0.0000000000        0.0000000000        0.4422269878
+Cl            0.3333333333        0.6666666667        0.6119865107
+Cl            0.3333333333        0.6666666667        0.5200686751
+Sc            0.3333333333        0.6666666667        0.4141588705
+Sc            0.6666666667        0.3333333333        0.4723207502
+K_POINTS automatic
+  64 64 1 0 0 0

@@ -301,6 +301,38 @@ python3 scripts/plot_tc_chain.py --data data --output figures
 
 原始输入、程序输出和独立检查脚本可以逐个查看：[al.dense.in](/Atlas/examples/al/epc-q4/al.dense.in), [al.dense.out](/Atlas/examples/al/epc-q4/al.dense.out), [al.scf.in](/Atlas/examples/al/epc-q4/al.scf.in), [al.scf.out](/Atlas/examples/al/epc-q4/al.scf.out), [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in), [al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out), [continue.slurm](/Atlas/examples/al/epc-q4/continue.slurm), [q2r.in](/Atlas/examples/al/epc-q4/q2r.in), [q2r.out](/Atlas/examples/al/epc-q4/q2r.out), [matdyn-dos.in](/Atlas/examples/al/epc-q4/matdyn-dos.in), [matdyn-dos.out](/Atlas/examples/al/epc-q4/matdyn-dos.out), [lambda.in](/Atlas/examples/al/epc-q4/lambda.in), [lambda.out](/Atlas/examples/al/epc-q4/lambda.out), [lambda.dat](/Atlas/examples/al/epc-q4/lambda.dat), [alpha2F.dat](/Atlas/examples/al/epc-q4/alpha2F.dat), [analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py), [tc-scan.csv](/Atlas/examples/al/epc-q4/tc-scan.csv)。绘图代码为 [plot_epc.py](/Atlas/examples/al/plot_epc.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。
 
+## 二维异质结 ZrCl₂/Sc₂C：含声子带隙体系的 α²F(ω) 谱积分上限审计与共享频率轴三联图
+
+在单质金属 Al 中，3 条声子支连续分布在 `0–9.94 THz`，`lambda.in` 设 `emax = 14 THz` 即可轻松覆盖全谱。而在同时包含重过渡金属（Zr、Sc、Cl）与轻元素（C 或 N）的层状异质结中，声子谱往往存在宽达数 THz 的**声子带隙（Phononic Gap）**，高频轻原子光学支极易超出默认的 `emax = 10 THz` 截断线！
+
+在 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中：
+- 重原子 `Zr/Sc/Cl` 的 15 条声学与中低频光学支分布在 `0–9.65 THz`；
+- 轻原子 `C-2p` 主导的 3 条高频光学支（`ν = 16–18`）跨越声子带隙，分布在 **`12.38–17.11 THz`**（其中 Γ 点 `ν = 18` 声子线宽达 `γ = 685.94 GHz`，`λ = 0.2512`）。
+
+当旧输入 `lambdax.in` 首行写 `10 0.12 0` 时，`lambda.x` 在直接按 q 权重累加 `lambda` 时计入了全部 18 个模式（在 `σ = 0.003 Ry` 给出 `2.450830`），但在生成 `alpha2F.dat` 和计算对数频率矩 `ω_log` 时只积分到 `10 THz`（括号内 `( int alpha2F )` 仅为 `2.429377`）。将首行修正为 `18.0 0.12 0` 后，生成的 [`alpha2F.emax18.dat`](/Atlas/examples/zrcl2-sc2c/ph96/alpha2F.emax18.dat) 完整保留了 `12.4–17.1 THz` 处的碳光学峰，谱积分恢复为 `2.450893`，`ω_log` 提升 `1.7–8.7 K`。
+
+下图采用**共享频率纵轴（`0–18 THz`）的三联图版式**，将声子色散上的模式线宽/耦合散点、原子投影声子态密度（PHDOS）与修正后的 `α²F(ω)` 及累计耦合 `λ(ω)` 严格对齐：
+
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散与电声耦合权重、原子投影 PHDOS 以及 Eliashberg 谱函数 α²F(ω) 与累计 λ(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C（96×96×1 致密电子网格）的共享频率轴三联后处理：（左）声子色散叠加电声耦合强度 λ_qν（圆圈面积）与线宽 γ_qν（色标），红虚线标出旧 emax = 10 THz 截断线；（中）原子分辨 PHDOS，清晰分离 0–9.7 THz 的 Zr/Sc/Cl 频段与 12.4–17.1 THz 的 C 频段；（右）修正至 emax = 18 THz 后的 Eliashberg 谱函数 α²F(ω) 与缩放累计积分 0.36 × λ(ω)。</figcaption></figure>
+
+下载本算例：[ph96 alpha2F.emax18.dat](/Atlas/examples/zrcl2-sc2c/ph96/alpha2F.emax18.dat) · [ph96 lambdax.emax18.out](/Atlas/examples/zrcl2-sc2c/ph96/lambdax.emax18.out) · [zrclscc.phdos](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
+
+## 文献 Eliashberg 谱函数与累计耦合后处理审美解析（附 DOI 溯源）
+
+在展示 `α²F(ω)` 与累计 `λ(ω)` 时，单画一条孤立的谱曲线往往难以说明“峰值来自哪些原子的哪种振动”。高水平文献普遍采用**多面板共享频率轴**或**图内嵌入关键声子本征矢**的视觉设计。下面结合两幅代表性文献原图（附原始 DOI 号）解析其后处理范式：
+
+### 1. α²F(ω) / 累计 λ(ω) 与关键声子模式原子位移本征矢的嵌合
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="二维过渡金属硫族与氮碳化物体系的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及关键声子振动模式实空间箭头嵌入图" loading="lazy"/><figcaption>文献案例 1：Eliashberg 谱函数 α²F(ω)（蓝色填充）与累计耦合函数 λ(ω)（红色右轴曲线）同框叠绘，并在主峰位置直接嵌入对应的原子振动本征矢示意图。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+
+- **审美与后处理要点**：由于被积函数含有 `1/ω` 权重，低频区的 `α²F(ω)` 峰对 `λ(ω)` 的拉升往往远大于高频峰。将 `α²F(ω)` 用半透明浅色填充（`fill_between`），把累计积分 `λ(ω)` 用醒目的暖色实线叠加在同一画布（或双轴）上，再用箭头标出引起 `λ(ω)` 陡升的具体原子振动模式，可以在单张图内完成从谱峰到微观机制的闭环解释。
+
+### 2. 声子线宽色散 + 分波 PHDOS + α²F(ω)/λ(ω) 共享频率纵轴联立图
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散线宽投影、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与累计 λ(ω) 多面板联立图" loading="lazy"/><figcaption>文献案例 2：将频率 ω 统一设为纵轴，从左至右依次排列 Fat-Phonon 线宽色散、元素分辨 PHDOS 以及 α²F(ω) + λ(ω)。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
+
+- **审美与后处理要点**：当体系同时含有重金属与轻元素（如 H、C、N）时，把频率轴竖置并在中间加入元素分辨的 PHDOS 面板，能够一眼区分重原子声学支与轻原子光学支各自贡献了多少 `Δλ`。上方的 [`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 即遵循这一构图逻辑。
+
 ## 把完整谱函数交给 Tc 求解
 
 走到这里得到的是 α²F。若需要快速比较同一组数据的 μ* 敏感性，可以进入 [Allen–Dynes / McMillan 估算](/Atlas/m/allen-dynes/qe/)；若需要实际求解能隙方程，则进入 [EPW / Eliashberg Tc](/Atlas/m/epw-eliashberg/qe/)。后一页使用原始频率列和谱函数列，核对单位转换后的积分，再把整条曲线交给 EPW。只保留 λ 和 ωlog 两个数，已经不足以重建方程需要的频率依赖。

@@ -1,0 +1,52 @@
+&CONTROL
+  calculation = 'relax'
+  etot_conv_thr =   1.0000000000d-08
+  forc_conv_thr =   1.0000000000d-08
+  outdir = './out_rx/'
+  prefix = 'zrclscc'
+  pseudo_dir = './pseudo/'
+  tprnfor = .true.
+  tstress = .true.
+  verbosity = 'high'
+/
+&SYSTEM
+  ibrav = 0,
+  nat = 6,
+  ntyp = 4,
+  ecutwfc = 100,
+  ecutrho = 800,
+  input_dft = 'vdw-DF3-opt1'
+  force_symmorphic =.true.
+  occupations = 'smearing',
+  smearing = 'gaussian',
+  degauss = 3.7d-3
+/
+&ELECTRONS
+! diagonalization = 'cg'
+  conv_thr =   1.0000000000d-08
+  electron_maxstep = 200
+  mixing_beta =   4.0000000000d-01
+/
+&ions
+/
+&cell
+cell_dofree='2Dxy'
+/
+ATOMIC_SPECIES
+Zr  91.224  Zr.pbe-spn-kjpaw_psl.1.0.0.UPF
+Cl  35.450  Cl.pbe-n-kjpaw_psl.1.0.0.UPF
+Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
+C   12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS (angstrom)
+   3.358477221  -0.000000000   0.000000000
+  -1.679238611   2.908526592   0.000000000
+   0.000000000   0.000000000  40.000000000
+ATOMIC_POSITIONS (crystal)
+Zr            0.6666666667        0.3333333333        0.5694323199
+C             0.0000000000        0.0000000000        0.4417100192
+Cl            0.3333333333        0.6666666667        0.6133689415
+Cl            0.3333333333        0.6666666667        0.5201529798
+Sc            0.3333333333        0.6666666667        0.4128299130
+Sc            0.6666666667        0.3333333333        0.4719057887
+K_POINTS (automatic)
+ 16 16 1 0 0 0
