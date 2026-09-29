@@ -59,7 +59,7 @@ K_POINTS automatic
 [preston@preston-System-Product-Name si-pbe]$ vi cutoff40/scf.in
 ```
 
-后续的短作业使用下面这份提交脚本。它在 Preston 上运行 GCC/OpenMPI 版 QE 7.5，使用 4 个 MPI 进程，三个线程变量都设为 1。`cd "$SLURM_SUBMIT_DIR"` 很关键：输入中的 `../pseudo`、`./tmp` 都按提交目录解释。`--bind-to none` 是这台机器本次采用的启动方式；并行方式要与自己的调度环境相符。
+后续的短作业使用下面这份提交脚本。它在 Preston 上运行 GCC/OpenMPI 版 QE 7.5，使用 4 个 MPI 进程，三个线程变量都设为 1。脚本会切换到作业的提交目录，因此输入中的相对赝势与临时目录路径均从该目录解释。--bind-to none 是这台机器本次采用的启动方式；并行方式要与自己的调度环境相符。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat rho320/run.sh
@@ -341,7 +341,17 @@ ecutrho,rho320,320,-22.83858862,0.02503447533917406
 
 ![Si 总能量对波函数截断、电荷密度截断和 k 网格的实测变化](/Atlas/examples/si-pbe/plots/convergence.png)
 
-右图采用允许零值的对称对数坐标，既能看到 `4³` 的大偏差，也能读出密网格末端的变化。图上的每一点都有对应输入、输出和独立审计记录；本例三个维度的最后三点通过了上述总能量比较条件。力、应力、能隙和声子尚不能由这张图代替检验。
+右图采用允许零值的对称对数坐标，既能看到 `4³` 的大偏差，也能读出密网格末端的变化。图上的每一点都有对应输入、输出和独立核验记录；本例三个维度的最后三点通过了上述总能量比较条件。力、应力、能隙和声子尚不能由这张图代替检验。
+
+## 文献中的相关图件与表达方式
+
+本页金刚石 Si 是有带隙的半导体，使用固定占据（`occupations = 'fixed'`）即可测试截断能与 k 网格。在金属、电荷密度波（CDW）或超导体系中，费米面附近的电子展宽 `degauss`（`σ`）与 k 网格共同决定部分占据态的积分精度：声子软模频率往往对电子展宽极为敏感，展宽过大可抹平费米面嵌套从而掩盖虚频，而展宽过小且 k 网格不足则会引入数值振荡。因此文献中常专门绘制声子色散随电子展宽参数 `σ` 的演化曲线来检验相变判据的稳健性。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="不同电子展宽参数 σ（0 至 15 mRy）下声子软模色散与虚频深度的收敛演化对比" loading="lazy"/><figcaption>声子色散对电子展宽参数 <code>σ</code> 的敏感性测试：对比 <code>σ</code> 从 15 mRy 逐步减小至 0 mRy 时高对称路径上声子软模频率的软化与收敛行为，用以区分真实晶格失稳与展宽过度造成的假阳性稳定（<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>）。</figcaption></figure>
+
+类似地，在谱函数与格林函数后处理计算中，洛伦兹展宽参数（如 `iδ`）的选择直接影响能带与自能特征峰的清晰度。将不同展宽阈值（如 10 meV 与 50 meV）下的谱函数并列对照，能够清楚区分物理热展宽与人为数值展宽的影响。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="不同数值展宽参数（10 meV 与 50 meV）和不同温度下电子谱函数的分辨率对比" loading="lazy"/><figcaption>电子谱函数中数值展宽参数（<code>iδ = 10 meV</code> 与 <code>50 meV</code>）的对照：展示较小数值展宽对分辨精细准粒子色散与声子散射边带的作用（Poncé 等，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>）。</figcaption></figure>
 
 下一步：固定晶胞下移动原子可接[结构优化](/Atlas/m/relax/qe/)；研究带边时接[带隙](/Atlas/m/band-gap/qe/)和[有效质量](/Atlas/m/effective-mass/qe/)。
 

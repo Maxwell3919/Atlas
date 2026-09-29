@@ -283,19 +283,21 @@ DATA_AND_EXPORT_CHECKS_FINISHED
 
 下一步可以回到[机器学习势 MD](/Atlas/m/mlip-md/mace/)延长采样，或沿[有限位移声子](/Atlas/m/phonon-finite-disp/qe/)另做势模型与 DFT 的力和谐性频率对照。若要计算 SSCHA 自由能及其 Hessian，需要另接[SSCHA 官方流程](https://sscha.eu/Tutorials/tutorial_06_the_SSCHA_with_MLP/)，这里的二阶拟合结果不能直接代替那一步。
 
-## 文献中的非谐声子重整化与温度演化后处理范式（附 DOI）
+## 文献中的相关图件与表达方式
 
-在强非谐晶格动力学、量子核效应（SSCHA）与电荷密度波（CDW）/软模相变研究中，文献常采用“简谐虚频 vs 非谐稳定化叠画”或“连续温度演化彩虹色散”来直观呈现有限温度与量子涨落对声子谱的重整化：
+在强非谐晶格动力学、量子核效应（SSCHA）与软模相变研究中，文献常通过对比简谐虚频与非谐重整化声子谱，或叠加多个温度下的有限温度声子色散，来展示热涨落与量子核涨落对晶格稳定性的影响：
 
-1. **简谐近似（Harmonic）虚频坍塌与 SSCHA 非谐量子重整化对比**（Monacelli 等，*J. Phys.: Condens. Matter* **33**, 363001 (2021)，DOI: [10.1088/1361-648X/ac066b](https://doi.org/10.1088/1361-648X/ac066b)）：
-   在同一高对称路径声子图上，用灰/黑虚线绘制简谐近似下因经典鞍点失稳而产生的巨幅虚频分支（$\omega < 0$），同时用醒目的红色实线叠加 SSCHA 包含量子核涨落与高阶非谐修正后的正定声子谱，一眼展现非谐效应对超导氢化物晶格的稳定化作用。
+### 1. 简谐虚频、SSCHA 辅助频率与含线宽展宽的非谐动力学频率对比
 
-![简谐虚频与 SSCHA 非谐重整化声子谱对比示例（DOI: 10.1088/1361-648X/ac066b）](/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg)
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg" alt="H₃S 简谐虚频声子谱与 SSCHA 辅助频率、非谐动力学频率及线宽展宽的上下叠排对比，以及 LaH₁₀ 畸变 C2 与高对称 Fm-3m 笼状结构对比" loading="lazy"/><figcaption>超导氢化物的量子非谐晶格动力学表征：(a) 下方为 H₃S 的非稳定简谐声子色散（灰色阴影标出 <code>ω &lt; 0</code> 虚频区），上方叠绘 SSCHA 辅助频率（绿色虚线）、非谐动力学频率 <code>Ω_ν(q)</code>（红色实线）及非谐线宽展宽 <code>2Γ_ν(q)</code>（粉色阴影带）；(b) 畸变 <code>C2</code> 相与高对称 <code>Fm-3m</code> 相 LaH₁₀ 氢笼结构的对比。图片来源：Monacelli et al., <em>J. Phys.: Condens. Matter</em> <strong>33</strong>, 363001 (2021), Fig. 8，<a href="https://doi.org/10.1088/1361-648X/ac066b" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac066b</a>。</figcaption></figure>
 
-2. **多温度序列声子软模连续演化图**（Chen 等，*Phys. Rev. B* 2026，DOI: [10.1103/l89c-t2s4](https://doi.org/10.1103/l89c-t2s4)）：
-   使用从低温（深蓝）到高温（鲜红）的连续渐变色系在同一坐标系内叠画多组有限温度非谐声子谱，清晰追踪特定声子分支随温度降低逐步软化直至跨过零频线（$\omega = 0$）诱发晶格失稳的临界过程。
+- **读图与作图要点**：子图 (a) 将 H₃S 具有大幅虚频（`ω < 0`，灰色背景）的简谐声子谱放在下方，而在上方正频区同时画出 SSCHA 变分自由能对应的辅助频率（绿色虚线）、包含三阶/四阶自能修正的动力学频率 `Ω_ν(q)`（红色实线）以及非谐声子线宽 `2Γ_ν(q)`（粉色阴影包络），把不同层次的非谐近似区分清楚。
 
-![非谐声子随温度连续演化与软模相变示例（DOI: 10.1103/l89c-t2s4）](/Atlas/figures/literature/M5_SSCHA_TempEvolution_CoTe2_Chen2026_Fig1e.jpg)
+### 2. 单层 1L-CoTe₂ 的简谐虚频与多温度非谐声子色散叠绘
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_TempEvolution_CoTe2_Chen2026_Fig1e.jpg" alt="单层 1L-CoTe₂ 的简谐声子谱（黑色，含浅黄色背景虚频区）与 100 K、200 K、300 K 有限温度非谐声子色散对比" loading="lazy"/><figcaption>单层 1L-CoTe₂ 的声子色散随温度演化：黑色曲线为简谐近似声子谱（浅黄色背景标示虚频软模区），绿色、蓝色与红色曲线分别为 100 K、200 K 与 300 K 下的有限温度非谐声子谱。图片来源：Chen, Zhang, and Zheng (2026), Fig. 1(e)。</figcaption></figure>
+
+- **读图与作图要点**：在同一高对称路径坐标系内，以浅黄色底色标出 `ω < 0` 虚频区间，将包含虚频分支的 0 K 简谐声子谱（黑线）与 100 K（绿线）、200 K（蓝线）和 300 K（红线）的有限温度非谐声子谱直接叠画，能够清楚观察声学/低频软模随温度升高逐步硬化为正频的过程。
 
 ```text
 已核验模型与结构

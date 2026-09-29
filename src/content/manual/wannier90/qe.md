@@ -563,6 +563,16 @@ python plot_wannier.py
 
 直接验证的 [输入](/Atlas/examples/si-wannier/k4/validation/si.bands.in)、[输出](/Atlas/examples/si-wannier/k4/validation/si.bands.out)、[逐带误差](/Atlas/examples/si-wannier/validation-errors.csv) 和 [核对脚本](/Atlas/examples/si-wannier/analyse_wannier.py) 也随数据保存。
 
+## 文献中基于 Wannier 紧束缚模型的表面态与谱函数应用
+
+构造出经过验证的最大局域化 Wannier 函数实空间哈密顿量 `*_hr.dat` 后，除了做体相能带插值，还常将其输入到 WannierTools 等后处理程序中，采用迭代格林函数法计算半无限大晶体表面的局域态密度（表面谱函数）及三维表面态色散，直接与 ARPES 测量结果对照。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="由最大局域化 Wannier 紧束缚哈密顿量计算的 ZrAs2 (001) 半无限表面谱函数与三维鞍点色散" loading="lazy"/><figcaption>由最大局域化 Wannier 紧束缚哈密顿量结合 WannierTools 计算得到的 ZrAs<sub>2</sub> (001) 半无限表面谱函数与三维鞍点色散，并与高分辨 ARPES 实验谱进行对比。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+
+另一项重要应用是在 EPW 等程序中利用 Wannier 表象对电子本征态与电子—声子耦合矩阵元同时做精细动量网格插值，进而计算有限温度下的电子谱函数 A(k, ω)，将多体自能重整化后的能带色散、声子伴峰与未重整化的白色 DFT 裸能带曲线叠加展示。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="硼掺杂金刚石中通过 Wannier 插值计算的电子声子耦合谱函数与白色裸 DFT 能带对比" loading="lazy"/><figcaption>硼掺杂金刚石在 1 K 与 300 K 下通过 Wannier 插值计算的电子—声子相互作用谱函数 <em>A</em>(<strong>k</strong>, ω) 热力图，图中叠加白色实线表示未计入电声自能修正的 DFT 裸能带色散。引自 Poncé 等人，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，Fig. 6，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>。</figcaption></figure>
+
 下一步：回到 [能带](/Atlas/m/bands/qe/) 对照直接 DFT 的路径与能量零点。如果需要 [费米面](/Atlas/m/fermi-surface/qe/)，应先构建覆盖费米能附近的模型；本页只含 Si 价带的四轨道模型不具备该用途。
 
 ```text

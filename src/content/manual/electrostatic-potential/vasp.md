@@ -145,9 +145,19 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
 
 把 `PLANAR_AVERAGE.dat`、`potential-summary.json` 和 `plot_potential.py` 放在本机同一目录后，用 `python3 plot_potential.py` 绘图。脚本读第一列作横轴、第二列作纵轴，把两个统计窗口涂成浅色，并同时输出 PNG 与 PDF。图上保留整个晶胞，才能同时检查原子区、两侧平台和周期边界。
 
-下一步也可接 [能带对齐](/Atlas/m/band-alignment/vasp/)。比较两种材料前，还要准备各自一致的能带边与势参考。
-
 ![非对称薄层两侧的平面平均势](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-z.png)
+
+## 文献中平面平均静电势与界面电荷的对齐画法
+
+在二维异质结或表面体系的论文图件中，常将平面平均有效静电势 V<sub>eff</sub>(z) 直接叠画在按相同法向比例缩放的侧视原子结构模型上，使每个势阱谷底与对应的原子层精确对齐，同时在两侧真空平台处标出功函数与界面偶极势差 ΔV。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg" alt="平面平均静电势直接叠加在异质结侧视原子结构模型上的对齐图件" loading="lazy"/><figcaption>六种 ZrI<sub>2</sub> 基异质结沿法向 <em>z</em> 的平面平均静电势 <em>V</em><sub>eff</sub>(<em>z</em>) 曲线直接叠加在侧视原子结构模型上，清楚标示各原子层势阱位置及两侧真空能级差。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 4，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+
+另一类常见表达是将平面平均静电势 V<sub>eff</sub>(Z) 与平面平均差分电荷密度 Δρ(Z) 左右并排放置，共用垂直方向的法向坐标轴 Z，从而直接把层间电子得失极值位置与界面电势阶跃关联起来。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="共用垂直 Z 轴的平面平均静电势与平面平均差分电荷密度并排对照图" loading="lazy"/><figcaption>ZrI<sub>2</sub>/NbS<sub>2</sub> 异质结的平面平均静电势 <em>V</em><sub>eff</sub>(<em>Z</em>) 与平面平均差分电荷密度 Δρ(<em>Z</em>) 共用垂直 <em>Z</em> 轴并排对齐展示，并叠加三维差分电荷密度等值面与侧视原子结构。引自 Huang 等人，<em>J. Phys. Chem. C</em> <strong>129</strong>, 11654 (2025)，Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
+
+下一步也可接 [能带对齐](/Atlas/m/band-alignment/vasp/)。比较两种材料前，还要准备各自一致的能带边与势参考。
 
 ```text
 固定几何的 SCF

@@ -143,6 +143,16 @@ cat nscf.err
 
 这份检查确认了本征值求解完成，没有证明 24³ 对所有性质都足够密。[带隙页](/Atlas/m/band-gap/qe/)还会把 12³、18³、24³ 的采样结果，以及更密父 SCF 的结果放在一起比较。
 
+将本页父 SCF（8³ 网格）与子 NSCF（12³、18³、24³ 网格）在 Γ–X 方向导带底谷附近的采样点并排画出，可以直观看到为什么稀疏网格会漏采非高对称点处的导带极小值，以及加密均匀 NSCF 网格后导带底（CBM）与间接带隙的收敛过程。
+
+<figure class="research-figure"><img src="/Atlas/figures/nscf/si-nscf-grid-sampling.png" alt="金刚石 Si 父 SCF 与加密 NSCF 网格在导带底谷附近的采样分布及带隙收敛" loading="lazy"/><figcaption>本页金刚石 Si 从父 SCF（8³ 网格，4 条价带）到子 NSCF（12³、18³、24³ 网格，8 条能带）的采样加密效果：（左）沿 Γ–X 方向导带底谷（<code>k<sub>x</sub> ≈ 0.844 × 2π/a</code>）附近各网格不可约 k 点的离散采样点分布，展示 8³ 网格为何漏采导带极小值；（右）12³、18³、24³ NSCF 网格及 12³ 父密度对照下的 CBM 与间接带隙收敛情况。</figcaption></figure>
+
+## 文献中的相关图件与表达方式
+
+当需要分辨整个布里渊区内的能带极值、鞍点以及由鞍点引起的对数发散范霍夫奇点（Van Hove singularities）时，仅沿几条一维高对称路径计算能带往往不够。文献中常借助高密度均匀网格 NSCF 计算全布里渊区的本征值，绘制二维等能线图（contour plot），将六重对称的价带极值口袋、鞍点位置与态密度尖峰直接对应起来。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_2DContour_SixSaddleVHS_In2Te2_Zolyomi2014_Fig4.jpg" alt="单层 In₂Te₂ 在六角布里渊区内的密网格价带等能线图与六个鞍点范霍夫奇点" loading="lazy"/><figcaption>基于密网格本征值绘制的六角布里渊区二维等能线图：清晰分辨围绕 Γ 点的六个价带极值与六个鞍点位置，揭示墨西哥帽形色散导致的范霍夫奇点几何起源（Zólyomi, Drummond, and Fal'ko，<em>Phys. Rev. B</em> <strong>89</strong>, 205426 (2014)，<a href="https://doi.org/10.1103/PhysRevB.89.205426" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.89.205426</a>）。</figcaption></figure>
+
 ## 下一步
 
 保留这份 NSCF 数据，进入 [DOS](/Atlas/m/dos/qe/)；需要布居时，另一个均匀网格算例见 [Löwdin 分析](/Atlas/m/population-analysis/qe/)。如果要沿 Γ–X–W 等线画能带，转到 [路径能带](/Atlas/m/bands/qe/)，从相同 SCF 建立对应分支。

@@ -171,29 +171,45 @@ python3 plot_bader_grid.py
 
 `extract_bader_grid.py` 逐行读取 ACF.dat 中的原子编号、盆地电子数、最短边界距离和体积，再核对两个原子、16 个价电子与 21.952 Å³ 的体积总和。CSV 另外保存 N_Bader−ZVAL 和 Q=ZVAL−N_Bader；二者符号相反。这里使用 Fe 的 ZVAL=8，只适用于随包提供的这套 Fe 例子。
 
-![等价 Fe 原子的盆地电荷与芯电子参考积分的网格变化](/Atlas/examples/bader-grid/bader-grid.svg)
+<figure><img src="/Atlas/examples/bader-grid/bader-grid.svg" alt="bcc Fe 网格电荷误差收敛、AECCAR0 芯电子积分及单层 Sc₂C 的 Bader 电荷分区对比" loading="lazy"/><figcaption>Bader 电荷分析的多角度综合诊断：(a) bcc Fe 两个等价原子在 96³ 与 192³ 网格下的价电子盆地偏差（绿色阴影标出 ±10⁻⁴ e 精度带）；(b) AECCAR0 芯电子密度全胞积分随网格向严格 36 个芯电子收敛的过程；(c) 二维单层 Sc₂C（ZVAL = 11, 4）的实际 Bader 盆地电荷与名义价态对比，标出各原子的净转移电荷。</figcaption></figure>
 
-左图的纵轴是 **盆地电子数相对 8 的偏离**，以 10⁻³ e 表示：正值表示盆地中多于 8 个电子，并非带正净电荷。圆点与方块区分两个等价原子，水平零线是本例的对称性参考。96³ 时的 ±0.303×10⁻³ e 在 192³ 变成约 ∓0.077×10⁻³ e；符号翻转和差值缩小都应保留，不能把其中一套解释成实际转移方向。
-
-右图画的是整胞 AECCAR0 的积分，虚线为这套赝势对应的 36 个芯电子。它从 39.5201 接近到 36.2910，尚有约 0.2910 e 的积分偏差。这与左图的盆地价电子数变化是两种不同的数值诊断。连线只帮助看清两个网格点，不代表已有外推或统计误差条。
+子图 a 的纵轴是 **盆地电子数相对 8 的偏离**，以 10⁻³ e 表示：正值表示盆地中多于 8 个电子，圆点与方块区分两个等价原子。96³ 时的 ±0.303×10⁻³ e 在 192³ 缩减为约 ∓0.077×10⁻³ e，进入绿色阴影所示的高精度区间。子图 b 展示全胞 AECCAR0 积分随网格从 39.52 接近至 36.29 e，虚线为理论 36 芯电子参考值。子图 c 则引入二维单层 Sc₂C 的真实分析案例，直观展示名义价态与实际 Bader 分区电荷的差异。
 
 `plot_bader_grid.py` 直接读取 CSV，保存同名 SVG、PDF 和 PNG。比较异质结构时可以沿用提取思路，但应把等价原子检查改成自己关心的原子组或层，并重新确定 ZVAL；本例没有给出异质结构的电荷转移量。
 
-## 文献 Bader 电荷与有效电荷后处理审美解析（附 DOI 溯源）
+### 二维层状体系与半芯态元素的 Bader 电荷核验
 
-在拿到 `ACF.dat` 的表格数字后，如何避免在论文正文中堆砌枯燥的原子电荷列表？高水平文献通常将 Bader 电荷转移量与**界面层间距、隧穿势垒高度（TBH）**或**动力学 Born 有效电荷 `Z*`** 建立定量关联散点图。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其后处理构图：
+在三维块体之后，二维单层或异质结体系（如过渡金属碳化物 Sc₂C 或过渡金属卤化物）在进行 Bader 分析时，还会遇到两个特有的规范问题：**半芯态（Semicore）价电子计数**与**真空层空间截断**。
 
-### 1. 界面 Bader 电荷转移量、隧穿势垒与层间距的多参量散点关联图
+在 VASP 中处理含半芯态元素（如 Sc 选用 `Sc_sv` 赝势，包含 3s² 3p⁶ 3d¹ 4s²，即 `ZVAL = 11`）时，Bader 分析的标准操作包含三步：
+1. **全电子电荷密度自洽**：设置 `LAECHG = .TRUE.`、`LCHARG = .TRUE.`、`PREC = Accurate`、`LASPH = .TRUE.`，确保波函数与原子核区域电荷密度均完整记录，并输出 `AECCAR0`（芯态电荷）与 `AECCAR2`（自洽价态电荷）。对过渡金属体系建议显式设置 `LMAXMIX = 4`。
+2. **总参考电荷合成**：使用 `chgsum.pl AECCAR0 AECCAR2`，将二者逐点相加生成包含全电子核区贡献的参考密度 `CHGCAR_sum`。
+3. **零通量面分割**：调用 `bader CHGCAR -ref CHGCAR_sum`，以包含核电荷梯度的 `CHGCAR_sum` 定位零通量面，并将价电荷密度 `CHGCAR` 积分到各个原子盆地，生成 `ACF.dat`。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Bader_TBH_vs_Distance_MetalMoS2_Fig2.jpg" alt="不同金属与二维半导体接触界面的 Bader 电荷转移量、隧穿势垒高度与界面距离关联散点图" loading="lazy"/><figcaption>文献案例 1：将一系列金属/二维半导体异质界面的 Bader 净电荷转移量、界面隧穿势垒高度（Tunneling Barrier Height）与平衡层间距 d 绘制在双轴/分类关联图中，用背景色块区分弱范德华接触与强准共价接触区。图片来源：<em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D4CP04577G" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D4CP04577G</a>。</figcaption></figure>
+在检查 `ACF.dat` 时，应逐项核验三项物理指标：
+- **总电子数严格守恒**：检查文件末尾的 `NUMBER OF ELECTRONS` 是否严格等于各元素 `∑ N_i × ZVAL_i`。例如在单层 Sc₂C（包含 2 个 Sc 和 1 个 C）中，总价电子数严格为 `2 × 11 + 4 = 26.0000 e`。
+- **真空区域无虚假电荷泄漏**：在 z 方向留有充分真空层（如 20–40 Å）的二维板层模型中，检查 `VACUUM CHARGE = 0.0000` 与 `VACUUM VOLUME = 0.0000`。这确认了电子密度在真空层完全衰减至零，所有价电子均被完整划分至晶格内部原子盆地，没有出现边界数值积分溢出。
+- **形式化合价与 Bader 净电荷的区别**：
+  若以 `Q = ZVAL − N_Bader` 计算净转移电荷，以单层 Sc₂C 为例：
+  每个 Sc 原子的盆地电子数为 `9.7893 e`，净电荷为 `Q(Sc) = 11 − 9.7893 = +1.2107 e`；
+  C 原子的盆地电子数为 `6.4214 e`，净电荷为 `Q(C) = 4 − 6.4214 = −2.4214 e`。
+  单层整体净电荷为 `2 × (+1.2107) + (−2.4214) = 0.0000 e`。形式化合价假定价电子完全转移（如 Sc²⁺ 与 C⁴⁻），而自洽 Bader 分析揭示出显著的共价–离子混合成键特征（Sc 实际转移约 1.21 e）。在进一步分析异质结层间电荷转移时，必须以各自独立孤立单层的 Bader 电荷为基准做差，不能将孤立单层内部的极化净电荷误当作层间转移电荷。
 
-- **审美与后处理要点**：比较多个体系的 Bader 电荷时，以关键几何参量（如界面距离 `d` 或电负性差）为横轴、Bader 转移电子数 `ΔQ` 为纵轴绘制带数据标签的散点图，比单纯列一张 Markdown/LaTeX 表格更能揭示物理规律。
+## 文献中的相关图件与表达方式
 
-### 2. 静态 Bader 电荷与动力学 Born 有效电荷的对角线相关性散点图
+得到 `ACF.dat` 的分区电子数后，文献中除了直接列出单体系电荷表，还常将 Bader 净电荷与界面距离、轨道交叠、隧穿势垒高度（TBH）或动力学 Born 有效电荷 `Z*` 绘制成关联散点图：
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Born_vs_Bader_C2DB_Gjerding2021_Fig16.jpg" alt="二维材料数据库中静态 Bader 电荷与动力学 Born 有效电荷的面内/面外分量相关性散点对比图" loading="lazy"/><figcaption>文献案例 2：在二维材料数据库（C2DB）尺度上对比静态拓扑分区得到的 Bader 电荷与 DFPT 响应得到的 Born 有效电荷 Z*（区分面内与面外分量），以 y = x 对角线作为标尺揭示极化增强效应。图片来源：Gjerding et al., <em>2D Mater.</em> <strong>8</strong>, 044002 (2021)，<a href="https://doi.org/10.1088/2053-1583/ac1059" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/ac1059</a>。</figcaption></figure>
+### 1. 金属/MoS₂ 界面参量随层间距变化的 2×2 四子图散点矩阵
 
-- **审美与后处理要点**：静态 Bader 电荷反映基态电荷密度的空间零通量面积分，而 Born 有效电荷 `Z*` 反映原子位移引起的动态极化响应。将二者画在以 `y = x` 为基准线的正方形散点图中，可以直观展示共价极化与跨带杂化导致的反常有效电荷。
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Bader_TBH_vs_Distance_MetalMoS2_Fig2.jpg" alt="10 种金属与 MoS₂ 接触界面的轨道交叠比、诱导隙态、MoS₂ 净 Bader 电荷与隧穿势垒高度随界面距离变化的 2×2 散点图" loading="lazy"/><figcaption>10 种金属与单层 MoS₂ 接触界面随界面距离 <code>Δz_S-metal</code>（Å）变化的 2×2 散点矩阵：(a) 轨道交叠比 <code>σ_S-metal</code>，(b) 积分诱导隙态 IGS，(c) MoS₂ 上的净 Bader 电荷 <code>Q_MoS2</code>（e），(d) 隧穿势垒高度 TBH（eV）；数据点与金属标签按接触强度分为弱范德华型（紫色：Au、Bi、Sb）、中间型（黑色：Cu、Pt、Ru、Ag）与强共价型（绿色：Mo、W、Y）三类。图片来源：<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 5786 (2025), Fig. 2a–d，<a href="https://doi.org/10.1039/D4CP04577G" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D4CP04577G</a>。</figcaption></figure>
+
+- **读图与作图要点**：比较多个接触体系时，以界面法向距离 `Δz_S-metal`（Å）为共同横轴，按 2×2 矩阵并列展示交叠比 `σ_S-metal`、积分诱导隙态 IGS、MoS₂ 净 Bader 电荷 `Q_MoS2`（e）和隧穿势垒高度 TBH（eV），并用颜色区分弱范德华（紫：Au、Bi、Sb）、中间（黑：Cu、Pt、Ru、Ag）与强共价（绿：Mo、W、Y）三类接触，比单纯罗列数字表格更容易看出几何间距与界面电荷转移的协同变化。
+
+### 2. 静态 Bader 电荷与 Born 有效电荷张量迹平均值的散点对照
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Born_vs_Bader_C2DB_Gjerding2021_Fig16.jpg" alt="二维材料数据库中 585 种材料共 3025 个原子的 Born 有效电荷张量迹平均值 Tr(Z*)/3 与静态 Bader 电荷散点图" loading="lazy"/><figcaption>二维材料数据库（C2DB）中 585 种二维材料共 3025 个原子的 Born 有效电荷张量迹平均值 <code>Tr(Z*)/3</code> [e] 与静态 Bader 电荷 [e] 的散点分布，数据点颜色标示化合物的离子性程度。图片来源：Gjerding et al., <em>2D Mater.</em> <strong>8</strong>, 044002 (2021), Fig. 16，<a href="https://doi.org/10.1088/2053-1583/ac1059" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/ac1059</a>。</figcaption></figure>
+
+- **读图与作图要点**：静态 Bader 电荷来自基态电子密度的零通量面空间分区积分，而 Born 有效电荷张量迹平均值 `Tr(Z*)/3` 反映原子位移引起的动态极化响应。将 3025 个原子的两类电荷绘制在带对角参考线的散点图中，并按化合物离子性着色，可以直接看出静态电荷分配与动态极化电荷之间的系统差异。
 
 下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
 

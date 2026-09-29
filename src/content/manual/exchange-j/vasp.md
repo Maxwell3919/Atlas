@@ -232,9 +232,19 @@ python3 fit_two_states.py
 python3 plot_exchange.py
 ```
 
-前两条命令只用 Python 标准库，绘图需要 NumPy 和 Matplotlib。`plot_exchange.py` 输出 `exchange-model-check.png` 与 PDF：左侧对比两个超胞对照的 DFT 与模型能量，并标出很小的折叠误差；右侧并列画出 FM、AFM 与第三初态收敛后的局域磁矩幅值。第三初态在图中明确标为未纳入模型验证。
+前两条命令只用 Python 标准库，绘图需要 NumPy 和 Matplotlib。`plot_exchange.py` 输出 `exchange-model-check.png`、PDF 与 SVG，采用三栏联排呈现：（a）对比两个超胞对照的 DFT 与两态海森堡模型能量，并标出极小的折叠误差（< 0.02 meV/原子）；（b）并列展示 FM、AFM 与条纹初态收敛后的局域磁矩幅值，第三初态因磁矩塌缩明确标为排除出拟合体系；（c）由最近邻有效交换常数 J₁ = 54.12 meV/键推导的有限温度磁化演化与相变示意（居里温度 T<sub>C</sub> 处磁矩归零）。
 
-![超胞回代对照与第三初态的局域磁矩变化](/Atlas/examples/vasp/fe-exchange-j/exchange-model-check.png)
+<figure class="research-figure"><img src="/Atlas/examples/vasp/fe-exchange-j/exchange-model-check.png" alt="bcc Fe 超胞折叠对照、磁矩衰减检查及居里转变温度模型估算三栏联排" loading="lazy"/><figcaption>bcc Fe 交换常数提取与模型可靠性检验：（a）FM 与 Néel AFM 超胞折叠对照的 DFT 与模型能量吻合情况；（b）不同初态收敛后的局域磁矩，显示条纹初态磁矩发生塌缩（约 0.007 μ<sub>B</sub>），不能作为刚性自旋有效解；（c）由有效最近邻交换耦合 J<sub>1</sub> = 54.12 meV/键外推的归一化磁化强度有限温度下降轨迹（T<sub>C</sub> ≈ 1043 K）。</figcaption></figure>
+
+## 文献中的相关图件与表达方式
+
+在从第一性原理总能量提取交换耦合参数时，除了本页通过 `enumerate_bonds.py` 给出周期最近邻键表与配位数外，文献中通常将不同磁构型（如 FM、Néel AFM、条纹 AFM）的实空间自旋密度等值面与最近邻 `J₁`、次近邻 `J₂` 交换路径箭头画在同一晶格示意图中，以便读者直接核对哈密顿量中的键计数和配位几何。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinDensity_Exchange_LaH2_Fig2ab.jpg" alt="单层 LaH₂ 的实空间自旋密度等值面与最近邻 J₁、次近邻 J₂ 交换作用路径示意图" loading="lazy"/><figcaption>实空间自旋密度分布与海森堡模型交换路径标注：在晶格俯视图与侧视图上叠加自旋极化密度等值面，并用箭头标明最近邻 <code>J₁</code> 与次近邻 <code>J₂</code> 耦合通道（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
+
+当多组独立磁构型的局域磁矩保持稳定、且拟合残差确认海森堡模型适用后，提取出的交换参数 `J₁`、`J₂` 与磁各向异性参数常被代入经典或量子蒙特卡洛模拟，通过绘制平均磁矩 `M(T)` 的陡降与比热 `C_v(T)` 的尖峰来给出居里温度 `T_C` 或奈尔温度 `T_N`。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_MonteCarlo_CurieTemp_LaH2_Fig2d.jpg" alt="基于第一性原理交换参数的蒙特卡洛模拟磁矩与比热随温度演化曲线" loading="lazy"/><figcaption>基于 DFT 提取的交换耦合参数进行的有限温度蒙特卡洛模拟：双纵轴并列展示归一化磁矩随温度的下降及比热容 <code>C<sub>v</sub></code> 在相变温度 <code>T<sub>C</sub></code> 处的峰值（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
 
 下一步接 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，扩大能够稳定保持的磁构型集合。若关心同一磁序相对晶体方向的能量差，则接 [磁各向异性能量](/Atlas/m/mae/vasp/)，采用一致的 SOC 与方向协议。
 

@@ -222,6 +222,20 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 
 这里得到的是固定晶胞、PBE、无 SOC 模型的 Kohn–Sham 能级差。完整能隙还需结合更广的极值搜索、结构和模型检查；它不是直接测得的光学吸收阈值，也没有包含准粒子或激子修正。后续若改变晶格、赝势或 SOC，原有的数值比较需要重新建立。
 
+## 文献中对不同层级能隙与光学跃迁的比较方式
+
+半局域泛函（如 GGA-PBE）通常会低估半导体与绝缘体的带隙。文献中报告能隙时，常将 PBE 与杂化泛函（如 HSE06）的能带及态密度上下对照排列，并用箭头在图上直接标出直接跃迁（如 Γ→Γ）与间接跃迁（如 Γ→M）的带边位置。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="HfBr2 与 HfI2 在 GGA-PBE 与 HSE06 下的能带结构、态密度及直接与间接带隙跃迁箭头标注" loading="lazy"/><figcaption>单层 HfBr<sub>2</sub>（红色实线）与 HfI<sub>2</sub>（蓝色点线）在 GGA-PBE（上排）与 HSE06（下排）下的能带结构及态密度对比，图中用箭头明确标出直接跃迁（Γ→Γ）与间接跃迁（Γ→M）的带边位置。引自 Santos 等人，<em>J. Appl. Phys.</em> <strong>138</strong>, 104302 (2025)，Fig. 4，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
+
+若进一步引入多体微扰理论修正，常在同一坐标系下叠加 GGA、杂化泛函与自洽准粒子 GW（scQPGW）能带，直观显示准粒子自能对不同能带的非均匀拉伸或移动，而非简单的刚性平移。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_GW_mHSE_GGA_Bands_MgB2_Fig1.jpg" alt="MgB2 中 GGA、mHSE 与自洽准粒子 GW 能带在同一坐标轴上的叠加对比" loading="lazy"/><figcaption>在同一能量—动量坐标系下叠加对比 GGA（红色虚线）、mHSE（黑色实线）与自洽准粒子 GW（scQPGW，蓝色圆点）能带色散。引自 Yin、Kutepov 与 Kotliar，<em>Phys. Rev. X</em> <strong>3</strong>, 021011 (2013)，Fig. 1，<a href="https://doi.org/10.1103/PhysRevX.3.021011" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevX.3.021011</a>。</figcaption></figure>
+
+此外，需要区分准粒子基本带隙与光学吸收边：在二维半导体中，电子—空穴库仑吸引形成的激子束缚能可达数百 meV。将独立粒子近似（IPA，不含电子—空穴相互作用）与 Bethe–Salpeter 方程（BSE，含激子效应）的光吸收谱画在同一图中，可以清楚区分准粒子带隙与第一激子吸收峰。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_BSE_vs_IPA_OpticalAbsorption_HfCl2_Fig8a.jpg" alt="单层 HfCl2 在独立粒子近似 IPA 与含激子效应 BSE 下的面内偏振光吸收谱对比" loading="lazy"/><figcaption>单层 HfCl<sub>2</sub> 沿面内 X 与 Y 偏振方向的光学吸收谱，对比独立粒子近似（IPA，点线）与包含电子—空穴相互作用的 Bethe–Salpeter 方程（BSE，实线）结果，展示显著的激子红移与激子吸收峰。引自 <em>ACS Omega</em> <strong>10</strong>, 13122 (2025)，Fig. 8a，<a href="https://doi.org/10.1021/acsomega.4c10560" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acsomega.4c10560</a>。</figcaption></figure>
+
 下一步：轨道组成接[胖带](/Atlas/m/fatband/qe/)，带边曲率接[有效质量](/Atlas/m/effective-mass/qe/)，空间分布接[三维能带](/Atlas/m/band-3d/qe/)。
 
 ```text

@@ -176,39 +176,39 @@ python plot_epc.py
 
 全部原始逐 q 文件：[q1](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.1), [q2](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.2), [q3](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.3), [q4](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.4), [q5](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.5), [q6](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.6), [q7](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.7), [q8](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.8)。还可对照 [al.elph.in](/Atlas/examples/al/epc-q4/al.elph.in)、[al.elph.out](/Atlas/examples/al/epc-q4/al.elph.out) 和 [q-weight-source.json](/Atlas/examples/al/epc-q4/q-weight-source.json)。
 
-## 二维异质结 ZrCl₂/Sc₂C 与 SnSe₂/Sr₂N：高频光学支大线宽与中低频大耦合的同步编码
+## 二维异质结 ZrCl₂/Sc₂C 与 SnSe₂/Sr₂N：高频光学支大线宽与低频声学支大耦合的对比
 
-在含轻重元素的多原子体系中，由 Allen 公式连接的声子线宽 `γ_qν` 与无量纲模式耦合常数 `λ_qν = γ_qν / [π N(EF) ω_qν²]` 具有截然不同的频率标度。以本手册实跑的 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）与 **`SnSe₂/Sr₂N`**（[分批 DFPT 记录](/Atlas/m/epc/qe/#double-grid-research-record)）为例：
+在含轻重元素的多原子体系中，由 Allen 公式连接的声子线宽 `γ_qν` 与无量纲模式耦合常数 `λ_qν = γ_qν / [π N(EF) ω_qν²]` 具有显著不同的频率标度。以本手册计算的 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）与 **`SnSe₂/Sr₂N`**（[分批 DFPT 记录](/Atlas/m/epc/qe/#double-grid-research-record)）为例：
 
-1. **在 `ZrCl₂/Sc₂C` 的 Γ 点（`q = 1`，`σ = 0.003 Ry`）**：
-   - 第 18 支碳原子面外光学模（`ω = 16.51 THz`）拥有全谱最大的声子线宽 **`γ = 685.94 GHz`**（第 16、17 支简并面内碳光学模 `12.71 THz` 也达到 `γ = 102.07 GHz`），但由于分母中的 `ω_qν²` 很大，其单模无量纲耦合为 **`λ = 0.2512`**；
-   - 第 7、8 支过渡金属中低频光学模（`ω = 2.80 THz`）的声子线宽为 **`γ = 53.03 GHz`**，不足第 18 支的十分之一，却因频率低而给出全谱最大的单模耦合 **`λ = 0.6531`**！
-   因此，在后处理绘图中若只编码 `γ_qν`，读者会误以为全部超导配对都来自高频碳支；若只编码 `λ_qν`，则会忽略高频碳光学支的巨大电声矩阵元和 `emax = 10 THz` 截断风险。下图在声子色散骨架上同时采用**散点面积编码 `λ_qν`、颜色色标编码 `γ_qν`（GHz）**，使两类主导模式在同一面板中一目了然：
+1. **在 `ZrCl₂/Sc₂C` 中（`σ = 0.003 Ry`）**：
+   - 在 Γ 点（`q = 1`），第 16 支非简并碳面外光学模（`A₁`，原始 DFPT 频率 `12.38 THz`，ASR 修正后 `12.49 THz`）给出 `λ = 0.0581、γ = 260.01 GHz`（`ph64`）与 `λ = 0.0662、γ = 297.74 GHz`（`ph96`）；第 17、18 支双重简并碳面内光学模（`E`，Γ 点频率 `15.42 THz` / `15.48 THz`，向 M 点升至 `17.11 THz`）拥有 Γ 点最大的声子线宽 **`γ = 315.55 / 318.58 GHz`**（`ph64`，`λ = 0.0454 / 0.0458`）与 **`γ = 318.99 / 322.13 GHz`**（`ph96`，`λ = 0.0456 / 0.0461`）；而第 7、8 支过渡金属中频光学模（`5.15 THz`）的线宽虽仅为 `γ = 44.85 / 45.14 GHz`（`ph64`），无量纲耦合却达到 `λ = 0.0580 / 0.0584`；
+   - 在有限波矢 **`q = 7`**（笛卡尔坐标 `(0.125000, 0.360844, 0) 2π/a`，对应分数坐标 `(−1/3, 1/√3, 0)`）处，最低频声学支 `ν = 1` 的频率仅为 `ω = 1.42 THz`（`47.37 cm⁻¹`），在 [`elph.inp_lambda.7`](/Atlas/examples/zrcl2-sc2c/ph64/elph_dir/elph.inp_lambda.7) 中线宽达 `γ = 280.36 GHz`（`ph64`）/ `279.62 GHz`（`ph96`，沿高对称路径插值的 `gam.lines` 中峰值为 `141.72 GHz`），由于分母中的 `ω_qν²` 很小，其单模耦合常数高达 **`λ_qν = 4.7525`**（`ph64`）/ **`4.7043`**（`ph96`）！
+   因此，在后处理绘图中同时采用**散点面积综合反映 `λ_qν` 与 `γ_qν`、颜色色标编码 `γ_qν`（GHz）**，能够在同一面板中兼顾高频碳光学支的大线宽与低频声学支的大无量纲耦合：
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散双编码（面积编码 λ_qν、颜色编码 γ_qν）、PHDOS 与 α²F(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的声子线宽 γ_qν 与无量纲耦合 λ_qν 联立后处理：（左）声子色散上散点面积正比于 λ_qν，颜色深浅对应 γ_qν（GHz），直观区分 Γ 点 16.51 THz 碳光学支的巨型线宽（γ ≈ 686 GHz）与 2.80 THz 支的巨型无量纲耦合（λ = 0.653）；（中、右）共享频率轴的原子分辨 PHDOS 与 Eliashberg 谱函数。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散双编码（散点大小与颜色编码 γ_qν 和 λ_qν）、PHDOS 与 α²F(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C（96×96×1 致密电子网格，σ = 0.003 Ry）的声子线宽 γ<sub>qν</sub> 与无量纲耦合 λ<sub>qν</sub> 后处理：（左）声子色散上叠绘模式散点，颜色对应 γ<sub>qν</sub>（GHz），标出 Γ 点附近 15.48 THz 简并碳面内光学支的高线宽（γ ≈ 322 GHz）与红虚线所示的旧 emax = 10 THz 截断位置；（中、右）共享频率轴的原子分辨 PHDOS 与 Eliashberg 谱函数。</figcaption></figure>
 
 2. **在 `SnSe₂/Sr₂N` 的前两个不可约 q 点（`q = 1, 2`）**：
-   右面板火柴杆图（Stem Plot）对比了 `q = 1`（Γ）与 `q = 2`（`(0, 0.144338, 0)`）的 18 个模式。在 `q = 2` 处，第一支声学模 `ν = 1` 的频率为 `0.5844 THz`（`19.49 cm⁻¹`），原件 [`elph.inp_lambda.2`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.2) 打印了非零线宽 `γ = 0.08 GHz`，但因频率低于 QE 7.1 `elph.f90` 的 `20 cm⁻¹` 阈值，程序将其 `λ(1)` 强制写为 `0.0000`；而紧邻的 `ν = 2`（`0.7615 THz = 25.40 cm⁻¹`）跨过阈值后立即给出 `λ(2) = 0.0644`。在后处理图中标出 `20 cm⁻¹` 竖线，能避免把低频区的零 `λ` 误判为电声矩阵元严格为零。
+   右面板火柴杆图（Stem Plot）读取了质量修正前单作业运行留下的前两个不可约 q 点文件 [`elph.inp_lambda.1`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.1) 与 [`elph.inp_lambda.2`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.2)（对应 `M_N = 118.71` 时的本征频率）。在 `q = 1`（Γ 点）处，第 13 支（`4.23 THz`）与第 16 支（`4.60 THz`）在 `σ = 0.040 Ry` 下分别给出 `λ = 0.0328`（`γ = 7.70 GHz`）与 `λ = 0.0233`（`γ = 6.44 GHz`），而在 `σ = 0.004 Ry` 下分别升至 `λ = 0.3102`（`γ = 89.08 GHz`）与 `λ = 0.1620`（`γ = 54.86 GHz`）。在 `q = 2`（`(0, 0.144338, 0)`）处，第一支声学模 `ν = 1` 的频率为 `0.5318 THz`（`17.74 cm⁻¹`），虽然具有非零线宽 `γ = 0.09 GHz`（`σ = 0.040 Ry`），但因频率低于 QE 7.1 `elph.f90` 的 `20 cm⁻¹`（`0.60 THz`）低频阈值，程序将其 `λ(1)` 置为 `0.0000`；而紧邻的 `ν = 2`（`0.7075 THz = 23.60 cm⁻¹`）跨过阈值后给出显著耦合（在 `σ = 0.040 Ry` 为 `0.0572`，在 `σ = 0.032 Ry` 为 `0.0647`）。在图中标出 `20 cm⁻¹` 竖线，有助于区分代码阈值截断与物理上的零耦合。
 
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的 SCF 收敛、质量恢复声子色散与 q=1,2 逐模 λ_qν 诊断" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的阶段性后处理诊断：右面板以火柴杆图对比 q = 1（Γ）与 q = 2 的逐模 λ_qν，琥珀色点线标出 QE 的 20 cm⁻¹ 低频截断阈值，红虚线标出旧 emax = 10 THz 截断线。</figcaption></figure>
+<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的 SCF 收敛、质量恢复声子色散与 q=1,2 逐模 λ_qν 诊断" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的阶段性后处理诊断：右面板以火柴杆图对比质量修正前记录的 q = 1（Γ）与 q = 2 逐模 λ<sub>qν</sub>（σ = 0.040 Ry），琥珀色点线标出 QE 的 20 cm<sup>−1</sup> 低频截断阈值，中面板红虚线标出旧 emax = 10 THz 截断线。</figcaption></figure>
 
-下载本算例：[ZrCl₂/Sc₂C elph.inp_lambda.1](/Atlas/examples/zrcl2-sc2c/ph96/elph_dir/elph.inp_lambda.1) · [ZrCl₂/Sc₂C gam.lines](/Atlas/examples/zrcl2-sc2c/ph96/gam.lines) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
+下载本算例：[ZrCl₂/Sc₂C elph.inp_lambda.1](/Atlas/examples/zrcl2-sc2c/ph96/elph_dir/elph.inp_lambda.1) · [ZrCl₂/Sc₂C elph.inp_lambda.7](/Atlas/examples/zrcl2-sc2c/ph96/elph_dir/elph.inp_lambda.7) · [ZrCl₂/Sc₂C gam.lines](/Atlas/examples/zrcl2-sc2c/ph96/gam.lines) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
 
-## 文献声子线宽与电子散射耦合后处理审美解析（附 DOI 溯源）
+## 文献中的声子线宽与电子散射敏感度图例（附 DOI 溯源）
 
-如何把动量分辨的声子线宽 `γ_qν` 与声子色散、电子磁化率或费米面嵌套清晰结合？下面引入两幅代表性文献图件（均标注原始 DOI 号）解析其视觉设计：
+动量分辨的声子线宽 `γ_qν` 常叠加在声子色散上，或与第一布里渊区的电子磁化率与费米面嵌套函数并列比较。下面结合两幅文献原图说明其表示方式：
 
-### 1. 声子色散上的半透明线宽气泡叠加（Fat-Phonon Bubbles）
+### 1. 声子色散上的连续变宽度色带叠加（Fat-Phonon Ribbon）
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与声子线宽 γ_qν 气泡半径叠加图" loading="lazy"/><figcaption>文献案例 1：二维电子化合物 Ba₂N 的声子色散与模式分辨声子线宽 γ_qν 叠加图。底层实线绘制声子本征频率，彩色半透明圆圈的半径编码对应模式的电声线宽 γ_qν。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 变宽度红色色带叠加图" loading="lazy"/><figcaption>二维电子化合物 Ba<sub>2</sub>N 的声子色散与模式分辨声子线宽 γ<sub>qν</sub> 叠加图：黑色实线表示声子本征色散，沿声子支绘制的实心红色色带上下包络宽度正比于对应 (q, ν) 处的电声线宽 γ<sub>qν</sub>。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
 
-- **审美与后处理要点**：绘制 Fat-Phonon 时，切忌将线宽直接映射为曲线线宽（`linewidth`），否则在光学支密集交叉处会完全遮挡简并点。使用**固定细线宽绘制连续色散骨架 + 降采样半透明散点（`scatter`）编码 `γ_qν`**，并在图内放置 1–2 个标准线宽比例尺圆圈，是兼顾定量可读性与视觉通透感的最佳实践。
+- **绘图方式对比**：对于声子支数量较少或重点突出某几条声学/光学支的体系，可以在本征频率曲线 `ω_qν` 上下对称填充 `ω_qν ± c · γ_qν` 的连续实心色带（`fill_between`）；而在 18 条声子支密集交叉的异质结中，采用降采样半透明散点编码更能避免相邻分支重叠遮挡。
 
-### 2. 广义电子磁化率 χ'(q)、嵌套函数 χ''(q) 与声子线宽 γ_qν 的共动量路径对齐
+### 2. 声子软模、二维布里渊区电子磁化率 χ'(q)、嵌套函数 χ''(q) 与声子线宽的四面板对比
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="沿相同高对称动量路径上下堆叠的电子磁化率实部、费米面嵌套函数虚部与声子线宽对比图" loading="lazy"/><figcaption>文献案例 2：将广义电子磁化率实部 χ'(q)、费米面嵌套函数 χ''(q) 与声子线宽 γ_qν 沿同一条高对称 q 路径（Γ–X–S–Y–Γ）上下对齐堆叠。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="单层六角 BN₂Si 的声子色散、二维布里渊区电子磁化率实部与虚部热力图以及声学支声子线宽四面板图" loading="lazy"/><figcaption>单层六角 BN<sub>2</sub>Si 的四面板水平并列分析：(a) 沿 Γ–M–K–Γ 路径的声子色散与低频 CDW 软模，(b) 第一布里渊区广义电子磁化率实部 χ′(q) 的二维等高热力图，(c) 费米面嵌套函数 χ″(q) 的二维等高热力图，以及 (d) 沿 Γ–M–K–Γ 路径的三条声学支声子线宽 γ(q)。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
 
-- **审美与后处理要点**：当声子线宽在某个非零波矢 `q*` 出现尖峰时，读者最关心它是源于**[费米面几何嵌套](/Atlas/m/fermi-nesting/qe/)**（`χ''(q)` 同步出现同位置尖峰）还是源于**电声耦合矩阵元增强**（`χ''(q)` 平坦而 `γ_qν` 激增）。将三者共享横轴 `q` 垂直堆叠，并用贯穿上下的竖直参考线锁定峰值动量，可以直接给出无可辩驳的物理判据。
+- **数据组织要点**：当声子色散在有限波矢出现软化或虚频（子图 a），同时声学支声子线宽在该动量附近出现显著峰值（子图 d）时，配合整个六角布里渊区的 `χ'(q)` 与 `[费米面嵌套函数](/Atlas/m/fermi-nesting/qe/) χ''(q)` 二维分布（子图 b、c），可以区分软模究竟由纯几何费米面嵌套驱动，还是由特定声子模式的电声耦合矩阵元主导。
 
 下一步：到 [α²F](/Atlas/m/eliashberg-a2f/qe/) 把逐模贡献汇总到频率轴，再到 [Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/) 看这一组 λ 与 ω_log 在明确 μ* 下给出什么结果。
 

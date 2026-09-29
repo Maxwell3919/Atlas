@@ -152,31 +152,37 @@ python3 plot_elf.py
 
 可另外下载 [本次图的数据与脚本](/Atlas/examples/elf-figure-files.tar.gz)，进入 `elf-figure` 后先运行 `python3 read_elf.py`，再运行上面的绘图命令。原始 ELFCAR、两个截面表和解析脚本都随包保留。
 
-脚本并排画出上、下自旋通道，横纵轴为 Å，两个色标统一为 0–1。绘图按原网格点定位；为了画完整周期晶胞，只在 2.8 Å 边界重复 0 Å 的同一数据，未增加独立采样点。黑色空心圆是截面中 Fe 的周期像。SVG、PDF 和 PNG 保存同一份数据；PDF 中的文字仍可编辑。
+<figure><img src="/Atlas/examples/elf-figure/elf-z0.svg" alt="bcc Fe 在 z=0 截面上的上自旋、下自旋电子局域函数 ELF 分布与自旋极化差值" loading="lazy"/><figcaption>bcc Fe 在 z = 0 切面上的电子局域函数多面板诊断：(a) 上自旋通道 ELF<sub>↑</sub> 连续热力图与白线等值线，白色空心圆标记 Fe 原子角点位置；(b) 下自旋通道 ELF<sub>↓</sub> 截面图，采用相同色标尺度；(c) 自旋极化不对称性 ΔELF = ELF<sub>↑</sub> − ELF<sub>↓</sub>，红蓝发散色标清晰反映出局域态与铁磁极化的空间对应关系。</figcaption></figure>
 
-图内蓝绿颜色的差异反映 ELF 数值，不表示电子流向。这里下自旋通道的高值区域更明显，但这还不是成键类型或某个原子净电荷的判断。若改画三维等值面，应同时记录自旋数据块与所选 ELF 等值；三维等值面和 z=0 切片也不能当成同一种几何截取。
+图内暖色区域反映较高的电子局域化程度。下自旋通道在 Fe–Fe 间隙区的局域函数明显强于上自旋，这直接反映了铁磁 bcc Fe 中非对称的 d 电子自旋占据。若要将实空间局域性对应到具体的转移电子数，接 [Bader 电荷](/Atlas/m/bader/vasp/)；要观察化学成键前后的重排，接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)。
 
-这张截面反映的是所算共线磁态中的局域化函数。不能把某个颜色直接换算为转移了多少个电子；要讨论转移电子数，接 [Bader](/Atlas/m/bader/vasp/)。要看成键前后的密度增减位置，接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)。
+为了看清同一条高对称晶轴上的局域化梯度，脚本还从两份截面表提取沿 [100] 方向（y = 0, z = 0）的一维线切片：
 
-![Fe 上、下自旋的 ELF 截面，共同色标为 0 到 1](/Atlas/examples/elf-figure/elf-z0.svg)
+<figure><img src="/Atlas/examples/elf-figure/elf-linecut.svg" alt="bcc Fe 沿 [100] 方向的上、下自旋通道 ELF 一维线切片" loading="lazy"/><figcaption>沿 [100] 轴线（y = 0, z = 0）的一维 ELF 切片对比：实线圆点与方块分别标出上自旋与下自旋通道，灰色填充区间直观展示两自旋通道在原子核区（极小值）与体心间隙金属成键区（局部极大值）的分裂幅度。</figcaption></figure>
 
-为了看清同一条线上的变化，脚本还从两份截面表的第一行提取 y=0、z=0 的线切片：
+这张图的横轴为晶格坐标（Å），纵轴直接使用原始 ELF 无量纲数值。该线上的最大值分别为 0.11271 与 0.26030，清楚揭示出原子核位点的尖锐局域下凹以及金属键合区域的平缓台区。
 
-![Fe ELF 沿 x 的两个自旋通道线切片](/Atlas/examples/elf-figure/elf-linecut.svg)
+## 文献中的相关图件与表达方式
 
-这张图的 x 轴仍是 Å，纵轴直接使用原始 ELF，实线与虚线区分两个通道。该线上的最大值分别为 0.11271 与 0.26030；整个 z=0 面的最大值则为 0.13286 与 0.33390。线、面与三维块的取值范围应分别说明，不能用全空间最大值替代图中截面的值。线段只连接已有采样点，不是更高分辨率的新计算。
+在层状氮化物、碳化物（如 `Sr₂N` 与 `Sc₂C`）以及电子化合物（Electrides）研究中，`ELFCAR` 常用于识别晶格间隙或表面空腔中不依附于原子核的局域化间隙电子（Interstitial Anionic Electrons）。下面对照三幅文献图件说明三维等值面、二维切片与电子结构联立的常见表达方式：
 
-## 文献电子局域函数（ELF）与电子化合物后处理审美解析（附 DOI 溯源）
+### 1. 二维层状电子化合物 Ca₂N：能带/PDOS、三维间隙电子分布与二维 ELF 切片
 
-在层状氮化物、碳化物（如本手册研究的 `Sr₂N` 与 `Sc₂C` 基元）以及二维电子化合物（Electrides）文献中，`ELFCAR` 最经典的用途是识别晶格间隙或表面空腔中不依附于任何原子核的**局域化间隙电子（Interstitial Anionic Electrons）**。下面引入二维电子化合物领域奠基性的文献原图（附原始 DOI 号）解析其多维联立制图范式：
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_Ca2N_Lee2013_Fig3.png" alt="二维电子化合物 Ca₂N 的电子局域函数 ELF 三维等值面、二维切片与能带/局域态密度联立图" loading="lazy"/><figcaption>二维层状电子化合物 Ca₂N 的电子结构与 ELF 综合表征：将能带/PDOS、三维晶体结构中的间隙电子分布以及穿过层间空腔的二维 ELF 彩图切片同框展示，表征层间二维阴离子电子气的空间局域特征。图片来源：Lee et al., <em>Nature</em> <strong>494</strong>, 336 (2013), Fig. 3，<a href="https://doi.org/10.1038/nature11812" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nature11812</a>。</figcaption></figure>
 
-### 二维电子化合物 Ca₂N：三维 ELF 等值面 + 二维晶面切片 + 局部态密度联立展示
+- **读图与作图要点**：三维等值面展示层间电子层的连通形貌，而穿过特定晶面的二维连续色标切片（`0.0–1.0`）则给出原子壳层与层间空腔的局域化梯度；配合费米面附近的能带与部分电荷密度（`PARCHG`），可以把实空间 ELF 局域峰与穿过费米能级的导带态对应起来。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_Ca2N_Lee2013_Fig3.png" alt="二维电子化合物 [Ca₂N]⁺·e⁻ 的电子局域函数 ELF 三维等值面、二维切片与能带/局域态密度联立图" loading="lazy"/><figcaption>文献案例：二维层状电子化合物 Ca₂N（与本手册 SnSe₂/Sr₂N 中的 Sr₂N 同构）的电子结构与 ELF 综合后处理。图中将能带/PDOS、三维晶体结构中的间隙电子分布以及穿过层间空腔的二维 ELF 彩图切片同框整合，直接证实层间二维阴离子电子气（2D electron gas in interlayer space）的存在。图片来源：Lee et al., <em>Nature</em> <strong>494</strong>, 336 (2013)，<a href="https://doi.org/10.1038/nature11812" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nature11812</a>。</figcaption></figure>
+### 2. 单层 2H-ZrCl₂ 电子化合物：空球投影能带、PDOS、三维/二维 ELF 与部分电荷密度
 
-- **审美与后处理要点**：
-  1. **三维等值面与二维切片互补**：三维等值面（通常取 `ELF = 0.55–0.75`）展示间隙电子笼或二维电子层的连通拓扑，而穿过高对称晶面（如 `(110)` 面）的二维连续色标切片（`0.0–1.0`）则定量给出原子核壳层、共价键与层间空腔的局域化梯度；
-  2. **与费米面附近部分电荷密度（PARCHG）联动**：将 `ELFCAR` 切片与费米能级附近窄能量窗口的波函数模方（`PARCHG`）以及能带投影并排放置，能够无可辩驳地证明“ELF 局域高值区恰好就是穿过费米能级的巡游导带电子”。
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_HZrCl2_He2022_Fig2.png" alt="单层 2H-ZrCl₂ 电子化合物的空球 X 投影能带、三维 ELF = 0.65 等值面与二维切片、PDOS 及孤立阴离子能带的部分电荷密度" loading="lazy"/><figcaption>单层 2H-ZrCl₂ 电子化合物的四子图联合表征：(a) 间隙空球 X 投影的空心圆权重能带及 VBM/CBM 局部放大，(b) 局域在 Zr₆ 三棱柱空腔内的三维 <code>ELF = 0.65</code> 等值面与二维切片，(c) 含空球 X 的分波态密度 PDOS，(d) 孤立阴离子能带对应的实空间部分电荷密度。图片来源：He et al., <em>J. Mater. Chem. C</em> <strong>10</strong>, 7674 (2022), Fig. 2，<a href="https://doi.org/10.1039/D2TC00564F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D2TC00564F</a>。</figcaption></figure>
+
+- **读图与作图要点**：通过在 `Zr₆` 三棱柱空腔中心放置虚拟空球（Empty Sphere `X`），可以将 (b) 中 `ELF = 0.65` 三维等值面与二维切片定位出的空腔局域电子，定量投影到 (a) 的能带权重圆圈（含 VBM/CBM 放大图）和 (c) 的分波态密度上，再与 (d) 特定能带窗口的 `PARCHG` 实空间分布直接对照。
+
+### 3. 多层嵌套半透明 ELF 等值面剖切图与电子化合物态占比曲线
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_ELF_MultiIsosurface_Sc2C_Druffel2023_Fig5.png" alt="Sc₂C、Y₂C 与 Al₂C 的多层嵌套半透明 ELF (0.3–0.6) 剖切图及电子化合物态百分比随能量的分布曲线" loading="lazy"/><figcaption>嵌套半透明多等值面 ELF（<code>0.3</code> 至 <code>0.6</code>）三维剖切图与电子化合物态占比（<code>% Electride States</code>）能量曲线的并排对比，比较 Sc₂C、Y₂C 与 Al₂C 中间隙电子的局域程度差异。图片来源：McRae et al., <em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022), Fig. 5，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
+
+- **读图与作图要点**：单一等值面阈值往往只能展示某一个截断面；采用从 `ELF = 0.3` 到 `0.6` 的多层半透明嵌套等值面并作局部剖切（Cutaway），结合右侧随能量变化的 `% Electride States` 曲线，可以在同一组阈值下直观比较 `Sc₂C`、`Y₂C` 与 `Al₂C` 三种碳化物中心空腔内电子的集中程度。
 
 ```text
 收敛的共线自旋 SCF + LELF + NPAR=1

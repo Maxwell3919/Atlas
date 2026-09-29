@@ -284,24 +284,27 @@ python3 plot_workfunction.py
 
 ![SnSe₂ 平面平均势与费米能采用共同真空零点，两侧平台分别放大](/Atlas/examples/workfunction-figure/workfunction-z.svg)
 
-## 文献中的平面平均静电势与功函数后处理范式（附 DOI）
+## 文献中的相关图件与表达方式
 
-在二维材料、Janus 极化单层及异质界面体系中，将平面平均静电势 $V_{\text{eff}}(z)$ 与晶体结构侧视图或平面差分电荷 $\Delta\rho(z)$ 沿同一法向坐标耦合，是直观呈现功函数与界面偶极矩的经典后处理范式：
+在二维材料、Janus 极化单层及异质界面体系中，文献常将平面平均静电势 `V_eff(z)` 与晶体结构侧视图或平面平均差分电荷 `Δρ(z)` 沿同一法向坐标对齐展示，以便同时读出功函数、真空势台阶与界面偶极方向：
 
-1. **平面平均静电势曲线与原子模型背景直接叠绘**（Zhang 等，*Phys. Chem. Chem. Phys.* 2025，DOI: [10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)）：
-   在半透明的异质结侧视球棍模型上直接叠加 $V_{\text{eff}}(z)$ 曲线，使每一处深势阱与对应原子平面在空间上一一对齐；同时用水平虚线标出 $E_F$ 与两侧真空平台，以双向箭头直接给出功函数 $\Phi$ 与界面势能差 $\Delta V$。
+### 1. 平面平均静电势曲线与原子结构侧视图直接叠绘
 
-![静电势曲线与原子结构侧视图直接叠绘示例（DOI: 10.1039/D5CP02349A）](/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg)
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg" alt="平面平均静电势曲线与异质结原子结构侧视图直接叠绘及功函数、势能差标注" loading="lazy"/><figcaption>在异质结侧视球棍模型上直接叠加平面平均静电势曲线，使各处深势阱与对应原子平面在空间上一一对齐，并标出费米能级、两侧真空平台、功函数 <code>Φ</code> 与界面势能差 <code>ΔV</code>。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025), Fig. 4，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
 
-2. **$V_{\text{eff}}(z)$ 与平面平均差分电荷 $\Delta\rho(z)$ 共享 $z$ 轴上下联动**（Huang 等，*J. Phys. Chem. C* 2025，DOI: [10.1021/acs.jpcc.5c02913](https://doi.org/10.1021/acs.jpcc.5c02913)）：
-   上方子图绘制平面平均静电势与功函数标注，下方子图严格共享 $z$ 轴绘制 $\Delta\rho(z)$ 及其正负着色填充，直观揭示界面电荷转移诱导偶极矩并改变两侧真空能级的物理因果链。
+- **读图与作图要点**：将异质结侧视球棍模型按相同的法向坐标比例直接叠放在平面平均势曲线下方，能让读者一眼核对每个局部势阱对应的原子层位置，以及两侧真空平台高度差 `ΔV` 与各表面功函数 `Φ` 的定义。
 
-![平面平均静电势与差分电荷共享 z 轴上下联动示例（DOI: 10.1021/acs.jpcc.5c02913）](/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg)
+### 2. 法向坐标纵置的 `V_eff(Z)` 与 `Δρ(Z)` 左右双栏并排对齐
 
-3. **Janus 单层偶极修正真空台阶与双表面 VBM/CBM 耦合标定**（Haastrup 等，*2D Mater.* **5**, 042002 (2018)，DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）：
-   对于打破镜面对称的 Janus MoSSe 单层，将偶极修正后的双侧真空平台台阶 $\Delta V_{\text{vac}}$ 与两侧表面各自的 VBM/CBM 绝对位置画在同一张平面平均势图中，清晰区分上下表面的电离势与电子亲和能差异。
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="以法向坐标 Z 为纵轴的 ZrI₂/NbS₂ 平面平均静电势 V_eff(Z) 与一维平面平均差分电荷 Δρ(Z) 左右并排对照图" loading="lazy"/><figcaption>将法向坐标 <code>Z</code>（Å）置于纵轴，左右两栏共享同一 <code>Z</code> 标尺并排展示：左栏为平面平均静电势 <code>V_eff(Z)</code>，在势阱处横向叠放 ZrI₂/NbS₂ 球棍结构并标出两侧势台阶 <code>ΔV</code>；右栏为一维平面平均差分电荷密度 <code>Δρ(Z)</code>（红色填充 <code>&gt; 0</code> 表示电子积累，蓝色填充 <code>&lt; 0</code> 表示电子耗尽，标出 <code>0.14 e</code> 电荷转移）。图片来源：Huang et al., <em>J. Phys. Chem. C</em> (2025), Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
 
-![Janus MoSSe 偶极台阶与带边标定示例（DOI: 10.1088/2053-1583/aacfc1）](/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg)
+- **读图与作图要点**：该图把法向坐标 `Z`（Å）放在纵轴上，左右两列严格共享高度标尺：左列展示 `V_eff(Z)` 及势阱处横向对齐的 `ZrI₂/NbS₂` 原子结构与真空势差 `ΔV`，右列展示一维平面平均差分电荷 `Δρ(Z)`（红/蓝填充区分电子积累与耗尽，并标明 `0.14 e` 转移量），直观呈现界面电荷重排与静电势台阶之间的对应关系。
+
+### 3. Janus 单层偶极修正真空台阶与两侧表面 VBM/CBM 标定
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg" alt="Janus MoSSe 单层的平面平均静电势、偶极修正真空台阶与双表面 VBM/CBM 位置标定图" loading="lazy"/><figcaption>打破镜面对称的 Janus MoSSe 单层平面平均静电势：将偶极修正后的两侧真空势台阶与上下表面各自的 VBM、CBM 位置画在同一张势分布图中，区分两侧表面的电离势与电子亲和能。图片来源：Haastrup et al., <em>2D Mater.</em> <strong>5</strong>, 042002 (2018), Fig. 12，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>。</figcaption></figure>
+
+- **读图与作图要点**：对于具有面外固有偶极矩的 Janus MoSSe 单层，上下两侧真空平台存在有限台阶 `ΔV_vac`。将两侧平坦真空能级与带边 VBM/CBM 标在同一张平面平均势图上，可以清楚说明为什么极化单层的上下表面必须各自读取独立的真空参考。
 
 下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 E_F。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 

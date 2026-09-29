@@ -181,6 +181,12 @@ print("relaxation.svg", "relaxation.png")
 
 完整材料：[输入](/Atlas/examples/mace-si/si-relax/relax.py)、[原始输出](/Atlas/examples/mace-si/si-relax/relax.out.txt)、[优化轨迹](/Atlas/examples/mace-si/si-relax/relax.traj)、[末步 CIF](/Atlas/examples/mace-si/si-relax/relaxed.cif)。
 
+## 文献中的相关图件与表达方式
+
+固定晶胞的快速力场或第一性原理弛豫常用于高通量筛选表面多位点吸附构型与表面迁移路径：在保持基底晶胞不变的前提下，对空位、桥位、顶位及过渡态插值构型逐一弛豫内部原子坐标，进而将几何构型俯视图、各路径能量曲线以及不同材料体系的势垒汇总在同一组图件中。机器学习原子间势（如 MACE）可在进入 DFT 精修前快速完成这类多位点与多路径初筛。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M8_NEB_DiffusionBarrier_Electrenes_Fig5.jpg" alt="二维电极化合物表面的高对称吸附位点、扩散路径及多体系迁移势垒对比" loading="lazy"/><figcaption>表面多位点固定晶胞弛豫与迁移势垒综合图件：包含候选吸附位点（Site 1–3）与迁移路径（Path 1–3）的俯视几何、路径能量曲线及多材料能垒对比柱状图（Kocabas 等，<em>J. Phys. Chem. Lett.</em> <strong>9</strong>, 4262 (2018)，<a href="https://doi.org/10.1021/acs.jpclett.8b01468" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpclett.8b01468</a>）。</figcaption></figure>
+
 下一步：想让晶格常数也由这份势决定，接着做[可变晶胞优化](/Atlas/m/vc-relax/mace/)；准备有限温度轨迹时，先使用那里已检查原子力与应力的结构，再进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)。
 
 ```text

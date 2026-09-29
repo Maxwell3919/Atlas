@@ -156,19 +156,21 @@ python3 plot.py
 
 下一步先沿 [Wannier 父链](/Atlas/m/wannier90/qe/) 核对物理模型与需要保留的能带。如果要把离散切片结果用于材料结论，需要用同一协议检查占据态与未占据态在整个布里渊区的分离，并继续检查采样与基组；不能把本页的四带数据直接补称含 SOC 的拓扑结果。
 
-## 文献中的 Berry 曲率分布与拓扑陈数后处理范式（附 DOI）
+## 文献中的相关图件与表达方式
 
-在时间反演破缺的磁性二维材料与量子反常霍尔效应（QAHE）研究中，文献常将高对称路径或二维倒空间上的 Berry 曲率 $\Omega_z(\mathbf{k})$ 与反常霍尔电导率平台、手性边缘态（Chiral Edge States）组合展示：
+在时间反演破缺的磁性二维材料与量子反常霍尔效应（QAHE）研究中，文献常将二维倒空间上的 Berry 曲率 `Ω_z(k)` 分布与反常霍尔电导率平台、手性边缘态（Chiral Edge States）结合展示：
 
-1. **高对称路径与二维布里渊区 Berry 曲率热力图**（*J. Phys.: Condens. Matter* **34**, 465802 (2022)，DOI: [10.1088/1361-648X/ac96bb](https://doi.org/10.1088/1361-648X/ac96bb)）：
-   在倒空间二维平面内绘制 $\Omega_z(\mathbf{k})$ 分布并叠加六角第一布里渊区边界与高对称点（$\Gamma, K, K', M$），直观定位由 SOC 打开能隙的避免交叉点所贡献的 Berry 曲率尖峰及谷间符号差异。
+### 1. 二维六角布里渊区内的 Berry 曲率分布图
 
-![二维布里渊区 Berry 曲率热力图示例（DOI: 10.1088/1361-648X/ac96bb）](/Atlas/figures/literature/M7_BerryCurvature_2DMap_LaH2_Fig5b.jpg)
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_BerryCurvature_2DMap_LaH2_Fig5b.jpg" alt="二维六角第一布里渊区内的 Berry 曲率 Ω_z(k) 热力图及 Γ, K, K', M 高对称点标注" loading="lazy"/><figcaption>在二维倒空间平面内绘制的 Berry 曲率 <code>Ω_z(k)</code> 分布，叠加六角第一布里渊区边界与高对称点（<code>Γ, K, K', M</code>），标出由自旋轨道耦合（SOC）打开能隙处贡献的 Berry 曲率极值。图片来源：Shi et al., <em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022), Fig. 5(b)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>。</figcaption></figure>
 
-2. **量子反常霍尔整数量化平台与 Wannier Green 函数手性边缘态联排**（*npj Comput. Mater.* **11**, 132 (2025)，DOI: [10.1038/s41524-025-01732-0](https://doi.org/10.1038/s41524-025-01732-0)）：
-   将能隙内整数量化的反常霍尔电导率平台（$\sigma_{xy} = C e^2/h$）与半无限边界 Green 函数计算的能量-动量手性边缘态谱函数并排展示，清晰验证体边对应关系（Bulk-Boundary Correspondence）。
+- **读图与作图要点**：将 `Ω_z(k)` 绘制在二维 `(k_x, k_y)` 平面上，并叠加六角第一布里渊区边框与 `Γ, K, K', M` 高对称点标记，能够直观定位 SOC 打开避免交叉能隙处集中的 Berry 曲率峰，以及不同能谷之间的符号与对称关系。
 
-![量子反常霍尔平台与手性边缘态谱函数联排示例（DOI: 10.1038/s41524-025-01732-0）](/Atlas/figures/literature/M7_QAHE_ChiralEdge_TbCl_Fig4cd.jpg)
+### 2. 量子反常霍尔电导率平台与手性边缘态谱函数对照
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_QAHE_ChiralEdge_TbCl_Fig4cd.jpg" alt="能隙内整数量化的反常霍尔电导率平台与半无限边界 Green 函数计算的手性边缘态谱函数" loading="lazy"/><figcaption>量子反常霍尔绝缘体的体边对应表征：将能隙内整数量化的反常霍尔电导率平台（<code>σ_xy = C e²/h</code>）与半无限边界 Green 函数计算的能量–动量手性边缘态谱函数对照展示。图片来源：<em>npj Comput. Mater.</em> <strong>11</strong>, 132 (2025), Fig. 4b，<a href="https://doi.org/10.1038/s41524-025-01732-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-025-01732-0</a>。</figcaption></figure>
+
+- **读图与作图要点**：把体态 Berry 曲率积分得到的整数量化霍尔电导率平台 `σ_xy = C e²/h` 与连接价带和导带的非平庸手性边缘态谱函数并列展示，可以从体拓扑不变量与边界态数目两个角度相互印证非平庸陈绝缘体特征。
 
 ```text
 同一结构 SCF → 全网格 NSCF → pw2wannier90 原始 mmn + nnkp

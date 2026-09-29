@@ -27,7 +27,7 @@ Voigt 与 Reuss 剪切模量分别给出统一应变和统一应力假设下的�
 
 **G<sub>R</sub> = 5(C₁₁ − C₁₂)C₄₄ / [4C₄₄ + 3(C₁₁ − C₁₂)]**
 
-Hill 平均取两者中点 $G_H=(G_V+G_R)/2$。用 B 与 G_H 可继续得到
+Hill 平均取两者中点 G<sub>H</sub> = (G<sub>V</sub> + G<sub>R</sub>) / 2。用 B 与 G_H 可继续得到
 
 **E = 9BG<sub>H</sub> / (3B + G<sub>H</sub>)**
 
@@ -91,6 +91,16 @@ python3 plot_elastic.py
 ```
 
 脚本从 `elastic/kmesh-comparison.csv` 读列名，不依赖表格列的人工顺序。图和表只反映已完成的参数系列；要报告材料常数，还要对所需模量本身设定精度，并进一步检查展宽、截断能、电子网格和形变幅度。这里保留未达到定量收敛的实算结果，正是为了看见误差传播的样子。
+
+## 文献中的方向弹性模量与力学图谱表达
+
+对于各向异性显著的二维晶体，仅给出标量平均不足以描述面内不同晶向的刚度差异。研究论文常将二维弹性刚度张量 C<sub>ij</sub> 变换到面内极角 θ，用极坐标曲线同时绘出杨氏模量 E(θ)、剪切模量 G(θ) 和泊松比 ν(θ)。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向杨氏模量、剪切模量与泊松比极坐标图" loading="lazy"/><figcaption>由二维弹性刚度常数 <em>C</em><sub>ij</sub> 导出的单层 α-ZrI<sub>2</sub> 与 β-ZrI<sub>2</sub> 面内杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标图，直观呈现不同晶向的刚度差异。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+
+跨多种材料横向比较时，常采用对数坐标的 Ashby 图谱，将小应变求得的二维杨氏模量与大应变拉伸所得的理想断裂强度绘制在同一平面上，标示不同结构家族所处的刚度—强度区间。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_AshbyStrengthModulus_2DMagnets_Wang2022_Fig59.jpg" alt="二维材料的二维杨氏模量与理想断裂强度双对数 Ashby 图" loading="lazy"/><figcaption>二维材料的二维杨氏模量与理想断裂强度双对数 Ashby 分布图，汇总多类二维晶体的面内刚度与极限强度范围。引自 Wang 等人，<em>ACS Nano</em> <strong>16</strong>, 6859 (2022)，Fig. 59，<a href="https://doi.org/10.1021/acsnano.1c09150" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acsnano.1c09150</a>。</figcaption></figure>
 
 下一步可以回到 [Born 判据](/Atlas/m/elastic-born/qe/) 检查张量正定性，或对照 [声子计算](/Atlas/m/phonon-dfpt/qe/) 的长波声学支；两条证据关注的范围不同，应分别验证。
 

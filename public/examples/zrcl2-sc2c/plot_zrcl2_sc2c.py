@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
-import shutil
+import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -13,7 +13,16 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 import numpy as np
 
+ZR_DIR = Path(__file__).resolve().parent
+for candidate in (ZR_DIR, ZR_DIR.parent, ZR_DIR.parents[1] / 'scripts'):
+    if (candidate / 'atlas_plot_style.py').exists():
+        sys.path.insert(0, str(candidate))
+        break
+
 import atlas_plot_style
+
+sys.path.insert(0, str(ZR_DIR))
+from tc_table_audit import piecewise_linear_crossings, write_report
 
 PALETTE = {
     'Ink': '#162232',
@@ -30,13 +39,12 @@ PALETTE = {
     'WarmTint': '#f4efe6',
 }
 
-ROOT = Path(__file__).resolve().parents[1]
-PUBLIC_EXAMPLES = ROOT / 'public' / 'examples'
-PUBLIC_FIGURES = ROOT / 'public' / 'figures'
-LOCAL_MIRROR_FIGURES = Path('/Users/paquette/Documents/projects/Atlas/案例/Website-Figures')
-SCRATCH_DATA = Path('/Users/paquette/.gemini/antigravity/brain/1e3e274d-dc0c-4dad-b800-38478ece630e/scratch/bcgong_data')
-
 CM1_TO_THZ = 1.0 / 33.3564095198152
+FIG_OUT_DIR = (
+    ZR_DIR.parents[1] / 'figures' / 'zrcl2-sc2c'
+    if (ZR_DIR.parents[1] / 'figures').exists()
+    else ZR_DIR / 'figures'
+)
 
 
 def apply_atlas_style() -> None:
@@ -49,143 +57,187 @@ def style_axis(ax) -> None:
     ax.spines['right'].set_visible(False)
 
 
-def save_figure(fig, stem_path: Path) -> None:
-    stem_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(stem_path.with_suffix('.png'))
+def save_figure(fig, stem_name: str) -> None:
+    FIG_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    fig.savefig(FIG_OUT_DIR / f'{stem_name}.png')
     plt.close(fig)
 
 
-def sync_figure_to_mirror(rel_stem: str) -> None:
-    if not LOCAL_MIRROR_FIGURES.exists():
-        return
-    for ext in ('png', 'svg', 'pdf'):
-        src = PUBLIC_FIGURES / f'{rel_stem}.{ext}'
-        dst = LOCAL_MIRROR_FIGURES / f'{rel_stem}.{ext}'
-        if src.exists():
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
-
-
-# ---------------------------------------------------------------------------
-# 1. ZrCl2/Sc2C Coupled Electronic Structure: Orbital Fatbands + PDOS + 2D FS
-# ---------------------------------------------------------------------------
-
 def parse_zrcl2_fatbands() -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
     ef = 0.3133  # eV from scf/pwx.out
-    gnu_path = PUBLIC_EXAMPLES / 'zrcl2-sc2c' / 'scf' / 'bands.dat.gnu'
-    raw_blocks = [b.strip() for b in gnu_path.read_text().split('\n\n') if b.strip()]
-    k_list = []
-    e_list = []
-    for block in raw_blocks:
-        arr = np.loadtxt(block.splitlines())
-        k_list = arr[:, 0]
-        e_list.append(arr[:, 1] - ef)
-    k_dist = np.array(k_list)
-    bands_e = np.array(e_list)  # (31, 151)
+    data_dir = ZR_DIR / 'scf'
+    gnu_path = data_dir / 'bands.dat.gnu'
+    proj_path = data_dir / 'fatbands.projwfc_up'
+    proj_lines = [line for line in proj_path.read_text().splitlines() if line.strip()]
+    header_rows = [
+        idx for idx, line in enumerate(proj_lines[:30])
+        if len(line.split()) == 3 and all(part.isdigit() for part in line.split())
+    ]
+    if len(header_rows) != 1:
+        raise ValueError(f'Expected one projection header; found {len(header_rows)}.')
+    header_idx = header_rows[0]
+    natomwfc, nk, nbnd = map(int, proj_lines[header_idx].split())
+    if header_idx + 2 >= len(proj_lines):
+        raise ValueError('Projection header is missing its spin flags or first state.')
+    spin_flags = proj_lines[header_idx + 1].split()
+    if len(spin_flags) != 2 or any(flag not in {'T', 'F'} for flag in spin_flags):
+        raise ValueError(f'Unexpected projection spin flags: {spin_flags}')
+    ptr = header_idx + 2
 
-    proj_path = SCRATCH_DATA / 'zrcl2_sc2c' / 'scf' / 'fatbands.projwfc_up'
-    lines = proj_path.read_text().splitlines()
-    header_idx = 0
-    for idx, line in enumerate(lines[:30]):
-        parts = line.split()
-        if len(parts) == 3 and all(p.isdigit() for p in parts):
-            natomwfc, nk, nbnd = map(int, parts)
-            header_idx = idx + 2
-            break
+    raw = np.loadtxt(gnu_path)
+    if raw.shape != (nbnd * nk, 2) or not np.isfinite(raw).all():
+        raise ValueError(f'Unexpected bands.dat.gnu shape or nonfinite values: {raw.shape}')
+    band_blocks = raw.reshape(nbnd, nk, 2)
+    k_blocks = band_blocks[:, :, 0]
+    if not np.allclose(k_blocks, k_blocks[0:1], rtol=0.0, atol=1e-8):
+        raise ValueError('The k-distance sequence differs between band blocks.')
+    k_dist = k_blocks[0]
+    if not np.isclose(k_dist[0], 0.0, rtol=0.0, atol=1e-8):
+        raise ValueError(f'Band path does not start at zero: {k_dist[0]}')
+    if np.any(np.diff(k_dist) < -1e-8) or k_dist[-1] <= k_dist[0]:
+        raise ValueError('Band path distances are not a forward, nonzero path.')
+    bands_e = band_blocks[:, :, 1] - ef
 
-    weights = {
-        'Zr-4d': np.zeros((nbnd, nk)),
-        'Sc-3d': np.zeros((nbnd, nk)),
-        'C-2p': np.zeros((nbnd, nk)),
-        'Cl-3p': np.zeros((nbnd, nk)),
+    atom_elements = {1: 'Zr', 2: 'C', 3: 'Cl', 4: 'Cl', 5: 'Sc', 6: 'Sc'}
+    group_by_site_orbital = {
+        (1, 'D'): 'Zr-4d',
+        (5, 'D'): 'Sc-3d',
+        (6, 'D'): 'Sc-3d',
+        (2, 'P'): 'C-2p',
+        (3, 'P'): 'Cl-3p',
+        (4, 'P'): 'Cl-3p',
     }
-
-    ptr = header_idx
+    expected_state_counts = {'Zr-4d': 5, 'Sc-3d': 10, 'C-2p': 3, 'Cl-3p': 6}
+    grouped = {key: np.zeros((nbnd, nk)) for key in expected_state_counts}
+    state_counts = {key: 0 for key in expected_state_counts}
+    expected_ik = np.repeat(np.arange(1, nk + 1), nbnd)
+    expected_ib = np.tile(np.arange(1, nbnd + 1), nk)
     block_len = nk * nbnd
-    for _ in range(natomwfc):
-        if ptr >= len(lines):
-            break
-        hdr = lines[ptr].split()
-        elem = hdr[2]
-        orb = hdr[3].upper()
-        key = None
-        if elem == 'Zr' and 'D' in orb:
-            key = 'Zr-4d'
-        elif elem == 'Sc' and 'D' in orb:
-            key = 'Sc-3d'
-        elif elem == 'C' and 'P' in orb:
-            key = 'C-2p'
-        elif elem == 'Cl' and 'P' in orb:
-            key = 'Cl-3p'
+    seen_state_ids = set()
 
-        sub_lines = lines[ptr + 1 : ptr + 1 + block_len]
-        if key is not None and len(sub_lines) == block_len:
-            vals = np.fromiter((float(l.split()[2]) for l in sub_lines), dtype=float, count=block_len)
-            weights[key] += vals.reshape(nk, nbnd).T
-        ptr += 1 + block_len
+    for expected_state in range(1, natomwfc + 1):
+        if ptr >= len(proj_lines):
+            raise ValueError(f'Projection file ended before state {expected_state}.')
+        hdr = proj_lines[ptr].split()
+        if len(hdr) < 4:
+            raise ValueError(f'Malformed state header at line {ptr + 1}: {hdr}')
+        state_id, atom_id = int(hdr[0]), int(hdr[1])
+        element, orbital = hdr[2], hdr[3].upper()
+        if state_id != expected_state or state_id in seen_state_ids:
+            raise ValueError(f'Unexpected or duplicate state id {state_id}; expected {expected_state}.')
+        seen_state_ids.add(state_id)
+        if atom_id not in atom_elements or element != atom_elements[atom_id]:
+            raise ValueError(f'State {state_id} has atom/element mismatch: #{atom_id} {element}.')
+        angular_parts = [char for char in orbital if char in 'SPDF']
+        if len(angular_parts) != 1:
+            raise ValueError(f'State {state_id} has unrecognized orbital label {orbital}.')
+        key = group_by_site_orbital.get((atom_id, angular_parts[0]))
+        ptr += 1
+        rows = []
+        for row_index in range(block_len):
+            if ptr >= len(proj_lines):
+                raise ValueError(f'State {state_id} ended at projection row {row_index}.')
+            fields = proj_lines[ptr].split()
+            if len(fields) != 3:
+                raise ValueError(f'Malformed projection row at line {ptr + 1}: {fields}')
+            rows.append((int(fields[0]), int(fields[1]), float(fields[2])))
+            ptr += 1
+        state_data = np.asarray(rows, dtype=float)
+        if not np.array_equal(state_data[:, 0].astype(int), expected_ik):
+            raise ValueError(f'State {state_id} has an unexpected k-index sequence.')
+        if not np.array_equal(state_data[:, 1].astype(int), expected_ib):
+            raise ValueError(f'State {state_id} has an unexpected band-index sequence.')
+        state_weights = state_data[:, 2]
+        if not np.isfinite(state_weights).all():
+            raise ValueError(f'State {state_id} contains nonfinite projection weights.')
+        if key is not None:
+            grouped[key] += state_weights.reshape(nk, nbnd).T
+            state_counts[key] += 1
 
-    return k_dist, bands_e, weights
-
+    if ptr != len(proj_lines) or len(seen_state_ids) != natomwfc:
+        raise ValueError(f'Projection records do not close cleanly: consumed {ptr}/{len(proj_lines)} lines.')
+    if state_counts != expected_state_counts:
+        raise ValueError(f'Unexpected selected state counts: {state_counts}')
+    if any(not np.isfinite(curve).all() for curve in grouped.values()):
+        raise ValueError('Grouped projection weights contain nonfinite values.')
+    return k_dist, bands_e, grouped
 
 def parse_zrcl2_pdos() -> tuple[np.ndarray, dict[str, np.ndarray]]:
     ef = 0.3133
-    pdos_dir = SCRATCH_DATA / 'zrcl2_sc2c' / 'pdos'
+    pdos_dir = ZR_DIR / 'pdos'
+
+    def read_ldos(filename: str) -> tuple[np.ndarray, np.ndarray]:
+        arr = np.loadtxt(pdos_dir / filename, comments='#')
+        return arr[:, 0] - ef, arr[:, 1]
+
+    e_grid, zr_4d = read_ldos('zrclscc.pdos_atm#1(Zr)_wfc#5(d)')
+    _, c_2p = read_ldos('zrclscc.pdos_atm#2(C)_wfc#2(p)')
+    _, cl1_3p = read_ldos('zrclscc.pdos_atm#3(Cl)_wfc#2(p)')
+    _, cl2_3p = read_ldos('zrclscc.pdos_atm#4(Cl)_wfc#2(p)')
+    _, sc1_3d = read_ldos('zrclscc.pdos_atm#5(Sc)_wfc#4(d)')
+    _, sc2_3d = read_ldos('zrclscc.pdos_atm#6(Sc)_wfc#4(d)')
     tot_arr = np.loadtxt(pdos_dir / 'zrclscc.pdos_tot', comments='#')
-    energy = tot_arr[:, 0] - ef
-    curves = {'Total': tot_arr[:, 1]}
 
-    def sum_files(patterns: list[str]) -> np.ndarray:
-        acc = np.zeros_like(energy)
-        for pat in patterns:
-            for p in pdos_dir.glob(pat):
-                arr = np.loadtxt(p, comments='#')
-                acc += arr[:, 1]
-        return acc
-
-    curves['Zr-4d'] = sum_files(['*Zr*_wfc*d*'])
-    curves['Sc-3d'] = sum_files(['*Sc*_wfc*d*'])
-    curves['C-2p'] = sum_files(['*C)*_wfc*p*'])
-    curves['Cl-3p'] = sum_files(['*Cl*_wfc*p*'])
-    return energy, curves
+    return e_grid, {
+        'Total': tot_arr[:, 1],
+        'Zr-4d': zr_4d,
+        'Sc-3d': sc1_3d + sc2_3d,
+        'C-2p': c_2p,
+        'Cl-3p': cl1_3p + cl2_3p,
+    }
 
 
 def parse_zrcl2_bxsf() -> tuple[float, np.ndarray, np.ndarray, dict[int, np.ndarray]]:
-    bxsf_path = PUBLIC_EXAMPLES / 'zrcl2-sc2c' / 'FS' / 'zrclscc_fs.bxsf'
-    text = bxsf_path.read_text()
-    ef = float(re.search(r'Fermi Energy:\s*([-\d.]+)', text).group(1))
-    b1 = np.array([1.000000, 0.577350])
-    b2 = np.array([0.000000, 1.154701])
-    parts = re.split(r'BAND:\s*(\d+)', text)[1:]
-    bands_2d: dict[int, np.ndarray] = {}
-    for i in range(0, len(parts), 2):
-        bnum = int(parts[i])
-        body = parts[i + 1].split('END_BANDGRID_3D')[0]
-        vals = np.fromstring(body, sep=' ')
-        grid = vals.reshape(65, 65, 2)[:, :, 0] - ef
-        bands_2d[bnum] = grid
-    return ef, b1, b2, bands_2d
+    bxsf_path = ZR_DIR / 'FS' / 'zrclscc_fs.bxsf'
+    lines = [l.strip() for l in bxsf_path.read_text().splitlines() if l.strip()]
+    ef = 0.3154
+    for l in lines[:20]:
+        if 'Fermi Energy:' in l:
+            ef = float(l.split(':')[1].strip())
+            break
+
+    b_idx = [i for i, l in enumerate(lines) if l.startswith('BEGIN_BANDGRID_3D')][0]
+    nx, ny, nz = [int(x) for x in lines[b_idx + 2].split()]
+    b1 = np.array([float(x) for x in lines[b_idx + 4].split()[:2]])
+    b2 = np.array([float(x) for x in lines[b_idx + 5].split()[:2]])
+
+    bands: dict[int, np.ndarray] = {}
+    ptr = b_idx + 7
+    while ptr < len(lines):
+        line = lines[ptr]
+        if line.startswith('BAND:'):
+            b_num = int(line.split(':')[1].strip())
+            ptr += 1
+            vals: list[float] = []
+            while ptr < len(lines) and not lines[ptr].startswith('BAND:') and not lines[ptr].startswith('END_BANDGRID_3D'):
+                vals.extend([float(x) for x in lines[ptr].split()])
+                ptr += 1
+            arr3d = np.array(vals).reshape((nx, ny, nz))
+            bands[b_num] = arr3d[:, :, 0] - ef
+        else:
+            ptr += 1
+
+    return ef, b1, b2, bands
 
 
 def render_zrcl2_sc2c_electronic() -> None:
     apply_atlas_style()
-    k_dist, bands_e, weights = parse_zrcl2_fatbands()
+    k_dist, bands_e, grouped_w = parse_zrcl2_fatbands()
     e_dos, pdos = parse_zrcl2_pdos()
     _, b1, b2, fs_bands = parse_zrcl2_bxsf()
 
     fig = plt.figure(figsize=(10.2, 4.35))
     gs = GridSpec(
         1, 3, figure=fig,
-        left=0.075, right=0.985, bottom=0.17, top=0.86,
-        width_ratios=[1.32, 0.66, 1.08], wspace=0.26
+        left=0.075, right=0.985, bottom=0.17, top=0.85,
+        width_ratios=[1.35, 0.72, 1.15], wspace=0.22
     )
-    gs_left = gs[0, :2].subgridspec(1, 2, width_ratios=[2.05, 1.0], wspace=0.07)
-    ax_band = fig.add_subplot(gs_left[0, 0])
-    ax_dos = fig.add_subplot(gs_left[0, 1], sharey=ax_band)
+    ax_band = fig.add_subplot(gs[0, 0])
+    ax_dos = fig.add_subplot(gs[0, 1], sharey=ax_band)
     ax_fs = fig.add_subplot(gs[0, 2])
 
-    style_axis(ax_band)
-    style_axis(ax_dos)
-    style_axis(ax_fs)
+    for ax in (ax_band, ax_dos, ax_fs):
+        style_axis(ax)
 
     k_ticks = [k_dist[0], k_dist[50], k_dist[100], k_dist[150]]
     for x in k_ticks[1:-1]:
@@ -194,29 +246,34 @@ def render_zrcl2_sc2c_electronic() -> None:
     ax_band.axhspan(-0.16, 0.16, color=PALETTE['WarmTint'], alpha=0.65, zorder=0)
 
     for ib in range(bands_e.shape[0]):
-        ax_band.plot(k_dist, bands_e[ib], color='#9aa8b8', lw=0.8, alpha=0.75, zorder=2)
-
-    orb_styles = [
-        ('Cl-3p', PALETTE['Amber'], 48.0, 0.45),
-        ('C-2p', PALETTE['Rust'], 54.0, 0.55),
-        ('Sc-3d', PALETTE['Teal'], 60.0, 0.60),
-        ('Zr-4d', PALETTE['Navy'], 64.0, 0.65),
-    ]
-    for ib in range(bands_e.shape[0]):
-        if np.max(bands_e[ib]) < -2.8 or np.min(bands_e[ib]) > 2.2:
+        e_curve = bands_e[ib]
+        if e_curve.max() < -2.7 or e_curve.min() > 2.2:
             continue
-        for key, color, scale, alpha in orb_styles:
-            w = weights[key][ib]
+        ax_band.plot(k_dist, e_curve, color='#7d8b9d', lw=0.85, alpha=0.75, zorder=2)
+
+    orb_specs = [
+        ('Cl-3p', PALETTE['Amber'], 72.0),
+        ('C-2p', PALETTE['Rust'], 85.0),
+        ('Sc-3d', PALETTE['Teal'], 92.0),
+        ('Zr-4d', PALETTE['Navy'], 96.0),
+    ]
+    for label, color, scale in orb_specs:
+        w_mat = grouped_w[label]
+        for ib in range(bands_e.shape[0]):
+            e_curve = bands_e[ib]
+            if e_curve.max() < -2.6 or e_curve.min() > 2.1:
+                continue
+            w = w_mat[ib]
             mask = w > 0.04
             if np.any(mask):
                 ax_band.scatter(
                     k_dist[mask],
-                    bands_e[ib, mask],
-                    s=(w[mask] * scale) + 2.5,
+                    e_curve[mask],
+                    s=w[mask] * scale,
                     facecolors='none',
                     edgecolors=color,
                     linewidths=0.95,
-                    alpha=alpha,
+                    alpha=0.88,
                     zorder=4,
                 )
 
@@ -227,23 +284,22 @@ def render_zrcl2_sc2c_electronic() -> None:
     ax_band.set_title('Orbital fatbands', pad=8)
 
     legend_handles = [
-        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Navy'], markeredgewidth=1.3, markersize=5.2, label=r'Zr-$4d$'),
-        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Teal'], markeredgewidth=1.3, markersize=5.2, label=r'Sc-$3d$'),
-        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Rust'], markeredgewidth=1.3, markersize=5.2, label=r'C-$2p$'),
-        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Amber'], markeredgewidth=1.3, markersize=5.2, label=r'Cl-$3p$'),
+        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Navy'], markeredgewidth=1.3, markersize=5.2, label=r'Zr-$4d$ [#1]'),
+        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Teal'], markeredgewidth=1.3, markersize=5.2, label=r'Sc-$3d$ [#5+#6]'),
+        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Rust'], markeredgewidth=1.3, markersize=5.2, label=r'C-$2p$ [#2]'),
+        Line2D([0], [0], marker='o', color='none', markerfacecolor='none', markeredgecolor=PALETTE['Amber'], markeredgewidth=1.3, markersize=5.2, label=r'Cl-$3p$ [#3+#4]'),
     ]
     ax_band.legend(handles=legend_handles, loc='lower left', ncol=2, fontsize=8.0)
 
     ax_band.annotate(
-        'Bands 26, 27\n(Zr-$4d$ / Sc-$3d$)',
+        'Bands 26, 27\n(Zr-$4d$ [#1] / Sc-$3d$ [#5+#6])',
         xy=(k_dist[24], 0.04),
         xytext=(k_dist[8], 0.92),
-        fontsize=8.0,
+        fontsize=8.0, zorder=10,
         bbox=dict(boxstyle='round,pad=0.2', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
         arrowprops=dict(arrowstyle='->', color=PALETTE['Navy'], lw=0.8),
     )
 
-    # Panel (b): Horizontal PDOS
     mask_dos = (e_dos >= -2.6) & (e_dos <= 2.1)
     ed = e_dos[mask_dos]
     ax_dos.axhline(0.0, color=PALETTE['Muted'], ls='--', lw=0.95, zorder=2)
@@ -251,10 +307,10 @@ def render_zrcl2_sc2c_electronic() -> None:
 
     ax_dos.fill_betweenx(ed, 0, pdos['Total'][mask_dos], color='#dfe6ef', alpha=0.55)
     ax_dos.plot(pdos['Total'][mask_dos], ed, color=PALETTE['Ink'], lw=1.05, label='Total')
-    ax_dos.plot(pdos['Zr-4d'][mask_dos], ed, color=PALETTE['Navy'], lw=1.1, label=r'Zr-$4d$')
-    ax_dos.plot(pdos['Sc-3d'][mask_dos], ed, color=PALETTE['Teal'], lw=1.1, label=r'Sc-$3d$')
-    ax_dos.plot(pdos['C-2p'][mask_dos], ed, color=PALETTE['Rust'], lw=1.05, label=r'C-$2p$')
-    ax_dos.plot(pdos['Cl-3p'][mask_dos], ed, color=PALETTE['Amber'], lw=0.95, label=r'Cl-$3p$')
+    ax_dos.plot(pdos['Zr-4d'][mask_dos], ed, color=PALETTE['Navy'], lw=1.1, label=r'Zr-$4d$ [#1]')
+    ax_dos.plot(pdos['Sc-3d'][mask_dos], ed, color=PALETTE['Teal'], lw=1.1, label=r'Sc-$3d$ [#5+#6]')
+    ax_dos.plot(pdos['C-2p'][mask_dos], ed, color=PALETTE['Rust'], lw=1.05, label=r'C-$2p$ [#2]')
+    ax_dos.plot(pdos['Cl-3p'][mask_dos], ed, color=PALETTE['Amber'], lw=0.95, label=r'Cl-$3p$ [#3+#4]')
 
     ax_dos.set_xlim(0, 6.8)
     ax_dos.set_xticks([0, 3, 6])
@@ -262,7 +318,6 @@ def render_zrcl2_sc2c_electronic() -> None:
     ax_dos.set_title('PDOS', pad=8)
     ax_dos.tick_params(labelleft=False)
 
-    # Panel (c): 2D Hexagonal BZ Fermi Surface
     B = np.column_stack([b1, b2])
     B_inv = np.linalg.inv(B)
     angles = np.deg2rad(np.arange(0, 360, 60))
@@ -338,13 +393,8 @@ def render_zrcl2_sc2c_electronic() -> None:
     ax_fs.set_ylabel(r'$k_y$ ($2\pi/a$)')
     ax_fs.set_title('2D Fermi surface', pad=8)
 
-    save_figure(fig, PUBLIC_FIGURES / 'zrcl2-sc2c' / 'zrcl2-sc2c-electronic')
-    sync_figure_to_mirror('zrcl2-sc2c/zrcl2-sc2c-electronic')
+    save_figure(fig, 'zrcl2-sc2c-electronic')
 
-
-# ---------------------------------------------------------------------------
-# 2. ZrCl2/Sc2C Coupled Phonon Dispersion + Linewidth/Lambda + PHDOS + alpha2F
-# ---------------------------------------------------------------------------
 
 def parse_gam_lines(filepath: Path, target_broadening: float = 0.0030) -> np.ndarray:
     text = filepath.read_text()
@@ -368,14 +418,17 @@ def parse_gam_lines(filepath: Path, target_broadening: float = 0.0030) -> np.nda
 
 def render_zrcl2_sc2c_phonon_epc() -> None:
     apply_atlas_style()
-    ph96_dir = PUBLIC_EXAMPLES / 'zrcl2-sc2c' / 'ph96'
+    ph96_dir = ZR_DIR / 'ph96'
     freq_arr = np.loadtxt(ph96_dir / 'zrclscc.freq.gp')
     q_dist = freq_arr[:, 0]
     freqs_thz = freq_arr[:, 1:] * CM1_TO_THZ
 
-    lam_qv_raw = np.loadtxt(ph96_dir / 'elph.lambda_qv.gp')
-    lam_qv = lam_qv_raw[:, 2].reshape(18, 151).T
     gam_qv = parse_gam_lines(ph96_dir / 'gam.lines', target_broadening=0.0030)
+    ry_to_thz = 3289.84196
+    nef_003 = 30.772452
+    w_ry = np.maximum(freqs_thz, 0.25) / ry_to_thz
+    g_ry = (gam_qv / 1000.0) / ry_to_thz
+    lam_qv = np.where(freqs_thz > 0.25, g_ry / (np.pi * nef_003 * (w_ry ** 2)), 0.0)
 
     phdos_arr = np.loadtxt(ph96_dir / 'zrclscc.phdos', comments='#')
     w_dos_thz = phdos_arr[:, 0] * CM1_TO_THZ
@@ -386,7 +439,7 @@ def render_zrcl2_sc2c_phonon_epc() -> None:
     phdos_cl = (phdos_arr[:, 4] + phdos_arr[:, 5]) * dos_scale
     phdos_sc = (phdos_arr[:, 6] + phdos_arr[:, 7]) * dos_scale
 
-    a2f_lines = (ph96_dir / 'alpha2F.emax18.dat').read_text().splitlines()[2:]
+    a2f_lines = (ph96_dir / 'alpha2F.dat').read_text().splitlines()[2:]
     e_a2f, a2f_003, a2f_001 = [], [], []
     for idx in range(0, len(a2f_lines), 2):
         r1 = [float(x) for x in a2f_lines[idx].split()]
@@ -425,15 +478,15 @@ def render_zrcl2_sc2c_phonon_epc() -> None:
         g_vals = gam_qv[:, nu]
         l_vals = lam_qv[:, nu]
         idx_sub = np.arange(0, 151, 3)
-        sizes = np.clip(l_vals[idx_sub] * 170.0 + g_vals[idx_sub] * 0.09, 4.0, 95.0)
+        sizes = np.clip(l_vals[idx_sub] * 26.0 + g_vals[idx_sub] * 0.14, 4.0, 95.0)
         ax_ph.scatter(
             q_dist[idx_sub],
             freqs_thz[idx_sub, nu],
             s=sizes,
-            c=np.clip(g_vals[idx_sub], 0.0, 650.0),
+            c=np.clip(g_vals[idx_sub], 0.0, 340.0),
             cmap='YlOrRd',
             vmin=0.0,
-            vmax=600.0,
+            vmax=330.0,
             edgecolors='#2b3a4d',
             linewidths=0.3,
             alpha=0.84,
@@ -447,22 +500,21 @@ def render_zrcl2_sc2c_phonon_epc() -> None:
     ax_ph.set_title(r'Fat-phonon $\gamma_{\mathbf{q}\nu}$ & $\lambda_{\mathbf{q}\nu}$', pad=8)
 
     ax_ph.annotate(
-        r'C-$2p$ branches ($\nu=16\text{–}18$): $\gamma_{\Gamma,18}\approx 686\ \mathrm{GHz}$',
-        xy=(q_dist[16], 12.85),
-        xytext=(q_dist[14], 11.05),
-        fontsize=7.6,
+        r'C-atom optical modes ($\nu=16\text{–}18$): $\gamma_{\Gamma,17\text{–}18}\approx 322\ \mathrm{GHz}$',
+        xy=(q_dist[8], 15.45),
+        xytext=(q_dist[10], 11.20),
+        fontsize=7.5,
         bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.95),
         arrowprops=dict(arrowstyle='->', color=PALETTE['Rust'], lw=0.85),
     )
     ax_ph.text(
-        q_dist[52], 9.35,
-        'Legacy emax = 10 THz',
-        fontsize=7.6,
+        q_dist[54], 9.05,
+        'Saved input emax = 10 THz',
+        fontsize=7.5,
         color=PALETTE['Coral'],
         fontweight='bold',
     )
 
-    # Panel (b): Atom-resolved PHDOS
     ax_pdos.fill_betweenx(w_dos_thz, 0, phdos_tot, color='#dfe6ef', alpha=0.55)
     ax_pdos.plot(phdos_tot, w_dos_thz, color=PALETTE['Ink'], lw=1.0, label='Total')
     ax_pdos.plot(phdos_zr, w_dos_thz, color=PALETTE['Navy'], lw=1.1, label='Zr')
@@ -477,38 +529,31 @@ def render_zrcl2_sc2c_phonon_epc() -> None:
     ax_pdos.tick_params(labelleft=False)
     ax_pdos.legend(loc='center right', fontsize=7.8)
 
-    # Panel (c): Eliashberg alpha2F(omega) and cumulative lambda(omega)
     ax_a2f.fill_betweenx(e_a2f, 0, a2f_003, color=PALETTE['SoftBlue'], alpha=0.72)
     ax_a2f.plot(a2f_003, e_a2f, color=PALETTE['Navy'], lw=1.35, label=r'$\alpha^2F$ ($\sigma=0.003$)')
     ax_a2f.plot(a2f_001, e_a2f, color=PALETTE['Blue'], lw=0.85, ls=':', alpha=0.85, label=r'$\alpha^2F$ ($\sigma=0.001$)')
-    # Plot scaled cumulative lambda(omega) / 2.6 on same x-axis for clean single-axis layout
     lam_scale = 0.36
     ax_a2f.plot(cum_lam_003 * lam_scale, e_a2f, color=PALETTE['Rust'], lw=1.65, label=r'$0.36\times \lambda(\omega)$')
 
     ax_a2f.set_xlim(0, 1.05)
     ax_a2f.set_xticks([0.0, 0.4, 0.8])
     ax_a2f.set_xlabel(r'$\alpha^2F(\omega)$ & scaled $\lambda(\omega)$')
-    ax_a2f.set_title(r'Eliashberg $\alpha^2F(\omega)$', pad=8)
+    ax_a2f.set_title(r'Saved $\alpha^2F(\omega)$ (emax = 10 THz)', pad=8)
     ax_a2f.tick_params(labelleft=False)
 
     ax_a2f.text(
         0.22, 13.3,
-        r'emax = 18 THz:' + '\n' + r'$\lambda = 2.451$' + '\n' + r'$\omega_{\log}: 83.3\to 85.7\ \mathrm{K}$',
+        'Input: 10 0.12 1\n18-THz output provenance open',
         fontsize=7.8,
         bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
     )
     ax_a2f.legend(loc='center right', bbox_to_anchor=(1.0, 0.36), fontsize=7.6)
 
-    save_figure(fig, PUBLIC_FIGURES / 'zrcl2-sc2c' / 'zrcl2-sc2c-phonon-epc')
-    sync_figure_to_mirror('zrcl2-sc2c/zrcl2-sc2c-phonon-epc')
+    save_figure(fig, 'zrcl2-sc2c-phonon-epc')
 
-
-# ---------------------------------------------------------------------------
-# 3 & 4. ZrCl2/Sc2C k64 vs k96 Crossing Analysis: Tc(sigma) & Spectral Moments
-# ---------------------------------------------------------------------------
 
 def load_zrcl2_lambda_series(tag: str, suffix: str = '') -> dict[str, np.ndarray]:
-    base = PUBLIC_EXAMPLES / 'zrcl2-sc2c' / tag
+    base = ZR_DIR / tag
     dat_file = base / (f'lambda{suffix}.dat')
     out_file = base / (f'lambdax{suffix}.out')
     arr = np.loadtxt(dat_file, comments='#')
@@ -531,7 +576,10 @@ def render_zrcl2_sc2c_k64_k96_tc() -> None:
     p96_10 = load_zrcl2_lambda_series('ph96', '')
     p64_18 = load_zrcl2_lambda_series('ph64', '.emax18')
     p96_18 = load_zrcl2_lambda_series('ph96', '.emax18')
-    sigma = p64_18['sigma']
+    sigma = p64_10['sigma']
+    write_report(ZR_DIR)
+    roots10 = piecewise_linear_crossings(sigma, p64_10['tc'], p96_10['tc'])
+    roots18 = piecewise_linear_crossings(sigma, p64_18['tc'], p96_18['tc'])
 
     fig, (ax_tc, ax_diff) = plt.subplots(1, 2, figsize=(10.0, 4.35))
     fig.subplots_adjust(left=0.085, right=0.98, bottom=0.18, top=0.85, wspace=0.28)
@@ -542,61 +590,62 @@ def render_zrcl2_sc2c_k64_k96_tc() -> None:
         ax.axvspan(0.001, 0.0045, color=PALETTE['WarmTint'], alpha=0.72, zorder=0)
         ax.set_xticks([0.005, 0.010, 0.015, 0.020])
 
-    ax_tc.plot(sigma, p64_18['tc'], color=PALETTE['Navy'], marker='o', ms=3.8, lw=1.6, label=r'$64^2$ (emax = 18 THz)')
-    ax_tc.plot(sigma, p96_18['tc'], color=PALETTE['Rust'], marker='s', ms=3.6, lw=1.6, label=r'$96^2$ (emax = 18 THz)')
-    ax_tc.plot(sigma, p64_10['tc'], color=PALETTE['Navy'], ls='--', lw=1.05, alpha=0.65, label=r'$64^2$ (emax = 10 THz)')
-    ax_tc.plot(sigma, p96_10['tc'], color=PALETTE['Rust'], ls='--', lw=1.05, alpha=0.65, label=r'$96^2$ (emax = 10 THz)')
+    ax_tc.plot(sigma, p64_18['tc'], color=PALETTE['Navy'], marker='o', ms=3.8, lw=1.6, label=r'$64^2$ stored 18-THz table (source open)')
+    ax_tc.plot(sigma, p96_18['tc'], color=PALETTE['Rust'], marker='s', ms=3.6, lw=1.6, label=r'$96^2$ stored 18-THz table (source open)')
+    ax_tc.plot(sigma, p64_10['tc'], color=PALETTE['Navy'], ls='--', lw=1.05, alpha=0.7, label=r'$64^2$ matched 10-THz input')
+    ax_tc.plot(sigma, p96_10['tc'], color=PALETTE['Rust'], ls='--', lw=1.05, alpha=0.7, label=r'$96^2$ matched 10-THz input')
 
-    ax_tc.scatter([0.0036], [13.58], s=58, facecolors='none', edgecolors=PALETTE['Teal'], linewidths=1.8, zorder=6)
-    ax_tc.annotate(
-        r'Crossing $\sigma^* \approx 0.0036\ \mathrm{Ry}$' + '\n' + r'$T_c \approx 13.58\ \mathrm{K}$ ($\lambda \approx 2.33$)',
-        xy=(0.0036, 13.58),
-        xytext=(0.0062, 11.6),
-        fontsize=8.0,
-        bbox=dict(boxstyle='round,pad=0.22', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.94),
-        arrowprops=dict(arrowstyle='->', color=PALETTE['Teal'], lw=0.95),
-    )
+    for i, root in enumerate(roots10):
+        ax_tc.scatter([root['sigma_ry']], [root['tc_k']], marker='^', s=42, color=PALETTE['Amber'], zorder=6, label='10-THz table roots' if i == 0 else None)
+    for i, root in enumerate(roots18):
+        ax_tc.scatter([root['sigma_ry']], [root['tc_k']], s=58, facecolors='none', edgecolors=PALETTE['Teal'], linewidths=1.8, zorder=7, label='18-THz stored-table root (source open)' if i == 0 else None)
+    if roots18:
+        root = roots18[0]
+        ax_tc.annotate(
+            f"Stored 18-THz table\n$\\sigma={root['sigma_ry']:.6f}$ Ry, $T_c={root['tc_k']:.3f}$ K\ninput/run record unlinked",
+            xy=(root['sigma_ry'], root['tc_k']),
+            xytext=(0.0062, 11.6),
+            fontsize=7.7,
+            bbox=dict(boxstyle='round,pad=0.22', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.94),
+            arrowprops=dict(arrowstyle='->', color=PALETTE['Teal'], lw=0.95),
+        )
 
     ax_tc.set_xlabel(r'Electronic broadening $\sigma$ (Ry)')
-    ax_tc.set_ylabel(r'Allen–Dynes $T_c(\sigma)$ (K)')
-    ax_tc.set_title(r'Dense-grid $T_c(\sigma)$ convergence', pad=8)
-    ax_tc.legend(loc='upper right', fontsize=7.8)
+    ax_tc.set_ylabel(r'Stored Allen–Dynes $T_c(\sigma)$ (K)')
+    ax_tc.set_title(r'Stored $T_c$ tables and interpolated roots', pad=8)
+    ax_tc.legend(loc='upper right', fontsize=7.4)
 
     dtc_18 = p64_18['tc'] - p96_18['tc']
     dtc_10 = p64_10['tc'] - p96_10['tc']
     ax_diff.axhline(0.0, color=PALETTE['Ink'], ls='-', lw=0.95, zorder=2)
-    ax_diff.plot(sigma, dtc_18, color=PALETTE['Teal'], marker='o', ms=3.8, lw=1.6, label=r'$\Delta T_c$ (emax = 18 THz)')
-    ax_diff.plot(sigma, dtc_10, color=PALETTE['Amber'], marker='^', ms=3.6, lw=1.35, ls='--', label=r'$\Delta T_c$ (emax = 10 THz)')
-
-    ax_diff.scatter([0.00175, 0.0031], [0.0, 0.0], color=PALETTE['Amber'], s=36, zorder=5)
-    ax_diff.scatter([0.00358], [0.0], color=PALETTE['Teal'], s=44, zorder=6)
-
-    ax_diff.annotate(
-        r'Refined ph64.1 / ph96.1:' + '\n' + r'$\Delta\sigma = 0.0005\ \mathrm{Ry}$, emax = 18 THz',
-        xy=(0.00358, 0.0),
-        xytext=(0.0056, -0.082),
-        fontsize=8.0,
-        bbox=dict(boxstyle='round,pad=0.22', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.94),
-        arrowprops=dict(arrowstyle='->', color=PALETTE['Teal'], lw=0.95),
+    ax_diff.plot(sigma, dtc_18, color=PALETTE['Teal'], marker='o', ms=3.8, lw=1.6, label=r'$\Delta T_c$ (18-THz stored tables)')
+    ax_diff.plot(sigma, dtc_10, color=PALETTE['Amber'], marker='^', ms=3.6, lw=1.35, ls='--', label=r'$\Delta T_c$ (matched 10-THz inputs)')
+    for root in roots10:
+        ax_diff.scatter([root['sigma_ry']], [0.0], marker='^', color=PALETTE['Amber'], s=42, zorder=6)
+    for root in roots18:
+        ax_diff.scatter([root['sigma_ry']], [0.0], color=PALETTE['Teal'], s=48, zorder=7)
+    ax_diff.text(
+        0.035, 0.055,
+        'Prepared ph64.1/ph96.1\nrefinement has no complete Tc pair',
+        transform=ax_diff.transAxes,
+        fontsize=7.5,
+        bbox=dict(boxstyle='round,pad=0.2', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
     )
 
     ax_diff.set_xlabel(r'Electronic broadening $\sigma$ (Ry)')
     ax_diff.set_ylabel(r'$\Delta T_c(\sigma) = T_{c,64} - T_{c,96}$ (K)')
-    ax_diff.set_title(r'Zero-crossing locus $\Delta T_c(\sigma) = 0$', pad=8)
+    ax_diff.set_title(r'Linear-interpolation roots of $\Delta T_c=0$', pad=8)
     ax_diff.set_ylim(-0.135, 0.155)
-    ax_diff.legend(loc='upper right', fontsize=7.8)
+    ax_diff.legend(loc='upper right', fontsize=7.4)
 
-    save_figure(fig, PUBLIC_FIGURES / 'zrcl2-sc2c' / 'zrcl2-sc2c-k64-k96-tc')
-    sync_figure_to_mirror('zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc')
+    save_figure(fig, 'zrcl2-sc2c-k64-k96-tc')
 
 
 def render_zrcl2_sc2c_k64_k96_moments() -> None:
     apply_atlas_style()
-    p64_10 = load_zrcl2_lambda_series('ph64', '')
-    p96_10 = load_zrcl2_lambda_series('ph96', '')
-    p64_18 = load_zrcl2_lambda_series('ph64', '.emax18')
-    p96_18 = load_zrcl2_lambda_series('ph96', '.emax18')
-    sigma = p64_18['sigma']
+    p64 = load_zrcl2_lambda_series('ph64', '')
+    p96 = load_zrcl2_lambda_series('ph96', '')
+    sigma = p64['sigma']
 
     fig, (ax_nef, ax_lam, ax_wlog) = plt.subplots(1, 3, figsize=(10.4, 4.15))
     fig.subplots_adjust(left=0.075, right=0.985, bottom=0.18, top=0.85, wspace=0.31)
@@ -605,206 +654,49 @@ def render_zrcl2_sc2c_k64_k96_moments() -> None:
         ax.axvspan(0.001, 0.0045, color=PALETTE['WarmTint'], alpha=0.65, zorder=0)
         ax.set_xticks([0.005, 0.012, 0.020])
 
-    # Panel (a): N_sigma(E_F)
-    ax_nef.plot(sigma, p64_18['nef'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64\times 64\times 1$')
-    ax_nef.plot(sigma, p96_18['nef'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96\times 96\times 1$')
+    ax_nef.plot(sigma, p64['nef'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64\times 64\times 1$')
+    ax_nef.plot(sigma, p96['nef'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96\times 96\times 1$')
     ax_nef.set_xlabel(r'Broadening $\sigma$ (Ry)')
     ax_nef.set_ylabel(r'$N_\sigma(E_F)$ (states/spin/Ry)')
-    ax_nef.set_title(r'DOS $N_\sigma(E_F)$', pad=8)
-    ax_nef.legend(loc='upper right', fontsize=7.8)
+    ax_nef.set_title(r'$N_\sigma(E_F)$ from stored tables', pad=8)
+    ax_nef.legend(loc='upper right', fontsize=7.6)
     ax_nef.annotate(
-        r'Converged for' + '\n' + r'$\sigma \geq 0.004\ \mathrm{Ry}$',
-        xy=(0.004, p64_18['nef'][3]),
+        'Close for $\\sigma\\geq0.004$ Ry\n(two grids; no convergence proof)',
+        xy=(0.004, p64['nef'][3]),
         xytext=(0.0075, 28.5),
-        fontsize=7.8,
+        fontsize=7.5,
         bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
         arrowprops=dict(arrowstyle='->', color=PALETTE['Navy'], lw=0.85),
     )
 
-    # Panel (b): Direct lambda vs int alpha2F
-    ax_lam.plot(sigma, p64_18['lambda'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64^2$ direct $\lambda$')
-    ax_lam.plot(sigma, p96_18['lambda'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96^2$ direct $\lambda$')
-    ax_lam.plot(sigma, p64_10['int_a2f'], color=PALETTE['Navy'], ls='--', lw=1.1, alpha=0.7, label=r'$64^2$ int $\alpha^2F$ (10 THz)')
-    ax_lam.plot(sigma, p96_10['int_a2f'], color=PALETTE['Rust'], ls='--', lw=1.1, alpha=0.7, label=r'$96^2$ int $\alpha^2F$ (10 THz)')
+    ax_lam.plot(sigma, p64['lambda'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64^2$ direct $\lambda$')
+    ax_lam.plot(sigma, p96['lambda'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96^2$ direct $\lambda$')
+    ax_lam.plot(sigma, p64['int_a2f'], color=PALETTE['Navy'], ls='--', lw=1.1, alpha=0.75, label=r'$64^2$ $\int\alpha^2F$ (10 THz)')
+    ax_lam.plot(sigma, p96['int_a2f'], color=PALETTE['Rust'], ls='--', lw=1.1, alpha=0.75, label=r'$96^2$ $\int\alpha^2F$ (10 THz)')
     ax_lam.set_xlabel(r'Broadening $\sigma$ (Ry)')
     ax_lam.set_ylabel(r'Coupling $\lambda(\sigma)$')
-    ax_lam.set_title(r'Coupling $\lambda(\sigma)$', pad=8)
-    ax_lam.legend(loc='upper right', fontsize=7.5)
+    ax_lam.set_title(r'10-THz input: $\lambda$ and $\int\alpha^2F$', pad=8)
+    ax_lam.legend(loc='upper right', fontsize=7.2)
 
-    # Panel (c): Logarithmic frequency omega_log(sigma)
-    ax_wlog.plot(sigma, p64_18['wlog'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64^2$ (18 THz)')
-    ax_wlog.plot(sigma, p96_18['wlog'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96^2$ (18 THz)')
-    ax_wlog.plot(sigma, p64_10['wlog'], color=PALETTE['Navy'], ls='--', lw=1.1, alpha=0.7, label=r'$64^2$ (10 THz)')
-    ax_wlog.plot(sigma, p96_10['wlog'], color=PALETTE['Rust'], ls='--', lw=1.1, alpha=0.7, label=r'$96^2$ (10 THz)')
+    ax_wlog.plot(sigma, p64['wlog'], color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'$64^2$ (10-THz input)')
+    ax_wlog.plot(sigma, p96['wlog'], color=PALETTE['Rust'], marker='s', ms=3.3, lw=1.5, label=r'$96^2$ (10-THz input)')
     ax_wlog.set_xlabel(r'Broadening $\sigma$ (Ry)')
     ax_wlog.set_ylabel(r'$\omega_{\log}(\sigma)$ (K)')
-    ax_wlog.set_title(r'Log-frequency $\omega_{\log}(\sigma)$', pad=8)
-    ax_wlog.legend(loc='upper left', fontsize=7.5)
-    ax_wlog.annotate(
-        r'$+1.7\text{ to }+8.7\ \mathrm{K}$' + '\n' + r'from C modes',
-        xy=(0.015, p96_18['wlog'][14]),
-        xytext=(0.0085, 84.5),
-        fontsize=7.8,
-        bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
-        arrowprops=dict(arrowstyle='->', color=PALETTE['Rust'], lw=0.85),
+    ax_wlog.set_title(r'Stored $\omega_{\log}$ (10-THz input)', pad=8)
+    ax_wlog.legend(loc='upper left', fontsize=7.2)
+    ax_wlog.text(
+        0.04, 0.04,
+        'Frequency grid ends at 10 THz',
+        transform=ax_wlog.transAxes,
+        fontsize=7.3,
+        color=PALETTE['Muted'],
     )
 
-    save_figure(fig, PUBLIC_FIGURES / 'zrcl2-sc2c' / 'zrcl2-sc2c-k64-k96-moments')
-    sync_figure_to_mirror('zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments')
+    save_figure(fig, 'zrcl2-sc2c-k64-k96-moments')
 
 
-# ---------------------------------------------------------------------------
-# 5. SnSe2/Sr2N Upgraded 3-Panel Diagnostic: SCF + Mass-Corrected Phonon/PHDOS + q=1,2 EPC
-# ---------------------------------------------------------------------------
-
-def render_snse2_sr2n_progress() -> None:
-    apply_atlas_style()
-    sn_dir = PUBLIC_EXAMPLES / 'snse2-sr2n' / 'qe-epc-ph64'
-    freq_true = np.loadtxt(sn_dir / 'srnsnse.freq.gp')
-    freq_wrong = np.loadtxt(sn_dir / 'srnsnse.wrong_mass.freq.gp')
-    q_dist = freq_true[:, 0]
-    w_true = freq_true[:, 1:] * CM1_TO_THZ
-    w_wrong = freq_wrong[:, 1:] * CM1_TO_THZ
-
-    phdos_arr = np.loadtxt(sn_dir / 'srnsnse.phdos', comments='#')
-    w_dos = phdos_arr[:, 0] * CM1_TO_THZ
-    dos_scale = 33.3564095
-    dos_tot = phdos_arr[:, 1] * dos_scale
-    dos_sr = (phdos_arr[:, 2] + phdos_arr[:, 3]) * dos_scale
-    dos_sn = phdos_arr[:, 4] * dos_scale
-    dos_se = (phdos_arr[:, 5] + phdos_arr[:, 6]) * dos_scale
-    dos_n = phdos_arr[:, 7] * dos_scale
-
-    fig = plt.figure(figsize=(10.4, 4.35))
-    gs = GridSpec(
-        1, 3, figure=fig,
-        left=0.075, right=0.985, bottom=0.17, top=0.85,
-        width_ratios=[0.95, 1.42, 1.08], wspace=0.33
-    )
-    ax_scf = fig.add_subplot(gs[0, 0])
-    gs_mid = gs[0, 1].subgridspec(1, 2, width_ratios=[2.05, 1.0], wspace=0.07)
-    ax_ph = fig.add_subplot(gs_mid[0, 0])
-    ax_pdos = fig.add_subplot(gs_mid[0, 1], sharey=ax_ph)
-    ax_epc = fig.add_subplot(gs[0, 2])
-
-    for ax in (ax_scf, ax_ph, ax_pdos, ax_epc):
-        style_axis(ax)
-
-    # Panel (a): Two-stage SCF convergence
-    pwxall_acc = [
-        4.3e-1, 3.8e-2, 4.4e-3, 1.1e-3, 1.13e-4, 3.04e-5, 2.09e-6, 4.91e-7,
-        5.84e-8, 2.26e-8, 3.16e-9, 2.91e-9, 8.22e-10, 3.21e-10, 1.83e-11,
-        1.14e-11, 2.02e-12, 6.26e-13,
-    ]
-    pwx_acc = [
-        4.3e-1, 3.8e-2, 4.4e-3, 1.1e-3, 1.13e-4, 3.04e-5, 2.09e-6, 4.91e-7,
-        5.84e-8, 2.26e-8, 3.14e-9, 2.92e-9, 8.21e-10, 3.20e-10, 1.80e-11,
-        1.14e-11, 1.99e-12, 6.26e-13,
-    ]
-    iters = np.arange(1, len(pwxall_acc) + 1)
-    ax_scf.plot(iters, np.log10(pwxall_acc), color=PALETTE['Navy'], marker='o', ms=3.5, lw=1.5, label=r'pwxall ($64^2$)')
-    ax_scf.plot(iters, np.log10(pwx_acc), color=PALETTE['Rust'], marker='s', ms=3.2, lw=1.2, ls='--', label=r'pwx ($16^2$)')
-    ax_scf.axhline(-12.0, color=PALETTE['Teal'], ls=':', lw=1.0, label=r'$10^{-12}\ \mathrm{Ry}$')
-    ax_scf.set_xlabel('SCF iteration')
-    ax_scf.set_ylabel(r'$\log_{10}(\mathrm{SCF\ accuracy\ [Ry]})$')
-    ax_scf.set_title('SCF convergence', pad=8)
-    ax_scf.legend(loc='upper right', fontsize=7.6)
-
-    # Panel (b): Wrong mass vs True mass Phonon Dispersion + PHDOS
-    q_ticks = [q_dist[0], q_dist[50], q_dist[100], q_dist[150]]
-    for x in q_ticks[1:-1]:
-        ax_ph.axvline(x, color='#ced8e3', lw=0.85, zorder=1)
-    for ax in (ax_ph, ax_pdos):
-        ax.axhline(10.0, color=PALETTE['Coral'], ls='--', lw=1.0, zorder=3)
-        ax.axhspan(7.4, 12.2, color=PALETTE['WarmTint'], alpha=0.55, zorder=0)
-
-    for nu in range(18):
-        lbl_w = r'$M_{\mathrm{N}}=118.71$' if nu == 0 else None
-        lbl_t = r'$M_{\mathrm{N}}=14.007$' if nu == 0 else None
-        ax_ph.plot(q_dist, w_wrong[:, nu], color='#9aa8b8', lw=0.85, ls='--', alpha=0.75, label=lbl_w, zorder=2)
-        color_t = PALETTE['Rust'] if nu >= 15 else PALETTE['Navy']
-        lw_t = 1.45 if nu >= 15 else 1.0
-        ax_ph.plot(q_dist, w_true[:, nu], color=color_t, lw=lw_t, alpha=0.92, label=lbl_t, zorder=3)
-
-    ax_ph.set_xlim(q_ticks[0], q_ticks[-1])
-    ax_ph.set_ylim(-0.3, 12.5)
-    ax_ph.set_xticks(q_ticks, [r'$\Gamma$', r'$M$', r'$K$', r'$\Gamma$'])
-    ax_ph.set_ylabel(r'Frequency $\omega$ (THz)')
-    ax_ph.set_title('Mass-restored phonons', pad=8)
-    ax_ph.legend(loc='lower left', fontsize=7.5)
-
-    ax_pdos.fill_betweenx(w_dos, 0, dos_tot, color='#dfe6ef', alpha=0.55)
-    ax_pdos.plot(dos_tot, w_dos, color=PALETTE['Ink'], lw=0.95, label='Total')
-    ax_pdos.plot(dos_sn + dos_se, w_dos, color=PALETTE['Navy'], lw=1.05, label='Sn+Se')
-    ax_pdos.plot(dos_sr, w_dos, color=PALETTE['Teal'], lw=1.05, label='Sr')
-    ax_pdos.plot(dos_n, w_dos, color=PALETTE['Rust'], lw=1.25, label='N')
-    ax_pdos.set_xlim(0, 5.2)
-    ax_pdos.set_xticks([0, 2, 4])
-    ax_pdos.set_xlabel('PHDOS')
-    ax_pdos.set_title('PHDOS', pad=8)
-    ax_pdos.tick_params(labelleft=False)
-    ax_pdos.legend(loc='center right', fontsize=7.4)
-
-    # Panel (c): Completed q=1 and q=2 mode-resolved lambda_qv
-    q1_freqs = np.array([-0.2703, -0.2703, 0.1351, 1.2082, 1.2082, 2.2227, 2.6441, 2.6441, 3.5696, 3.5696, 4.3052, 4.3052, 4.3723, 5.3598, 6.6493, 7.9905, 7.9905, 10.7377])
-    q1_lam = np.array([0.0000, 0.0000, 0.0000, 0.0077, 0.0077, 0.0161, 0.0016, 0.0017, 0.0035, 0.0035, 0.0018, 0.0019, 0.0181, 0.0146, 0.0049, 0.0025, 0.0025, 0.0183])
-
-    q2_freqs = np.array([0.5844, 0.7615, 1.2260, 1.4783, 1.7871, 2.1003, 2.7314, 2.9384, 3.4150, 3.6312, 4.0439, 4.3107, 4.7574, 5.0819, 6.1879, 7.9570, 9.3685, 10.3345])
-    q2_lam = np.array([0.0000, 0.0644, 0.0421, 0.0070, 0.0241, 0.0073, 0.0015, 0.0234, 0.0254, 0.0039, 0.0066, 0.0019, 0.0081, 0.0042, 0.0014, 0.0020, 0.0118, 0.0099])
-
-    ax_epc.axvline(20.0 * CM1_TO_THZ, color=PALETTE['Amber'], ls=':', lw=1.15, zorder=2)
-    ax_epc.axvline(10.0, color=PALETTE['Coral'], ls='--', lw=1.0, zorder=2)
-
-    m1, s1, _ = ax_epc.stem(
-        np.maximum(0.0, q1_freqs), q1_lam,
-        linefmt='-', markerfmt='o', basefmt=' ', label=r'$q=1\ (\Gamma)$',
-    )
-    plt.setp(m1, color=PALETTE['Navy'], markersize=4.0)
-    plt.setp(s1, color=PALETTE['Navy'], linewidth=1.15)
-
-    m2, s2, _ = ax_epc.stem(
-        q2_freqs, q2_lam,
-        linefmt='--', markerfmt='s', basefmt=' ', label=r'$q=2$',
-    )
-    plt.setp(m2, color=PALETTE['Rust'], markersize=3.8)
-    plt.setp(s2, color=PALETTE['Rust'], linewidth=1.15)
-
-    ax_epc.annotate(
-        r'$q=2,\ \nu=2$: $\lambda=0.0644$' + '\n' + r'($\nu=1 < 20\ \mathrm{cm^{-1}}$ cut)',
-        xy=(0.7615, 0.0644),
-        xytext=(1.85, 0.046),
-        fontsize=7.5,
-        bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
-        arrowprops=dict(arrowstyle='->', color=PALETTE['Rust'], lw=0.85),
-    )
-    ax_epc.annotate(
-        r'$\nu=18$ ($10.74\ \mathrm{THz}$)' + '\n' + r'$\gamma=27.7\ \mathrm{GHz}$',
-        xy=(10.738, 0.0183),
-        xytext=(4.35, 0.025),
-        fontsize=7.5,
-        bbox=dict(boxstyle='round,pad=0.18', facecolor='#ffffff', edgecolor='#d7dfeb', alpha=0.92),
-        arrowprops=dict(arrowstyle='->', color=PALETTE['Navy'], lw=0.85),
-    )
-
-    ax_epc.set_xlim(-0.2, 11.4)
-    ax_epc.set_ylim(0.0, 0.075)
-    ax_epc.set_xlabel(r'Frequency $\omega_{\mathbf{q}\nu}$ (THz)')
-    ax_epc.set_ylabel(r'Mode $\lambda_{\mathbf{q}\nu}$ ($\sigma=0.040\ \mathrm{Ry}$)')
-    ax_epc.set_title(r'Completed $q=1,2$ EPC', pad=8)
-    ax_epc.legend(loc='upper right', fontsize=7.6)
-
-    save_figure(fig, PUBLIC_FIGURES / 'snse2-sr2n' / 'snse2-sr2n-scf-ph-progress')
-    sync_figure_to_mirror('snse2-sr2n/snse2-sr2n-scf-ph-progress')
-
-
-def render_all() -> None:
+if __name__ == '__main__':
     render_zrcl2_sc2c_electronic()
     render_zrcl2_sc2c_phonon_epc()
     render_zrcl2_sc2c_k64_k96_tc()
     render_zrcl2_sc2c_k64_k96_moments()
-    render_snse2_sr2n_progress()
-    print('Rendered all ZrCl2/Sc2C and SnSe2/Sr2N post-processing figures.')
-
-
-if __name__ == '__main__':
-    render_all()

@@ -94,6 +94,16 @@ python3 plot_k32.py hull
 
 前面的 20³→24³ 对照和后续 24³→32³ 对照均已保留，优化与不同静态协议下的压力差也在形成能页中列出。图上的正值来自本次电子能量计算；其中没有声子零点能、振动熵或组态熵，不能把这条线当成某个实验温度下的相界。所有候选均受限于指定立方原型，原子力小也不等于声子稳定。
 
+## 文献中的凸包相图表达方式
+
+研究论文中展示二元或三元相稳定性时，常将 0 K DFT 凸包与实验温度—组分相图、晶体结构模型或零点振动修正并列排布，以便读者在同一组分标尺下对比计算基准与实验边界。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc-C 体系的高温实验相图与 0 K DFT 二元形成能凸包对照" loading="lazy"/><figcaption>二元 Sc–C 体系的高温实验相图（上）与 0 K DFT 形成能凸包（下）上下共用同一碳组分横轴，右侧并列基态层状 <em>R</em>-3<em>m</em> Sc<sub>2</sub>C 的晶体结构与声子色散。实心与空心标记分别区分位于凸包上的热力学稳定相与高于凸包的亚稳候选相。引自 McRae 等人，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，Fig. 2，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
+
+对于含氢等轻元素体系，仅靠静态电子总能往往不足以固定相对稳定性排序。将未含零点能（without ZPE）与计入声子零点振动能（with ZPE）的三元凸包距离 ΔH<sub>hull</sub> 热力图并排绘出，可以直观呈现量子核振动对凸包顶点的重排作用。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_TernaryConvexHull_ZPE_LaScH_He2024_Fig1.jpg" alt="300 GPa 下 La-Sc-H 三元体系计入声子零点能前后的凸包距离对照" loading="lazy"/><figcaption>300 GPa 下 La–Sc–H 三元体系的形成焓凸包距离 Δ<em>H</em><sub>hull</sub> 分布图，对比未含零点能（A）与计入声子零点能 ZPE（B）前后的热力学稳定相及亚稳相分布。引自 He 等人，<em>Proc. Natl. Acad. Sci. U.S.A.</em> <strong>121</strong>, e2401840121 (2024)，Fig. 1A–B，<a href="https://doi.org/10.1073/pnas.2401840121" target="_blank" rel="noopener noreferrer">DOI: 10.1073/pnas.2401840121</a>。</figcaption></figure>
+
 如果后续发现一个新的同成分结构，先按匹配协议计算它的能量，再把对应的真实记录加入候选集合并重建下凸包。要检查现有候选是否存在畸变方向，可接到 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)；看到负频后，沿 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 核对结构、原始频率和数值设置。
 
 ```text

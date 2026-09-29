@@ -189,29 +189,29 @@ python3 plot_phdos.py
 
 其中第 1 列为波数频率（`cm⁻¹`），第 2 列为原胞总声子态密度，第 `3` 至 `N_at + 2` 列依次对应原胞内第 `1` 至 `N_at` 个原子的分波声子态密度（满足 `∑_I PDOS_I(ω) = DOS(ω)`）。将其转换到 `THz` 单位时，横轴频率除以 `33.3564095`，纵轴态密度同步乘以 `33.3564095`，从而保持全频段积分等于总自由度数 `3 N_at`（对 6 原子原胞即为 `18`）。
 
-在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)，使用 `nk1=48, nk2=48, nk3=1` 插值网格生成 [`zrclscc.phdos`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)）与 **`SnSe₂/Sr₂N`**（[`srnsnse.phdos`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos)）中，将同种元素的原子列相加（如 `Cl = site 2 + site 3`，`Sc = site 4 + site 5`），并将 PHDOS 旋转为**水平图（X 轴为 PHDOS，Y 轴为频率 ω）**与左侧声子色散共享纵轴：
+在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)，使用 `nk1=48, nk2=48, nk3=1` 插值网格生成 [`zrclscc.phdos`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)）与 **`SnSe₂/Sr₂N`**（[`srnsnse.phdos`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos)）中，将同种元素的原子列相加（如 `Cl = site 3 + site 4`，`Sc = site 5 + site 6`），并将 PHDOS 旋转为**水平图（X 轴为 PHDOS，Y 轴为频率 ω）**与左侧声子色散共享纵轴：
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨水平 PHDOS 与 Eliashberg 谱函数联立图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的原子分辨 PHDOS（中面板）与声子色散（左面板）、Eliashberg α²F(ω)（右面板）共享频率纵轴（0–18 THz）。中面板清晰显示 Zr、Sc、Cl 振动集中在 0–9.65 THz，而轻原子 C 独占 12.38–17.11 THz 的高频光学岛。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨水平 PHDOS 与 Eliashberg 谱函数联立图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的原子分辨 PHDOS（中面板）与声子色散（左面板）、Eliashberg α<sup>2</sup>F(ω)（右面板）共享频率纵轴（0–18 THz）。中面板显示 Zr、Sc、Cl 振动分布在 0–10.11 THz，而轻原子 C 独占 12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz）的高频光学带。</figcaption></figure>
 
 这种“左色散 + 中水平 PHDOS”的共享纵轴排版比单独画一张横置 PHDOS 图多传递两层关键信息：
 1. **鞍点色散与态密度范霍夫峰的一一对应**：左图声子支在 M 点或 K 点附近的平坦区，水平延伸到中图恰好对准对应元素的 PHDOS 尖峰；
-2. **轻重元素频段分离与积分上限核验**：在 `ZrCl₂/Sc₂C` 中，`C` 原子（锈红）贡献完全落在 `12.4–17.1 THz`；在 `SnSe₂/Sr₂N` 中，恢复 `M_N = 14.007` 后的 `N` 原子（锈红）贡献落在 `7.99–11.95 THz`。这为設定 `lambda.x` 的频率积分上限 `emax` 提供了最直观的定量依据。
+2. **轻重元素频段分离与积分上限核验**：在 `ZrCl₂/Sc₂C` 中，`Zr/Sc/Cl` 分支位于 `0–10.11 THz`（直接 DFPT 网格为 `0–10.02 THz`），经 `10.11–12.49 THz` 的声子带隙后，`C` 原子（锈红）贡献完全落在 `12.49–17.11 THz`（直接 DFPT 网格为 `12.38–17.11 THz`）；在 `SnSe₂/Sr₂N` 中，恢复 `M_N = 14.007` 后的 `N` 原子（锈红）高频光学支从错误质量下的 `4.49–6.70 THz` 移至 `7.99–11.94 THz`（全布里渊区范围 `7.42–11.94 THz`）。这为设定 `lambda.x` 的频率积分上限 `emax` 提供了直接依据。
 
-## 文献声子态密度（PHDOS）后处理审美解析（附 DOI 溯源）
+## 文献中的声子态密度（PHDOS）与色散对照图例（附 DOI 溯源）
 
-在文献中，声子态密度几乎从不孤立成图，而是作为连接**声子色散（动量空间）**与**热力学/超导谱函数（能量空间）**的枢纽面板。下面引入两幅代表性文献图件（附原始 DOI 号）解析其后处理风格：
+在晶格动力学与超导文献中，声子态密度常与高对称路径声子色散或 Eliashberg 谱函数共享同一频率纵轴并列展示。下面结合两幅文献原图说明其常见布局：
 
-### 1. 声子色散与原子投影 PHDOS 的双面板水平拼接（含重构前后对比）
+### 1. 声子色散与元素分辨 PHDOS 的多体系并列对比（含 SOC 与 CDW 软模）
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="二维材料在周期性晶格畸变（CDW）前后的声子色散与原子分辨 PHDOS 联立对比图" loading="lazy"/><figcaption>文献案例 1：左面板绘制高对称路径声子色散，右面板严密对齐频率纵轴绘制元素分辨 PHDOS；上下两行进一步对比高对称相（含声学支虚频）与 √3×√3 超胞重构相（虚频完全消除且伴随 PHDOS 重分布）。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="四种二维过渡金属碳氮化物在有无自旋轨道耦合及应变调控下的声子色散与元素分辨 PHDOS 对比图" loading="lazy"/><figcaption>四个子面板 (a)–(d) 依次展示 Mo<sub>2</sub>C、Mo<sub>2</sub>N、W<sub>2</sub>C 及 4% 双轴应变 W<sub>2</sub>N 在不含自旋轨道耦合（红虚线）与含自旋轨道耦合（蓝实线）下的声子色散及右侧共享频率轴的元素分辨 PHDOS；子面板 (d) 同时以绿色点线（标有 <code>CDW &lt;-</code>）叠绘未应变 W<sub>2</sub>N 在 M 点的电荷密度波软模虚频支。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **审美与后处理要点**：在双面板拼接时，右图隐藏重复的 Y 轴刻度数字（`tick_params(labelleft=False)`），保持完全一致的 `ylim`，并对总 PHDOS 或主导元素使用浅色半透明填充（`fill_betweenx`），使其在视觉上呈现稳重的“实体谱”质感。
+- **数据组织要点**：每个子面板将声子色散与右侧的元素投影 PHDOS 紧邻拼接并共用频率纵轴（隐藏右侧重复的 Y 轴刻度标签），直观呈现过渡金属（Mo/W）占据低频声学区、轻元素（C/N）占据高频光学区的频段分离，同时对比自旋轨道耦合（SOC）与双轴应变对 M 点声学软模的调控。
 
-### 2. Fat-Phonon + 元素分辨 PHDOS + Eliashberg α²F(ω) 三联对照
+### 2. 声子色散、模式耦合强度、元素分辨 PHDOS 与 Eliashberg α²F(ω) 多面板并列
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="声子色散线宽投影、元素投影 PHDOS 与 Eliashberg 谱函数 α²F(ω) 共享频率轴三联图" loading="lazy"/><figcaption>文献案例 2：将元素分辨 PHDOS 置于声子色散与 Eliashberg 谱函数 α²F(ω) 之间，直接对比态密度峰值与电声耦合谱函数峰值的异同。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维 h-AlH₂ 的振动方向投影色散、模式电声耦合常数、元素分辨 PHDOS、Eliashberg 谱函数与布里渊区耦合分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板组合图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) Al 与 H 的分波声子态密度 PHDOS，(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与累计 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
 
-- **审美与后处理要点**：把 `PHDOS(ω)` 与 `α²F(ω)` 并排共享频率轴，可以直观回答“某个频率处的强超导配对究竟是因为声子态密度本身很大（PHDOS 峰），还是因为电声矩阵元很大（PHDOS 不高但 `α²F` 很高）”。
+- **数据组织要点**：把 `PHDOS(ω)` 放在声子色散与 `α²F(ω)` 之间并共享频率纵轴，可以直接对比某频段内的声子态密度峰值与电声耦合谱函数峰值，区分态密度基数贡献与电声矩阵元贡献。
 
 下一步可以回到 [声子色散](/Atlas/m/phonon-dfpt/qe/) 对照峰主要来自哪些近乎平坦的声子支，也可以到 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查低频端的残差。
 

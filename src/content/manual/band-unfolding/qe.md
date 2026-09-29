@@ -767,6 +767,22 @@ print('Weights below1e-5 are hidden in the spectral scatter only; source values 
 
 这条路线已经取得完整的本征值、复波函数和展开权重，也给出了原胞对照。继续研究缺陷、无序或热位移时，应从新的超胞结构重新完成 SCF 与波函数链，检查能量覆盖、超胞大小、k 点映射和赝势对应的重叠定义，再解释谱重的分散。当前完美超胞的尖锐权重本身不提供缺陷展宽或电子寿命结论。
 
+## 文献中的相关图件与表达方式
+
+当体系存在莫尔超晶格、长周期重构或缺陷超胞时，平移对称性变化会导致布里渊区折叠（Brillouin Zone Folding），产生密集的微带（Mini-bands）或将原胞本征态分摊到多个超胞态上。文献中常将实空间莫尔超晶格、倒空间微布里渊区折叠与能带色散并列呈现：
+
+### 1. 转角双层石墨烯的莫尔超晶格、微布里渊区折叠与微带色散
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的实空间莫尔超胞几何、微布里渊区折叠与魔角微带能带结构" loading="lazy"/><figcaption>转角双层石墨烯的超晶格折叠三联图：(a) 包含 AA、AB 与 BA 堆垛微区的实空间莫尔超晶格结构；(b) 旋转单层六角布里渊区交叠生成的微布里渊区（Mini-BZ）几何关系；(c) 折叠到微布里渊区后的魔角微带能带结构，展示费米能级附近的孤立平带与高对称路径色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018), Fig. 1(a–c)，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
+
+- **读图与作图要点**：在研究超胞能带时，先用实空间超胞与倒空间微布里渊区图建立几何对应关系，再在能带图中通过颜色或线型区分不同谷（Valley）或原子层的投影贡献，能直观反映超胞对能带结构的调控机制。
+
+### 2. 电荷密度波超胞费米面按谱权重反折叠回原胞布里渊区
+
+除了沿高对称路径展开，能带展开还常用于固定在费米能处的二维动量平面：将重构超胞（如 3×3 电荷密度波超胞）的费米面按谱权重 W<sub>k</sub> 展开回原胞六角布里渊区，可以直接标出哪些费米面片段保留了原始谱重、哪些动量区域打开了部分能隙，并与角分辨光电子能谱（ARPES）等能面测量直接对比。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe2 的 3x3 电荷密度波超胞费米面展开回原胞六角布里渊区的谱权重分布" loading="lazy"/><figcaption>单层 NbSe<sub>2</sub> 的 3×3 电荷密度波（CDW）超胞费米面展开回原胞六角布里渊区后的谱权重 <em>W</em><sub>k</sub> 分布（Fig. 2b），展示 K 点口袋附近的各向异性部分能隙打开与折叠鬼影带。引自 Zheng 等人，<em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，Fig. 2b，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
+
 下一步：回到[普通能带](/Atlas/m/bands/qe/)查看直接 DFT 路径；需要低成本插值时接[Wannier90](/Atlas/m/wannier90/qe/)。
 
 ```text

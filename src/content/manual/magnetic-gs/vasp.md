@@ -191,9 +191,19 @@ nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB
 
 将 `magnetic-energies.json` 与 `plot_magnetic.py` 放到本机同一目录，执行 `python3 plot_magnetic.py`，即可生成能量差柱图和 PDF。图标题保留固定晶格常数，纵轴保留每原子单位，避免把每胞能量差误读成每原子值。
 
-下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。
-
 ![固定晶格常数下 Fe 的三个磁构型能量](/Atlas/examples/vasp/fe-bcc/magnetic-energies.png)
+
+## 文献中的相关图件与表达方式
+
+本页 bcc Fe 的反平行构型（`afm`）虽然整胞总磁矩为零，但两个 Fe 位点各自保留 ±1.317 μ<sub>B</sub> 的局域磁矩。在更一般的共线反铁磁体系中，除核对整胞净磁矩与逐原子局域投影外，还常结合两个相反自旋亚晶格之间的晶体对称操作，区分传统共线反铁磁与交错磁体（altermagnet）：若相反自旋亚晶格通过纯平移或空间反演相连，能带保持全布里渊区自旋简并；若非磁配位环境破坏了平移与反演对称，仅能通过旋转或镜面操作连接两个亚晶格，则在零净磁矩下仍会出现动量依赖的能带自旋劈裂。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_Altermagnet_Schematic_Fig1.jpg" alt="铁磁体、共线反铁磁体与交错磁体的实空间亚晶格对称性及动量空间自旋极化费米面对比" loading="lazy"/><figcaption>共线磁序的三类典型对称性与电子结构对比：将实空间相反自旋亚晶格的连接方式（平移/反演与旋转/镜面）同动量空间自旋极化费米面及能带色散并列展示（Song 等，<em>Nat. Rev. Mater.</em> <strong>10</strong>, 247 (2025)，<a href="https://doi.org/10.1038/s41578-025-00779-1" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41578-025-00779-1</a>）。</figcaption></figure>
+
+在第一性原理磁基态与电子结构研究中，通常把晶体结构中破坏反演与平移对称的非磁配位多面体、高对称路径上的红蓝双通道自旋极化能带，以及布里渊区截面与三维费米面组合在同一组图件中，从而把 `OUTCAR` 确认的共线补偿磁矩与倒空间的自旋劈裂特征直接对应起来。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_Altermagnet_Bands_FS_NbMnP_Fig3.jpg" alt="交错磁体 NbMnP 的自旋劈裂能带、晶体配位环境与三维自旋极化费米面" loading="lazy"/><figcaption>NbMnP 在共线反平行磁基态下的综合表征：包含自旋向上与自旋向下通道交替劈裂的能带结构、破坏平移与反演对称的非磁晶体配位环境，以及二维切面与三维自旋极化费米面分布（<em>Phys. Rev. B</em> (2025)，<a href="https://doi.org/10.1103/mmdm-hrj4" target="_blank" rel="noopener noreferrer">DOI: 10.1103/mmdm-hrj4</a>）。</figcaption></figure>
+
+下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。
 
 ```text
 同一固定晶胞与同一组数值参数

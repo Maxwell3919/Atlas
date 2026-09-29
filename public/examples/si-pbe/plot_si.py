@@ -26,13 +26,46 @@ def convergence():
         ax.set_title({'ecutwfc':'Fixed 640 Ry, 8³ mesh','ecutrho':'Fixed 60 Ry, 8³ mesh','kmesh':'Fixed 60 / 640 Ry'}[param],fontsize=11)
     save(fig,'convergence')
 def relax():
-    r=read('relax/relaxation.csv');fig,axes=plt.subplots(1,2,figsize=(10,3.7),layout='constrained')
-    axes[0].plot(r['scf_cycle'],(r['energy_Ry']-r['energy_Ry'][-1])*13605.693122994,'o-',color=BLUE)
-    axes[0].set_ylabel('Energy above final structure (meV/cell)')
-    axes[1].plot(r['scf_cycle'],r['total_force_Ry_per_Bohr'],'o-',color=ORANGE)
-    axes[1].set_ylabel('QE total force (Ry/Bohr)');axes[1].annotate('Printed as 0.000000',xy=(r['scf_cycle'][-1],r['total_force_Ry_per_Bohr'][-1]),xytext=(-95,25),textcoords='offset points',fontsize=9,arrowprops={'arrowstyle':'->','color':GRAY})
-    for ax in axes:ax.set_xlabel('SCF cycle along BFGS relaxation');ax.set_xticks(r['scf_cycle']);clean(ax)
-    save(fig,'relax')
+    r=read('relax/relaxation.csv')
+    fig,axes=plt.subplots(1,2,figsize=(9.6,3.6),layout='constrained')
+    e_diff = (r['energy_Ry'] - r['energy_Ry'][-1]) * 13605.693122994
+    axes[0].plot(r['scf_cycle'], e_diff, 'o-', color=BLUE, lw=1.5, ms=5, zorder=3)
+    axes[0].fill_between(r['scf_cycle'], 0, e_diff, color=BLUE, alpha=0.12, zorder=1)
+    axes[0].set_ylabel('Energy above final geometry (meV/cell)')
+    axes[0].set_title('Si: Monotonic Energy Descent', fontweight='bold', fontsize=10.5)
+    for cycle, de in zip(r['scf_cycle'][:-1], e_diff[:-1]):
+        axes[0].annotate(f"{de:.1f} meV", xy=(cycle, de), xytext=(0, 6),
+                         textcoords='offset points', ha='center', fontsize=7.5, color=BLUE)
+    axes[0].annotate("Final E₀ = -22.838592 Ry", xy=(r['scf_cycle'][-1], 0), xytext=(-55, 18),
+                     textcoords='offset points', fontsize=7.5, color='#162232',
+                     arrowprops=dict(arrowstyle='->', color='#718096', lw=0.6))
+    
+    # Total force plot with log-scale threshold lines
+    f_vals = np.array(r['total_force_Ry_per_Bohr'])
+    # For display of the 0.0 final step, set a small visual floor for the arrow
+    f_disp = np.maximum(f_vals, 1e-5)
+    axes[1].plot(r['scf_cycle'][:-1], f_vals[:-1], 's-', color=ORANGE, lw=1.5, ms=5, label='Total Force', zorder=3)
+    axes[1].plot([r['scf_cycle'][-2], r['scf_cycle'][-1]], [f_vals[-2], f_disp[-1]], 's--', color=ORANGE, lw=1.0, zorder=2)
+    axes[1].scatter([r['scf_cycle'][-1]], [f_disp[-1]], marker='o', facecolors='white', edgecolors=ORANGE, s=40, zorder=4)
+    axes[1].axhline(1e-3, color='#c0392b', ls='--', lw=0.9, label=r'QE Default $10^{-3}$ Ry/Bohr', zorder=1)
+    axes[1].axhline(1e-4, color='#27ae60', ls=':', lw=0.9, label=r'Stringent $10^{-4}$ Ry/Bohr', zorder=1)
+    axes[1].set_yscale('log')
+    axes[1].set_ylim(5e-6, 1.2e-1)
+    axes[1].set_ylabel('Total Force (Ry/Bohr, log scale)')
+    axes[1].set_title('Si: BFGS Force Convergence', fontweight='bold', fontsize=10.5)
+    axes[1].annotate('Printed as 0.000000\n(Force strictly zero by symmetry)',
+                     xy=(r['scf_cycle'][-1], f_disp[-1]), xytext=(-120, 28),
+                     textcoords='offset points', fontsize=7.5, color='#8c3b00',
+                     arrowprops=dict(arrowstyle='->', color=ORANGE, lw=0.7))
+    axes[1].legend(frameon=True, facecolor='#f8fafc', edgecolor='#e2e8f0', fontsize=7.5, loc='upper right')
+    
+    for label, ax in zip('ab', axes):
+        ax.set_xlabel('BFGS Step / SCF Cycle')
+        ax.set_xticks(r['scf_cycle'])
+        clean(ax)
+        ax.text(-0.14, 1.05, label, transform=ax.transAxes, fontweight='bold', fontsize=10)
+    save(fig, 'relax')
+
 def gap():
     r=json.loads((ROOT/'gap-results.json').read_text());base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')

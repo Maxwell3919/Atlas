@@ -281,6 +281,16 @@ fig.savefig("md-check.pdf", bbox_inches="tight", facecolor="white")
 
 完整输入与结果：[md.py](/Atlas/examples/mace-si/si-md/md.py)、[运行输出](/Atlas/examples/mace-si/si-md/md.out.txt)、[0.5 fs 轨迹](/Atlas/examples/mace-si/si-md/nve-0p5fs.traj)、[数值摘要](/Atlas/examples/mace-si/si-md/result.json)。
 
+## 文献中的热力学采样与非谐动力学展示方式
+
+在恒温分子动力学研究中，通常将温度与能量的时间序列曲线同模拟末帧的超胞原子构型并排展示，以便同时核对温控平衡状态与晶格几何完整性。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M8_AIMD_ThermalStability_ZrI2_Fig2.jpg" alt="恒温分子动力学中温度与能量时间序列同超胞末帧结构快照的组合展示" loading="lazy"/><figcaption>恒温分子动力学模拟中将温度 <em>T</em>(<em>t</em>)、总能量 <em>E</em>(<em>t</em>) 时间序列监控与初始及 10 ps 末帧超胞结构快照结合展示的典型图件。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 2，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+
+当体系存在强非谐效应（或量子核效应）致使简谐声子出现大范围虚频时，可以通过对有限温度系综构型的力—位移采样进行非谐声子重整化（如随机自洽谐波近似 SSCHA），将简谐近似下的虚频软模修正为有限温度下稳定的实频色散。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg" alt="H3S 中基于系综力位移采样的有限温度非谐声子重整化对比" loading="lazy"/><figcaption>高压超导体 H<sub>3</sub>S 中简谐声子谱（含大范围虚频）与通过系综力—位移采样获得的有限温度非谐重整化声子色散对比。引自 Monacelli 等人，<em>J. Phys.: Condens. Matter</em> <strong>33</strong>, 363001 (2021)，Fig. 8，<a href="https://doi.org/10.1088/1361-648X/ac066b" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac066b</a>。</figcaption></figure>
+
 下一步：若要报告温度相关物性，继续增加超胞、采样时间和独立初速度，并抽取实际轨迹构型做同一 DFT 设置的能量与力对照。需要回查输入结构时，返回[可变晶胞优化](/Atlas/m/vc-relax/mace/)；需要研究谐波动力学时，接着读[声子计算](/Atlas/m/phonon-dfpt/qe/)，重新建立对应 DFT 计算的结构与电子态前提。
 
 ```text

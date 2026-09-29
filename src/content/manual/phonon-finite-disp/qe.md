@@ -174,7 +174,19 @@ n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.1
 python3 plot_finite.py
 ```
 
-这条路线已经从明确结构、真实正负位移输入、SCF 受力走到可复算的声子图；图同时揭示了当前超胞系列还不足以作完整数值收敛声明。下一步增大超胞并维持相当的电子采样密度，再与 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的直接 q 点核对。若出现可见负频支，按 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查本征矢和数值来源，不要先把负值改成零。
+这条路线已经从明确结构、真实正负位移输入、SCF 受力走到可复算的声子图；图同时揭示了当前超胞系列还不足以作完整数值收敛声明。
+
+## 文献中的声子本征矢与振动方向投影图件
+
+由力常数矩阵对角化得到频率与本征位移矢量后，研究论文通常在晶体原胞上直接画出 Γ 点各光学支的原子振动箭头，并标注对应的点群不可约表示及红外（IR）或拉曼（Raman）活性，便于与振动光谱实验对比。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_Irreps_AlH2_Yang2023_Fig3a.jpg" alt="单层 AlH2 在 Γ 点的声子本征位移模式与点群不可约表示标注" loading="lazy"/><figcaption>单层 AlH<sub>2</sub> 在 Γ 点的声子本征位移模式示意图，标注 <em>D</em><sub>3h</sub> 点群不可约表示（<em>E</em>′、<em>A</em><sub>2</sub>′′、<em>E</em>′′、<em>A</em><sub>1</sub>′）以及对应的红外（IR）与拉曼（Raman）活性。引自 Yang、Jiang 与 Zhao，<em>Chin. Phys. Lett.</em> <strong>40</strong>, 107401 (2023)，Fig. 3a，<a href="https://doi.org/10.1088/0256-307X/40/10/107401" target="_blank" rel="noopener noreferrer">DOI: 10.1088/0256-307X/40/10/107401</a>。</figcaption></figure>
+
+对于整个布里渊区路径上的声子色散，还可将本征位移按原子种类及面内（xy）、面外（z）振动方向投影，叠加在色散曲线上，清楚区分不同频段和软模分支是由哪类原子的哪个方向运动主导。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="单层 NbSi2As4 按原子与面内面外振动方向投影的声子色散谱" loading="lazy"/><figcaption>单层 NbSi<sub>2</sub>As<sub>4</sub> 的声子色散按面内 <em>xy</em> 与面外 <em>z</em> 原子本征位移的投影分布，展示各声子支的振动方向组成。引自 <em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3b，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+
+下一步增大超胞并维持相当的电子采样密度，再与 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的直接 q 点核对。若出现可见负频支，按 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查本征矢和数值来源，不要先把负值改成零。
 
 ```text
 优化后的原胞 → 超胞和正负位移 → 固定结构 QE SCF

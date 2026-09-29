@@ -302,6 +302,16 @@ LELF = .TRUE.
 
 它开启 LCHARG 后得到非空 CHGCAR，WAVECAR 仍为空；附加的 LAECHG 和 LELF 用来写 Bader 与 ELF 所需文件，详见 [Bader](/Atlas/m/bader/vasp/) 和 [ELF](/Atlas/m/elf/vasp/)。需要复用密度时，应核对结构、赝势、泛函、自旋设置及 PAW 一中心信息的兼容性，再按后续任务设置 k 点，不能把不同磁态或不同结构的 CHGCAR 混用。
 
+将本页 bcc Fe 铁磁态 `OSZICAR` 的 18 步 Davidson 迭代记录与 `OUTCAR` 的局域轨道投影整理成图，可以清晰看到前 5 步非自洽波函数预迭代（`NELMDL = -5`）与第 6 步开启电荷混合后的收敛分界，以及两个 Fe 位点上的 s/p/d 局域电荷与磁矩分布。
+
+<figure class="research-figure"><img src="/Atlas/figures/scf/fe-vasp-scf-convergence.png" alt="bcc Fe 铁磁态 VASP 自洽场能量与残差收敛轨迹及自旋分辨局域磁矩" loading="lazy"/><figcaption>本页 bcc Fe（<code>a = 2.8 Å</code>，<code>EDIFF = 1E-8</code>）的 VASP 自洽场收敛与磁矩核对：（左）<code>OSZICAR</code> 记录的 18 步 Davidson 迭代轨迹，展示前 5 步冻结电荷（<code>NELMDL = -5</code>）期间的波函数残差下降与第 6 步开启电荷混合后 <code>rms(c)</code> 的收敛过程；（右）<code>OUTCAR</code> 给出的两个 Fe 原子 s/p/d 轨道电荷与局域磁矩（2.115 μ<sub>B</sub>/Fe，总磁矩 4.2127 μ<sub>B</sub>，外压 56.94 kbar）。</figcaption></figure>
+
+## 文献中的相关图件与表达方式
+
+在二维材料与表面的固定结构 SCF 计算中，若体系上下表面不对称（如极性 Janus 单层 MoSSe 或单面吸附薄膜），自洽收敛后的电荷重排会产生面外固有偶极矩。文献中常输出平面平均静电势（VASP 中对应 `LVHAR = .TRUE.` 生成的 `LOCPOT`），将沿垂直方向 `z` 的静电势曲线、偶极修正引起的上下表面真空平台跃变 `ΔV`，以及对齐到两侧真空能级的价带顶（VBM）和导带底（CBM）画在同一张示意图中。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg" alt="极性 Janus MoSSe 单层经偶极修正后的自洽静电势分布与两侧真空能级差" loading="lazy"/><figcaption>极性二维单层 MoSSe 的自洽静电势与带边对齐：展示沿垂直方向平面平均静电势在偶极修正下的两侧真空平台差值，以及相对于两侧真空能级的带边位置（Haastrup 等，<em>2D Mater.</em> <strong>5</strong>, 042002 (2018)，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>）。</figcaption></figure>
+
 下一步若比较磁构型，接 [磁性基态候选态](/Atlas/m/magnetic-gs/vasp/)；若读真空能级，接 [功函数](/Atlas/m/workfunction/vasp/)。这些页面各自说明需要继承哪些文件，SCF 的一般读法不再重复展开。
 
 ```text

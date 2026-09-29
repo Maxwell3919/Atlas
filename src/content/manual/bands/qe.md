@@ -181,39 +181,42 @@ python3 plot_bands.py
 
 能带图适合看路径上能级如何分散，不能保证路径经过全布里渊区的真实极值。直接/间接带隙的判定与采样对照见 [带隙页](/Atlas/m/band-gap/qe/)；导带谷附近的曲率见 [有效质量](/Atlas/m/effective-mass/qe/)。
 
-## 二维金属异质结 ZrCl₂/Sc₂C：能带色散、水平 PDOS 与二维费米面的三联耦合后处理
+## 二维金属异质结 ZrCl₂/Sc₂C：轨道投影能带、水平 PDOS 与二维费米面三联图
 
-对于半导体 Si，能量零点取在路径价带顶（VBM）；而对于金属或超导异质结，能量零点必须取在统一自洽或更密 NSCF 网格确定的费米能级 `E_F`，并且高对称路径上穿过 `E = E_F` 的能带分支会直接在倒空间切出费米面口袋。
+对于半导体 Si，能量零点取在路径价带顶（VBM）；对于金属异质结，能量零点取在自洽计算确定的费米能级 `E_F`，高对称路径上穿过 `E = E_F` 的能带分支对应倒空间中的费米面等能线。
 
-在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，从 `scf/bands.in`（沿二维六角布里渊区 `Γ–M–K–Γ` 共 151 个 k 点）和 `pdos/pdos.in` 提取 `E_F = 2.7525 eV` 附近的电子结构时，我们将**轨道投影能带（Fatbands）**、**共享能量纵轴 `E − E_F` 的水平分波态密度（PDOS）**以及**第一布里渊区二维费米面（Band 26 与 Band 27）**排成紧凑的横排三联图：
+在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，计算参数为 `ecutwfc = 100 Ry`、`ecutrho = 800 Ry`、`degauss = 0.0037 Ry`，能量零点采用 `scf/pwx.out` 的 `E_F = 0.3133 eV`。绘图脚本 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 将三组输出并排组合为三联图：
+- **子图 a（`Orbital fatbands`）**：读取 `scf/bands.in` 沿二维六角布里渊区 `Γ–M–K–Γ` 路径计算的 `151` 个 k 点、`31` 条能带，以及 `scf/fatbands.projwfc_up` 中的 `45` 个正交化原子轨道（归并为 `Zr-4d` `#9–13`、`Sc-3d` `#31–35, #41–45`、`C-2p` `#15–17`、`Cl-3p` `#19–21, #23–25`），以空心圆（`facecolors='none'`，权重阈值 `w > 0.04`）叠加在能带曲线上；
+- **子图 b（`PDOS`）**：与子图 a 共享垂直能量轴 `E − E_F ∈ [−2.5, 2.0] eV`，展示 `zrclscc.pdos_tot` 的灰色填充总态密度及四组轨道的水平分波态密度曲线；
+- **子图 c（`2D Fermi surface`）**：由 `FS/zrclscc_fs.bxsf`（`64×64×1` k 网格、`65×65×2` BXSF 节点，`E_F = 0.3154 eV`）插值绘制二维六角第一布里渊区内穿过费米能级的 **Band 26**（蓝色）与 **Band 27**（橙红色）费米面等能线。
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面拓扑" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的能带–PDOS–费米面三联耦合后处理：（左）Γ–M–K–Γ 能带色散与轨道权重散点；（中）共享 E − E_F 纵轴的水平轨道分辨 PDOS；（右）穿过费米能级的第 26 带（深蓝）与第 27 带（锈红）在二维六角第一布里渊区中的费米面等能线。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面三联图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构三联图：(a) <code>Γ–M–K–Γ</code> 路径上的 31 条能带与 45 个正交化原子轨道归并后的空心圆轨道权重；(b) 共享 <code>E − E_F</code> 纵轴的水平总 DOS 与轨道分辨 PDOS；(c) 由 <code>zrclscc_fs.bxsf</code> 插值得到的第 26 带（蓝）与第 27 带（橙红）二维六角第一布里渊区费米面。</figcaption></figure>
 
-这种三联排版让读者沿着 `E − E_F = 0` 水平虚线一眼看清：左图沿 `Γ–M` 和 `Γ–K` 两次穿越费米能级的第 26、27 条色散曲线，在右图六角布里渊区中恰好对应围绕 Γ 点的同心双口袋与围绕 K 点的三角形口袋；而 `Γ–M` 段紧贴费米能级下方的平坦鞍点带，则直接形成中图 `E − E_F ≈ −0.08 eV` 处的尖锐 PDOS 峰值。
+沿着 `E − E_F = 0` 水平虚线横向对照：子图 a 中沿 `Γ–M` 和 `Γ–K` 穿越费米能级的第 26、27 条能带，在子图 c 的六角布里渊区中对应围绕 Γ 点的内外口袋与围绕 K 点的口袋；而费米能级附近的平缓色散段则直接对应子图 b 在 `E_F` 附近的 `Zr-4d` 与 `Sc-3d` 态密度峰。
 
 下载本算例：[bands.in](/Atlas/examples/zrcl2-sc2c/scf/bands.in) · [pdos.in](/Atlas/examples/zrcl2-sc2c/pdos/pdos.in) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
 
-## 文献能带结构后处理审美解析（附 DOI 溯源）
+## 文献中的相关图件与表达方式
 
-在凝聚态物理与计算材料学文献中，孤立的一维黑白能带图已逐渐被**能带 + 水平 DOS + 费米面联立图**、**双泛函叠绘能带**或**莫尔超晶格折叠能带**所取代。下面引入三幅代表性文献原图（均附原始 DOI 号）解析其视觉范式：
+在凝聚态物理与计算材料学文献中，能带图常与水平态密度（DOS）、二维费米面、不同处理（如 SOC 或杂化泛函）对比曲线或超晶格折叠布里渊区配对展示：
 
-### 1. 能带色散 + 水平投影 DOS + 布里渊区费米面黄金三联图
+### 1. 不含/含 SOC 的能带与水平总 DOS 及费米速度着色的二维费米面
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维超导体系的轨道着色能带、共享能量轴水平 PDOS 与二维六角布里渊区费米面联立图" loading="lazy"/><figcaption>文献案例 1：左面板绘制高对称路径能带（彩色散点标注不同原子/轨道成分），中面板共享能量纵轴绘制水平 PDOS，右面板展示多能带构成的二维六角布里渊区费米面拓扑。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="Mo₂C、Mo₂N、W₂C、W₂N 在不含 SOC 与含 SOC 下的能带、水平总 DOS 与费米速度着色二维六角费米面对比" loading="lazy"/><figcaption>二维过渡金属碳/氮化物（<code>Mo₂C, Mo₂N, W₂C, W₂N</code>）在费米能级附近窄窗口 <code>[−1, 1] eV</code> 内的能带与水平总 DOS 对比（红色虚线为不含 SOC，蓝色实线与浅蓝阴影填充为含 SOC），右侧配对展示按费米速度 <code>v_F(k)</code> 着色的二维六角布里渊区费米面。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **审美与后处理要点**：能带与水平 DOS 面板之间压缩间距（`wspace ≈ 0.06`）并隐藏中面板的 Y 轴标签，使 `E − E_F = 0` 水平参考线贯穿左右两图，实现动量空间色散与能量空间态密度的无缝对准。
+- **读图与作图要点**：将能量纵轴聚焦在 `E − E_F ∈ [−1, 1] eV` 的近费米窗口，在同一坐标系内用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）直接对比自旋轨道耦合引起的能带劈裂与总 DOS 变化，并在右侧列出按费米速度 `v_F(k)` 着色的二维六角费米面。
 
-### 2. PBE 与 HSE06 杂化泛函的双色实虚线同轴叠绘对比
+### 2. GGA-PBE 与 HSE06 泛函下两种材料能带的上下行与双色线型对比
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="半导体体系在 PBE 与 HSE06 杂化泛函下的能带与态密度同轴叠绘对比" loading="lazy"/><figcaption>文献案例 2：将 GGA-PBE（虚线）与 HSE06 杂化泛函（实线）计算的能带结构统一对齐在价带顶（VBM = 0 eV）同框叠绘，直观展示导带底（CBM）的上移（剪刀算符效应）与色散曲率变化。图片来源：Santos et al., <em>J. Appl. Phys.</em> (2025)，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="HfBr₂ 与 HfI₂ 在 GGA-PBE（上行）与 HSE06（下行）下的能带结构及直接/间接光学跃迁箭头标注" loading="lazy"/><figcaption>上行子图为 GGA-PBE 能带，下行子图为 HSE06 杂化泛函能带；每个子图内以红色实线表示 <code>HfBr₂</code>、蓝色点线表示 <code>HfI₂</code>，并用竖直与倾斜箭头标出直接与间接光学跃迁路径。图片来源：Santos et al., <em>J. Appl. Phys.</em> <strong>138</strong>, 104302 (2025), Fig. 4，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
 
-- **审美与后处理要点**：比较两种泛函（或含/不含 SOC）时，避免并排画两张几乎相同的独立子图；将两套能带对齐在共同的 VBM = 0 eV 并用**实线 + 虚线（配合高对比双色）**叠绘在同一坐标轴上，能一眼看清带隙打开幅度以及谷简并是否改变。
+- **读图与作图要点**：当需要同时比较两种泛函（上行 GGA-PBE、下行 HSE06）和两种同构化合物（红色实线 `HfBr₂`、蓝色点线 `HfI₂`）时，固定相同的能量参考与高对称路径，并用竖直箭头和斜箭头分别标出直接跃迁与间接跃迁极值点，便于横向比较化学取代效应、纵向比较杂化泛函对带隙的修正。
 
-### 3. 大尺度超胞/转角莫尔体系的布里渊区折叠与微带（Minibands）聚焦
+### 3. 转角莫尔超晶格的微布里渊区折叠与窄平带色散
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的莫尔布里渊区折叠示意图与费米面附近窄平带微带色散" loading="lazy"/><figcaption>文献案例 3：结合倒空间莫尔微布里渊区（Mini Brillouin Zone）几何嵌套图与费米能级附近窄能量窗口（±50 meV）的微带色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018)，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的莫尔布里渊区折叠示意图与费米面附近窄平带微带色散" loading="lazy"/><figcaption>倒空间莫尔微布里渊区（Mini Brillouin Zone）几何关系图与费米能级附近窄能量窗口内的微带（Minibands）色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018), Fig. 1，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
 
-- **审美与后处理要点**：对于超胞或转角体系，必须在能带图旁附上原胞布里渊区与超胞微布里渊区的几何折叠关系图（明确标注 `K_+`、`K_-`、`Γ_M`、`M_M`），并将纵轴聚焦在平带所在的 meV 量级窗口。
+- **读图与作图要点**：对于超胞或转角莫尔体系，在能带图旁给出原胞布里渊区与超胞微布里渊区的几何折叠示意图（标明 `K_+`、`K_-`、`Γ_M`、`M_M`），并将能量纵轴放大到平带所在的窄能量窗口。
 
 下一步：需要 s/p 成分时进入 [逐 k 胖带](/Atlas/m/fatband/qe/)，保留本页的相同 k 点与带号；需要态数分布时进入 [DOS](/Atlas/m/dos/qe/)，读取均匀网格分支。
 

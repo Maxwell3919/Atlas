@@ -137,27 +137,27 @@ python3 plot_nesting.py
 
 还要留意 Γ 点为什么总是很高。J(0) 是 W(k) 与自身完全重合的结果；对这种自相关定义，q=0 的大值本身就是自然结果。它不能被直接命名为某个有限波矢的不稳定性。要讨论 CDW，需进一步计算相关的电子响应和声子，并检查电子—声子耦合；要讨论超导，仍需 [EPC](/Atlas/m/epc/qe/) 和后续谱函数链条。
 
-## 二维异质结 ZrCl₂/Sc₂C：多口袋费米面几何与动量分辨电声散射的交叉印证
+## 二维异质结 ZrCl₂/Sc₂C：多口袋费米面几何与动量分辨电声散射的对照
 
-在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，将费米面拓扑（[`zrcl2-sc2c-electronic.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png) 右面板）与动量分辨声子线宽 `γ_qν`（[`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 左面板）对照，可以清楚看到几何嵌套 `J(q)` 与真实电声散射之间的联系与区别：
-- Band 26（深蓝）与 Band 27（锈红）在 Γ 点周围形成同心双口袋，同时 Band 26 在 K 点周围形成三角形口袋；
-- 口袋内的小动量散射（`q → Γ`）与连接 Γ 六瓣口袋平直边缘的区间散射向量，分别对应声子谱在 Γ 点光学支（`γ_Γ,18 ≈ 686 GHz`）以及 `Γ–M` / `Γ–K` 中段中低频支的线宽增强。
+在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，将二维六角布里渊区费米面（[`zrcl2-sc2c-electronic.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png) 子图 c）与动量分辨声子线宽 `γ_qν` 及模式耦合 `λ_qν`（[`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 子图 a）对照，可以看到费米面几何与真实电声散射之间的联系与区别：
+- Band 26（蓝色）与 Band 27（橙红色）在 Γ 点周围形成内外口袋，同时 Band 26 在 K 点周围形成口袋；
+- 口袋内的小动量散射（`q → Γ`）对应 Γ 点高频 `C-2p` 光学支的大线宽（`γ_{Γ,17–18} ≈ 322 GHz`），而有限动量分布在 `q = 7, ν = 1` 声学软化支处给出强电声耦合（`ω = 1.42 THz`，`γ = 141.72 GHz`，`λ_{qν} = 4.6873`）。
 
-## 文献费米面嵌套与电子磁化率后处理审美解析（附 DOI 溯源）
+## 文献中的相关图件与表达方式
 
-在研究电荷密度波（CDW）或声子软化机制时，高水平文献通常将**费米面上的嵌套矢量箭头标注**与**高对称路径上的电子磁化率 `χ'(q)` / 嵌套函数 `χ''(q)` / 声子线宽 `γ_qν`** 联立展示。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其视觉设计：
+在研究电荷密度波（CDW）或声子软化机制时，文献常将二维费米面上的嵌套矢量箭头标注与全布里渊区电子磁化率 `χ'(q)`、嵌套函数 `χ''(q)` 及声子线宽 `γ(q)` 对照展示：
 
-### 1. 二维费米面轮廓上的特征嵌套波矢 q_i 直接标注
+### 1. 单层 1L-CoTe₂ 轨道分辨费米面与嵌套波矢箭头标注
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_FS_NestingVectors_CoTe2_Chen2026_Fig2c.jpg" alt="二维六角布里渊区费米面口袋轮廓与连接平直费米面片段的特征嵌套波矢箭头标注" loading="lazy"/><figcaption>文献案例 1：在二维六角第一布里渊区的费米面等能线图上，直接用醒目的彩色箭头标出连接平行费米面片段的特征嵌套波矢（如 q₁ = 1/4 a* 等），直观对应超胞 CDW 重构的周期性。图片来源：Chen et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/l89c-t2s4" target="_blank" rel="noopener noreferrer">DOI: 10.1103/l89c-t2s4</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_FS_NestingVectors_CoTe2_Chen2026_Fig2c.jpg" alt="单层 1L-CoTe₂ 的轨道分辨二维六角费米面及连接平行费米面片段的红色嵌套波矢 q_CDW = (1/2) b₁ 箭头" loading="lazy"/><figcaption>单层 1L-CoTe₂ 在二维六角第一布里渊区内的轨道分辨费米面等能线，红色箭头标出连接平行费米面片段的特征嵌套波矢 <code>q_CDW = (1/2) b₁</code>。图片来源：Chen, Zhang, and Zheng (2026), Fig. 2(c)。</figcaption></figure>
 
-- **审美与后处理要点**：在二维费米面图上标注嵌套波矢 `q_CDW` 时，箭头起点和终点必须精确落在平行的费米面等能线段上，并同时画出第一布里渊区六边形和高对称点（`Γ, M, K`），让读者一眼看出 `q_CDW` 与倒格矢公度比（如 `1/3 a*` 或 `1/4 a*`）的几何关系。
+- **读图与作图要点**：在二维六角第一布里渊区费米面图上标注嵌套波矢 `q_CDW = (1/2) b₁` 时，将红色箭头起点和终点直接画在平行的费米面等能线段之间，并保留第一布里渊区六边形边界和高对称点标记，便于核对公度超胞的波矢比例。
 
-### 2. 广义磁化率实部 χ'(q)、嵌套函数虚部 χ''(q) 与声子线宽 γ_qν 的垂直对齐三联图
+### 2. 单层 BN₂Si 声子软模、二维磁化率/嵌套热力图与声子线宽四子图横排对比
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="沿同一高对称动量路径垂直对齐的电子磁化率实部 χ'(q)、嵌套函数虚部 χ''(q) 与声子线宽 γ_qν" loading="lazy"/><figcaption>文献案例 2：沿相同高对称 q 路径垂直堆叠电子磁化率实部 χ'(q)、费米面嵌套函数 χ''(q) 与声子线宽 γ_qν，检验嵌套峰与电声线宽峰是否共位。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="六角单层 BN₂Si 的声子色散软模、二维布里渊区电子磁化率实部 χ'(q) 热力图、嵌套函数虚部 χ''(q) 热力图与声学支声子线宽 γ(q) 四子图横排图" loading="lazy"/><figcaption>六角单层 BN₂Si 的四子图横排对照：(a) 沿 <code>Γ–M–K–Γ</code> 含 CDW 软模的一维声子色散，(b) 二维六角布里渊区内的电子磁化率实部 <code>χ'(q)</code> 热力图，(c) 二维六角布里渊区内的费米面嵌套函数 <code>χ''(q)</code> 热力图，(d) 沿 <code>Γ–M–K–Γ</code> 的一维声学支声子线宽 <code>γ(q)</code>。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026), Fig. 5，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
 
-- **审美与后处理要点**：单画一张 `J(q)` 或 `χ''(q)` 往往无法服众，因为 `q → 0` 处总有平凡的自相关发散峰。将 `χ'(q)`、`χ''(q)` 与 `γ_qν` 沿同一条高对称路径上下对齐排列，才能厳格区分“纯几何嵌套驱动的失稳”与“电声矩阵元驱动的失稳”。
+- **读图与作图要点**：仅凭 `q → 0` 处自相关峰很强的几何嵌套函数 `χ''(q)` 不足以判定晶格失稳；通过将沿 `Γ–M–K–Γ` 的声子色散软模（a）、二维六角布里渊区 `χ'(q)` 与 `χ''(q)` 热力图（b, c）以及声学支电声线宽 `γ(q)`（d）横排并列，可以严格区分纯几何嵌套峰值与包含电声耦合矩阵元后的真实声子软化动量位置。
 
 下一步可以继续加密 k 网格并交叉检查窗口，或者返回 [费米面三维图](/Atlas/m/fermi-surface/qe/) 看同一个 q 实际连接哪两块面。
 

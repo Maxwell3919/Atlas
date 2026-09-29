@@ -436,6 +436,16 @@ python3 plot_modes.py
 
 最后一种情况才需要沿模式构造相容的畸变结构。在非 Γ 点，单胞里随手移动一个原子通常不能表示该波矢的周期位移；应先满足 q 与超胞周期的对应关系，再比较正负位移与后续弛豫。上表是后续计算的选择依据，不是本例已经做过这些对照的声明。
 
+## 文献中对软模与虚频物理起源的对照方式
+
+当金属或窄带体系在有限波矢处出现负频软模时，文献中常通过系统的电子展宽 σ 扫描或外加应变对照，区分数值采样问题与真实的电荷密度波（CDW）晶格不稳定性。若随电子展宽 σ 增大（模拟升高电子温度），软模频率由负值平滑演化为正实频，则表明该虚频源于费米面嵌套或电子—声子耦合驱动的低温对称性破缺。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="单层 NbSi2As4 最低软模声子频率随电子展宽 σ 的演化" loading="lazy"/><figcaption>单层 NbSi<sub>2</sub>As<sub>4</sub> 中最低软模声子频率随电子展宽 σ（从 0 增至 15 mRy）的演化，频率由 −14 meV 虚频逐渐转为正实频。引自 <em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+
+在完整布里渊区路径上展示这类软模时，常将未应变结构的虚频支与施加拉伸应变后恢复正频的色散曲线画在同一布局中，并配合分波声子态密度（PHDOS）标明主导该失稳模式的原子种类。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="单层过渡金属氮化物中 M 点 CDW 虚频软模及双轴拉伸应变下的稳定化" loading="lazy"/><figcaption>单层过渡金属氮化物的声子色散与分波声子态密度（PHDOS），其中 Fig. 3d 以绿色点线标出未应变 W<sub>2</sub>N 在 M 点的 CDW 虚频软模（<code>CDW &lt;-</code>），并在 4% 双轴拉伸应变（实线）下消除虚频实现稳定。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 3d，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+
 ## 下一步
 
 先用[收敛测试](/Atlas/m/convergence/qe/)的方法建立只改变一个量的对照，再回到[声子色散与原始 q 点](/Atlas/m/phonon-dfpt/qe/)扩大检查范围。如果正在准备 EPC，尚未解释的非平移虚频不能靠手工把负 ω² 改成零后继续积分；应先解决上游问题，再读取[谱函数](/Atlas/m/eliashberg-a2f/qe/)。

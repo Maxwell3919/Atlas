@@ -137,6 +137,20 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
 
 修改这些参数应保留旧结果：先用 `cp` 把原始输入复制到新目录，再用 `vi INCAR` 编辑，并用 `cat INCAR` 核对。重新运行后，应再次读取 OUTCAR 的 LMAXMIX 回显，并确认生成的 CHGCAR 与新输入对应，再接后续计算。
 
+将这份 VGe₂P₄ 算例的 `OSZICAR` 迭代序列与 `EIGENVAL` 本征值整理作图，可直观看到开启 `LDAUTYPE = 2`（V-3d `U_eff = 3.0 eV`）后 31 步电子自洽的残差收敛轨迹，以及 37 个不可约 k 点上自旋极化能级在费米能级附近的分布。
+
+<figure class="research-figure"><img src="/Atlas/figures/dft-plus-u/vge2p4-dftu-diagnostics.png" alt="VGe₂P₄ 在 Dudarev DFT+U (U_eff = 3.0 eV) 下的电子收敛轨迹与自旋极化本征谱" loading="lazy"/><figcaption>本页 VGe₂P₄（V-3d <code>U<sub>eff</sub> = 3.0 eV</code>）的 VASP DFT+U 计算记录：（左）<code>OSZICAR</code> 31 步电子迭代中能量与电荷/占据矩阵残差 <code>rms(c)</code> 的收敛过程；（右）<code>EIGENVAL</code> 在 37 个不可约 k 点上的自旋向上与自旋向下本征值分布（费米能级已归零，总磁矩 0.5781 μ<sub>B</sub>）。</figcaption></figure>
+
+## 文献中的相关图件与表达方式
+
+对过渡金属 d 轨道引入在位库仑修正时，局域轨道占据矩阵的对称性破缺往往与配位多面体的几何畸变（如八面体三方畸变、Jahn–Teller 劈裂或金属二聚化）紧密耦合。这也是前文强调需要配合 `LASPH = .TRUE.` 与 `LMAXMIX = 4` 保留球内非球形梯度及 d 轨道占据矩阵的原因。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Polyhedra_SymmetryBreaking_MX2_MX3_Georgescu2022_Fig1.jpg" alt="二维卤化物 MX₂ 与 MX₃ 中配位八面体三方畸变、金属二聚化与 d 轨道占据破缺的关联示意图" loading="lazy"/><figcaption>层状过渡金属卤化物 MX₂/MX₃ 中配位多面体对称性降低、三方畸变与金属–金属二聚化同局域 d 轨道电子占据之间的耦合关系（Georgescu, Millis, and Rondinelli，<em>Phys. Rev. B</em> <strong>105</strong>, 245153 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.245153" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.245153</a>）。</figcaption></figure>
+
+由于有效 Hubbard 参数 `U_eff` 会直接移动局域 d 带相对于配体 p 带的位置并改变带隙或能带宽度，文献中在讨论半局域泛函的局域误差时，常将 GGA（或不同 `U` 值）与杂化泛函、自洽准粒子 GW 的能带及态密度并列对比，以明确各能带对关联修正的敏感程度，而不是凭单一 `U` 值的总能量高低来定出参数。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_GW_mHSE_GGA_Bands_MgB2_Fig1.jpg" alt="半局域 GGA、屏蔽杂化泛函 mHSE 与自洽准粒子 GW 的能带及态密度对比" loading="lazy"/><figcaption>不同交换关联与多体修正层级下的能带结构与态密度并列对照：通过对比半局域 GGA、屏蔽杂化泛函 mHSE 与自洽准粒子 GW，检验特征能带位置与带宽对关联修正的响应（Yin, Kutepov, and Kotliar，<em>Phys. Rev. X</em> <strong>3</strong>, 021011 (2013)，<a href="https://doi.org/10.1103/PhysRevX.3.021011" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevX.3.021011</a>）。</figcaption></figure>
+
 下一步接 [磁基态比较](/Atlas/m/magnetic-gs/vasp/)，在同一 U 下比较不同初始磁构型最终收敛到的状态。若继续做 VASP 能带或 DOS，应先按上一段重新生成含所需局域占据矩阵的 CHGCAR，并沿用相同的结构、PAW 与 U 设置。[能带方法目录](/Atlas/m/bands/) 和 [DOS 方法目录](/Atlas/m/dos/) 列出各引擎路线；其中 QE 算例的文件不能接到这份 VASP 计算后面。
 
 ```text

@@ -535,7 +535,7 @@ plots/adsorption-checks.png and plots/adsorption-checks.svg
 
 左图保持统一的气相参考定义，右图单独显示各项相对基线的变化。横轴上的真空数值指初始设置；原子优化后实际的跨周期 H 层间空隙略有改变。原始每项能量、最大力和输入输出 SHA 在 [energy-table.csv](/Atlas/examples/h-al111-adsorption/energy-table.csv)，三能差与参数变化在 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv)。
 
-要在本机重画，把 [plot_adsorption.py](/Atlas/examples/h-al111-adsorption/plot_adsorption.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/h-al111-adsorption/atlas_plot_style.py)）、[structures.json](/Atlas/examples/h-al111-adsorption/structures.json) 和 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv) 放到同一目录，运行 `python3 plot_adsorption.py`。需要 Python、NumPy 和 Matplotlib；程序同时生成两幅 PNG 与 SVG。重新从原始输入输出提取，则使用 [analyse_adsorption.py](/Atlas/examples/h-al111-adsorption/analyse_adsorption.py)，并保留对应目录里的 XML 与审计文件。
+要在本机重画，把 [plot_adsorption.py](/Atlas/examples/h-al111-adsorption/plot_adsorption.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/h-al111-adsorption/atlas_plot_style.py)）、[structures.json](/Atlas/examples/h-al111-adsorption/structures.json) 和 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv) 放到同一目录，运行 `python3 plot_adsorption.py`。需要 Python、NumPy 和 Matplotlib；程序同时生成两幅 PNG 与 SVG。重新从原始输入输出提取，则使用 [analyse_adsorption.py](/Atlas/examples/h-al111-adsorption/analyse_adsorption.py)，并保留对应目录里的 XML 与核验文件。
 
 能量差和力一起回看后，接下来把洁净与吸附表面同时改到 12×12×1，重新做内部优化。起点使用各自 6 网格优化的最终坐标，晶胞、赝势、截断、展宽和中层约束全部保留。实际输入差别可以直接用 diff 核对：
 
@@ -666,6 +666,12 @@ plots/k12-k16-refinement.png and plots/k12-k16-refinement.svg
 所以这一轮的结论是：**已测能量差比较通过，力一致性未通过，吸附能不能获得整体数值验收。** 这不是程序崩溃或输入对应错误；末轮电子收敛和同源几何都已核验，失败发生在把采样加密之后对同一结构的力检查上。当前两个正值可用于复算这条路线，不能作为已完成数值收敛的材料吸附能。
 
 新增原始数值和 SHA 在 [refined-energy-table.csv](/Atlas/examples/h-al111-adsorption/refined-energy-table.csv)，配对三能差在 [refined-adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/refined-adsorption-energy.csv)，力对照在 [refined-force-check.csv](/Atlas/examples/h-al111-adsorption/refined-force-check.csv)。重做这一段解析用 [analyse_refinement.py](/Atlas/examples/h-al111-adsorption/analyse_refinement.py)；重画图只需 [plot_refinement.py](/Atlas/examples/h-al111-adsorption/plot_refinement.py) 与后两份 CSV，并运行 `python3 plot_refinement.py`。它会同时写出 PNG 与 SVG。
+
+## 文献中的相关图件与表达方式
+
+本页以 Al(111) 表面的顶位（atop）为例演示了吸附能三能差与采样一致性检查。在实际表面催化与储能研究中，通常需要同时比较多个高对称候选吸附位点（如 bcc 空位、fcc 空位、桥位与顶位）的弛豫几何与吸附能高低，并在确定的最低能量吸附位点之间构建表面扩散路径，通过爬坡微动弹性带（CI-NEB）计算给出迁移势垒曲线。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M8_NEB_DiffusionBarrier_Electrenes_Fig5.jpg" alt="二维材料表面多位点吸附构型、迁移路径与 NEB 扩散势垒曲线对比" loading="lazy"/><figcaption>二维材料表面的多位点吸附与扩散势垒表征：（a–b）高对称吸附位点（Site 1 空位、Site 2 空位、Site 3 顶位）与三条候选迁移路径的俯视结构；（c）沿不同路径的相对能量演化曲线；（d）多体系最低扩散势垒柱状对比（Kocabas 等，<em>J. Phys. Chem. Lett.</em> <strong>9</strong>, 4262 (2018)，<a href="https://doi.org/10.1021/acs.jpclett.8b01468" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpclett.8b01468</a>）。</figcaption></figure>
 
 继续计算的条件也因此明确：先在更密表面采样下获得力稳定的洁净与吸附几何，再用更严格的匹配采样同时复核能量差与自由原子力；不能只选一项数值较好看的结果作为通过。完成采样检查后，还需要比较薄膜层数、覆盖度和其它吸附位点；本例没有把这几项压缩成一个“可靠吸附能”的标签。参数对照可接 [收敛测试](/Atlas/m/convergence/qe/)；若要研究 H₂ 如何到达吸附态，需另外建立初态、终态和中间构型，进行 NEB 势垒计算。在加入振动零点能与温度项前，这里讨论的仍是上述非磁性 PBE 模型的电子能量差。
 

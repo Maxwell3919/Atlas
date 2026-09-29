@@ -167,6 +167,16 @@ kx_tpiba,ky_tpiba,kz_tpiba,kx_inv_A,ky_inv_A,kz_inv_A,band5_eV
 
 这次使用的是固定晶胞、PBE、无 SOC 的非磁性 Si。图能展示该模型下这个导带谷的空间形状，不自动提供别的能带、别的谷或金属费米面的完整信息。
 
+## 文献中的三维能量曲面与底座等能线投影
+
+在研究二维表面态、鞍点（Van Hove 奇点）或谷电子学能带时，通常将局部二维动量网格上的能量曲面 E(k<sub>x</sub>, k<sub>y</sub>) 绘制为三维曲面，并在底部平面投影出等能轮廓线，再配合沿两个正交动量方向的切面色散与 ARPES 实验谱对照。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="ZrAs2 表面态在鞍点附近的三维能带色散曲面、底部等能线投影及正交方向切面与 ARPES 对比" loading="lazy"/><figcaption>ZrAs<sub>2</sub> 表面态在鞍点附近的三维能带曲面 <em>E</em>(<em>k</em><sub>x</sub>, <em>k</em><sub>y</sub>) 及其底部等能线投影（c），并给出沿正交方向具有相反曲率的电子型与空穴型色散切面及 ARPES 实验对比（d–e）。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4c–e，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+
+对于具有自旋—轨道耦合劈裂的二维半导体谷区（如过渡金属硫族化合物的 K 谷），三维能带锥 E(k<sub>x</sub>, k<sub>y</sub>) 常与底部的同心费米环及自旋极化箭头结合展示，用来表达自旋—谷锁定特征。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinValleyLocking_MoS2_Lu2015_Fig4a.jpg" alt="K 谷附近自旋劈裂的三维能带锥与底部同心费米环投影" loading="lazy"/><figcaption>K 谷附近自旋劈裂的三维能带锥 <em>E</em>(<em>k</em><sub>x</sub>, <em>k</em><sub>y</sub>) 及其在底部平面的同心费米环投影，展示面外自旋极化与谷自由度的锁定关系。引自 Saito 等人，<em>Nat. Phys.</em> <strong>12</strong>, 144 (2016)，Fig. 1a，<a href="https://doi.org/10.1038/nphys3580" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nphys3580</a>。</figcaption></figure>
+
 下一步：从同一网格可以回到[有效质量](/Atlas/m/effective-mass/qe/)做局部曲率检查；关注金属等能面时接[费米面](/Atlas/m/fermi-surface/qe/)。
 
 ```text

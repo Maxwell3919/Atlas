@@ -212,6 +212,16 @@ strain     C11       C12       C44       B         GH        E        nu
 
 已完成的各组参数在这三个符号条件上均给出正值。但目前弹性分量仍显示电子网格敏感性，因此合适的表述是：这些已计算参数下没有出现均匀微小应变的负曲率；定量材料常数的数值收敛尚未建立。有限压力、低对称性与二维体系必须采用对应条件和单位，不能只替换材料名。
 
+## 文献中由弹性刚度检验稳定性与强度极限的展示方式
+
+对于正交或单斜等低对称性二维晶体，弹性刚度张量 C<sub>ij</sub> 满足对应的 Born 正定判据后，通常会进一步变换到面内任意方向角 θ，以极坐标图同时展示各向异性杨氏模量、剪切模量和泊松比，直观确认所有面内方向均保持正刚度。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向依赖弹性模量与泊松比极坐标图" loading="lazy"/><figcaption>正交与单斜二维晶体 α-ZrI<sub>2</sub>、β-ZrI<sub>2</sub> 的方向依赖杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标分布，用于共同检验力学稳定性判据与面内各向异性。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+
+在线性小应变刚度之外，将平衡态附近求得的弹性模量与大应变非线性拉伸得到的理想断裂强度放在同一张对数坐标图上，可以检验材料的线性弹性刚度与非线性理想强度极限之间的标度关系。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_AshbyStrengthModulus_2DMagnets_Wang2022_Fig59.jpg" alt="二维材料的二维杨氏模量与理想断裂强度 Ashby 对照图" loading="lazy"/><figcaption>二维磁性材料与常见二维晶体的二维杨氏模量与理想断裂强度双对数关系图，展示小应变线性弹性刚度与非线性理想强度极限之间的标度关系。引自 Wang 等人，<em>ACS Nano</em> <strong>16</strong>, 6859 (2022)，Fig. 59，<a href="https://doi.org/10.1021/acsnano.1c09150" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acsnano.1c09150</a>。</figcaption></figure>
+
 Born 条件检验均匀应变的局部响应，不能代替 [完整声子网格](/Atlas/m/phonon-dfpt/qe/) 或热力学相稳定性。下一步到 [弹性模量](/Atlas/m/elastic-moduli/qe/) 看怎样从同一套 Cᵢⱼ 计算 B、G、E 和 ν。
 
 ```text

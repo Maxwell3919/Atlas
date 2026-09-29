@@ -143,24 +143,27 @@ python3 plot_model.py
 
 ![移动一层前后的面内配准、法向层间距与周期空隙](/Atlas/examples/vasp/snse2-sr2n-model/heterostructure-model.png)
 
-## 文献中的异质结高对称堆叠与层间耦合后处理范式（附 DOI）
+## 文献中的相关图件与表达方式
 
-在报道二维异质结建模、多高对称堆叠（Stacking Registry）筛选与层间结合强度时，文献常将俯视/侧视几何配准图与结合能或剥离能曲线联动展示：
+在二维异质结建模、高对称堆叠构型（Stacking Registry）筛选与层间耦合研究中，文献常将晶体配准视图与剥离能曲线结合展示：
 
-1. **六种高对称堆叠构型（Type I–VI）俯视与侧视矩阵排版**（Bu 等，*Phys. Chem. Chem. Phys.* 2025，DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）：
-   在 $\text{WS}_2/\text{Sc}_2\text{C}$ 异质结中，将不同层间面内平移对应的高对称堆叠构型统一采用“上俯视 + 下侧视”对齐排列，清晰展示界面处过渡金属与表面终端原子的正对（top）、桥位（bridge）与空位（hollow）几何配准关系。
+### 1. 六种高对称堆叠构型的侧视矩阵与竖直配准参考线
 
-![异质结六种高对称堆叠俯视与侧视矩阵示例（DOI: 10.1039/D5CP01402F）](/Atlas/figures/literature/M1_StackingRegistry_WS2_Sc2C_Bu2025_Fig2.jpg)
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_StackingRegistry_WS2_Sc2C_Bu2025_Fig2.jpg" alt="WS₂/Sc₂CT₂ 异质结中 A-I、A-II、F-I、F-II、H-I、H-II 六种堆叠构型的六子图侧视矩阵与红色虚线对准线" loading="lazy"/><figcaption>WS₂/Sc₂CT₂ 异质结中六种堆叠构型（<code>A-I, A-II, F-I, F-II, H-I, H-II</code>）的六子图侧视矩阵，每个双层通过两条竖直红色虚线贯穿上下层原子，标明跨界面的原子对准关系。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 14397 (2025), Fig. 2，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
 
-2. **TMD 与 MXene 构件单元及多相堆叠对称性对照图**（Bekaert 等，*Nanoscale* **12**, 17360 (2020)，DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）：
-   并排展示 $\text{TaS}_2$ 与 $\text{Ta}_2\text{N}$ 的H/T 相构件及层间配位环境，用虚线框与对称轴标出界面单胞边界与层间距定义。
+- **读图与作图要点**：在比较同一异质结的不同面内平移构型（`A-I, A-II, F-I, F-II, H-I, H-II`）时，用两条贯穿上下层的竖直红色虚线作为视觉基准线，可以让读者在侧视图上直接看清上层过渡金属/硫族原子与下层 `Sc₂CT₂` 各原子面之间的正对或错位关系。
 
-![TaS2 与 Ta2N 构件及层间配准示例（DOI: 10.1039/D0NR03875J）](/Atlas/figures/literature/M1_Structure_TaS2_vs_Ta2N_Bekaert2020_Fig1.jpg)
+### 2. 1T-TMD 与 1T-MXene 反演配位构型的侧视与俯视对照
 
-3. **层间剥离能曲线与经典二维材料基准带对照**（*Mater. Today Commun.* **33**, 104176 (2022)，DOI: [10.1016/j.mtcomm.2022.104176](https://doi.org/10.1016/j.mtcomm.2022.104176)）：
-   随层间距拉伸绘制归一化剥离能演化曲线，并在同一纵轴上叠加石墨烯、$\text{MoS}_2$ 等典型范德华材料与准离子层状材料的剥离能对比，定量界定层间作用强度。
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Structure_TaS2_vs_Ta2N_Bekaert2020_Fig1.jpg" alt="1T-TaS₂ 与 1T-Ta₂N 的侧视图与俯视图对比，以浅色与深色球体区分上下子晶格并展示反演配位关系" loading="lazy"/><figcaption>1T-TMD TaS₂（中心金属层夹在两侧硫族原子层之间）与 1T-MXene Ta₂N（中心 N 原子层夹在两侧 Ta 金属层之间）的侧视图与俯视图对照，使用深浅不同的球体颜色区分上下表面子晶格。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 1，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-![层间剥离能曲线与典型二维材料对比示例（DOI: 10.1016/j.mtcomm.2022.104176）](/Atlas/figures/literature/M1_Exfoliation_vdW_vs_Ionic_CaCl_Chen2023_Fig5a.jpg)
+- **读图与作图要点**：通过并排绘制侧视图与俯视图，并对同一元素的上、下子晶格采用一浅一深的球体配色，能够清晰区分 `1T-TaS₂`（金属居中、硫族在外）与 `1T-Ta₂N`（氮居中、金属在外）的反转八面体配位关系。
+
+### 3. 范德华相与准离子电子化合物相的剥离能曲线对比
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Exfoliation_vdW_vs_Ionic_CaCl_Chen2023_Fig5a.jpg" alt="范德华 AB 堆叠 CaCl 相与准离子电子化合物 P3m1 CaCl 相的层间剥离能曲线对比" loading="lazy"/><figcaption>随层间分离距离变化的剥离能曲线对比：红色曲线为范德华 AB 堆叠 CaCl 相（收敛平台约 <code>0.17 J/m²</code>），蓝色曲线为准离子电子化合物 P3m1 CaCl 相（收敛平台约 <code>1.65 J/m²</code>）。图片来源：Chen et al., <em>Mater. Today Commun.</em> <strong>33</strong>, 104176 (2022), Fig. 5a，<a href="https://doi.org/10.1016/j.mtcomm.2022.104176" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.mtcomm.2022.104176</a>。</figcaption></figure>
+
+- **读图与作图要点**：在同一坐标系下对比同一化学计量比 `CaCl` 的两种层状相——弱范德华结合的 AB 堆叠相（约 `0.17 J/m²`，红线）与层间存在阴离子电子的 `P3m1` 电子化合物相（约 `1.65 J/m²`，蓝线），可以直观展示不同层间成键机制在剥离能平台高度上的数量级差异。
 
 下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
 

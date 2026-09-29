@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "purpose": "Arithmetic audit of stored Tc tables; not a material convergence result.",
+  "method": "Piecewise-linear interpolation between adjacent Tc samples where Tc64-Tc96 changes sign.",
+  "stored_tc_resolution_k": 0.001,
+  "interpretation": "Interpolated digits reflect arithmetic on Tc values printed to 0.001 K, not physical precision.",
+  "series": {
+    "emax10": {
+      "protocol_status": "matched input records present",
+      "inputs": [
+        {
+          "path": "public/examples/zrcl2-sc2c/ph64/lambdax.in",
+          "sha256": "b9fc343af4cff7386e675e509192842e51919856c2ab8b5d2d00c71cf773326c",
+          "first_line": "10  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph96/lambdax.in",
+          "sha256": "b9fc343af4cff7386e675e509192842e51919856c2ab8b5d2d00c71cf773326c",
+          "first_line": "10  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method"
+        }
+      ],
+      "tables": [
+        {
+          "path": "public/examples/zrcl2-sc2c/ph64/lambda.dat",
+          "sha256": "ed3a896b6d04775d60942097b5c038b860e5220d12ba8f173a672d3a19c571dc"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph96/lambda.dat",
+          "sha256": "e2df51cc137e52cb0a40dfeb7b9adc7321c01cdd134e692e5f778f748e26c943"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph64/lambdax.out",
+          "sha256": "d1faa792f0d63de0fd838331a89316b5ca2eac63345dbac621cedf10690d2eb3"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph96/lambdax.out",
+          "sha256": "71d4b47bf1ac6974892ecac33d89b8e685c430fd018cad0f6a38f313015fa472"
+        }
+      ],
+      "intersection_count": 2,
+      "intersections": [
+        {
+          "sigma_ry": 0.0017499999999999977,
+          "tc_k": 14.594000000000003,
+          "tc64_k": 14.594000000000003,
+          "tc96_k": 14.594000000000003,
+          "sigma_bracket_ry": [
+            0.001,
+            0.002
+          ],
+          "delta_bracket_k": [
+            0.12900000000000134,
+            -0.04300000000000104
+          ]
+        },
+        {
+          "sigma_ry": 0.003090909090909047,
+          "tc_k": 13.513090909090938,
+          "tc64_k": 13.513090909090938,
+          "tc96_k": 13.513090909090938,
+          "sigma_bracket_ry": [
+            0.003,
+            0.004
+          ],
+          "delta_bracket_k": [
+            -0.0009999999999994458,
+            0.009999999999999787
+          ]
+        }
+      ]
+    },
+    "emax18": {
+      "protocol_status": "unverified: saved output files are not linked to an executed input or command",
+      "inputs": {
+        "output_input_record": null,
+        "prepared_candidates_not_linked_to_outputs": [
+          {
+            "path": "public/examples/zrcl2-sc2c/ph64.1/lambdax.in",
+            "sha256": "fb2f2acffc06cbad98ffba0650b0c77f75149a5a6b38a3dd08c9dc946d7b5c19",
+            "first_line": "18  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method"
+          },
+          {
+            "path": "public/examples/zrcl2-sc2c/ph96.1/lambdax.in",
+            "sha256": "fb2f2acffc06cbad98ffba0650b0c77f75149a5a6b38a3dd08c9dc946d7b5c19",
+            "first_line": "18  0.12  1    ! emax (something more than highest phonon mode in THz), degauss, smearing method"
+          }
+        ]
+      },
+      "tables": [
+        {
+          "path": "public/examples/zrcl2-sc2c/ph64/lambda.emax18.dat",
+          "sha256": "8f1c72d3855a6fdb9e91bd617683c67bb7bd181b09954880f896db20c19e9140"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph96/lambda.emax18.dat",
+          "sha256": "3c1479c94d2628ce151ae55ddeee1dbf69e75cc69cf965f6701f0c0d69e599e7"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph64/lambdax.emax18.out",
+          "sha256": "e61878728eb15e3c9689a6d01b8ec21ae6868ec59f7ad2e72c80784b1872f127"
+        },
+        {
+          "path": "public/examples/zrcl2-sc2c/ph96/lambdax.emax18.out",
+          "sha256": "83389ee8ed277306786eecdb4272c3d4a4bf8fb4bbb173cf75816101dfcbf839"
+        }
+      ],
+      "intersection_count": 1,
+      "intersections": [
+        {
+          "sigma_ry": 0.003578947368421102,
+          "tc_k": 13.586894736842074,
+          "tc64_k": 13.586894736842074,
+          "tc96_k": 13.586894736842074,
+          "sigma_bracket_ry": [
+            0.003,
+            0.004
+          ],
+          "delta_bracket_k": [
+            -0.011000000000001009,
+            0.007999999999999119
+          ]
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "The emax18 stored outputs do not have a linked executed input, QE executable identity, or run command.",
+    "The ph64.1/ph96.1 input files are prepared candidates and have no complete matching Tc output pair.",
+    "The emax18 table roots cannot be attributed to changing only the frequency cutoff until provenance is closed.",
+    "A crossing between two sampled electron meshes does not establish physical k/q convergence."
+  ]
+}

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 500" role="img" aria-labelledby="title desc">
+<title id="title">ZrCl2/Sc2C atomic-site and layer mapping</title>
+<desc id="desc">Side view of the QE 7.1 heterostructure atom sites ordered by fractional z, with atom indices grouped into the orbital curves shown in the band and PDOS figures.</desc>
+<rect width="1100" height="500" rx="18" fill="#ffffff"/>
+<text x="48" y="48" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#162232">Atomic sites behind the orbital curves</text>
+<text x="48" y="80" font-family="Arial, sans-serif" font-size="18" fill="#5a6b80">QE 7.1 bands/PDOS atom order · side view ordered by fractional z</text>
+<line x1="106" y1="128" x2="106" y2="414" stroke="#718096" stroke-width="2"/>
+<path d="M100 132 L106 122 L112 132" fill="none" stroke="#718096" stroke-width="2"/>
+<text x="56" y="111" font-family="Arial, sans-serif" font-size="16" fill="#5a6b80">higher z</text>
+<rect x="151" y="127" width="493" height="167" rx="14" fill="#eef3f8" stroke="#c7d5e3" stroke-width="2"/>
+<rect x="151" y="305" width="493" height="127" rx="14" fill="#edf6f3" stroke="#c5dfd8" stroke-width="2"/>
+<text x="171" y="154" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#324255">ZrCl2 layer</text>
+<text x="171" y="333" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#324255">Sc2C layer</text>
+<g font-family="Arial, sans-serif" font-size="20" fill="#162232">
+<circle cx="254" cy="177" r="11" fill="#e69f00"/><text x="280" y="184">#3  Cl   z = 0.61199</text>
+<circle cx="254" cy="222" r="11" fill="#0072b2"/><text x="280" y="229">#1  Zr   z = 0.56864</text>
+<circle cx="254" cy="270" r="11" fill="#e69f00"/><text x="280" y="277">#4  Cl   z = 0.52007</text>
+<circle cx="254" cy="352" r="11" fill="#009e73"/><text x="280" y="359">#6  Sc   z = 0.47232</text>
+<circle cx="254" cy="384" r="11" fill="#d55e00"/><text x="280" y="391">#2  C    z = 0.44223</text>
+<circle cx="254" cy="416" r="11" fill="#009e73"/><text x="280" y="423">#5  Sc   z = 0.41416</text>
+</g>
+<rect x="684" y="127" width="365" height="305" rx="14" fill="#fbfaf7" stroke="#d9d4ca" stroke-width="2"/>
+<text x="710" y="163" font-family="Arial, sans-serif" font-size="21" font-weight="700" fill="#162232">Curve grouping</text>
+<g font-family="Arial, sans-serif" font-size="20" fill="#162232">
+<circle cx="720" cy="204" r="9" fill="#0072b2"/><text x="745" y="211">Zr-4d: atom #1</text>
+<circle cx="720" cy="247" r="9" fill="#009e73"/><text x="745" y="254">Sc-3d: atoms #5 + #6</text>
+<circle cx="720" cy="290" r="9" fill="#d55e00"/><text x="745" y="297">C-2p: atom #2</text>
+<circle cx="720" cy="333" r="9" fill="#e69f00"/><text x="745" y="340">Cl-3p: atoms #3 + #4</text>
+</g>
+<line x1="710" y1="360" x2="1025" y2="360" stroke="#d9d4ca"/>
+<text x="710" y="387" font-family="Arial, sans-serif" font-size="16" fill="#5a6b80">Cl #3 and #4 share fractional (x,y)</text>
+<text x="710" y="410" font-family="Arial, sans-serif" font-size="16" fill="#5a6b80">= (1/3, 2/3), at distinct z positions.</text>
+<text x="48" y="475" font-family="Arial, sans-serif" font-size="16" fill="#5a6b80">Fractional z values are from scf/pwx.in ATOMIC_POSITIONS (crystal). Horizontal spacing is schematic.</text>
+</svg>

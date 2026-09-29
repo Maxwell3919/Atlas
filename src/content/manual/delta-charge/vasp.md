@@ -315,11 +315,11 @@ python3 plot_charge.py
 
 它生成 `h2-charge-difference.png/pdf/svg` 和 `plot-checks.json`。
 
-![固定 H₂ 相对于两个冻结 H 原子的电子密度重排](/Atlas/examples/h2-delta-charge/h2-charge-difference.png)
+<figure><img src="/Atlas/examples/h2-delta-charge/h2-charge-difference.png" alt="H₂ 体系相对于孤立原子的差分电荷密度二维截面、平面平均及累积积分" loading="lazy"/><figcaption>差分电荷密度的跨维度关联呈现：(a) 穿过分子轴的 2D 差分电荷密度 Δρ(x, z) 连续色面与正负等值线（暖橙为电子积累，深蓝为电子耗尽）；(b) 沿法向 z 的一维平面平均密度 A⟨Δn⟩<sub>xy</sub>（暖橙阴影覆盖共价成键积累区，深蓝阴影覆盖原子核位点附近的电子耗尽槽）；(c) 全程累积电荷积分 ΔQ(z)，末端严格返回零验证电荷守恒。</figcaption></figure>
 
-左图是穿过两个 H 的 y=5 Å 切片，圆点标出真实原子坐标。颜色使用保留实际极值的线性对称范围；橙实线与蓝虚线分别标出正、负等值线，便于看见幅度较小的耗尽区域。曲线没有通过插值改变原始密度数值。这里 Δn 的最小、最大值分别为 −0.0555594、+0.8029641 e/Å³。
+子图 a 是穿过两个 H 原子的 y = 5.0 Å 切面，圆点标出真实原子坐标，颜色与子图 b 的一维阴影保持物理同构：暖橙色与实线等值线标示共价键中心区域的显著电子积累，深蓝色与虚线标示原子核周围的电子耗尽区。
 
-中图先在 xy 平面平均，再乘以面积 A=100 Å²，得到每单位 z 长度的电子数变化，单位 e/Å。右图从晶胞边界 z=0 开始累计积分，单位为 e。累计曲线在晶胞另一端返回近零，与全胞守恒检查一致；局部曲线的正负取决于选定边界与区域，不能用其最大值替代 Bader 分区后的净电荷。
+子图 b 在 xy 平面求平均后乘以截面面积 A = 100 Å²，得到沿法向每单位长度的电荷密度变化（e/Å）。子图 c 则从晶胞边界 z = 0 开始计算累积积分 ΔQ(z)（单位为 e），并在右端点精确收敛至 0.0000 e，以可视化的方式严格证明差分电荷的全胞守恒。
 
 如果需要三维等值面，先把三份 CHGCAR.gz 放回子目录，再运行：
 
@@ -331,21 +331,21 @@ python3 analyze_charge.py
 
 这条路线已经把三份真实输入、SCF、网格相减、单位、电子数与图像对应起来。它展示的是固定 0.74 Å 几何、10 Å 周期盒和当前参数下的重排，未对键长、盒长、截断或密度极值作系统收敛。研究异质结时仍按同一个坐标系拆分片段，并另行核验片段的电荷与自旋参考态。
 
-## 文献差分电荷密度（CDD）后处理审美解析（附 DOI 溯源）
+## 文献中的相关图件与表达方式
 
-在二维范德华异质结与界面接触文献中，差分电荷密度 `Δρ(r) = ρ_AB(r) − ρ_A(r) − ρ_B(r)` 的标准后处理范式是将**三维实空间正负等值面（3D Isosurface）**与**沿法向 z 轴的平面平均曲线 `Δρ(z)`** 严格按原子坐标 `z` 对齐叠绘。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其构图设计：
+在二维范德华异质结与界面接触研究中，差分电荷密度 `Δρ(r) = ρ_AB(r) − ρ_A(r) − ρ_B(r)` 常将三维实空间正负等值面与沿法向 `z` 轴的一维平面平均曲线 `Δρ(z)` 组合在同一幅图内，兼顾空间形貌与定量变化：
 
-### 1. 一维平面平均差分电荷曲线与三维实空间等值面的共享 z 轴嵌套
+### 1. 一维平面平均差分电荷曲线与右侧真空区嵌入的三维等值面
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_1D_3D_ZrI2_Hetero_Zhang2025_Fig5.jpg" alt="二维异质结沿法向 z 的平面平均差分电荷密度曲线 Δρ(z) 与三维正负等值面嵌套对比图" loading="lazy"/><figcaption>文献案例 1：将沿法向 z 的平面平均差分电荷密度 Δρ(z) 曲线与三维原子结构及正负差分电荷等值面（黄/青双色区分电子积累与耗尽）按相同的 z 坐标标尺同框叠绘。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_1D_3D_ZrI2_Hetero_Zhang2025_Fig5.jpg" alt="二维异质结沿法向 z (0–30 Å) 的一维平面平均差分电荷密度曲线与右侧真空区嵌入的三维等值面" loading="lazy"/><figcaption>横轴为法向坐标 <code>z</code>（0–30 Å），在 <code>z ∈ [8, 20] Å</code> 区间绘制一维平面平均差分电荷密度 <code>Δρ(z)</code> 曲线（黄色填充表示 <code>&gt; 0</code> 电子积累，青色填充表示 <code>&lt; 0</code> 电子耗尽），并在右侧平坦真空区 <code>z ∈ [22, 30] Å</code> 内竖直嵌入三维侧视原子结构及黄/青双色等值面。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025), Fig. 5，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
 
-- **审美与后处理要点**：单放一张 VESTA 导出的三维等值面图无法给出定量幅值，而单放一条一维 `Δρ(z)` 曲线又让读者难以对准具体原子层。将三维结构+等值面旋转至侧视图（Side View）并严格缩放到与一维 `Δρ(z)` 坐标轴相同的 `z` 范围，同时对 `Δρ(z) > 0` 与 `< 0` 区域分别填充与三维等值面一致的黄/青（或红/蓝）半透明色块，能达到极高的视觉自洽性。
+- **读图与作图要点**：图中横轴为 `z`（`0–30 Å`），异质双层位于 `z ∈ [8, 20] Å` 区间，一维 `Δρ(z)` 曲线对该区域的正值（电子积累）和负值（电子耗尽）分别作黄色与青色填充；同时利用右侧 `z ∈ [22, 30] Å` 的平坦真空空白区竖直嵌入采用相同黄/青配色的三维结构侧视图与等值面，既不遮挡主曲线峰值，又保持了正负颜色编码的一致。
 
-### 2. 异质界面区定量电荷转移标注与双色正负填充
+### 2. 界面层间间隙边界标定与左上角三维等值面插图
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_InterfaceGap_WS2_Sc2C_Bu2025_Fig9a.jpg" alt="WS₂/Sc₂C 异质结的平面平均差分电荷密度曲线、界面间隙阴影区与三维等值面并排对照图" loading="lazy"/><figcaption>文献案例 2：WS₂/Sc₂C 异质结的平面平均差分电荷 Δρ(z) 与三维正负等值面侧视图并排对准，用竖直虚线标出界面层间区（Interlayer Gap）并注明净转移电荷量 Δq。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> (2025)，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_InterfaceGap_WS2_Sc2C_Bu2025_Fig9a.jpg" alt="WS₂/Sc₂C 异质结的一维平面平均差分电荷密度曲线、蓝色虚线标出的层间间隙 d 与左上角三维等值面插图" loading="lazy"/><figcaption>WS₂/Sc₂C 异质结的一维平面平均差分电荷密度曲线：两条竖直蓝色虚线标出界定层间间隙 <code>d</code>（由红色双向箭头标示）的最外侧原子平面位置，左上角嵌入三维黄/青双色 <code>Δρ</code> 等值面侧视图。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 14397 (2025), Fig. 9a，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
 
-- **审美与后处理要点**：在异质界面中心用竖直虚线标出零交叉面（Zero-crossing interface plane），将一维积分或 [Bader 分区](/Atlas/m/bader/vasp/)得到的净转移电子数 `ΔQ` 与转移方向箭头直接标注在界面间隙处，使电子重排方向一目了然。
+- **读图与作图要点**：在一维平面平均曲线中，用两条竖直蓝色虚线标出上下两层面向界面的最外侧原子平面，并用红色双向箭头明确标出层间间隙宽度 `d`，同时在左上角空白处嵌入三维黄/青 `Δρ` 等值面插图，便于直接判断电荷积累峰是落在层间间隙内部还是靠近某一侧表面原子层。
 
 下一步：若要给空间区域分配净电子数，可接 [Bader 分析](/Atlas/m/bader/vasp/)；若要看电子局域特征，可接 [ELF](/Atlas/m/elf/vasp/)。这两种量与 Δn 的定义不同，需要各自读取对应的输出。
 

@@ -252,9 +252,19 @@ python3 read_mae.py
 python3 plot_mae.py
 ```
 
-提取只用 Python 标准库，绘图需要 NumPy 和 Matplotlib。脚本输出 `mae-mesh-check.png` 和 PDF：左图并列给出同一网格上的 ΔE0、ΔF 和零线，右图显示两个方向的磁矩随网格变化。图标题写明固定结构与 SIGMA=0.1 eV，不把曲线包装成已经收敛的易轴结论。
+提取只用 Python 标准库，绘图需要 NumPy 和 Matplotlib。脚本输出 `mae-mesh-check.png`、PDF 和 SVG，采用三栏联排呈现：（a）同一网格上的 ΔE0 与 ΔF 随 k 点加密的收敛轨迹与符号反转；（b）面内与面外磁化方向下的总磁矩变化；（c）由唯象模型给出的极角能量轮廓 E(θ) = K₁ sin²θ（θ = 0° 为面外 [001] 易轴，θ = 90° 为面内 [100] 难轴，能量差 K₁ = +0.64 meV/Fe）。图标题写明固定结构与 SIGMA=0.1 eV，不把未收敛的曲线包装成最终定论。
 
-![两个 k 网格下 Fe 单层的方向能量差与磁矩](/Atlas/examples/vasp/fe-monolayer-mae/mae-mesh-check.png)
+<figure class="research-figure"><img src="/Atlas/examples/vasp/fe-monolayer-mae/mae-mesh-check.png" alt="Fe 单层在不同 k 网格下的方向能量差、磁矩变化与极角依赖磁各向异性能量曲面" loading="lazy"/><figcaption>Fe 单层（固定单胞，<code>SIGMA = 0.1 eV</code>）的 VASP SOC 磁各向异性诊断三栏联排：（a）在 9×9×1 与 15×15×1 网格下的方向能量差 ΔE = E<sub>[100]</sub> − E<sub>[001]</sub>，展示稀疏网格下因未充分采样能带交叉处 SOC 劈裂而导致的能量符号反转（−0.057 meV → +0.640 meV）；（b）两初始方向下计算磁矩随 k 网格的变化；（c）极角能量轮廓 E(θ) = K<sub>1</sub> sin²θ，直观展示面外易轴向面内难轴旋转时的能量阶梯。</figcaption></figure>
+
+## 文献中的相关图件与表达方式
+
+本页 Fe 单层算例展示了开启 `LSORBIT = .TRUE.` 后，能量差 `ΔE = E_x − E_z` 对倒空间 k 网格采样的强烈依赖：这是由于自旋轨道耦合（SOC）主要在费米能级附近的能带反交叉处产生微小的劈裂与轨道矩各向异性，稀疏网格很容易漏采这些窄区间的重整化贡献。在二维铁磁材料中，当面外易磁化轴（`E_z < E_x`）与强 SOC 共同作用时，往往会在能带交叉点打开非平庸拓扑带隙，并诱导出手性边缘态与量子反常霍尔平台。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_QAHE_ChiralEdge_TbCl_Fig4cd.jpg" alt="单层 TbCl 在面外磁各向异性与自旋轨道耦合下打开的拓扑带隙、手性边缘态及量子反常霍尔电导平台" loading="lazy"/><figcaption>单层 TbCl 在面外磁化与 5d 自旋轨道耦合作用下的电子与拓扑响应：SOC 在费米能级附近打开带隙，产生量子化的反常霍尔电导平台与连接价带、导带的手性边缘态（<em>npj Comput. Mater.</em> <strong>11</strong>, 132 (2025)，<a href="https://doi.org/10.1038/s41524-025-01732-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-025-01732-0</a>）。</figcaption></figure>
+
+为了直观定位第一布里渊区内哪些动量区域主导了 SOC 引起的能带劈裂与反常霍尔响应，文献中常在面外磁化自洽解的基础上绘制二维布里渊区的 Berry 曲率分布图，以显示高对称点或反交叉环附近的尖锐峰值，这也从动量空间解释了为何相关积分量需要足够致密的 k 点网格。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_BerryCurvature_2DMap_LaH2_Fig5b.jpg" alt="铁磁单层 LaH₂ 在面外磁化与自旋轨道耦合下的二维布里渊区 Berry 曲率分布" loading="lazy"/><figcaption>铁磁 LaH₂ 在面外磁化与 SOC 作用下的二维布里渊区 Berry 曲率分布图：高对称点及能带近简并区呈现局域极值，直观反映动量空间局域区域对各向异性与拓扑积分量的集中贡献（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
 
 下一步可回到 [磁性候选态比较](/Atlas/m/magnetic-gs/vasp/)，先确认所研究磁构型，再在同一构型内做更严格的方向与取样检查。
 

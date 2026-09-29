@@ -430,7 +430,17 @@ python3 plot_exfoliation.py
 
 这组结果支持的是：在给定原型构型、冻结坐标和当前 PBE-D3 协议下，分离一层到 d=20 Å 的电子能量代价为上述数值。要把它作为材料剥离能，还需要先取得可接受的 HfI₂ 参考几何，再检查有限厚度、面内约束、层内松弛和相应数值参数。原子不移动的单点不能替代这些条件。
 
-下一步：用[结构优化](/Atlas/m/relax/vasp/)处理参考几何；希望观察结合时电子密度的变化，可接[差分电荷](/Atlas/m/delta-charge/vasp/)。后者的 H₂ 教学例子演示的是处理方法，其数值不能移来解释本例 HfI₂。
+## 文献中的解理与剥离曲线对照方式
+
+报道层状材料的剥离或解理能曲线时，通常以相对平衡层间距的位移 d − d<sub>0</sub> 为横轴、单位面积能量（J/m<sup>2</sup> 或 meV/Å<sup>2</sup>）为纵轴，并同时比较剥离最外单层与从厚层块体中间劈裂的曲线，检验结果对层厚模型的敏感性。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Cleavage_ZrI2_Chen2023_Fig1.jpg" alt="α-ZrI2 与 β-ZrI2 的晶体结构及单层剥离与五层解理能曲线对照" loading="lazy"/><figcaption>层状 α-ZrI<sub>2</sub> 与 β-ZrI<sub>2</sub> 的晶体结构（a–b）及解理能随层间分离距离 <em>d</em> − <em>d</em><sub>0</sub> 的变化曲线（c），对比单层剥离（exfoliation）与五层块体断裂（5-layer fracture），在大间距平台区收敛至约 0.25 J/m<sup>2</sup>。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 1，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+
+为了评估机械剥离的可行性，图中还常叠加石墨烯、MoS<sub>2</sub> 等典型范德华层状材料的剥离能水平参考虚线，直接标示目标材料在已知层状体系中的相对位置。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Exfoliation_TbCl_Fig2b.jpg" alt="TbCl 剥离能曲线与石墨烯和 MoS2 参考线对比" loading="lazy"/><figcaption>层状 TbCl 的剥离能随分离距离的变化曲线，图中以水平虚线标出石墨烯（graphene）与 MoS<sub>2</sub> 的参考剥离能数值以便直接对比。引自 <em>npj Comput. Mater.</em> <strong>11</strong>, 132 (2025)，Fig. 2b，<a href="https://doi.org/10.1038/s41524-025-01732-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-025-01732-0</a>。</figcaption></figure>
+
+下一步：用[离子弛豫](/Atlas/m/relax/)处理参考几何；希望观察结合时电子密度的变化，可接[差分电荷](/Atlas/m/delta-charge/vasp/)。后者的 H₂ 教学例子演示的是处理方法，其数值不能移来解释本例 HfI₂。
 
 ```text
 明确的冻结构型 → 只移动顶层 11、12、18 号原子

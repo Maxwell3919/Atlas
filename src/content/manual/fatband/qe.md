@@ -278,33 +278,33 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 这张图展示了固定 Si 晶胞、PBE、无 SOC 模型下的轨道组成。要分原子、分层或画 d 轨道，可以沿用相同的逐态合并方式，先根据本次 `Atomic states used for projection` 建立分组。没有出现在赝势投影态表中的轨道，不能靠改图例得到。
 
-## 二维异质结 ZrCl₂/Sc₂C：从 `fatbands.projwfc_up` 提取多通道 d–p 杂化胖带
+## 二维异质结 ZrCl₂/Sc₂C：从 `fatbands.projwfc_up` 提取四通道轨道胖带
 
-除了读取 `atomic_proj.xml` 外，当 `projwfc.x` 输入设置 `filproj = 'fatbands'` 时，QE 会直接写出文本格式的逐轨道投影文件 `fatbands.projwfc_up`（非自旋或自旋向上通道）。文件前部列出全部正交化原子波函数的编号、原子序号、元素符号与 `(n, l, m)` 量子数，每个轨道块随后按 `(ik, iband)` 顺序逐行给出本征能量（eV）与投影权重 `|c_j(n,k)|²`。
+除了读取 `atomic_proj.xml` 外，当 `projwfc.x` 输入设置 `filproj = 'fatbands'` 时，QE 会写出文本格式的逐轨道投影文件 `fatbands.projwfc_up`。文件前部列出全部正交化原子波函数的编号、原子序号、元素符号与 `(n, l, m)` 量子数，每个轨道块随后按 `(ik, iband)` 顺序逐行给出投影权重 `|c_j(n,k)|²`。
 
-在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，6 个原子共有 44 个正交化原子轨道，跨越 151 个路径 k 点与 36 条能带。为了在同一坐标轴上清晰呈现层间与层内轨道杂化，后处理脚本 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 将 44 个原子态按元素与角动量合并为四个物理通道：
-- `Zr-4d`（状态 `#5–9`，深蓝）、`Sc-3d`（状态 `#26–30` 与 `#36–40`，青绿）；
-- `C-2p`（状态 `#42–44`，锈红）、`Cl-3p`（状态 `#12–14` 与 `#17–19`，琥珀）。
+在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，`scf/fatbands.projwfc_up` 包含 **`45` 个正交化原子轨道、`151` 个路径 k 点与 `31` 条能带**。绘图脚本 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 将相关轨道按元素与角动量合并为四个通道：
+- `Zr-4d`（状态 `#9–13`）、`Sc-3d`（状态 `#31–35` 与 `#41–45`）；
+- `C-2p`（状态 `#15–17`）、`Cl-3p`（状态 `#19–21` 与 `#23–25`）。
 
-在单幅能带面板中叠绘四个轨道通道时，若对全部 151 个密集 k 点都画实心圆，散点会互相完全遮盖。因此脚本采用**连续灰黑细线绘制全部本征能带骨架 + 隔点采样（stride = 2）半透明气泡（`alpha = 0.72`）编码各通道权重**，并与右侧的水平 PDOS 和二维费米面联立：
+为避免四个轨道通道在同一能带骨架上互相遮挡，子图 **a** 用空心圆（`facecolors='none'`，仅绘制 `w > 0.04` 的显著权重）编码各通道权重，并与子图 **b** 的水平 PDOS 及子图 **c** 的二维六角费米面并排展示：
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 的四通道轨道投影胖带（Zr-4d、Sc-3d、C-2p、Cl-3p）、水平 PDOS 与二维费米面" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的多通道轨道胖带（左面板）与水平 PDOS（中面板）、二维费米面（右面板）联立图。左面板在同一能带骨架上用四种高区分度色系展示 Zr-4d、Sc-3d、C-2p 与 Cl-3p 的逐 k 逐带权重分布。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 的四通道空心圆轨道投影胖带（Zr-4d、Sc-3d、C-2p、Cl-3p）、水平 PDOS 与二维费米面" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构三联图：(a) 由 <code>scf/fatbands.projwfc_up</code>（45 个轨道、151 个 k 点、31 条能带）提取的 <code>Zr-4d</code>、<code>Sc-3d</code>、<code>C-2p</code> 与 <code>Cl-3p</code> 空心圆轨道胖带；(b) 共享能量纵轴的水平 PDOS；(c) 二维六角第一布里渊区费米面。</figcaption></figure>
 
-## 文献轨道投影胖带（Fatbands）后处理审美解析（附 DOI 溯源）
+## 文献中的相关图件与表达方式
 
-当体系包含过渡金属 `d` 轨道分波（如 `d_z²`、`d_x²-y²/xy`、`d_xz/yz`）与配体 `p` 轨道时，如何把高维投影权重优雅地呈现在能带图上？下面引入两幅代表性文献原图（均附原始 DOI 号）解析其视觉设计：
+当体系包含多个过渡金属 `d` 轨道分波或晶格间隙局域电子时，文献常通过分栏展示或空心圆叠加的方式避免多重投影相互遮挡：
 
-### 1. 晶体场劈裂分波轨道胖带 + 水平 PDOS + 三维费米面联立图
+### 1. 晶体场分波轨道三列并排胖带、共享纵轴水平 PDOS 与二维费米面
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_OrbitalFatbands_PDOS_FS_TiSH_Li2024_Fig3a.jpg" alt="按过渡金属 d 轨道磁量子数分量（d_z²、d_xz/yz、d_xy/x²-y²）着色的电子胖带、水平 PDOS 与费米面联立图" loading="lazy"/><figcaption>文献案例 1：将过渡金属 Ti-3d 轨道按六角/三角晶体场对称性拆分为 d_z²、d_xz+d_yz、d_xy+d_x²-y² 三个子通道，在能带图上用散点气泡编码权重，并与右侧共享能量轴的水平分波 PDOS 及费米面内嵌图联立展示。图片来源：Li et al., <em>Phys. Rev. B</em> <strong>109</strong>, 174516 (2024)，<a href="https://doi.org/10.1103/PhysRevB.109.174516" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.109.174516</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_OrbitalFatbands_PDOS_FS_TiSH_Li2024_Fig3a.jpg" alt="按 Ti d_xy+d_x²−y²、d_xz+d_yz 与 d_z² 拆分为三列窄能带面板的轨道胖带、水平 PDOS 与二维费米面联立图" loading="lazy"/><figcaption>将过渡金属 Ti-3d 轨道按晶体场对称性拆分为三列并排的窄能带面板，分别展示 <code>d_xy + d_x²−y²</code>、<code>d_xz + d_yz</code> 与 <code>d_z²</code> 权重，并与右侧共享能量轴的水平分波 PDOS 及二维费米面插图组合展示。图片来源：Li et al., <em>Phys. Rev. B</em> <strong>109</strong>, 174516 (2024), Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.109.174516" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.109.174516</a>。</figcaption></figure>
 
-- **审美与后处理要点**：不要把 5 个 `d` 轨道不分青红皂白地画成 5 种颜色。先按点群对称性（例如层状六角晶格中的面外 `A_1g: d_z²`、面内 `E': d_xy, d_x²-y²`、双简并面外倾斜 `E'': d_xz, d_yz`）合并简并轨道，再用 3–4 种主色绘制胖带气泡，物理图像最清晰。
+- **读图与作图要点**：当同一条能带同时含有多个 `d` 分波分量时，把高对称路径压缩为三列并排的窄面板，分别绘制面内 `d_xy + d_x²−y²`、面外倾斜 `d_xz + d_yz` 和面外 `d_z²` 权重，再在右侧接上共享能量轴的水平 PDOS，可以彻底消除不同 `d` 分波在同一像素位置上的重叠。
 
-### 2. 双组分颜色插值胖带与费米面轨道成分的一一映射
+### 2. 空心圆轨道与间隙空球 X 投影胖带及带边同心圆放大图
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="双金属层能带成分彩色投影、水平态密度与费米面口袋映射联立图" loading="lazy"/><figcaption>文献案例 2：使用红/蓝/绿颜色编码区分异质双层或多子晶格对能带及费米面口袋的贡献。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17360 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_HZrCl2_He2022_Fig2.png" alt="单层 2H-ZrCl₂ 的空心圆轨道与空球 X 投影胖带、VBM/CBM 局部同心圆放大及 ELF、PDOS、部分电荷密度联立图" loading="lazy"/><figcaption>单层 2H-ZrCl₂ 电子化合物的空心圆轨道投影能带（子图 a）：使用不同颜色的空心圆区分原子轨道与间隙空球 <code>X</code> 的投影权重，并在右侧附上 VBM 与 CBM 附近的局部放大图（多个轨道的空心圆在同一采样点上形成同心圆环）。图片来源：He et al., <em>J. Mater. Chem. C</em> <strong>10</strong>, 7674 (2022), Fig. 2，<a href="https://doi.org/10.1039/D2TC00564F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D2TC00564F</a>。</figcaption></figure>
 
-- **审美与后处理要点**：在异质结（如 `ZrCl₂/Sc₂C` 或 `SnSe₂/Sr₂N`）中，按“上层子晶格 vs 下层子晶格”或“过渡金属 vs 轻元素”分配对比色，不仅能在胖带图上直接识别层间电荷转移与能带反转，还能将同一套颜色延续到右侧的费米面口袋上。
+- **读图与作图要点**：采用无填充空心圆（`facecolors='none'`）绘制多通道胖带并在 VBM/CBM 极值处给出局部放大插图，不同轨道分量在同一个 `(k, E)` 点上会呈现为半径不同的同心圆环，不会像实心散点那样由后绘制的图层完全盖住先绘制的图层。
 
 下一步：能量分辨的轨道贡献接[DOS](/Atlas/m/dos/qe/)，全区积分的投影电子数接[布居分析](/Atlas/m/population-analysis/qe/)，带边位置接[带隙](/Atlas/m/band-gap/qe/)。
 

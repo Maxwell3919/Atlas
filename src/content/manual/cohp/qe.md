@@ -625,21 +625,21 @@ python3 plot_cohp.py
 
 读图时先定位 0 eV 与正负号，再核对画的是单键、四键平均还是总和。引用数字时回到相应目录的原生 ICOHPLIST 和参数对照，便能把成键图连回具体波函数、局域基组和周期原子对。
 
-## 文献 COHP 化学键与实空间轨道后处理审美解析（附 DOI 溯源）
+## 文献中的相关图件与表达方式
 
-在展示 LOBSTER 计算的 `−pCOHP(E)` 或 `COBI(E)` 时，高水平化学与材料物理文献通常将其与**实空间波函数/分子轨道等值面**或**能带 + 态密度 + 费米面**同轴联立，使抽象的能量积分变成直观的成键图像。下面引入两幅代表性文献原图（均附原始 DOI 号）解析其后处理范式：
+在展示 LOBSTER 计算的 `−pCOHP(E)` 或 `COHP(E)` 时，化学与材料物理文献常将其与实空间波函数等值面，或与能带、分波态密度（PDOS）及费米面同轴并列，以便把能量分辨的成键信号与轨道特征对应起来：
 
-### 1. COHP 成键/反键填充谱与关键能量窗口实空间波函数的配对展示
+### 1. COHP 成键/反键填充谱与特定能量窗口实空间波函数的对照
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_COHP_Wavefunctions_LaBr_Accounts2024_Fig5.jpg" alt="晶体轨道哈密顿布居 COHP 成键与反键色块填充谱及对应能量区间的实空间波函数等值面联立图" loading="lazy"/><figcaption>文献案例 1：在 COHP 谱图中对成键区（Bonding）与反键区（Antibonding）使用对比色填充，并在旁侧直接配对展示对应能量窗口内的实空间 Kohn–Sham 波函数/局域分子轨道相位分布。图片来源：<em>Acc. Chem. Res.</em> <strong>57</strong>, 2582 (2024)，<a href="https://doi.org/10.1021/acs.accounts.4c00394" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.accounts.4c00394</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_COHP_Wavefunctions_LaBr_Accounts2024_Fig5.jpg" alt="晶体轨道哈密顿布居 COHP 成键与反键色块填充谱及对应能量区间的实空间波函数等值面联立图" loading="lazy"/><figcaption>在 COHP 谱图中对成键区（Bonding）与反键区（Antibonding）使用对比色填充，并在旁侧配对展示对应能量窗口内的实空间 Kohn–Sham 波函数相位等值面。图片来源：<em>Acc. Chem. Res.</em> <strong>57</strong>, 2244 (2024), Fig. 5，<a href="https://doi.org/10.1021/acs.accounts.4c00209" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.accounts.4c00209</a>。</figcaption></figure>
 
-- **审美与后处理要点**：在 `−COHP` 图中，围绕零轴 `−COHP = 0` 对正值（成键）和负值（反键）做双色半透明填充（`fill_between` / `fill_betweenx`），并在关键峰位抽出实空间波函数相位等值面（正负相位用双色区分），能让读者直接看到为什么某一组轨道重叠会产生强共价成键或反键排斥。
+- **读图与作图要点**：围绕零轴对成键贡献与反键贡献作双色填充（`fill_between` / `fill_betweenx`），并针对关键峰位抽出对应能量区间的实空间波函数相位等值面（正负相位用双色区分），有助于直接观察特定轨道重叠如何形成共价成键或反键排斥。
 
-### 2. 费米面 + 能带 + 水平 DOS + 水平 COHP 四联共享能量轴排版
+### 2. 电子能带、元素分辨 PDOS、总 COHP 与二维费米面的联合展示
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="费米面、电子能带、水平元素分辨态密度 DOS 与水平 COHP 四联共享能量轴图" loading="lazy"/><figcaption>文献案例 2：将电子能带、水平元素分辨 DOS 与不同原子对的水平 −COHP 共享同一能量纵轴 E − E_F 排列，并在图内直接标注各键的积分值 ICOHP（eV/bond）。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> (2026)，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="Mo₂ScN₂O₂ 的电子能带、元素分辨 PDOS、总 COHP 曲线与二维六角费米面联合图" loading="lazy"/><figcaption>Mo₂ScN₂O₂ 的电子结构与化学键综合图件：电子能带、元素分辨分波态密度 PDOS（Mo、Sc、N、O 与 Total）以及子图 (d) 的总 COHP 曲线（左侧标示 <code>&lt;- antibonding</code>，右侧标示 <code>bonding -&gt;</code>）共享同一能量纵轴，并配合展示二维六角布里渊区内的费米面口袋。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> <strong>12</strong>, 46 (2026), Fig. 3，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
 
-- **审美与后处理要点**：将 `−COHP(E)` 纵置并与能带、PDOS 共享 `E − E_F` 纵轴，同时在面板空白处标注对应键对的 `ICOHP` 定量数值，是把电子色散、态密度分布与局部成键强度合一的标准构图。
+- **读图与作图要点**：子图 (d) 将总 COHP 曲线纵置，顶部明确标出横轴两侧的成键与反键方向（左侧为 `<- antibonding`，右侧为 `bonding ->`），并与左侧的电子能带及 Mo、Sc、N、O、Total 分波态密度共享垂直能量轴 `E − E_F`，同时结合二维六角费米面口袋，把费米能级附近的能带色散、元素态密度来源与总体成键/反键特征直接对应起来。
 
 下一步：[投影能带](/Atlas/m/fatband/qe/)看沿 k 路径的轨道成分；[电子布居分析](/Atlas/m/population-analysis/qe/)看投影电子数。这些量可以与成对 Hamiltonian 分解结合阅读。
 

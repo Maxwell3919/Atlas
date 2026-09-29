@@ -327,35 +327,35 @@ python3 plot_phonon.py
 
 `D_Iα,Jβ(q) = C_Iα,Jβ(q) / sqrt(M_I M_J)`
 
-一旦质量索引写错，声子频率就会按 `(M_wrong / M_true)^(1/2)` 发生系统性偏移。在 **`SnSe₂/Sr₂N`**（[完整排查记录](/Atlas/m/epc/qe/#double-grid-research-record)）中，元素表顺序为 `Sr (87.620)、N (14.007)、Sn (118.71)、Se (78.971)`，而旧输入误将 `amass(2)=118.71` 写了两次，把轻原子 N 当成了重原子 Sn（质量放大 `8.475` 倍，频率被压低 `2.91` 倍）。下图中间面板将旧质量色散 [`srnsnse.wrong_mass.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)（灰虚线）与恢复真实质量后的色散 [`srnsnse.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)（深蓝与锈红实线）叠加在同一坐标系中：恢复 `M_N = 14.007` 后，主要由 Sn/Se/Sr 贡献的中低频支（`0–6.65 THz`）几乎不变，而由 N 主导的三条高频光学支（`ν = 16–18`）从 `4.1–8.6 THz` 跃升至 **`7.99–11.95 THz`**，直接越过了旧 `lambdax.in` 的 `10 THz` 积分上限。
+一旦质量索引写错，声子频率就会按 `(M_wrong / M_true)^(1/2)` 发生系统性偏移。在 **`SnSe₂/Sr₂N`**（[完整排查记录](/Atlas/m/epc/qe/#double-grid-research-record)）中，元素表顺序为 `Sr (87.620)、N (14.007)、Sn (118.71)、Se (78.971)`，而旧输入误将 `amass(2)=118.71` 写了两次，把轻原子 N 当成了重原子 Sn（质量放大 `8.475` 倍，频率被压低 `2.91` 倍）。下图中间面板将旧质量色散 [`srnsnse.wrong_mass.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)（灰虚线）与恢复真实质量后的色散 [`srnsnse.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)（深蓝与锈红实线）叠加在同一坐标系中：错误质量下第 `16–18` 支被压低在 **`4.49–6.70 THz`**（Γ 点为 `4.60、5.56、6.70 THz`）；恢复 `M_N = 14.007` 后，主要由 Sn/Se/Sr 贡献的中低频支（`0–6.65 THz`）几乎不变，而由 N 主导的三条高频光学支（`ν = 16–18`）跃升至 **`7.99–11.94 THz`**（Γ 点为 `7.99、7.99、10.74 THz`，全布里渊区跨度 `7.42–11.94 THz`），直接越过了旧 `lambdax.in` 的 `10 THz` 积分上限。
 
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 质量恢复前后的 DFPT 声子色散、原子分辨 PHDOS 与 q=1,2 逐模耦合" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的 DFPT 声子与后处理诊断：（中）错误质量（M_N = 118.71，灰色虚线）与真实质量（M_N = 14.007，实线）下的 Γ–M–K–Γ 声子色散及共享频率轴的原子投影 PHDOS，锈红色高亮恢复后的三条 N-2p 高频光学支（最高达 11.95 THz）。</figcaption></figure>
+<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 质量恢复前后的 DFPT 声子色散、原子分辨 PHDOS 与 q=1,2 逐模耦合" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的 DFPT 声子与后处理诊断：（中）错误质量（M<sub>N</sub> = 118.71，灰色虚线，第 16–18 支位于 4.49–6.70 THz）与真实质量（M<sub>N</sub> = 14.007，实线）下的 Γ–M–K–Γ 声子色散及共享频率轴的原子投影 PHDOS，锈红色高亮恢复后的三条 N-2p 高频光学支（7.99–11.94 THz）。</figcaption></figure>
 
-同样地，在 **`ZrCl₂/Sc₂C`**（[双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，8×8×1 DFPT 网格经 `q2r.x → matdyn.x` 插值得到的色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 在整个布里渊区无虚频，且在 `9.65–12.38 THz` 之间呈现清晰的声子带隙，将下方的 `Zr/Sc/Cl` 振动支与上方 `12.38–17.11 THz` 的 `C` 光学支完全分开。
+同样地，在 **`ZrCl₂/Sc₂C`**（[双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，8×8×1 DFPT 网格经 `q2r.x → matdyn.x` 插值得到的色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 在整个布里渊区无虚频：下方 15 条 `Zr/Sc/Cl` 声学与中低频光学支分布在 `0–10.11 THz`（`0–337.2 cm⁻¹`，直接 DFPT q 网格上为 `0–10.02 THz`），中间存在 `10.11–12.49 THz` 的声子带隙，上方 3 条由轻原子 `C` 主导的高频光学支（`ν = 16–18`）分布在 `12.49–17.11 THz`（原始 DFPT 网格上为 `12.38–17.11 THz`）。
 
-## 文献 DFPT 声子色散与晶格动力学后处理审美解析（附 DOI 溯源）
+## 文献中的 DFPT 声子色散与本征模式图例（附 DOI 溯源）
 
-在展示 DFPT 声子色散时，除了画出本征频率曲线外，高水平文献常通过**投影颜色编码（面内/面外或元素权重）**、**展宽/温度软化叠绘**以及**本征位移矢量可视化**来揭示结构相变与配对机制。下面引入四幅代表性文献原图（均附原始 DOI 号）解析其构图范式：
+在展示 DFPT 声子色散时，除了绘制本征频率曲线外，文献常结合**振动方向与元素投影着色**、**软模频率随电子展宽的演化曲线**以及**实空间本征位移矢量与点群不可约表示标注**来分析晶格动力学与结构相变。下面结合四幅文献原图说明常见的数据组织方式：
 
-### 1. 振动方向投影声子色散（面内 xy 与面外 z 分量彩色编码）
+### 1. 振动方向投影声子色散（面内与面外分量编码）
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="按原子振动方向（面内与面外）及元素权重着色的二维材料声子色散谱" loading="lazy"/><figcaption>文献案例 1：在声子色散曲线上用连续色标或散点大小编码特定原子的面内（in-plane）与面外（out-of-plane）振动本征矢权重。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="按原子振动方向（面内与面外）及元素权重着色的二维材料声子色散谱" loading="lazy"/><figcaption>在 NbSi<sub>2</sub>As<sub>4</sub> 声子色散曲线上用颜色或散点大小区分面内（in-plane）与面外（out-of-plane）振动本征矢分量。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
 
-- **审美与后处理要点**：从 `matdyn.modes` 读取每个 `(q, ν)` 的归一化复本征矢 `e_Iα(q, ν)`，计算特定元素或 `|e_z|²` 的模方权重并映射为曲线颜色，无需读者猜测就能直接标出哪些分支是面外呼吸/弯曲模（Z-directed modes），哪些是面内剪切模。
+- **数据提取与绘图方式**：从 `matdyn.modes` 读取每个 `(q, ν)` 的归一化复本征矢 `e_Iα(q, ν)`，计算特定原子或面外分量 `|e_z|²` 的模方权重并映射为曲线颜色，可直接区分面外呼吸/弯曲模与面内剪切模。
 
-### 2. 电子展宽 σ 调控下的 Kohn 反常与 CDW 声子软化演化
+### 2. 软模本征频率随电子展宽 σ 的演化曲线
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="不同电子展宽 σ 下的声子软化与电荷密度波（CDW）虚频演化叠绘" loading="lazy"/><figcaption>文献案例 2：在同一声子色散坐标轴中叠绘多组电子展宽（smearing σ，模拟电子有效温度）下的低频声学支，展示特定波矢 q_CDW 处从 Kohn 反常下凹到虚频失稳的连续相变。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="最低软模声子频率随电子展宽 σ 变化并跨越零频阈值的演化曲线" loading="lazy"/><figcaption>追踪 NbSi<sub>2</sub>As<sub>4</sub> 最低软模频率（单位 meV）随电子展宽 σ（0–15 mRy）的变化，展示软模在 σ ≈ 6–6.5 mRy 处由虚频（−14 meV）转为正实频的临界行为。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
 
-- **审美与后处理要点**：当体系在有限波矢出现软模或[虚频](/Atlas/m/imaginary-phonon/qe/)时，固定其余参数、用渐变色系叠绘不同电子展宽 `degauss` 下的声子谱，并清晰画出 `ω = 0` 水平基准线，可以直观区分数值噪声与真实的 Peierls / CDW 晶格失稳。
+- **数据提取与绘图方式**：当体系在有限波矢出现软模或[虚频](/Atlas/m/imaginary-phonon/qe/)时，提取该波矢处最低声子支的频率作为电子展宽 `degauss`（模拟电子有效温度）的函数并标出 `ω = 0` 水平线，可定量确定电荷密度波（CDW）失稳的临界展宽窗口。
 
-### 3. 关键声子模式的俯视/侧视双视角实空间本征矢与群论不可约表示标注
+### 3. 强耦合声子模式的俯视/侧视本征矢与 Γ 点群论不可约表示标注
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_TopSide_hAlH2_Jiang_Fig4.jpg" alt="关键高耦合声子模式在晶体结构俯视图与侧视图中的原子振动箭头可视化" loading="lazy"/><figcaption>文献案例 3：结合俯视图（Top view）与侧视图（Side view）展示 Γ 点关键光学支（E_g 与 A_1g 模式）的实空间原子位移箭头。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_TopSide_hAlH2_Jiang_Fig4.jpg" alt="关键高耦合声子模式在晶体结构俯视图与侧视图中的原子振动箭头可视化" loading="lazy"/><figcaption>结合俯视图（Top view）与侧视图（Side view）展示二维 h-AlH<sub>2</sub> 布里渊区中 6 个主要电声耦合声子模式（I–VI）的实空间原子位移方向。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_Irreps_AlH2_Yang2023_Fig3a.jpg" alt="按点群不可约表示分类标注的声子振动模式与频率对照图" loading="lazy"/><figcaption>文献案例 4：将 Γ 点声子本征模式按点群不可约表示（Irreducible Representations，如 E_2g、B_1g、A_1g）与特征频率逐一配对展示。图片来源：Yang et al., <em>Chin. Phys. Lett.</em> <strong>40</strong>, 107401 (2023)，<a href="https://doi.org/10.1088/0256-307X/40/10/107401" target="_blank" rel="noopener noreferrer">DOI: 10.1088/0256-307X/40/10/107401</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_Irreps_AlH2_Yang2023_Fig3a.jpg" alt="按点群不可约表示分类标注的声子振动模式与红外拉曼活性对照图" loading="lazy"/><figcaption>将单层 AlH<sub>2</sub> 在 Γ 点的 9 个声子模式按 D<sub>3h</sub> 点群不可约表示（E′、A<sub>2</sub>″、E″、A<sub>1</sub>′）及红外（I）/拉曼（R）活性逐一配对展示。图片来源：Yang, Jiang, and Zhao, <em>Chin. Phys. Lett.</em> <strong>40</strong>, 107401 (2023)，<a href="https://doi.org/10.1088/0256-307X/40/10/107401" target="_blank" rel="noopener noreferrer">DOI: 10.1088/0256-307X/40/10/107401</a>。</figcaption></figure>
 
-- **审美与后处理要点**：`ph.x` 在 Γ 点会自动输出点群对称性与不可约表示标签（如 `E_g`、`A_1g`、`E_u`）。在声子色散旁附上关键模式的俯视/侧视原子位移矢量图并注明对称性符号和频率，能与实验拉曼（Raman）或红外（IR）光谱实现直接对照。
+- **数据提取与绘图方式**：`ph.x` 与 `dynmat.x` 在 Γ 点会输出点群对称性与不可约表示标签。将关键模式的俯视/侧视原子位移矢量图与点群符号、红外/拉曼活性并列标注，便于同实验光谱直接比对。
 
 下一步到 [声子态密度](/Atlas/m/phdos/qe/) 对整个布里渊区做积分；也可以到 [有限位移声子](/Atlas/m/phonon-finite-disp/qe/) 看同一材料如何从实际受力重建力常数。
 

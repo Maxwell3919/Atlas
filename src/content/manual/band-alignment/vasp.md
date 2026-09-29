@@ -368,24 +368,27 @@ python3 plot_alignment.py
 
 ![同一共同晶胞中两份冻结孤立层的双侧真空势与参考能级](/Atlas/figures/band-alignment-vasp/band-alignment.png)
 
-## 文献中的能带对齐与肖特基势垒后处理范式（附 DOI）
+## 文献中的相关图件与表达方式
 
-在半导体异质结、金半接触与二维材料数据库研究中，除了单体系双侧真空参考图，文献常采用以下三种后处理布局展示能带对齐与界面势垒演化：
+在半导体异质结、金属/半导体接触与二维材料数据库研究中，除了单体系双侧真空参考图，文献常采用以下三种图件表达能带对齐与界面势垒演化：
 
-1. **平面平均势与宏观平均势（Macroscopic Average）提取 VBO/CBO**（Dawber 等，*Rev. Mod. Phys.* **77**, 1083 (2005)，DOI: [10.1103/RevModPhys.77.1083](https://doi.org/10.1103/RevModPhys.77.1083)）：
-   在无真空或超晶格界面体系中，将振荡剧烈的平面平均静电势（虚线）通过周期滑动窗口滤波得到平滑的宏观平均势（实线），以此对齐两侧体相参考能级并直接标出价带偏移（VBO）与导带偏移（CBO）。
+### 1. 界面宏观平均静电势台阶与价带/导带偏移（VBO/CBO）对齐图
 
-![平面平均势与宏观平均势提取能带偏移示例（DOI: 10.1103/RevModPhys.77.1083）](/Atlas/figures/literature/M3_MacroscopicAverage_VBO_CBO_Dawber2005_Fig26b.jpg)
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_MacroscopicAverage_VBO_CBO_Dawber2005_Fig26b.jpg" alt="SrO/SrTiO₃ 界面平滑宏观平均静电势台阶 ΔV = −1.22 eV 及由此导出的 VBO 与 CBO 能带偏移示意图" loading="lazy"/><figcaption>SrO/SrTiO₃ 界面的静电势对齐示意：下方展示经宏观平均平滑后的界面静电势台阶（<code>ΔV = −1.22 eV</code>），上方将其与两侧体相带边结合，标出价带偏移（<code>VBO = 0.18 eV</code>）与导带偏移（<code>CBO = −2.22 eV</code>）。图片来源：Dawber et al., <em>Rev. Mod. Phys.</em> <strong>77</strong>, 1083 (2005), Fig. 26b，<a href="https://doi.org/10.1103/RevModPhys.77.1083" target="_blank" rel="noopener noreferrer">DOI: 10.1103/RevModPhys.77.1083</a>。</figcaption></figure>
 
-2. **多泛函绝对带边阶梯并排对照图**（Haastrup 等，*2D Mater.* **5**, 042002 (2018)，DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）：
-   以绝对真空能级（$E_{\text{vac}} = 0\text{ eV}$）为统一纵轴，将多个二维材料在 PBE、HSE06 与 $G_0W_0$ 下的 VBM 与 CBM 画成阶梯色块柱，直观展示泛函修正对带隙宽度及 Type-I/II/III 跨材料对齐类别的系统影响。
+- **读图与作图要点**：在无真空的超晶格或体相异质界面中，先在图下方绘出跨界面的平滑宏观平均静电势台阶（如 `SrO/SrTiO₃` 界面的 `ΔV = −1.22 eV`），再在图上方将两侧各自的体相 VBM、CBM 相对于各自静电势参考放回同一能量纵轴，即可清晰读出价带偏移（`VBO = 0.18 eV`）与导带偏移（`CBO = −2.22 eV`）。
 
-![多泛函绝对带边阶梯对齐图示例（DOI: 10.1088/2053-1583/aacfc1）](/Atlas/figures/literature/M3_BandAlignment_MultiFunctional_TMDs_C2DB2018_Fig21.jpg)
+### 2. 相对于真空能级的 Type-II 交错带边偏移判据示意
 
-3. **外加电场调控肖特基势垒相图**（Yi 等，*Appl. Surf. Sci.* 2024，DOI: [10.1016/j.apsusc.2024.161730](https://doi.org/10.1016/j.apsusc.2024.161730)）：
-   在金属/半导体异质结中追踪电子型（$\Phi_{Bn}$）与空穴型（$\Phi_{Bp}$）肖特基势垒随法向外电场的演化曲线，并用分色背景标出 p-type Schottky、n-type Schottky 与 Ohmic 接触相区及临界转变电场。
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_BandAlignment_MultiFunctional_TMDs_C2DB2018_Fig21.jpg" alt="相对于真空能级的两层材料 VBM 与 CBM 交错排列及 Type-II 带边偏移判据 ΔE 示意图" loading="lazy"/><figcaption>以真空能级为统一参考的两层半导体带边对齐示意，标出两层各自的 VBM 与 CBM 位置以及用于筛选 Type-II 交错（Staggered）异质结的带边偏移判据 <code>ΔE</code>。图片来源：Haastrup et al., <em>2D Mater.</em> <strong>5</strong>, 042002 (2018), Fig. 21，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>。</figcaption></figure>
 
-![外电场调控肖特基势垒相图示例（DOI: 10.1016/j.apsusc.2024.161730）](/Atlas/figures/literature/M3_SchottkyBarrier_Efield_PhaseDiagram_ZrCl2_Yi2023_Fig8a.jpg)
+- **读图与作图要点**：将两个单层相对于各自真空能级的 VBM 与 CBM 并排放置在统一能量轴上，通过标出两侧同类带边之间的偏移量 `ΔE`，可以直接说明 Type-II 交错带边排列的筛选判据。
+
+### 3. 外加垂直电场调控肖特基势垒与接触类型相区图
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_SchottkyBarrier_Efield_PhaseDiagram_ZrCl2_Yi2023_Fig8a.jpg" alt="ZrCl₂/Zr₂Cl₂ 异质结中电子型与空穴型肖特基势垒随垂直外电场的演化及三种接触类型背景分区图" loading="lazy"/><figcaption>ZrCl₂/Zr₂Cl₂ 异质结中电子型肖特基势垒（<code>Φ_e</code>，黑色方块）与空穴型肖特基势垒（<code>Φ_h</code>，红色圆圈）随垂直外电场的演化曲线，薄荷绿、杏色与淡紫色背景分别标示 n 型肖特基、p 型肖特基与欧姆接触（Ohmic）区间。图片来源：Yi et al., <em>Appl. Surf. Sci.</em> <strong>613</strong>, 156054 (2023), Fig. 8a，<a href="https://doi.org/10.1016/j.apsusc.2022.156054" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.apsusc.2022.156054</a>。</figcaption></figure>
+
+- **读图与作图要点**：在金属/半导体异质结（如 `ZrCl₂/Zr₂Cl₂`）中，沿横轴扫描法向外电场，同时追踪电子势垒 `Φ_e`（黑色方块）与空穴势垒 `Φ_h`（红色圆圈），并用不同底色（薄荷绿 n-Schottky、杏色 p-Schottky、淡紫色 Ohmic）区分接触类型相区，能清楚标出发生肖特基—欧姆转变与能带反转的临界电场。
 
 下一步若要看接触后的变化，转到 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，在同一异质结构晶胞与冻结几何下比较 AB、A、B 的电荷；若要读整个异质结构的势变化，转到 [静电势](/Atlas/m/electrostatic-potential/vasp/)。这两类结果再与实际界面能带结合，才能继续讨论接触后的能级重排。
 

@@ -745,6 +745,16 @@ print('Mobility publication status:',summary.get('mobility_status','alldeclaredm
 
 </details>
 
+## 文献中的相关图件与表达方式
+
+本页使用 Takagi 纵向声学形变势公式演示了从弹性模量 `C₂D`、真空对齐带边移动 `E₁` 到抛物带有效质量 `m*` 的简化估算路线。当进入包含光学声子、极化 Fröhlich 散射及谷间散射的第一性原理输运计算（如基于 Wannier 插值的 EPW 或玻尔兹曼输运求解）时，电子散射率直接由电声自能虚部 `Im Σ(k, ω)` 决定，文献中常通过对比低温（如 1 K）与室温（如 300 K）下的电子谱函数 `A(k, ω)`，直观展示热激发声子散射引起的准粒子谱线展宽与重整化。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="EPW 计算的 1 K 与 300 K 下电子声子谱函数 A(k, ω) 及热散射展宽对比" loading="lazy"/><figcaption>不同温度与展宽设置下的电子谱函数 <code>A(k, ω)</code> 对比：展示从 1 K 到 300 K 热激发声子散射引起的准粒子谱线展宽，以及数值展宽参数对谱图分辨率的影响（Poncé 等，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>）。</figcaption></figure>
+
+对于多能谷或非抛物色散明显的二维导体与半导体，单一能谷底的二阶曲率有效质量不再足以描述全布里渊区的输运响应，此时常在二维费米面或等能面轮廓上直接用色标映射动量分辨的费米速度 `v_F(k)`，将能带色散斜率、态密度与各向异性群速度分布对应呈现。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属体系的轨道投影能带、态密度与映射费米速度的二维费米面轮廓" loading="lazy"/><figcaption>能带色散、态密度与二维费米面群速度的联合表征：上方为元素投影能带与态密度，下方在二维布里渊区费米轮廓上直接用色标给出动量分辨的费米速度 <code>v<sub>F</sub>(k)</code> 大小（Bekaert 等，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>）。</figcaption></figure>
+
 下一步：用[有效质量](/Atlas/m/effective-mass/qe/)核对带边曲率的单位和窗口；用[应变计算](/Atlas/m/strain-doping-scan/qe/)查看固定结构与应变边界；如要进入材料定量输运，需要建立包含实际电子声子矩阵元和相关散射通道的计算链。
 
 ```text

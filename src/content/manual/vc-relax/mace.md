@@ -191,6 +191,12 @@ print("cell-relaxation.svg", "cell-relaxation.png")
 
 完整材料：[输入](/Atlas/examples/mace-si/si-vc-relax/vc-relax.py)、[原始输出](/Atlas/examples/mace-si/si-vc-relax/vc-relax.out.txt)、[轨迹](/Atlas/examples/mace-si/si-vc-relax/vc-relax.traj)、[末态结构](/Atlas/examples/mace-si/si-vc-relax/relaxed.extxyz)、[CIF](/Atlas/examples/mace-si/si-vc-relax/relaxed.cif)。
 
+## 文献中的相关图件与表达方式
+
+机器学习原子间势（如 MACE）的可变晶胞优化常用于晶体结构预测与二元/多元相图的高通量初筛：在各个化学计量比下对大量候选晶胞同时放开晶格矢量与内部坐标进行零压（或指定外压）弛豫，按收敛后的每原子能量构建热力学凸包（convex hull），从中识别稳定相与亚稳相，随后再对凸包附近的低能结构做第一性原理复核与电子结构分析。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc–C 二元体系可变晶胞结构搜索的热力学凸包相图及稳定相晶体与电子结构" loading="lazy"/><figcaption>基于可变晶胞结构弛豫的二元热力学凸包与相稳定性分析：展示 Sc–C 体系跨越不同组分的形成焓凸包、实验已知相与新预测稳定相的位置，以及目标相的晶体结构与能带色散（McRae 等，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>）。</figcaption></figure>
+
 下一步：用这份末态扩成 64 原子超胞，进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)，检查有限时间轨迹和积分步长。
 
 ```text

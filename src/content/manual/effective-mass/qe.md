@@ -246,6 +246,16 @@ transverse-z       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
 
 左图画能量差而不是约 6.94 eV 的绝对能量，局部弯曲才看得清。右图把三个窗口的质量放在一起；细小的拟合残差说明局部拟合做得好，不能单独证明交换关联模型或所有数值参数已达到研究所需精度。
 
+## 文献中对能带曲率与费米速度分布的展示方式
+
+当能带极值点为二维鞍点而非各向同性抛物线谷底时，沿两个正交动量方向的二阶导数符号相反：一个方向向上弯曲（正有效质量、电子型色散），另一个正交方向向下弯曲（负有效质量、空穴型色散）。文献中通常同时给出三维鞍面与两条正交动量切面的抛物线拟合及 ARPES 实验对照。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="二维鞍点附近沿正交动量方向相反符号的能带曲率与有效质量切面" loading="lazy"/><figcaption>ZrAs<sub>2</sub> 表面态二维鞍点附近的三维色散（c）及沿正交动量方向 X̄→Γ̄（正有效质量，开口向上抛物线）与 X̄→S̄（负有效质量，开口向下抛物线）的相反能带曲率切面（e）。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4c,e，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+
+对于金属体系，穿费米面的能带往往呈近似线性色散，此时比带边二阶导数更重要的是费米面处的一阶导数——费米速度 v<sub>F</sub>(k) = (1/ℏ)∇<sub>k</sub>E(k)。研究论文常将 v<sub>F</sub>(k) 的模值以颜色映射在二维费米面轮廓上，并与低能能带色散和态密度并排展示。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属氮化物的低能能带色散、态密度与映射在二维费米面轮廓上的费米速度分布" loading="lazy"/><figcaption>单层二维过渡金属氮化物的低能能带色散、分波态密度以及映射在二维费米面轮廓上的费米速度 <em>v</em><sub>F</sub>(<strong>k</strong>) 分布。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+
 下一步：可跳到[三维能带采样](/Atlas/m/band-3d/qe/)检查谷的空间形状，或回到[带隙](/Atlas/m/band-gap/qe/)核对带边位置；[载流子迁移率](/Atlas/m/carrier-mobility/qe/)还需要散射模型或电子声子信息。
 
 ```text

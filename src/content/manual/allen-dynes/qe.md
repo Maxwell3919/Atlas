@@ -143,7 +143,7 @@ maxwell@maxwell:~/tc-route/replay-lambda$ wc -c lambda.err
 
 这次 QE 7.5 的 `lambda.x` 使用的是包含 ω_log 的简化 Allen–Dynes 表达式：
 
-**T<sub>c</sub> = (ω<sub>log</sub> / 1.2) × exp{−1.04(1 + λ) / [λ − μ*(1 + 0.62λ)]}**
+**T<sub>c</sub> = (ω<sub>log</sub> / 1.2) × exp{−1.04(1 + λ) / [λ − μ∗(1 + 0.62λ)]}**
 
 这里 ω_log 以 K 表示，算出的 Tc 也是 K。该式相当于将强耦合与谱形修正因子 f₁、f₂ 设为 1；没有求解各向异性的 Eliashberg 方程。不要把输出里的 K 再当作 THz 乘一次换算系数，也不要把论文中包含 f₁、f₂ 的结果与这行代码当成同一个计算。
 
@@ -184,7 +184,7 @@ lambda        omega_log          T_c
 
 前十行先给每组电子展宽的 λ、括号中的谱积分 λ、ω_log 和 DOS(EF)。后面的三列表才是 λ、ω_log、Tc，电子展宽的行序与前面相同。`lambda.x` 的这份文本没有常见的大段计时与 `JOB DONE.` 结束框；这次通过零字节 `lambda.err`、十行完整结果、有限数值以及独立公式复算核对结果。前面的 pw.x、ph.x 和 matdyn.x 则分别检查各自的正常结束及收敛输出。
 
-0.020 Ry 对应第 4 行：λ=0.374486，ω_log=343.741 K，μ*=0.10。分母 λ−μ*(1+0.62λ) 为正，代入得到 0.969046 K，程序按三位小数打印为 0.969 K。若分母接近零或变为非正数，应停止把指数结果解释为可靠的 Tc，而不是让程序给出一个数就继续引用。
+0.020 Ry 对应第 4 行：λ=0.374486，ω_log=343.741 K，μ*=0.10。分母 λ−μ∗(1+0.62λ) 为正，代入得到 0.969046 K，程序按三位小数打印为 0.969 K。若分母接近零或变为非正数，应停止把指数结果解释为可靠的 Tc，而不是让程序给出一个数就继续引用。
 
 复算时也要明确使用哪一列 λ。本页和程序的 Tc 表都采用逐 q 求和的第一列；括号中的数用于检查谱函数积分。如果改用括号值，应重新计算并说明来源，不能保留旧 Tc 却悄悄换掉表中的 λ。ω_log 对频率采取对数加权，低频模式的处理和截断会传递到温度结果；输入有实质性虚频时，不应将频率取绝对值后继续套公式。
 
@@ -311,7 +311,7 @@ Cross-check completed. Material Tc convergence is not established.
 
 设 r=ν̄₂/νlog，完整形式为：
 
-**Tc,AD = f₁f₂ (ωlog/1.2) exp{−1.04(1+λspec)/[λspec−μ*(1+0.62λspec)]}**
+**Tc,AD = f₁f₂ (ωlog/1.2) exp{−1.04(1+λspec)/[λspec−μ∗(1+0.62λspec)]}**
 
 **f₁ = [1+(λspec/Λ₁)<sup>3/2</sup>]<sup>1/3</sup>，Λ₁ = 2.46(1+3.8μ*)**
 
@@ -386,36 +386,36 @@ python3 scripts/plot_tc_chain.py --data data --output figures
 
 下载：[完整 Al 包](/Atlas/examples/al-lesson-files.tar.gz) · [提取与复核脚本](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [绘图脚本](/Atlas/examples/al/tc-route/scripts/plot_tc_chain.py) · [λ、频率矩与 Tc 表](/Atlas/examples/al/tc-route/data/tc-formula-scan.csv) · [μ* 表](/Atlas/examples/al/tc-route/data/mu-star-scan.csv) · [单位与文件核验](/Atlas/examples/al/tc-route/data/tc-chain-checks.json)。
 
-## 二维异质结 ZrCl₂/Sc₂C：两套致密网格（64² 与 96²）的 Tc(σ) 交点定位与谱截断修正
+## 二维异质结 ZrCl₂/Sc₂C：保存 Tc 表核查与来源状态
 
-前面的三维 Al（`32³` 与 `48³`）在 `0.005–0.050 Ry` 范围内没有出现交点。而在二维超导异质结 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，`ph64`（`64×64×1` 致密电子网格）与 `ph96`（`96×96×1` 致密电子网格）在 `σ = 0.001–0.020 Ry`（共 20 档）下完成了全部 10 个不可约 q 点的 DFPT 电声计算。这一算例展示了从 `lambda.x` 提取可靠 `Tc(σ)` 时不可或缺的两步后处理检验：
+前面的三维 Al（32³ 与 48³）在 0.005–0.050 Ry 范围内没有交点。ZrCl₂/Sc₂C 的原始 10 THz ph64/ph96 计算已完成；保存的 18 THz lambdax 表尚未绑定生成输入、运行命令与 QE 可执行文件，ph64.1/ph96.1 只有候选输入而无完整输出对。本节报告表格算术与来源边界，不将其称为已验证 Tc。
 
-1. **先用 `lambda` 与 `( int alpha2F )` 的差值排除频率截断伪交点**：
-   原始输入 `lambdax.in` 第一行设为 `10 0.12 0`（积分上限 `emax = 10 THz`），漏掉了 `12.38–17.11 THz` 的三条碳原子高频光学支（其中 Γ 点 `ν = 18` 线宽达 `685.94 GHz`）。这不仅使括号内的谱积分 `( int alpha2F )` 比直接求和 `lambda` 小 `0.021–0.052`，还使对数平均频率 `ω_log(σ)` 被系统性低估 `1.7–8.7 K`，导致 `ΔTc(σ) = Tc,64 − Tc,96` 在 `σ ≈ 0.00175 Ry` 和 `0.0031 Ry` 处出现两次伪穿过。将 `lambdax.in` 的上限提升至 [`18.0 0.12 0`](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.emax18.out) 后，谱积分与直接求和重新吻合到 `6 × 10⁻⁵` 以内。
-2. **结合 `N_σ(EF)` 收敛区读取真实网格交点 `σ* ≈ 0.0036 Ry`**：
-   同时绘制 `N_σ(EF)`、`λ(σ)`、`ω_log(σ)` 与 `Tc(σ)` 可以看到：当 `σ ≥ 0.004 Ry` 时，`64×64×1` 与 `96×96×1` 的费米面态密度 `N_σ(EF)` 已完全重合（`30.229 states/spin/Ry/cell`）；在紧邻收敛边界的 **`σ* ≈ 0.0036 Ry`** 处，两条 `Tc(σ)` 曲线产生唯一交点，给出 **`Tc ≈ 13.58 K`**（对应 `λ ≈ 2.33`、`ω_log ≈ 84.9 K`、`μ* = 0.10`）。据此，进一步在交点区间布置了展宽步长加密一倍（`el_ph_sigma = 0.0005 Ry`，`emax = 18 THz`）的 [`ph64.1`](/Atlas/examples/zrcl2-sc2c/ph64.1/phx.in) 与 [`ph96.1`](/Atlas/examples/zrcl2-sc2c/ph96.1/phx.in) 复核计算。
+1. **先核对输入参数与保存输出之间的对应关系**：
+ph64/ph96 原始 lambdax.in 首行为 10 0.12 1：emax=10 THz，ngaussq=1 为 Methfessel–Paxton。QE 7.1 lambda.f90 中 ngaussq=0 才是普通 Gaussian。10 THz 输出的谱积分与直接 λ 在全表的差值为 0.015–0.047；18 THz 保存表最大绝对差为 0.000102。高频模式可通过展宽尾部贡献低于 emax 的频率。由于 18 THz 输出没有生成输入、运行命令或 QE 可执行文件记录，不能将两组差异只归因于 emax。参见 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/PH/lambda.f90">QE 7.1 lambda.f90 源码</a>。
+2. **读取两个 Tc 表的线性插值交点**：
+按打印到 0.001 K 的 Tc 行分段线性插值，匹配输入的 10 THz 表有两个交点（σ≈0.001750 Ry、Tc≈14.594 K；σ≈0.003091 Ry、Tc≈13.513 K）。来源未闭合的 18 THz 保存表有一个诊断性交点（σ≈0.003579 Ry、Tc≈13.587 K，按两位小数为 13.59 K）。额外插值位数不是物理精度，交点也不能证明 k 网格收敛。Nσ(EF) 在 σ=0.004 与 0.005 Ry 的样点较接近，但不足以宣称进入收敛区。ph64.1/ph96.1 准备输入为 18 0.12 1、el_ph_sigma=0.0005 Ry，目前没有完整 Tc 输出对。
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png" alt="ZrCl₂/Sc₂C 在 64×64×1 与 96×96×1 致密电子网格下的 Allen–Dynes Tc(σ) 收敛与零差交点定位" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 双致密电子网格（64×64×1 对 96×96×1）的 Allen–Dynes Tc(σ) 与差值 ΔTc(σ) 联立后处理。实线为完整谱积分（emax = 18 THz），虚线为截断谱（emax = 10 THz）；暖色背景标出 σ ∈ [0.001, 0.0045] Ry 的交点定位与加密采样窗口。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png" alt="ZrCl₂/Sc₂C 两网格保存 Tc 表及线性插值交点" loading="lazy"/><figcaption>两个展宽表的配对诊断：（左）匹配输入的 10 THz Tc 表和来源未闭合的 18 THz 保存表；（右）由脚本按相邻采样点插值得到的 ΔTc=0 位置。18 THz 根仅描述打印表，不代表物理收敛；加密分支没有完整 Tc 输出对。</figcaption></figure>
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png" alt="ZrCl₂/Sc₂C 在 64×64×1 与 96×96×1 网格下的费米面态密度 N_σ(EF)、耦合常数 λ(σ) 与对数频率矩 ω_log(σ)" loading="lazy"/><figcaption>与上方 Tc(σ) 同步演化的三项谱矩诊断：（左）双 δ 积分关联的费米面态密度 N_σ(EF)；（中）直接求和 λ 与 emax = 10 THz 截断谱积分 int α²F 的对比；（右）恢复碳原子光学支后 ω_log(σ) 的系统性回升。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png" alt="ZrCl₂/Sc₂C 两网格 N(EF)、耦合强度与频率矩保存表的对照" loading="lazy"/><figcaption>保存表的 Nσ(EF)、直接 λ 与匹配 10 THz 谱积分，以及 ωlog 对照。σ=0.004 和 0.005 Ry 的 Nσ(EF) 样点较接近；单凭这两个网格和采样点不能推出收敛。</figcaption></figure>
 
-下载本算例：[ph64 完整输出 (emax=18 THz)](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.emax18.out) · [ph96 完整输出 (emax=18 THz)](/Atlas/examples/zrcl2-sc2c/ph96/lambdax.emax18.out) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
+Tc 表算术核对及其来源标记见 [tc-intersections.json](/Atlas/examples/zrcl2-sc2c/tc-intersections.json)。可下载 ph64/ph96 保存输出表与绘图脚本；其中 18 THz 输出仍缺生成记录。
 
-## 文献超导临界温度与相图后处理审美解析（附 DOI 溯源）
+## 文献中的超导临界温度相图与多口袋能隙分布图例（附 DOI 溯源）
 
-在完成单构型的 `Tc(σ)` 与 `μ*` 检验后，高水平超导文献通常将 `λ`、`ω_log` 与 `Tc` 映射到外部调控参量（双轴应变、静电掺杂、压力）或与电荷密度波（CDW）竞争相合并展示。下面引入两幅代表性文献图件（附原始 DOI 链接）解析其构图范式：
+在完成单构型的 `Tc(σ)` 与 `μ*` 收敛检验后，文献常将 `Tc` 映射到外部连续调控参量（双轴应变、载流子掺杂、压力）构建二维相图，或进一步在多口袋费米面上分辨超导能隙分布。下面结合两幅文献原图说明常见的数据呈现方式：
 
-### 1. 应变–掺杂二维调控相图与等 Tc 等值线热力图
+### 1. 应变–掺杂二维连续参量空间中的等 Tc 热力相图
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_2DPhaseDiagram_Strain_Doping_Tc_BC_Fig4d.jpg" alt="应变与载流子掺杂双参量空间中的超导临界温度 Tc 二维热力相图与稳定域边界" loading="lazy"/><figcaption>文献案例 1：二维超导体系在“双轴应变 ε × 载流子掺杂浓度 n”双连续参量空间中的超导临界温度 Tc 连续热力相图与动力学稳定域（Dynamical Stability）边界。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, 174524 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.174524" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.174524</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_2DPhaseDiagram_Strain_Doping_Tc_BC_Fig4d.jpg" alt="应变与载流子掺杂双参量空间中的超导临界温度 Tc 二维热力相图与稳定域边界" loading="lazy"/><figcaption>二维超导体系在双轴应变与载流子掺杂浓度双参量空间中的超导临界温度 T<sub>c</sub> 二维热力相图及晶格动力学稳定域边界。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, 174524 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.174524" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.174524</a>。</figcaption></figure>
 
-- **审美与后处理要点**：当研究包含多个应变点（如 `ZrCl₂/Sc₂C` 的拉伸系列）或栅压掺杂点时，用二维连续插值热力图（配合清晰的等 `Tc` 等值线与声子软化失稳阴影边界）代替多条杂乱的一维折线，能够一目了然地标出“最佳调控甜点区（Sweet Spot）”以及靠近声子失稳边界时 `λ` 激增与晶格失稳的竞争关系。
+- **数据组织要点**：当研究包含多个应变点或静电掺杂浓度时，将离散构型计算得到的 `Tc` 绘制为二维热力等值线图，并标出声子出现虚频的动力学失稳边界，能够直观展示声子软化增强 `λ` 与晶格失稳之间的竞争关系。
 
-### 2. 超导能隙、CDW 相变与费米面口袋分辨的联立展示
+### 2. 单层 NbSe₂ 的超导能隙能量直方图、CDW 反折叠费米面与动量分辨能隙
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="二维单层 NbSe₂ 的费米面口袋分辨超导能隙分布与随温度演化的能隙闭合曲线" loading="lazy"/><figcaption>文献案例 2：二维单层 NbSe₂ 的多口袋费米面超导能隙直方图与温度演化曲线 Δ(T)。图中将不同费米面口袋（Γ 口袋与 K 口袋）的能隙分布按颜色拆解，并与实验测量值直接对比。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe₂ 在不同温度下的超导能隙直方图、3×3 CDW 反折叠费米面谱权重与 2 K 下费米面口袋上的能隙分布" loading="lazy"/><figcaption>单层 NbSe<sub>2</sub> 的三面板超导能隙与费米面分析：(a) 在 T = 2、2.8、3.6、4.4 K 四个温度下费米面上各 k 点超导能隙 Δ<sub>k</sub> 的纵向能量分布直方图，(b) 3×3 电荷密度波（CDW）相反折叠到原始布里渊区的费米面谱权重 W<sub>k</sub>，以及 (c) T = 2 K 时超导能隙 Δ<sub>k</sub> 在 Γ 口袋与 K/K′ 口袋上的二维动量空间色标分布。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
 
-- **审美与后处理要点**：当材料费米面同时包含中心空穴口袋与角点口袋（正如 `ZrCl₂/Sc₂C` 的 Γ 六瓣口袋与 K 三角形口袋）时，各向同性 Allen–Dynes 给出的是全布里渊区平均 `Tc`；进入各向异性求解后，按不同费米面口袋对能隙谱做颜色分组并叠加 `Δ(T)` 闭合曲线，可以把超导配对强度精确归因到具体能带口袋。
+- **数据组织要点**：当材料费米面同时包含布里渊区中心空穴口袋与角点口袋（如单层 `NbSe₂` 或本页 `ZrCl₂/Sc₂C` 的 Γ 六瓣口袋与 K 三角形口袋）时，各向同性 Allen–Dynes 公式给出的是全布里渊区平均 `Tc`；进入各向异性求解后，结合能量直方图（子图 a）与二维费米面着色图（子图 c），可以直接分辨不同费米面口袋上的能隙大小差异及随温度升高的闭合过程。
 
 下一步：把同一份完整谱交给 [EPW / Eliashberg 方程](/Atlas/m/epw-eliashberg/qe/)，比较相同 μ* 下的公式估算与方程求解；回到 [α²F 与累计 λ](/Atlas/m/eliashberg-a2f/qe/)可以定位频段贡献，需要追到单 q、单模时继续读[声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 

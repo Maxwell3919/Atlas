@@ -437,7 +437,7 @@ Authorization required, but no authorization protocol specified
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-每个错误文件都有 1300 字节，内容是这台机器重复出现的环境授权提示，没有被当作空文件删掉。补充包也原样保留自动检查报告；其中的 `blocked` 来自自动输入检查器尚不支持这些起始密度与对角化字段，不能改写成自动审计通过。这里依据实际输入、完整输出和 XML 单独列明已经检查的项目。
+每个错误文件都有 1300 字节，内容是这台机器重复出现的环境授权提示，没有被当作空文件删掉。补充包也原样保留自动检查报告；其中的 `blocked` 来自自动输入检查器尚不支持这些起始密度与对角化字段，不能改写成自动核验通过。这里依据实际输入、完整输出和 XML 单独列明已经检查的项目。
 
 进入解压后的补充包目录，重新提取数值：
 
@@ -479,6 +479,16 @@ python3 plot_k32.py comparison
 ![AlSi 候选的 24³ 和 32³ 形成能及其差值](/Atlas/examples/alsi-k32-supplement/plots/k32-comparison.svg)
 
 左图保留两组实际形成能，右图单独展开它们的差值；浅蓝色区域是 ±1 meV/atom 比较范围。Al₃Si 与 B2 的柱子超出这个范围，AlSi₃ 这一项位于范围内。图只反映这两档网格的差异，没有把有限差值当作已知的全部数值误差。
+
+## 文献图件参考
+
+在实际化合物筛选中，按原子数归一化的形成能 ΔE<sub>f</sub>（单位 eV/atom）通常先以单质端元为零点绘制在组分轴上，用来把不同化学计量比的晶胞放到同一能量标尺下比较。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc-C 二元体系每原子形成能与化学计量比关系及实验相图对照" loading="lazy"/><figcaption>Sc–C 二元体系的每原子形成能 Δ<em>E</em><sub>f</sub>（单位 eV/atom）随化学计量比的变化关系，连接单质参考态与稳定及亚稳化合物，并与上方的高温实验相图及右侧的基态晶体结构、声子谱联合展示。引自 McRae 等人，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，Fig. 2，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
+
+当体系包含氢等轻质量元素时，不同化学计量比结构的声子零点振动能（ZPE）差异可达数十 meV/atom，足以改变静态电子形成焓给出的稳定相排序。此时需在静态形成焓基础上叠加同协议声子计算的零点能修正。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_TernaryConvexHull_ZPE_LaScH_He2024_Fig1.jpg" alt="轻元素富氢化合物中声子零点振动能对形成焓与相稳定性的影响" loading="lazy"/><figcaption>300 GPa 下 La–Sc–H 三元氢化物在未计入（A）与计入声子零点振动能 ZPE（B）时的形成焓相对凸包距离对比，展示零点能修正对轻元素化合物形成焓的显著移动。引自 He 等人，<em>Proc. Natl. Acad. Sci. U.S.A.</em> <strong>121</strong>, e2401840121 (2024)，Fig. 1A–B，<a href="https://doi.org/10.1073/pnas.2401840121" target="_blank" rel="noopener noreferrer">DOI: 10.1073/pnas.2401840121</a>。</figcaption></figure>
 
 三个候选相对这些端元的形成能均为正。接下来把不同成分的结果放到同一张图上，查看候选相对允许分解组合的位置，见 [有限候选集凸包](/Atlas/m/convex-hull/qe/)。数值参数仍可沿 [收敛测试](/Atlas/m/convergence/qe/) 的方式继续增加，但应始终重新计算匹配的端元参考。
 

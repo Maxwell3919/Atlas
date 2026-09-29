@@ -230,11 +230,17 @@ End final coordinates
 <工作目录>/si-pbe/plots/relax.png
 ```
 
-![位移后的 Si 在固定晶胞优化中的能量和总力变化](/Atlas/examples/si-pbe/plots/relax.png)
+<figure><img src="/Atlas/examples/si-pbe/plots/relax.png" alt="位移后的 Si 在固定晶胞优化中的能量单调下降与 BFGS 原子力对数收敛轨迹" loading="lazy"/><figcaption>金刚石 Si 固定晶胞 BFGS 结构弛豫双子图诊断：(a) 相对最终基态的能量差 ΔE 随 BFGS 步数的单调下降过程（蓝色阴影覆盖能量降落区，各步标注相对能量）；(b) 总原子力随优化步数的对数收敛轨迹，红、绿虚线分别标示 QE 默认阈值（10⁻³ Ry/Bohr）与更严苛的 10⁻⁴ Ry/Bohr 阈值，末步原子力严格归零。</figcaption></figure>
 
-绘图命令使用[同一绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)），左图减去最终能量，右图直接使用 OUT 中报告的总力。最后一点标注的是输出中的舍入值；逐分量的验收仍以上面那段力为准。
+绘图命令使用[同一绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）。子图 a 减去最终收敛态能量，清晰展示从初始偏离几何经 4 次 BFGS 更新单调下降约 82.1 meV 的轨迹；子图 b 则以对数尺度直观对比原子力与收敛阈值的相对距离，最后一点标注的是输出中的舍入值；逐分量的验收仍以上面那段力为准。
 
 这条路线得到的是固定示例晶胞下、给定约束和 PBE 设置下的一次成功 BFGS 优化。要把结构用于能带、声子或力常数，继续核对那些量对 k 网格、截断和电子阈值的敏感性；本次操作不能代替全布里渊区的动力学稳定性检查。
+
+## 文献中的相关图件与表达方式
+
+固定晶胞下的内部坐标弛豫（`calculation = 'relax'`）在层状范德华多铁、滑移铁电与表面重构研究中应用极为广泛：当层间发生面内相对滑移时，面内晶格常数保持不变，而在每个滑移构型上对原子垂直坐标与局域键长进行受限弛豫，即可得到不同滑移路径上的势能面与能垒高度 `ΔE₀`。
+
+<figure class="research-figure"><img src="/Atlas/figures/literature/M8_SlidingFerroelectricity_Pathways_Fig8.jpg" alt="多层范德华铁电体系中不同层间滑移路径的结构弛豫与相对能量势垒曲线" loading="lazy"/><figcaption>多层范德华滑移铁电体系的堆垛构型与路径能量演化：对比不同层间滑移路径在内部坐标弛豫后的相对能量曲线 <code>ΔE₀</code> 及对应的双稳态堆垛原子结构（<em>Chem. Rev.</em> <strong>124</strong>, 7626 (2024)，<a href="https://doi.org/10.1021/acs.chemrev.3c00618" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.chemrev.3c00618</a>）。</figcaption></figure>
 
 下一步：接[固定结构 SCF](/Atlas/m/scf/qe/)，之后按需要跳到[能带](/Atlas/m/bands/qe/)或[声子计算](/Atlas/m/phonon-dfpt/qe/)。
 
