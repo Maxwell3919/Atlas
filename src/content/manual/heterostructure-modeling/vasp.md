@@ -2,7 +2,7 @@
 
 这份六原子 SnSe₂/Sr₂N 结构里，相邻原子面沿法向相隔 2.1578 Å，跨层最近的两个原子却相距 3.1397 Å。侧向错位让这两个距离不同。构造新模型时，先把距离的定义和周期边界理清楚，再移动坐标。
 
-[下载原结构、3.0 Å 模型和核对、绘图脚本](/Atlas/examples/vasp/snse2-sr2n-model-files.tar.gz)。本例从已存在的异质结 POSCAR 出发，保留其面内晶胞和层内几何，实际制作一个法向层间距为 3.0 Å、整体居中的新模型。这里完成的是几何构造；新模型尚未做离子松弛或能量比较。
+[下载原结构、3.0 Å 模型和核对脚本](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)。本例从已存在的异质结 POSCAR 出发，保留其面内晶胞和层内几何，实际制作一个法向层间距为 3.0 Å、整体居中的新模型。这里完成的是几何构造；新模型尚未做离子松弛或能量比较。
 
 先保留源文件，读取元素顺序和所有坐标。
 
@@ -116,16 +116,7 @@ index,element,layer,x_A,y_A,z_A,normal_A
 6,Sr,Sr2N,-1.550551059455367e-09,2.280600317397634,15.186774603702489,15.186774603702489
 ```
 
-把整个解包目录放在本机，使用安装了 NumPy 与 Matplotlib 的 Python 环境运行：
-
-```bash
-python3 check_model.py
-python3 plot_model.py
-```
-
-第一条命令从三份 POSCAR 重新生成核对结果与坐标表；第二条命令输出 `heterostructure-model.png` 和 PDF。图的左侧画出保持不变的面内配准及周期重复，中间和右侧分别画原结构、新模型的侧视图，纵轴完整保留 0 到 39.4022 Å，标出法向间距与空白区间。
-
-也可以直接用 VESTA 打开两份 POSCAR，从层法向观察配准，再转到侧面核对层间距。沿面内方向显示邻近周期单元，有助于发现跨边界的原子重叠；沿 z 也显示一个相邻周期像，就能看清真正的真空区间。图中画出的连线或软件自动判断的键，不能代替距离与能量检查。
+使用 Python 标准库执行 `python3 check_model.py`，即可从真实 POSCAR 重建几何表。若用 VESTA 复核，在 File → Open 分别打开 `POSCAR.reference` 与 `POSCAR.gap3p0`，显示相邻面内周期像，再从俯视和侧视检查配准与镜像空白；软件自动绘制的键不作为成键判据。
 
 最后把准备好的模型复制到独立计算目录，不覆盖原文件：
 
@@ -141,29 +132,20 @@ python3 plot_model.py
 -rw-r--r-- 1 bcgong bcgong 691 Sep 22 21:43 POSCAR.reference
 ```
 
-![移动一层前后的面内配准、法向层间距与周期空隙](/Atlas/examples/vasp/snse2-sr2n-model/heterostructure-model.png)
+## 数值几何比较
 
-## 文献中的相关图件与表达方式
+| 量（Å） | 原结构 | 3.0 Å 模型 |
+| --- | ---: | ---: |
+| 晶胞法向高度 | 39.4021877938 | 39.4021877938 |
+| 法向层间距 | 2.1578395444 | 3.0000000000 |
+| 跨层最近距离 | 3.1396511419 | 3.7684397028 |
+| 周期镜像空白区间 | 31.2157096630 | 30.3735492074 |
+| SnSe₂ 层厚 | 3.3249000154 | 3.3249000154 |
+| Sr₂N 层厚 | 2.7037385710 | 2.7037385710 |
 
-在二维异质结建模、高对称堆叠构型（Stacking Registry）筛选与层间耦合研究中，文献常将晶体配准视图与剥离能曲线结合展示：
+## 文献方法与本例读数
 
-### 1. 六种高对称堆叠构型的侧视矩阵与竖直配准参考线
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_StackingRegistry_WS2_Sc2C_Bu2025_Fig2.jpg" alt="WS₂/Sc₂CT₂ 异质结中 A-I、A-II、F-I、F-II、H-I、H-II 六种堆叠构型的六子图侧视矩阵与红色虚线对准线" loading="lazy"/><figcaption>WS₂/Sc₂CT₂ 异质结中六种堆叠构型（<code>A-I, A-II, F-I, F-II, H-I, H-II</code>）的六子图侧视矩阵，每个双层通过两条竖直红色虚线贯穿上下层原子，标明跨界面的原子对准关系。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 14397 (2025), Fig. 2，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
-
-- **读图与作图要点**：在比较同一异质结的不同面内平移构型（`A-I, A-II, F-I, F-II, H-I, H-II`）时，用两条贯穿上下层的竖直红色虚线作为视觉基准线，可以让读者在侧视图上直接看清上层过渡金属/硫族原子与下层 `Sc₂CT₂` 各原子面之间的正对或错位关系。
-
-### 2. 1T-TMD 与 1T-MXene 反演配位构型的侧视与俯视对照
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Structure_TaS2_vs_Ta2N_Bekaert2020_Fig1.jpg" alt="1T-TaS₂ 与 1T-Ta₂N 的侧视图与俯视图对比，以浅色与深色球体区分上下子晶格并展示反演配位关系" loading="lazy"/><figcaption>1T-TMD TaS₂（中心金属层夹在两侧硫族原子层之间）与 1T-MXene Ta₂N（中心 N 原子层夹在两侧 Ta 金属层之间）的侧视图与俯视图对照，使用深浅不同的球体颜色区分上下表面子晶格。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 1，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-- **读图与作图要点**：通过并排绘制侧视图与俯视图，并对同一元素的上、下子晶格采用一浅一深的球体配色，能够清晰区分 `1T-TaS₂`（金属居中、硫族在外）与 `1T-Ta₂N`（氮居中、金属在外）的反转八面体配位关系。
-
-### 3. 范德华相与准离子电子化合物相的剥离能曲线对比
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Exfoliation_vdW_vs_Ionic_CaCl_Chen2023_Fig5a.jpg" alt="范德华 AB 堆叠 CaCl 相与准离子电子化合物 P3m1 CaCl 相的层间剥离能曲线对比" loading="lazy"/><figcaption>随层间分离距离变化的剥离能曲线对比：红色曲线为范德华 AB 堆叠 CaCl 相（收敛平台约 <code>0.17 J/m²</code>），蓝色曲线为准离子电子化合物 P3m1 CaCl 相（收敛平台约 <code>1.65 J/m²</code>）。图片来源：Chen et al., <em>Mater. Today Commun.</em> <strong>33</strong>, 104176 (2022), Fig. 5a，<a href="https://doi.org/10.1016/j.mtcomm.2022.104176" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.mtcomm.2022.104176</a>。</figcaption></figure>
-
-- **读图与作图要点**：在同一坐标系下对比同一化学计量比 `CaCl` 的两种层状相——弱范德华结合的 AB 堆叠相（约 `0.17 J/m²`，红线）与层间存在阴离子电子的 `P3m1` 电子化合物相（约 `1.65 J/m²`，蓝线），可以直观展示不同层间成键机制在剥离能平台高度上的数量级差异。
+Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；没有堆垛能量或距离优化数据。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。当前交付以数值几何检查为准，尚无本模型的已完成 GUI 导出记录。
 
 下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
 
@@ -176,3 +158,19 @@ python3 plot_model.py
              └─ 新 POSCAR → 后续结构优化或层间距扫描
 ```
 
+
+## 可复制的代码生成提示与复现
+
+```text
+请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；按缩放系数和 Direct/Cartesian 格式得到笛卡尔坐标，a×b 定义法向。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。不要自动解释成键或最低能结构，不生成冒充 GUI 的坐标图。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+```
+
+[check_model.py 完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)
+
+[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+
+```bash
+python3 check_model.py
+```
+
+实际读取结果见正文表及 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json) · [reference-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/reference-atoms.csv) · [gap3p0-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/gap3p0-atoms.csv)。这些命令只读取现有输出进行后处理。

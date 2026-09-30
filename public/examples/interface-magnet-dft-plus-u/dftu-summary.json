@@ -1,0 +1,24 @@
+{
+  "result": {
+    "elements": "V Ge P",
+    "LDAUTYPE": 2,
+    "LDAUL": "2 -1 -1",
+    "Ueff_V_d_eV": 3.0,
+    "LMAXMIX": 2,
+    "LORBIT": 0,
+    "electron_steps": 31,
+    "F_eV_cell": -34.09930339,
+    "E0_eV_cell": -34.09694576,
+    "EF_eV_run_reference": 2.4194,
+    "M_muB_cell": 0.5781
+  },
+  "source_sha256": {
+    "INCAR": "0d3453e0c6ee8a34c8a3e305b455d85a03c3752fd48c26e807ae5f5e66d00916",
+    "POSCAR": "ba3a7cd464e9b9926147d52754c1a4a3e763f616f641b48a51084de3628bd150",
+    "KPOINTS": "e63db71097db4a8f3c69951e0dbe194b1ad3c181d28acc4fa639cb442f30a0fa",
+    "OUTCAR": "a3a13e72526ea14a7fce949d301e023a85cc5c2142bb5b00424dfe92804d7ee6",
+    "OSZICAR": "25ea4edeb5213740947e609b562c3b4a0c8d2671d4af0e1cea4ff5eafa766cd1",
+    "EIGENVAL": "7f6c725ede16cf4deab991755b84e2daf14d4c3b21ab258375a3174908919013"
+  },
+  "scope": "Single U=3 eV SCF; no U=0 comparison or U-dependence conclusion."
+}

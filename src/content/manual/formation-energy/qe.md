@@ -320,35 +320,7 @@ Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-| 候选 | xSi | 总能 / Ry·cell⁻¹ | 形成能 / eV·atom⁻¹ | 静态压力 / kbar |
-| --- | --- | --- | --- | --- |
-| al-fcc | 0.0 | -5.03959020 | 0.000000 | -2.86 |
-| al3si-l12 | 0.25 | -26.50736500 | 0.107257 | 1.28 |
-| alsi-b2 | 0.5 | -16.42065119 | 0.265762 | 1.16 |
-| alsi3-l12 | 0.75 | -39.19239483 | 0.365916 | -0.57 |
-| si-diamond | 1.0 | -22.84025465 | 0.000000 | 0.01 |
-
-[全部 30 项能量与输入输出哈希](/Atlas/examples/alsi-formation-hull/energy-table.csv)、[逐项数值变化](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 和 [24³ 五项汇总](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 可以一起下载。所有能量差都在同一行协议内重新减去同协议端元。
-
-| 候选 | 12→16 | 16→20 | σ .01→.005 | 60→80 Ry | 20→24 |
-| --- | --- | --- | --- | --- | --- |
-| al3si-l12 | +2.139 | -5.076 | -0.063 | -0.004 | -1.344 |
-| alsi-b2 | -0.896 | -4.274 | -0.184 | -0.011 | -0.930 |
-| alsi3-l12 | +0.579 | -1.823 | -0.115 | -0.015 | -0.173 |
-
-这张表的单位是 meV/atom；前三档 k 网格在 σ=0.01、60 Ry 下比较，最后一档在 σ=0.005、80 Ry 下比较，中间分别只改变展宽和波函数截断。教学比较线取 1 meV/atom。20³→24³ 的最大变化为 `1.344 meV/atom`，仍高于比较线，因此到这一档还不能宣称形成能已经达到 1 meV/atom 收敛。24³ 静态压力的最大绝对值为 `2.86 kbar`。这些 24³ 静态点沿用初始优化几何，不能直接称为 24³/80 Ry/σ=.005 协议下再次优化后的零压结果。这里也没有检验电荷密度截断、晶体原型完备性或真实有限温度自由能。
-
-```console
-[preston@preston-System-Product-Name alsi-formation-hull]$ python3 plot_alsi.py formation
-plots/formation-energy.png and plots/formation-energy.svg
-[preston@preston-System-Product-Name alsi-formation-hull]$
-```
-
-![形成能及数值参数变化](/Atlas/examples/alsi-formation-hull/plots/formation-energy.svg)
-
-左图把三个候选与同批端元比较；右图让每次改变参数带来的形成能变化单独可见。重画时，在含 CSV 和 `plot_alsi.py` 的目录运行 `python3 plot_alsi.py formation`，会同时写出 PNG 和 SVG。图中参考值、归一化方式和参数比较都来自 CSV，没有手工挪动能量点。
-
-## 同一协议继续到 32³，先把五项都收齐
+## 用同协议 32³ 结果检查形成能变化
 
 24³ 的对照之后，五个候选还完成了同协议的 32³ 静态计算。这里把它们接在前面的表后面读；上面的截断、展宽与 20³→24³ 结果继续保留。
 
@@ -437,7 +409,7 @@ Authorization required, but no authorization protocol specified
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-每个错误文件都有 1300 字节，内容是这台机器重复出现的环境授权提示，没有被当作空文件删掉。补充包也原样保留自动检查报告；其中的 `blocked` 来自自动输入检查器尚不支持这些起始密度与对角化字段，不能改写成自动核验通过。这里依据实际输入、完整输出和 XML 单独列明已经检查的项目。
+五份错误文件均为 1300 字节，记录这台机器的 X11 授权提示。下表按实际输入、完整 OUT 和 XML 列出电子求解与能量核对结果，原始错误流和自动检查报告随补充包保留。
 
 进入解压后的补充包目录，重新提取数值：
 
@@ -459,36 +431,28 @@ Davidson-CG Al3Si difference: 1.15852021e-07 meV/atom
 
 [energy-k24-k32.csv](/Atlas/examples/alsi-k32-supplement/energy-k24-k32.csv) 保留十份计算的总能、压力、迭代误差和文件哈希；[comparison-k24-k32.csv](/Atlas/examples/alsi-k32-supplement/comparison-k24-k32.csv) 还把形成能变化拆成候选能量变化与参考能量变化。这一点在 B2 上很直观：候选本身的每原子总能变化很小，端元参考的变化仍会明显进入最后的形成能差。
 
-| 候选 | 24³ / eV·atom⁻¹ | 32³ / eV·atom⁻¹ | 24³→32³ / meV·atom⁻¹ |
-| --- | ---: | ---: | ---: |
-| al3si-l12 | 0.107256757 | 0.109054980 | +1.798223 |
-| alsi-b2 | 0.265762236 | 0.266852871 | +1.090635 |
-| alsi3-l12 | 0.365916061 | 0.366450970 | +0.534909 |
+| 候选 | 24³ 形成能 (eV/atom) | 32³ 形成能 (eV/atom) | Δ形成能 (meV/atom) | 候选总能变化 (meV/atom) | 端元参考组合变化 (meV/atom) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| al3si-l12 | 0.107256757 | 0.109054980 | +1.798223 | +0.167594259 | -1.630628434 |
+| alsi-b2 | 0.265762236 | 0.266852871 | +1.090635 | +0.003541580 | -1.087093767 |
+| alsi3-l12 | 0.365916061 | 0.366450970 | +0.534909 | -0.008650516 | -0.543559100 |
 
-最大变化为 **1.798223 meV/atom**，所以 32³ 完成后仍不能宣布通过 1 meV/atom 比较线。Al₃Si 的变化从 20³→24³ 的负值变成了 24³→32³ 的正值，说明不能按“网格更密，每次差值必然更小”来读表。32³ 的最大绝对压力为 2.37 kbar；这里仍是原优化几何上的静态结果，没有重新得到这一数值协议下的零压晶胞。
+最大变化为 **1.798223 meV/atom**，超过本例选择的 1 meV/atom 比较线。Al₃Si 的变化从 20³→24³ 的负值变成了 24³→32³ 的正值，说明不能按“网格更密，每次差值必然更小”来读表。32³ 的最大绝对压力为 2.37 kbar；这里仍是原优化几何上的静态结果，没有重新得到这一数值协议下的零压晶胞。
 
 另外保留了 Al₃Si 的 [Davidson 对照](/Atlas/examples/alsi-k32-supplement/al3si-l12/k32-davidson/scf.out)，作业号 851。其初轮有 43 条本征值未收敛提示，末轮没有；最终能量与 CG 相差约 `1.16×10⁻⁷ meV/atom`。这个对照只检查同协议下的求解器一致性，形成能表仍统一使用五份 CG 结果，不能用它来替代网格比较。
 
-在装有 NumPy、Matplotlib 的本机进入补充包目录，运行[绘图脚本](/Atlas/examples/alsi-k32-supplement/plot_k32.py)：
+表格复核脚本 [review_alsi_thermo.py](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py) 读取同目录的 [24³ formation-energy.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-energy.csv)、[32³ formation-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-k32.csv) 与 [comparison-k24-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/comparison-k24-k32.csv)，重新计算五个候选的形成能与有限集合凸包，并核对形成能变化中候选能和端元参考能的分量。可下载[复核 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。把这些文件放在同一目录后运行 <code>python3 review_alsi_thermo.py --outdir review</code>；脚本只依赖 Python 标准库。
 
-```bash
-python3 analyse_k32.py
-python3 plot_k32.py comparison
+形成能变化满足 ΔEform = ΔEcandidate − ΔEreference。Al₃Si 这一行中，候选本身改变约 +0.168 meV/atom，而端元组合能改变约 −1.631 meV/atom，因此形成能最终上移约 1.798 meV/atom。复核表保留更多位数；正文中的四舍五入值可能相差末位。
+
+AI 辅助复核可从下方提示开始。它要求模型只报告可由当前 CSV 重算的量，并把有限候选集与完整相图区分开。
+
 ```
+只使用 formation-energy.csv、formation-k32.csv、comparison-k24-k32.csv 和 review/alsi-thermo-review.csv。按原始列与单位复核五个 Al–Si 候选的形成能、24³ 与 32³ 的有限下凸包、各中间候选的 above-hull 距离，以及 ΔEform = ΔEcandidate − ΔEreference 的分量关系。用一个紧凑表格列出 24³/32³ 形成能、网格差、候选总能变化、端元参考组合变化；说明 1 meV/atom 只是本例选择的比较线，指出哪些候选超过它。不得绘图，不要把有限原型集合称作完整 Al–Si 相图，不要推断未计算的相、有限温度自由能或声子稳定性；遇到输入不一致就列明具体列和行。
+```
+## 文献中的候选相与能量修正
 
-![AlSi 候选的 24³ 和 32³ 形成能及其差值](/Atlas/examples/alsi-k32-supplement/plots/k32-comparison.svg)
-
-左图保留两组实际形成能，右图单独展开它们的差值；浅蓝色区域是 ±1 meV/atom 比较范围。Al₃Si 与 B2 的柱子超出这个范围，AlSi₃ 这一项位于范围内。图只反映这两档网格的差异，没有把有限差值当作已知的全部数值误差。
-
-## 文献图件参考
-
-在实际化合物筛选中，按原子数归一化的形成能 ΔE<sub>f</sub>（单位 eV/atom）通常先以单质端元为零点绘制在组分轴上，用来把不同化学计量比的晶胞放到同一能量标尺下比较。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc-C 二元体系每原子形成能与化学计量比关系及实验相图对照" loading="lazy"/><figcaption>Sc–C 二元体系的每原子形成能 Δ<em>E</em><sub>f</sub>（单位 eV/atom）随化学计量比的变化关系，连接单质参考态与稳定及亚稳化合物，并与上方的高温实验相图及右侧的基态晶体结构、声子谱联合展示。引自 McRae 等人，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，Fig. 2，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
-
-当体系包含氢等轻质量元素时，不同化学计量比结构的声子零点振动能（ZPE）差异可达数十 meV/atom，足以改变静态电子形成焓给出的稳定相排序。此时需在静态形成焓基础上叠加同协议声子计算的零点能修正。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_TernaryConvexHull_ZPE_LaScH_He2024_Fig1.jpg" alt="轻元素富氢化合物中声子零点振动能对形成焓与相稳定性的影响" loading="lazy"/><figcaption>300 GPa 下 La–Sc–H 三元氢化物在未计入（A）与计入声子零点振动能 ZPE（B）时的形成焓相对凸包距离对比，展示零点能修正对轻元素化合物形成焓的显著移动。引自 He 等人，<em>Proc. Natl. Acad. Sci. U.S.A.</em> <strong>121</strong>, e2401840121 (2024)，Fig. 1A–B，<a href="https://doi.org/10.1073/pnas.2401840121" target="_blank" rel="noopener noreferrer">DOI: 10.1073/pnas.2401840121</a>。</figcaption></figure>
+He 等人在 300 GPa 下研究 La–Sc–H 氢化物时，Fig. 1A–B 将候选相相对元素及二元相的形成焓分别按未计入和计入谐振零点能展示；正文讨论该修正对候选相排序与热力学稳定性的影响。这里借用的是方法要点：凸包依赖候选相集合与一致的能量修正，特别是含氢体系不能默认静态电子能已给出最终排序。本例 Al–Si 只纳入五个立方原型和匹配的元素端元，未加入声子零点能或温度项，因此结论限于这组静态能量与有限候选集。[He 等，PNAS 121, e2401840121 (2024)](https://doi.org/10.1073/pnas.2401840121)。
 
 三个候选相对这些端元的形成能均为正。接下来把不同成分的结果放到同一张图上，查看候选相对允许分解组合的位置，见 [有限候选集凸包](/Atlas/m/convex-hull/qe/)。数值参数仍可沿 [收敛测试](/Atlas/m/convergence/qe/) 的方式继续增加，但应始终重新计算匹配的端元参考。
 

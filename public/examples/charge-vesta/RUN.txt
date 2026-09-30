@@ -1,0 +1,6 @@
+Portable use: tar -xzf charge-vesta-files.tar.gz; cd charge-vesta.
+Python3 stdlib: python3 scripts/split_elf_spin_channels.py --input elf/ELFCAR --output-dir new-elf
+python3 scripts/extract_lowdin.py population/projwfc.out --output new-lowdin.csv
+python3 scripts/extract_bader_grid.py --root bader --output new-bader-grid.csv
+H2 needs numpy and the three original CHGCAR.gz separately downloaded from /Atlas/examples/h2-delta-charge/{A,B,AB}/CHGCAR.gz. Put the h2-delta-charge directory beside charge-vesta and use the article command.
+VESTA: open h2/h2-isosurfaces.vesta or elf/elf-up.vesta, elf/elf-down.vesta; each imports a relative grid filename. h2-planar-view.vesta does not record a quantitative section plane.

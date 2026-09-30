@@ -1,0 +1,239 @@
+{
+  "definition": "H = Eref - J * sum_unique_periodic_NN_bonds(e_i dot e_j); unit vectors; each bond counted once",
+  "J_effective_meV_per_bond": 54.12188312499988,
+  "Eref_eV_atom": -8.020399037499999,
+  "fit_states": [
+    "fm2",
+    "afm2"
+  ],
+  "folding_checks": [
+    "fm4",
+    "neel4"
+  ],
+  "rows": [
+    {
+      "state": "fm2",
+      "n_atoms": 2,
+      "E0_eV_cell": -16.47377314,
+      "F_eV_cell": -16.47365594,
+      "local_moment_muB": [
+        2.098,
+        2.098
+      ],
+      "final_spin_signs": [
+        1,
+        1
+      ],
+      "elapsed_s": 12.997,
+      "active_incar": {
+        "SYSTEM": "Fe bcc FM",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "100",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "ISPIN": "2",
+        "MAGMOM": "3 3",
+        "LORBIT": "11",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "OUTCAR_sha256": "75360bae5340b0d2441cfe229b3a51186fce718633d16fffa7863cd2ba65857a",
+      "predicted_E0_eV_cell": -16.47377314,
+      "correlation_sum": 8,
+      "residual_meV_atom": 0.0
+    },
+    {
+      "state": "afm2",
+      "n_atoms": 2,
+      "E0_eV_cell": -15.60782301,
+      "F_eV_cell": -15.60736142,
+      "local_moment_muB": [
+        1.317,
+        -1.317
+      ],
+      "final_spin_signs": [
+        1,
+        -1
+      ],
+      "elapsed_s": 12.928,
+      "active_incar": {
+        "SYSTEM": "Fe bcc AFM",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "100",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "ISPIN": "2",
+        "MAGMOM": "3 -3",
+        "LORBIT": "11",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "OUTCAR_sha256": "ac280939019059fe49c79c774a5120ee2f8c1b7708895bf5a4de82ef54cdacb5",
+      "predicted_E0_eV_cell": -15.607823009999999,
+      "correlation_sum": -8,
+      "residual_meV_atom": -8.881784197001252e-13
+    },
+    {
+      "state": "fm4",
+      "n_atoms": 4,
+      "E0_eV_cell": -32.94760653,
+      "F_eV_cell": -32.94737207,
+      "local_moment_muB": [
+        2.098,
+        2.098,
+        2.098,
+        2.098
+      ],
+      "final_spin_signs": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "elapsed_s": 28.153,
+      "active_incar": {
+        "SYSTEM": "Fe bcc fm4",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "100",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "ISPIN": "2",
+        "MAGMOM": "3 3 3 3",
+        "LORBIT": "11",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "OUTCAR_sha256": "d74f9387cef161e475e1040ab135e16a3c3287385b4d50058b9a726d67a380df",
+      "predicted_E0_eV_cell": -32.94754628,
+      "correlation_sum": 16,
+      "residual_meV_atom": -0.015062500001050694
+    },
+    {
+      "state": "neel4",
+      "n_atoms": 4,
+      "E0_eV_cell": -31.21566841,
+      "F_eV_cell": -31.2147453,
+      "local_moment_muB": [
+        1.317,
+        -1.317,
+        1.317,
+        -1.317
+      ],
+      "final_spin_signs": [
+        1,
+        -1,
+        1,
+        -1
+      ],
+      "elapsed_s": 27.999,
+      "active_incar": {
+        "SYSTEM": "Fe bcc neel4",
+        "ISTART": "0",
+        "ICHARG": "2",
+        "ENCUT": "400",
+        "PREC": "Accurate",
+        "EDIFF": "1E-8",
+        "NELM": "100",
+        "ALGO": "Normal",
+        "ISMEAR": "1",
+        "SIGMA": "0.1",
+        "ISPIN": "2",
+        "MAGMOM": "3 -3 3 -3",
+        "LORBIT": "11",
+        "LREAL": ".FALSE.",
+        "LASPH": ".TRUE.",
+        "NCORE": "2",
+        "NSW": "0",
+        "IBRION": "-1",
+        "LWAVE": ".FALSE.",
+        "LCHARG": ".FALSE."
+      },
+      "OUTCAR_sha256": "5322644f49602ff845af4abf926d523aaf52e566a58895acafff19673d70791e",
+      "predicted_E0_eV_cell": -31.215646019999998,
+      "correlation_sum": -16,
+      "residual_meV_atom": -0.00559750000039827
+    }
+  ],
+  "rejected_trial": {
+    "state": "stripe4",
+    "n_atoms": 4,
+    "E0_eV_cell": -30.98157307,
+    "F_eV_cell": -30.98150217,
+    "local_moment_muB": [
+      -0.007,
+      0.007,
+      0.007,
+      -0.007
+    ],
+    "final_spin_signs": [
+      -1,
+      1,
+      1,
+      -1
+    ],
+    "elapsed_s": 77.122,
+    "active_incar": {
+      "SYSTEM": "Fe bcc stripe4",
+      "ISTART": "0",
+      "ICHARG": "2",
+      "ENCUT": "400",
+      "PREC": "Accurate",
+      "EDIFF": "1E-8",
+      "NELM": "100",
+      "ALGO": "Normal",
+      "ISMEAR": "1",
+      "SIGMA": "0.1",
+      "ISPIN": "2",
+      "MAGMOM": "3 3 -3 -3",
+      "LORBIT": "11",
+      "LREAL": ".FALSE.",
+      "LASPH": ".TRUE.",
+      "NCORE": "2",
+      "NSW": "0",
+      "IBRION": "-1",
+      "LWAVE": ".FALSE.",
+      "LCHARG": ".FALSE."
+    },
+    "OUTCAR_sha256": "ccd1c9dd250fbd14a7e2a984b4d3cc1b8e0ed432cea4f1ac0d0436c18e1060c1",
+    "requested_initial_signs": [
+      1,
+      1,
+      -1,
+      -1
+    ],
+    "accepted_as_target_state": false,
+    "reason": "local moments fall to about 0.007 muB and requested site pattern is not retained"
+  },
+  "independent_third_state_validation": "not passed; the intended third magnetic state was not obtained",
+  "scope": "two-state effective parameter; no unique material J or validated nearest-neighbor model claimed"
+}

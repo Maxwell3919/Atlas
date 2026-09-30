@@ -1,10 +1,10 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [Johannes 与 Mazin：费米面嵌套与 CDW](https://doi.org/10.1103/PhysRevB.77.165135)
 
-如果把一张费米面平移 q，哪些位置还能和原来的面重叠？可以先把这个几何问题写成一个能在完整 k 网格上计算的量。它有助于比较 q 的方向和尺度，但不能直接替代电子易感率，更不能单独给出 CDW 或超导结论。
+把费米面平移 q 后的重叠程度，可以用完整 k 网格上的几何联合权重 J(q) 定量比较。本页以 Al 为例，计算它对 q、电子网格和能量窗口的依赖。
 
 这里从 [费米面](/Atlas/m/fermi-surface/qe/) 已验收的 Al 24³/32³ NSCF 继续。SCF 和 NSCF 不再重复；需要的是该页保存的 `fermi-grid.npz`，其中每个格点、每条能带的 Eₙ(k)−E_F 都能追到同一份 QE XML。
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-electronic-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
 ## 先把所计算的量说清楚
 
@@ -71,16 +71,16 @@ maxwell@maxwell:~/al/fermi/k32-cg$ cat grid-info.json
 ```
 这份摘要记录了 32768 个真实 k 点、E_F、跨过费米能的带号和源 XML 哈希。不能对一条能带路径直接做下面的循环卷积，因为路径上的数组不是一个周期三维均匀网格。
 
-下载包中的 [extract_fermi.py](/Atlas/examples/al/fermi/extract_fermi.py) 会重新读取两套 NSCF 的 XML、标准输出和错误文件，再生成 `fermi-grid.npz` 与四份嵌套 CSV。本机已有 NumPy 时，在解包后的 `al` 根目录执行：
+下载包中的 [extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) 会重新读取两套 NSCF 的 XML、标准输出和错误文件，再生成 `fermi-grid.npz` 与四份嵌套 CSV。本机已有 NumPy 时，在解包后的 `al` 根目录执行：
 
 ```bash
-python3 fermi/extract_fermi.py
+python3 fermi/extract_fermi_electronic.py
 ```
 
-后面的 `.venv/bin/python` 是原计算主机的环境路径，不随包提供。包内两处 `tmp/al.save/` 保留了这个提取步骤需要的 XML，却没有完整电荷密度与波函数；它们足以重算这里的 J(q)，不能直接用于继续运行 QE。若只要重画现有曲线，可以跳过提取，直接使用后面的四份 CSV。
+下载包把 XML 放在 `fermi/k24-cg/data-file-schema.xml` 和 `fermi/k32-cg/data-file-schema.xml`，提取脚本读取这些外置文件。`.venv/bin/python` 是原执行记录中的环境路径；本机使用 `python3`。重画现有曲线可直接读取四份 CSV。
 
 ```console
-maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi.py
+maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi_electronic.py
 k=24^3 nks=13824 EF=8.39793432 eV crossing bands=[2, 3]; all grid cells assigned once
  sigma=0.10 eV J(0)=0.61975726 J(X)=0.09968022 eV^-2; direct-sum check passed
  sigma=0.20 eV J(0)=0.31708865 J(X)=0.06123457 eV^-2; direct-sum check passed
@@ -125,23 +125,60 @@ q_fraction_along_b1_plus_b3,J_eV_minus2,J_over_J0
 | 32³ | 0.10 | 0.53305558 | 0.04490039 |
 | 32³ | 0.20 | 0.28204495 | 0.03678119 |
 
-网格加密后，尤其窄窗口的 X 点数值变化明显。这一组数据足以演示从真实费米面到 J(q) 的过程，也清楚告诉我们：当前采样还不支持把某个尖峰当作收敛的嵌套特征。不能挑一条看起来最尖的曲线，再用别的网格的声子异常去解释它。
+加密网格后，窄窗口的 X 点权重由 0.09968 降到 0.04490 eV⁻²，显示明显的采样敏感性。讨论有限 q 特征前，需要继续交叉比较电子网格与 σ。
 
-<figure><img src="/Atlas/examples/al/figures/fermi-nesting.png" alt="Al Γ到X方向的费米面几何嵌套网格与窗口比较" loading="lazy"/><figcaption>左：原始 J(q)；右：J(q)/J(0)。四条曲线来自两个真实网格与两个后处理窗口。</figcaption></figure>
+## 用电子响应和声子检验机制
 
-[plot_nesting.py](/Atlas/examples/al/plot_nesting.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。在下载的 Al 示例根目录运行：
+电子响应分析在几何权重之外，还需占据数差、跃迁能量分母及相应矩阵元。下面两项研究展示了这些量与声子证据的对应关系。
+
+Shang 等研究 h-BN₂Si 时，用 VASP 求能带/DOS、QE 6.3 计算声子/EPC，并分别分析 Lindhard 响应和声子线宽。Fig. 5(b,c) 展示二维 BZ 上 Re χ(q)、Im χ(q)，(d) 给最低声学支线宽；作者比较响应峰、软模和线宽的 q 位置。作者由这些量的动量位置共同分析软化机制。[Shang et al., Phys. Rev. B 113, 094504 (2026), Fig. 5](https://doi.org/10.1103/jmys-zkgs)
+
+Chen 等在 CoTe₂ 层间耦合研究中，先用 PBE DFT/DFPT 分析单层的软化机制。Fig. 2(c) 标出单层的轨道分辨费米口袋和 q，(e) 为 EPC 加权广义静态 χ_qν，(f) 为常矩阵元 χ′；这种比较用于区分费米面几何与模式分辨 EPC 的作用。[Chen et al., Phys. Rev. B 114, 055413 (2026), Fig. 2(c–f)](https://doi.org/10.1103/l89c-t2s4)
+
+Al 表格给出 J(q) 对网格和 σ 的敏感性。进一步分析材料响应时，可从同一材料的能带与占据计算 Lindhard χ，再与 DFPT 声子、线宽及 EPC 对照。
+
+
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Al 几何联合权重 J(q) 分析程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：24³/32³ 的 fermi-grid.npz，以及 σ=0.10/0.20 eV 四份 nesting-GX-*.csv。列为 q_fraction_along_b1_plus_b3、J_eV_minus2、J_over_J0。
+方法：W(k)=sum_n exp[−(En−EF)^2/(2σ²)]/(σ√(2π))；J(q)=mean_k[W(k)W(k+q)]，单位 eV⁻²。以周期 FFT 自相关计算，取 Γ–X，保留原始 J 和 J/J(0)。
+检查：J(0)=mean(W²)，q=(1/4,0,1/4) 与直接求和一致；点序、网格/窗口标签、J/J0 起点为 1，对照正文四组 Γ/X 值。
+输出：源码、依赖、命令、CSV/JSON、PNG/SVG/PDF，展示网格与窗口敏感性。电子易感率还需占据数差与能量分母。
+```
+
+## 后处理源码与运行
+
+完整源码：[extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) · [plot_nesting.py](/Atlas/examples/al-electronic/plot_nesting.py) · [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `al` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 fermi/extract_fermi_electronic.py
+python3 plot_nesting.py
+```
+
+
+
+[plot_nesting.py](/Atlas/examples/al-electronic/plot_nesting.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)） 读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。在下载的 Al 示例根目录运行：
+重画需要 Python 3、NumPy 和 Matplotlib；命令如下。
 
 ```bash
 python3 plot_nesting.py
 ```
+<figure><img src="/Atlas/examples/al-electronic/figures/fermi-nesting.png" alt="Al Γ到X方向的费米面几何嵌套网格与窗口比较" loading="lazy"/><figcaption>左：原始 J(q)；右：J(q)/J(0)。四条曲线来自两个真实网格与两个后处理窗口。</figcaption></figure>
 
-还要留意 Γ 点为什么总是很高。J(0) 是 W(k) 与自身完全重合的结果；对这种自相关定义，q=0 的大值本身就是自然结果。它不能被直接命名为某个有限波矢的不稳定性。要讨论 CDW，需进一步计算相关的电子响应和声子，并检查电子—声子耦合；要讨论超导，仍需 [EPC](/Atlas/m/epc/qe/) 和后续谱函数链条。
+Γ 点对应 J(0)=mean[W²]，即权重场与自身重合的自相关。有限 q 的机制分析接电子响应与声子，超导分析接 [EPC](/Atlas/m/epc/qe/) 和谱函数链条。
 
 ## 二维异质结 ZrCl₂/Sc₂C：多口袋费米面几何与动量分辨电声散射的对照
 
 在 **`ZrCl₂/Sc₂C`**（[双网格超导计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，将二维六角布里渊区费米面（[`zrcl2-sc2c-electronic.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png) 子图 c）与动量分辨声子线宽 `γ_qν` 及模式耦合 `λ_qν`（[`zrcl2-sc2c-phonon-epc.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png) 子图 a）对照，可以看到费米面几何与真实电声散射之间的联系与区别：
 - Band 26（蓝色）与 Band 27（橙红色）在 Γ 点周围形成内外口袋，同时 Band 26 在 K 点周围形成口袋；
-- 口袋内的小动量散射（`q → Γ`）对应 Γ 点高频 `C-2p` 光学支的大线宽（`γ_{Γ,17–18} ≈ 322 GHz`），而有限动量分布在 `q = 7, ν = 1` 声学软化支处给出强电声耦合（`ω = 1.42 THz`，`γ = 141.72 GHz`，`λ_{qν} = 4.6873`）。
+- 模式分辨计算在 Γ 点高频光学支给出 `γ_{Γ,17–18} ≈ 322 GHz`，在 `q = 7, ν = 1` 声学软化支给出 `ω = 1.42 THz`、`γ = 141.72 GHz`、`λ_{qν} = 4.6873`。这些数值来自声子/EPC 输出；把具体电子口袋散射归属到某一振动模式，还需相应矩阵元和模式本征矢。
 
 ## 文献中的相关图件与表达方式
 
@@ -149,9 +186,9 @@ python3 plot_nesting.py
 
 ### 1. 单层 1L-CoTe₂ 轨道分辨费米面与嵌套波矢箭头标注
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_FS_NestingVectors_CoTe2_Chen2026_Fig2c.jpg" alt="单层 1L-CoTe₂ 的轨道分辨二维六角费米面及连接平行费米面片段的红色嵌套波矢 q_CDW = (1/2) b₁ 箭头" loading="lazy"/><figcaption>单层 1L-CoTe₂ 在二维六角第一布里渊区内的轨道分辨费米面等能线，红色箭头标出连接平行费米面片段的特征嵌套波矢 <code>q_CDW = (1/2) b₁</code>。图片来源：Chen, Zhang, and Zheng (2026), Fig. 2(c)。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_FS_NestingVectors_CoTe2_Chen2026_Fig2c.jpg" alt="单层 1L-CoTe₂ 的轨道分辨二维六角费米面及连接内外费米口袋的红色散射波矢箭头" loading="lazy"/><figcaption>单层 1L-CoTe₂ 在二维六角第一布里渊区内的轨道分辨费米面等能线，红色双箭头连接内外口袋中广义静态响应较强的散射通道。作者将常矩阵元 χ′ 的宽峰与含 EPC 矩阵元 χ_qν 的局域热点比较，解释 M–K 路径附近的声子软化。来源：Chen, Zhang, and Zheng, <em>Phys. Rev. B</em> <strong>114</strong>, 055413 (2026), Fig. 2(c)，<a href="https://doi.org/10.1103/l89c-t2s4">DOI: 10.1103/l89c-t2s4</a>。</figcaption></figure>
 
-- **读图与作图要点**：在二维六角第一布里渊区费米面图上标注嵌套波矢 `q_CDW = (1/2) b₁` 时，将红色箭头起点和终点直接画在平行的费米面等能线段之间，并保留第一布里渊区六边形边界和高对称点标记，便于核对公度超胞的波矢比例。
+图中箭头表示原文选出的内外口袋散射通道；其作用由 Fig. 2(e,f) 的响应及 Fig. 2(d) 的声子动量分布共同解释。
 
 ### 2. 单层 BN₂Si 声子软模、二维磁化率/嵌套热力图与声子线宽四子图横排对比
 

@@ -1,0 +1,23 @@
+[
+  {
+    "state": "fm",
+    "F_eV_cell": -16.47365594,
+    "E0_eV_cell": -16.47377314,
+    "mag_cell_muB": 4.2127,
+    "dE0_meV_atom": 0.0
+  },
+  {
+    "state": "afm",
+    "F_eV_cell": -15.60736142,
+    "E0_eV_cell": -15.60782301,
+    "mag_cell_muB": -0.0,
+    "dE0_meV_atom": 432.97506499999906
+  },
+  {
+    "state": "nm",
+    "F_eV_cell": -15.49070763,
+    "E0_eV_cell": -15.4907415,
+    "mag_cell_muB": 0.0,
+    "dE0_meV_atom": 491.51581999999917
+  }
+]

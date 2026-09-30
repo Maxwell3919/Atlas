@@ -787,3 +787,9 @@ python3 plot_native_tc.py
   → 线性 η(T)=1 的夹区 + 独立低温非线性解
   → 在固定协议下继续数值收敛比较
 ```
+
+## AI 后处理提示词：分开解析线性判据与非线性解
+
+> 在外部谱 EPW 算例的各温度/截断分支目录读取 epw.in/out/err 与 al.imag_iso_* 文件，编写独立输出解析程序。按输入记录 muc、请求 wscut（eV）、nsiter、温度和求解器，按输出保留实际 Matsubara 截断及迭代次数。线性方程逐温度提取最大本征值 η，仅对正常完成且相邻 η 跨1的点给出 Tc 温区与线性插值；非线性方程逐温度记录明确收敛状态，提取首 Matsubara 点的 Z 和 Δ，将 Δ 从 eV 换为 meV。达到迭代上限或未收敛时保留失败状态，不能写成零能隙。输出 linear.csv、gap.csv、solver-status.json 和 tc-brackets.json，给出完整源码与输入路径。外部谱求解和 Wannier/EPW 原生谱入口分开归档；仅解析已有文件，不运行求解器或其他计算。
+
+[已有完整输出解析源码 analyse_tc.py](/Atlas/examples/al-epw-tc/analyse_tc.py) · [原生结果核对源码 verify_native.py](/Atlas/examples/al-epw-tc/verify_native.py) · [外部谱单位转换源码 prepare_spectrum.py](/Atlas/examples/al-epw-tc/prepare_spectrum.py)。

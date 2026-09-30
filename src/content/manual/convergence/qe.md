@@ -1,10 +1,10 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
+本例的输入、输出、能量表和 Python 提取脚本可[一起下载](/Atlas/examples/basics-si-convergence-files.tar.gz)。解包得到 `basics-si-convergence`。原始计算文件在其 `si-pbe/` 子目录；在包的根目录运行后面的提取命令。
 
-下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，各测试目录按本页的 SCF 输入独立生成电子密度。
+下载包保留实际输入、OUT、错误流、提交脚本和数值表。读取与换算能量只需 Python 3 标准库；重跑 QE 时，按官方链接准备赝势并将 `run.sh` 中的 `<qe_bin>` 改为本机安装路径。
 
-先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。因此这是一个固定晶胞的 PBE 参数对照，不是在重现原例的 LDA 能量，也还没有优化 PBE 的平衡晶格。
+先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。下面在这个固定晶胞内比较 PBE 总能量对三个数值参数的响应。
 
 `scf` 保存一份起点，`cutoff40` 等目录改变波函数截断能，`rho320`、`rho480` 改变电荷密度截断能，`k4` 到 `k14` 改变均匀 k 网格。每个目录各有自己的 `tmp/si.save`，不会轮流覆盖同一份密度。
 
@@ -52,7 +52,7 @@ K_POINTS automatic
 
 `ecutwfc=60` 和 `ecutrho=640` 都以 Ry 为单位：前者限制波函数的平面波基组，后者控制电荷密度与势的表示，超软赝势的增广电荷也在其中。增大它们通常会增加平面波或 FFT 网格及计算开销，所以先分开比较，才知道计算量花在哪一项上。`conv_thr=1.0d-10` 控制本次电子自洽的估计能量误差；即使一次 SCF 已满足这个阈值，改用更密的 k 网格仍然可能改变总能量。`occupations='fixed'` 对应本例的非磁性半导体设置。最后三个零表示这份均匀网格没有半格位移；后面比较网格时也保持这一约定。
 
-做一个截断能对照时，实际操作是复制输入，再用 `vi` 改那一个数。例如 `cutoff40/scf.in` 把 `ecutwfc` 改成 40，保留 `ecutrho=640` 和 `8 8 8 0 0 0`。这样横轴才只有一个变量。这里没有把 `ecutrho` 同时设成波函数截断的某个固定倍数，否则能量变化会混入两个来源。完整文件可直接核对：[40 Ry 输入](/Atlas/examples/si-pbe/cutoff40/scf.in)、[80 Ry 输入](/Atlas/examples/si-pbe/cutoff80/scf.in)。
+做一个截断能对照时，实际操作是复制输入，再用 `vi` 改那一个数。例如 `cutoff40/scf.in` 把 `ecutwfc` 改成 40，保留 `ecutrho=640` 和 `8 8 8 0 0 0`。这样横轴才只有一个变量。这里没有把 `ecutrho` 同时设成波函数截断的某个固定倍数，否则能量变化会混入两个来源。完整文件可直接核对：[40 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff40/scf.in)、[80 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff80/scf.in)。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cp scf/scf.in scf/run.sh cutoff40/
@@ -248,7 +248,7 @@ Submitted batch job 783
 ```
 
 
-末尾则用于确认程序确实走到结束。`PWSCF` 一行同时给出 CPU 和 WALL 时间；`JOB DONE.` 要和前面的电子收敛信息一起读。最早几次运行的 `scf.err` 含图形环境授权提示，原件仍保留；对应输入、能量迭代和结束标志已逐项核对。后续作业脚本清除了 `DISPLAY` 和 `XAUTHORITY`，但部分后续 MPI 任务仍收到同类提示，错误流仍需逐次检查。
+末尾用于确认程序走到结束；`PWSCF` 行给出 CPU 和 WALL 时间，`JOB DONE.` 与前面的电子收敛信息一起读取。最早几次 `scf.err` 保留 X11 授权提示；对应 OUT 的电子迭代已收敛并正常结束。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ tail -n 12 scf/scf.out
@@ -281,7 +281,7 @@ cutoff80/scf.out:!    total energy              =     -22.83861255 Ry
 ```
 
 
-再看 k 网格。文件名按字符排序，所以 `k10` 会出现在 `k4` 前面；绘图时按数字排序，不能拿目录显示顺序当成横轴顺序。
+再看 k 网格。文件名按字符排序，所以 `k10` 会出现在 `k4` 前面；汇总时按数字排序，不能拿目录显示顺序当成横轴顺序。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ grep '!    total energy' k*/scf.out
@@ -297,71 +297,77 @@ k8/scf.out:!    total energy              =     -22.83859230 Ry
 
 下面的表由每份独立 OUT 提取。每组都以本组最后一点为参照，先把原胞能量差从 Ry 换成 eV，再除以两个原子。波函数截断和电荷截断两组固定 `8³` 网格；k 网格组固定 `60/640 Ry`，因此三组的绝对能量不可串成一条曲线。
 
-| 改动项 | 取值 | 总能量 / Ry·原胞⁻¹ | 相对本组最后一点 / meV·atom⁻¹ |
-| --- | ---: | ---: | ---: |
-| ecutwfc | 40 | -22.83848017 | 0.9006 |
-| ecutwfc | 50 | -22.83857229 | 0.2739 |
-| ecutwfc | 60 | -22.83859230 | 0.1378 |
-| ecutwfc | 70 | -22.83860349 | 0.0616 |
-| ecutwfc | 80 | -22.83861255 | 0.0000 |
-| ecutrho | 320 | -22.83858862 | 0.0250 |
-| ecutrho | 480 | -22.83859183 | 0.0032 |
-| ecutrho | 640 | -22.83859230 | 0.0000 |
-| kmesh | 4 | -22.82483572 | 95.5367 |
-| kmesh | 6 | -22.83709393 | 12.1459 |
-| kmesh | 8 | -22.83859230 | 1.9528 |
-| kmesh | 10 | -22.83882782 | 0.3506 |
-| kmesh | 12 | -22.83887072 | 0.0587 |
-| kmesh | 14 | -22.83887935 | 0.0000 |
+| 改动项 | 设置 | 固定条件 |
+| --- | --- | --- |
+| ecutwfc | 40、50、60、70、80 Ry | ecutrho=640 Ry，8³ 零偏移网格 |
+| ecutrho | 320、480、640 Ry | ecutwfc=60 Ry，8³ 零偏移网格 |
+| k 网格 | 4³、6³、8³、10³、12³、14³ | 60/640 Ry，零偏移 |
 
-
-为了演示如何读表，这次使用 **1 meV/atom** 作为总能量变化的比较线。它是这个小例子的教学条件，不是声子、应力或能隙的通用误差标准。表中最后一点也只是本轮最高参数的参照，并非已经知道的无限基组、无限网格真值；需要一起看末端相邻几次变化，避免某一个点偶然接近参照就停止。波函数截断从 60 增至 80 Ry，总能量只改变约 0.138 meV/atom；电荷截断从 320 增至 640 Ry，改变约 0.025 meV/atom。k 网格却更敏感：`8³→10³` 仍改变约 1.60 meV/atom，`10³→12³` 约 0.292 meV/atom，`12³→14³` 约 0.059 meV/atom。仅凭 `8³` 那份输出的 `conv_thr`，看不出后面这件事。
-
-这也解释了后续例子为什么保留 `60/640 Ry`，而把用于带边精细计算的父 SCF 加密到 `12³`。是否用于别的材料、不同赝势或声子，需要对那个实际要使用的量继续比较。
+把原胞能量差换成每原子能量差。本例有两个 Si 原子，使用 NIST 2022 CODATA 的 `1 Ry = 13.6056931229905 eV`：
 
 ```text
-[preston@preston-System-Product-Name si-pbe]$ head -n 7 convergence.csv
-parameter,directory,setting,energy_Ry_per_cell,delta_meV_per_atom_vs_last
-ecutwfc,cutoff40,40,-22.83848017,0.9005608278120207
-ecutwfc,cutoff50,50,-22.83857229,0.27388260258107094
-ecutwfc,cutoff60,60,-22.8385923,0.13775764288503814
-ecutwfc,cutoff70,70,-22.83860349,0.06163378984719802
-ecutwfc,cutoff80,80,-22.83861255,0.0
-ecutrho,rho320,320,-22.83858862,0.02503447533917406
-[preston@preston-System-Product-Name si-pbe]$
+ΔE (meV/atom) = |E_i − E_ref| (Ry/cell) × 13.6056931229905 × 1000 / 2
 ```
 
+每组以最高已测设置为参照：80 Ry、640 Ry 或 14³。相邻变化则比较同一组中连续两个已测点。
 
-[下载能量表](/Atlas/examples/si-pbe/convergence.csv)、[下载提取脚本](/Atlas/examples/si-pbe/analyse_si.py)和[下载绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）放在同一组示例目录。提取脚本读取原始 OUT；绘图脚本读取 CSV，不需要波函数文件。安装好 Python、NumPy、Matplotlib 后，在 `si-pbe` 目录运行：
+| 参数 | 设置 | 总能量 (Ry/原胞) | 与本组参照差值 (meV/atom) | 与前一点的变化 (meV/atom) |
+| --- | ---: | ---: | ---: | ---: |
+| ecutwfc | 40 Ry | -22.83848017 | 0.900561 | — |
+| ecutwfc | 50 Ry | -22.83857229 | 0.273883 | 0.626678 |
+| ecutwfc | 60 Ry | -22.83859230 | 0.137758 | 0.136125 |
+| ecutwfc | 70 Ry | -22.83860349 | 0.061634 | 0.076124 |
+| ecutwfc | 80 Ry | -22.83861255 | 0.000000 | 0.061634 |
+| ecutrho | 320 Ry | -22.83858862 | 0.025034 | — |
+| ecutrho | 480 Ry | -22.83859183 | 0.003197 | 0.021837 |
+| ecutrho | 640 Ry | -22.83859230 | 0.000000 | 0.003197 |
+| kmesh | 4³ | -22.82483572 | 95.536660 | — |
+| kmesh | 6³ | -22.83709393 | 12.145938 | 83.390722 |
+| kmesh | 8³ | -22.83859230 | 1.952757 | 10.193181 |
+| kmesh | 10³ | -22.83882782 | 0.350551 | 1.602206 |
+| kmesh | 12³ | -22.83887072 | 0.058709 | 0.291842 |
+| kmesh | 14³ | -22.83887935 | 0.000000 | 0.058709 |
+
+用 **1 meV/atom** 作为本例的比较线，从低到高选择第一个点：它与本组参照的差值不超过比较线，而且它之后的每次相邻变化也不超过比较线。这样得到 40 Ry、320 Ry 和 10³。三个最低设置来自各自的独立扫描，尚未组合为同一次计算。
+
+k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1.952757 meV/atom，8³→10³ 还改变 1.602206 meV/atom；10³→12³ 和 12³→14³ 分别改变 0.291842、0.058709 meV/atom。因此 10³ 是本表中第一个满足规则的网格。截断组中，40→80 Ry 的总变化为 0.900561 meV/atom，320→640 Ry 的总变化为 0.025034 meV/atom；更低截断没有在这组文件中采样。
+
+后续 Si 教案继续使用 60/640 Ry，并把带边计算的父 SCF 加密到 12³。用于力、应力或声子时，应直接比较那个目标量：`conv_thr` 负责一次 SCF 的电子误差，目标量对截断和网格的变化由相应扫描决定。最高已测点是这张表的有限参照；1 meV/atom 是本例选定的总能量比较线。
+
+## 从原始文件重新生成表格
+
+完整脚本 [analyze_si_convergence.py](/Atlas/examples/basics-si-convergence/analyze_si_convergence.py)读取每个目录的 `scf.in`、`scf.out` 和 `scf.err`，先核对 [原始文件校验和](/Atlas/examples/basics-si-convergence/SHA256SUMS.raw)，再检查原子数、截断回显、QE 版本、SCF 收敛与结束标志。它按数字排序扫描点，并核对每组其余输入相同；`scf`、`cutoff60`、`k8` 的等效设置在同一组中只计一次。
+
+解压下载包后，实际运行命令和输出如下：
 
 ```text
-[preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py convergence
-<工作目录>/si-pbe/plots/convergence.png
+$ cd basics-si-convergence
+$ python3 analyze_si_convergence.py si-pbe --outdir results
+raw_checksums=62 complete_runs=15 excluded_runs=1 table_rows=14
+ecutwfc: 40 Ry; difference to reference = 0.900561 meV/atom
+ecutrho: 320 Ry; difference to reference = 0.025034 meV/atom
+kmesh: 10x10x10; difference to reference = 0.350551 meV/atom
+Results: results
 ```
 
-![Si 总能量对波函数截断、电荷密度截断和 k 网格的实测变化](/Atlas/examples/si-pbe/plots/convergence.png)
+16 个含 `scf.in` 的目录中，15 个有完整 SCF 输出；`gamma-phonon` 只有输入，列在运行清单中。三组得到 14 行数据。脚本还输出 [9 轮电子迭代表](/Atlas/examples/basics-si-convergence/results/scf-history.csv)，其最后一轮的估计精度为 4.3×10⁻¹¹ Ry。
 
-右图采用允许零值的对称对数坐标，既能看到 `4³` 的大偏差，也能读出密网格末端的变化。图上的每一点都有对应输入、输出和独立核验记录；本例三个维度的最后三点通过了上述总能量比较条件。力、应力、能隙和声子尚不能由这张图代替检验。
+可分别下载 [能量表](/Atlas/examples/basics-si-convergence/results/convergence.csv)、[运行清单](/Atlas/examples/basics-si-convergence/results/run-inventory.csv)、[设置摘要](/Atlas/examples/basics-si-convergence/results/summary.json)、[文件哈希](/Atlas/examples/basics-si-convergence/results/source-files.json)、[数值报告](/Atlas/examples/basics-si-convergence/results/energy-report.md)及[实际命令输出](/Atlas/examples/basics-si-convergence/run.log)。将源码与原始文件目录一起保存，便可重算所有差值。
 
-## 文献中的相关图件与表达方式
+## 用 AI 编写同类提取工具
 
-本页金刚石 Si 是有带隙的半导体，使用固定占据（`occupations = 'fixed'`）即可测试截断能与 k 网格。在金属、电荷密度波（CDW）或超导体系中，费米面附近的电子展宽 `degauss`（`σ`）与 k 网格共同决定部分占据态的积分精度：声子软模频率往往对电子展宽极为敏感，展宽过大可抹平费米面嵌套从而掩盖虚频，而展宽过小且 k 网格不足则会引入数值振荡。因此文献中常专门绘制声子色散随电子展宽参数 `σ` 的演化曲线来检验相变判据的稳健性。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="不同电子展宽参数 σ（0 至 15 mRy）下声子软模色散与虚频深度的收敛演化对比" loading="lazy"/><figcaption>声子色散对电子展宽参数 <code>σ</code> 的敏感性测试：对比 <code>σ</code> 从 15 mRy 逐步减小至 0 mRy 时高对称路径上声子软模频率的软化与收敛行为，用以区分真实晶格失稳与展宽过度造成的假阳性稳定（<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>）。</figcaption></figure>
-
-类似地，在谱函数与格林函数后处理计算中，洛伦兹展宽参数（如 `iδ`）的选择直接影响能带与自能特征峰的清晰度。将不同展宽阈值（如 10 meV 与 50 meV）下的谱函数并列对照，能够清楚区分物理热展宽与人为数值展宽的影响。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="不同数值展宽参数（10 meV 与 50 meV）和不同温度下电子谱函数的分辨率对比" loading="lazy"/><figcaption>电子谱函数中数值展宽参数（<code>iδ = 10 meV</code> 与 <code>50 meV</code>）的对照：展示较小数值展宽对分辨精细准粒子色散与声子散射边带的作用（Poncé 等，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>）。</figcaption></figure>
-
-下一步：固定晶胞下移动原子可接[结构优化](/Atlas/m/relax/qe/)；研究带边时接[带隙](/Atlas/m/band-gap/qe/)和[有效质量](/Atlas/m/effective-mass/qe/)。
+[完整编程提示词](/Atlas/examples/basics-si-convergence/ai_prompt.md)说明输入文件、单位、分组与选点规则。可复制下述需求，请 AI 生成脚本，再用原始 OUT 核对结果：
 
 ```text
-同一结构 + 同一赝势
-  ├─ 改 ecutwfc，保持 ecutrho 和 k 网格
-  ├─ 改 ecutrho，保持 ecutwfc 和 k 网格
-  └─ 改 k 网格，保持两个截断
-          ↓
-      对实际关注的量比较
-          ↓
-      选择后续计算设置
+用 Python 3 标准库读取 si-pbe/*/scf.in、scf.out、scf.err，按 SHA256SUMS.raw 核对文件。
+只把同时有最终 ! total energy、SCF 收敛行和 JOB DONE 的两原子 SCF 纳入能量表；
+不完整目录保留在运行清单。核对输入与输出的截断和原子数，并验证每组只有一个参数改变。
+分别整理 ecutwfc、ecutrho 和均匀 k 网格。每组最高已测点为参照，计算
+|E_i-E_ref|*13.6056931229905*1000/2 和相邻差，单位 meV/atom。
+按 1 meV/atom 比较线选取参照差及后续相邻差均满足的最低采样点。
+输出完整 CSV、SCF 迭代表、JSON 摘要和 Markdown 数值报告，保留原始文件的相对路径与哈希。
 ```
+
+EPW 的方法论文同样按目标物理量组织网格检查，Fig. 1 分开比较粗网格、细积分网格和展宽，并展示网格与展宽的共同影响。本例采用同样的控制变量思路，目标量为固定晶胞 Si 总能量。参见 Lee 等，*npj Computational Materials* **9**, 156 (2023)，[DOI: 10.1038/s41524-023-01107-3](https://doi.org/10.1038/s41524-023-01107-3)。单位换算见 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
+
+接下来进入[离子弛豫](/Atlas/m/relax/qe/)、[晶胞弛豫](/Atlas/m/vc-relax/qe/)或[固定结构 SCF](/Atlas/m/scf/qe/)，按实际要计算的量继续设置输入。

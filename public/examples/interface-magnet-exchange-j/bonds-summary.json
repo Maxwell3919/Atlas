@@ -1,0 +1,245 @@
+{
+  "definition": "H = Eref - J * sum_unique_periodic_NN_bonds(e_i dot e_j); unit vectors; each bond counted once",
+  "cells": {
+    "2fe": {
+      "n_atoms": 2,
+      "neighbor_distance_A": 2.424871130596428,
+      "coordination": [
+        8,
+        8
+      ],
+      "n_unique_bonds": 8,
+      "bonds": [
+        [
+          0,
+          1,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          0,
+          1,
+          -1,
+          -1,
+          0
+        ],
+        [
+          0,
+          1,
+          -1,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          -1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      ]
+    },
+    "4fe": {
+      "n_atoms": 4,
+      "neighbor_distance_A": 2.424871130596428,
+      "coordination": [
+        8,
+        8,
+        8,
+        8
+      ],
+      "n_unique_bonds": 16,
+      "bonds": [
+        [
+          0,
+          1,
+          0,
+          -1,
+          -1
+        ],
+        [
+          0,
+          1,
+          0,
+          -1,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          -1
+        ],
+        [
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          3,
+          -1,
+          -1,
+          -1
+        ],
+        [
+          0,
+          3,
+          -1,
+          -1,
+          0
+        ],
+        [
+          0,
+          3,
+          -1,
+          0,
+          -1
+        ],
+        [
+          0,
+          3,
+          -1,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          0,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          0,
+          1
+        ],
+        [
+          1,
+          2,
+          0,
+          1,
+          0
+        ],
+        [
+          1,
+          2,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          3,
+          0,
+          -1,
+          -1
+        ],
+        [
+          2,
+          3,
+          0,
+          -1,
+          0
+        ],
+        [
+          2,
+          3,
+          0,
+          0,
+          -1
+        ],
+        [
+          2,
+          3,
+          0,
+          0,
+          0
+        ]
+      ]
+    }
+  },
+  "states": {
+    "fm2": {
+      "cell": "2fe",
+      "spin_directions": [
+        1,
+        1
+      ],
+      "correlation_sum": 8
+    },
+    "afm2": {
+      "cell": "2fe",
+      "spin_directions": [
+        1,
+        -1
+      ],
+      "correlation_sum": -8
+    },
+    "fm4": {
+      "cell": "4fe",
+      "spin_directions": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "correlation_sum": 16
+    },
+    "neel4": {
+      "cell": "4fe",
+      "spin_directions": [
+        1,
+        -1,
+        1,
+        -1
+      ],
+      "correlation_sum": -16
+    },
+    "stripe4": {
+      "cell": "4fe",
+      "spin_directions": [
+        1,
+        1,
+        -1,
+        -1
+      ],
+      "correlation_sum": 0
+    }
+  }
+}

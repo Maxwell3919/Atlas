@@ -1,6 +1,6 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
-晶胞拉长一点，总能量和应力会怎样变？这页从一个已经优化的 fcc Al 原胞出发，沿笛卡尔 x 方向压缩或拉伸，逐点计算固定结构的 SCF。六个纵向应变点都实际运行过，输入、输出和作图数据可以[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。
+晶胞拉长一点，总能量和应力会怎样变？这页从一个已经优化的 fcc Al 原胞出发，沿笛卡尔 x 方向压缩或拉伸，逐点计算固定结构的 SCF。六个纵向应变点都实际运行过，输入、输出和作图数据可以[一起下载](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)。
 
 这里保持每个原胞的电子数不变，计算的是应变响应。电子掺杂会改变电子数和静电边界，需要另行建立并检查带电体系；下面的曲线没有包含掺杂结果。
 
@@ -147,7 +147,7 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 
 这里应变沿笛卡尔 x 方向施加，输出应力也按同一笛卡尔坐标系读取，不是沿斜原胞第一条基矢的分量。y、z 没有放松，所以小应变极限的纵向与横向斜率分别联系当前取向下的 C₁₁、C₁₂；不能把纵向斜率直接称为允许横向泊松收缩后的杨氏模量。三维 Al 的应力以体积归一化；若把同样操作换到有真空的单层，GPa 数字还会依赖真空高度，需要重新定义二维弹性量。
 
-文件末尾的计时和结束行说明 pw.x 正常返回；每个目录还应分别确认电子收敛，没有最终的对角化失败，并核对本次输入中的晶胞和 k 网格。当前 +0.5% 点耗时 3.81 s，十二个点均保存了独立 OUT。
+文件末尾的计时和结束行说明 pw.x 正常返回；每个目录还应分别确认电子收敛，没有最终的对角化失败，并核对本次输入中的晶胞和 k 网格。当前 +0.5% 点耗时 3.81 s，六个纵向点均保存了独立 OUT。
 
 ```text
      PWSCF        :      3.30s CPU      3.81s WALL
@@ -157,7 +157,7 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 
 ## 把能量与应力放在同一张图里
 
-提取脚本 [elastic/analyse.py](/Atlas/examples/al/elastic/analyse.py) 从各点 OUT 读取能量和应力，写成 [strain-stress.csv](/Atlas/examples/al/elastic/strain-stress.csv)。其中纵向应变的六行为：
+提取脚本 [analyse_strain.py](/Atlas/examples/interface-magnet-strain-doping-scan/analyse_strain.py) 从各点 OUT 读取能量和应力，写成 [strain-stress.csv](/Atlas/examples/interface-magnet-strain-doping-scan/elastic/strain-stress.csv)。其中纵向应变的六行为：
 
 | x 应变（%） | F（Ry/原胞） | 拉伸为正的 σxx（GPa） | σyy（GPa） |
 |---:|---:|---:|---:|
@@ -170,46 +170,37 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 
 这里一个原胞只有一个原子，因此每原胞和每原子的能量数值相同。绘图时减去这六个采样点中最低的 F，单位换成 meV/atom；该零点只是绘图参考，并非无应变母体能量。没有在图中加入未计算的零应变数据点，也没有用一条平滑拟合线代替采样证据。
 
-![Al 的六点纵向应变扫描：能量与应力](/Atlas/examples/al/figures/strain-scan.png)
+![Al 的六点纵向应变扫描：能量与应力](/Atlas/examples/interface-magnet-strain-doping-scan/figures/strain-scan.png)
 
 右图的纵向应力随应变近似线性，横向应力也发生变化。它可以用来理解 C₁₁、C₁₂ 从哪里来；直接从这张 16³ 网格图报告最终弹性常数还不够。后续将 k 网格加密到 24³、32³、40³、48³ 后，应力斜率仍在变化，具体对照见 [弹性计算中的 k 网格检查](/Atlas/m/elastic-born/qe/)。
 
-要重新画图，解包后进入 `al`，在有 NumPy 和 Matplotlib 的环境运行：
+要重新画图，解包后进入 `example-pack`，在有 NumPy 和 Matplotlib 的环境运行：
 
 ```bash
 python3 plot_strain.py
 ```
 
-[完整绘图脚本](/Atlas/examples/al/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
+[完整绘图脚本](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
 
-### 二维各向同性双轴应变与电子态密度响应的批处理范式
+## 文献方法与本例读数
 
-除了三维晶体的单轴拉伸与剪切应变外，二维材料（如单层碳化物或过渡金属二硫化物）最常用的调控手段是**面内各向同性双轴应变（Biaxial Strain）**。此时面内晶格常数按标度变换缩放：`a(ε) = a₀ × (1 + ε)`，面外真空层厚度保持不变。
+Alqurashi 等，*The effect of uniaxial compressive and tensile strains on the structural, dynamical, electronic, and optical properties of ZrCl₂ monolayer: Ab-initio calculations*，[DOI: 10.1016/j.chphi.2025.100828](https://doi.org/10.1016/j.chphi.2025.100828)，Table 1 给出实际应变样本的结构与带隙，Fig. 4 绘制带隙随应变变化。该文分析的是 ZrCl₂ 电子响应；本例读取三维 Al 的 F 与应力，纵轴物理量不同。可借鉴的是把实际采样值与明确应变定义对应起来。本页曲线只连接六个 xx 样本，能量零点取最低采样 F，应力保留拉伸为正的单位约定。
 
-通过批处理脚本自动化生成不同应变网格（例如 `ε = 0%, +1%, +2%, +3%`）并级联后处理，是系统研究应变调控的通用工作流：
-1. **晶格常数与基矢生成**：在六角晶系中，双轴应变等价于将面内基矢等比例伸缩。为每个应变点建立独立工作目录，更新 `CELL_PARAMETERS`，并确保保持相同的 `ecutwfc`、`ecutrho`、k 网格密度与展宽参数。
-2. **自洽收敛与力验收**：对每个应变点执行 `pw.x`。对于具有内部自由度的体系，在固定应变晶胞下需先进行内部原子弛豫；对于无内部自由度的简单对称原胞，则直接进行 SCF。
-3. **态密度级联投影**：完成自洽后，将计算目录连接至 `projwfc.x`，提取各应变下的费米能级 `E_F(ε)`、总态密度 `pdos_tot` 与原子轨道分波态密度 `pdos_atm*`。随着晶格拉伸，晶体场劈裂与轨道杂化发生改变，通常伴随着能带展宽变窄、态密度峰向不同能量区域位移，进而调节费米能级处的态密度 `N(E_F)`。
-4. **统一能量基准对齐**：在对比不同应变点的态密度演化时，由于绝对静电势参考点随晶格膨胀发生漂移，常规作法是将各应变点的能量轴均以各自的 `E − E_F(ε)` 对齐（即以费米能级为相对零点），从而清晰追踪费米面附近态密度峰值的升降与电子态重构过程。
+后续应力斜率的 k 网格比较见 [弹性计算](/Atlas/m/elastic-born/qe/)。
 
-## 文献中的相关图件与表达方式
-
-当把本页的单轴或双轴应变扫描与载流子掺杂浓度扫描结合起来，并继续在每个网格点上完成声子与电声耦合（EPC）计算时，文献中常以应变为横轴、掺杂浓度为纵轴绘制二维等高线相图，用色标展示超导临界温度 `T_c` 或电声耦合常数 `λ` 在双参数空间中的协同演化与动力学稳定边界。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_2DPhaseDiagram_Strain_Doping_Tc_BC_Fig4d.jpg" alt="双轴应变与载流子掺杂二维参数空间中的超导临界温度等高线相图" loading="lazy"/><figcaption>应变–掺杂二维调控相图：横轴为双轴应变，纵轴为载流子掺杂浓度，色标与等高线展示超导临界温度在二维参数平面内的分布特征（<em>Phys. Rev. B</em> <strong>111</strong>, 174524 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.174524" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.174524</a>）。</figcaption></figure>
-
-在固定掺杂单独扫描双轴应变，或固定晶格对比电子掺杂与空穴掺杂时，为了看清 `T_c` 变化是由费米面态密度 `N(E_F)` 驱动还是由声子软化（对数平均频率 `ω_log` 下降、耦合常数 `λ` 上升）主导，常采用双纵轴折线图或 2×2 四面板网格，将 `N(E_F)`、`ω_log`、`λ` 与 `T_c` 随调控参数的演变并排呈现。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Strain_DualAxis_EPC_Tc_Project.png" alt="双轴应变调控下费米面态密度、对数平均声子频率、电声耦合常数与超导临界温度的双轴演化曲线" loading="lazy"/><figcaption>双轴应变扫描的双纵轴对照：（左）费米能级态密度 <code>N(E<sub>F</sub>)</code> 与对数平均声子频率 <code>ω<sub>log</sub></code> 随应变的相反变化趋势；（右）电声耦合常数 <code>λ</code> 与超导临界温度 <code>T<sub>c</sub></code> 随拉伸应变的同步增强。</figcaption></figure>
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Doping_2x2Grid_EPC_Tc_Project.png" alt="电子掺杂与空穴掺杂下超导临界温度、电声耦合常数、对数平均频率及费米面态密度的 2×2 对比图" loading="lazy"/><figcaption>载流子掺杂扫描的 2×2 分项对比：区分电子掺杂与空穴掺杂两个分支，同步追踪 <code>T<sub>c</sub></code>、<code>λ</code>、<code>ω<sub>log</sub></code> 与 <code>N(E<sub>F</sub>)</code> 随掺杂浓度的变化规律。</figcaption></figure>
-
-如果继续计算应变下的能带、声子或 EPC，每个应变点都要沿用自己的晶胞与自洽密度。参考 [能带](/Atlas/m/bands/qe/)、[DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 和 [电子声子谱函数](/Atlas/m/eliashberg-a2f/qe/) 的相应步骤，不要混用无应变目录的密度或动力学矩阵。
+## 可复制的代码生成提示与复现
 
 ```text
-已优化的母体晶胞
-  └─ 施加明确方向、幅度的应变 → 独立目录
-       ├─ 多原子体系：固定晶胞的内部弛豫
-       └─ 同协议 SCF → 能量 / 应力 → 幅度与 k 网格检查
-                         └─ 同一应变点的能带、声子与 EPC
+请编写 Python 3 独立后处理程序。读取 elastic/cases.json 所列六个 mode=xx 的 al.scf.in/out/err。检查电子收敛、唯一 JOB DONE 和 stderr；统一读取 QE 感叹号行 F（Ry），应力取左侧 Ry/bohr^3 张量，乘 -14710.5076 转成拉伸为正的 GPa。排序实际应变，输出六行 CSV 与输入 SHA256；图只使用这些样本，F 减最低采样值后乘 13.605693122994*1000 得 meV/atom，不加入零应变或掺杂/DOS/EPC 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
+
+[analyse_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/analyse_strain.py) · [plot_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py) · [atlas_plot_style.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)
+
+[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+
+```bash
+python3 analyse_strain.py
+python3 plot_strain.py
+```
+
+实际读取结果见正文表及 [elastic/strain-stress.csv](/Atlas/examples/interface-magnet-strain-doping-scan/elastic/strain-stress.csv) · [strain-summary.json](/Atlas/examples/interface-magnet-strain-doping-scan/strain-summary.json)。这些命令只读取现有输出进行后处理。

@@ -6,9 +6,9 @@
 
 NSCF 不再做一轮轮密度混合，但每个 k 点的本征值仍要数值收敛。这次就遇到了一个具体例子：原 Davidson 运行虽然打印 `JOB DONE.`，还出现了 `c_bands: 1 eigenvalues not converged`。原文件保留在旧目录，下面展示的是另建目录后用 CG 完成的计算。
 
-本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
+本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，读取下述 OUT 与 XML 可直接核对本次能级和采样数；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
-下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，先完成 [Si SCF](/Atlas/m/scf/qe/)，再按下面的顺序复制保存目录并运行 NSCF。
+下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。读取输出和 XML 可直接使用包内文件；重新计算时，先完成 [Si SCF](/Atlas/m/scf/qe/)，再按下面的顺序复制保存目录并运行 NSCF。
 
 ## 从同一份 SCF 复制父数据
 
@@ -125,7 +125,7 @@ grep -n -E 'End of band structure calculation|JOB DONE' nscf.out
 grep -ni -E 'not converged|Error in routine|convergence NOT achieved' nscf.out
 cat nscf.err
 ```
-本次最终输出没有未收敛本征值行。对应的 [nscf.err](/Atlas/examples/si-pbe/gap24-cg/nscf.err) 为 1300 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示；它并非空文件。电子态是否求解完成，还要看本征值、保存数据和程序末尾。本次末尾为：
+本次最终输出没有未收敛本征值行。对应的 [nscf.err](/Atlas/examples/si-pbe/gap24-cg/nscf.err) 为 1300 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示；这是 X11 图形环境授权提示；本次输出没有未收敛本征值行。本次末尾为：
 
 ```text
      Parallel routines
@@ -143,15 +143,32 @@ cat nscf.err
 
 这份检查确认了本征值求解完成，没有证明 24³ 对所有性质都足够密。[带隙页](/Atlas/m/band-gap/qe/)还会把 12³、18³、24³ 的采样结果，以及更密父 SCF 的结果放在一起比较。
 
-将本页父 SCF（8³ 网格）与子 NSCF（12³、18³、24³ 网格）在 Γ–X 方向导带底谷附近的采样点并排画出，可以直观看到为什么稀疏网格会漏采非高对称点处的导带极小值，以及加密均匀 NSCF 网格后导带底（CBM）与间接带隙的收敛过程。
+在解压后的 `si-pbe` 目录中，读取[本次 XML](/Atlas/examples/si-pbe/gap24-cg/data-file-schema.xml)的实际字段：
 
-<figure class="research-figure"><img src="/Atlas/figures/nscf/si-nscf-grid-sampling.png" alt="金刚石 Si 父 SCF 与加密 NSCF 网格在导带底谷附近的采样分布及带隙收敛" loading="lazy"/><figcaption>本页金刚石 Si 从父 SCF（8³ 网格，4 条价带）到子 NSCF（12³、18³、24³ 网格，8 条能带）的采样加密效果：（左）沿 Γ–X 方向导带底谷（<code>k<sub>x</sub> ≈ 0.844 × 2π/a</code>）附近各网格不可约 k 点的离散采样点分布，展示 8³ 网格为何漏采导带极小值；（右）12³、18³、24³ NSCF 网格及 12³ 父密度对照下的 CBM 与间接带隙收敛情况。</figcaption></figure>
+```bash
+python3 - <<'XML'
+import xml.etree.ElementTree as ET
+b = ET.parse('gap24-cg/data-file-schema.xml').getroot().find('output/band_structure')
+print('nks=', int(b.find('nks').text), 'nbnd=', int(b.find('nbnd').text),
+      'nelec=', float(b.find('nelec').text))
+XML
+```
 
-## 文献中的相关图件与表达方式
+```text
+nks= 413 nbnd= 8 nelec= 8.0
+```
 
-当需要分辨整个布里渊区内的能带极值、鞍点以及由鞍点引起的对数发散范霍夫奇点（Van Hove singularities）时，仅沿几条一维高对称路径计算能带往往不够。文献中常借助高密度均匀网格 NSCF 计算全布里渊区的本征值，绘制二维等能线图（contour plot），将六重对称的价带极值口袋、鞍点位置与态密度尖峰直接对应起来。
+实际输入与保存的 XML 对应如下：
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_2DContour_SixSaddleVHS_In2Te2_Zolyomi2014_Fig4.jpg" alt="单层 In₂Te₂ 在六角布里渊区内的密网格价带等能线图与六个鞍点范霍夫奇点" loading="lazy"/><figcaption>基于密网格本征值绘制的六角布里渊区二维等能线图：清晰分辨围绕 Γ 点的六个价带极值与六个鞍点位置，揭示墨西哥帽形色散导致的范霍夫奇点几何起源（Zólyomi, Drummond, and Fal'ko，<em>Phys. Rev. B</em> <strong>89</strong>, 205426 (2014)，<a href="https://doi.org/10.1103/PhysRevB.89.205426" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.89.205426</a>）。</figcaption></figure>
+| 项目 | 父 SCF | 本次 CG NSCF |
+| --- | --- | --- |
+| 均匀网格 | 8×8×8，零偏移 | 24×24×24，零偏移 |
+| 能带数 | 4 条占据带 | 8 条，占据带外再求 4 条空带 |
+| 电子数 | 8 | 8 |
+| 密度 | 由电子自洽得到 | 读取父 SCF 密度 |
+| 子计算 XML 的不可约 k 点数 | — | 413 |
+
+网格数指完整布里渊区的均匀采样，XML 中的 413 是对称性约化后的 k 点数。本页上面的 Γ 点八个能级直接来自 OUT；带隙页进一步从所有实际 k 点与本征值读取价带顶、导带底，再比较网格变化。
 
 ## 下一步
 

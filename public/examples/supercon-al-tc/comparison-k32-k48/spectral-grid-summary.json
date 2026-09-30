@@ -1,0 +1,42 @@
+{
+  "method": "For each native sigma, compare the paired saved alpha2F.dat arrays pointwise on their common 0-14 THz grid. Weighted L1 spectral difference is integral 2*abs(alpha2F_32-alpha2F_48)/nu dnu. The source alpha2F.dat values are printed to five decimals; lambda, omega_log and Tc are reconstructed independently from the exact printed elph.inp_lambda records.",
+  "source_files": {
+    "k32_alpha2F_sha256": "02cfe80e9d905af7687aa1c92fbf6a7a8051576ef9a3fbce85cc797c21c430ba",
+    "k48_alpha2F_sha256": "eeab006f89922140030a54f5a89a87651695c9c2e8c27e66cd6425171cbec0b8",
+    "paired_tc_sha256": "8160608d7bb1622bc48a597920fa30d17eecba0e046dc69b7c8095771c44c4fa"
+  },
+  "sigma_count": 10,
+  "frequency_bins_per_sigma": 2000,
+  "frequency_range_THz": [
+    0.0,
+    14.0
+  ],
+  "max_abs_lambda_integral_difference_from_five_decimal_alpha2F_vs_rebuilt_source": 4.131789725858592e-06,
+  "delta_lambda_qsum_32_minus_48": {
+    "min": 7.187499999999902e-05,
+    "max": 0.018134375000000036,
+    "max_abs": 0.018134375000000036
+  },
+  "delta_lambda_spectrum_32_minus_48": {
+    "min": 6.949785664728259e-05,
+    "max": 0.018129612402451478,
+    "max_abs": 0.018129612402451478
+  },
+  "weighted_L1_relative_to_mean_lambda_percent": {
+    "min": 0.19030594301622936,
+    "max": 35.51882201180269,
+    "max_at_sigma_Ry": 0.005
+  },
+  "delta_omega_log_32_minus_48_K": {
+    "min": 0.11358124176041429,
+    "max": 16.060500768079123,
+    "max_abs": 16.060500768079123
+  },
+  "delta_Tc_32_minus_48_K": {
+    "min": 0.009221798398408532,
+    "max": 0.5251657965651821,
+    "max_abs": 0.5251657965651821
+  },
+  "tc_curve_crossings": 0,
+  "interpretation": "This is a dense-k comparison at fixed 16^3 response k, 4^3 q, and common smearing values. It supplies spectral and moment evidence for those two branches, but the smearing scan is not by itself a k/q convergence proof."
+}

@@ -2,11 +2,11 @@
 
 把一个小箭头放在每个格点上，相邻箭头越平行，能量越低。升高温度后，局部方向会波动；绕某个小方格走一圈，方向还可能完整转过一周。这一页实际运行这样的二维 XY 模型，看自旋构型、涡旋和相位刚度怎样随温度与尺寸变化。
 
-这里是独立的经典统计模型，使用 Python 与 NumPy，不读取 DFT 输入，也没有将参数对应到 SnSe₂/Sr₂N 或其他材料。以 J 作为能量单位、J/kB 作为温度单位；程序令 J=kB=1，因此输入 0.92 表示 kB·T/J=0.92。下文和原始输出中的 T/J 是这一约定下的简写，不能直接标为 K。一次 Monte Carlo sweep 是抽样操作，不是飞秒、皮秒或真实自旋动力学时间。
+这是使用 Python 与 NumPy 运行的方格经典 XY 模型。以 J 作为能量单位、J/kB 作为温度单位；程序令 J=kB=1，因此输入 0.92 表示 kB·T/J=0.92。下文和原始输出中的 T/J 是这一约定下的简写，不能直接标为 K。一次 Monte Carlo sweep 是抽样操作，不是飞秒、皮秒或真实自旋动力学时间。
 
 [下载完整算例](/Atlas/examples/xy-bkt-files.tar.gz)后，可以查看全部随机种子、热化记录、抽样序列和末态构型。[mc.py](/Atlas/examples/xy-bkt/mc.py) 是完整计算输入，[analyse.py](/Atlas/examples/xy-bkt/analyse.py) 提取相位刚度与误差，[verify.py](/Atlas/examples/xy-bkt/verify.py) 核对保存数据，[plot.py](/Atlas/examples/xy-bkt/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/xy-bkt/atlas_plot_style.py)） 重新作图。
 
-## 把模型、边界和一次更新说清楚
+## 模型、周期边界和一次更新
 
 方格有 L×L 个格点，两个方向都周期连接。每个格点保存一个角 θ，哈密顿量为
 
@@ -24,7 +24,7 @@ H/J = −Σ cos(θ[i+1,j] − θ[i,j]) − Σ cos(θ[i,j+1] − θ[i,j])
 
 ## 先计时，再提交这一批短轨迹
 
-这次在 Talos 的独立普通目录运行，NumPy 版本为 2.4.6。两个工作进程分别做不同参数的轨迹，每个进程限定一个线程，不需要 Slurm，也没有安装额外软件。
+这次在 Talos 的独立普通目录运行，NumPy 版本为 2.4.6。两个工作进程分别做不同参数的轨迹，每个进程限定一个线程。
 
 ```console
 talos@talos-MS-7D54:~/xy-bkt$ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
@@ -173,14 +173,6 @@ python3 plot.py
 
 若要重新运行，把四份 Python 脚本复制到一个新的空目录，先做 `--benchmark`，再按 `--base → --extended → analyse.py → verify.py` 的顺序执行。`mc.py` 会拒绝覆盖已有 case 目录；这使原始抽样记录可以保留下来比较。已有包中的 `base/` 与 `extended/` 是结果，不要在原处重跑后覆盖。
 
-## 文献中的相关图件与表达方式
-
-本页二维 XY 模型通过相位刚度（helicity modulus）`Y(T)` 与普适线 `2T/π` 的交点来刻画准长程有序向无序涡旋态的转变。在更广泛的二维磁性与超导相变研究中，有限温度统计模拟与自洽方程求解也常采用类似的序参量–响应量双特征图件：对于存在磁各向异性从而打开自旋波能隙的二维铁磁体，通常在同一温度轴上绘制蒙特卡洛磁化强度 `M(T)` 的陡降与比热 `C_v(T)` 的临界峰；而对于二维超导体，则常展示各向异性超导能隙分布随温度升高向临界温度 `T_c` 闭合的完整轨迹。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_MonteCarlo_CurieTemp_LaH2_Fig2d.jpg" alt="二维铁磁体系有限温度蒙特卡洛模拟中的磁矩下降与比热峰值曲线" loading="lazy"/><figcaption>二维铁磁体系的有限温度蒙特卡洛相变表征：双纵轴同时给出序参量（磁矩）随温度的陡降以及比热容 <code>C<sub>v</sub>(T)</code> 在临界温度附近的发散峰（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="各向异性超导能隙随温度演化的分布图与费米面能隙投影" loading="lazy"/><figcaption>超导序参量的温度演化与临界闭合：以每个温度点的核密度小提琴图展示费米面上各向异性超导能隙 <code>Δ(T)</code> 的分布宽度，并内嵌低温费米面上的能隙大小色标投影（Duan 等，<em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>）。</figcaption></figure>
-
 下一步可对照[有限尺寸研究中的对数修正](https://arxiv.org/abs/cond-mat/0502556)，设计更大 L、更密温度点和更充分的抽样。本页完成的是无量纲二维模型的数值教案；若要谈真实二维材料，需要另外建立材料参数与有效模型之间的对应关系。
 
 ```text
@@ -192,3 +184,9 @@ H、J=kB=1、周期边界
   → 有限尺寸曲线与2T/π对照
   → 更大尺寸与标度检查后，才讨论热力学极限
 ```
+
+## AI 后处理提示词：分析已有 XY 轨迹
+
+> 读取保存的 base/、extended/ 轨迹参数与抽样序列，按 L、temperature_J、随机种子和初态分组。J=kB=1，温度按无量纲 kBT/J 解释；sweep 是抽样次数。按原 analyse.py 的公式计算能量、涡旋密度和 helicity modulus，保留逐链热化/样本长度、分块误差与两种子差异。汇总误差使用既有 display_error_J 定义，不能再除以样本数。用各 L 的 Y−2T/π 在相邻温度点的符号变化输出 crossing_brackets；本数据只给出0.92–1.00交叉温区，不拟合热力学极限温度。保存链级和温度级 CSV、诊断 JSON 及完整源码，报告缺失/非有限记录；只分析已有44条轨迹，不运行 Monte Carlo 或材料计算，不把无量纲温区改标为 K。
+
+[完整分析源码 analyse.py](/Atlas/examples/xy-bkt/analyse.py) · [保存数据核对源码 verify.py](/Atlas/examples/xy-bkt/verify.py) · [原抽样源码 mc.py](/Atlas/examples/xy-bkt/mc.py)。

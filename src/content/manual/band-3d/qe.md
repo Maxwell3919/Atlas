@@ -1,6 +1,6 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
-[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图直接读取 `band3d/cube.csv`，对应输入、输出和 XML 也在该子目录。包中不含可接续计算的 `tmp/si.save`；重新计算这批 k 点时，需要下文使用的同一份父 SCF 密度。
+[下载 Si 算例](/Atlas/examples/si-pbe-electronic-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图直接读取 `band3d/cube.csv`，对应输入、输出和 XML 也在该子目录。包中不含可接续计算的 `tmp/si.save`；重新计算这批 k 点时，需要下文使用的同一份父 SCF 密度。
 
 一条高对称路径只是在倒空间里走过几条线。要看 Si 导带谷为什么在不同方向有不同曲率，需要离开那条线。这次在 Γ–X 导带谷附近真正计算一个三维 k 点立方网格，再从中画两张能量曲面。它覆盖的是一个局部谷，不是整个第一布里渊区。
 
@@ -73,7 +73,7 @@ K_POINTS tpiba
 ```
 
 
-[完整 grid.in](/Atlas/examples/si-pbe/band3d/grid.in)包含所有坐标。点表的排列是 x 最慢、z 最快；绘图脚本仍按坐标筛选和重排，不假设屏幕上第几行恰好对应哪一个网格位置。`nbnd=8` 保留本例的四条价带和四条导带，后面只取第 5 条画最低导带。
+[完整 grid.in](/Atlas/examples/si-pbe-electronic/band3d/grid.in)包含所有坐标。点表的排列是 x 最慢、z 最快；绘图脚本仍按坐标筛选和重排，不假设屏幕上第几行恰好对应哪一个网格位置。`nbnd=8` 保留本例的四条价带和四条导带，后面只取第 5 条画最低导带。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat band3d/run.sh
@@ -115,7 +115,7 @@ Submitted batch job 786
 ```
 
 
-这次输出确实读入了 891 个 k 点和 8 条 Kohn–Sham 能带，结束前没有本征值未收敛提示。原生 WALL 时间约 2 分 46 秒，完整输出为[grid.out](/Atlas/examples/si-pbe/band3d/grid.out)。
+这次输出确实读入了 891 个 k 点和 8 条 Kohn–Sham 能带，结束前没有本征值未收敛提示。原生 WALL 时间约 2 分 46 秒，完整输出为[grid.out](/Atlas/examples/si-pbe-electronic/band3d/grid.out)。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ tail -n 12 band3d/grid.out
@@ -135,7 +135,7 @@ Submitted batch job 786
 ```
 
 
-能量从[同一次计算的 XML](/Atlas/examples/si-pbe/band3d/data-file-schema.xml)提取。XML 本征值的 Hartree 单位转成 eV，k 的 `tpiba` 坐标转成 Å⁻¹；两套 k 坐标一并放进 `cube.csv`，以后换坐标或做拟合时能追得回去。
+能量从[同一次计算的 XML](/Atlas/examples/si-pbe-electronic/band3d/data-file-schema.xml)提取。XML 本征值的 Hartree 单位转成 eV，k 的 `tpiba` 坐标转成 Å⁻¹；两套 k 坐标一并放进 `cube.csv`，以后换坐标或做拟合时能追得回去。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 7 band3d/cube.csv
@@ -152,20 +152,45 @@ kx_tpiba,ky_tpiba,kz_tpiba,kx_inv_A,ky_inv_A,kz_inv_A,band5_eV
 
 其中 `band5_eV` 是每个点的第 5 条能带。图中的零点采用这个立方网格内采样到的最小值，并不宣称它就是连续函数的精确谷底。x 的间隔只有 0.02，采样最低点落在 0.85 附近；[有效质量](/Atlas/m/effective-mass/qe/)中更细的线采样把谷底进一步定位到约 0.8443。
 
-将[完整三维数据表](/Atlas/examples/si-pbe/band3d/cube.csv)、[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）放回示例目录后运行：
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 导带谷局部网格后处理程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：band3d/cube.csv，含 kx/ky/kz_tpiba（2π/a）、kx/ky/kz_inv_A（Å⁻¹）、band5_eV。
+方法：按坐标恢复 11×9×9 网格，取 kz=0 的 E(kx,ky) 和 kx=0.85×2π/a 的 E(ky,kz)，两图能量均减整个立方网格内采样到的 band 5 最低值。
+检查：891 个唯一点、轴取值、坐标换算和切面矩阵顺序，保留全部采样。
+输出：源码、依赖、命令、摘要和 PNG/SVG/PDF；竖轴标 E−sampled minimum (meV)，注明局部 Γ–X 谷范围。
+```
+
+## 后处理源码与运行
+
+完整源码：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py) · [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 analyse_electronic.py
+python3 plot_si.py band3d
+```
+
+
+将[完整三维数据表](/Atlas/examples/si-pbe-electronic/band3d/cube.csv)、[绘图脚本](/Atlas/examples/si-pbe-electronic/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)）放回示例目录后运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py band3d
 <工作目录>/si-pbe/plots/band-3d.png
 ```
 
-![Si 局部三维 k 网格中的两张导带能量切面](/Atlas/examples/si-pbe/plots/band-3d.png)
+![Si 局部三维 k 网格中的两张导带能量切面](/Atlas/examples/si-pbe-electronic/plots/band-3d.png)
 
 左图在 `kz=0` 平面上画 `E(kx,ky)`，沿谷的纵向 x 弯得较缓，沿横向 y 弯得较陡。右图固定 `kx=0.85×2π/a`，画 `E(ky,kz)`；两个横向相似。这与同一组模型下约 `0.956 mₑ` 的纵向质量、约 `0.192 mₑ` 的横向质量相互对应：更平的能带有更大的曲率质量。
 
-两张图都是**从实际三维点阵取出的二维切面，能量作为竖轴**。竖轴不是第三个 k 坐标；整份三维采样在 `cube.csv` 中。改变绘图视角不会增加新的 k 点。若要画整个布里渊区的等能面，应先扩展完整采样区域，或者建立经过直接计算核对的插值，再指定等能值；不能把这个局部立方体当作全区费米面。
+两张图都是**实际三维点阵中的二维切面，竖轴表示能量**。`cube.csv` 保存整个局部网格。全区等能面需要覆盖完整采样区域，或采用经过直接能带核对的插值。
 
-这次使用的是固定晶胞、PBE、无 SOC 的非磁性 Si。图能展示该模型下这个导带谷的空间形状，不自动提供别的能带、别的谷或金属费米面的完整信息。
+这组固定晶胞、PBE、无 SOC 的非磁性 Si 数据展示了 Γ–X 导带谷的纵横向曲率。
 
 ## 文献中的三维能量曲面与底座等能线投影
 

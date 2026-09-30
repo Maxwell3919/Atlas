@@ -453,9 +453,15 @@ End final coordinates
 
 输出还保留了约 `3×10⁻⁶` 量级的 `negative rho` 行。本次没有额外扫描电荷密度截断，不能用 BFGS 停止条件代替这项数值检查。应力表中的压力则包含任意选定的真空体积；这是固定晶胞的表面优化，不以这一三维压力等于零作为吸附结构的验收条件。
 
-最终 H₂ 键长为 `0.75034816 Å`，吸附态顶面 H 到其正下方 Al 的垂直距离为 `1.60637699 Å`。下面的图直接读取最终 XML 坐标，显示沿 y 方向的投影；各面板分别使用自己的真实晶胞高度，球的大小只用来区分元素。
+最终吸附态和分子参考的关键几何量列于下表；原子坐标可从 [structures.json](/Atlas/examples/h-al111-adsorption/structures.json)复核。
 
-![优化后的三个结构](/Atlas/examples/h-al111-adsorption/plots/structures.svg)
+| 对象 | 模型与最终几何 |
+| --- | --- |
+| 吸附模型 | 3 个 Al 的周期 Al(111) 薄膜；上下两面各放置 1 个 H，组成对称的两 H 顶位构型 |
+| 分子参考 | 独立 H₂，初始分子盒边长 10 Å；最终 H–H 键长 0.75034816 Å |
+| 顶位几何 | 上表面 H 到其正下方 Al 的垂直距离为 1.60637699 Å |
+
+坐标数据见 [structures.json](/Atlas/examples/h-al111-adsorption/structures.json)；各协议的输入、输出摘要和哈希见 [energy-table.csv](/Atlas/examples/h-al111-adsorption/energy-table.csv)。
 
 取能量时三者都使用 QE 的 `! total energy`。它包含当前冷展宽下的 `F=E−TS` 数值约定；不能从某份输出改取 `internal energy`，再与另两份的 `F` 相减。本次 H₂ 的占据已接近整数，但仍使用同一项读取。按“每一个吸附 H”归一化：
 
@@ -463,7 +469,7 @@ End final coordinates
 Eads (eV/H) = [E(Al3H2) − E(Al3) − E(H2)] × 13.605693122994 / 2
 ```
 
-除以 2 是因为整个晶胞里吸附了两个 H，分居上下两面。这里不是再额外按两个表面除一次，也不是把 H₂ 总能当成一个 H 的参考能。把三份最终值代入：
+因晶胞内吸附了两个 H，能量差按两个 H 归一化，得到每个 H 的值；气相参考取一整个 H₂ 分子的总能。将三份最终值代入：
 
 ```text
 [(-17.3494214515) − (-15.0701501110) − (-2.3332211394)] Ry
@@ -506,38 +512,21 @@ Comparison completed for the named finite model; untested model dimensions remai
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
 
-| 协议 | Eads / eV·H⁻¹ | 相对基线变化 / meV·H⁻¹ |
-| --- | --- | --- |
-| baseline-k6 | 0.36701220 | +0.000000 |
-| k8 | 0.38008429 | +13.072091 |
-| vacuum20 | 0.36701288 | +0.000675 |
-| H2-box12 | 0.36701462 | +0.002419 |
+[独立表格复核脚本](/Atlas/examples/thermo-postprocessing/adsorption/review_al111_adsorption.py)读取同目录提供的 [energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/energy-table.csv)、[adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/adsorption-energy.csv)、[refined-energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-energy-table.csv)、[refined-adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-adsorption-energy.csv) 与 [refined-force-check.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-force-check.csv)，重算三能差并交叉核对原有协议汇总及力阈值标记。复核产物包括[协议对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.csv)、[力对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)。把这些文件放在同一目录后运行 <code>python3 review_al111_adsorption.py --outdir review</code>；脚本只使用 Python 标准库。
 
-这次采用 `10 meV/H` 作为已测参数差值的教学比较线。这两个有限尺寸对照是在 6 网格几何和协议下得到的；真空和 H₂ 盒长变化很小，但 **6→8 的 k 网格变化为 13.072 meV/H，仍高于比较线**。因此，这组结果可以把完整三能差路线走通，不能称为吸附能已经达到 10 meV/H 数值收敛。8×8×1 的点又是固定旧几何的静态检查，也不能直接冒称其自身网格下重新优化后的最低能量。
+| 参数变化 | Eads (eV/H) | 相对 k6 (meV/H) | 本例 10 meV/H 比较线 |
+| --- | ---: | ---: | --- |
+| 6×6×1 → 8×8×1 | 0.38008429 | +13.072091 | 超出 |
+| 晶胞高度 c 增加 5 Å | 0.36701288 | +0.000675 | 线内 |
+| H₂ 盒长 10 → 12 Å | 0.36701462 | +0.002419 | 线内 |
 
-力也必须一起看：把 6 网格优化坐标原样放进 8 网格后，洁净基底和吸附态的力都明显回升。下面的数值直接来自相应静态 OUT 和 XML：
+AI 辅助复核可使用以下提示；它要求输出表格并遵守能量定义，不生成图件。
 
-| 结构 | 6 网格优化末次最大 \|Fᵢ\| | 8 网格固定坐标最大 \|Fᵢ\|（Ry/Bohr） |
-| --- | --- | --- |
-| 洁净基底 | 0.00000523 | 0.01342680 |
-| 吸附态 | 0.00004639 | 0.00196471 |
-
-因此，几何停止条件通过这一结论只适用于 6 网格协议。到这一步，还没有得到经 k 网格与力一致性检验的吸附能。后面继续在更密的表面采样下重新优化洁净与吸附结构，再用新的配对静态结果检查；8 网格的静态能量本身不代表已经完成了新优化。
-
-```console
-[preston@preston-System-Product-Name h-al111-adsorption]$ python3 plot_adsorption.py
-plots/structures.png and plots/structures.svg
-plots/adsorption-checks.png and plots/adsorption-checks.svg
-[preston@preston-System-Product-Name h-al111-adsorption]$
+```
+仅依据 energy-table.csv、adsorption-energy.csv、refined-energy-table.csv、refined-adsorption-energy.csv、refined-force-check.csv 和表格复核报告，重算 Eads = [E(Al3H2) − E(Al3) − E(H2)] × 13.605693122994 / 2，单位 eV/H。列出 k6、k8、真空、H2 盒长四项的 Eads 和相对 k6 的变化；明确 6→8 网格变化超过本例 10 meV/H 比较线。另列表比较 k12-relaxed 与 k16-fixed 的 Eads、能量差及两结构 16 网格最大力，并与 2×10⁻⁴ Ry/Bohr 阈值比较。说明 k16 是沿用 k12 几何的固定几何静态计算，能量差线内不等于整体能量与力验收通过。正值在此定义下表示相对洁净薄膜加气相 H2 的电子能量升高。不得绘图，不要把数值称为所有位点的吸附能，也不要推断其它位点、覆盖度、薄膜厚度、解离势垒、零点能或温度贡献；任何 CSV 不一致需指出行与列。
 ```
 
-![吸附能与三项参数对照](/Atlas/examples/h-al111-adsorption/plots/adsorption-checks.svg)
-
-左图保持统一的气相参考定义，右图单独显示各项相对基线的变化。横轴上的真空数值指初始设置；原子优化后实际的跨周期 H 层间空隙略有改变。原始每项能量、最大力和输入输出 SHA 在 [energy-table.csv](/Atlas/examples/h-al111-adsorption/energy-table.csv)，三能差与参数变化在 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv)。
-
-要在本机重画，把 [plot_adsorption.py](/Atlas/examples/h-al111-adsorption/plot_adsorption.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/h-al111-adsorption/atlas_plot_style.py)）、[structures.json](/Atlas/examples/h-al111-adsorption/structures.json) 和 [adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/adsorption-energy.csv) 放到同一目录，运行 `python3 plot_adsorption.py`。需要 Python、NumPy 和 Matplotlib；程序同时生成两幅 PNG 与 SVG。重新从原始输入输出提取，则使用 [analyse_adsorption.py](/Atlas/examples/h-al111-adsorption/analyse_adsorption.py)，并保留对应目录里的 XML 与核验文件。
-
-能量差和力一起回看后，接下来把洁净与吸附表面同时改到 12×12×1，重新做内部优化。起点使用各自 6 网格优化的最终坐标，晶胞、赝势、截断、展宽和中层约束全部保留。实际输入差别可以直接用 diff 核对：
+进一步将洁净与吸附表面同时改到 12×12×1，重新做内部优化。起点使用各自 6 网格优化的最终坐标，晶胞、赝势、截断、展宽和中层约束全部保留。实际输入差别可以直接用 diff 核对：
 
 ```console
 [preston@preston-System-Product-Name h-al111-adsorption]$ diff -u adsorbed/relax.in ads-k12-relax/relax.in
@@ -653,27 +642,21 @@ Named energy and force comparisons: False
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
 
-这次 12 网格优化后的吸附能为 `+0.36515144 eV/H`，16 网格同几何静态值为 `+0.37050785 eV/H`，变化 `5.356413 meV/H`，已经低于所设的 10 meV/H 能量差线。可是洁净与吸附表面的 16 网格最大力仍分别为 `0.00252060`、`0.00166686 Ry/Bohr`，约为力停止阈值的 12.6 倍和 8.3 倍。相减得到的能量看似稳定，并没有让每个结构的受力也稳定。
+| 比较 | Eads k12 (eV/H) | Eads k16 (eV/H) | Δ (meV/H) | 洁净表面 Fmax k16 (Ry/Bohr) | 吸附表面 Fmax k16 (Ry/Bohr) | 2×10⁻⁴ 力线 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| k12-relaxed → k16-fixed | 0.36515144 | 0.37050785 | +5.356413 | 0.00252060 | 0.00166686 | 两者均超出 |
 
-```console
-[preston@preston-System-Product-Name h-al111-adsorption]$ python3 plot_refinement.py
-plots/k12-k16-refinement.png and plots/k12-k16-refinement.svg
-[preston@preston-System-Product-Name h-al111-adsorption]$
-```
+这轮能量与力的联合检查未通过：能量差位于本例 10 meV/H 比较线内，洁净与吸附表面的 16 网格最大力分别约为所设力阈值的 12.6 倍和 8.3 倍。
 
-![12到16网格的能量和力检查](/Atlas/examples/h-al111-adsorption/plots/k12-k16-refinement.svg)
+原始数值和 SHA 在 [refined-energy-table.csv](/Atlas/examples/h-al111-adsorption/refined-energy-table.csv)，配对三能差在 [refined-adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/refined-adsorption-energy.csv)，力对照在 [refined-force-check.csv](/Atlas/examples/h-al111-adsorption/refined-force-check.csv)。表格复核结果另见[汇总报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)与[逐结构力对照](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)；原始提取脚本为 [analyse_refinement.py](/Atlas/examples/h-al111-adsorption/analyse_refinement.py)。
 
-所以这一轮的结论是：**已测能量差比较通过，力一致性未通过，吸附能不能获得整体数值验收。** 这不是程序崩溃或输入对应错误；末轮电子收敛和同源几何都已核验，失败发生在把采样加密之后对同一结构的力检查上。当前两个正值可用于复算这条路线，不能作为已完成数值收敛的材料吸附能。
+## 文献方法与吸附能参考态
 
-新增原始数值和 SHA 在 [refined-energy-table.csv](/Atlas/examples/h-al111-adsorption/refined-energy-table.csv)，配对三能差在 [refined-adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/refined-adsorption-energy.csv)，力对照在 [refined-force-check.csv](/Atlas/examples/h-al111-adsorption/refined-force-check.csv)。重做这一段解析用 [analyse_refinement.py](/Atlas/examples/h-al111-adsorption/analyse_refinement.py)；重画图只需 [plot_refinement.py](/Atlas/examples/h-al111-adsorption/plot_refinement.py) 与后两份 CSV，并运行 `python3 plot_refinement.py`。它会同时写出 PNG 与 SVG。
+Kocabas 等人研究 electrene 材料上的 Li 储存，在 2×2×1 超胞中采用 25% Li 覆盖度比较吸附位点，并用 NEB 计算候选迁移路径。文中的吸附能定义基于吸附体系、洁净薄层和 Li 原子能量；Fig. 5 展示不同路径的势垒对比。该方法把位点筛选与扩散势垒作为需要分别计算的量。[Kocabas 等，J. Phys. Chem. Lett. 9, 4262 (2018)](https://doi.org/10.1021/acs.jpclett.8b01468)。
 
-## 文献中的相关图件与表达方式
+本页采用解离 H₂ 参考：洁净 Al(111) 薄膜、对称放置的两个吸附 H，以及独立 H₂。参考能与 Kocabas 等人的原子吸附定义不同；本例当前也只覆盖一个指定顶位构型。两者的吸附能数值不作横向比较，本例没有计算位点排序或 NEB 势垒。
 
-本页以 Al(111) 表面的顶位（atop）为例演示了吸附能三能差与采样一致性检查。在实际表面催化与储能研究中，通常需要同时比较多个高对称候选吸附位点（如 bcc 空位、fcc 空位、桥位与顶位）的弛豫几何与吸附能高低，并在确定的最低能量吸附位点之间构建表面扩散路径，通过爬坡微动弹性带（CI-NEB）计算给出迁移势垒曲线。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M8_NEB_DiffusionBarrier_Electrenes_Fig5.jpg" alt="二维材料表面多位点吸附构型、迁移路径与 NEB 扩散势垒曲线对比" loading="lazy"/><figcaption>二维材料表面的多位点吸附与扩散势垒表征：（a–b）高对称吸附位点（Site 1 空位、Site 2 空位、Site 3 顶位）与三条候选迁移路径的俯视结构；（c）沿不同路径的相对能量演化曲线；（d）多体系最低扩散势垒柱状对比（Kocabas 等，<em>J. Phys. Chem. Lett.</em> <strong>9</strong>, 4262 (2018)，<a href="https://doi.org/10.1021/acs.jpclett.8b01468" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpclett.8b01468</a>）。</figcaption></figure>
-
-继续计算的条件也因此明确：先在更密表面采样下获得力稳定的洁净与吸附几何，再用更严格的匹配采样同时复核能量差与自由原子力；不能只选一项数值较好看的结果作为通过。完成采样检查后，还需要比较薄膜层数、覆盖度和其它吸附位点；本例没有把这几项压缩成一个“可靠吸附能”的标签。参数对照可接 [收敛测试](/Atlas/m/convergence/qe/)；若要研究 H₂ 如何到达吸附态，需另外建立初态、终态和中间构型，进行 NEB 势垒计算。在加入振动零点能与温度项前，这里讨论的仍是上述非磁性 PBE 模型的电子能量差。
+继续计算时，可先在更密表面采样下优化洁净与吸附几何，再用匹配设置复核能量差和自由原子力；随后比较薄膜层数、覆盖度与其他吸附位点。若目标是 H₂ 到达吸附态的路径，应另建初态、终态与中间构型并计算 NEB 势垒。当前结果是非磁性 PBE 电子能量差；零点能和温度项需要独立计算。
 
 ```text
 同一表面晶胞 → 洁净基底优化 ─┐

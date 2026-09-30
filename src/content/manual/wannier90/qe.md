@@ -581,3 +581,9 @@ SCF电荷密度 → 均匀网格NSCF波函数 → nnkp需求 + pw2wannier90 → 
                                                        Wannier局域化 → 插值能带
 SCF副本 → 独立路径点DFT ────────────────────────────────────────────┘ 比较误差
 ```
+
+## AI 后处理提示词：核对接口、展布与插值误差
+
+> 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序。读取 k4/、k6/ 下的 si.win、si.wout、接口输出及直接 DFT 验证数据；核对 mp_grid、显式 k 点数/坐标/顺序、四个价带的 num_wann/num_bands 和接口正常结束状态。提取逐次 spread 与最终四个 Wannier 函数展布，单位保留 bohr²；以 direct-bands.csv 和相同 k 坐标上的 Wannier 插值值计算逐带误差及最大绝对误差，单位 eV，沿用原脚本的能量参考和带排序。输出检查 JSON 与逐点 CSV，标出缺文件或不匹配项，不以零填充。只解析已有结果，不运行 QE/Wannier90，也不将四价带 Si 模型外推到金属费米面。
+
+[已有完整核对源码 analyse_wannier.py](/Atlas/examples/si-wannier/analyse_wannier.py) · [完整准备源码 prepare_si_wannier.py](/Atlas/examples/si-wannier/prepare_si_wannier.py)。

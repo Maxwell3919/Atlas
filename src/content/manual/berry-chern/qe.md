@@ -1,186 +1,182 @@
-[Wannier90 的 nnkp/mmn 文件](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/postproc/) · [QE 的 Wannier 接口](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) · [Fukui–Hatsugai–Suzuki 原文](https://arxiv.org/abs/cond-mat/0503172)
+本页用 QE 7.5 导出的金刚石 Si 占据态重叠矩阵，计算固定分数坐标 k₃ 的周期二维切片陈数。先读取完整 4×4×4 与 6×6×6 网格，再构造沿倒格方向 b₁、b₂ 的 FHS 回路。十个实际采样切片均得到离散整数 C=0。
 
-先完成 [Si 的 Wannier 数据准备](/Atlas/m/wannier90/qe/)。那一步除了插值能带，还留下了 `silicon.mmn`：相邻 k 点之间，占据波函数的重叠矩阵。这里接着读取这份文件，沿倒空间的小闭合回路计算相位，再把一个周期切片上的相位加起来。
+准备这类文件的前置步骤见 [QE–Wannier90 接口](/Atlas/m/wannier90/qe/)。重叠矩阵格式见 [Wannier90 的后处理文件说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/postproc/)，接口参数见 [pw2wannier90.x 文档](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html)。
 
-本次使用 Maxwell 上实际运行的 4×4×4 和 6×6×6 网格，后处理在 Talos 完成。材料是金刚石 Si，QE 与 `pw2wannier90.x` 都为 7.5，赝势为 `Si.pbe-n-van.UPF`，平面波截断能为 40/320 Ry。两套 NSCF 都保留四条占据带，没有加入 SOC，也没有自旋极化。这里不重新计算 SCF，也不从四轨道模型的单位投影矩阵生成重叠。
+## 下载并运行占据态后处理
 
-可以下载[完整后处理示例](/Atlas/examples/berry-si-files.tar.gz)，其中包括两套原始重叠矩阵、邻接表、输入输出和 XML 摘录，另有 [分析脚本](/Atlas/examples/berry-si/analyse.py)、[独立核对脚本](/Atlas/examples/berry-si/verify.py) 与 [绘图脚本](/Atlas/examples/berry-si/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/berry-si/atlas_plot_style.py)）。公开输入输出只改写了机器上的绝对路径；mmn、nnkp、win 和 eig 保留原始字节，哈希在包内列出。
+[下载完整示例包](/Atlas/examples/topo_berry_si_files.tar.gz)。包中含两套 QE 输入、输出和 XML，原生 Wannier90 文件，完整源码、结果表及运行日志。下载后在终端解压，先检查保存文件，再运行：
 
-## 先看重叠文件，而不是先找一个 Chern 数字
+~~~console
+tar -xzf topo_berry_si_files.tar.gz
+cd topo_berry_si
+sha256sum --check SHA256SUMS
+python3 -B analyse.py > analyse.out 2> analyse.err
+python3 -B verify.py > verify.out 2> verify.err
+cat verify.out
+~~~
 
-这次先在独立目录核对两套输入：
+依赖是 Python 3 与 NumPy；保存结果使用 Python 3.12.3、NumPy 2.4.6，版本写在 <code>requirements.txt</code> 中。<code>analyse.py</code> 生成 <code>results/</code> 下的表和摘要，随后 <code>verify.py</code> 读取这些结果做独立回路核对。程序用 <code>assert</code> 检查输入及数值条件，运行时须保留断言，不能加 <code>-O</code> 或 <code>-OO</code>。输入不满足条件时程序终止，具体断言位置见 stderr；应先检查该位置对应的文件和条件。
 
-```console
-talos@talos-MS-7D54:~/berry-si$ ls source/k4/silicon.mmn source/k6/silicon.mmn
-source/k4/silicon.mmn  source/k6/silicon.mmn
-talos@talos-MS-7D54:~/berry-si$ head -19 source/k4/silicon.mmn
- Created on 22Sep2026 at 22:45:14                            
-           4          64           8
-         1         2         0         0         0
-   -0.492079364532   -0.864070322919
-   -0.024177177982    0.008600504483
-   -0.006954094848    0.003688934480
-   -0.001458974393   -0.021727581454
-   -0.060856117366    0.048384679989
-   -0.262666119688   -0.485599056620
-   -0.101388769672   -0.135677036682
-    0.457089147976   -0.102725998209
-   -0.000000202901   -0.000001069679
-    0.115052856308    0.541838603776
-   -0.334765187801   -0.314273374432
-    0.498220387446    0.106823013203
-    0.000000704714   -0.000000049065
-    0.069682647808   -0.192779368150
-   -0.448005764193   -0.570464905859
-   -0.450781211753   -0.077055319059
-```
+保存的独立核对输出为：
 
-第二行表示四条带、64 个 k 点、每个 k 点八个邻居。第三行开始第一个矩阵块：第 1 个 k 点指向第 2 个 k 点，末尾三个整数是周期平移 G，这一条恰好为零。随后是 16 行复数，依次给出一个 4×4 矩阵；每行两个数分别为实部和虚部，第一指标 m 变化最快。因此读取时使用 `reshape((4, 4), order="F")`。
-
-不要把八个邻居都当成同一个方向。这组 fcc 原胞的邻接表包括 ±e₁、±e₂、±e₃ 和 ±(e₁+e₂+e₃)。本页固定第三个倒格坐标，只取 +e₁ 与 +e₂ 两个方向。脚本逐条检查
-
-```text
-Δk = k[j] + G - k[i]
-```
-
-是否分别等于 (1/N,0,0) 或 (0,1/N,0)。4³ 网格选出 128 条有向链接，其中 32 条跨越周期边界；6³ 网格选出 432 条，其中 72 条跨越边界。越过边界后，G 不能丢掉，否则 k≈1 到 k=0 的链接会被误认成长距离反向跳跃。
-
-`silicon.nnkp` 与 mmn 的每一个五整数块头也要一致。仅有矩阵数目正确不够：索引相同、周期 G 不同，就是另一条链接。脚本还用 nnkp 的实空间与倒空间基矢检查 aᵢ·bⱼ≈2πδᵢⱼ，避免把不同原胞的邻接表混进来。
-
-占据子空间同样要查。两套 `nscf.data-file-schema.xml` 都给出八个电子、四条带，每个 k 点的四个占据数均为 1，`lsda`、`noncolin`、`spinorbit` 均为 false。非磁、无 SOC 的四条空间轨道对应两个等价的自旋通道；下面对其中一个等价通道计算 C，不把八个电子错误地当成八条独立波函数。XML 中的占据数约定也不能直接拿来当自旋分辨的实验电子数。
-
-这份 mmn 是原 USPP 计算经 QE 接口生成的重叠数据，保留接口对该赝势的处理；本页没有另外用伪波函数系数的普通点积替代它。SCF、NSCF 和接口的 OUT 均保留在下载包中，三步各自正常结束，错误文件为空。这些记录证明这批文件的来源与执行状态，不能单靠它们宣布整个布里渊区有绝缘能隙。
-
-## 从四条带的矩阵得到一条链接
-
-同一个占据子空间可以选不同基底，单个矩阵元素因此会改变。本页按照 FHS 的多带形式，先取整个 4×4 占据重叠矩阵的行列式，再除去模长：
-
-```python
-determinant = np.linalg.det(matrix)
-link = determinant / abs(determinant)
-```
-
-这一步得到单位模的复数 U₁(k) 或 U₂(k)。如果行列式接近零，直接归一化会放大噪声，所以脚本先检查每条链接的奇异值，再进行相位运算。这里没有将四条价带分别当作互不简并的单带处理。
-
-沿一个小四边形按 +e₁、+e₂、−e₁、−e₂ 绕一圈，取主值相位：
-
-```python
-phase = np.angle(
-    U1[k] * U2[k_plus_e1]
-    * np.conj(U1[k_plus_e2]) * np.conj(U2[k])
-)
-```
-
-本文使用这一定向和 FHS 原文的相位约定。固定 k₃ 后，所有 N×N 小格子的 `phase` 相加，再除以 2π，得到该周期二维切片的离散 Chern 和。改变绕行方向会改变符号；这里的零结果不能免除方向检查。
-
-在 Talos 的普通 Python 环境中运行即可，本次 NumPy 为 2.4.6，没有安装新软件，也不需要 MPI 或 Slurm：
-
-```console
-talos@talos-MS-7D54:~/berry-si$ export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
-talos@talos-MS-7D54:~/berry-si$ python3 -B analyse.py > analyse.out 2> analyse.err; echo "exit=$?"
-exit=0
-talos@talos-MS-7D54:~/berry-si$ cat analyse.out
-GRID 4x4x4: 64 k points, 4 occupied bands, 128 directed links
-  singular values: min=0.666896722552 max=0.998430651070; min|det M|=0.576844510352
-  reverse overlap residual=1.000e-12; max plaquette phase=9.874075e-06 rad
-  12 random U(4) gauges: max phase difference=1.332e-15 rad
-  k3=0.000000000: C=+1.574251189688e-17, integer=0, max|phase|=9.630715e-06
-  k3=0.250000000: C=-6.222967392051e-17, integer=0, max|phase|=9.874075e-06
-  k3=0.500000000: C=+5.227911654458e-18, integer=0, max|phase|=9.729170e-06
-  k3=0.750000000: C=-3.775905701703e-17, integer=0, max|phase|=8.864300e-06
-GRID 6x6x6: 216 k points, 4 occupied bands, 432 directed links
-  singular values: min=0.732745165478 max=0.999355558794; min|det M|=0.670831043483
-  reverse overlap residual=1.000e-12; max plaquette phase=8.863247e-06 rad
-  12 random U(4) gauges: max phase difference=1.332e-15 rad
-  k3=0.000000000: C=-1.698033254699e-17, integer=0, max|phase|=3.947378e-06
-  k3=0.166666667: C=-1.554629669799e-17, integer=0, max|phase|=8.863247e-06
-  k3=0.333333333: C=-2.903216529575e-17, integer=0, max|phase|=6.946146e-06
-  k3=0.500000000: C=-1.026092924293e-16, integer=0, max|phase|=8.344797e-06
-  k3=0.666666667: C=+7.990651649978e-17, integer=0, max|phase|=5.314122e-06
-  k3=0.833333333: C=+2.368818267856e-17, integer=0, max|phase|=6.676991e-06
-POSTPROCESS_CHECKS_PASSED; full-zone gap and material topological classification not established.
-talos@talos-MS-7D54:~/berry-si$ cat analyse.err
-```
-
-最小奇异值分别约为 0.667 与 0.733，选中的链接没有接近奇异。正向矩阵与反向矩阵的共轭转置最大差约 10⁻¹²，与 mmn 打印精度相当。最大相位只有约 10⁻⁵ rad，远离 ±π 的主值分支边界；这说明这两组离散数据没有遇到这一类相位跳变，不能据此补出尚未计算的导带或全区能隙。
-
-`C` 列保留未取整的浮点和。`integer` 只是在先检查离最近整数小于 10⁻¹⁰ 后用于显示；它没有修改原始相位。4³ 的四个切片、6³ 的六个切片都得到数值零。离散 FHS 和本来就有整数结构，因此“接近整数”是一项算法检查，单独不能作为网格收敛证据。两种网格结果一致，是这次有限对照的结果。
-
-## 换一套占据基底，结果会不会改变
-
-脚本在每个 k 点独立生成一个随机 U(4) 矩阵 G(k)，将重叠变为
-
-```text
-M'(k,k+b) = G(k)† M(k,k+b) G(k+b)
-```
-
-这只是同一个四维占据子空间的基底变换，不是重新做 DFT。每种网格各检查十二组随机规范，同时检查 G†G=I；全部小格子的相位变化不超过 1.33×10⁻¹⁵ rad。跨周期边界的链接也参与检查，不能只测切片内部。
-
-另一个脚本直接从原 mmn 的矩阵做 SVD 极分解，把四条酉矩阵按回路顺序相乘，再求整个回路的行列式相位。它没有复用主脚本的标量链接计算：
-
-```console
-talos@talos-MS-7D54:~/berry-si$ python3 -B verify.py > verify.out 2> verify.err; echo "exit=$?"
-exit=0
-talos@talos-MS-7D54:~/berry-si$ cat verify.out
+~~~text
 k4: independent SVD polar-matrix loop phase difference = 1.681e-15 rad
 k6: independent SVD polar-matrix loop phase difference = 1.587e-15 rad
 Synthetic periodic link field: C = 1.000000000000 (expected +1; algebra check only)
 INDEPENDENT_CHECKS_PASSED
-```
+~~~
 
-两种方法的相位一致到约 10⁻¹⁵ rad。第三行是单独构造的周期链接场，已知总相位为 2π，用于检查脚本确实能返回非零整数以及周期包裹的方向。它只是代数检验，不属于 Si 数据，也不会画进材料结果图。原始三十个源文件的哈希在分析前后核对一致。
+合成周期链接场的 C=+1 用来检查绕行方向与周期索引；Si 的结果来自下面的真实重叠矩阵。
 
-## 把小回路相位放回倒空间
+## 结构、网格和脚本输入
 
-![Si 两种网格的切片相位与离散 Chern 和](/Atlas/examples/berry-si/figures/berry-slices.png)
+| 参数 | 本例采用值 |
+| --- | --- |
+| 结构 | 金刚石 Si；<code>ibrav=2</code>，<code>celldm(1)=10.2</code> bohr，固定离子 |
+| 赝势名 | <code>Si.pbe-n-van.UPF</code> |
+| 截断能 | <code>ecutwfc=40</code> Ry，<code>ecutrho=320</code> Ry |
+| SCF | 10×10×10 网格，<code>conv_thr=1d-12</code> Ry |
+| NSCF | 完整均匀 4×4×4 或 6×6×6 网格；<code>nbnd=4</code>，固定占据 |
+| 对称性处理 | <code>nosym=.true.</code>，<code>noinv=.true.</code>，保留完整网格 |
+| 自旋 | 非磁、标量、无 SOC；XML 中 <code>lsda</code>、<code>noncolin</code>、<code>spinorbit</code> 均为 false |
 
-前两幅图画 k₃=0 切片，色标是每个小格子的回路相位，单位为微弧度。这里的横纵坐标是沿 b₁、b₂ 的分数坐标；fcc 的这两条倒格基矢并不正交，所以图上的方格表示坐标网格，不是笛卡尔倒空间中的正方形。
+XML 记录八个电子和四条占据空间带；每条空间带包含两个等价自旋通道。脚本对四维空间带子空间计算一次行列式链接。保存文件只有这四条占据带，没有导带，因而本例没有独立确定全布里渊区绝缘隙。这里得到的是已采样周期切片的离散陈数。
 
-一个实际小格子的面积为 |b₁×b₂|/N²，本例 4³ 与 6³ 分别约为 0.23954227 和 0.10646323 Å⁻²。CSV 另外保留 `phase_per_area_A2`，即回路相位除以该面积，单位 Å²，可看作该有限小格子沿 b₁×b₂ 方向的面积平均量。它采用上面的定向相位约定，不应直接标成笛卡尔 Ωz。C 的求和使用原始无量纲相位，不再额外乘面积。
+两套输入分别放在 <code>source/k4/</code> 和 <code>source/k6/</code>。当前脚本固定处理 N=4、6 和四条占据空间带，使用下列文件：
 
-右图保留所有切片的原始和，约 10⁻¹⁶ 的纵轴尺度显示的是数值残差。相位图的局部小值也没有被改成严格零；仅凭两个粗网格，不能把这些约 10⁻⁵ rad 的结构解释为已收敛的局部 Berry 曲率。
+| 实际读取的文件 | 读取内容 |
+| --- | --- |
+| <code>silicon.win</code> | <code>kpoints</code> 块中的分数坐标与点序 |
+| <code>silicon.nnkp</code> | k 点、邻接块、整数倒格平移 G、实格及倒格基矢；与 .win 点序核对 |
+| <code>silicon.mmn</code> | 带数、k 点数、每点邻居数及完整复重叠矩阵；块头与 .nnkp 核对 |
+| <code>nscf.data-file-schema.xml</code> | 带数、k 点数、电子数、占据和自旋设置 |
+| <code>si.scf.out/err</code>、<code>si.nscf.out/err</code>、<code>pw2wan.out/err</code> | 每个输出须有一次 <code>JOB DONE.</code>、无列出的失败告警，stderr 为空 |
 
-![占据重叠的最小奇异值与随机规范检查](/Atlas/examples/berry-si/figures/berry-checks.png)
+包中还保存了 SCF XML、QE 输入、接口输入 <code>silicon.pw2wan</code> 和原生 <code>silicon.eig</code>。它们用于查看计算设置及能级；当前分析器不读取 .eig，也不依赖 AMN、HR 或 Wannier 插值模型。输入、日志和 XML 中的机器路径已改为通用路径，原生矩阵字节及数值数据保持原样。复算这里的后处理无需赝势或波函数目录。
 
-左图显示每条已选链接的最小奇异值，右图显示十二次随机基底变换引起的最大相位变化。两图分别回答“链接是否接近不可逆”和“结果是否依赖任意基底选择”，不能代替导带能量的检查。
+SCF 日志显示 10 次迭代后自洽，最终估计误差为 3.1×10⁻¹⁴ Ry；两套 NSCF 和接口程序均正常结束。
 
-重新出图时，将完整压缩包解压，进入 `berry-si`，在已有 NumPy、Matplotlib 的环境中运行：
+## 读取矩阵与周期链接
 
-```bash
-python3 plot.py
-```
+查看 4³ 网格的矩阵文件开头：
 
-脚本只读取 `results/` 中的 CSV，不访问远端机器，生成 `figures/berry-slices.png`、`berry-checks.png` 和对应 PDF。切片相位来自 [k4](/Atlas/examples/berry-si/results/k4-plaquettes.csv)、[k6](/Atlas/examples/berry-si/results/k6-plaquettes.csv)，切片总和在 [slices.csv](/Atlas/examples/berry-si/results/slices.csv)，完整检查数值在 [summary.json](/Atlas/examples/berry-si/results/summary.json) 与 [independent-check.json](/Atlas/examples/berry-si/results/independent-check.json)。
+~~~console
+head -n 7 source/k4/silicon.mmn
+~~~
 
-这次可以确认：在两套真实 QE 占据波函数重叠数据上，固定第三个倒格坐标的十个周期切片都给出离散 C=0，链接与规范检查通过。这里没有 SOC，四条带的文件也没有包含导带，因此没有独立证明全布里渊区的绝缘能隙；这条路线不提供 Z₂、边缘态或三维材料的完整拓扑分类。
+~~~text
+ Created on22Sep2026 at22:45:14
+4 64 8
+1 2 0 0 0
+-.492079364532 -.864070322919
+-.024177177982 .008600504483
+-.006954094848 .003688934480
+-.001458974393 -.021727581454
+~~~
 
-下一步先沿 [Wannier 父链](/Atlas/m/wannier90/qe/) 核对物理模型与需要保留的能带。如果要把离散切片结果用于材料结论，需要用同一协议检查占据态与未占据态在整个布里渊区的分离，并继续检查采样与基组；不能把本页的四带数据直接补称含 SOC 的拓扑结果。
+第二行表示 4 条带、64 个 k 点、每点 8 个邻居。下一行 <code>1 2 0 0 0</code> 是源点、目标点和三个 G 分量；此后共有 16 行复元素。Wannier90 写矩阵时第一带索引变化最快，因此源码用 <code>reshape((4,4), order="F")</code> 重排。6³ 文件的头部对应 <code>4 216 8</code>。
 
-## 文献中的相关图件与表达方式
+方向由坐标与 G 确定：
 
-在时间反演破缺的磁性二维材料与量子反常霍尔效应（QAHE）研究中，文献常将二维倒空间上的 Berry 曲率 `Ω_z(k)` 分布与反常霍尔电导率平台、手性边缘态（Chiral Edge States）结合展示：
+~~~python
+delta = N * (k[j] + G - k[i])
+~~~
 
-### 1. 二维六角布里渊区内的 Berry 曲率分布图
+当 <code>delta</code> 是 (1,0,0) 或 (0,1,0)，分别选作 +e₁、+e₂ 链接。跨边界时目标点折回第一周期，G 恢复它的真实邻接位置。4³ 网格选出 128 条有向链接，其中 32 条跨界；6³ 网格为 432 条，其中 72 条跨界。相邻点编号本身不表示方向。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_BerryCurvature_2DMap_LaH2_Fig5b.jpg" alt="二维六角第一布里渊区内的 Berry 曲率 Ω_z(k) 热力图及 Γ, K, K', M 高对称点标注" loading="lazy"/><figcaption>在二维倒空间平面内绘制的 Berry 曲率 <code>Ω_z(k)</code> 分布，叠加六角第一布里渊区边界与高对称点（<code>Γ, K, K', M</code>），标出由自旋轨道耦合（SOC）打开能隙处贡献的 Berry 曲率极值。图片来源：Shi et al., <em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022), Fig. 5(b)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>。</figcaption></figure>
+倒格基矢来自 .nnkp。程序核对 aᵢ·bⱼ=2πδᵢⱼ，实际最大残差为 2.15×10⁻⁷，并由 b₁、b₂ 求小格面积。
 
-- **读图与作图要点**：将 `Ω_z(k)` 绘制在二维 `(k_x, k_y)` 平面上，并叠加六角第一布里渊区边框与 `Γ, K, K', M` 高对称点标记，能够直观定位 SOC 打开避免交叉能隙处集中的 Berry 曲率峰，以及不同能谷之间的符号与对称关系。
+## FHS 回路与单位
 
-### 2. 量子反常霍尔电导率平台与手性边缘态谱函数对照
+对占据态重叠矩阵 M，先将其行列式归一化为单位模链接；然后按 +e₁、+e₂、−e₁、−e₂ 绕行。以下代码表达了实际采用的相位和切片求和约定：
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_QAHE_ChiralEdge_TbCl_Fig4cd.jpg" alt="能隙内整数量化的反常霍尔电导率平台与半无限边界 Green 函数计算的手性边缘态谱函数" loading="lazy"/><figcaption>量子反常霍尔绝缘体的体边对应表征：将能隙内整数量化的反常霍尔电导率平台（<code>σ_xy = C e²/h</code>）与半无限边界 Green 函数计算的能量–动量手性边缘态谱函数对照展示。图片来源：<em>npj Comput. Mater.</em> <strong>11</strong>, 132 (2025), Fig. 4b，<a href="https://doi.org/10.1038/s41524-025-01732-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-025-01732-0</a>。</figcaption></figure>
+~~~python
+U1 = det(M1) / abs(det(M1))
+U2 = det(M2) / abs(det(M2))
+phi = angle(U1(k) * U2(k+e1) * conj(U1(k+e2)) * conj(U2(k)))
+C_raw = sum(phi_on_fixed_k3_slice) / (2*pi)
+~~~
 
-- **读图与作图要点**：把体态 Berry 曲率积分得到的整数量化霍尔电导率平台 `σ_xy = C e²/h` 与连接价带和导带的非平庸手性边缘态谱函数并列展示，可以从体拓扑不变量与边界态数目两个角度相互印证非平庸陈绝缘体特征。
+这里的函数记号说明各链接所在的 k 点，完整索引实现见 <code>analyse.py</code>。<code>angle</code> 取弧度主值。绕行方向决定陈数符号；对每个固定 k₃ 的周期面，将 N×N 个小格相位相加。占据态在每个 k 点作任意 U(4) 换基时，闭合回路相位保持不变。这是 [Fukui–Hatsugai–Suzuki 离散陈数方法](https://doi.org/10.1143/JPSJ.74.1674) 在多占据带子空间中的行列式链接形式。
 
-```text
-同一结构 SCF → 全网格 NSCF → pw2wannier90 原始 mmn + nnkp
-                                   ↓
-                         占据数 / 周期 G / 链接检查
-                                   ↓
-                     四占据带 det 链接 → 小回路相位
-                                   ↓
-                     固定 k3 的周期切片 Chern 和
-                                   ↓
-                 网格对照 / 随机规范 / 独立回路核对
-```
+| 输出字段 | 单位及位置 |
+| --- | --- |
+| <code>phase_rad</code> | 弧度；逐 plaquette CSV |
+| <code>phase_per_area_A2</code> | Å²；相位除以真实倒空间小格面积，逐 plaquette CSV |
+| <code>plaquette_area_invA2</code> | Å⁻²；保存在 slices.csv 和 summary.json 的切片条目 |
+| <code>chern_raw</code>、<code>chern_integer</code> | 无量纲；逐切片表 |
+| 奇异值、行列式模长 | 无量纲；逐链接 CSV 和摘要 |
 
+<code>phase_per_area_A2</code> 是有限小格的面积平均量。解释连续 Berry 曲率分布还需检查局部量随网格加密的变化；两个网格得到相同整数本身不证明局部曲率收敛。
+
+## 十个实际采样切片
+
+| 网格 | 分数坐标 k₃ | 小格数 | C_raw | 最近整数 | 最大相位绝对值 / rad |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4×4×4 | 0.0000 | 16 | +1.5743e-17 | 0 | 9.6307e-06 |
+| 4×4×4 | 0.2500 | 16 | -6.2230e-17 | 0 | 9.8741e-06 |
+| 4×4×4 | 0.5000 | 16 | +5.2279e-18 | 0 | 9.7292e-06 |
+| 4×4×4 | 0.7500 | 16 | -3.7759e-17 | 0 | 8.8643e-06 |
+| 6×6×6 | 0.0000 | 36 | -1.6980e-17 | 0 | 3.9474e-06 |
+| 6×6×6 | 0.1667 | 36 | -1.5546e-17 | 0 | 8.8632e-06 |
+| 6×6×6 | 0.3333 | 36 | -2.9032e-17 | 0 | 6.9461e-06 |
+| 6×6×6 | 0.5000 | 36 | -1.0261e-16 | 0 | 8.3448e-06 |
+| 6×6×6 | 0.6667 | 36 | +7.9907e-17 | 0 | 5.3141e-06 |
+| 6×6×6 | 0.8333 | 36 | +2.3688e-17 | 0 | 6.6770e-06 |
+
+最小奇异值用于判断相邻占据子空间的重叠是否接近奇异；行列式过小时不能直接归一化。正反向重叠残差检查 M(j,i,−G)=M(i,j,G)†。本例的检查结果如下：
+
+| 检查 | 4³ | 6³ | 源码采用条件 |
+| --- | ---: | ---: | --- |
+| 最小奇异值 | 0.666897 | 0.732745 | 大于 1e-8 |
+| 最大奇异值 | 0.998431 | 0.999356 | 小于 1.001 |
+| 最小行列式模长 | 0.576845 | 0.670831 | 大于 1e-12 |
+| 正反向重叠最大残差 | 1.00e-12 | 1.00e-12 | 小于 1e-9 |
+| 最大随机换基相位差 / rad | 1.33e-15 | 1.33e-15 | 小于 1e-12 |
+| 独立极分解回路相位差 / rad | 1.68e-15 | 1.59e-15 | 小于 1e-12 |
+| 最大切片和绝对值 | 6.22e-17 | 1.03e-16 | 到最近整数的距离小于 1e-10 |
+
+源码还检查倒格对偶残差小于 1e-6、链接单位模残差小于 1e-14，以及随机换基的幺正误差和陈数变化小于 1e-12。每套网格做 12 次随机 U(4) 换基，随机种子写在 <code>kN-gauge-check.csv</code>。最大真实小格相位为 9.87×10⁻⁶ rad，远离主值分支端点 ±π。
+
+<code>verify.py</code> 重新解析 MMN，并对各重叠矩阵作 SVD 极分解，取幺正部分构造矩阵回路，再比较其行列式相位。它读取主分析输出的方向链接表，因此独立核对的是回路计算，周期链接识别仍由主分析器完成。
+
+## 源码与结果
+
+| 文件 | 下载及用途 |
+| --- | --- |
+| 主分析器 | [analyse.py](/Atlas/examples/topo_berry_si/analyse.py) |
+| 极分解回路与合成场核对 | [verify.py](/Atlas/examples/topo_berry_si/verify.py) |
+| 十个切片的原始和、整数及小格面积 | [slices.csv](/Atlas/examples/topo_berry_si/slices.csv) |
+| 逐小格相位 | [4³ CSV](/Atlas/examples/topo_berry_si/k4-plaquettes.csv) · [6³ CSV](/Atlas/examples/topo_berry_si/k6-plaquettes.csv) |
+| 数值条件与逐切片摘要 | [summary.json](/Atlas/examples/topo_berry_si/summary.json) |
+| 独立核对结果 | [independent-check.json](/Atlas/examples/topo_berry_si/independent-check.json) |
+
+完整包还包含逐链接表、随机规范检查表、30 份输入文件的 <code>source-sha256.json</code> 和运行日志。<code>SHA256SUMS</code> 校验下载包内保存的文件；重新执行后处理会重写结果及日志，摘要中的运行时间也会变化，应在重跑前检查保存文件。
+
+## 编写同类后处理的提示词
+
+以下是独立的代码生成任务说明。它描述本例当前输入和输出约定，适用于编写可对照现有脚本的程序；更换网格、占据子空间或自旋设置时，需要相应修改并核对输入条件。
+
+~~~text
+编写 Python 3 / NumPy 程序，重现本包中 QE 7.5 Si 占据态重叠矩阵的 FHS 后处理。
+
+输入固定为 source/k4/ 与 source/k6/，N=4、6，各有四条占据空间带、八个电子，非磁标量无 SOC。
+读取 silicon.win 的 kpoints 块与点序；从 silicon.nnkp 读取点、邻接头、整数 G、实/倒格基矢并核对；从 silicon.mmn 读全部 4×4 复矩阵，第一带索引变化最快，以列优先顺序重排。
+读取 nscf.data-file-schema.xml 核对 nbnd、nks、nelec、占据及自旋设置；检查 si.scf、si.nscf、pw2wan 的 .out/.err：一次 JOB DONE.、无源码所列失败告警且 stderr 为空。silicon.eig 不参与本程序计算。
+
+由 N*(k[j]+G-k[i]) 选择 +e1/+e2，保留跨界 G，检查完整周期链接和正反向共轭关系。
+使用 det(M)/abs(det(M))，按 +e1,+e2,-e1,-e2 的顺序取主值回路相位。固定分数 k3，C_raw=sum(phi)/(2*pi)；核对到最近整数的距离后报告整数。
+检查奇异值、行列式模长、倒格对偶、单位模和规范不变性，阈值与 analyse.py 一致。采用其中记录的 12 个随机种子，输出每次 U(4) 换基残差。输入或数值条件失败时终止，不继续输出有效陈数。
+
+输出 results/kN-links.csv、kN-gauge-check.csv、kN-plaquettes.csv、slices.csv、summary.json、source-sha256.json。逐小格表含索引、分数坐标、phase_rad 和 phase_per_area_A2；面积字段 plaquette_area_invA2 放在切片表和摘要。阈值见源码，随机种子放在 gauge CSV，输入文件哈希单独存 JSON。
+另写 verify.py：读取上述结果及原生 MMN，用 SVD 极分解矩阵回路比较相位；核对输入哈希，并构造已知 C=+1 的周期合成链接场检查方向。输出 independent-check.json。
+提供完整源码、依赖和终端命令；只处理已保存数据，逐切片表直接呈现结果。
+~~~
+
+## 从切片整数到材料解释
+
+LaH₂ 的研究用 Fukui 方法计算二维六角布里渊区的 Berry 曲率，Fig. 4(a) 显示带符号 Ωz 分布，随后结合谷附近的曲率讨论反常谷霍尔响应。这说明局部几何量如何参与物理响应的分析。[Shi et al., J. Phys.: Condens. Matter 34, 475303 (2022)](https://doi.org/10.1088/1361-648X/ac96bb)。
+
+TbCl 的研究在 Fig. 2(b) 比较 k_z=0、π 平面的 Wannier 电荷中心流，并在 Fig. 4 将含 SOC 能隙、反常霍尔电导及手性边缘谱联系起来。平面不变量、能隙和边界响应各回答材料解释中的一个问题。[Zhong et al., npj Comput. Mater. 11, 236 (2025)](https://doi.org/10.1038/s41524-025-01732-0)。
+
+Si 示例把计算链的起点具体化：读取原生占据态重叠，识别周期链接，检验规范不变性，再列出实际切片整数。进一步研究材料时，应按目标物理量补齐能带与相应的响应计算。

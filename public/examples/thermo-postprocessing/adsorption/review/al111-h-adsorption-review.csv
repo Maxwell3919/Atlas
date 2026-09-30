@@ -1,0 +1,5 @@
+protocol,clean_case,adsorbed_case,gas_case,clean_stage,adsorbed_stage,gas_stage,adsorption_eV_H,delta_from_baseline_meV_H
+baseline-k6,clean-slab,adsorbed,h2-10A,relax,relax,relax,0.367012203736,0.000000000
+k8,clean-k8,ads-k8,h2-10A,scf,scf,relax,0.380084294959,13.072091224
+vacuum20,clean-vac20,ads-vac20,h2-10A,scf,scf,relax,0.367012879152,0.000675417
+H2-box12,clean-slab,adsorbed,h2-12A,relax,relax,scf,0.367014622458,0.002418722

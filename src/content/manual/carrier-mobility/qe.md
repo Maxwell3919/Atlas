@@ -1,10 +1,10 @@
 [QE：pw.x 输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE：电势后处理 pp.x](https://www.quantum-espresso.org/Doc/INPUT_PP.html) · [二维形变势模型与拟合方法](https://www.nature.com/articles/ncomms5475) · [MoS₂ 完整声子散射的原始研究](https://arxiv.org/abs/1201.5284)
 
-有效质量轻，并不能单独说明迁移率高。电子受到的散射同样影响输运。这一页从一个明确的简化模型出发，把实际应变能量、带边移动和带边曲率连成一条计算路线：先求纵向弹性系数 C₂D，再求真空对齐的导带形变势 E₁，最后检查 K 谷附近的有效质量，计算 300 K 的纵向声学形变势模型值。
+单层 MoS₂ 的声学形变势迁移率可以从三组 DFT 数据连接起来：应变总能量给出纵向弹性系数 C₂D，真空对齐的导带移动给出形变势 E₁，K 谷局部色散给出有效质量。本例在 300 K 得到 μx=200.386 cm²/(V·s)，并用应变区间、电子网格和真空厚度对照检查这些输入量的稳定性。
 
-体系是公开构造的三原子 2H-MoS₂ 单层，PBE、标量相对论、无 SOC。模型只保留低载流子浓度、近抛物 K 谷中的纵向声学形变势散射。光学声子、Fröhlich 相互作用、谷间散射、压电、杂质和衬底效应均不在这个公式里，不能把所得数字称为材料完整的室温迁移率。
+体系是公开构造的三原子 2H-MoS₂ 单层，使用 QE 7.5、PBE、标量相对论赝势，无 SOC。公式适用于低载流子浓度、近抛物 K 谷中的纵向声学形变势散射；光学、Fröhlich、谷间、压电、杂质与衬底散射需要另行计算。[Kaasbjerg 等的 MoS₂ 输运研究](https://arxiv.org/abs/1201.5284)说明了室温光学与 Fröhlich 散射的重要性。
 
-[下载本例输入、完整输出、原始数值、分析和绘图脚本](/Atlas/examples/mos2-mobility-files.tar.gz)。包内还保留未完成的原尝试与随后采用的 bands-retry 分支；分析按 config.json 选择已经验收的结果。运行原生 QE 需先将脚本中的程序路径改为自己的位置。
+[下载输入、QE 输出与 XML、原始数值、分析和绘图脚本](/Atlas/examples/transport-mobility-files.tar.gz)。包内保留三份未完成的 bands 原尝试及其完成的 bands-retry 分支，分析按 config.json 选取结果。原生 QE 复算从结构优化或所供最终几何的 SCF 开始，重新生成电荷密度与波函数保存目录；下载包提供 Python 后处理所需数据。
 
 ## 从公开结构开始，先把母体优化好
 
@@ -18,7 +18,6 @@ maxwell@maxwell:<工作目录>/mos2-mobility$ sha256sum pseudo/*.UPF
 90fb585e830674f2de7b4cbace28d5dd0c05ca1a919d1f92a59b54d6b95cbfc4  pseudo/S.pbe-n-rrkjus_psl.1.0.0.UPF
 ```
 
-本次下载 Mo 文件时发生过一次网络超时，未完整的文件留在本地证据目录，续传后完整解析 UPF 并记录上面的哈希，再启动计算。只看扩展名是 `.UPF`，不能证明下载已经完整。
 
 母体使用 60/480 Ry、12×12×1 网格，固定 c 并保留六方晶格。进入 `base/`，用普通复制和编辑检查文件：
 
@@ -118,7 +117,7 @@ maxwell@maxwell:<工作目录>/mos2-mobility$ grep -A 8 "bfgs converged" base/mo
 Begin final coordinates
 ```
 
-电子步骤完成和离子优化完成是两件事。这里不仅有末尾的 `JOB DONE.`，还明确写着 BFGS 达到能量、力和晶胞阈值。最后的几何读出 a=3.18272795064 Å，面积 A₀=8.77262707611 Å²，c 仍为 23.19 Å。后面的所有应变均从这一母体出发，不再使用最初的 3.18 Å。
+BFGS 输出给出能量、力和晶胞的收敛阈值。最终几何为 a=3.18272795064 Å、A₀=8.77262707611 Å²、c=23.19 Å；所有应变从这一母体出发。
 
 ## 沿 x 拉伸，横向保持固定
 
@@ -210,7 +209,7 @@ mpirun -np 8 <qe_bin>/pw.x -in mos2.bands.in > mos2.bands.out 2> mos2.bands.err
 cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 ```
 
-本轮应变任务实际提交为 1984–1988。每个任务 8 个 MPI 进程，最多同时运行 4 个。排队中的任务等资源释放，不额外启动第二组 MPI 进程。查看运行状态时结合队列与输出：
+每个应变作业申请 8 个 MPI 进程，依次执行离子松弛、固定几何 SCF、电势平均与能带计算。查看队列和几何优化输出：
 
 ```bash
 squeue -u maxwell
@@ -314,9 +313,9 @@ K_POINTS automatic
      atom    3 type  2   force =     0.00000000    0.00019175    0.27418759
 ```
 
-零应变固定 SCF 的最初迭代曾出现两条 `1 eigenvalues not converged`，随后继续迭代，最终第 20 次电子步没有该告警并达到阈值。原告警没有删除，表格分别保留整个运行的告警数与最终迭代告警数。能带计算没有后续电子自洽来修复未收敛本征值，因此它的任意此类告警都会阻止本轮验收。
+零应变 SCF 前期有两条 <code>1 eigenvalues not converged</code>，最终第 20 次电子步达到阈值且没有该告警。<code>cases.csv</code>分别记录全程与末次迭代的告警数；bands 的本征值需要在该次固定势求解中收敛。
 
-这些输出还保留了 `negative rho` 诊断。零应变最终 SCF 打印的两自旋分量为 `3.851E-04 0.000E+00`，十一配置的末次第一分量为约 3.845×10⁻⁴–4.815×10⁻⁴。这条信息不能因为电子迭代结束而删去。本轮没有增加截断能或 FFT 网格对照，因此后文的通过仅限于已列出的应变、k 网格、真空和曲率一致性条件，不代表赝势与电荷密度离散误差已经全部收敛。
+零应变末次 SCF 的 <code>negative rho</code> 为 <code>3.851E-04 0.000E+00</code>，十一配置的第一分量范围约为 3.845×10⁻⁴–4.815×10⁻⁴。当前对照覆盖应变、k 网格、真空厚度和曲率窗口；截断能与 FFT 网格的影响仍需单独扫描。
 
 ## 真空平台给每个应变相同的能量参考
 
@@ -360,15 +359,24 @@ maxwell@maxwell:<工作目录>/mos2-mobility$ head -6 plus005/avg.dat
 
 零应变中，Vvac=4.2804901343 eV，拟合得到的 K 谷底原始本征值约 0.0221778672 eV，相减后为 −4.2583122671 eV。这两个数在同一分支中配对；不能拿零应变的 Vvac 去对齐其他应变。
 
-![平面平均电势、真空平台与谷竞争](/Atlas/examples/mos2-mobility/vacuum-and-valleys.png)
+真空平台与谷排序的实际数值如下，分别与电势起伏和能差容差比较：
 
-左图显示完整势垒和中间的原子层；中图放大真空区域，阴影标出实际选用的两段平台窗口。右图显示三个 Q 方向以及 Γ 相对 K 谷底的距离，能量参考在相同应变内部比较时相消。
+| 零应变检查 | 实际结果 | 对照门槛与解释 |
+| --- | ---: | --- |
+| 左右真空平台最大起伏/差值 | 0.03189 meV | 门槛 1.0 meV，约低 31 倍 |
+| K′−K | −0.00349 meV | 绝对差小于 0.010 meV 判定容差；两谷在本精度下简并 |
+| 最低 Q−K（三个 Γ–K 方向） | +256.843 meV | 三个方向几乎一致，低于 M 与 Γ，但仍高于 K |
+| M−K | +568.865 meV | 高于 K |
+| Γ−K | +1087.728 meV | 高于 K |
+| 采样能带间隙 | 1.68448 eV | 保持半导体态 |
+
+完整势能与谷偏移复合图：[PNG](/Atlas/examples/transport-mobility/transport-vacuum-and-valleys.png) · [SVG](/Atlas/examples/transport-mobility/transport-vacuum-and-valleys.svg) · [PDF](/Atlas/examples/transport-mobility/transport-vacuum-and-valleys.pdf)。
 
 ## 沿应变后的谷底拟合有效质量
 
 K 谷附近取一个二维局部网格，笛卡尔步长为 0.01 Å⁻¹，x、y 各取 −0.03 到 +0.03 Å⁻¹ 的 7 个值，共 49 点。每个应变使用自己的倒格矢变换。用二维二次曲面拟合局部极小值的位置，而不是始终读取一个固定 k 点的能量。
 
-此外还显式计算 Γ、M、K′，并沿三个 Γ–K 方向各取 15 点，总计 97 点。Q 区域在 Γ–K 比例 0.40–0.80 内比较；完整的 15 点数据保留，用图检查局部谷形。SCF 的规则网格导带最低值也单独与拟合 K 谷比较。这是对所列候选谷的实际检查，不能替代任意材料的全布里渊区搜索。
+此外显式计算 Γ、M、K′，并沿三个 Γ–K 方向各取 15 点，总计 97 点。Q 区域在无量纲路径比例 t=0.40–0.80 内比较，k=tK；K 的选取随三个方向变化。<code>kpoints.csv</code>的 <code>GammaK_fraction</code>保存 t，<code>offsetx_invA</code>与<code>offsety_invA</code>专用于 K 局部笛卡尔位移。SCF 规则网格的最低导带另与拟合 K 谷比较；谷排序判定覆盖这些采样位置。
 
 <details>
 <summary>+0.5% 谷检查的完整 bands 输入：97 个实际 k 点</summary>
@@ -542,9 +550,11 @@ maxwell@maxwell:<工作目录>/mos2-mobility$ grep -A 15 "End of band structure 
 
 每点有 16 个本征值，前 13 条占据，第 14 条是本例检查的最低导带。完整 XML 提供比屏幕四位小数更高的精度，曲率拟合使用 XML 的原始数值。第 14 条是否仍与其他带分离、谷底是否留在拟合区域里，也必须检查；金属、交叉带或非抛物谷不能直接代入此公式。
 
-质量拟合使用 ±0.01、±0.02、±0.03 Å⁻¹ 三种窗口。写成 E(q)=E₀+v·q+½qᵀHq，极小值偏移是 −H⁻¹v，x 方向质量为 ħ²/Hxx，态密度质量取 ħ²/√det(H)。这些量使用同一基态 K 谷和同一套能量单位。
+质量拟合使用 ±0.01、±0.02、±0.03 Å⁻¹ 三种窗口。写成 E(q)=E₀+v·q+½qᵀHq，极小值偏移是 −H⁻¹v，x 方向质量为 ħ²/Hxx，态密度质量取 ħ²/√det(H)。Hxy 非零时，md 与 √(mx my) 不完全相等；后者只在所选坐标使交叉项为零时成立。这些量使用同一基态 K 谷和同一套能量单位。
 
-![K 谷的曲率与有效质量窗口检查](/Atlas/examples/mos2-mobility/effective-mass-windows.png)
+![K 谷的曲率与有效质量窗口检查](/Atlas/examples/transport-mobility/transport-effective-mass-windows.png)
+
+左、中的圆点分别是零应变 K 谷沿笛卡尔 x、y 方向的截面（另一分量为零），实线是各截面的独立一维二次拟合，用于观察局部抛物形状；它们不是 Γ–K 扫描，也不用于替代二维质量。右图的 mx、my、md 来自每个二维方形窗口内全部采样点的 Hessian 拟合，连线仅连接三个窗口结果。
 
 ```text
 maxwell@maxwell:<工作目录>/mos2-mobility$ grep -e '^case,' -e '^zero,' mass-windows.csv
@@ -556,7 +566,7 @@ zero,0.03,0.45893936618406683,0.4589364866081122,0.45893792639383113,0.000124995
 
 零应变的中间窗口得到 mx=0.456012mₑ、my=0.455947mₑ，态密度质量 md=0.455979mₑ。单位 Å⁻¹ 不可漏掉：把晶体分数坐标直接当作笛卡尔 k，会使有效质量的量纲和数值都出错。
 
-## 应变曲线、k 网格和真空厚度一起验收
+## 比较应变区间、k 网格与真空厚度
 
 从总能量拟合 E(ε)=E₀+a₁ε+a₂ε²，Cxx²ᴰ=2a₂/A₀。面积用母体的真实面内面积，不除以含真空的三维体积；1 eV/Å²=16.02176634 N/m。带边则拟合 Ecb(ε)−Vvac(ε)=b₀+E₁ε，E₁ 的单位是 eV，进入散射公式的是 E₁²。
 
@@ -593,11 +603,11 @@ cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 
 </details>
 
-较密网格的 SCF 只复用同晶胞的电荷密度，重新计算新网格的波函数。加厚真空后的 FFT 网格已经改变，因此该组从原子电荷起点开始，没有直接挪用不同高度的波函数。较密网格和零应变厚真空的复核用 `-nk 4` 将同一作业的 8 个 MPI 进程分为 4 个 k 点池。现场运行时间并未因此缩短，两个尚未开始的厚真空应变分支保留原脚本后改回单个 k 点池。总申请进程数保持不变，不能从 k 点池数量直接推断速度。
+较密网格 SCF 复用同晶胞的电荷密度，并计算新网格的波函数；加厚真空改变了 FFT 网格，该组从原子电荷起点开始。脚本中的 <code>-nk 4</code>把 8 个 MPI 进程分为 4 个 k 点池，池数应结合本机性能选择。
 
-原先的 `vacuum28-zero`、`k16-minus005`、`k16-plus005` 三个作业分别为 1990、1991、1992。它们已经完成各自 SCF 和电势处理，但 15 分钟时限在 bands 阶段到达，因此原 OUT 没有完整结束，原尝试全部保留。随后分别在各自 `bands-retry/` 中从同一配置已收敛的电荷密度与 SCF XML 重新求解这 97 个点，作业 1997、1998、1999 采用单个 k 点池、8 个 MPI 进程和 30 分钟时限，并正常完成。物理配置、带数、截断和本征值阈值没有改变。
+<code>vacuum28-zero</code>、<code>k16-minus005</code>、<code>k16-plus005</code>的首次计算完成了 SCF 和电势处理，在 bands 阶段达到 15 分钟时限。各自的 <code>bands-retry/</code>随后从匹配的 SCF 电荷密度求解相同 97 个点，并在 30 分钟时限内完成，带数、截断和本征值阈值沿用原输入。
 
-分析脚本读取每个 `config.json` 的 `bands_subdir`，明确选用续算结果，未把原来截断的输出算成完成。其余配置直接使用本目录的 bands。以下是最后一个续算的完整脚本，重新执行它需要同一配置的已收敛 SCF 保存目录：
+分析按 <code>config.json</code>的 <code>bands_subdir</code>选择三份完成的续算结果，其余配置使用本目录 bands。以下脚本需要匹配构型的已收敛 SCF 保存目录；下载包不含该保存树，执行原生续算前需先重做该构型 SCF：
 
 ```text
 maxwell@maxwell:<工作目录>/mos2-mobility/k16-plus005/bands-retry$ cat run.slurm
@@ -623,7 +633,7 @@ mpirun -np 8 <qe_bin>/pw.x -in mos2.bands.in > mos2.bands.out 2> mos2.bands.err
 cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 ```
 
-最终不仅核对 `JOB DONE.`，还逐配置检查 SCF 的最终迭代、本征值告警、BFGS、原子力、SCF 与 bands 的几何一致性，以及 XML 中的实际 k 点坐标与输入顺序。前期 SCF 的本征值告警保留在原 OUT；这些分支最终迭代均不再有该告警，最终采用的 bands 中没有未收敛本征值。
+分析逐配置核对程序正常结束、末次 SCF、本征值告警、BFGS 与原子力，以及 SCF/bands 几何和 XML k 点顺序。十一配置的末次 SCF 与采用的 bands 均没有未收敛本征值告警。
 
 下表来自完整 11 个配置，导带已经各自对齐真空：
 
@@ -641,134 +651,79 @@ cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 | vacuum28-zero | +0.0000 | -2470.51661196 | -4.25831558 | 0.01596 |
 | zero | +0.0000 | -2470.51658356 | -4.25831227 | 0.03189 |
 
-![弹性与真空对齐导带的应变拟合](/Atlas/examples/mos2-mobility/deformation-fits.png)
+![弹性与真空对齐导带的应变拟合](/Atlas/examples/transport-mobility/transport-deformation-fits.png)
 
-| 拟合组 | Cxx²ᴰ / N·m⁻¹ | E₁ / eV | E₁ 拟合标准误差 / eV |
-| --- | --- | --- | --- |
-| five_strains | 132.110909 | -8.217569 | 0.014778 |
-| three_strains | 130.271104 | -8.217723 | 0.012272 |
-| k16 | 132.908806 | -8.217444 | 0.014064 |
-| vacuum28 | 132.101395 | -8.218970 | 0.014673 |
+绿色实线分别为五应变点的总能量二次拟合与真空对齐带边线性拟合；k16、vacuum28 的虚线连接各组三个实际样点，供网格和真空对照，不代表额外拟合或区间外预测。每组纵轴都减去该组零应变值。
+
+| 拟合组 | Cxx²ᴰ / N·m⁻¹ | E₁ / eV | E₁ 标准误差 / eV | mx / mₑ | md / mₑ | μx / cm²·V⁻¹·s⁻¹ |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 五应变 | 132.110909 | −8.217569 | 0.014778 | 0.456012 | 0.455979 | 200.385570 |
+| 中央三应变 | 130.271104 | −8.217723 | 0.012272 | 0.456012 | 0.455979 | 197.587526 |
+| 16×16×1 网格 | 132.908806 | −8.217444 | 0.014064 | 0.456013 | 0.455981 | 201.600618 |
+| 加厚 5 Å 真空 | 132.101395 | −8.218970 | 0.014673 | 0.455467 | 0.455393 | 200.800568 |
 
 表中的 E₁ 标准误差只来自线性回归残差，不包含截断、赝势、SOC 或散射模型带来的系统误差。
 
-阈值在分析之前写入 `quality-gates.json`：应变窗口与 k 网格对 C₂D、E₁ 的相对影响不超过 5%，真空厚度的影响不超过 2%，质量窗口变化不超过 5%。形变势绝对值小于 0.1 eV、相对拟合误差超过 10%、曲率非正、谷底离开局部网格、候选最低谷改变或金属化，均阻止输出迁移率。这些是本轮模型一致性检查，不把两档参数比较称为所有数值参数已经收敛。
+<code>quality-gates.json</code>统一保存判定阈值：应变区间和 k 网格对 C₂D、E₁ 的相对影响不超过 5%，真空厚度的影响不超过 2%，质量窗口变化不超过 5%；|E₁| 至少 0.1 eV，回归相对标准误差不超过 10%。曲率非正、谷底越出窗口、候选最低谷改变或金属化时，分析停止输出迁移率。
 
-这些检查在本轮全部通过。使用五应变拟合的 C₂D=132.110909 N/m、E₁=-8.217569 eV，以及零应变中间窗口的 mx、md，得到 300 K 声学形变势模型 μx=200.386 cm²/(V·s)。
+十一配置通过所列检查。五应变拟合参数与零应变中间窗口质量给出 300 K 的 μx=200.386 cm²/(V·s)。
 
-五点与中央三点相比，C₂D 改变 1.4123%，E₁ 改变 0.00188%；16×16×1 的中央三点使 C₂D 改变 2.0248%，E₁ 改变 0.00340%。增加 5 Å 真空后，两项变化分别为 1.4050% 与 0.01517%。这些实际差异落在上面预先设置的窗口内；没有进一步把当前截断、无 SOC 协议或两档网格称为所有材料参数已经收敛。
+相对于中央三应变，五点拟合的 C₂D、E₁ 分别改变 1.4123%、0.00188%；16×16×1 网格分别改变 2.0248%、0.00340%；加厚 5 Å 真空分别改变 1.4050%、0.01517%。这些差异量化了当前采样选择对模型参数的影响。
 
 公式为：
 
 <p>μx = e ħ³ Cxx²ᴰ / (kB T mx md E₁²)。</p>
 
-计算时 C₂D 用 N/m，质量换成 kg，E₁ 从 eV 换成 J，先得到 m²/(V·s)，再乘 10⁴ 换成 cm²/(V·s)。它使用经典声学声子、低载流子浓度和近抛物带近似，没有进行完整电子声子散射积分或玻尔兹曼输运求解。
+C₂D 用 N/m，质量换成 kg，E₁ 从 eV 换成 J，公式得到 m²/(V·s)，再乘 10⁴ 换成 cm²/(V·s)。[独立公式复核结果](/Atlas/examples/transport-mobility/transport-parameter-checks.json)给出逐项 SI 数值。E₁ 回归标准误差单独传播的相对贡献为 2σ(E₁)/|E₁|=0.3597%，即 0.720739 cm²/(V·s)；它只描述带边线性拟合残差，不是包含弹性、质量、离散误差和散射模型的总误差条。
 
-Kaasbjerg 等对单层 MoS₂ 的第一性原理研究表明，室温光学声子与 Fröhlich 散射很重要。只保留声学形变势的数值不应与完整室温迁移率直接比较，更不能称为实验预测；同一篇论文与另一个低温声学模型的温区也不能混用。[原始研究](https://arxiv.org/abs/1201.5284)
+## 用下载数据重建结果
 
-## 在本机重画三组图
+解压后进入 <code>transport-mobility/</code>，使用 Python 3 与 NumPy：
 
-保存 `cases.csv`、`mass-windows.csv`、`valley-bands.csv`、`potential-profiles.csv`、`summary.json` 与 `plot_mobility.py`，在同一目录执行：
+<pre><code>python3 analyse_mobility.py
+python3 transport_mobility_check.py
+</code></pre>
 
-```bash
-python3 plot_mobility.py
-```
+[分析器](/Atlas/examples/transport-mobility/analyse_mobility.py)读取每个配置的 OUT、XML、avg.dat 与 k 点表，重建 CSV 和 summary.json；[公式复核脚本](/Atlas/examples/transport-mobility/transport_mobility_check.py)只依赖标准库，用 SI 常数核对迁移率，并写出参数敏感性表。保存结果使用 Python 3.12.3、NumPy 2.4.6。
 
-脚本只依赖 NumPy 和 Matplotlib，生成三组 PNG/SVG/PDF：`deformation-fits`、`vacuum-and-valleys`、`effective-mass-windows`。原始势能和导带数据没有人为平移成同一条线；绘图中减去各组零应变值仅用于显示差分，真空对齐及绝对值保存在 CSV。若要重新核验分析，则同时保存各配置的输入、OUT、SCF/bands XML 与 `avg.dat`，运行 `python3 analyse_mobility.py`。
+| 文件 | 每行或条目含义 | 单位与用途 |
+| --- | --- | --- |
+| cases.csv | 一个计算构型 | εxx 无量纲；总能、真空电势和谷能差为 eV；面积为 Å²；高度为 Å；质量以 mₑ 表示 |
+| mass-windows.csv | 一个构型的一种二维拟合窗口 | 窗口半宽与极值位移为 Å⁻¹；质量为 mₑ；残差为 eV；Hxy 为 eV·Å² |
+| valley-bands.csv | 一个构型的一个采样 k 点 | K 局部位移为 Å⁻¹；Γ–K 路径比例为无量纲；本征值和真空对齐导带为 eV |
+| potential-profiles.csv | 一个沿 z 的采样点 | z 为 Å；平面平均与宏观平均电势为 eV |
+| quality-gates.json | 分析判定条件 | 包括单位明确的阈值、采样数、能带索引及温度 |
+| summary.json | 拟合和判定结果 | 完成数、失败项、拟合参数、质量与迁移率 |
+| config.json | 构型与数据分支 | 应变、网格、真空增量和 bands_subdir |
+| FILE_SHA256.json | 下载包文件清单 | 每份文件的大小与 SHA-256 |
 
-<details>
-<summary>完整绘图脚本 plot_mobility.py</summary>
+QE 7.5 的 <code>pp.x</code>用 <code>plot_num=11</code>输出 <code>V_bare+V_H</code>；[pp.x 文档](https://www.quantum-espresso.org/Doc/INPUT_PP.html)与[average.f90 源码](https://gitlab.com/QEF/q-e/-/blob/qe-7.5/PP/src/average.f90)给出数据含义。<code>avg.dat</code>三列分别是 Bohr 坐标、Ry 平面平均和 Ry 宏观平均；后处理用第二列取真空参考，并检查三列均有限、坐标递增且覆盖本晶胞。
 
-绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/mos2-mobility/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
+页面的两组图分别显示应变拟合与 K 谷二次曲率。已有的势能与谷比较复合图也保存在包中。下载图件：[应变拟合 PNG](/Atlas/examples/transport-mobility/transport-deformation-fits.png) · [SVG](/Atlas/examples/transport-mobility/transport-deformation-fits.svg) · [PDF](/Atlas/examples/transport-mobility/transport-deformation-fits.pdf)；[质量窗口 PNG](/Atlas/examples/transport-mobility/transport-effective-mass-windows.png) · [SVG](/Atlas/examples/transport-mobility/transport-effective-mass-windows.svg) · [PDF](/Atlas/examples/transport-mobility/transport-effective-mass-windows.pdf)。
 
-```python
+[绘图脚本](/Atlas/examples/transport-mobility/plot_mobility.py)与同包的 <code>atlas_plot_style.py</code>读取结果表，以 NumPy、Matplotlib 重画已保存图件：
 
-from atlas_plot_style import install as install_atlas_style
-install_atlas_style()
-from pathlib import Path
-import csv,json
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-R=Path(__file__).resolve().parent
-summary=json.loads((R/'summary.json').read_text())
-def rows(p):return list(csv.DictReader((R/p).open()))
-cs=rows('cases.csv');by={x['case']:x for x in cs};mass=rows('mass-windows.csv');valley=rows('valley-bands.csv');pot=rows('potential-profiles.csv')
-plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False})
-def save(fig,name):
- for ext in ['png','svg']:fig.savefig(R/f'{name}.{ext}',dpi=220)
- plt.close(fig)
-base=['minus010','minus005','zero','plus005','plus010'];eps=np.array([float(by[n]['epsilon']) for n in base]);Et=np.array([float(by[n]['etot_eV']) for n in base]);Ec=np.array([float(by[n]['K_CBM_vac_eV']) for n in base]);Ezero=float(by['zero']['etot_eV']);Czero=float(by['zero']['K_CBM_vac_eV'])
-fig,ax=plt.subplots(1,2,figsize=(10,4.5),layout='constrained');xx=np.linspace(-.01,.01,200)
-ax[0].plot(eps*100,(Et-Ezero)*1000,'o',color='#009e73',label='12 × 12 × 1; relaxed ions')
-ax[0].plot(xx*100,np.polyval(np.polyfit(eps,Et-Ezero,2),xx)*1000,'-',color='#009e73')
-ax[1].plot(eps*100,(Ec-Czero)*1000,'o',color='#009e73',label='Vacuum-aligned K-valley minimum')
-ax[1].plot(xx*100,np.polyval(np.polyfit(eps,Ec-Czero,1),xx)*1000,'-',color='#009e73')
-for fam,color,marker in [('k16','#d55e00','s'),('vacuum28','#6c54a3','^')]:
- names=[f'{fam}-{n}' for n in ['minus005','zero','plus005']]
- ee=np.array([float(by[n]['epsilon']) for n in names]);en=np.array([float(by[n]['etot_eV']) for n in names]);cb=np.array([float(by[n]['K_CBM_vac_eV']) for n in names])
- ax[0].plot(ee*100,(en-en[1])*1000,marker+'--',color=color,label=fam)
- ax[1].plot(ee*100,(cb-cb[1])*1000,marker+'--',color=color,label=fam)
-for a in ax:a.set_xlabel('Longitudinal strain εxx (%)');a.grid(alpha=.2);a.legend(frameon=False,fontsize=8)
-ax[0].set_ylabel('E(ε) − E(0) (meV / 3-atom cell)');ax[1].set_ylabel('Aligned conduction edge shift (meV)')
-fig.suptitle('MoS₂ acoustic-DP inputs | fixed transverse lattice, relaxed internal coordinates')
-save(fig,'deformation-fits')
-fig,ax=plt.subplots(1,3,figsize=(13,4.2),layout='constrained')
-for name,color in [('minus005','#009e73'),('zero','#3b3b3b'),('plus005','#d55e00')]:
- rr=[r for r in pot if r['case']==name];z=np.array([float(x['z_A']) for x in rr]);vv=np.array([float(x['potential_eV']) for x in rr]);offset=float(by[name]['vacuum_eV']);height=float(by[name]['height_A'])
- ax[0].plot(z,vv-offset,lw=.8,color=color,label=name)
- outer=(z<.25*height)|(z>.75*height)
- ax[1].plot(z[outer],(vv[outer]-offset)*1000,'.',ms=2,color=color,label=name)
-ax[0].set_xlabel('z (Å)');ax[0].set_ylabel('Potential − vacuum (eV)');ax[0].legend(frameon=False,fontsize=8)
-ax[1].set_xlabel('z (Å), vacuum regions');ax[1].set_ylabel('Vacuum plateau residual (meV)');ax[1].set_ylim(-.25,.10)
-height0=float(by['zero']['height_A'])
-for lo,hi in [(.10,.20),(.80,.90)]:ax[1].axvspan(lo*height0,hi*height0,color='#a9bdac',alpha=.18)
-ax[1].text(.5,.97,'Shaded: vacuum reference windows',transform=ax[1].transAxes,ha='center',va='top',fontsize=8)
-for key,label,color in [('Q1_minus_K_eV','Q direction 1','#009e73'),('Q2_minus_K_eV','Q direction 2','#d55e00'),('Q3_minus_K_eV','Q direction 3','#6c54a3'),('Gamma_minus_K_eV','Γ','#888')]:
- ax[2].plot(eps*100,[float(by[n][key]) for n in base],'o-',ms=3,label=label,color=color)
-ax[2].axhline(0,color='#333',ls='--',lw=.6);ax[2].set_xlabel('εxx (%)');ax[2].set_ylabel('Valley energy − E(K) (eV)');ax[2].legend(frameon=False,fontsize=8)
-fig.suptitle('Vacuum reference and sampled valley competition')
-save(fig,'vacuum-and-valleys')
-fig,ax=plt.subplots(1,3,figsize=(12,4),layout='constrained')
-rr=[r for r in valley if r['case']=='zero' and r['kind']=='K-local'];center=min(rr,key=lambda r:abs(float(r['offsetx_invA']))+abs(float(r['offsety_invA'])));E0=float(center['conduction_eV'])
-for a,axis,other in [(ax[0],'offsetx_invA','offsety_invA'),(ax[1],'offsety_invA','offsetx_invA')]:
- subset=sorted([r for r in rr if abs(float(r[other]))<1e-9],key=lambda r:float(r[axis]));k=np.array([float(r[axis]) for r in subset]);en=np.array([float(r['conduction_eV'])-E0 for r in subset]);a.plot(k,en*1000,'o',color='#009e73');kk=np.linspace(k.min(),k.max(),200);a.plot(kk,np.polyval(np.polyfit(k,en,2),kk)*1000,'-',color='#d55e00');a.set_xlabel('Δkx (Å⁻¹)' if axis.startswith('offsetx') else 'Δky (Å⁻¹)');a.set_ylabel('Conduction energy − E(K) (meV)');a.grid(alpha=.2)
-mm=[r for r in mass if r['case']=='zero']
-for key,label in [('mx_me','mx'),('my_me','my'),('md_me','DOS mass')]:ax[2].plot([float(r['window_invA']) for r in mm],[float(r[key]) for r in mm],'o-',label=label)
-ax[2].set_xlabel('Quadratic-fit half width (Å⁻¹)');ax[2].set_ylabel('Effective mass / electron mass');ax[2].legend(frameon=False);ax[2].grid(alpha=.2)
-fig.suptitle('K-valley curvature at the optimized zero-strain structure')
-save(fig,'effective-mass-windows')
-print('Wrote deformation-fits, vacuum-and-valleys, effective-mass-windows PNG/SVG')
-print('Mobility publication status:',summary.get('mobility_status','alldeclaredmodelchecksmet'))
-```
+<pre><code>python3 plot_mobility.py
+</code></pre>
 
-</details>
+### 独立代码生成提示词
 
-## 文献中的相关图件与表达方式
+<details><summary>展开完整提示词</summary><pre><code>为 QE 7.5 单层 MoS2 声学形变势示例编写 Python 3 后处理器，读取下载包的已有文件，输出应变拟合、真空对齐、二维有效质量与参数敏感性表。
 
-本页使用 Takagi 纵向声学形变势公式演示了从弹性模量 `C₂D`、真空对齐带边移动 `E₁` 到抛物带有效质量 `m*` 的简化估算路线。当进入包含光学声子、极化 Fröhlich 散射及谷间散射的第一性原理输运计算（如基于 Wannier 插值的 EPW 或玻尔兹曼输运求解）时，电子散射率直接由电声自能虚部 `Im Σ(k, ω)` 决定，文献中常通过对比低温（如 1 K）与室温（如 300 K）下的电子谱函数 `A(k, ω)`，直观展示热激发声子散射引起的准粒子谱线展宽与重整化。
+输入：逐配置 config.json、QE OUT/XML、avg.dat、kpoints.csv，以及 quality-gates.json。按 bands_subdir 选择 bands；保存未完成原尝试的状态。核对 pw.x、pp.x、average.x 的 JOB DONE.、末次 SCF 收敛、本征值告警、SCF/bands 几何及 XML k 点映射。avg.dat 恰有三列：Bohr 坐标、Ry 平面平均、Ry 宏观平均；检查有限值、坐标单调与晶胞高度，用第二列作真空参考。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="EPW 计算的 1 K 与 300 K 下电子声子谱函数 A(k, ω) 及热散射展宽对比" loading="lazy"/><figcaption>不同温度与展宽设置下的电子谱函数 <code>A(k, ω)</code> 对比：展示从 1 K 到 300 K 热激发声子散射引起的准粒子谱线展宽，以及数值展宽参数对谱图分辨率的影响（Poncé 等，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>）。</figcaption></figure>
+真空窗口由 quality-gates.json 指定，在 c 的 10–20% 与 80–90% 分别取均值和起伏。各构型单独计算 Vvac，再拟合 E_CB,K−Vvac 对 εxx 的斜率 E1。总能量二次拟合 E0+a1 ε+a2 ε²，以 C2D=2a2/A0、1 eV/Å²=16.02176634 N/m 转换弹性常数。K 局部 offsetx_invA/offsety_invA 为笛卡尔 Å⁻¹；GammaK_fraction 是无量纲路径比例 t，k=tK，不可混用。
 
-对于多能谷或非抛物色散明显的二维导体与半导体，单一能谷底的二阶曲率有效质量不再足以描述全布里渊区的输运响应，此时常在二维费米面或等能面轮廓上直接用色标映射动量分辨的费米速度 `v_F(k)`，将能带色散斜率、态密度与各向异性群速度分布对应呈现。
+由 E(q)=E0+v·q+½qᵀHq 得极值 −H⁻¹v，要求 H 正定，mx=ħ²/Hxx、my=ħ²/Hyy、md=ħ²/√det(H)。报告三个窗口的质量、Hxy、极值位移与残差。全部判定阈值从 quality-gates.json 读取。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属体系的轨道投影能带、态密度与映射费米速度的二维费米面轮廓" loading="lazy"/><figcaption>能带色散、态密度与二维费米面群速度的联合表征：上方为元素投影能带与态密度，下方在二维布里渊区费米轮廓上直接用色标给出动量分辨的费米速度 <code>v<sub>F</sub>(k)</code> 大小（Bekaert 等，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>）。</figcaption></figure>
+11 个构型齐全且所列判定通过时，计算 μ=eℏ³C2D/(kB T mx md E1²)，先用 N/m、J、kg 得 m²/(V s)，再转 cm²/(V s)。保留 E1 符号，散射式中取平方。给出声学形变势模型状态；判定失败则列明失败项并将迁移率设为空。E1 回归标准误差的传播只作为该项贡献，参数对照组作为敏感性检查。
 
-下一步：用[有效质量](/Atlas/m/effective-mass/qe/)核对带边曲率的单位和窗口；用[应变计算](/Atlas/m/strain-doping-scan/qe/)查看固定结构与应变边界；如要进入材料定量输运，需要建立包含实际电子声子矩阵元和相关散射通道的计算链。
+输出 CSV/JSON 和运行命令，保留原始 OUT/XML。应变与局部曲率需要看拟合形状，可使用实际数据曲线；平台起伏、谷简并容差与判定结果用表格直接比较。注明依赖和单位；不启动 DFT、不补造数据。</code></pre></details>
 
-```text
-公开单层结构 + 同源 PBE 赝势
-          ↓
-母体面内优化（c 固定）
-          ↓
-五个 εxx（横向固定，内部坐标分别松弛）
-          ├─ 最终 SCF 总能量 → Cxx²ᴰ
-          ├─ pp.x → average.x → 各自 Vvac
-          └─ 同谷局部网格 + Q/Γ/M → 真空对齐 E₁ 与曲率
-                                      ↓
-中央三点：更密 k 网格 + 更厚真空复核
-                                      ↓
-通过模型与数值检查 → 300 K 声学形变势模型
-检查不通过 → 保留真实差异，迁移率不输出
-```
+## 从声学形变势走向完整散射
+
+[Sohier、Calandra 与 Mauri，Phys. Rev. B 94, 085415 (2016)](https://doi.org/10.1103/PhysRevB.94.085415)给出二维 Fröhlich 相互作用的下一步计算链。第二节使用 QE DFPT 和二维库仑截断，图 1 定位小 q 的 LO 与 A₁ 光学支，图 2 比较体相和单层的模式矩阵元 |gν|（eV）随 q/|Γ−K| 的变化。二维截断后长波 Fröhlich 耦合趋于有限值。
+
+第六节将矩阵元、声子频率和载流子能量按费米黄金律积分为逆弛豫时间；图 7 的室温 LO/A₁ 散射达到亚皮秒尺度，并随材料、能带和模式改变。建立这条链需要声子频率、本征矢及 g(q)，以补充本页从应变和带边提取的参数。[图件与原始数据映射](/Atlas/examples/transport-mobility/figure-source-map.md)列出本例曲线与这些文献图所回答的物理问题。
+
+下一步：用[有效质量](/Atlas/m/effective-mass/qe/)检查曲率单位和窗口，用[应变计算](/Atlas/m/strain-doping-scan/qe/)选择应变与松弛边界，再按目标温度和载流子条件计算相关散射通道。

@@ -4,7 +4,7 @@
 
 这里实际完成了一次 2×1×1 完美超胞校验：原胞、超胞分别重新做 SCF，再沿同一条 Γ–X–W–L–Γ 路径计算能带，最后用 QE 自带的 `bands_unfold.x` 读取超胞波函数。没有引入缺陷或热位移，因此图中恢复出清楚的原胞能带正是应当看到的结果。普通能带的 SCF 与能带步骤可在[能带计算](/Atlas/m/bands/qe/)查看；这一页集中说明超胞映射、谱权重和检验。
 
-[下载本例的输入、原始输出、波函数和绘图脚本](/Atlas/examples/si-unfolding-files.tar.gz)。解压后进入 `si-unfolding`：`python3 analyse_unfold.py` 从两套实际波函数重新核对权重，`python3 plot_unfold.py` 读取表格出图。包内保留两个 `tmp/si.save/`，包括独立复核需要的复波函数；各文件原始与公开版本的 SHA256 见 `manifest.json`。脚本中的 `<qe_bin>` 需换成自己的 QE 可执行文件目录。
+[下载本例的输入、原始输出、谱权重、核验表和后处理源码](/Atlas/examples/si-unfolding-electronic-files.tar.gz)。解压后进入 `si-unfolding`，运行 `python3 extract_native_unfold.py` 核对原生能量与谱权重，再运行 `python3 plot_unfold.py` 重画结果。包内保留 `analyse_unfold.py` 及已完成的验证表；从波函数重算验证时，另需两种晶胞各自的完整 `tmp/si.save/`。公开包提供独立 XML 与表格，计算脚本中的 `<qe_bin>` 由本机 QE 路径替换。
 
 ## 先让原胞和超胞说同一种坐标语言
 
@@ -678,32 +678,60 @@ ik,primitive_bands,supercell_bands,expected_weight,measured_weight,primitive_mea
 2,3;4,7;8,2,1.9999999997105289,6.102004066968467,6.102003887898608,-1.790698593850948e-07,-2.8947111374577617e-10
 ```
 
-40 个路径点的 320 个原胞本征值全部找到对应，共比较 238 组。能量质心最大差 5.91×10⁻⁷ eV，RMS 为 1.35×10⁻⁷ eV，分组权重与预期整数的最大差 6.65×10⁻⁶。这证明本轮完美超胞展开回到了自己的原胞计算链；它检验的是表示、映射和后处理的一致性，不是 PZ 计算与实验能带的误差。
+40 个路径点的 320 个原胞本征值全部找到对应，共比较 238 组。能量质心最大差 5.91×10⁻⁷ eV，RMS 为 1.35×10⁻⁷ eV，分组权重与预期整数的最大差 6.65×10⁻⁶。这些核对确认了完美超胞与原胞的能量、简并子空间及谱权重映射一致。
+
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 2×1×1 完美超胞展开结果后处理程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：两种晶胞的 bands01.dat、spectral_weights01.dat、bands.data-file-schema.xml，以及 kpath.csv、metadata.json。能量为 eV，权重无量纲；每个 k 块有坐标头和多行带数据。超胞 40×24、原胞 40×8。
+方法：用 XML 核对原生能量及 kpath 点序，以原胞 Γ 点 VBM 6.230001317 eV 为零；显示灰色折叠态及按原生权重编码的展开态。显示阈值 1e-5，原始表保留全部权重。
+检查：尺寸、能量/权重坐标头一致、XML 与原生能量差 <2e-5 eV；路径距离取 kpath.csv。
+输出：源码、依赖、命令、CSV/JSON、PNG/SVG。现有 wavefunction-audit.csv、primitive-comparison.csv 展示已完成的独立验证；重算偶/奇平面波权重另需两套原始标量 NC 波函数及 analyse_unfold.py。
+```
+
+## 后处理源码与运行
+
+完整源码：[extract_native_unfold.py](/Atlas/examples/si-unfolding-electronic/extract_native_unfold.py) · [plot_unfold.py](/Atlas/examples/si-unfolding-electronic/plot_unfold.py) · [atlas_plot_style.py](/Atlas/examples/si-unfolding-electronic/atlas_plot_style.py) · [analyse_unfold.py](/Atlas/examples/si-unfolding-electronic/analyse_unfold.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-unfolding` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 extract_native_unfold.py
+python3 plot_unfold.py
+```
+
+`analyse_unfold.py` 是原波函数独立验证源码，运行它另需两种晶胞各自的完整 `tmp/si.save/`；上面的轻量包命令使用原生表格、XML 和已有核验表。
+
 
 ## 把折叠态和展开后的权重画在同一页
 
 绘图所需文件是 `primitive/bands.csv`、`supercell/bands.csv`、`kpath.csv`、`metadata.json`、`summary.json`、`wavefunction-audit.csv` 与 `primitive-comparison.csv`。不需要先把二进制波函数全部搬到绘图电脑；若要独立复算权重，才需要同时复制两个 `tmp/si.save/`。
 
-在保存这些文件的目录运行附带脚本：
+原生文件提取与绘图源码分别为 [extract_native_unfold.py](/Atlas/examples/si-unfolding-electronic/extract_native_unfold.py) 和 [plot_unfold.py](/Atlas/examples/si-unfolding-electronic/plot_unfold.py)。在保存这些文件的目录运行附带脚本：
 
 ```bash
+python3 extract_native_unfold.py
 python3 plot_unfold.py
 ```
 
 脚本使用 NumPy 与 Matplotlib，写出 `unfolded-bands.png/.svg` 和 `unfolding-audit.png/.svg`。左图把超胞所有保留态画成等大的灰点，并叠加原胞直接能带；右图用原生展开权重控制散点大小和颜色。两图统一减去原胞 Γ 价带顶 6.230001317 eV。绘图仅隐藏权重小于 10⁻⁵ 的散点以便看清主线，CSV 与原始文件保持原值。
 
-![完美 Si 超胞的能量和展开权重对照](/Atlas/examples/si-unfolding/unfolded-bands.png)
+![完美 Si 超胞的能量和展开权重对照](/Atlas/examples/si-unfolding-electronic/unfolded-bands.png)
 
 右图中有权重的点落到原胞直接能带上；额外折叠支线在对应原胞 k 点上没有可见权重。没有人为加入能量高斯宽度，所以点的视觉大小只表示谱权重，不表示寿命或散射率。
 
-![波函数归一化、展开权重和原胞能量的数值核验](/Atlas/examples/si-unfolding/unfolding-audit.png)
+![波函数归一化、展开权重和原胞能量的数值核验](/Atlas/examples/si-unfolding-electronic/unfolding-audit.png)
 
 第二张图把范数误差、原生与独立投影的差异、逐点能量差分开放置。只看第一张图的线是否重合，会漏掉坐标读取或权重归一化问题。
 
 <details>
 <summary>绘图脚本 plot_unfold.py</summary>
 
-绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/si-unfolding/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
+绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/si-unfolding-electronic/atlas_plot_style.py)；下载完整算例包时已包含这个文件。源码中的显式保存循环写出 PNG 与 SVG；包内保留既有 PDF 文件。版式见[重绘与导出](/Atlas/plotting/)。
 
 ```python
 """Run beside summary.json after analyse_unfold.py; matplotlib/numpy only.

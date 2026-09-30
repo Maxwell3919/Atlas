@@ -1,0 +1,3 @@
+case,parent_case,k12_Eads_eV_H,k16_fixed_Eads_eV_H,k12_to_k16_delta_meV_H,max_force_k12_Ry_Bohr,max_force_k16_Ry_Bohr,max_force_change_k12_to_k16_Ry_Bohr,force_change_within_limit,selected_force_limit_Ry_Bohr,k16_force_factor_over_limit,energy_delta_within_10_meV_H,k16_force_within_limit
+clean-k16,clean-k12-relax,0.365151438003,0.370507850867,5.356412864,0.000136318149619,0.0025206043614,0.00265692251102,False,2.0e-04,12.603022,True,False
+ads-k16,ads-k12-relax,0.365151438003,0.370507850867,5.356412864,8.45134763549e-06,0.00166686343208,0.00166271187894,False,2.0e-04,8.334317,True,False

@@ -1,6 +1,6 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
-[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `gap-results.json`、`mass/longitudinal.csv` 和 `mass/mass-fits.json`；包内还保留用于核对的输入、输出与 XML。包中不含可接续计算的 `tmp/si.save`，重新求能级时需先按下文前提重建对应父 SCF 密度。
+[下载 Si 算例](/Atlas/examples/si-pbe-electronic-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `gap-results.json`、`mass/longitudinal.csv` 和 `mass/mass-fits.json`；包内还保留用于核对的输入、输出与 XML。包中不含可接续计算的 `tmp/si.save`，重新求能级时需先按下文前提重建对应父 SCF 密度。
 
 Si 的价带顶位于 Γ 附近，导带底却在 Γ–X 之间。只在几个高对称点读数，容易越过真正的导带谷；只看 DOS 的展宽曲线，也很难准确给出能隙。这次从均匀 k 网格中找价带最高值和导带最低值，再把导带谷附近加密，逐步看清误差来自哪里。
 
@@ -80,7 +80,7 @@ Submitted batch job 795
 [preston@preston-System-Product-Name gap24-cg]$ cd ..
 ```
 
-文件开头记录版本、进程数和读入文件，中间是实际计算出的 k 点与能级。这里的输入、输出分别可下载为[nscf.in](/Atlas/examples/si-pbe/gap24-cg/nscf.in)和[nscf.out](/Atlas/examples/si-pbe/gap24-cg/nscf.out)。
+文件开头记录版本、进程数和读入文件，中间是实际计算出的 k 点与能级。这里的输入、输出分别可下载为[nscf.in](/Atlas/examples/si-pbe-electronic/gap24-cg/nscf.in)和[nscf.out](/Atlas/examples/si-pbe-electronic/gap24-cg/nscf.out)。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 35 gap24-cg/nscf.out
@@ -203,20 +203,45 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 ```
 
 
-`edges.csv` 保留每个实际计算点的坐标和第 4、5 条能级。[提取脚本](/Atlas/examples/si-pbe/analyse_si.py)读取 XML 的 Hartree 本征值并转换成 eV，同时保留坐标；[汇总结果](/Atlas/examples/si-pbe/gap-results.json)中记录了 VBM、CBM 的位置和直接/间接两种差值。
+`edges.csv` 保留每个实际计算点的坐标和第 4、5 条能级。[提取脚本](/Atlas/examples/si-pbe-electronic/analyse_electronic.py)读取 XML 的 Hartree 本征值并转换成 eV，同时保留坐标；[汇总结果](/Atlas/examples/si-pbe-electronic/gap-results.json)中记录了 VBM、CBM 的位置和直接/间接两种差值。
 
 再将父 SCF 的网格从 `8³` 加密到 `12³`，在独立 `gap24-k12-cg` 上重复同一个 `24³` 非自洽网格，采样间接隙变为 **0.54082954 eV**，变化约 0.00070 eV。这一步检查的是父密度，而前面的三组检查的是给定密度上的本征值采样，二者不能混成同一个横轴。
 
 随后沿同一个 `12³` 父密度的 Γ–X 谷做密集采样，局部拟合把谷底定位在 `kx≈0.84430088×2π/a`。与同父密度的 VBM 相减，得到约 **0.54017968 eV**。这一细化步骤的输入、点距和窗口检查都在[有效质量](/Atlas/m/effective-mass/qe/)页，不在这里重走一次。
 
-将[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）与示例数据放在同一目录后运行：
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 采样带隙分析程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：gap12、gap18-cg、gap24-cg 的 edges.csv，gap-results.json，以及 mass/longitudinal.csv、mass-fits.json。k 为 tpiba（2π/a），band 4/5 能量为 eV。
+方法：各父 SCF 链分别计算 VBM=max(Ev)、CBM=min(Ec)、间接采样隙=CBM−VBM、直接采样隙=min_k[Ec(k)−Ev(k)]，保留极值坐标。将均匀网格与 12³ 父密度局部谷细化分开。
+检查：行数、有限数值、带号及父密度匹配，重算值与 JSON 一致。
+输出：源码、依赖、命令、带边及坐标表、PNG/SVG/PDF。图保留网格结果的非单调变化，结果标为固定晶胞 PBE 无 SOC 的 Kohn–Sham 能级差。
+```
+
+## 后处理源码与运行
+
+完整源码：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py) · [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 analyse_electronic.py
+python3 plot_si.py gap
+```
+
+
+将[绘图脚本](/Atlas/examples/si-pbe-electronic/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)）与示例数据放在同一目录后运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py gap
 <工作目录>/si-pbe/plots/band-gap.png
 ```
 
-![Si 均匀网格的采样带隙，以及 Γ–X 导带谷的局部细化](/Atlas/examples/si-pbe/plots/band-gap.png)
+![Si 均匀网格的采样带隙，以及 Γ–X 导带谷的局部细化](/Atlas/examples/si-pbe-electronic/plots/band-gap.png)
 
 左图保留了网格采样的非单调变化，右图沿局部谷的横坐标画出第 5 条能带，相对于对应父密度的 VBM 取零。线采样和均匀网格的能量参考经过同一父密度配对；直接把不同父密度的一个 CBM 和另一个 VBM 相减，会破坏这个比较。
 

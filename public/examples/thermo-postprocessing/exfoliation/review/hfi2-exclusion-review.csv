@@ -1,0 +1,8 @@
+directory,reason,energy_lines,ediff,normal_end
+scf_d0.25,Incomplete static SCF,0,0,0
+scf_d0.50,Incomplete static SCF,0,0,0
+scf_d0.75,Incomplete static SCF,0,0,0
+scf_d1,OUTCAR absent,0,0,0
+scf_d1.00,Incomplete static SCF,0,0,0
+scf_d1.25,OUTCAR absent,0,0,0
+scf_d1.50,OUTCAR absent,0,0,0

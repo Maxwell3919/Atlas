@@ -324,7 +324,7 @@ python plot_aimd.py
 
 ## 文献中的 AIMD 热稳定性图件表达
 
-在用恒温 AIMD 检验二维材料或异质结的室温热稳定性时，通常需要运行数皮秒至十皮秒以上的超胞轨迹，并将温度 T(t) 与总能量 E(t) 随时间的演化画成双纵轴曲线，同时附上初始构型与末帧构型的结构快照，证明整个采样窗口内既无系统性能量漂移，也未发生化学键断裂或界面重构。
+恒温 AIMD 可同时展示温度、能量和结构在采样窗口内的变化。轨迹长度应由所研究的过程、相关时间与统计误差决定；结构快照用于检查键长、配位和界面变化。能量守恒则用独立 NVE 对照检验，恒温轨迹中的能量涨落还受到温控器影响。下图文献采用 300 K、10 ps 的轨迹，这是该研究的实际设置。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M8_AIMD_ThermalStability_ZrI2_Fig2.jpg" alt="六种 ZrI2 基异质结在 300 K 下运行 10 ps 的 AIMD 温度与总能量演化及结构快照" loading="lazy"/><figcaption>六种 ZrI<sub>2</sub> 基异质结在 300 K、10 ps 恒温 AIMD 模拟中的温度 <em>T</em>(<em>t</em>) 与总能量 <em>E</em>(<em>t</em>) 双轴时间序列（a–f），同时给出初始构型与 10 ps 末帧的结构快照以检验热稳定性。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 2a–f，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
 

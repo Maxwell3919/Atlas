@@ -327,11 +327,11 @@ python3 plot_phonon.py
 
 `D_Iα,Jβ(q) = C_Iα,Jβ(q) / sqrt(M_I M_J)`
 
-一旦质量索引写错，声子频率就会按 `(M_wrong / M_true)^(1/2)` 发生系统性偏移。在 **`SnSe₂/Sr₂N`**（[完整排查记录](/Atlas/m/epc/qe/#double-grid-research-record)）中，元素表顺序为 `Sr (87.620)、N (14.007)、Sn (118.71)、Se (78.971)`，而旧输入误将 `amass(2)=118.71` 写了两次，把轻原子 N 当成了重原子 Sn（质量放大 `8.475` 倍，频率被压低 `2.91` 倍）。下图中间面板将旧质量色散 [`srnsnse.wrong_mass.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)（灰虚线）与恢复真实质量后的色散 [`srnsnse.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)（深蓝与锈红实线）叠加在同一坐标系中：错误质量下第 `16–18` 支被压低在 **`4.49–6.70 THz`**（Γ 点为 `4.60、5.56、6.70 THz`）；恢复 `M_N = 14.007` 后，主要由 Sn/Se/Sr 贡献的中低频支（`0–6.65 THz`）几乎不变，而由 N 主导的三条高频光学支（`ν = 16–18`）跃升至 **`7.99–11.94 THz`**（Γ 点为 `7.99、7.99、10.74 THz`，全布里渊区跨度 `7.42–11.94 THz`），直接越过了旧 `lambdax.in` 的 `10 THz` 积分上限。
+质量索引写错会改变动力学矩阵。对单一元素主导的模式，近似有 `ω_wrong/ω_true ≈ sqrt(M_true/M_wrong)`；混合模式还取决于本征矢。在 **`SnSe₂/Sr₂N`**（[完整排查记录](/Atlas/m/epc/qe/#double-grid-research-record)）中，元素表顺序为 `Sr (87.620)、N (14.007)、Sn (118.71)、Se (78.971)`，而旧输入误将 `amass(2)=118.71` 写了两次，把轻原子 N 当成了重原子 Sn（质量放大 `8.475` 倍，单一 N 运动极限下估算频率降低约 `2.91` 倍）。下图中间面板将旧质量色散 [`srnsnse.wrong_mass.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)（灰虚线）与恢复真实质量后的色散 [`srnsnse.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)（深蓝与锈红实线）叠加在同一坐标系中：错误质量下第 `16–18` 支被压低在 **`4.49–6.70 THz`**（Γ 点为 `4.60、5.56、6.70 THz`）；恢复 `M_N = 14.007` 后，主要由 Sn/Se/Sr 贡献的中低频支（`0–6.65 THz`）几乎不变，而由 N 主导的三条高频光学支（`ν = 16–18`）跃升至 **`7.99–11.94 THz`**（Γ 点为 `7.99、7.99、10.74 THz`，已绘路径跨度 `7.42–11.94 THz`），直接越过了旧 `lambdax.in` 的 `10 THz` 积分上限。
 
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 质量恢复前后的 DFPT 声子色散、原子分辨 PHDOS 与 q=1,2 逐模耦合" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的 DFPT 声子与后处理诊断：（中）错误质量（M<sub>N</sub> = 118.71，灰色虚线，第 16–18 支位于 4.49–6.70 THz）与真实质量（M<sub>N</sub> = 14.007，实线）下的 Γ–M–K–Γ 声子色散及共享频率轴的原子投影 PHDOS，锈红色高亮恢复后的三条 N-2p 高频光学支（7.99–11.94 THz）。</figcaption></figure>
+<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 质量恢复前后的 DFPT 声子色散、原子分辨 PHDOS 与 q=1,2 逐模耦合" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的 DFPT 声子与后处理诊断：（中）错误质量（M<sub>N</sub> = 118.71，灰色虚线，第 16–18 支位于 4.49–6.70 THz）与真实质量（M<sub>N</sub> = 14.007，实线）下的 Γ–M–K–Γ 声子色散及共享频率轴的原子投影 PHDOS，锈红色高亮恢复后的三条 N 原子主导的高频光学支（7.99–11.94 THz）。</figcaption></figure>
 
-同样地，在 **`ZrCl₂/Sc₂C`**（[双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，8×8×1 DFPT 网格经 `q2r.x → matdyn.x` 插值得到的色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 在整个布里渊区无虚频：下方 15 条 `Zr/Sc/Cl` 声学与中低频光学支分布在 `0–10.11 THz`（`0–337.2 cm⁻¹`，直接 DFPT q 网格上为 `0–10.02 THz`），中间存在 `10.11–12.49 THz` 的声子带隙，上方 3 条由轻原子 `C` 主导的高频光学支（`ν = 16–18`）分布在 `12.49–17.11 THz`（原始 DFPT 网格上为 `12.38–17.11 THz`）。
+同样地，在 **`ZrCl₂/Sc₂C`**（[双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，8×8×1 DFPT 网格经 `q2r.x → matdyn.x` 插值得到的色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 在已计算的高对称路径上无虚频：下方 15 条 `Zr/Sc/Cl` 声学与中低频光学支分布在 `0–10.11 THz`（`0–337.2 cm⁻¹`，直接 DFPT q 网格上为 `0–10.02 THz`），中间存在 `10.11–12.49 THz` 的声子带隙，上方 3 条由轻原子 `C` 主导的高频光学支（`ν = 16–18`）分布在 `12.49–17.11 THz`（原始 DFPT 网格上为 `12.38–17.11 THz`）。
 
 ## 文献中的 DFPT 声子色散与本征模式图例（附 DOI 溯源）
 
@@ -341,13 +341,13 @@ python3 plot_phonon.py
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="按原子振动方向（面内与面外）及元素权重着色的二维材料声子色散谱" loading="lazy"/><figcaption>在 NbSi<sub>2</sub>As<sub>4</sub> 声子色散曲线上用颜色或散点大小区分面内（in-plane）与面外（out-of-plane）振动本征矢分量。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
 
-- **数据提取与绘图方式**：从 `matdyn.modes` 读取每个 `(q, ν)` 的归一化复本征矢 `e_Iα(q, ν)`，计算特定原子或面外分量 `|e_z|²` 的模方权重并映射为曲线颜色，可直接区分面外呼吸/弯曲模与面内剪切模。
+- **数据提取与绘图方式**：先明确向量约定。QE 7.5 的 `fleig='matdyn.eig'` 保存正交的动力学矩阵本征矢 `e_Iα(q,ν)`，可用 `Σ_I |e_Iz|²` 表示面外权重。`flvec='matdyn.modes'` 则保存 `e_Iα/√M_I` 再逐模归一化的原子位移，适合计算位移方向权重。两种权重在不同质量原子之间通常不同，图例应注明采用哪一种；见[matdyn.x 官方字段说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)。
 
 ### 2. 软模本征频率随电子展宽 σ 的演化曲线
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="最低软模声子频率随电子展宽 σ 变化并跨越零频阈值的演化曲线" loading="lazy"/><figcaption>追踪 NbSi<sub>2</sub>As<sub>4</sub> 最低软模频率（单位 meV）随电子展宽 σ（0–15 mRy）的变化，展示软模在 σ ≈ 6–6.5 mRy 处由虚频（−14 meV）转为正实频的临界行为。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="NbSi2As4 指定 q1 处最低 LA 模频率随 Fermi–Dirac 电子展宽的变化" loading="lazy"/><figcaption>NbSi<sub>2</sub>As<sub>4</sub> 指定 q₁ 处最低 LA 模频率随 Fermi–Dirac 电子占据展宽 σ 的变化，横轴为 mRy、纵轴为 meV，水平零线区分虚频与正频。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
 
-- **数据提取与绘图方式**：当体系在有限波矢出现软模或[虚频](/Atlas/m/imaginary-phonon/qe/)时，提取该波矢处最低声子支的频率作为电子展宽 `degauss`（模拟电子有效温度）的函数并标出 `ω = 0` 水平线，可定量确定电荷密度波（CDW）失稳的临界展宽窗口。
+- **数据提取与绘图方式**：固定结构、赝势、q 点与占据方案，逐项记录电子展宽和同一软模的频率，并配套检查 k 网格收敛。Fermi–Dirac σ 可参数化电子占据温度，但不是离子温度；跨零趋势需结合本征位移、电子响应或畸变能量来解释软模机制。上面的曲线来自 NbSi₂As₄ 文献，本页 Si 与 Al 算例未进行此扫描。
 
 ### 3. 强耦合声子模式的俯视/侧视本征矢与 Γ 点群论不可约表示标注
 

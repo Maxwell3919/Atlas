@@ -1,0 +1,56 @@
+{
+  "E1_abs_min_eV": 0.1,
+  "E1_relative_fit_uncertainty_max": 0.1,
+  "C_and_E1_strain_window_relative_max": 0.05,
+  "mass_window_relative_max": 0.05,
+  "kgrid_C_E1_relative_max": 0.05,
+  "vacuum_C_E1_relative_max": 0.02,
+  "vacuum_plateau_spread_eV_max": 0.001,
+  "valley_rule": "K-neighborhood minimum must remain below all sampled Gamma/M/threeQ-direction competitors;no metal or unstable mass tensor.",
+  "nature_of_acceptance": "Finite-difference consistency checks for this simplified model;notfullmaterialtransportconvergence.",
+  "expected_case_count": 11,
+  "expected_valence_electrons": 26,
+  "electron_count_abs_tolerance": 1e-08,
+  "analysis_band_indices": {
+    "valence": 12,
+    "conduction": 13,
+    "next_conduction": 14
+  },
+  "average_coordinate_origin_abs_max_bohr": 1e-08,
+  "average_cell_extent_abs_diff_max_bohr": 1e-06,
+  "average_vacuum_windows_c_fraction": [
+    [
+      0.1,
+      0.2
+    ],
+    [
+      0.8,
+      0.9
+    ]
+  ],
+  "average_vacuum_window_minimum_points": 4,
+  "expected_bands_kpoint_count": 97,
+  "kpoint_mapping_max_abs_error_invA": 1e-08,
+  "scf_bands_geometry_max_abs_difference_A": 1e-08,
+  "candidate_valley_energy_tolerance_eV": 1e-05,
+  "coarse_scf_cbm_tolerance_eV": 0.001,
+  "conduction_band_isolation_min_eV": 0.01,
+  "K_minimum_shift_max_invA": 0.025,
+  "mass_fit_half_widths_invA": [
+    0.01,
+    0.02,
+    0.03
+  ],
+  "mass_fit_reference_half_width_invA": 0.02,
+  "relaxed_scf_force_component_max_eV_per_A": 0.0002571103373816295,
+  "model_temperature_K": 300.0,
+  "mass_window_inclusion_tolerance_invA": 1e-09,
+  "semiconducting_gap_min_eV": 0.0,
+  "effective_mass_curvature_min_eV_A2": 0.0,
+  "C2D_min_N_m": 0.0,
+  "q_valley_scan_GammaK_fraction": [
+    0.4,
+    0.8
+  ],
+  "q_scan_bound_tolerance_fraction": 1e-09
+}

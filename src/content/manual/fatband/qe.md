@@ -1,6 +1,6 @@
 [projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/)
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-electronic-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算投影时，先完成 [Si 路径能带](/Atlas/m/bands/qe/)，本页读取其中 121 个路径点的波函数。
 
@@ -174,7 +174,7 @@ Submitted batch job 799
 
 这里 `nkstot=121`、`nbnd=8`，与路径计算一致。`state #1`、`#5` 分别是两个 Si 的 s，`#2–4`、`#6–8` 是 p。Γ 点最深的价带 `e(1)≈−5.69249 eV`，主要由两个 s 态构成，每个打印约 0.498；价带顶的三条近简并带则主要投影到 p。沿路径向下读，轨道混合会随 k 点改变。
 
-输出里的 `psi = 0.498*[#1]+...` 是面向阅读的投影权重摘要，系数只保留有限小数，较小项也可能不列出来。画图时读取[atomic_proj.xml](/Atlas/examples/si-pbe/bands-cg/atomic_proj.xml)中的复投影幅度，再逐项取模平方。
+输出里的 `psi = 0.498*[#1]+...` 是面向阅读的投影权重摘要，系数只保留有限小数，较小项也可能不列出来。画图时读取[atomic_proj.xml](/Atlas/examples/si-pbe-electronic/bands-cg/atomic_proj.xml)中的复投影幅度，再逐项取模平方。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 25 bands-cg/atomic_proj.xml
@@ -219,7 +219,7 @@ projection_norm = Si_s_weight + Si_p_weight
 
 在正交归一投影的定义下，子空间投影范数不应超过完整态的范数；数值实现仍应检查舍入和容差。这里 968 个 `(k,band)` 组合中的最大值为约 **0.99704634**。这个检查能发现权重提取或归一化错误，却不会证明有限原子轨道是描述所有能带的完备基底。简并子空间内单个分支的轨道分量也可能随基选择改变，比较时优先看有明确物理意义的轨道组和简并带组。
 
-还有一个容易混淆的单位：本次 `atomic_proj.xml` 的 `E` 值以 Ry 存储，而 `data-file-schema.xml` 的本征值以 Hartree 存储。[提取脚本](/Atlas/examples/si-pbe/analyse_si.py)用后者的能量画图，并独立把前者乘以 `13.605693122994`，逐点核对二者在 `10⁻⁶ eV` 内一致；k 坐标也逐点核对。只有通过配对后才把能量和权重写在同一行。
+还有一个容易混淆的单位：本次 `atomic_proj.xml` 的 `E` 值以 Ry 存储，而 `data-file-schema.xml` 的本征值以 Hartree 存储。[提取脚本](/Atlas/examples/si-pbe-electronic/analyse_electronic.py)用后者的能量画图，并独立把前者乘以 `13.605693122994`，逐点核对二者在 `10⁻⁶ eV` 内一致；k 坐标也逐点核对。只有通过配对后才把能量和权重写在同一行。
 
 `NUMBER_OF_SPIN_COMPONENTS=1` 与 `ATOMIC_WFC` 的 `spin=1` 对应本次非自旋数据。`|cⱼ|²` 是该归一化波函数投到轨道的无量纲权重，画胖带不再乘自旋简并 2；否则权重与点面积都会错。自旋极化计算须把 k 点、带号、自旋共同作为配对键，本例脚本不能未经检查直接套用。
 
@@ -235,7 +235,7 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 ```
 
 
-[完整 fatband.csv](/Atlas/examples/si-pbe/bands-cg/fatband.csv)有 `121×8=968` 行数据，保留 k 序号、能带序号、累积路径距离、三个 k 坐标、能量、s/p 权重和投影和。这样既可以重画图，也能回到某个图上的点查原始态。
+[完整 fatband.csv](/Atlas/examples/si-pbe-electronic/bands-cg/fatband.csv)有 `121×8=968` 行数据，保留 k 序号、能带序号、累积路径距离、三个 k 坐标、能量、s/p 权重和投影和。这样既可以重画图，也能回到某个图上的点查原始态。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ tail -n 12 bands-cg/projwfc.out
@@ -255,16 +255,41 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 ```
 
 
-运行末尾确认 `projwfc.x` 正常结束。[完整输出](/Atlas/examples/si-pbe/bands-cg/projwfc.out)尾部还会打印 Löwdin 数字，但这次输入的是能带路径，不把它用于布里渊区积分的布居结论；[布居分析](/Atlas/m/population-analysis/qe/)另用均匀 `18³` 网格演示。
+运行末尾确认 `projwfc.x` 正常结束。[完整输出](/Atlas/examples/si-pbe-electronic/bands-cg/projwfc.out)尾部还会打印 Löwdin 数字，但这次输入的是能带路径，不把它用于布里渊区积分的布居结论；[布居分析](/Atlas/m/population-analysis/qe/)另用均匀 `18³` 网格演示。
 
-画图使用[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）：
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 逐 k 逐带轨道投影程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：bands-cg/atomic_proj.xml、data-file-schema.xml、projwfc.out，对照 fatband.csv。atomic_proj 为 Ry，QEXSD 为 Hartree，换算常数分别为 13.605693122994、27.211386245988 eV。
+方法：按 k 点和带号配对，对复幅度求模平方。状态 1、5 合为 Si-s，2–4、6–8 合为 Si-p；projection_norm=s+p，保留原始投影和。本例为一个自旋分量。
+检查：121×8=968 行，k 一致、能量差 <1e-6 eV、非负权重；投影和约 0.0615665–0.9970463。
+输出：源码、依赖、命令、CSV/JSON、PNG/SVG/PDF。面板共用路径、6.397028957255 eV 的 VBM 参考及散点面积标度，面积正比于权重，灰线保留本征能带。
+```
+
+## 后处理源码与运行
+
+完整源码：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py) · [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 analyse_electronic.py
+python3 plot_si.py fatband
+```
+
+
+数据提取与绘图源码可分别下载：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py)、[plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) 和同目录 [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。重画需要 Python 3、NumPy 和 Matplotlib；在解包后的 si-pbe 目录运行：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py fatband
 <工作目录>/si-pbe/plots/fatband.png
 ```
 
-![Si 的逐 k 逐带 s 和 p 权重胖带图](/Atlas/examples/si-pbe/plots/fatband.png)
+![Si 的逐 k 逐带 s 和 p 权重胖带图](/Atlas/examples/si-pbe-electronic/plots/fatband.png)
 
 两幅图使用同一路径和参考 `E−6.397028957255 eV`。节点索引仍为 `1、25、37、49、73、97、121`，横轴是实际坐标的累计距离，而非等距 k 点编号；节点和长度见[普通能带页](/Atlas/m/bands/qe/)。
 
@@ -274,7 +299,7 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 还有一个明确的弱投影点：K→Γ 段第 53 个 k 点 `(0.625,0.625,0)×2π/a`，第 7 条带位于 `E−VBM=6.224118 eV`；s 为 `0.0168803`，p 为 `0.0446863`，合计仅 `0.0615665`。灰色能带仍存在，两个面板的点却都小，表示所选 s/p 空间对该空态覆盖很少。不能说这条带消失，也不能随意将剩余约 94% 命名为未计算的某个轨道。
 
-没有把 s+p 强制归一化为 1，正是为了保留这种区别。完整 CSV 的投影和范围约 `0.06157–0.99705`，不同态的表示质量差别很大，不能只报告最大值接近 1。
+完整 CSV 的原始投影和为 `0.06157–0.99705`，保留了不同态在所选投影空间中的覆盖程度。
 
 这张图展示了固定 Si 晶胞、PBE、无 SOC 模型下的轨道组成。要分原子、分层或画 d 轨道，可以沿用相同的逐态合并方式，先根据本次 `Atomic states used for projection` 建立分组。没有出现在赝势投影态表中的轨道，不能靠改图例得到。
 
@@ -298,7 +323,7 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_OrbitalFatbands_PDOS_FS_TiSH_Li2024_Fig3a.jpg" alt="按 Ti d_xy+d_x²−y²、d_xz+d_yz 与 d_z² 拆分为三列窄能带面板的轨道胖带、水平 PDOS 与二维费米面联立图" loading="lazy"/><figcaption>将过渡金属 Ti-3d 轨道按晶体场对称性拆分为三列并排的窄能带面板，分别展示 <code>d_xy + d_x²−y²</code>、<code>d_xz + d_yz</code> 与 <code>d_z²</code> 权重，并与右侧共享能量轴的水平分波 PDOS 及二维费米面插图组合展示。图片来源：Li et al., <em>Phys. Rev. B</em> <strong>109</strong>, 174516 (2024), Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.109.174516" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.109.174516</a>。</figcaption></figure>
 
-- **读图与作图要点**：当同一条能带同时含有多个 `d` 分波分量时，把高对称路径压缩为三列并排的窄面板，分别绘制面内 `d_xy + d_x²−y²`、面外倾斜 `d_xz + d_yz` 和面外 `d_z²` 权重，再在右侧接上共享能量轴的水平 PDOS，可以彻底消除不同 `d` 分波在同一像素位置上的重叠。
+- **读图与作图要点**：当同一条能带同时含有多个 `d` 分波分量时，把高对称路径压缩为三列并排的窄面板，分别绘制面内 `d_xy + d_x²−y²`、面外倾斜 `d_xz + d_yz` 和面外 `d_z²` 权重，再在右侧接上共享能量轴的水平 PDOS，可以减少不同 `d` 分波在同一像素位置上的遮挡。
 
 ### 2. 空心圆轨道与间隙空球 X 投影胖带及带边同心圆放大图
 

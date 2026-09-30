@@ -1,0 +1,42 @@
+{
+  "source": {
+    "AB": {
+      "path": "../h2-delta-charge/AB/CHGCAR.gz",
+      "sha256_file": "22240f8167d1b4dd7ff767e3ebf0ebfd5c5800a6f26aa614da51ff4e9d0f9bca",
+      "sha256_uncompressed": "c2f141fcb0b5c22142565426a17a794ef65c29a924a07ddb723153167c9608a1"
+    },
+    "A": {
+      "path": "../h2-delta-charge/A/CHGCAR.gz",
+      "sha256_file": "3decfa9b6e6f9315d0902185c1e5a98a8d56b125b99ea2ed7f444a9c8d657dd2",
+      "sha256_uncompressed": "56f23e72f9e50c587ae93867681481e307b6c8023d7f024d9bc2d4857296056c"
+    },
+    "B": {
+      "path": "../h2-delta-charge/B/CHGCAR.gz",
+      "sha256_file": "246c0afc03984e5784d27b22966e449ed63047c436ef338c2e6a54e572880ba5",
+      "sha256_uncompressed": "543ca256886ea7ded5442e289506e96c3ebda671ce59a3e771f1624430416b52"
+    }
+  },
+  "output": "CHGCAR_DELTA",
+  "formula": "rho_AB(r) - rho_A(r) - rho_B(r)",
+  "grid": [
+    144,
+    144,
+    144
+  ],
+  "volume_A3": 1000.0000000000007,
+  "points": 2985984,
+  "grid_value_convention": "VASP CHGCAR values are rho(r) * cell_volume; divide this output's grid values by volume_A3 to obtain e/Angstrom^3.",
+  "minimum_delta_rho_e_A3": -0.05555942373199993,
+  "maximum_delta_rho_e_A3": 0.8029641057899995,
+  "delta_integral_e": 4.3626381946103466e-10,
+  "negative_integral_e": -0.2578313940025911,
+  "positive_integral_e": 0.2578313944388549,
+  "vesta_symmetric_threshold_grid_value": 30.0,
+  "equivalent_threshold_e_A3": 0.029999999999999978,
+  "input_grid_integrals_e": {
+    "AB": 2.0000000028688443,
+    "A": 1.000000001216176,
+    "B": 1.0000000012164043
+  },
+  "output_sha256": "bc9129d578816a5412317a85a5af5c70178e1d375900b3afdbe48f1681f591ca"
+}

@@ -621,33 +621,16 @@ python3 plot_cohp.py
 
 图中只保留零能量线、正负号分界和数值比较线。参数对照的右图使用对数纵轴，便于同时读出 0.00368、0.00094 和 0.00011 eV/bond 三个变化；它没有改变原始积分。邻近键图由 XML 坐标和周期平移计算，球的大小仅帮助辨认原子，不表示原子半径。
 
+下面的需求说明可复制给 AI 编程助手，用真实输出复现上述三张图：
+
+```text
+用Python 3、NumPy与Matplotlib读取本例各目录COHPCAR.lobster、ICOHPLIST.lobster、lobsterout和QE XML，不运行QE或LOBSTER。先检查文件能量点数、列布局、自旋约定、四条最近邻C-C键及晶格平移；从XML与ICOHPLIST重建键向量、距离和周期像。按原生COHPCAR已相对EF的能量轴画-pCOHP，零点0 eV，横纵轴标单位，逐键区分；占据区累计曲线与原生ICOHP符号一致，并独立核验0 eV端点。第二组比较只采用同一几何、PAW、Bunge C2s/2p、积分与展宽设定下的k网格/截断对照；不可把三个库名当作三个独立基组收敛。保留charge/total spilling和每键ICOHP数值，输出PNG/PDF及plot-checks.json。不可从文献抄数或增加无原始文件材料曲线。命令python3 plot_cohp.py，源码读入只读，结果写figures目录；论文PDF宽183mm并检查字体嵌入。
+```
+
 完整脚本可单独下载：[plot_cohp.py](/Atlas/examples/diamond-cohp/plot_cohp.py)。一般的轴标、图例、配色与矢量导出操作见[科研图的后处理与导出](/Atlas/plotting/)。
 
 读图时先定位 0 eV 与正负号，再核对画的是单键、四键平均还是总和。引用数字时回到相应目录的原生 ICOHPLIST 和参数对照，便能把成键图连回具体波函数、局域基组和周期原子对。
 
-## 文献中的相关图件与表达方式
+## 文献中的逐键谱图
 
-在展示 LOBSTER 计算的 `−pCOHP(E)` 或 `COHP(E)` 时，化学与材料物理文献常将其与实空间波函数等值面，或与能带、分波态密度（PDOS）及费米面同轴并列，以便把能量分辨的成键信号与轨道特征对应起来：
-
-### 1. COHP 成键/反键填充谱与特定能量窗口实空间波函数的对照
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_COHP_Wavefunctions_LaBr_Accounts2024_Fig5.jpg" alt="晶体轨道哈密顿布居 COHP 成键与反键色块填充谱及对应能量区间的实空间波函数等值面联立图" loading="lazy"/><figcaption>在 COHP 谱图中对成键区（Bonding）与反键区（Antibonding）使用对比色填充，并在旁侧配对展示对应能量窗口内的实空间 Kohn–Sham 波函数相位等值面。图片来源：<em>Acc. Chem. Res.</em> <strong>57</strong>, 2244 (2024), Fig. 5，<a href="https://doi.org/10.1021/acs.accounts.4c00209" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.accounts.4c00209</a>。</figcaption></figure>
-
-- **读图与作图要点**：围绕零轴对成键贡献与反键贡献作双色填充（`fill_between` / `fill_betweenx`），并针对关键峰位抽出对应能量区间的实空间波函数相位等值面（正负相位用双色区分），有助于直接观察特定轨道重叠如何形成共价成键或反键排斥。
-
-### 2. 电子能带、元素分辨 PDOS、总 COHP 与二维费米面的联合展示
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="Mo₂ScN₂O₂ 的电子能带、元素分辨 PDOS、总 COHP 曲线与二维六角费米面联合图" loading="lazy"/><figcaption>Mo₂ScN₂O₂ 的电子结构与化学键综合图件：电子能带、元素分辨分波态密度 PDOS（Mo、Sc、N、O 与 Total）以及子图 (d) 的总 COHP 曲线（左侧标示 <code>&lt;- antibonding</code>，右侧标示 <code>bonding -&gt;</code>）共享同一能量纵轴，并配合展示二维六角布里渊区内的费米面口袋。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> <strong>12</strong>, 46 (2026), Fig. 3，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
-
-- **读图与作图要点**：子图 (d) 将总 COHP 曲线纵置，顶部明确标出横轴两侧的成键与反键方向（左侧为 `<- antibonding`，右侧为 `bonding ->`），并与左侧的电子能带及 Mo、Sc、N、O、Total 分波态密度共享垂直能量轴 `E − E_F`，同时结合二维六角费米面口袋，把费米能级附近的能带色散、元素态密度来源与总体成键/反键特征直接对应起来。
-
-下一步：[投影能带](/Atlas/m/fatband/qe/)看沿 k 路径的轨道成分；[电子布居分析](/Atlas/m/population-analysis/qe/)看投影电子数。这些量可以与成对 Hamiltonian 分解结合阅读。
-
-```text
-固定金刚石两原子结构 + 同一份 PBE PAW
-  → 每个网格各自进行静态 SCF
-  → 检查电子收敛、8 条带、完整 .save
-  → LOBSTER：固定 C 2s/2p，核对四条周期键与投影质量
-  → ICOHPLIST 同定义对照 + COHPCAR 绘图
-  → 在已测试数值范围内解释最近邻净成键贡献
-```
+Na 等在 Cu₂N 的 Fig. 1(c) 中分别画 Cu–N 与 Cu–Cu 的 COHP，标出能量零点、键长和 ICOHP，便于把谱形与具体键联系起来。[Phys. Rev. B 112, 224504 (2025)](https://doi.org/10.1103/t7nc-p31n)。本例按同样的读图顺序，先确定金刚石四条 C–C 键，再读 −pCOHP 和占据区累计积分；Cu₂N 的键长与数值不移入本例。

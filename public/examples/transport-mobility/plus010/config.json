@@ -1,0 +1,8 @@
+{
+  "epsilon_xx": 0.01,
+  "mesh": 12,
+  "vacuum_add_A": 0,
+  "reference": "base",
+  "transverse": "fixed",
+  "ions": "relaxed"
+}

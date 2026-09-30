@@ -1,0 +1,5 @@
+protocol,clean_case,adsorbed_case,gas_case,adsorption_eV_H,change_from_baseline_meV_H
+baseline-k6,clean-slab,adsorbed,h2-10A,0.36701220373556775,0.0
+k8,clean-k8,ads-k8,h2-10A,0.38008429495947926,13.072091223911508
+vacuum20,clean-vac20,ads-vac20,h2-10A,0.3670128791521147,0.0006754165469691209
+H2-box12,clean-slab,adsorbed,h2-12A,0.36701462245782734,0.002418722259589501

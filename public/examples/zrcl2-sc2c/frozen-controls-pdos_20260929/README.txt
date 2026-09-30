@@ -1,9 +1,9 @@
 Frozen-Control PDOS Package
 Generated: 2026-09-29 (Asia/Shanghai)
 Slurm job: 8272
-Attempt: hzw-frozen-pdos-20260929-a1
+Attempt: frozen-pdos-20260929-a1
 Source directory:
-/home/hzw/work/txliu/sc2c/frozen_controls_pdos_20260929/
+<calculation-directory>/frozen_controls_pdos_20260929/
 
 Purpose
 Compare near-Fermi projected DOS for frozen-geometry

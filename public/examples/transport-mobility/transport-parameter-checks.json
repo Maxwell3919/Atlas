@@ -1,0 +1,71 @@
+{
+  "model": "K-valley longitudinal acoustic deformation potential only",
+  "mobility_cm2_Vs": 200.38557021265746,
+  "temperature_K": 300.0,
+  "formula": "e*hbar^3*C2D/(kB*T*mx*md*E1^2)",
+  "input_units": {
+    "C2D": "N/m",
+    "E1": "eV, converted to joule before substitution",
+    "mx_md": "multiples of m_e, converted to kg before substitution",
+    "output_before_area_conversion": "m^2/(V s)",
+    "output_after_area_conversion": "cm^2/(V s); multiply m^2/(V s) by 1e4"
+  },
+  "conversion_constants": {
+    "elementary_charge_C": 1.602176634e-19,
+    "hbar_J_s": 1.054571817e-34,
+    "kB_J_K": 1.380649e-23,
+    "electron_mass_kg": 9.1093837015e-31,
+    "1_eV_per_A2_to_N_per_m": 16.02176634
+  },
+  "fit_group_sensitivities": {
+    "five_strains": {
+      "mass_case": "zero",
+      "C2D_N_m": 132.1109093828255,
+      "E1_eV": -8.217568774568592,
+      "E1_fit_standard_error_eV": 0.014778309308512807,
+      "mx_me": 0.45601182474559465,
+      "md_me": 0.4559791639949685,
+      "mobility_cm2_Vs": 200.38557021265746,
+      "relative_to_five_strains": 0.0
+    },
+    "three_strains": {
+      "mass_case": "zero",
+      "C2D_N_m": 130.27110359038423,
+      "E1_eV": -8.217723285689326,
+      "E1_fit_standard_error_eV": 0.012272434248064849,
+      "mx_me": 0.45601182474559465,
+      "md_me": 0.4559791639949685,
+      "mobility_cm2_Vs": 197.5875260052405,
+      "relative_to_five_strains": -0.013963301870726252
+    },
+    "k16": {
+      "mass_case": "k16-zero",
+      "C2D_N_m": 132.9088055696877,
+      "E1_eV": -8.217443534593494,
+      "E1_fit_standard_error_eV": 0.014064127550793948,
+      "mx_me": 0.45601334528641435,
+      "md_me": 0.4559806840169276,
+      "mobility_cm2_Vs": 201.60061831582053,
+      "relative_to_five_strains": 0.006063550892779324
+    },
+    "vacuum28": {
+      "mass_case": "vacuum28-zero",
+      "C2D_N_m": 132.10139534563086,
+      "E1_eV": -8.218969901482733,
+      "E1_fit_standard_error_eV": 0.014673062393877419,
+      "mx_me": 0.4554669160903705,
+      "md_me": 0.45539306359161547,
+      "mobility_cm2_Vs": 200.8005681128293,
+      "relative_to_five_strains": 0.002070996927231006
+    }
+  },
+  "E1_fit_only_error_propagation": {
+    "E1_standard_error_eV": 0.014778309308512807,
+    "relative_mu_standard_error_from_E1_only": 0.003596759507324876,
+    "mu_standard_error_from_E1_only_cm2_Vs": 0.7207387047930921,
+    "derivative": "d ln(mu)/d ln(|E1|) = -2",
+    "limitation": "Excludes C2D/mass-fit, numerical-protocol and physical-model errors; not a total uncertainty."
+  },
+  "full_transport_calculation": false,
+  "status": "acoustic-DP estimate only; no full electron-phonon scattering integral or Boltzmann transport solution"
+}

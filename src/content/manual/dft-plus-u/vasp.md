@@ -2,7 +2,7 @@
 
 这份 VGe₂P₄ 静态计算给 V 的 d 轨道加了 U。先把元素顺序、U 的作用轨道和程序实际采用的参数连起来，再看电子迭代有没有结束。这里使用已有的完整输入与 OUTCAR；U = 3 eV 是这份算例的选择，不能仅凭计算收敛就推广给其他结构或其他材料。
 
-[下载本例的输入与原始输出](/Atlas/examples/vasp/vge2p4-dft-u3-files.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
+[下载本例的输入与原始输出](/Atlas/examples/interface-magnet-dft-plus-u/example-pack.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
 
 结构准备的路线见 [结构优化方法目录](/Atlas/m/relax/)，普通 VASP 静态计算的文件与操作见 [SCF](/Atlas/m/scf/vasp/)。进入复制出来的计算目录后，先读 POSCAR，再核对 U。
 
@@ -137,19 +137,23 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
 
 修改这些参数应保留旧结果：先用 `cp` 把原始输入复制到新目录，再用 `vi INCAR` 编辑，并用 `cat INCAR` 核对。重新运行后，应再次读取 OUTCAR 的 LMAXMIX 回显，并确认生成的 CHGCAR 与新输入对应，再接后续计算。
 
-将这份 VGe₂P₄ 算例的 `OSZICAR` 迭代序列与 `EIGENVAL` 本征值整理作图，可直观看到开启 `LDAUTYPE = 2`（V-3d `U_eff = 3.0 eV`）后 31 步电子自洽的残差收敛轨迹，以及 37 个不可约 k 点上自旋极化能级在费米能级附近的分布。
+## 输入与已收敛结果
 
-<figure class="research-figure"><img src="/Atlas/figures/dft-plus-u/vge2p4-dftu-diagnostics.png" alt="VGe₂P₄ 在 Dudarev DFT+U (U_eff = 3.0 eV) 下的电子收敛轨迹与自旋极化本征谱" loading="lazy"/><figcaption>本页 VGe₂P₄（V-3d <code>U<sub>eff</sub> = 3.0 eV</code>）的 VASP DFT+U 计算记录：（左）<code>OSZICAR</code> 31 步电子迭代中能量与电荷/占据矩阵残差 <code>rms(c)</code> 的收敛过程；（右）<code>EIGENVAL</code> 在 37 个不可约 k 点上的自旋向上与自旋向下本征值分布（费米能级已归零，总磁矩 0.5781 μ<sub>B</sub>）。</figcaption></figure>
+| 读取量 | 本次记录 |
+| --- | --- |
+| 元素顺序 / 作用轨道 | V Ge P / V-d |
+| Dudarev U−J（eV） | 3.0 |
+| LDAUTYPE / LDAUL | 2 / 2 −1 −1 |
+| 实际 LMAXMIX / LORBIT | 2 / 0 |
+| 电子步数 | 31 |
+| F（eV/胞） | −34.09930339 |
+| E0（eV/胞） | −34.09694576 |
+| 本次参考下 E_F（eV） | 2.4194 |
+| 总磁矩（μB/胞） | 0.5781 |
 
-## 文献中的相关图件与表达方式
+## 文献方法与本例读数
 
-对过渡金属 d 轨道引入在位库仑修正时，局域轨道占据矩阵的对称性破缺往往与配位多面体的几何畸变（如八面体三方畸变、Jahn–Teller 劈裂或金属二聚化）紧密耦合。这也是前文强调需要配合 `LASPH = .TRUE.` 与 `LMAXMIX = 4` 保留球内非球形梯度及 d 轨道占据矩阵的原因。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Polyhedra_SymmetryBreaking_MX2_MX3_Georgescu2022_Fig1.jpg" alt="二维卤化物 MX₂ 与 MX₃ 中配位八面体三方畸变、金属二聚化与 d 轨道占据破缺的关联示意图" loading="lazy"/><figcaption>层状过渡金属卤化物 MX₂/MX₃ 中配位多面体对称性降低、三方畸变与金属–金属二聚化同局域 d 轨道电子占据之间的耦合关系（Georgescu, Millis, and Rondinelli，<em>Phys. Rev. B</em> <strong>105</strong>, 245153 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.245153" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.245153</a>）。</figcaption></figure>
-
-由于有效 Hubbard 参数 `U_eff` 会直接移动局域 d 带相对于配体 p 带的位置并改变带隙或能带宽度，文献中在讨论半局域泛函的局域误差时，常将 GGA（或不同 `U` 值）与杂化泛函、自洽准粒子 GW 的能带及态密度并列对比，以明确各能带对关联修正的敏感程度，而不是凭单一 `U` 值的总能量高低来定出参数。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M9_GW_mHSE_GGA_Bands_MgB2_Fig1.jpg" alt="半局域 GGA、屏蔽杂化泛函 mHSE 与自洽准粒子 GW 的能带及态密度对比" loading="lazy"/><figcaption>不同交换关联与多体修正层级下的能带结构与态密度并列对照：通过对比半局域 GGA、屏蔽杂化泛函 mHSE 与自洽准粒子 GW，检验特征能带位置与带宽对关联修正的响应（Yin, Kutepov, and Kotliar，<em>Phys. Rev. X</em> <strong>3</strong>, 021011 (2013)，<a href="https://doi.org/10.1103/PhysRevX.3.021011" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevX.3.021011</a>）。</figcaption></figure>
+*Effect of Hubbard U-corrections on the electronic and magnetic properties of 2D materials: a high-throughput study*，[DOI: 10.1038/s41524-024-01503-3](https://doi.org/10.1038/s41524-024-01503-3)，Fig. 1 用代表性体系比较性质随 U 的变化，Fig. 5 比较 PBE/PBE+U 各向异性；正文先分析七个代表体系的 U 依赖，再为广泛比较选 U=4 eV。本例是一份 Ueff=3 eV 的 SCF，适合核对元素—轨道—参数及实际输出。评估 U 对性质的影响需要相同协议下的多个 U 点，当前表格没有把单次残差或无序 k 点本征值作为这种对比。LASPH 与 LMAXMIX 的设置依据分别见 [LASPH](https://vasp.at/wiki/LASPH) 和 [LMAXMIX](https://vasp.at/wiki/LMAXMIX) 官方说明。
 
 下一步接 [磁基态比较](/Atlas/m/magnetic-gs/vasp/)，在同一 U 下比较不同初始磁构型最终收敛到的状态。若继续做 VASP 能带或 DOS，应先按上一段重新生成含所需局域占据矩阵的 CHGCAR，并沿用相同的结构、PAW 与 U 设置。[能带方法目录](/Atlas/m/bands/) 和 [DOS 方法目录](/Atlas/m/dos/) 列出各引擎路线；其中 QE 算例的文件不能接到这份 VASP 计算后面。
 
@@ -159,3 +163,19 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
                                            ├─ 磁构型比较
                                            └─ LMAXMIX 与 CHGCAR 核验 → 能带 / DOS
 ```
+
+## 可复制的代码生成提示与复现
+
+```text
+请编写 Python 3 独立后处理程序。读取当前目录 POSCAR、INCAR、KPOINTS、OUTCAR、OSZICAR。按 V Ge P 顺序核对 Dudarev l/U/J 回显，从实际 OUTCAR 提取 LMAXMIX、LORBIT、F、E0、Efermi，OSZICAR 提取电子步数和最终总磁矩。检查 EDIFF 和计时段，保留单位与输入 SHA256，输出 JSON/CSV。缺失数据明确报错；仅报告 Ueff=3 eV 单点记录，不把 SCF 残差或无序 EIGENVAL 散点当作 U 效应。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+```
+
+[summarize_dftu.py 完整源码](/Atlas/examples/interface-magnet-dft-plus-u/summarize_dftu.py)
+
+[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-dft-plus-u/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+
+```bash
+python3 summarize_dftu.py
+```
+
+实际读取结果见正文表及 [dftu-result-table.csv](/Atlas/examples/interface-magnet-dft-plus-u/dftu-result-table.csv) · [dftu-summary.json](/Atlas/examples/interface-magnet-dft-plus-u/dftu-summary.json)。这些命令只读取现有输出进行后处理。

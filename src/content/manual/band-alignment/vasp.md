@@ -2,7 +2,7 @@
 
 把两份 OUTCAR 中的 `E-fermi` 直接画到一根能量轴上，会漏掉它们各自的能量零点。这里从一个六原子的 SnSe₂/Sr₂N 结构中拆出两层，保持共同面内晶胞，分别做固定结构 SCF；每一层都用自己的真空势换算带边或费米能，最后才放到同一张图上。
 
-[下载本例的输入、原始输出和分析脚本](/Atlas/examples/vasp/snse2-sr2n-alignment-files.tar.gz)。包内保留两份完整 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL`，以及产生本文数字的脚本。POTCAR 仅提供标题、价电子数与哈希，需要使用自己的授权文件。平面平均和能级提取可以在服务器上运行，绘图在本机完成。
+[下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-band-alignment/example-pack.tar.gz)。包内保留两份完整 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL`，以及产生本文数字的脚本。POTCAR 仅提供标题、价电子数与哈希，需要使用自己的授权文件。平面平均与能级提取脚本可在安装 NumPy 的 Python 环境中运行；表格导出脚本只依赖 Python 标准库。
 
 这组结构沿用 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/) 中的原始参考结构，各层的内部形变也保留。它回答的是共同晶胞下、指定冻结几何的孤立层参考能级。自由单层的平衡几何、接触后电荷转移和界面势垒，需要另外的计算来回答。固定结构 SCF 的文件和步骤见 [SCF](/Atlas/m/scf/vasp/)，势文件的格式见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
@@ -349,46 +349,31 @@ Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnS
 
 这次结果还保留了四项具体范围：共同晶胞下的冻结几何、非磁性约束、没有 SOC、单个 21×21×1 网格。PBE 带隙也不是经过准粒子修正的带隙。文章中的数值是可复核的计算示例；若要用它们讨论真实接触性质，应先补相应的结构、磁性与数值收敛检查，再直接分析界面体系。
 
-## 从原始文件重画这张图
+## 导出可复核的表格
 
-把下载包解压到本机，在安装了 NumPy 和 Matplotlib 的 Python 环境中运行：
+这组结果用表格呈现更直接：主要问题是每个表面的真空参考是否平坦、SnSe₂ 带边相对相向 Sr₂N 费米能的位置。现有绘图脚本保存在证据归档中；本文不把原先的复合图作为结果图。
+
+下载包新增的 `export_alignment_tables.py` 只依赖 Python 标准库，读取 `alignment-summary.json`，输出四个表面窗口的真空参考值和两项相向表面偏移：
 
 ```bash
-cd snse2
-python3 ../plane_average.py LOCPOT 6:10 29:33
-cd ../sr2n
-python3 ../plane_average.py LOCPOT 6:10 29:33
-cd ..
 python3 analyze_alignment.py
 python3 check_vacuum_density.py
-python3 plot_alignment.py
+python3 export_alignment_tables.py
 ```
 
-前三类脚本从原始文件重建数据，最后一条生成 `band-alignment.png` 与 PDF。图上方保留每层原始势曲线，并给出实际选取的窗口；下方将四个表面分别以当地真空为零，SnSe₂ 画 VBM/CBM，Sr₂N 只画金属费米能。朝向原界面的两个表面会在横轴文字中标出。
+脚本的本次实际输出为 4 行表面值、2 行相向偏移。SnSe₂ lower-z 表面的真空势为 1.738360141 eV，VBM−Vvac = −5.992725141 eV，CBM−Vvac = −5.714622141 eV；Sr₂N upper-z 表面的真空势为 1.273814882 eV，EF−Vvac = −3.432014882 eV。按各自真空参考组合后，CBM(SnSe₂)−EF(Sr₂N) = −2.282607260 eV。CSV 保留两侧所有平台均值与窗口内势差，可[查看真空参考表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)和[相向表面偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
 
-![同一共同晶胞中两份冻结孤立层的双侧真空势与参考能级](/Atlas/figures/band-alignment-vasp/band-alignment.png)
+## 可复用的代码生成提示
 
-## 文献中的相关图件与表达方式
+```text
+请编写一个 Python 3 标准库脚本，读取同目录的 alignment-summary.json。文件内含 SnSe2 与 Sr2N 两层的 sampled-mesh 分类、能带边、E_F、两侧 LOCPOT 真空窗口，以及已指定的 interface_facing_isolated_reference。输出 band-edges-vacuum-referenced.csv，每种材料和表面各一行，至少含材料、表面、窗口范围、真空势均值、窗口势差、E_F−Vvac、VBM−Vvac、CBM−Vvac、采样带隙和金属/半导体分类；金属的 VBM/CBM 与带隙字段留空，不要伪造带边。另输出 facing-surface-offsets.csv，逐行写出 SnSe2 lower-z 与 Sr2N upper-z 的 CBM−EF、EF−VBM 值及“冻结孤立层参考，不是界面势垒”的范围说明。数值保持 eV，CSV 用 UTF-8，写入脚本所在目录，固定列序，确保重跑可复现。若缺少任一预期字段或 JSON 无法解析，应以清楚错误退出；不要画图、填补缺失数据或推断接触后的性质。
+```
 
-在半导体异质结、金属/半导体接触与二维材料数据库研究中，除了单体系双侧真空参考图，文献常采用以下三种图件表达能带对齐与界面势垒演化：
+完整源码：[export_alignment_tables.py](/Atlas/examples/interface-magnet-band-alignment/export_alignment_tables.py) · [analyze_alignment.py](/Atlas/examples/interface-magnet-band-alignment/analyze_alignment.py) · [check_vacuum_density.py](/Atlas/examples/interface-magnet-band-alignment/check_vacuum_density.py) · [plane_average.py](/Atlas/examples/interface-magnet-band-alignment/plane_average.py)。按上方命令读取原始输出后，导出四行表面值与两行相向偏移，具体值见两份 CSV。
 
-### 1. 界面宏观平均静电势台阶与价带/导带偏移（VBO/CBO）对齐图
+## 文献方法与适用范围
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_MacroscopicAverage_VBO_CBO_Dawber2005_Fig26b.jpg" alt="SrO/SrTiO₃ 界面平滑宏观平均静电势台阶 ΔV = −1.22 eV 及由此导出的 VBO 与 CBO 能带偏移示意图" loading="lazy"/><figcaption>SrO/SrTiO₃ 界面的静电势对齐示意：下方展示经宏观平均平滑后的界面静电势台阶（<code>ΔV = −1.22 eV</code>），上方将其与两侧体相带边结合，标出价带偏移（<code>VBO = 0.18 eV</code>）与导带偏移（<code>CBO = −2.22 eV</code>）。图片来源：Dawber et al., <em>Rev. Mod. Phys.</em> <strong>77</strong>, 1083 (2005), Fig. 26b，<a href="https://doi.org/10.1103/RevModPhys.77.1083" target="_blank" rel="noopener noreferrer">DOI: 10.1103/RevModPhys.77.1083</a>。</figcaption></figure>
-
-- **读图与作图要点**：在无真空的超晶格或体相异质界面中，先在图下方绘出跨界面的平滑宏观平均静电势台阶（如 `SrO/SrTiO₃` 界面的 `ΔV = −1.22 eV`），再在图上方将两侧各自的体相 VBM、CBM 相对于各自静电势参考放回同一能量纵轴，即可清晰读出价带偏移（`VBO = 0.18 eV`）与导带偏移（`CBO = −2.22 eV`）。
-
-### 2. 相对于真空能级的 Type-II 交错带边偏移判据示意
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_BandAlignment_MultiFunctional_TMDs_C2DB2018_Fig21.jpg" alt="相对于真空能级的两层材料 VBM 与 CBM 交错排列及 Type-II 带边偏移判据 ΔE 示意图" loading="lazy"/><figcaption>以真空能级为统一参考的两层半导体带边对齐示意，标出两层各自的 VBM 与 CBM 位置以及用于筛选 Type-II 交错（Staggered）异质结的带边偏移判据 <code>ΔE</code>。图片来源：Haastrup et al., <em>2D Mater.</em> <strong>5</strong>, 042002 (2018), Fig. 21，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>。</figcaption></figure>
-
-- **读图与作图要点**：将两个单层相对于各自真空能级的 VBM 与 CBM 并排放置在统一能量轴上，通过标出两侧同类带边之间的偏移量 `ΔE`，可以直接说明 Type-II 交错带边排列的筛选判据。
-
-### 3. 外加垂直电场调控肖特基势垒与接触类型相区图
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_SchottkyBarrier_Efield_PhaseDiagram_ZrCl2_Yi2023_Fig8a.jpg" alt="ZrCl₂/Zr₂Cl₂ 异质结中电子型与空穴型肖特基势垒随垂直外电场的演化及三种接触类型背景分区图" loading="lazy"/><figcaption>ZrCl₂/Zr₂Cl₂ 异质结中电子型肖特基势垒（<code>Φ_e</code>，黑色方块）与空穴型肖特基势垒（<code>Φ_h</code>，红色圆圈）随垂直外电场的演化曲线，薄荷绿、杏色与淡紫色背景分别标示 n 型肖特基、p 型肖特基与欧姆接触（Ohmic）区间。图片来源：Yi et al., <em>Appl. Surf. Sci.</em> <strong>613</strong>, 156054 (2023), Fig. 8a，<a href="https://doi.org/10.1016/j.apsusc.2022.156054" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.apsusc.2022.156054</a>。</figcaption></figure>
-
-- **读图与作图要点**：在金属/半导体异质结（如 `ZrCl₂/Zr₂Cl₂`）中，沿横轴扫描法向外电场，同时追踪电子势垒 `Φ_e`（黑色方块）与空穴势垒 `Φ_h`（红色圆圈），并用不同底色（薄荷绿 n-Schottky、杏色 p-Schottky、淡紫色 Ohmic）区分接触类型相区，能清楚标出发生肖特基—欧姆转变与能带反转的临界电场。
+Choudhary 等，*Efficient Computational Design of 2D van der Waals Heterostructures: Band-Alignment, Lattice-Mismatch, Web-app Generation and Machine-learning*，[arXiv:2004.03025v2](https://arxiv.org/abs/2004.03025v2)，Figs. 2、5。Fig. 2 用选定显式异质结构的电子结构检验单层参考预测；Fig. 5 展示相对真空能级的三类半导体对齐。分析逻辑是各层带边先减自己的真空势，再比较能级。这里 Sr₂N 为金属，结果以其 E_F 作参考，呈现冻结孤立层的带边—金属费米能偏移；接触后界面重排需要完整界面的密度、势与能带。
 
 下一步若要看接触后的变化，转到 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，在同一异质结构晶胞与冻结几何下比较 AB、A、B 的电荷；若要读整个异质结构的势变化，转到 [静电势](/Atlas/m/electrostatic-potential/vasp/)。这两类结果再与实际界面能带结合，才能继续讨论接触后的能级重排。
 
@@ -400,6 +385,6 @@ python3 plot_alignment.py
             ├─ EIGENVAL：半导体带边或金属费米面交叉
             └─ LOCPOT + CHGCAR：双侧平坦真空区间
                  └─ 每个能级减去对应表面的真空势
-                      └─ 孤立层参考图 → 后续直接检查界面体系
+                      └─ 孤立层参考表 → 后续直接检查界面体系
 ```
 

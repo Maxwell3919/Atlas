@@ -1,0 +1,44 @@
+&CONTROL
+ calculation = 'scf'
+ prefix = 'mos2'
+ pseudo_dir = '../pseudo'
+ outdir = './tmp'
+ verbosity = 'high'
+ tstress = .true.
+ tprnfor = .true.
+ nstep = 40
+ etot_conv_thr = 1.0d-8
+ forc_conv_thr = 1.0d-5
+/
+&SYSTEM
+ ibrav = 0
+ nat = 3
+ ntyp = 2
+ ecutwfc = 60
+ ecutrho = 480
+ nbnd = 16
+ occupations = 'fixed'
+/
+&ELECTRONS
+ startingpot = 'file'
+ startingwfc = 'file'
+ conv_thr = 1.0d-12
+ mixing_beta = 0.3
+ diagonalization = 'cg'
+ diago_thr_init = 1.0d-10
+ diago_full_acc = .true.
+ diago_cg_maxiter = 200
+/
+ATOMIC_SPECIES
+Mo 95.95 Mo.pbe-spn-rrkjus_psl.1.0.0.UPF
+S 32.06 S.pbe-n-rrkjus_psl.1.0.0.UPF
+CELL_PARAMETERS angstrom
+3.21455523014633 0.00000000000000 0.00000000000000
+-1.60727761507316 2.75632325858916 0.00000000000000
+0.00000000000000 0.00000000000000 23.19000000000000
+ATOMIC_POSITIONS crystal
+Mo 0.00037260436843 0.00074520873687 0.50000000000000
+S 0.66648036448278 0.33296072896457 0.56725459746518
+S 0.66648036448278 0.33296072896457 0.43274540253482
+K_POINTS automatic
+12 12 1 0 0 0

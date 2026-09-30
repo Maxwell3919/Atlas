@@ -1,0 +1,7 @@
+ASR=no: modes=6, atoms=2, max |norm-1|=3.094e-07
+  translation fraction: 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000
+ASR=crystal: modes=6, atoms=2, max |norm-1|=4.353e-07
+  translation fraction: 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000
+acoustic projector difference: 5.489e-16
+optical projector difference: 5.439e-16
+Wrote mode-diagnostics.csv, mode-vectors.csv, mode-checks.json

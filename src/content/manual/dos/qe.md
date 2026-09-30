@@ -4,7 +4,7 @@
 
 这里接 [Si 的 24³ NSCF](/Atlas/m/nscf/qe/)。那一页已经保留 8 条能带并检查本征值求解；`dos.x` 在这些带能量上做布里渊区加权，不再求一份新的电荷密度。高对称路径的点分布服务于画线，不能代替这里的均匀采样。
 
-本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
+本例文件可[一起下载](/Atlas/examples/si-pbe-electronic-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，先完成 [24³ NSCF](/Atlas/m/nscf/qe/)，再把这份保存数据复制到本页的 `dos-cg` 目录。
 
@@ -77,7 +77,7 @@ cd "$SLURM_SUBMIT_DIR"
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-本次实际 WALL 时间为 0.73 s。[dos.err](/Atlas/examples/si-pbe/dos-cg/dos.err) 为 1300 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；原始文件随结果保留。本轮已写出完整 DOS 表，输出未见致命错误。`JOB DONE.` 表明这一步执行完毕；图的可靠范围仍取决于 NSCF 的空带数、k 网格与后处理展宽。
+本次实际 WALL 时间为 0.73 s。[dos.err](/Atlas/examples/si-pbe-electronic/dos-cg/dos.err) 为 1300 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；原始文件随结果保留。本轮已写出完整 DOS 表，输出未见致命错误。`JOB DONE.` 表明这一步执行完毕；图的可靠范围仍取决于 NSCF 的空带数、k 网格与后处理展宽。
 
 ## 数据文件的第三列不是“又一条 DOS”
 
@@ -111,17 +111,41 @@ cd "$SLURM_SUBMIT_DIR"
 
 在价带顶本身，累计列约为 `7.997`：Gaussian 展宽将部分边缘谱重带到了价带顶以上。不能为了让该端点等于整数而重新缩放曲线。`degauss` 是 QE 的展宽参数，不是能量步长、仪器分辨率或真实温度。
 
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 总 DOS 后处理程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：dos-cg/si.dos.dat 三列为能量（eV）、DOS（states/eV/cell）、累计态数（states/cell）；Gaussian degauss=0.01 Ry。零点取 gap-results.json 的 gap24-cg VBM=6.397028955497 eV。
+方法：平移能量轴，保留原始 DOS 和 Gaussian 尾部；本例非自旋总 DOS 已含简并。
+检查：1201 个严格递增点、间隔约 0.02 eV、有限值；梯形积分约 15.9733，与累计末值 15.97 在打印精度内相符，带隙中点累计态数约 8。
+输出：源码、依赖、命令、摘要、PNG/SVG/PDF；坐标为 E−VBM (eV)、DOS (states/eV/cell)，显示 −13…8 eV。精确带边取本征值，DOS 用于态数分布。
+```
+
+## 后处理源码与运行
+
+完整源码：[plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 plot_si.py dos
+```
+
+
 ## 从原始能量转到相对价带顶的图
 
 在解包后的 `si-pbe` 目录运行：
 
+完整绘图源码见 [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) 与同目录 [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)，原始输入表见 [si.dos.dat](/Atlas/examples/si-pbe-electronic/dos-cg/si.dos.dat)。重画需要 Python 3、NumPy 和 Matplotlib。
 ```bash
 python3 plot_si.py dos
 ```
 
-![Si 的总态密度，能量相对同一 24³ NSCF 的价带顶](/Atlas/examples/si-pbe/plots/dos.png)
+![Si 的总态密度，能量相对同一 24³ NSCF 的价带顶](/Atlas/examples/si-pbe-electronic/plots/dos.png)
 
-脚本读取 `dos-cg/si.dos.dat` 的前两列，并从 `gap-results.json` 读取同一 `gap24-cg` 的 VBM，再平移能量轴。图中的阴影只是曲线下方的填色，不代表某种元素或轨道投影。完整[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）与[原始 DOS 表](/Atlas/examples/si-pbe/dos-cg/si.dos.dat)可以单独下载。
 
 Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这一张有展宽的图上量出高精度带隙。带边位置与采样依赖回到 [带隙页](/Atlas/m/band-gap/qe/)核对；DOS 峰形需要另做 k 网格与展宽的交叉比较。
 
@@ -159,17 +183,17 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 <figcaption>QE 7.1 ZrCl2/Sc2C site mapping. Layer labels and fractional z values follow the scf/pwx.in crystal coordinates; horizontal spacing is schematic.</figcaption>
 </figure>
 
-通过共享能量纵轴，可以直接将子图 b 中费米能级附近的态密度峰与子图 a 中平缓的 `Zr-4d` / `Sc-3d` 能带色散对应起来。在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)的 `lambdax.emax18.out` 中，`σ = 0.003 Ry` 处由双高斯展宽计算的费米面态密度 `N_σ(E_F)` 在 `ph64`（`64²`）与 `ph96`（`96²`）网格下分别为 `30.598` 与 `30.772 states/spin/Ry/cell`（完整 `N_σ(E_F)` 随展宽 `σ` 的变化曲线见 [`zrcl2-sc2c-k64-k96-moments.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png) 的子图 a）。
+通过共享能量纵轴，便于将子图 b 中费米能级附近的态密度峰与子图 a 中平缓的 `Zr-4d` / `Sc-3d` 能带色散对应起来。在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)的 `lambdax.emax18.out` 中，`σ = 0.003 Ry` 处由双高斯展宽计算的费米面态密度 `N_σ(E_F)` 在 `ph64`（`64²`）与 `ph96`（`96²`）网格下分别为 `30.598` 与 `30.772 states/spin/Ry/cell`（完整 `N_σ(E_F)` 随展宽 `σ` 的变化曲线见 [`zrcl2-sc2c-k64-k96-moments.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png) 的子图 a）。
 
 ### 冻结几何对照：异质结与孤立 Sc₂C 的 PDOS
 
 这组控制计算在 0% 与 +1.5% 两种应变设置下，分别比较异质结中的 Sc₂C 层、ZrCl₂ 层与孤立 Sc₂C。所有坐标均保持冻结，因此它们不代表弛豫平衡结构。图中每条谱都以各自计算的费米能级为零点；这种分别对齐可以比较费米能级附近的谱形和权重，不能据此判断绝对能带偏移或电荷转移。
 
 <figure class="research-figure"><img src="/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos.png" alt="0% 与 +1.5% 设置下，异质结 Sc₂C 层、ZrCl₂ 层以及冻结孤立 Sc₂C 的费米能级附近投影态密度对照" loading="lazy"/>
-<figcaption>冻结坐标下的投影态密度，能量窗为各自费米能级附近 −2 至 +2 eV。左、右面板分别为 0% 与 +1.5%；实线为异质结中的 Sc₂C 层，虚线为孤立 Sc₂C 对照，另示异质结中的 ZrCl₂ 层。新图例按输入原子编号归并：异质结中 Sc₂C = C#2 + Sc#5-6、ZrCl₂ = Zr#1 + Cl#3-4；孤立 Sc₂C = Sc#1-2 + C#3。
-纵轴单位为 states/eV/simulation cell。图中的费米能级对齐不提供绝对能带偏移；这些结构也不是弛豫平衡态。</figcaption></figure>
+<figcaption>冻结坐标下的投影态密度，能量窗为各自费米能级附近 −2 至 +2 eV。左、右面板分别为 0% 与 +1.5%；实线为异质结中的 Sc₂C 层，虚线为孤立 Sc₂C 对照，另示异质结中的 ZrCl₂ 层。图例按输入原子编号归并：异质结中 Sc₂C = C#2 + Sc#5-6、ZrCl₂ = Zr#1 + Cl#3-4；孤立 Sc₂C = Sc#1-2 + C#3。
+纵轴单位为 states/eV/simulation cell。</figcaption></figure>
 
-交付摘要中的费米能级与网格信息如下；异质结在 +1.5% 下的 E_F = 0.3133 eV，与上文电子结构图所用值一致。
+各计算的费米能级与网格信息如下；异质结在 +1.5% 下的 E_F = 0.3133 eV，与上文电子结构图所用值一致。
 
 | 状态 | E_F (eV) | 能量点数（步长 0.005 eV） | 投影文件数 |
 |---|---:|---:|---:|
@@ -179,7 +203,7 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 | 孤立 Sc₂C，+1.5% | −2.1362 | 10,378 | 10 |
 
 母体异质结的力残差为 0% 时 2.40×10⁻⁴、+1.5% 时 1.20×10⁻⁴ Ry/Bohr；本图只用于冻结几何的电子态对照。
-数据与复现文件：[矢量 PDF 图](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos.pdf) · [长表数据 CSV](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos_long.csv) · [汇总与求和检查 CSV](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos_summary.csv) · [复现绘图及检查脚本](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/plot_frozen_pdos.py) · [交付说明](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/README.txt)。
+数据与复现文件：[矢量 PDF 图](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos.pdf) · [长表数据 CSV](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos_long.csv) · [汇总与求和检查 CSV](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos_summary.csv) · [复现绘图及检查脚本](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/plot_frozen_pdos.py) · [数据说明](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/README.txt)。
 
 ## 文献中的相关图件与表达方式
 

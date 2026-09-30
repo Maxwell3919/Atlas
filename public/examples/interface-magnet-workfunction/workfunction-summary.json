@@ -1,0 +1,61 @@
+{
+  "bands": 20,
+  "cbm_eV": -1.923449,
+  "code": "VASP",
+  "electrons": 26,
+  "fermi_eV": -2.4783,
+  "formula": {
+    "electron_affinity_eV": "V_vacuum - CBM",
+    "ionization_potential_eV": "V_vacuum - VBM",
+    "potential_spread_eV": "max(Vbar) - min(Vbar) within each selected window",
+    "work_function_eV": "V_vacuum - E_F"
+  },
+  "grid": [
+    60,
+    60,
+    280
+  ],
+  "indirect_gap_eV": 0.7672730000000001,
+  "input_sha256": {
+    "EIGENVAL": "a32825394d7070dee190419232db059bee092c0534ca839acfa3e65a72e573f7",
+    "LOCPOT": "ea5ca9f3b4bb28ceb0b341f9bba169658bbb1967d6e9513dcd8c7a658d23a642",
+    "OUTCAR": "d995a7bf2cbbcfcf16e082e2bff40c1b80f34c9a3a61fd9d07aeb85ccfc20f5d"
+  },
+  "ispin": 1,
+  "limits": [
+    "EIGENVAL band edges are extrema on the sampled SCF k mesh, not a continuous-Brillouin-zone search.",
+    "E_F in a semiconductor is the chemical potential printed for this occupation setup; it can move within the gap.",
+    "Window spread is a local flatness diagnostic, not an uncertainty or convergence estimate."
+  ],
+  "nkpoints": 108,
+  "normal_height_A": 18.357298,
+  "potential_component": "LVHAR (ionic + Hartree; LVTOT is false)",
+  "scalar_values": 1008000,
+  "surface_normal": "normal to lattice vectors a and b",
+  "vbm_eV": -2.690722,
+  "weighted_electrons": 25.9999927876,
+  "windows": [
+    {
+      "hi_A": 3.0,
+      "lo_A": 1.0,
+      "mean_eV": 3.306283412389756,
+      "n": 30,
+      "range_eV": 6.069721202717204e-05,
+      "std_eV": 1.5601962914503967e-05,
+      "vacuum_minus_cbm_eV": 5.229732412389756,
+      "vacuum_minus_fermi_eV": 5.784583412389756,
+      "vacuum_minus_vbm_eV": 5.997005412389756
+    },
+    {
+      "hi_A": 17.0,
+      "lo_A": 15.0,
+      "mean_eV": 3.306265353230468,
+      "n": 31,
+      "range_eV": 0.0001459957572778059,
+      "std_eV": 3.896078582336746e-05,
+      "vacuum_minus_cbm_eV": 5.229714353230468,
+      "vacuum_minus_fermi_eV": 5.784565353230468,
+      "vacuum_minus_vbm_eV": 5.996987353230468
+    }
+  ]
+}

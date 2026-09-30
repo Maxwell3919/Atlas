@@ -215,7 +215,7 @@ mpirun -np 16  <vasp_bin>/vasp_std > out
 
 标准输出确认这些历史单点实际使用了 16 个进程。脚本没有把申请进程数写成 SBATCH 参数，复算时应明确申请与 `-np 16` 对应的资源，例如 `sbatch --nodes=1 --ntasks=16 script_std`，并根据当前队列保留公共节点所需的空闲资源。本次整理只读取这些已存在结果，没有重新提交这一系列任务。
 
-## 能搜到能量，不等于这一点可以进入曲线
+## 按电子收敛与完整输出筛选扫描点
 
 `scf_eq/out` 开头记录了程序版本、并行数与体系规模：
 
@@ -410,35 +410,70 @@ W(20) = ΔE(20) / A
 
 换算使用 `1 meV/Å² = 0.01602176634 J/m²`。本次只从一个面分离一个三原子层，按这次操作的能量差除以面内面积，不因出现两个表面再机械地除以 2。若改为同时分离两层，必须重新定义操作与计数。
 
-## 放大末段以后，还能看到什么
+## 从有限位移数据判断分离功的范围
 
-[plot_exfoliation.py](/Atlas/examples/hfi2-frozen20/plot_exfoliation.py)（同时下载 [atlas_plot_style.py](/Atlas/examples/atlas_plot_style.py)，放在同一目录） 直接读取 CSV，输出 PNG、PDF 与 SVG。在装有 NumPy 和 Matplotlib 的本机运行：
+这里关注的是：在明确定义的参考结构与移动原子集合下，把最外一层移开所需的能量是否代表从堆叠材料中剥下一层，以及大距离能量是否已达到可接受的极限。层状材料论文通常从体相或 bulk-like 多层模型开始，以相对平衡层距的位移为自变量，按面积归一化，再比较足够大的分离距离与厚度/堆垛敏感性。本例的参考不是体相：<code>scf_eq</code> 是 18 原子、六个 HfI₂ 化学式单元组成的六层 slab，c=82.1873167 Å，面内面积 A=10.8482214944 Å²；外侧周期镜像间距为 43.993243 Å。接受点均为 VASP 5.4.4（build 26 Feb 2024）的固定几何静态计算：PBE（<code>GGA=PE</code>）、<code>IVDW=11</code>、400 eV、电子阈值 10⁻⁶、Γ-centered 18×18×1，<code>IBRION=-1</code>。沿用已核验输入，只移动顶层三原子 11、12、18 号，逐点读取 OUTCAR 的 <code>energy without entropy</code>。
 
-```bash
-cd hfi2-frozen20
-python3 extract_scan.py
-python3 plot_exfoliation.py
-```
+所以本页能报告的是一个冻结六层模型中打开一个界面的有限距离分离功：
+$$
+W(d)=\frac{E_{\rm without\ entropy}(d)-E_{\rm without\ entropy}(0)}{A},\qquad
+1\;\mathrm{eV/\mathring A^2}=16.02176634\;\mathrm{J/m^2}.
+$$
+该量定义为一次界面分离操作的功，不含表面能定义中的二倍面积因子；若改报单面表面能，需另行定义为 ΔE/(2A)。d=20 Å 时 ΔE=0.24809474 eV/cell，W=0.36641176 J/m²。由于 d=0 仍是六层 slab，本值不能直接叫作由体相参考得到的 HfI₂ 材料剥离能。
 
-![HfI₂ 冻结结构分离曲线与末段能量变化](/Atlas/examples/hfi2-frozen20/hfi2-exfoliation.png)
+### 接受点与末段起伏
 
-左图按面积归一化，从零点画到 20 Å；右图把 d≥12 Å 的原始能量差放大。没有用平滑或拟合让末段变成单调平台。16–20 Å 的能量差范围为 **0.77266 meV/cell**；19→20 Å 实际降低 **0.42288 meV/cell**，而不是继续单调增加。
+接受表共 20 点：d=0 与 d=2…20 Å。名义 d=1 Å 有两次尝试但均未接受：目录 scf_d1 的 OUTCAR 缺失，scf_d1.00 为不完整静态 SCF。另有 scf_d0.25、0.50、0.75、1.25、1.50 未满足接受条件。没有把这些尝试插值进接受表。以下选择 d=0、首个接受的 d=2 和末段五个点；能量均为 eV/cell，ΔE 为 meV/cell，W 为 J/m²。
 
-这个范围描述已采样五点的变化，不是已知的总误差条。当前数据没有预先完成所需的 k 点、截断、展宽或层数对照，也没有更大 c 的成对结果，因而不能仅凭整图看起来变平，就宣布取得收敛剥离能。
+| 目录 | d (Å) | E without entropy (eV/cell) | ΔE (meV/cell) | W (J/m²) | 外侧周期镜像间距 (Å) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| scf_eq | 0 | −107.79327340 | 0.00000 | 0.00000000 | 43.993243 |
+| scf_d2 | 2 | −107.67298978 | 120.28362 | 0.17764719 | 41.993243 |
+| scf_d16 | 16 | −107.54552844 | 247.74496 | 0.36589517 | 27.993243 |
+| scf_d17 | 17 | −107.54522826 | 248.04514 | 0.36633851 | 26.993243 |
+| scf_d18 | 18 | −107.54525486 | 248.01854 | 0.36629922 | 25.993243 |
+| scf_d19 | 19 | −107.54475578 | 248.51762 | 0.36703631 | 24.993243 |
+| scf_d20 | 20 | −107.54517866 | 248.09474 | 0.36641176 | 23.993243 |
 
-晶胞高度始终固定。把顶层抬高时，它与下面五层的距离增加，同时与上方周期镜像的空隙减小。由真实坐标计算，最外层原子之间的周期边界空隙从 43.993243 Å 减少到 23.993243 Å。这个空隙仍是几何距离，不是周期镜像误差的数值证明；检查时应在更大 c 下重算匹配的零点与分离点，再比较同一定义的差值。
+d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降低 0.42288 meV/cell。这个有限样本显示末段存在起伏，不能据此给出统计误差，也不足以确认能量已经达到解理曲线的平台。与此同时，c 保持固定时，外侧周期镜像间距从 43.993 Å 缩到 23.993 Å。增加顶层位移并没有保持周期镜像间距不变；还需在更大 c 下成对重算 d=0 与分离点，才可量化这一误差来源。
 
-这组结果支持的是：在给定原型构型、冻结坐标和当前 PBE-D3 协议下，分离一层到 d=20 Å 的电子能量代价为上述数值。要把它作为材料剥离能，还需要先取得可接受的 HfI₂ 参考几何，再检查有限厚度、面内约束、层内松弛和相应数值参数。原子不移动的单点不能替代这些条件。
+### 用 AI 编写分离功分析脚本
 
-## 文献中的解理与剥离曲线对照方式
+~~~text
+请用 Python 3 编写 review_hfi2_exfoliation.py，读取同目录的 exfoliation.csv、excluded.csv 和 scf_eq 的 POSCAR；这些输入不可修改。接受点 CSV 的关键字段是 directory、d_A（Å）、energy_without_entropy_eV（eV/cell）、energy_sigma0_eV（eV/cell）、delta_E_meV（meV/cell）、W_meV_A2（meV/Å²）、W_J_m2（J/m²）、outer_periodic_gap_A（Å）。排除表字段为 directory、reason、energy_lines、ediff、normal_end。
 
-报道层状材料的剥离或解理能曲线时，通常以相对平衡层间距的位移 d − d<sub>0</sub> 为横轴、单位面积能量（J/m<sup>2</sup> 或 meV/Å<sup>2</sup>）为纵轴，并同时比较剥离最外单层与从厚层块体中间劈裂的曲线，检验结果对层厚模型的敏感性。
+用 POSCAR 的正比例因子与 a、b 晶格矢量叉积计算 A（Å²）；对所有点始终选 energy_without_entropy_eV，令 ΔE(eV/cell)=E(d)−E(scf_eq)，W(meV/Å²)=1000*ΔE/A，W(J/m²)=ΔE/A*16.02176634。逐行复算并核对 CSV 存储的 ΔE 与 W。不得把 energy_sigma0_eV 和 energy_without_entropy_eV 混在一个差分里。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Cleavage_ZrI2_Chen2023_Fig1.jpg" alt="α-ZrI2 与 β-ZrI2 的晶体结构及单层剥离与五层解理能曲线对照" loading="lazy"/><figcaption>层状 α-ZrI<sub>2</sub> 与 β-ZrI<sub>2</sub> 的晶体结构（a–b）及解理能随层间分离距离 <em>d</em> − <em>d</em><sub>0</sub> 的变化曲线（c），对比单层剥离（exfoliation）与五层块体断裂（5-layer fracture），在大间距平台区收敛至约 0.25 J/m<sup>2</sup>。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 1，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+校验 d=0 只有一个 scf_eq，20 个接受距离必须为 {0,2,3,…,20} Å，所有数字有限、d 和 directory 无重复；接受表不能包含 d=1。确认名义 d=1 的 scf_d1（OUTCAR absent）与 scf_d1.00（Incomplete static SCF）都在排除表中。缺列、重复、错单位、面积不符、能量差或归一化量超容差、接受/排除计数不是 20/7 时停止并指出文件/目录/字段。
 
-为了评估机械剥离的可行性，图中还常叠加石墨烯、MoS<sub>2</sub> 等典型范德华层状材料的剥离能水平参考虚线，直接标示目标材料在已知层状体系中的相对位置。
+输出 hfi2-selected-separation-review.csv（只列 d=0、2、16、17、18、19、20 的原始能量、重算 ΔE、W 与周期镜像间距）、hfi2-exclusion-review.csv（保留七个排除目录及原因）和 hfi2-separation-review.md。解释 d=16…20 Å 能量范围 0.77266 meV/cell 及 d=19→20 Å 的下降 −0.42288 meV/cell。此处不要生成折线图、柱形图或拟合平台：目前的六层 slab 参考不是体相，名义 d=1 也没有可接受结果。若将来做有科学意义的体相参考距离曲线，先获得 bulk-like 参考与足够大的 c，再保留每个缺失位移的空档，不插值失败结果，并单独报告厚度、k 点、截断和真空误差。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Exfoliation_TbCl_Fig2b.jpg" alt="TbCl 剥离能曲线与石墨烯和 MoS2 参考线对比" loading="lazy"/><figcaption>层状 TbCl 的剥离能随分离距离的变化曲线，图中以水平虚线标出石墨烯（graphene）与 MoS<sub>2</sub> 的参考剥离能数值以便直接对比。引自 <em>npj Comput. Mater.</em> <strong>11</strong>, 132 (2025)，Fig. 2b，<a href="https://doi.org/10.1038/s41524-025-01732-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-025-01732-0</a>。</figcaption></figure>
+验收检查：A≈10.8482214944 Å²；accepted=20、excluded=7；d20 的 W≈0.36641176 J/m²；16…20 Å 能量范围≈0.77266 meV/cell；所有结果使用同一 OUTCAR 能量定义。不要将本例有限距离的 W 称为已收敛的材料剥离能。
+~~~
+
+完整原始输出提取器仍为 [extract_scan.py](/Atlas/examples/hfi2-frozen20/extract_scan.py)。配套表格复核脚本为 [review_hfi2_exfoliation.py](/Atlas/examples/thermo-postprocessing/exfoliation/review_hfi2_exfoliation.py)；同目录下载 [采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/exfoliation.csv)、[排除目录表](/Atlas/examples/thermo-postprocessing/exfoliation/excluded.csv) 与 [scf_eq POSCAR](/Atlas/examples/thermo-postprocessing/exfoliation/POSCAR)。复核脚本只用 Python 3.12.3 标准库；从该目录运行 <code>python3 review_hfi2_exfoliation.py --outdir review</code>，输出选点表、排除表和 数据核对记录。 实际结果可下载：[采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-selected-separation-review.csv)、[排除点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-exclusion-review.csv)、[数据核对记录](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-separation-review.md)。
+
+从原始 OUTCAR 运行提取器，再运行复核脚本，终端输出为：
+
+~~~text
+accepted=20 excluded=7 atoms=18 moved=11,12,18
+area=10.848221494426 A^2 c=82.187316728572 A
+16--20 A energy range=0.77266 meV
+
+accepted=20 excluded=7 area=10.848221494426 A^2
+d20: delta_E=248.09474000 meV/cell W=0.3664117622 J/m^2
+d16-20 energy spread=0.77266 meV/cell; d19->20=-0.42288 meV/cell
+~~~
+
+下面按采用点与排除点表，核对统一能量定义下的 ΔE/A，并检查 d=16–20 Å 的原始能量变化。
+
+## 文献中的体相参照与层厚检查
+
+两篇本地论文都把材料剥离能与明确的多层参考结构和分离距离联系起来。TbCl 研究的 **Fig. 3a** 使用五层 slab；正文报告单层剥离能 0.24 J/m²，并与 graphite（约 0.32 J/m²）和 H-MoS₂（约 0.29 J/m²）比较，随后把较低能量解释为从 bulk 更易剥离。见 “5d orbital induced room temperature quantum anomalous Hall effect in TbCl,” *npj Computational Materials* 11, 236 (2025), [DOI](https://doi.org/10.1038/s41524-025-01732-0)。
+
+CaCl 研究的 **Fig. 5(a)** 比较 AB-stacking 与 P3m1 结构的距离曲线，图注明确说明 bulk 以 16 个原子层建模；正文报告 AB-stacking 的剥离能为 0.17 J/m²，并据此讨论其较易剥离。见 Ying Chen et al., “A van der Waals CaCl semiconducting electride and ferromagnetic half-metallicity induced by superhalogen decoration,” *Materials Today Communications* 32 (2022), 104176, [DOI](https://doi.org/10.1016/j.mtcomm.2022.104176)。
+
+参照是六层冻结 HfI₂ slab。d=16–20 Å 能量仍非单调，表中报告各实际距离的 ΔE/A；继续增加分离距离并检验平台后讨论大距离极限。与体相参照论文比较时，先统一参考厚度、堆垛与位移定义。
 
 下一步：用[离子弛豫](/Atlas/m/relax/)处理参考几何；希望观察结合时电子密度的变化，可接[差分电荷](/Atlas/m/delta-charge/vasp/)。后者的 H₂ 教学例子演示的是处理方法，其数值不能移来解释本例 HfI₂。
 

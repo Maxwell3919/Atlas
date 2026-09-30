@@ -1,0 +1,6 @@
+state,role,atoms,correlation_sum,E0_eV_cell,model_E0_eV_cell,residual_meV_atom,local_moments_muB,interpretation
+fm2,fit,2,8,-16.47377314,-16.47377314,0.00000000,2.098;2.098,two-state fit
+afm2,fit,2,-8,-15.60782301,-15.60782301,-0.00000000,1.317;-1.317,two-state fit
+fm4,folding check,4,16,-32.94760653,-32.94754628,-0.01506250,2.098;2.098;2.098;2.098,supercell folding check
+neel4,folding check,4,-16,-31.21566841,-31.21564602,-0.00559750,1.317;-1.317;1.317;-1.317,supercell folding check
+stripe4,rejected target,4,,-30.98157307,,,-0.007;0.007;0.007;-0.007,moment collapsed; not an independent validation state

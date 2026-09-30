@@ -78,7 +78,7 @@ EOF
 
 先看这次设得最紧的一项：`forc_conv_thr=1.0d-10 Ry/Bohr` 约为 `2.57×10⁻⁹ eV/Å`，这是原记录的数值，不能据此当作通常应采用的力精度。`etot_conv_thr=1.0d-8 Ry` 检查相邻离子步的整胞能量变化，`conv_thr=1.0d-8 Ry` 则控制每一步电子自洽。后面实际残余力远大于这份力阈值；要继续优化，应先核对更紧电子计算下的力与应力，再按后续性质需要设定可验证的停止条件，不能仅因力在下降就宣称通过。
 
-`cell_dofree='fixc'` 固定整条第三晶格矢量，本例用它保留 30 Å 的真空方向；它不是把所有原子的 z 坐标固定。`24 24 1` 是电子 k 网格，第三方向的 1 与这个层状模型对应。输入同时指定 `input_dft='vdw-DF3-opt1'`，因此不能只凭赝势文件名中的 `pbe` 就把这轮称为纯 PBE 计算。`degauss=3.7d-3 Ry` 约为 0.0503 eV；它与 Gaussian 占据、90/720 Ry 截断都属于本轮协议，需要分别检查对力和应力的影响。
+`cell_dofree='fixc'` 固定整条第三晶格矢量，本例用它保留 30 Å 的真空方向；它不是把所有原子的 z 坐标固定。`24 24 1` 是电子 k 网格，第三方向的 1 与这个层状模型对应。输入同时指定 `input_dft='vdw-DF3-opt1'`，因此不能只凭赝势文件名中的 `pbe` 就把这轮称为纯 PBE 计算。`degauss=3.7d-3 Ry` 约为 0.0503 eV；它与 Gaussian 占据、90/720 Ry 截断都属于本例协议，需要分别检查对力和应力的影响。
 
 ### Slurm 脚本
 
@@ -172,9 +172,8 @@ End final coordinates
 [hzw@localhost 05_relax]$
 ```
 
-<figure class="research-figure"><img src="/Atlas/figures/relax-force.svg" alt="未收敛结构优化中的总力变化轨迹（BFGS 震荡与力回弹）" loading="lazy"/><figcaption>未收敛结构优化案例中的总原子力变化轨迹：虽然程序最终给出了 <code>JOB DONE.</code>，但总力在迭代后期出现回弹，未满足预设的力收敛判据（<code>forc_conv_thr</code>），表明仅凭程序正常退出不能断定结构已优化完成。</figcaption></figure>
 
-力整体下降，但末段并非单调下降。图的横轴是输出中的力报告序号，不是保证接受的 BFGS 步数；判断优化通过仍需看明确的收敛条件。这正是保留失败行比只截取结尾更有用的地方。
+结束段明确记录了 30 个 SCF 周期、27 个 BFGS 步后仍未收敛。保存末步结构时，应同时保留这条失败信息及对应输入。
 
 ## 保存候选结构时，把未收敛状态一起记住
 
@@ -325,15 +324,7 @@ End final coordinates
 
 准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)将这份最终晶胞写成 `ibrav=0` 与 `CELL_PARAMETERS angstrom`，并展示匹配的 SCF 和保存目录；后续计算使用的是这些最终晶格矢量。
 
-把本页三维 fcc Al 的变胞轨迹与另一份完整收敛的二维异质结 `ZrCl₂/Sc₂C`（开启 `cell_dofree = '2Dxy'`）并排绘制，可以清楚对比三维各向同性应力弛豫与二维面内受限变胞弛豫中压强、晶格常数和总原子力的逐步收敛行为。
-
-<figure class="research-figure"><img src="/Atlas/figures/vc-relax/al-and-zrcl2-vcrelax.png" alt="fcc Al 三维变胞优化与二维异质结 ZrCl₂/Sc₂C 面内变胞优化的力与应力收敛轨迹" loading="lazy"/><figcaption>完整收敛的 QE <code>vc-relax</code> 轨迹对照：（左）本页 fcc Al 在 5 步 BFGS 变胞迭代中压强从 −7.91 kbar 降至 0.02 kbar、晶格常数收敛至 3.95607 Å 的过程；（右）二维异质结 ZrCl₂/Sc₂C 开启 <code>cell_dofree = '2Dxy'</code> 时的 19 步 BFGS 变胞弛豫轨迹，总原子力从 0.0151 Ry/Bohr 降至 9.8×10⁻⁵ Ry/Bohr。</figcaption></figure>
-
-## 文献中的相关图件与表达方式
-
-在层状过渡金属化合物的变胞结构优化中，晶胞面内各向异性形变往往与配位多面体（八面体或三棱柱）的局域三方畸变、金属–金属二聚化以及空间群对称性降低同时发生。文献中通常将高对称母相与畸变相的配位多面体几何、键长键角参数及对应的 d 轨道能级劈裂画在一起，以阐明变胞弛豫前后的晶体与电子结构联系。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_Polyhedra_SymmetryBreaking_MX2_MX3_Georgescu2022_Fig1.jpg" alt="层状卤化物 MX₂ 与 MX₃ 中配位多面体畸变、二聚化与晶胞对称性降低的几何与轨道示意图" loading="lazy"/><figcaption>变胞弛豫中的配位多面体畸变与对称性破缺：展示八面体三方伸长/压缩、金属二聚化及其与局域 d 轨道占据的耦合方式（Georgescu, Millis, and Rondinelli，<em>Phys. Rev. B</em> <strong>105</strong>, 245153 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.245153" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.245153</a>）。</figcaption></figure>
+Al 输出写明 `bfgs converged in 4 scf cycles and 3 bfgs steps`：初始结构之后进行了 3 次 BFGS 更新，随后还有最终晶胞上的电子重算。计数时分别读取优化段与最后 SCF 段；最终压力为 0.02 kbar，常规立方晶格常数为 3.95607 Å。
 
 ## 下一步
 

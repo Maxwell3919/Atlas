@@ -1,0 +1,11 @@
+Si Gamma phonon
+&INPUTPH
+  prefix = 'si'
+  outdir = './tmp'
+  fildyn = 'si.dynG'
+  amass(1) = 28.085
+  tr2_ph = 1.0d-14
+  epsil = .false.
+  ldisp = .false.
+/
+0.0 0.0 0.0

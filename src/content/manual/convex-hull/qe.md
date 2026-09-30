@@ -51,7 +51,7 @@ Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line
 | alsi3-l12 | 0.75 | 0.000000 | 365.916 | 0.25 Al + 0.75 Si（原子分数） |
 | si-diamond | 1.0 | 0.000000 | 0.000 | 0.00 Al + 1.00 Si（原子分数） |
 
-这个距离是相同成分下，相对于本集合允许的最低能量组合的差值。它并没有把“所有可能结构”装进表里：补入其它原型、降对称结构、不同磁态或其它候选，都可能改变下凸包。对这三个正形成能候选，仅用端元就已经给出了更低的组合；这个有限集合的结论无需把它们叫成完整 Al–Si 相图。
+三个候选分别高于端元混合物 107.257、265.762、365.916 meV/atom。下凸包由本次五个候选构成；加入新原型、降对称结构或磁态后，以同协议计算并重建边界。
 
 提取脚本先按 x 排序，再逐个保留使相邻连线斜率递增的点，得到下边界；然后把每个候选投到对应的边界线段上，计算高度差。处理数值误差时使用很小的几何比较阈值，并保留未四舍五入的形成能。画图时才格式化小数位。代码在 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py)，输入汇总在 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv)；原始 30 项协议对照在 [energy-table.csv](/Atlas/examples/alsi-formation-hull/energy-table.csv)。
 
@@ -65,7 +65,7 @@ plots/convex-hull.png and plots/convex-hull.svg
 
 蓝线连接本集合中的下凸包顶点；方块是三个构造的中间候选；竖直虚线的长度就是表中的能量差。图的横轴是原子分数，纵轴已除以每个晶胞的总原子数。两种端元的零点来自形成能定义，原始 DFT 总能本身都不是零。
 
-绘图只需要 Python、NumPy、Matplotlib 和 CSV。把 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 与 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv) 放在同一目录，运行 `python3 plot_alsi.py hull`；图像写入 `plots/convex-hull.png` 和 `plots/convex-hull.svg`。要同时重画形成能与参数差值图，再加入 [numerical-checks.csv](/Atlas/examples/alsi-formation-hull/numerical-checks.csv) 并运行 `python3 plot_alsi.py all`。
+要重建这张有限凸包图，下载 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)、同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py) 与 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv)，然后运行 <code>python3 plot_alsi.py hull</code>。脚本写出 <code>plots/convex-hull.png</code> 和 <code>plots/convex-hull.svg</code>。
 
 ## 把 32³ 的同一组候选再放上来
 
@@ -75,10 +75,9 @@ plots/convex-hull.png and plots/convex-hull.svg
 
 ```bash
 python3 analyse_k32.py
-python3 plot_k32.py hull
 ```
 
-这两步先核对输入与原始输出，再由 [formation-k32.csv](/Atlas/examples/alsi-k32-supplement/formation-k32.csv) 重建下凸包。新表为：
+该脚本核对输入与原始输出，并生成 [formation-k32.csv](/Atlas/examples/alsi-k32-supplement/formation-k32.csv) 供表格复核。32³ 的结果列于下表：
 
 | 候选 | xSi | 32³ 形成能 / eV·atom⁻¹ | 高于下凸包 / meV·atom⁻¹ |
 | --- | ---: | ---: | ---: |
@@ -88,21 +87,13 @@ python3 plot_k32.py hull
 | alsi3-l12 | 0.75 | 0.366450970 | 366.450970 |
 | si-diamond | 1.00 | 0.000000000 | 0.000000 |
 
-![同一组 AlSi 候选在 32³ 网格下的有限集合凸包](/Atlas/examples/alsi-k32-supplement/plots/hull-k32.svg)
-
-三个中间候选仍高于端元连线，凸包顶点仍是 fcc Al 和 diamond Si。这里“顶点没有变化”和“能量已经数值收敛”是两件要分别记录的事：24³→32³ 的形成能最大变化为 **1.798223 meV/atom**，仍高于 1 meV/atom 比较线。图中能量差更新了，候选集合和可作出的相稳定性结论范围没有因此扩大。
+32³ 的数据仍给出相同的有限集合顶点：fcc Al 与 diamond Si；三个中间候选继续高于端元连线。表中分别记录顶点组成与网格数值变化；24³ 和 32³ 的顶点相同，能量变化仍按所选的 1 meV/atom 比较线单独检查。可用 [独立表格复核脚本](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py)重建两组凸包，并查看[逐候选 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv)与[复核报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。
 
 前面的 20³→24³ 对照和后续 24³→32³ 对照均已保留，优化与不同静态协议下的压力差也在形成能页中列出。图上的正值来自本次电子能量计算；其中没有声子零点能、振动熵或组态熵，不能把这条线当成某个实验温度下的相界。所有候选均受限于指定立方原型，原子力小也不等于声子稳定。
 
-## 文献中的凸包相图表达方式
+## 文献方法与相图基准
 
-研究论文中展示二元或三元相稳定性时，常将 0 K DFT 凸包与实验温度—组分相图、晶体结构模型或零点振动修正并列排布，以便读者在同一组分标尺下对比计算基准与实验边界。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc-C 体系的高温实验相图与 0 K DFT 二元形成能凸包对照" loading="lazy"/><figcaption>二元 Sc–C 体系的高温实验相图（上）与 0 K DFT 形成能凸包（下）上下共用同一碳组分横轴，右侧并列基态层状 <em>R</em>-3<em>m</em> Sc<sub>2</sub>C 的晶体结构与声子色散。实心与空心标记分别区分位于凸包上的热力学稳定相与高于凸包的亚稳候选相。引自 McRae 等人，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，Fig. 2，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
-
-对于含氢等轻元素体系，仅靠静态电子总能往往不足以固定相对稳定性排序。将未含零点能（without ZPE）与计入声子零点振动能（with ZPE）的三元凸包距离 ΔH<sub>hull</sub> 热力图并排绘出，可以直观呈现量子核振动对凸包顶点的重排作用。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_TernaryConvexHull_ZPE_LaScH_He2024_Fig1.jpg" alt="300 GPa 下 La-Sc-H 三元体系计入声子零点能前后的凸包距离对照" loading="lazy"/><figcaption>300 GPa 下 La–Sc–H 三元体系的形成焓凸包距离 Δ<em>H</em><sub>hull</sub> 分布图，对比未含零点能（A）与计入声子零点能 ZPE（B）前后的热力学稳定相及亚稳相分布。引自 He 等人，<em>Proc. Natl. Acad. Sci. U.S.A.</em> <strong>121</strong>, e2401840121 (2024)，Fig. 1A–B，<a href="https://doi.org/10.1073/pnas.2401840121" target="_blank" rel="noopener noreferrer">DOI: 10.1073/pnas.2401840121</a>。</figcaption></figure>
+He 等人在 300 GPa 下并列比较 La–Sc–H 体系未计入与计入谐振零点能的凸包结果，说明统一的能量修正会改变相之间的分解关系。本页采用五个 Al–Si 立方原型的静态电子能；加入零点能或温度项时，对全部候选与元素参照采用匹配的处理。[He 等，PNAS 121, e2401840121 (2024)](https://doi.org/10.1073/pnas.2401840121)。
 
 如果后续发现一个新的同成分结构，先按匹配协议计算它的能量，再把对应的真实记录加入候选集合并重建下凸包。要检查现有候选是否存在畸变方向，可接到 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)；看到负频后，沿 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 核对结构、原始频率和数值设置。
 

@@ -4,7 +4,7 @@
 
 这里使用新计算的 fcc Al。结构、赝势与父 SCF 沿用 [Al 声子示例](/Atlas/m/phonon-dfpt/qe/)，QE 7.5、LDA-PZ、无自旋极化和 SOC。[SCF](/Atlas/m/scf/qe/) 与 [NSCF](/Atlas/m/nscf/qe/) 页可用于对照输入读法和接续方式；本次在 Al 自己的密度上求整个均匀网格的本征值，不能复制那些 Si 例程的保存目录。下面只展开费米面需要额外核对的部分。
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
+本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-electronic-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
 ## 均匀网格必须能恢复成完整三维数组
 
@@ -128,10 +128,10 @@ maxwell@maxwell:~/al/fermi/k32-cg$ tail -9 al.nscf.out
 maxwell@maxwell:~/al/fermi/k32-cg$ grep "the Fermi energy" al.nscf.out
      the Fermi energy is     8.3815 ev
 ```
-这行方便在终端迅速核对。XML 中的 `fermi_energy` 和 `eigenvalues` 使用 Hartree；[extract_fermi.py](/Atlas/examples/al/fermi/extract_fermi.py) 把它们统一乘以 27.211386245988 转为 eV，再减去同一份 NSCF 的 E_F。不能把文本中已是 eV 的数值再乘一次换算常数。
+这行方便在终端迅速核对。XML 中的 `fermi_energy` 和 `eigenvalues` 使用 Hartree；[extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) 把它们统一乘以 27.211386245988 转为 eV，再减去同一份 NSCF 的 E_F。不能把文本中已是 eV 的数值再乘一次换算常数。
 
 ```console
-maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi.py
+maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi_electronic.py
 k=24^3 nks=13824 EF=8.39793432 eV crossing bands=[2, 3]; all grid cells assigned once
  sigma=0.10 eV J(0)=0.61975726 J(X)=0.09968022 eV^-2; direct-sum check passed
  sigma=0.20 eV J(0)=0.31708865 J(X)=0.06123457 eV^-2; direct-sum check passed
@@ -154,19 +154,44 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 第一带在所有采样点都低于 E_F，第四带及以上高于 E_F；本次被网格直接检测到穿越零能的，是第二带和第三带。因此两张费米面分别保留带号，不能把它们叠起来后称作同一个口袋。
 
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Al 完整网格费米面后处理程序，使用 Python 3、NumPy、Matplotlib 和 Plotly。
+输入：fermi/k24-cg、k32-cg 的 fermi-grid.npz、grid-info.json，energy_eV 已是各 NSCF 的 E−EF，网格分别为 13824 和 32768 点。
+方法：分别画 band 2/3 的零等值面与 k3=0 截面，3D 图框标为原始倒格矢周期单元；每套计算使用自己的 EF。当前网格坐标为 −0.5…0.5−1/N，边界面按采样范围截断。
+检查：完整网格、六条带、唯一点与单位，分别比较两带和两种网格形状；细小口袋精度由进一步网格比较确定。
+输出：源码、依赖、命令、PNG/SVG/PDF 截面及可旋转 HTML；提供 --standalone 导出包含绘图库的 HTML。
+```
+
+## 后处理源码与运行
+
+完整源码：[extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) · [plot_fermi.py](/Atlas/examples/al-electronic/plot_fermi.py) · [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib、Plotly。
+
+解压本页示例包后，在 `al` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib plotly
+python3 fermi/extract_fermi_electronic.py
+python3 plot_fermi.py
+```
+
+
 ## 先看截面，再转动三维等值面
 
-[plot_fermi.py](/Atlas/examples/al/plot_fermi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读两个网格目录里的 `fermi-grid.npz`，生成二维截面对照与一个可在浏览器中旋转的三维 HTML。需要 NumPy、Matplotlib 和 Plotly；在下载的 Al 示例根目录运行：
+[plot_fermi.py](/Atlas/examples/al-electronic/plot_fermi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)） 读两个网格目录里的 `fermi-grid.npz`，生成二维截面对照与一个可在浏览器中旋转的三维 HTML。需要 NumPy、Matplotlib 和 Plotly；在下载的 Al 示例根目录运行：
 
 ```bash
 python3 plot_fermi.py
 ```
 
-<figure><img src="/Atlas/examples/al/figures/fermi-slices.png" alt="Al 第2和第3能带的费米面截面" loading="lazy"/><figcaption>k₃=0 截面：实线与虚线对应两个真实 k 网格，颜色区分能带。横纵坐标是倒格矢分数坐标。</figcaption></figure>
+<figure><img src="/Atlas/examples/al-electronic/figures/fermi-slices.png" alt="Al 第2和第3能带的费米面截面" loading="lazy"/><figcaption>k₃=0 截面：实线与虚线对应两个真实 k 网格，颜色区分能带。横纵坐标是倒格矢分数坐标。</figcaption></figure>
 
 网页版本需要联网加载 Plotly；在本机运行 `python3 plot_fermi.py --standalone` 可导出包含绘图库的独立 HTML。
 
-[打开可转动的三维费米面](/Atlas/examples/al/figures/fermi-surface.html)。交互图以 32³ 本征值网格的零等值面构成，能量在相邻采样点间插值。图框是倒格矢坐标下的原始周期单元，不是已经裁剪成 Wigner–Seitz 第一布里渊区的图；边界处被切开的面会周期性地接到另一侧。
+[打开可转动的三维费米面](/Atlas/examples/al-electronic/figures/fermi-surface.html)。交互图以 32³ 本征值网格的零等值面构成，能量在相邻采样点间插值。图框采用倒格矢分数坐标，范围为 `−0.5…0.5−1/N`。当前绘图未补上边界外的周期节点，面在此范围截断；它表示原始倒格矢周期单元的采样部分，未裁剪成 Wigner–Seitz 第一布里渊区。
 
 两次计算得到 E_F=8.39793432 eV 和 8.38150272 eV，相差约 0.01643 eV。画图时各自减去各自的 E_F，并比较口袋形状随网格的变化。这里确认了第二、第三带穿越费米能这一观察；细小口袋的尺寸、连接方式和后续嵌套峰，仍需要更密网格与展宽检查。
 

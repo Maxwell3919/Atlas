@@ -182,7 +182,12 @@ python plot_epc.py
 
 1. **在 `ZrCl₂/Sc₂C` 中（`σ = 0.003 Ry`）**：
    - 在 Γ 点（`q = 1`），第 16 支非简并碳面外光学模（`A₁`，原始 DFPT 频率 `12.38 THz`，ASR 修正后 `12.49 THz`）给出 `λ = 0.0581、γ = 260.01 GHz`（`ph64`）与 `λ = 0.0662、γ = 297.74 GHz`（`ph96`）；第 17、18 支双重简并碳面内光学模（`E`，Γ 点频率 `15.42 THz` / `15.48 THz`，向 M 点升至 `17.11 THz`）拥有 Γ 点最大的声子线宽 **`γ = 315.55 / 318.58 GHz`**（`ph64`，`λ = 0.0454 / 0.0458`）与 **`γ = 318.99 / 322.13 GHz`**（`ph96`，`λ = 0.0456 / 0.0461`）；而第 7、8 支过渡金属中频光学模（`5.15 THz`）的线宽虽仅为 `γ = 44.85 / 45.14 GHz`（`ph64`），无量纲耦合却达到 `λ = 0.0580 / 0.0584`；
-   - 在有限波矢 **`q = 7`**（笛卡尔坐标 `(0.125000, 0.360844, 0) 2π/a`，对应分数坐标 `(−1/3, 1/√3, 0)`）处，最低频声学支 `ν = 1` 的频率仅为 `ω = 1.42 THz`（`47.37 cm⁻¹`），在 [`elph.inp_lambda.7`](/Atlas/examples/zrcl2-sc2c/ph64/elph_dir/elph.inp_lambda.7) 中线宽达 `γ = 280.36 GHz`（`ph64`）/ `279.62 GHz`（`ph96`，沿高对称路径插值的 `gam.lines` 中峰值为 `141.72 GHz`），由于分母中的 `ω_qν²` 很小，其单模耦合常数高达 **`λ_qν = 4.7525`**（`ph64`）/ **`4.7043`**（`ph96`）！
+   - 在有限波矢 **`q = 7`**（QE 笛卡尔坐标 `(0.125000, 0.360844, 0) 2π/alat`，按实际晶胞换算为倒格分数坐标约 `(1/8, 1/4, 0)`）处，最低频声学支 `ν = 1` 的频率仅为 `ω = 1.42 THz`（`47.37 cm⁻¹`），在 [`elph.inp_lambda.7`](/Atlas/examples/zrcl2-sc2c/ph64/elph_dir/elph.inp_lambda.7) 中线宽达 `γ = 280.36 GHz`（`ph64`）/ `279.62 GHz`（`ph96`），由于分母中的 `ω_qν²` 很小，其单模耦合常数达到 **`λ_qν = 4.7525`**（`ph64`）/ **`4.7043`**（`ph96`）！
+
+这里的 `280.36/279.62 GHz` 是原生 q=7 的逐模输出；`gam.lines` 沿高对称路径插值得到的峰值 `141.72 GHz` 属于另一组采样位置，分别查看其路径坐标。
+
+q 坐标换算使用 `fᵢ=q_cart·aᵢ/alat`，其中 aᵢ 是实际晶胞矢量。此例面内矢量为 `(3.358477221,0,0)`、`(−1.679238611,2.908526592,0)` Å；`alat` 从致密 SCF 输出读取。六位小数的 q 打印值带来末位舍入误差。[完整换算源码](/Atlas/examples/zrcl2-sc2c-q-coordinates/q_coordinates.py)与[逐 q 坐标表](/Atlas/examples/zrcl2-sc2c-q-coordinates/q-coordinates.csv)同时保留原生笛卡尔坐标和换算后的分数坐标。
+
    因此，在后处理绘图中同时采用**散点面积综合反映 `λ_qν` 与 `γ_qν`、颜色色标编码 `γ_qν`（GHz）**，能够在同一面板中兼顾高频碳光学支的大线宽与低频声学支的大无量纲耦合：
 
 <figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散双编码（散点大小与颜色编码 γ_qν 和 λ_qν）、PHDOS 与 α²F(ω)" loading="lazy"/><figcaption>ZrCl₂/Sc₂C（96×96×1 致密电子网格，σ = 0.003 Ry）的声子线宽 γ<sub>qν</sub> 与无量纲耦合 λ<sub>qν</sub> 后处理：（左）声子色散上叠绘模式散点，颜色对应 γ<sub>qν</sub>（GHz），标出 Γ 点附近 15.48 THz 简并碳面内光学支的高线宽（γ ≈ 322 GHz）与红虚线所示的旧 emax = 10 THz 截断位置；（中、右）共享频率轴的原子分辨 PHDOS 与 Eliashberg 谱函数。</figcaption></figure>
@@ -216,3 +221,9 @@ python plot_epc.py
 ph.x 完整 q 网格 → 每个 q 的频率 / λ / γ → 模式与星权重核对
                                       └─ α²F → λ / ω_log → 公式 Tc
 ```
+
+## AI 后处理提示词：线宽单位与逐 q 配对
+
+> 解析 Al 八个 elph.inp_lambda 文件和 lambda.in，逐 q、逐模、逐 σ 保存频率、γ、λ、DOS(EF)、星权重。以本页 QE 7.5 源码定义为准：γ 是 GHz，频率由源文件频率平方和对应换算常数得到 THz，DOS(EF) 保留 states/spin/Ry/cell。将各量统一到公式要求的单位，核对高于20 cm⁻¹源码阈值的210条记录能否还原打印 λ；低频30条另列阈值状态，不把程序置零解释为真实耦合严格为零。星权重归一化后与按 σ 的总 λ 对照。保存完整 Python 源码、逐模 CSV、误差容许范围及检查 JSON。另对异质结 q 坐标使用实际晶胞和2π/alat约定换算，并保留原生逐 q 点与 gam.lines 路径插值结果的不同来源；只做后处理。
+
+[完整单位核对源码 linewidth_units.py](/Atlas/examples/al/epc-q4/linewidth_units.py) · [完整 q 坐标换算源码 q_coordinates.py](/Atlas/examples/zrcl2-sc2c-q-coordinates/q_coordinates.py)。

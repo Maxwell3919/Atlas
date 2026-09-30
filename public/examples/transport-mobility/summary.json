@@ -1,0 +1,106 @@
+{
+  "completed_cases": 11,
+  "expected_cases": 11,
+  "failures": [],
+  "model": "scalar-PBE K-valley longitudinal acoustic deformation potential only",
+  "temperature_K": 300.0,
+  "mobility_cm2_Vs": 200.38557021265746,
+  "quality_gates": {
+    "E1_abs_min_eV": 0.1,
+    "E1_relative_fit_uncertainty_max": 0.1,
+    "C_and_E1_strain_window_relative_max": 0.05,
+    "mass_window_relative_max": 0.05,
+    "kgrid_C_E1_relative_max": 0.05,
+    "vacuum_C_E1_relative_max": 0.02,
+    "vacuum_plateau_spread_eV_max": 0.001,
+    "valley_rule": "K-neighborhood minimum must remain below all sampled Gamma/M/threeQ-direction competitors;no metal or unstable mass tensor.",
+    "nature_of_acceptance": "Finite-difference consistency checks for this simplified model;notfullmaterialtransportconvergence.",
+    "expected_case_count": 11,
+    "expected_valence_electrons": 26,
+    "electron_count_abs_tolerance": 1e-08,
+    "analysis_band_indices": {
+      "valence": 12,
+      "conduction": 13,
+      "next_conduction": 14
+    },
+    "average_coordinate_origin_abs_max_bohr": 1e-08,
+    "average_cell_extent_abs_diff_max_bohr": 1e-06,
+    "average_vacuum_windows_c_fraction": [
+      [
+        0.1,
+        0.2
+      ],
+      [
+        0.8,
+        0.9
+      ]
+    ],
+    "average_vacuum_window_minimum_points": 4,
+    "expected_bands_kpoint_count": 97,
+    "kpoint_mapping_max_abs_error_invA": 1e-08,
+    "scf_bands_geometry_max_abs_difference_A": 1e-08,
+    "candidate_valley_energy_tolerance_eV": 1e-05,
+    "coarse_scf_cbm_tolerance_eV": 0.001,
+    "conduction_band_isolation_min_eV": 0.01,
+    "K_minimum_shift_max_invA": 0.025,
+    "mass_fit_half_widths_invA": [
+      0.01,
+      0.02,
+      0.03
+    ],
+    "mass_fit_reference_half_width_invA": 0.02,
+    "relaxed_scf_force_component_max_eV_per_A": 0.0002571103373816295,
+    "model_temperature_K": 300.0,
+    "mass_window_inclusion_tolerance_invA": 1e-09,
+    "semiconducting_gap_min_eV": 0.0,
+    "effective_mass_curvature_min_eV_A2": 0.0,
+    "C2D_min_N_m": 0.0,
+    "q_valley_scan_GammaK_fraction": [
+      0.4,
+      0.8
+    ],
+    "q_scan_bound_tolerance_fraction": 1e-09
+  },
+  "fits": {
+    "five_strains": {
+      "C2D_N_m": 132.1109093828255,
+      "E1_eV": -8.217568774568592,
+      "E1_standard_error_eV": 0.014778309308512807,
+      "energy_fit_max_residual_eV": 3.334358684047283e-05,
+      "edge_fit_max_residual_eV": 0.00021690419527420346,
+      "C2D_N_m_relative_vs_three": 0.014122900180735637,
+      "E1_eV_relative_vs_three": 1.8802181013149284e-05
+    },
+    "three_strains": {
+      "C2D_N_m": 130.27110359038423,
+      "E1_eV": -8.217723285689326,
+      "E1_standard_error_eV": 0.012272434248064849,
+      "energy_fit_max_residual_eV": 2.710505431213761e-19,
+      "edge_fit_max_residual_eV": 7.085493216507643e-05
+    },
+    "k16": {
+      "C2D_N_m": 132.9088055696877,
+      "E1_eV": -8.217443534593494,
+      "E1_standard_error_eV": 0.014064127550793948,
+      "energy_fit_max_residual_eV": 2.168404344971009e-19,
+      "edge_fit_max_residual_eV": 8.11992782709936e-05,
+      "C2D_N_m_relative_vs_three": 0.020247790235947385,
+      "E1_eV_relative_vs_three": 3.4042408840760126e-05
+    },
+    "vacuum28": {
+      "C2D_N_m": 132.10139534563086,
+      "E1_eV": -8.218969901482733,
+      "E1_standard_error_eV": 0.014673062393877419,
+      "energy_fit_max_residual_eV": 1.6263032587282567e-19,
+      "edge_fit_max_residual_eV": 8.471496522854949e-05,
+      "C2D_N_m_relative_vs_three": 0.014049867582312662,
+      "E1_eV_relative_vs_three": 0.00015169843885816454
+    }
+  },
+  "baseline_masses": {
+    "mx_me": 0.45601182474559465,
+    "my_me": 0.45594650558358774,
+    "md_me": 0.4559791639949685
+  },
+  "mobility_status": "acoustic-DP-only estimate; not full electron-phonon transport"
+}

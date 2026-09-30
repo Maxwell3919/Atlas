@@ -2,7 +2,7 @@
 
 把二维异质结构沿法向剖开，原子附近的势起伏很大，真空区应当逐渐平坦。这里读取一份已经结束的 HfCl₂/PbO₂ 静态计算：六个原子，晶胞沿 z 为 30 Å，使用 PBE、D3(BJ) 和 z 方向的偶极修正。我们从它的 LOCPOT 生成平面平均势，并保留两侧真空平台。
 
-[下载原始 LOCPOT、输入输出和平面平均脚本](/Atlas/examples/vasp/hfcl2-pbo2-potential-files.tar.gz)。解包后可从 56×56×480 的完整势网格重新生成本文的两列表格与平台统计；无需从图中反读数值。
+[下载原始 LOCPOT、输入输出和平面平均脚本](/Atlas/examples/vasp/hfcl2-pbo2-potential-electronic-files.tar.gz)。解包后可从 56×56×480 的完整势网格重新生成本文的两列表格与平台统计；无需从图中反读数值。
 
 结构和静态自洽的准备接 [SCF](/Atlas/m/scf/vasp/)。进入保存输入与输出的目录，先看文件是否齐全。
 
@@ -142,6 +142,35 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
  E-fermi :  -1.2958     XC(G=0):  -3.9262     alpha+bet : -3.9672
 ```
 这份输出的费米能为 −1.2958 eV。若要继续计算两个表面的功函数，需要各自使用同一份计算中的真空平台与这个费米能相减；下一步接 [功函数](/Atlas/m/workfunction/vasp/)。电势差本身不能单独证明电荷转移方向或接触后的带型。
+
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 HfCl₂/PbO₂ 平面平均势程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：LOCPOT、INCAR、OUTCAR，以及 PLANAR_AVERAGE.dat、potential-summary.json。LVHAR 为离子势加 Hartree 势（eV），网格 56×56×480，法向晶胞 30 Å。
+方法：按 x 最快顺序读取 1,505,280 个标量，逐 z 层平均，间隔 0.0625 Å；对 2–5 Å、25–28 Å 窗口求均值、标准差与范围。
+检查：完整标量数、480 层、有限值，窗口各 49 点，均值约 2.538191/5.029000 eV，范围均 <0.0003 eV。
+输出：源码、依赖、命令、两列表、平台摘要、PNG/PDF。图保留整个晶胞和窗口；功函数延伸取同一 OUTCAR EF=−1.2958 eV 与各侧平台配对。
+```
+
+## 后处理源码与运行
+
+完整源码：[plane_average.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plane_average.py) · [plot_potential.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plot_potential.py) · [atlas_plot_style.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `hfcl2-pbo2-potential` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 plane_average.py LOCPOT 2:5 25:28
+python3 plot_potential.py
+```
+
+已有 [PLANAR_AVERAGE.dat](/Atlas/examples/vasp/hfcl2_pbo2_potential/PLANAR_AVERAGE.dat) 和 [potential-summary.json](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-summary.json) 时，直接执行 `python3 plot_potential.py`；第一条命令用于从原始 LOCPOT 重提取平台统计。
+
+
+提取源码：[plane_average.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plane_average.py)；绘图源码：[plot_potential.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plot_potential.py)，样式依赖为同目录 [atlas_plot_style.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/atlas_plot_style.py)。运行环境为 Python 3、NumPy、Matplotlib。
 
 把 `PLANAR_AVERAGE.dat`、`potential-summary.json` 和 `plot_potential.py` 放在本机同一目录后，用 `python3 plot_potential.py` 绘图。脚本读第一列作横轴、第二列作纵轴，把两个统计窗口涂成浅色，并同时输出 PNG 与 PDF。图上保留整个晶胞，才能同时检查原子区、两侧平台和周期边界。
 

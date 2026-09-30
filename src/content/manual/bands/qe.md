@@ -6,11 +6,11 @@
 
 例子使用 QE 7.5、PBE、两个 Si 原子、无 SOC。当前坐标与原胞约定对应下面的路径；换晶胞基矢后，不能只保留这些点的标签和数字。
 
-本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
+本例文件可[一起下载](/Atlas/examples/si-pbe-electronic-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，绘图只需 NumPy 与 Matplotlib；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，先完成 [Si SCF](/Atlas/m/scf/qe/)，再由本页的路径计算生成对应 k 点的能量和波函数。
 
-对应的 [bands.err](/Atlas/examples/si-pbe/bands-cg/bands.err) 为 1604 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示，以及 `IEEE_DENORMAL` 浮点非正规数提示。本轮最终输出没有未收敛本征值行，后处理读到了完整的 8 条带、121 个路径点；验收时应把这些结果与原始 stderr 一起检查。
+对应的 [bands.err](/Atlas/examples/si-pbe-electronic/bands-cg/bands.err) 为 1604 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示，以及 `IEEE_DENORMAL` 浮点非正规数提示。本轮最终输出没有未收敛本征值行，后处理读到了完整的 8 条带、121 个路径点；验收时应把这些结果与原始 stderr 一起检查。
 
 ## 输入中的四列分别是什么
 
@@ -161,9 +161,33 @@ cd "$SLURM_SUBMIT_DIR"
 
 索引由真实 121 点展开得到，与 `bands-post.out` 的七个位置一致。两个 Γ 在倒空间是同一点，却在累计路径的不同位置。表中坐标只适用于本页的 FCC 基矢约定，不能连同标签移植到另一种晶胞。
 
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 路径能带后处理程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：bands-cg/si.bands.dat.gnu，空行分为 8 条带，每条 121 点。两列是累计距离（2π/a）和能量（eV）。
+方法：沿用文件距离，以路径 band 4 最大值约 6.3970 eV 为零；节点 1、25、37、49、73、97、121 对应 Γ–X–W–K–Γ–L–X，按输出带号连接。
+检查：8×121 点完整，各带横坐标一致，节点距离与正文一致，保留 .gnu 打印精度。
+输出：源码、依赖与命令、检查摘要、PNG/SVG/PDF。纵轴标 Energy − path VBM (eV)，全区带边搜索另用均匀网格。
+```
+
+## 后处理源码与运行
+
+完整源码：[plot_bands.py](/Atlas/examples/si-pbe-electronic/plot_bands.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 plot_bands.py
+```
+
+
 ## 画图时明确能量零点
 
-这张图把路径上第 4 条带的最大值设为零，即本例的 VBM；没有使用另一材料的费米能文件。下载包中的 `plot_bands.py` 直接读取 `si.bands.dat.gnu`，核对 8×121 个点和每条带相同的横坐标，再统一减去 6.3970 eV。
+这张图把路径上第 4 条带的最大值设为零，即本例的 VBM；没有使用另一材料的费米能文件。下载包中的 [plot_bands.py](/Atlas/examples/si-pbe-electronic/plot_bands.py) 直接读取 `si.bands.dat.gnu`，核对 8×121 个点和每条带相同的横坐标，再统一减去 6.3970 eV。
 
 同一 XML/胖带 CSV 中的路径价带顶是 `6.397028957255 eV`，而 `.gnu` 按四位小数输出。两者相差约 `2.90×10⁻⁵ eV`，来自文本精度，不能解释成能级移动。普通能带和胖带分别读取两种精度的数据，均以本路径价带顶为零；叠图时应统一采用同一个精确参考。
 
@@ -173,7 +197,7 @@ cd "$SLURM_SUBMIT_DIR"
 python3 plot_bands.py
 ```
 
-![Si 路径能带，能量相对同一路径的价带顶](/Atlas/examples/si-pbe/plots/bands-direct.png)
+![Si 路径能带，能量相对同一路径的价带顶](/Atlas/examples/si-pbe-electronic/plots/bands-direct.png)
 
 先定位节点和 0 eV 水平线。Γ 点的三条价带顶接近简并，Γ–X 段的导带谷降到比 Γ 点导带更低的位置；只看 Γ 点的上下两条线，会漏掉这部分低能导带。交叉或简并处仍按输出带号连接，不表示已追踪同一个轨道分支。
 

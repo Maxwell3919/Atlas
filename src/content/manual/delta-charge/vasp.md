@@ -8,7 +8,7 @@
 
 这里的 n 是电子数密度，正值表示相对于冻结原子参考的电子积累，负值表示电子耗尽。它不是带负号的电荷密度 −en；也不能把正值区域的积分直接当成从一个 H 转移给另一个 H 的电子数。
 
-[下载输入、小体积原始输出、分析与绘图脚本](/Atlas/examples/h2-delta-charge-files.tar.gz)，解压为 `h2-delta-charge`。三份密度单独提供：[AB/CHGCAR.gz](/Atlas/examples/h2-delta-charge/AB/CHGCAR.gz)、[A/CHGCAR.gz](/Atlas/examples/h2-delta-charge/A/CHGCAR.gz)、[B/CHGCAR.gz](/Atlas/examples/h2-delta-charge/B/CHGCAR.gz)。分别放回解压目录的 AB、A、B 子目录，保留文件名 `CHGCAR.gz`，解析程序可以直接读取，不必先解压。只重新画图时，包内 CSV 已经足够。POTCAR 正文不随包分发；重新运行 VASP 需要自行准备有使用权限的同一份 H 赝势，并核对包内指纹。
+[下载输入、小体积原始输出、分析与绘图脚本](/Atlas/examples/h2-delta-charge-files.tar.gz)，解压为 `h2-delta-charge`。三份密度单独提供：[AB/CHGCAR.gz](/Atlas/examples/h2-delta-charge/AB/CHGCAR.gz)、[A/CHGCAR.gz](/Atlas/examples/h2-delta-charge/A/CHGCAR.gz)、[B/CHGCAR.gz](/Atlas/examples/h2-delta-charge/B/CHGCAR.gz)。分别放回解压目录的 AB、A、B 子目录，保留文件名 `CHGCAR.gz`，解析程序可以直接读取，不必先解压。VESTA 等值面需要完整三维网格，下载方式见后面的转换步骤。POTCAR 正文不随包分发；重新运行 VASP 需要自行准备有使用权限的同一份 H 赝势，并核对包内指纹。
 
 ## 三份结构，保留同一个坐标系
 
@@ -304,48 +304,54 @@ AB 的总密度积分为 2.0000000029 e，A、B 各为 1.0000000012 e。第二�
 
 差分的全胞积分为 4.36×10⁻¹⁰ e，与零相符；正值区域积累 0.2578313944 e，负值区域耗尽 0.2578313940 e，二者相抵。这个数是相对于指定冻结参考的空间重排量。H₂ 两个相同原子具有对称性，它不能被解读为“0.258 e 从 A 转移到了 B”。
 
-## 用切片、平面平均和累计积分读同一份数据
+## 从密度数组到 VESTA：先转换，再设等值面
 
-包内的 [plot_charge.py](/Atlas/examples/h2-delta-charge/plot_charge.py)（同时下载 [atlas_plot_style.py](/Atlas/examples/atlas_plot_style.py)，放在同一目录） 读取 [delta-y5.csv](/Atlas/examples/h2-delta-charge/delta-y5.csv)、[delta-planar.csv](/Atlas/examples/h2-delta-charge/delta-planar.csv) 与 [charge-difference-summary.json](/Atlas/examples/h2-delta-charge/charge-difference-summary.json)。在装有 NumPy 和 Matplotlib 的本机运行：
+把三份密度逐点相减后，保存为只有一个标量块的 `CHGCAR_DELTA`。它沿用 AB 的结构头和 VASP 存储约定，供可视化使用。下载[本次完整 VESTA 文件、场景与脚本](/Atlas/examples/charge-vesta-files.tar.gz)，解包进入 `charge-vesta`；原始三份 `CHGCAR.gz` 沿用页首链接。
 
-```bash
-cd h2-delta-charge
-python3 plot_charge.py
+下面是可交给 AI 编程助手的完整需求说明。它根据本例已经完成的转换整理，便于复现同一种处理：
+
+```text
+编写 Python 3 命令行程序 build_delta_chgcar.py，依赖 NumPy。输入 --ab、--a、--b 是 VASP CHGCAR 或 gzip 压缩 CHGCAR.gz；解析 POSCAR 风格结构头，支持元素/原子数、Direct/Cartesian 坐标以及可选 Selective dynamics。读取结构后的第一块 nx ny nz 总电子密度，恰好 N=nx*ny*nz 个有限值，x 最快；不混入 augmentation 或第二块磁化密度。检查三项晶胞矩阵相同、网格相同、AB 原子数等于 A+B，A/B 元素与坐标保持 AB 中原位。D 是体积缩放的 VASP 存储值，n=D/V，单位 e/Å³；逐点计算 D_AB-D_A-D_B，输出仅用于 VESTA 的单块 CHGCAR_DELTA，保留 AB 结构头。分别计算各输入 ΣD/N、差分全胞/正值/负值积分、极值及源文件 SHA256，写 JSON。若本例差分全胞残差大于 1e-6 e 则报错；打印科学计数法残差，不能把舍入成零称作精确证明。所有目标文件写入前检查存在性，拒绝覆盖。命令参数为 --output 与 --summary。不得归一化到期望电子数或画替代图。GUI 使用 VESTA 打开输出并核对单位：±0.03 e/Å³ 等于 ±30 的原始存储值；本次 VESTA 场景将其转换为 ±0.00444555 e/bohr³。保存场景，导出实际等值面 PNG；记录配色、阈值与显示范围。
 ```
 
-它生成 `h2-charge-difference.png/pdf/svg` 和 `plot-checks.json`。
-
-<figure><img src="/Atlas/examples/h2-delta-charge/h2-charge-difference.png" alt="H₂ 体系相对于孤立原子的差分电荷密度二维截面、平面平均及累积积分" loading="lazy"/><figcaption>差分电荷密度的跨维度关联呈现：(a) 穿过分子轴的 2D 差分电荷密度 Δρ(x, z) 连续色面与正负等值线（暖橙为电子积累，深蓝为电子耗尽）；(b) 沿法向 z 的一维平面平均密度 A⟨Δn⟩<sub>xy</sub>（暖橙阴影覆盖共价成键积累区，深蓝阴影覆盖原子核位点附近的电子耗尽槽）；(c) 全程累积电荷积分 ΔQ(z)，末端严格返回零验证电荷守恒。</figcaption></figure>
-
-子图 a 是穿过两个 H 原子的 y = 5.0 Å 切面，圆点标出真实原子坐标，颜色与子图 b 的一维阴影保持物理同构：暖橙色与实线等值线标示共价键中心区域的显著电子积累，深蓝色与虚线标示原子核周围的电子耗尽区。
-
-子图 b 在 xy 平面求平均后乘以截面面积 A = 100 Å²，得到沿法向每单位长度的电荷密度变化（e/Å）。子图 c 则从晶胞边界 z = 0 开始计算累积积分 ΔQ(z)（单位为 e），并在右端点精确收敛至 0.0000 e，以可视化的方式严格证明差分电荷的全胞守恒。
-
-如果需要三维等值面，先把三份 CHGCAR.gz 放回子目录，再运行：
+[完整源码：build_delta_chgcar.py](/Atlas/examples/charge-vesta/scripts/build_delta_chgcar.py)。环境为 Python 3、NumPy；安装依赖后在新输出目录执行：
 
 ```bash
-python3 analyze_charge.py
+python3 -m pip install numpy
+python3 -B scripts/build_delta_chgcar.py --ab ../h2-delta-charge/AB/CHGCAR.gz --a ../h2-delta-charge/A/CHGCAR.gz --b ../h2-delta-charge/B/CHGCAR.gz --output new-h2/CHGCAR_DELTA --summary new-h2/summary.json
 ```
 
-程序会另写 `CHGDIFF.vasp` 与 `delta-charge.cube`。前者保留 AB 的几何头，只有用于可视化的差分标量块，不是用于重启 SCF 的完整 CHGCAR。Cube 文件把长度换成 bohr、密度换成 e/bohr³，并按 Cube 的 z 最快次序写出；不能给两种文件使用同一个未经换算的等值面数值。完整网格转换由脚本完成，不必手工剪贴百万行数据。
+本次对真实密度执行同一转换得到的关键输出为：
 
-这条路线已经把三份真实输入、SCF、网格相减、单位、电子数与图像对应起来。它展示的是固定 0.74 Å 几何、10 Å 周期盒和当前参数下的重排，未对键长、盒长、截断或密度极值作系统收敛。研究异质结时仍按同一个坐标系拆分片段，并另行核验片段的电荷与自旋参考态。
+```text
+grid: 144 144 144
+volume: 1000.000000 Å^3
+integrals A/B/AB: 1.000000001 / 1.000000001 / 2.000000003 e
+delta integral: 4.363e-10 e
+delta rho min/max: -0.055559 / 0.802964 e/Å^3
+```
 
-## 文献中的相关图件与表达方式
+完整未舍入统计在[summary.json](/Atlas/examples/charge-vesta/h2/summary.json)。差分积分残差为 4.3626382×10⁻¹⁰ e，正负积分分别为 +0.2578313944388549 和 −0.2578313940025911 e。它们在当前文件精度下相抵；显示成 `0.0000` 只是打印舍入。
 
-在二维范德华异质结与界面接触研究中，差分电荷密度 `Δρ(r) = ρ_AB(r) − ρ_A(r) − ρ_B(r)` 常将三维实空间正负等值面与沿法向 `z` 轴的一维平面平均曲线 `Δρ(z)` 组合在同一幅图内，兼顾空间形貌与定量变化：
+### 打开网格，设置正负两套等值面
 
-### 1. 一维平面平均差分电荷曲线与右侧真空区嵌入的三维等值面
+用 VESTA 的 **File → Open** 打开 `h2/CHGCAR_DELTA`，先确认两颗 H 的位置与 10 Å 晶胞。打开 **Properties → Isosurfaces**，添加正、负密度两项，分别用金黄与蓝色。物理阈值为 ±0.03 e/Å³；本次界面转换后保存的数值是 ±0.00444555 e/bohr³（1 bohr=0.529177210903 Å），不能把 30 当成这个界面的密度阈值。下载的 `h2/h2-isosurfaces.vesta` 已记录阈值与颜色；打开后仍应核对导入文件。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_1D_3D_ZrI2_Hetero_Zhang2025_Fig5.jpg" alt="二维异质结沿法向 z (0–30 Å) 的一维平面平均差分电荷密度曲线与右侧真空区嵌入的三维等值面" loading="lazy"/><figcaption>横轴为法向坐标 <code>z</code>（0–30 Å），在 <code>z ∈ [8, 20] Å</code> 区间绘制一维平面平均差分电荷密度 <code>Δρ(z)</code> 曲线（黄色填充表示 <code>&gt; 0</code> 电子积累，青色填充表示 <code>&lt; 0</code> 电子耗尽），并在右侧平坦真空区 <code>z ∈ [22, 30] Å</code> 内竖直嵌入三维侧视原子结构及黄/青双色等值面。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025), Fig. 5，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+把显示范围收至分数坐标 0.3–0.7，沿 a 方向观察，c 轴竖直、b 轴水平；通过 **File → Export Raster Image** 导出 PNG。本页使用的是这次实际 VESTA 导出。
 
-- **读图与作图要点**：图中横轴为 `z`（`0–30 Å`），异质双层位于 `z ∈ [8, 20] Å` 区间，一维 `Δρ(z)` 曲线对该区域的正值（电子积累）和负值（电子耗尽）分别作黄色与青色填充；同时利用右侧 `z ∈ [22, 30] Å` 的平坦真空空白区竖直嵌入采用相同黄/青配色的三维结构侧视图与等值面，既不遮挡主曲线峰值，又保持了正负颜色编码的一致。
+<figure><img src="/Atlas/examples/delta-charge/h2_delta_3d_zoom.png" alt="H2 差分电子密度的真实 VESTA 正负等值面，金黄为积累，蓝色为耗尽" loading="lazy"/><figcaption>固定 H–H=0.74 Å 的 H₂：金黄为 Δn=+0.03 e/Å³，蓝色为 Δn=−0.03 e/Å³，浅色球为 H。金黄区域连接两原子，蓝色区域分布在分子轴两端。阈值下的空间形貌表示相对于冻结原子参考的密度重排。</figcaption></figure>
 
-### 2. 界面层间间隙边界标定与左上角三维等值面插图
+### 在同一视向核对正负区域的轮廓
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_CDD_InterfaceGap_WS2_Sc2C_Bu2025_Fig9a.jpg" alt="WS₂/Sc₂C 异质结的一维平面平均差分电荷密度曲线、蓝色虚线标出的层间间隙 d 与左上角三维等值面插图" loading="lazy"/><figcaption>WS₂/Sc₂C 异质结的一维平面平均差分电荷密度曲线：两条竖直蓝色虚线标出界定层间间隙 <code>d</code>（由红色双向箭头标示）的最外侧原子平面位置，左上角嵌入三维黄/青双色 <code>Δρ</code> 等值面侧视图。图片来源：Bu et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 14397 (2025), Fig. 9a，<a href="https://doi.org/10.1039/D5CP01402F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP01402F</a>。</figcaption></figure>
+随后切换到红蓝平面显示并再次导出。配套 `h2/h2-planar-view.vesta` 保存了当时的显示设置；此场景没有记录可复核的切面坐标，所以这张图用来辅助辨认轮廓，不用它读取某一位置的连续密度值。
 
-- **读图与作图要点**：在一维平面平均曲线中，用两条竖直蓝色虚线标出上下两层面向界面的最外侧原子平面，并用红色双向箭头明确标出层间间隙宽度 `d`，同时在左上角空白处嵌入三维黄/青 `Δρ` 等值面插图，便于直接判断电荷积累峰是落在层间间隙内部还是靠近某一侧表面原子层。
+<figure><img src="/Atlas/examples/delta-charge/h2_delta_slice.png" alt="同一 H2 数据在 VESTA 中导出的红蓝平面显示，红色为积累区域，蓝色为耗尽区域" loading="lazy"/><figcaption>同一密度数据的平面显示：红色对应积累，蓝色对应耗尽。图中未附连续色标与切面坐标，判读限于正负区域的轮廓；定量检查使用前面的完整网格积分。</figcaption></figure>
+
+两幅图都显示键区积累与分子轴两端耗尽；由于两颗 H 相同且冻结参考对称，全胞差分近零不能推出 A→B 的定向转移。对于异质结构，仍需保留片段的原位置、电荷与自旋参考态。
+
+## 参照文献，确定图要回答的问题
+
+Shang 等在 Si–N 功能化 h-BN 的 Fig. 1(d,e) 中并列展示差分密度与 ELF，分别读密度增减和局域化空间分布。[Phys. Rev. B 113, 094504 (2026)](https://doi.org/10.1103/jmys-zkgs)。该图的差分密度阈值与单位未在图注给出；本例阈值由自己的密度数据选择。文献里的材料结论不用于解释这里的 H₂。
 
 下一步：若要给空间区域分配净电子数，可接 [Bader 分析](/Atlas/m/bader/vasp/)；若要看电子局域特征，可接 [ELF](/Atlas/m/elf/vasp/)。这两种量与 Δn 的定义不同，需要各自读取对应的输出。
 
@@ -356,5 +362,5 @@ python3 analyze_charge.py
                                   ↓
                        第一密度块 AB − A − B
                                   ↓
-                    切片 / 平面平均 / 累计积分
+                    VESTA 正负等值面 + 完整网格积分
 ```

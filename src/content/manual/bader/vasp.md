@@ -155,61 +155,35 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
     VACUUM VOLUME:               0.0000
     NUMBER OF ELECTRONS:        16.0000
 ```
-两原子现在分别得到 7.999923 和 8.000077 个价电子，仍精确汇总为显示精度内的 16。96³ 到 192³，每个原子的变化约为 0.000380 e，等价原子之间的不对称减小了。与此同时，AECCAR0 积分从 39.5201 靠近到 36.2910：参考密度核区的积分还没有完全闭合，不能把它与价电子盆地积分的稳定程度混为一个指标。
+两原子现在分别得到 7.999923 和 8.000077 个价电子，在所列精度下相加为 16。96³ 到 192³，每个原子的变化约为 0.000380 e，等价原子之间的不对称减小了。与此同时，AECCAR0 积分从 39.5201 靠近到 36.2910：参考密度核区的积分还没有完全闭合，不能把它与价电子盆地积分的稳定程度混为一个指标。
 
 这份小例子可以核对文件、网格、守恒和等价原子。真正比较异质结构的电荷转移时，应逐步加密网格，观察关心的原子或层电荷是否达到所需精度，并在所有对照计算中使用相同分区定义。
 
-### 把盆地电荷与参考密度的网格变化分开看
+## 用原始输出表检查网格变化
 
-将 [Bader 图数据与脚本](/Atlas/examples/bader-grid-files.tar.gz) 解包后进入 `bader-grid`。两个子目录保留原始 ACF.dat 和相加脚本当时写出的检查结果；下面的脚本从这些文件重新提取数据：
+| 网格 | N(Fe1) / e | N(Fe2) / e | AECCAR0 全胞积分 / e | 芯电子参考 / e |
+| --- | ---: | ---: | ---: | ---: |
+| 96³ | 8.000303 | 7.999697 | 39.5201 | 36 |
+| 192³ | 7.999923 | 8.000077 | 36.2910 | 36 |
 
-```bash
-python3 extract_bader_grid.py
-cat bader-grid.csv
-python3 plot_bader_grid.py
+[下载两套 ACF.dat、密度积分记录与提取源码](/Atlas/examples/charge-vesta-files.tar.gz)，解包后进入 `charge-vesta/bader`。以下需求说明可交给 AI 编程助手，复现本例表格：
+
+```text
+用 Python 3 标准库写 extract_bader_grid.py，只解析已经完成的96³和192³ bcc Fe Bader输出，不运行VASP/Bader。读取每目录ACF.dat原子行的编号、X/Y/Z、CHARGE、MIN DIST、ATOMIC VOL，以及底部VACUUM CHARGE、VACUUM VOLUME、NUMBER OF ELECTRONS。CHARGE是价电子盆地数，坐标/距离单位Å，体积Å³；本例ZVAL=8，两Fe，总价电子16，晶胞体积21.952Å³。输出N_Bader、N_Bader-ZVAL、Q=ZVAL-N_Bader，保留两种符号定义；核对原子数和总量到原文件打印精度，打印残差而非宣称严格为零。另读取sum_charge.py记录的AECCAR0/2、CHGCAR与reference_integral，不把芯电子积分与盆地稳定性混成同一指标。输出CSV，拒绝覆盖输入。不画柱图或另加无来源材料数据；若要查看空间形貌，交给专业GUI读取真实密度。完整脚本应附命令行运行说明。
 ```
 
-`extract_bader_grid.py` 逐行读取 ACF.dat 中的原子编号、盆地电子数、最短边界距离和体积，再核对两个原子、16 个价电子与 21.952 Å³ 的体积总和。CSV 另外保存 N_Bader−ZVAL 和 Q=ZVAL−N_Bader；二者符号相反。这里使用 Fe 的 ZVAL=8，只适用于随包提供的这套 Fe 例子。
+[完整源码：extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py)；[密度相加源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。需要 Python 3；上述两个脚本均使用标准库。在解包后的 `charge-vesta/bader` 目录运行：
 
-<figure><img src="/Atlas/examples/bader-grid/bader-grid.svg" alt="bcc Fe 网格电荷误差收敛、AECCAR0 芯电子积分及单层 Sc₂C 的 Bader 电荷分区对比" loading="lazy"/><figcaption>Bader 电荷分析的多角度综合诊断：(a) bcc Fe 两个等价原子在 96³ 与 192³ 网格下的价电子盆地偏差（绿色阴影标出 ±10⁻⁴ e 精度带）；(b) AECCAR0 芯电子密度全胞积分随网格向严格 36 个芯电子收敛的过程；(c) 二维单层 Sc₂C（ZVAL = 11, 4）的实际 Bader 盆地电荷与名义价态对比，标出各原子的净转移电荷。</figcaption></figure>
+```bash
+python3 -B ../scripts/extract_bader_grid.py --output new-bader-grid.csv
+cat new-bader-grid.csv
+```
 
-子图 a 的纵轴是 **盆地电子数相对 8 的偏离**，以 10⁻³ e 表示：正值表示盆地中多于 8 个电子，圆点与方块区分两个等价原子。96³ 时的 ±0.303×10⁻³ e 在 192³ 缩减为约 ∓0.077×10⁻³ e，进入绿色阴影所示的高精度区间。子图 b 展示全胞 AECCAR0 积分随网格从 39.52 接近至 36.29 e，虚线为理论 36 芯电子参考值。子图 c 则引入二维单层 Sc₂C 的真实分析案例，直观展示名义价态与实际 Bader 分区电荷的差异。
+ACF.dat 将总数打印为16.0000 e，两个盆地数在所列六位小数下相加为16 e；这只核对当前输出精度，不证明连续密度的积分严格无误。`VACUUM CHARGE=0.0000` 和 `VACUUM VOLUME=0.0000` 表示本次分区算法没有列出真空盆地，不能据此断言真空中密度处处为零。
 
-`plot_bader_grid.py` 直接读取 CSV，保存同名 SVG、PDF 和 PNG。比较异质结构时可以沿用提取思路，但应把等价原子检查改成自己关心的原子组或层，并重新确定 ZVAL；本例没有给出异质结构的电荷转移量。
+## 文献如何比较界面电荷
 
-### 二维层状体系与半芯态元素的 Bader 电荷核验
-
-在三维块体之后，二维单层或异质结体系（如过渡金属碳化物 Sc₂C 或过渡金属卤化物）在进行 Bader 分析时，还会遇到两个特有的规范问题：**半芯态（Semicore）价电子计数**与**真空层空间截断**。
-
-在 VASP 中处理含半芯态元素（如 Sc 选用 `Sc_sv` 赝势，包含 3s² 3p⁶ 3d¹ 4s²，即 `ZVAL = 11`）时，Bader 分析的标准操作包含三步：
-1. **全电子电荷密度自洽**：设置 `LAECHG = .TRUE.`、`LCHARG = .TRUE.`、`PREC = Accurate`、`LASPH = .TRUE.`，确保波函数与原子核区域电荷密度均完整记录，并输出 `AECCAR0`（芯态电荷）与 `AECCAR2`（自洽价态电荷）。对过渡金属体系建议显式设置 `LMAXMIX = 4`。
-2. **总参考电荷合成**：使用 `chgsum.pl AECCAR0 AECCAR2`，将二者逐点相加生成包含全电子核区贡献的参考密度 `CHGCAR_sum`。
-3. **零通量面分割**：调用 `bader CHGCAR -ref CHGCAR_sum`，以包含核电荷梯度的 `CHGCAR_sum` 定位零通量面，并将价电荷密度 `CHGCAR` 积分到各个原子盆地，生成 `ACF.dat`。
-
-在检查 `ACF.dat` 时，应逐项核验三项物理指标：
-- **总电子数严格守恒**：检查文件末尾的 `NUMBER OF ELECTRONS` 是否严格等于各元素 `∑ N_i × ZVAL_i`。例如在单层 Sc₂C（包含 2 个 Sc 和 1 个 C）中，总价电子数严格为 `2 × 11 + 4 = 26.0000 e`。
-- **真空区域无虚假电荷泄漏**：在 z 方向留有充分真空层（如 20–40 Å）的二维板层模型中，检查 `VACUUM CHARGE = 0.0000` 与 `VACUUM VOLUME = 0.0000`。这确认了电子密度在真空层完全衰减至零，所有价电子均被完整划分至晶格内部原子盆地，没有出现边界数值积分溢出。
-- **形式化合价与 Bader 净电荷的区别**：
-  若以 `Q = ZVAL − N_Bader` 计算净转移电荷，以单层 Sc₂C 为例：
-  每个 Sc 原子的盆地电子数为 `9.7893 e`，净电荷为 `Q(Sc) = 11 − 9.7893 = +1.2107 e`；
-  C 原子的盆地电子数为 `6.4214 e`，净电荷为 `Q(C) = 4 − 6.4214 = −2.4214 e`。
-  单层整体净电荷为 `2 × (+1.2107) + (−2.4214) = 0.0000 e`。形式化合价假定价电子完全转移（如 Sc²⁺ 与 C⁴⁻），而自洽 Bader 分析揭示出显著的共价–离子混合成键特征（Sc 实际转移约 1.21 e）。在进一步分析异质结层间电荷转移时，必须以各自独立孤立单层的 Bader 电荷为基准做差，不能将孤立单层内部的极化净电荷误当作层间转移电荷。
-
-## 文献中的相关图件与表达方式
-
-得到 `ACF.dat` 的分区电子数后，文献中除了直接列出单体系电荷表，还常将 Bader 净电荷与界面距离、轨道交叠、隧穿势垒高度（TBH）或动力学 Born 有效电荷 `Z*` 绘制成关联散点图：
-
-### 1. 金属/MoS₂ 界面参量随层间距变化的 2×2 四子图散点矩阵
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Bader_TBH_vs_Distance_MetalMoS2_Fig2.jpg" alt="10 种金属与 MoS₂ 接触界面的轨道交叠比、诱导隙态、MoS₂ 净 Bader 电荷与隧穿势垒高度随界面距离变化的 2×2 散点图" loading="lazy"/><figcaption>10 种金属与单层 MoS₂ 接触界面随界面距离 <code>Δz_S-metal</code>（Å）变化的 2×2 散点矩阵：(a) 轨道交叠比 <code>σ_S-metal</code>，(b) 积分诱导隙态 IGS，(c) MoS₂ 上的净 Bader 电荷 <code>Q_MoS2</code>（e），(d) 隧穿势垒高度 TBH（eV）；数据点与金属标签按接触强度分为弱范德华型（紫色：Au、Bi、Sb）、中间型（黑色：Cu、Pt、Ru、Ag）与强共价型（绿色：Mo、W、Y）三类。图片来源：<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 5786 (2025), Fig. 2a–d，<a href="https://doi.org/10.1039/D4CP04577G" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D4CP04577G</a>。</figcaption></figure>
-
-- **读图与作图要点**：比较多个接触体系时，以界面法向距离 `Δz_S-metal`（Å）为共同横轴，按 2×2 矩阵并列展示交叠比 `σ_S-metal`、积分诱导隙态 IGS、MoS₂ 净 Bader 电荷 `Q_MoS2`（e）和隧穿势垒高度 TBH（eV），并用颜色区分弱范德华（紫：Au、Bi、Sb）、中间（黑：Cu、Pt、Ru、Ag）与强共价（绿：Mo、W、Y）三类接触，比单纯罗列数字表格更容易看出几何间距与界面电荷转移的协同变化。
-
-### 2. 静态 Bader 电荷与 Born 有效电荷张量迹平均值的散点对照
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Born_vs_Bader_C2DB_Gjerding2021_Fig16.jpg" alt="二维材料数据库中 585 种材料共 3025 个原子的 Born 有效电荷张量迹平均值 Tr(Z*)/3 与静态 Bader 电荷散点图" loading="lazy"/><figcaption>二维材料数据库（C2DB）中 585 种二维材料共 3025 个原子的 Born 有效电荷张量迹平均值 <code>Tr(Z*)/3</code> [e] 与静态 Bader 电荷 [e] 的散点分布，数据点颜色标示化合物的离子性程度。图片来源：Gjerding et al., <em>2D Mater.</em> <strong>8</strong>, 044002 (2021), Fig. 16，<a href="https://doi.org/10.1088/2053-1583/ac1059" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/ac1059</a>。</figcaption></figure>
-
-- **读图与作图要点**：静态 Bader 电荷来自基态电子密度的零通量面空间分区积分，而 Born 有效电荷张量迹平均值 `Tr(Z*)/3` 反映原子位移引起的动态极化响应。将 3025 个原子的两类电荷绘制在带对角参考线的散点图中，并按化合物离子性着色，可以直接看出静态电荷分配与动态极化电荷之间的系统差异。
+在金属/MoS₂ 与金属/Ca₂N/MoS₂ 的研究中，Fig. 2(c) 将 MoS₂ 的 Bader 转移量与接触距离联系起来，并区分不同接触强度。[Phys. Chem. Chem. Phys. 27, 5786 (2025)](https://doi.org/10.1039/D4CP04577G)。该文使用 Yu–Trinkle/critic2 分区。本例用 Henkelman Bader 程序验证同质 Fe 的等价性和网格变化；界面比较需要在自己的密度、片段参考与分区定义下重新求值。
 
 下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
 

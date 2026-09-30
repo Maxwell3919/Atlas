@@ -195,26 +195,28 @@ atom,total_electrons,s_electrons,p_electrons,pz_electrons,px_electrons,py_electr
 ```
 
 
-画图时分别把 s、p 叠加，保留 4 个价电子的参照线。[布居表](/Atlas/examples/si-pbe/population-cg/lowdin.csv)、[完整 projwfc.out](/Atlas/examples/si-pbe/population-cg/projwfc.out)和[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）可直接下载。
+## 从原始布居输出整理表格
+
+| 原子 | 总布居 / e | s / e | p / e | pz / e | px / e | py / e |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Si1 | 3.9634 | 1.1520 | 2.8114 | 0.9371 | 0.9371 | 0.9371 |
+| Si2 | 3.9634 | 1.1520 | 2.8114 | 0.9371 | 0.9371 | 0.9371 |
+
+[原始 projwfc.out](/Atlas/examples/si-pbe/population-cg/projwfc.out) 与[原有布居表](/Atlas/examples/si-pbe/population-cg/lowdin.csv)可直接下载。可复制给 AI 编程助手的需求如下：
 
 ```text
-[preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py population
-<工作目录>/si-pbe/plots/population-analysis.png
+编写Python 3标准库extract_lowdin.py，输入QE projwfc.out，读取最后Lowdin Charges段。每原子s与p打印在不同重复Atom行，按原子编号合并而非将total charge相加。解析total、s、p、pz、px、py，检查同原子两行total相同、s+p与total在输出舍入精度内一致、px+py+pz与p差小于2e-4e。只对本例两个Si、8价电子核验，解析Spilling Parameter及JOB DONE，缺项报错。CSV保留原始打印精度，终端打印总投影电子数、8-total与比例，并对照spilling；不能把投影缺口当成净电荷转移。命令为python3 extract_lowdin.py projwfc.out --output new-lowdin.csv，拒绝覆盖已有CSV。只整理表格，不重画柱图，不运行QE；输入保持只读。
 ```
 
-![等价 Si 原子的 s 和 p 投影布居，以及价电子数参照](/Atlas/examples/si-pbe/plots/population-analysis.png)
+[完整源码：extract_lowdin.py](/Atlas/examples/charge-vesta/scripts/extract_lowdin.py)。环境为 Python 3 标准库。把源码与原始输出放在同一目录，在新目标文件执行：
 
-这张图首先展示两个原子的等价性和投影构成。换成异质结构后，要比较的是相同赝势、相同投影定义和充分 k 采样下各个原子的变化，同时检查 spilling 是否显著改变。Löwdin 布居依赖所选择的原子轨道子空间；它不会自动等同于按实空间分区得到的 Bader 电荷，也不单独证明氧化态。
+```bash
+python3 -B extract_lowdin.py projwfc.out --output new-lowdin.csv
+```
 
-## 文献中不同电荷定义与间隙电子布居的对比方式
+实际输出的检查值为总投影电子数7.9268 e、缺口0.0732 e、缺口比例0.00915，原文件spilling=0.0092。末位差异来自原始输出舍入。Löwdin 布居依赖所选择的原子轨道子空间；比较材料或构型时，应固定赝势、投影定义与积分网格，再检查变化和spilling。
 
-静态电荷分解（如轨道投影 Löwdin 布居或实空间分区的 Bader 电荷）与晶格振动响应给出的动力学 Born 有效电荷 Z* 描述的是不同物理过程，二者数值往往存在显著差异。文献中跨材料系统比较时，常以散点分布对比静态 Bader 电荷与动力学 Born 有效电荷迹的平均值 Tr(Z*)/3。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Born_vs_Bader_C2DB_Gjerding2021_Fig16.jpg" alt="C2DB 数据库中 585 种二维化合物的静态 Bader 电荷与动力学 Born 有效电荷对比" loading="lazy"/><figcaption>C2DB 数据库中 585 种二维化合物的静态实空间分区 Bader 电荷与动力学 Born 有效电荷平均值 Tr(<em>Z</em>*)/3 的相关性对比，说明静态电荷划分与动态极化响应之间的系统差异。引自 Gjerding 等人，<em>2D Mater.</em> <strong>8</strong>, 044002 (2021)，Fig. 16，<a href="https://doi.org/10.1088/2053-1583/ac1059" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/ac1059</a>。</figcaption></figure>
-
-对于电子局域在晶格间隙而非原子核周围的电子化物（electrides），仅靠以原子为中心的轨道投影会遗漏间隙阴离子电子并导致显著的 spilling。此时文献中常在晶格间隙位点放置空球（empty spheres）进行分波态密度投影以统计间隙电子占比，并配合不同等值面阈值的电子局域化函数（ELF）三维分布进行定量表征。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_ELF_MultiIsosurface_Sc2C_Druffel2023_Fig5.png" alt="层状电子化物 Sc2C 中通过空球投影态密度与多阈值 ELF 等值面量化间隙阴离子电子布居" loading="lazy"/><figcaption>通过间隙空球投影态密度（% Electride States）与多级电子局域化函数（ELF）等值面联合量化 Sc<sub>2</sub>C 等体系中的间隙阴离子电子布居。引自 McRae 等人，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，Fig. 5，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
+本页的投影来自 QE 赝势原子轨道。使用 ADF 等原子中心局域基组得到的轨道占据有不同基组定义；间隙空球投影、Bader与Born有效电荷也各自定义不同，不能直接放进同一个“原子失电子”表。
 
 下一步：看逐 k 点的轨道组成接[胖带](/Atlas/m/fatband/qe/)；看实空间分区可参照[Bader 电荷的 VASP 例程](/Atlas/m/bader/vasp/)，看成键前后的空间变化可参照[差分电荷的 VASP 例程](/Atlas/m/delta-charge/vasp/)。后两页说明另一种分析方法，读取的是 CHGCAR 等 VASP 文件，不能直接接用这里的 QE `save` 目录。
 

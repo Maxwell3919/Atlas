@@ -2,7 +2,7 @@
 
 普通能带图只告诉我们一个 k 点上有哪些能量。SOC 计算还可以把每个态在三个方向上的投影磁化读出来，再给能带点着色。这里沿 SnSe₂/Sr₂N 已计算的 Γ–M–K–Γ 路径读取 PROCAR，保留它的原始投影数值。
 
-[下载原始 PROCAR、对应 SCF 输出和提取脚本](/Atlas/examples/vasp/snse2-sr2n-spin-path-files.tar.gz)。包内保留 150×72 组完整的四块投影数据，可重新生成 `spin-path.dat`；不包含大体积 CHGCAR 或波函数。现场还核对了 SCF 与路径计算的 POSCAR、POTCAR、CHGCAR，其各自 SHA256 完全一致，且路径计算关闭 LCHARG，未覆盖继承的密度。
+[下载原始 PROCAR、对应 SCF 输出和提取脚本](/Atlas/examples/vasp/snse2-sr2n-spin-path-electronic-files.tar.gz)。包内保留 150×72 组完整的四块投影数据，可重新生成 `spin-path.dat`；不包含大体积 CHGCAR 或波函数。路径计算继承同一 SOC SCF 的结构、赝势和密度，并关闭 LCHARG。
 
 这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。[SCF](/Atlas/m/scf/vasp/) 页可用于对照静态输入与输出的读法，[能带方法目录](/Atlas/m/bands/)说明相应的数据需求。本页直接从这份已经结束的 SOC 能带输出开始。
 
@@ -143,6 +143,35 @@ columns charge,mx,my,mz; output spin-path.dat
 1 3 0.000000000 0.000000000 0.000000000 0.000000000 -36.277903420 -34.789803420 1.000000000 0.978000000 0.270000000 0.921000000 0.185000000
 ```
 输出的十三列依次是 k 点编号、带号、累计路径长度、三个分数倒易坐标、原能量、相对 SCF 费米能的能量、占据、投影权重、mx、my、mz。它没有把相邻带号自动当作同一条连续自旋分支；带交叉和近简并处仍需结合波函数连续性判断。
+
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 SnSe₂/Sr₂N SOC 路径投影程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：PROCAR、POSCAR、SCF OUTCAR，以及 spin-path.dat、spin-summary.json；150 点×72 带，每态有投影权重及三个磁化块。
+方法：保留 charge、mx、my、mz，读取 SAXIS 基底变换。本例为单位矩阵，零点为 SOC SCF EF=−1.4881 eV，横轴为累计距离（Å⁻¹）。
+检查：10800 态、四块 tot、十三列和点序完整，保留残余总磁矩 (0.0017,0.0167,0.0001) 的计算条件。
+输出：源码、依赖、命令、表格与 PNG/PDF；三个磁化面板共享 −1…1 色标及 EF±2 eV 窗口。颜色表示原子投影磁化，二维纹理需平面网格。
+```
+
+## 后处理源码与运行
+
+完整源码：[spin_path.py](/Atlas/examples/vasp/snse2_sr2n_spin/spin_path.py) · [plot_spin.py](/Atlas/examples/vasp/snse2_sr2n_spin/plot_spin.py) · [atlas_plot_style.py](/Atlas/examples/vasp/snse2_sr2n_spin/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `snse2-sr2n-spin-path` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 spin_path.py
+python3 plot_spin.py
+```
+
+`spin_path.py` 从原始 PROCAR 检查每态四个 `tot` 块并生成十三列表；已有 `spin-path.dat` 与 `spin-summary.json` 时，直接执行 `python3 plot_spin.py`。绘图入口使用已提取的表格。
+
+
+提取源码：[spin_path.py](/Atlas/examples/vasp/snse2_sr2n_spin/spin_path.py)；绘图源码：[plot_spin.py](/Atlas/examples/vasp/snse2_sr2n_spin/plot_spin.py)，样式依赖为同目录 [atlas_plot_style.py](/Atlas/examples/vasp/snse2_sr2n_spin/atlas_plot_style.py)。运行环境为 Python 3、NumPy、Matplotlib。
 
 将 `spin-path.dat`、`spin-summary.json` 和 `plot_spin.py` 放到本机同一目录，执行 `python3 plot_spin.py`。脚本并排画出 mx、my、mz 三幅着色能带，显示费米能上下 2 eV，三幅图共用 −1 到 1 的颜色标尺，同时输出 PNG 与 PDF。颜色在近简并态之间跳变时，先检查成对态和投影基底，不要把每个带号的突变都解释成独立的物理纹理。
 

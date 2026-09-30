@@ -1,6 +1,6 @@
 [VASP：LELF](https://vasp.at/wiki/LELF) · [ELFCAR](https://vasp.at/wiki/ELFCAR) · [NPAR](https://vasp.at/wiki/NPAR)
 
-ELF 文件中的数是电子局域化函数，不能按 CHGCAR 的电子密度单位去读。这里接着 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁小体系，读取实际生成的两个自旋通道，并画出经过 z = 0 的截面。
+ELF 文件中的数是电子局域化函数，不能按 CHGCAR 的电子密度单位去读。这里接着 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁小体系，读取实际生成的两个自旋通道，并在 VESTA 中查看同一阈值下的三维等值面。
 
 下载 [输入、完整 OUTCAR、ELFCAR 与绘图脚本](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz)。其中 `charge_elf` 和 `charge_elf_192` 分别保留较粗、较细的实空间采样，后者用于下面的截图数据。它们都是共线自旋计算；这条 ELF 路线不接非共线 SOC 输出。
 
@@ -64,7 +64,7 @@ export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
 cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
-任务 18188 用 8 个 MPI 进程运行，实际耗时约 102 秒；每次只运行一个教学任务，并在原有研究任务之外保留至少半台机器的空闲算力。
+任务 18188 用 8 个 MPI 进程运行，实际耗时约 102 秒。
 
 ```text
 [bcgong@localhost charge_elf_192]$ tail -4 OSZICAR
@@ -110,82 +110,51 @@ Direct
 
 对于这份 `ISPIN = 2` 输出，第一个块是 ELF↑，后面接 ELF↓。两个通道都应读取；只拿第一块画图，不能称为一份包含两个自旋通道的完整检查。
 
-```text
-[bcgong@localhost charge_elf_192]$ python read_elf.py
-up grid=[36, 36, 36] values=46656 min=7.1308e-05 max=0.13286
-down grid=[36, 36, 36] values=46656 min=0.00011024 max=0.3339
-Wrote elf-up-z0.dat and elf-down-z0.dat; z=0 slice
-```
-脚本检查了两个块各自都有 46,656 个有限数值，形状一致，范围在 0–1 之内。本例上自旋的最大值约 0.13286，下自旋约 0.33390。验收不止是 `ls` 看文件存在：还包括完整网格、两个通道、数值范围和来源 SCF 的收敛。
+## 分离两个标量块，再交给 VESTA
 
-脚本把 z = 0 的截面分别写入 `elf-up-z0.dat` 与 `elf-down-z0.dat`，每份有 36 行、每行 36 个数。它们是无量纲的 ELF 值，不需要乘电子电荷或除以晶胞体积。
+下载[完整原始 ELFCAR、分离数据、场景与脚本](/Atlas/examples/charge-vesta-files.tar.gz)，解包进入 `charge-vesta`。本次转换不合并自旋通道：两个输出都保留相同结构，各写一块无量纲标量网格。
+
+下面的需求说明根据本例实际转换整理，可复制给 AI 编程助手：
 
 ```text
-[bcgong@localhost charge_elf_192]$ head -2 elf-up-z0.dat
-0.01801200 0.00031080 0.00007394 0.00016325 0.00073557 0.00303300 0.00959910 0.02328300 0.04456700 0.06950100 0.09095100 0.10258000 0.10283000 0.09633600 0.09070200 0.09131200 0.09869600 0.10827000 0.11271000 0.10827000 0.09869600 0.09131200 0.09070200 0.09633600 0.10283000 0.10258000 0.09095100 0.06950100 0.04456700 0.02328300 0.00959910 0.00303300 0.00073557 0.00016325 0.00007394 0.00031080
-0.00031080 0.00011587 0.00007131 0.00018791 0.00082675 0.00327530 0.01007200 0.02396500 0.04528300 0.06999900 0.09104900 0.10228000 0.10234000 0.09594000 0.09060100 0.09151900 0.09909300 0.10870000 0.11313000 0.10870000 0.09909300 0.09151900 0.09060100 0.09594000 0.10234000 0.10228000 0.09104900 0.06999900 0.04528300 0.02396500 0.01007200 0.00327530 0.00082675 0.00018791 0.00007131 0.00011587
-```
-切片上的每一行对应一个 y，列对应 x。这里晶格边长 2.8 Å，因此两个相邻采样点相隔约 0.07778 Å。网格的坐标是 xᵢ=i×2.8/36、yⱼ=j×2.8/36，i、j 从 0 到 35；不是包含两端点的 36 点等分。用于重建这一截面的核心是：
-
-```python
-field = np.asarray(values).reshape((nz, ny, nx))
-section = field[0, :, :]
-x = np.arange(nx) * 2.8 / nx
-y = np.arange(ny) * 2.8 / ny
+编写 Python 3 标准库命令行程序 split_elf_spin_channels.py。输入 --input 为本例 ISPIN=2、共线自旋 VASP ELFCAR；--output-dir 为新目标目录。保留 POSCAR 风格结构头，识别两次三整数网格尺寸，第一块为 ELF_up、第二块为 ELF_down；检查尺寸相同，逐块恰好 nx*ny*nz 个有限数值，范围0–1。x索引最快。不能把原子坐标误认为网格头，不能合并、平均、除体积或除最大值。检查两块之间及末尾无额外未解析内容，遇到本例以外的布局清楚报错。分别写 ELFCAR_up.vasp、ELFCAR_down.vasp，只含结构与一块网格；JSON记录输入SHA256、网格、通道顺序、每通道min/max/mean。所有目标文件应在写入前检查，已有文件则拒绝覆盖。终端打印验证摘要。GUI操作使用VESTA逐一打开两文件，Properties → Isosurfaces设同一无量纲阈值0.10，保存各场景并File → Export Raster Image导出PNG。保持网格与阈值不变；图注标通道、阈值、36³采样，区分原始网格与显示插值。
 ```
 
-`reshape` 把连续的一维值恢复成 z、y、x 的顺序，`field[0]` 取分数 z=0。这张面穿过角点 Fe；体心 Fe 在 z=1.4 Å，不在该截面上，因此图中没有把它投影成另一个截面原子。
-
-```text
-[bcgong@localhost charge_elf]$ python read_elf.py
-up grid=[18, 18, 18] values=5832 min=7.3938e-05 max=0.13202
-down grid=[18, 18, 18] values=5832 min=0.00015527 max=0.33107
-Wrote elf-up-z0.dat and elf-down-z0.dat; z=0 slice
-```
-较粗的文件是每个通道 18³ 个点。加密后，两通道最大值分别从 0.13202、0.33107 变为 0.13286、0.33390；主要数值范围相近，但粗网格无法显示细网格才采到的位置。比较两张图时应保持同一截面、同一颜色范围，不靠改变色标来制造差异。
-
-在本机进入解包后的 `fe-bcc/charge_elf_192`，执行：
+[完整源码：split_elf_spin_channels.py](/Atlas/examples/charge-vesta/scripts/split_elf_spin_channels.py)。只需 Python 3 标准库，不依赖 NumPy 或绘图库。
 
 ```bash
-python3 plot_elf.py
+python3 -B scripts/split_elf_spin_channels.py --input elf/ELFCAR --output-dir new-elf
 ```
 
-可另外下载 [本次图的数据与脚本](/Atlas/examples/elf-figure-files.tar.gz)，进入 `elf-figure` 后先运行 `python3 read_elf.py`，再运行上面的绘图命令。原始 ELFCAR、两个截面表和解析脚本都随包保留。
-
-<figure><img src="/Atlas/examples/elf-figure/elf-z0.svg" alt="bcc Fe 在 z=0 截面上的上自旋、下自旋电子局域函数 ELF 分布与自旋极化差值" loading="lazy"/><figcaption>bcc Fe 在 z = 0 切面上的电子局域函数多面板诊断：(a) 上自旋通道 ELF<sub>↑</sub> 连续热力图与白线等值线，白色空心圆标记 Fe 原子角点位置；(b) 下自旋通道 ELF<sub>↓</sub> 截面图，采用相同色标尺度；(c) 自旋极化不对称性 ΔELF = ELF<sub>↑</sub> − ELF<sub>↓</sub>，红蓝发散色标清晰反映出局域态与铁磁极化的空间对应关系。</figcaption></figure>
-
-图内暖色区域反映较高的电子局域化程度。下自旋通道在 Fe–Fe 间隙区的局域函数明显强于上自旋，这直接反映了铁磁 bcc Fe 中非对称的 d 电子自旋占据。若要将实空间局域性对应到具体的转移电子数，接 [Bader 电荷](/Atlas/m/bader/vasp/)；要观察化学成键前后的重排，接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)。
-
-为了看清同一条高对称晶轴上的局域化梯度，脚本还从两份截面表提取沿 [100] 方向（y = 0, z = 0）的一维线切片：
-
-<figure><img src="/Atlas/examples/elf-figure/elf-linecut.svg" alt="bcc Fe 沿 [100] 方向的上、下自旋通道 ELF 一维线切片" loading="lazy"/><figcaption>沿 [100] 轴线（y = 0, z = 0）的一维 ELF 切片对比：实线圆点与方块分别标出上自旋与下自旋通道，灰色填充区间直观展示两自旋通道在原子核区（极小值）与体心间隙金属成键区（局部极大值）的分裂幅度。</figcaption></figure>
-
-这张图的横轴为晶格坐标（Å），纵轴直接使用原始 ELF 无量纲数值。该线上的最大值分别为 0.11271 与 0.26030，清楚揭示出原子核位点的尖锐局域下凹以及金属键合区域的平缓台区。
-
-## 文献中的相关图件与表达方式
-
-在层状氮化物、碳化物（如 `Sr₂N` 与 `Sc₂C`）以及电子化合物（Electrides）研究中，`ELFCAR` 常用于识别晶格间隙或表面空腔中不依附于原子核的局域化间隙电子（Interstitial Anionic Electrons）。下面对照三幅文献图件说明三维等值面、二维切片与电子结构联立的常见表达方式：
-
-### 1. 二维层状电子化合物 Ca₂N：能带/PDOS、三维间隙电子分布与二维 ELF 切片
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_Ca2N_Lee2013_Fig3.png" alt="二维电子化合物 Ca₂N 的电子局域函数 ELF 三维等值面、二维切片与能带/局域态密度联立图" loading="lazy"/><figcaption>二维层状电子化合物 Ca₂N 的电子结构与 ELF 综合表征：将能带/PDOS、三维晶体结构中的间隙电子分布以及穿过层间空腔的二维 ELF 彩图切片同框展示，表征层间二维阴离子电子气的空间局域特征。图片来源：Lee et al., <em>Nature</em> <strong>494</strong>, 336 (2013), Fig. 3，<a href="https://doi.org/10.1038/nature11812" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nature11812</a>。</figcaption></figure>
-
-- **读图与作图要点**：三维等值面展示层间电子层的连通形貌，而穿过特定晶面的二维连续色标切片（`0.0–1.0`）则给出原子壳层与层间空腔的局域化梯度；配合费米面附近的能带与部分电荷密度（`PARCHG`），可以把实空间 ELF 局域峰与穿过费米能级的导带态对应起来。
-
-### 2. 单层 2H-ZrCl₂ 电子化合物：空球投影能带、PDOS、三维/二维 ELF 与部分电荷密度
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_HZrCl2_He2022_Fig2.png" alt="单层 2H-ZrCl₂ 电子化合物的空球 X 投影能带、三维 ELF = 0.65 等值面与二维切片、PDOS 及孤立阴离子能带的部分电荷密度" loading="lazy"/><figcaption>单层 2H-ZrCl₂ 电子化合物的四子图联合表征：(a) 间隙空球 X 投影的空心圆权重能带及 VBM/CBM 局部放大，(b) 局域在 Zr₆ 三棱柱空腔内的三维 <code>ELF = 0.65</code> 等值面与二维切片，(c) 含空球 X 的分波态密度 PDOS，(d) 孤立阴离子能带对应的实空间部分电荷密度。图片来源：He et al., <em>J. Mater. Chem. C</em> <strong>10</strong>, 7674 (2022), Fig. 2，<a href="https://doi.org/10.1039/D2TC00564F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D2TC00564F</a>。</figcaption></figure>
-
-- **读图与作图要点**：通过在 `Zr₆` 三棱柱空腔中心放置虚拟空球（Empty Sphere `X`），可以将 (b) 中 `ELF = 0.65` 三维等值面与二维切片定位出的空腔局域电子，定量投影到 (a) 的能带权重圆圈（含 VBM/CBM 放大图）和 (c) 的分波态密度上，再与 (d) 特定能带窗口的 `PARCHG` 实空间分布直接对照。
-
-### 3. 多层嵌套半透明 ELF 等值面剖切图与电子化合物态占比曲线
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_ELF_MultiIsosurface_Sc2C_Druffel2023_Fig5.png" alt="Sc₂C、Y₂C 与 Al₂C 的多层嵌套半透明 ELF (0.3–0.6) 剖切图及电子化合物态百分比随能量的分布曲线" loading="lazy"/><figcaption>嵌套半透明多等值面 ELF（<code>0.3</code> 至 <code>0.6</code>）三维剖切图与电子化合物态占比（<code>% Electride States</code>）能量曲线的并排对比，比较 Sc₂C、Y₂C 与 Al₂C 中间隙电子的局域程度差异。图片来源：McRae et al., <em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022), Fig. 5，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>。</figcaption></figure>
-
-- **读图与作图要点**：单一等值面阈值往往只能展示某一个截断面；采用从 `ELF = 0.3` 到 `0.6` 的多层半透明嵌套等值面并作局部剖切（Cutaway），结合右侧随能量变化的 `% Electride States` 曲线，可以在同一组阈值下直观比较 `Sc₂C`、`Y₂C` 与 `Al₂C` 三种碳化物中心空腔内电子的集中程度。
+本次读取真实 ELFCAR 的输出：
 
 ```text
-收敛的共线自旋 SCF + LELF + NPAR=1
-  └─ ELFCAR → 结构头与两套自旋网格检查
-                   └─ 固定 z 的两个截面 → 同一色标可视化
+grid: 36 36 36 (46656 points per spin channel)
+ELF_up: min=0.00007131 max=0.13286000 mean=0.09257966
+ELF_down: min=0.00011024 max=0.33390000 mean=0.15832494
+wrote: ELFCAR_up.vasp
+wrote: ELFCAR_down.vasp
+```
+
+两个通道各有 46,656 个有限值，[验证摘要](/Atlas/examples/charge-vesta/elf/elf-spin-channels.summary.json)保留完整范围和输入哈希。ELF 为无量纲函数，上面的均值不是盆地电子数。
+
+### 先看上自旋，再用相同阈值打开下自旋
+
+通过 **File → Open** 打开 `elf/ELFCAR_up.vasp`；在 **Properties → Isosurfaces** 设置 `ELF=0.10`，使用蓝色半透明表面，保留金色 Fe 球。通过 **File → Export Raster Image** 导出 PNG，并用 **File → Save As** 保存场景。
+
+<figure><img src="/Atlas/examples/elf/elf_up_isosurface.png" alt="真实 VESTA 导出的 bcc Fe 上自旋 ELF=0.10 等值面" loading="lazy"/><figcaption>上自旋 ELF↑=0.10，36³ 原始网格。蓝色为等值面，金色球为 Fe，周期单元边界截断部分表面；图中表面的封闭或连接形状只对应这一阈值。</figcaption></figure>
+
+再打开 `elf/ELFCAR_down.vasp`，同样设置 `ELF=0.10` 后导出。可直接下载场景 [elf-up.vesta](/Atlas/examples/charge-vesta/elf/elf-up.vesta)、[elf-down.vesta](/Atlas/examples/charge-vesta/elf/elf-down.vesta)，它们用相对路径导入各自的单块网格。
+
+<figure><img src="/Atlas/examples/elf/elf_down_isosurface.png" alt="真实 VESTA 导出的 bcc Fe 下自旋 ELF=0.10 等值面" loading="lazy"/><figcaption>下自旋 ELF↓=0.10，使用同一36³网格和阈值。两幅截图视向不同，比较时先按左下角晶轴对应方向；不要用投影面积估算两个通道的体积或电子数。</figcaption></figure>
+
+同一阈值下两通道的形貌不同，与数值范围差异相呼应。单凭 ELF 不能把这一区别归属到具体 d 轨道或某个转移电子数；轨道组成要结合投影分析，实空间电荷分区接 [Bader](/Atlas/m/bader/vasp/)。
+
+## 参照文献中的阈值与截面表达
+
+Shi 等研究二维 LaH₂ 时，在 Fig. 1(c–f) 配合 ELF=0.75 三维等值面与0–1色标的二维截面。[J. Phys.: Condens. Matter 34, 475303 (2022)](https://doi.org/10.1088/1361-648X/ac96bb)。这说明等值面阈值和截面色标应分别标注；0.75 不适用于本例 Fe 的数值范围，也不能用增大显示插值代替更细原始网格。
+
+```text
+共线自旋 SCF + LELF + NPAR=1 → ELFCAR 两块验证
+  → 分别保存单块 ELF↑/ELF↓ → VESTA 同阈值等值面 → 导出与场景保存
 ```

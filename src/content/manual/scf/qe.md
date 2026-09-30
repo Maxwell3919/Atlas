@@ -215,7 +215,7 @@ tail -f scf.out
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；应连同输出保存，不能称为空文件，也不能只凭这条提示判定电子迭代失败。
+把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；这是 X11 图形环境授权提示；本次电子循环和程序结束记录完整。
 
 ## 下一步要带走保存目录，不只是一份 OUT
 
@@ -232,15 +232,7 @@ vi nscf.in
 ```
 这里的 `nscf.in` 还需要按[NSCF 页](/Atlas/m/nscf/qe/)修改计算类型、网格与空带；复制只建立文件关系，没有自动完成那些设置。`prefix` 和 `outdir` 必须指向刚复制的 Si 数据。如果改变了结构、元素、赝势或上游物理设置，应重新建立对应 SCF。
 
-把本页金刚石 Si 的电子自洽收敛过程与二维金属异质结 `ZrCl₂/Sc₂C` 的 SCF 迭代记录并排对比，可以看到有带隙共价半导体中的快速单调指数收敛，同具有层间电荷转移和费米面部分占据的二维金属体系中的多步阻尼振荡收敛之间的鲜明差异。
-
-<figure class="research-figure"><img src="/Atlas/figures/scf/si-and-zrcl2-scf.png" alt="金刚石 Si 半导体与二维金属异质结 ZrCl₂/Sc₂C 的 QE 自洽场收敛轨迹对比" loading="lazy"/><figcaption>两类典型体系的 QE <code>pw.x</code> 自洽场迭代收敛对比：（左）本页金刚石 Si（8×8×8 k 网格）的 6 步单调指数收敛，总能量变化与 <code>estimated scf accuracy</code> 同步降至 2.0×10⁻¹¹ Ry，末尾输出原子力为 0 而各向同性应力为 5.45 kbar；（右）二维金属异质结 ZrCl₂/Sc₂C（64×64×1 致密 k 网格，<code>conv_thr = 1.0d-12</code>）在层间电荷转移与窄展宽下的 44 步阻尼振荡收敛轨迹。</figcaption></figure>
-
-## 文献中的相关图件与表达方式
-
-自洽场计算收敛后写出的 `charge-density.dat` 与波函数文件，除作为 NSCF 和声子微扰的输入外，还常直接用于实空间电子局域化与成键分析。例如在层状与二维驻极体（electride）研究中，常从收敛的基态密度与特定能量窗口的本征态出发，并列绘制三维部分电荷密度等值面、电子局域化函数（ELF）切片以及轨道投影能带，以确认阴离子空腔或层间通道内的局域电子分布。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_HZrCl2_He2022_Fig2.png" alt="2H-ZrCl₂ 基于自洽基态电子态的轨道投影能带、费米面附近部分电荷密度与 ELF 分布" loading="lazy"/><figcaption>由收敛自洽场电子态导出的能带与实空间电荷局域化表征：结合轨道投影能带、费米能级附近的部分电荷密度等值面以及电子局域化函数（ELF）分布，展示层间区域的特征电子态（He 等，<em>J. Mater. Chem. C</em> <strong>10</strong>, 5124 (2022)，<a href="https://doi.org/10.1039/D2TC00564F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D2TC00564F</a>）。</figcaption></figure>
+本例共 9 轮电子迭代，末轮 `estimated scf accuracy` 为 4.3×10⁻¹¹ Ry；[完整迭代表](/Atlas/examples/basics-si-convergence/results/scf-history.csv)由上述 OUT 逐轮提取。原子力在打印精度内为零，固定晶胞的压力为 38.45 kbar。电子收敛与晶胞是否达到目标压力应分别看这两项输出。
 
 下一步按所需结果选择：[均匀网格 NSCF](/Atlas/m/nscf/qe/)通向 DOS 与布里渊区采样；[路径能带](/Atlas/m/bands/qe/)沿指定高对称线求本征值；[Γ 点声子及虚频对照](/Atlas/m/imaginary-phonon/qe/)读取本例的密度与波函数求响应。
 

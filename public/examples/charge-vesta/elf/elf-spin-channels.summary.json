@@ -1,0 +1,30 @@
+{
+  "source": "ELFCAR",
+  "source_sha256": "fdc619067cd69f0a4d44a7fad188a6724c0084b81d38e3184d7428cbcc6b82de",
+  "source_spin_order": [
+    "ELF_up",
+    "ELF_down"
+  ],
+  "grid": [
+    36,
+    36,
+    36
+  ],
+  "points_per_channel": 46656,
+  "units": "dimensionless ELF values",
+  "channels": {
+    "up": {
+      "file": "ELFCAR_up.vasp",
+      "minimum": 7.1308e-05,
+      "maximum": 0.13286,
+      "mean": 0.09257965985819615
+    },
+    "down": {
+      "file": "ELFCAR_down.vasp",
+      "minimum": 0.00011024,
+      "maximum": 0.3339,
+      "mean": 0.15832494351080245
+    }
+  },
+  "operation": "split only; no spin summation or averaging"
+}

@@ -1,0 +1,5 @@
+material,surface,vacuum_window_A,vacuum_mean_eV,vacuum_range_eV,fermi_minus_vacuum_eV,vbm_minus_vacuum_eV,cbm_minus_vacuum_eV,sampled_gap_eV,classification
+snse2,lower_z,6.0:10.0,1.738360141,6.14620868e-05,-5.854360141,-5.992725141,-5.714622141,0.278103000,gapped_on_sampled_mesh
+snse2,upper_z,29.0:33.0,1.194360347,6.820999e-05,-5.310360347,-5.448725347,-5.170622347,0.278103000,gapped_on_sampled_mesh
+sr2n,lower_z,6.0:10.0,0.872342013,2.46829693e-05,-3.030542013,,,,metallic_on_sampled_mesh
+sr2n,upper_z,29.0:33.0,1.273814882,2.37906831e-05,-3.432014882,,,,metallic_on_sampled_mesh

@@ -2,7 +2,7 @@
 
 两份磁构型能量可以解出一个有效交换参数，但是否能预测第三个磁构型，还需要实际检查。这里接着两原子 bcc Fe 的 FM、AFM 结果，先逐条枚举周期最近邻键，再用一个四原子超胞检验计数、能量归一化和磁态是否保留。
 
-[下载原始计算目录、周期键表与分析脚本](/Atlas/examples/vasp/fe-exchange-j-files.tar.gz)。本页使用固定 a=2.8 Å、PBE、ENCUT=400 eV 的同一套输入协议。已有两原子计算的准备和结果见 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，SCF 文件读法见 [SCF](/Atlas/m/scf/vasp/)。
+[下载原始计算目录、周期键表与分析脚本](/Atlas/examples/interface-magnet-exchange-j/example-pack.tar.gz)。本页使用固定 a=2.8 Å、PBE、ENCUT=400 eV 的同一套输入协议。已有两原子计算的准备和结果见 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，SCF 文件读法见 [SCF](/Atlas/m/scf/vasp/)。
 
 先写清本页采用的模型约定：
 
@@ -224,27 +224,21 @@ FM4 和 Néel4 相对两原子拟合式的回代误差分别约 −0.0151、−0
 
 若要继续建立可转用的自旋模型，需要获取更多实际保持的磁构型，或采用合适的约束/响应方法，再用足够独立的数据区分不同作用项。仅扩大线性方程求解器的输出小数位，不能补上这些信息。
 
-在本机使用下载包中的真实数据重新生成表和图：
+## 状态与模型核对表
 
-```bash
-python3 enumerate_bonds.py
-python3 fit_two_states.py
-python3 plot_exchange.py
-```
+| 状态 | 用途 | 原子数 | 关联和 | E0（eV/胞） | 回代残差（meV/原子） | 局域磁矩（μB） |
+| --- | --- | --- | --- | --- | --- | --- |
+| fm2 | fit | 2 | 8 | -16.47377314 | 0.00000000 | 2.098;2.098 |
+| afm2 | fit | 2 | -8 | -15.60782301 | -0.00000000 | 1.317;-1.317 |
+| fm4 | folding check | 4 | 16 | -32.94760653 | -0.01506250 | 2.098;2.098;2.098;2.098 |
+| neel4 | folding check | 4 | -16 | -31.21566841 | -0.00559750 | 1.317;-1.317;1.317;-1.317 |
+| stripe4 | rejected target | 4 |  | -30.98157307 |  | -0.007;0.007;0.007;-0.007 |
 
-前两条命令只用 Python 标准库，绘图需要 NumPy 和 Matplotlib。`plot_exchange.py` 输出 `exchange-model-check.png`、PDF 与 SVG，采用三栏联排呈现：（a）对比两个超胞对照的 DFT 与两态海森堡模型能量，并标出极小的折叠误差（< 0.02 meV/原子）；（b）并列展示 FM、AFM 与条纹初态收敛后的局域磁矩幅值，第三初态因磁矩塌缩明确标为排除出拟合体系；（c）由最近邻有效交换常数 J₁ = 54.12 meV/键推导的有限温度磁化演化与相变示意（居里温度 T<sub>C</sub> 处磁矩归零）。
+J_eff=54.12188312 meV/唯一最近邻键，Eref=−8.0203990375 eV/原子；stripe4 的空白关联与残差表示它被排除，不能按初始模式计算预测残差。
 
-<figure class="research-figure"><img src="/Atlas/examples/vasp/fe-exchange-j/exchange-model-check.png" alt="bcc Fe 超胞折叠对照、磁矩衰减检查及居里转变温度模型估算三栏联排" loading="lazy"/><figcaption>bcc Fe 交换常数提取与模型可靠性检验：（a）FM 与 Néel AFM 超胞折叠对照的 DFT 与模型能量吻合情况；（b）不同初态收敛后的局域磁矩，显示条纹初态磁矩发生塌缩（约 0.007 μ<sub>B</sub>），不能作为刚性自旋有效解；（c）由有效最近邻交换耦合 J<sub>1</sub> = 54.12 meV/键外推的归一化磁化强度有限温度下降轨迹（T<sub>C</sub> ≈ 1043 K）。</figcaption></figure>
+## 文献方法与本例读数
 
-## 文献中的相关图件与表达方式
-
-在从第一性原理总能量提取交换耦合参数时，除了本页通过 `enumerate_bonds.py` 给出周期最近邻键表与配位数外，文献中通常将不同磁构型（如 FM、Néel AFM、条纹 AFM）的实空间自旋密度等值面与最近邻 `J₁`、次近邻 `J₂` 交换路径箭头画在同一晶格示意图中，以便读者直接核对哈密顿量中的键计数和配位几何。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinDensity_Exchange_LaH2_Fig2ab.jpg" alt="单层 LaH₂ 的实空间自旋密度等值面与最近邻 J₁、次近邻 J₂ 交换作用路径示意图" loading="lazy"/><figcaption>实空间自旋密度分布与海森堡模型交换路径标注：在晶格俯视图与侧视图上叠加自旋极化密度等值面，并用箭头标明最近邻 <code>J₁</code> 与次近邻 <code>J₂</code> 耦合通道（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
-
-当多组独立磁构型的局域磁矩保持稳定、且拟合残差确认海森堡模型适用后，提取出的交换参数 `J₁`、`J₂` 与磁各向异性参数常被代入经典或量子蒙特卡洛模拟，通过绘制平均磁矩 `M(T)` 的陡降与比热 `C_v(T)` 的尖峰来给出居里温度 `T_C` 或奈尔温度 `T_N`。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_MonteCarlo_CurieTemp_LaH2_Fig2d.jpg" alt="基于第一性原理交换参数的蒙特卡洛模拟磁矩与比热随温度演化曲线" loading="lazy"/><figcaption>基于 DFT 提取的交换耦合参数进行的有限温度蒙特卡洛模拟：双纵轴并列展示归一化磁矩随温度的下降及比热容 <code>C<sub>v</sub></code> 在相变温度 <code>T<sub>C</sub></code> 处的峰值（Shi 等，<em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>）。</figcaption></figure>
+Rezaei 等，*Benchmarking first-principles approaches for extracting magnetic exchange interactions*，[DOI: 10.1038/s41524-026-02161-3](https://doi.org/10.1038/s41524-026-02161-3)，Fig. 3 比较交换参数随磁构型数变化的结果，并区分全部与展宽/熵筛选后的构型集合。正文讨论金属构型选择和配置数对能量映射的影响。本例的 FM4/Néel4 检查的是晶胞折叠，stripe4 磁矩塌缩后被排除；因此 J_eff 是指定两态和最近邻键定义下的有效参数。当前资料没有独立模型验证或蒙特卡洛输出，结果停在参数与状态核对表。
 
 下一步接 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，扩大能够稳定保持的磁构型集合。若关心同一磁序相对晶体方向的能量差，则接 [磁各向异性能量](/Atlas/m/mae/vasp/)，采用一致的 SOC 与方向协议。
 
@@ -255,3 +249,21 @@ python3 plot_exchange.py
              ├─ 匹配 k 密度的超胞对照
              └─ 独立第三磁态：先验收磁矩与模式，再谈模型预测
 ```
+
+## 可复制的代码生成提示与复现
+
+```text
+请编写 Python 3 独立后处理程序。先从真实 POSCAR 枚举周期唯一最近邻键并输出键表，注明单位向量模型 H=NEref-J*sum(e_i·e_j)。读取 fm2/afm2/fm4/neel4/stripe4 的实际 OUTCAR/OSZICAR，检查收敛、计时和最终局域磁矩；两态拟合 J，四原子同序仅作折叠对照，塌缩的 stripe4 排除关联和残差。输出能量、原子数、键关联和、局域矩及残差 CSV，不从单个 J 生成温度或 Tc 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+```
+
+[fit_two_states.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_two_states.py) · [export_exchange_table.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/export_exchange_table.py) · [enumerate_bonds.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/enumerate_bonds.py) · [fit_exchange.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_exchange.py)
+
+[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-exchange-j/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+
+```bash
+python3 enumerate_bonds.py
+python3 fit_two_states.py
+python3 export_exchange_table.py
+```
+
+实际读取结果见正文表及 [exchange-state-model-checks.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-state-model-checks.csv) · [exchange-fit-summary.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-fit-summary.csv) · [exchange-summary.json](/Atlas/examples/interface-magnet-exchange-j/exchange-summary.json)。这些命令只读取现有输出进行后处理。

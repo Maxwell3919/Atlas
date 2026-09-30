@@ -1,0 +1,32 @@
+{
+  "QE_version": "7.5",
+  "Ry_to_eV": 13.6056931229905,
+  "natoms": 2,
+  "tolerance_meV_per_atom": 1.0,
+  "candidate_runs": 16,
+  "complete_runs": 15,
+  "table_rows": 14,
+  "reference": "highest sampled setting in each axis",
+  "selections": [
+    {
+      "parameter": "ecutwfc",
+      "selected": 40.0,
+      "reference": 80.0,
+      "delta_meV_per_atom": 0.900560827811789
+    },
+    {
+      "parameter": "ecutrho",
+      "selected": 320.0,
+      "reference": 640.0,
+      "delta_meV_per_atom": 0.025034475339167618
+    },
+    {
+      "parameter": "kmesh",
+      "selected": 10,
+      "reference": 14,
+      "delta_meV_per_atom": 0.3505506833162646
+    }
+  ],
+  "independent_scans": true,
+  "joint_selected_settings_calculated": false
+}

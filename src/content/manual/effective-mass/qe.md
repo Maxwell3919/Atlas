@@ -1,6 +1,6 @@
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html)
 
-[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `mass/longitudinal.csv` 和 `mass/mass-fits.json`；横向与父密度复核结果另存于 `mass/mass-checks.csv`。包内输入、输出和 XML 可供复核，但不含可接续计算的 `tmp/si.save`，重新求能级前需重建下文对应的父 SCF 密度。
+[下载 Si 算例](/Atlas/examples/si-pbe-electronic-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `mass/longitudinal.csv` 和 `mass/mass-fits.json`；横向与父密度复核结果另存于 `mass/mass-checks.csv`。包内输入、输出和 XML 可供复核，但不含可接续计算的 `tmp/si.save`，重新求能级前需重建下文对应的父 SCF 密度。
 
 Si 的导带谷不在 Γ 点，也不刚好落在常用路径的端点。若直接对整条 Γ–X 能带拟合一条抛物线，横轴虽然看起来平滑，算出的曲率却没有明确的带边含义。这次先沿 Γ–X 的导带最低处加密采样，再分别沿谷的纵向和横向求曲率。前面的[带隙](/Atlas/m/band-gap/qe/)用均匀网格找到了这片区域；这里不重复 SCF 和普通能带计算。
 
@@ -72,7 +72,7 @@ K_POINTS tpiba
 ```
 
 
-完整输入可下载为[mass.in](/Atlas/examples/si-pbe/mass/mass.in)。这份输入比普通能带路径密，是因为最后的曲率来自局部能量差；若只有两三个很远的点，图上像抛物线也不足以保证拟合可靠。
+完整输入可下载为[mass.in](/Atlas/examples/si-pbe-electronic/mass/mass.in)。这份输入比普通能带路径密，是因为最后的曲率来自局部能量差；若只有两三个很远的点，图上像抛物线也不足以保证拟合可靠。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat mass/run.sh
@@ -162,7 +162,7 @@ Submitted batch job 785
 ```
 
 
-本次纵向采样原生用时约 19 秒。[完整 mass.out](/Atlas/examples/si-pbe/mass/mass.out)适合人工查看；数值提取读取同一次计算的[data-file-schema.xml](/Atlas/examples/si-pbe/mass/data-file-schema.xml)，避免从只打印有限小数的屏幕表中做二阶差分。这个 XML 的本征值以 Hartree 给出，脚本先换算成 eV。k 坐标则用本例实际的 `alat` 转为 Å⁻¹。
+本次纵向采样原生用时约 19 秒。[完整 mass.out](/Atlas/examples/si-pbe-electronic/mass/mass.out)适合人工查看；数值提取读取同一次计算的[data-file-schema.xml](/Atlas/examples/si-pbe-electronic/mass/data-file-schema.xml)，避免从只打印有限小数的屏幕表中做二阶差分。这个 XML 的本征值以 Hartree 给出，脚本先换算成 eV。k 坐标则用本例实际的 `alat` 转为 Å⁻¹。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 7 mass/longitudinal.csv
@@ -195,7 +195,7 @@ m*/mₑ = [ℏ²/(2mₑ)] / A
 
 这个单位换算不能省略。把第几个 k 点作为横轴、或直接把 `tpiba` 数字塞进该式，都会改变曲率的尺度。
 
-随后固定拟合出的 x 坐标，分别沿 y 和 z 方向取 33 个点。横向输入和输出保存在[mass-transverse/mass.in](/Atlas/examples/si-pbe/mass-transverse/mass.in)、[mass-transverse/mass.out](/Atlas/examples/si-pbe/mass-transverse/mass.out)。另一个独立目录 `mass-k14` 保持同样的 101 个纵向 k 点，只把父 SCF 密度由 `12³` 改为 `14³`。它用于区分“拟合窗口造成的变化”和“父密度采样造成的变化”。
+随后固定拟合出的 x 坐标，分别沿 y 和 z 方向取 33 个点。横向输入和输出保存在[mass-transverse/mass.in](/Atlas/examples/si-pbe-electronic/mass-transverse/mass.in)、[mass-transverse/mass.out](/Atlas/examples/si-pbe-electronic/mass-transverse/mass.out)。另一个独立目录 `mass-k14` 保持同样的 101 个纵向 k 点，只把父 SCF 密度由 `12³` 改为 `14³`。它用于区分“拟合窗口造成的变化”和“父密度采样造成的变化”。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 analyse_mass_checks.py
@@ -233,18 +233,44 @@ transverse-z       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
 
 对 `±0.02 Å⁻¹` 窗口，本例纵向质量约 **0.955904 mₑ**，两个横向质量都约 **0.191936 mₑ**。y、z 结果相同，与这个 Si 谷的对称性相容。窗口从 0.01 增到 0.03 Å⁻¹ 时，纵向质量约改变 0.09%，横向约改变 0.29%；更宽的窗口还带来更大的二次拟合残差，说明不能无限扩大所谓“带边区域”。父密度从 `12³` 改到 `14³` 后，纵向结果的变化约为 `10⁻⁶ mₑ`，比本次窗口变化小。
 
-这些是给定 PBE、赝势、晶胞和无 SOC 模型下的方向质量；并没有由此得到实验温度下的输运质量，也没有计算散射时间。带边简并、强非抛物线或明显 SOC 混合时，还要重新检查跟踪的是哪一个分支。
+这些是给定 PBE、赝势、晶胞和无 SOC 模型下的方向曲率质量。输运分析还需散射时间；处理带边简并、非抛物线或 SOC 混合时，须核对分支与拟合窗口。
 
-[纵向原始数据](/Atlas/examples/si-pbe/mass/longitudinal.csv)、[窗口和父密度对照表](/Atlas/examples/si-pbe/mass/mass-checks.csv)、[质量复核脚本](/Atlas/examples/si-pbe/analyse_mass_checks.py)都可以下载。画下面这张图只需[绘图脚本](/Atlas/examples/si-pbe/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe/atlas_plot_style.py)）和对应 CSV/JSON：
+## 可复制的 AI 编码提示词
+
+将下面的需求和本页示例文件交给代码助手：
+
+```text
+编写 Si 导带谷曲率分析程序，使用 Python 3、NumPy 和 Matplotlib。
+输入：mass/longitudinal.csv、mass-fits.json、mass-checks.csv，以及 mass-transverse、mass-k14 的 XML。能量 eV，拟合 k 为 Å⁻¹，同时保留 tpiba。
+方法：围绕采样谷底取 ±0.01/0.02/0.03 Å⁻¹，拟合 E=Aq²+Bq+C，顶点 −B/(2A)，m*/me=3.80998211615486/A；分别处理纵向、横向和 12³/14³ 父密度。
+检查：点数、有限值、正曲率、残差；±0.02 Å⁻¹ 纵向约 0.955904 me、横向约 0.191936 me。
+输出：源码、依赖、命令、拟合表、PNG/SVG/PDF，结果标为 PBE 无 SOC 模型的方向曲率质量。
+```
+
+## 后处理源码与运行
+
+完整源码：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py) · [analyse_mass_checks.py](/Atlas/examples/si-pbe-electronic/analyse_mass_checks.py) · [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+解压本页示例包后，在 `si-pbe` 根目录执行：
+
+```bash
+python3 -m pip install numpy matplotlib
+python3 analyse_electronic.py
+python3 analyse_mass_checks.py
+python3 plot_si.py mass
+```
+
+
+[纵向原始数据](/Atlas/examples/si-pbe-electronic/mass/longitudinal.csv)、[窗口和父密度对照表](/Atlas/examples/si-pbe-electronic/mass/mass-checks.csv)、[质量复核脚本](/Atlas/examples/si-pbe-electronic/analyse_mass_checks.py)都可以下载。画下面这张图只需[绘图脚本](/Atlas/examples/si-pbe-electronic/plot_si.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)）和对应 CSV/JSON：
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py mass
 <工作目录>/si-pbe/plots/effective-mass.png
 ```
 
-![Si 导带谷的真实采样、抛物线拟合和窗口敏感性](/Atlas/examples/si-pbe/plots/effective-mass.png)
+![Si 导带谷的真实采样、抛物线拟合和窗口敏感性](/Atlas/examples/si-pbe-electronic/plots/effective-mass.png)
 
-左图画能量差而不是约 6.94 eV 的绝对能量，局部弯曲才看得清。右图把三个窗口的质量放在一起；细小的拟合残差说明局部拟合做得好，不能单独证明交换关联模型或所有数值参数已达到研究所需精度。
+左图以谷底为能量参考显示局部曲率；右图比较三个拟合窗口。残差衡量局部二次近似，窗口与父密度对照给出这组质量的数值敏感性。
 
 ## 文献中对能带曲率与费米速度分布的展示方式
 
@@ -254,7 +280,7 @@ transverse-z       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
 
 对于金属体系，穿费米面的能带往往呈近似线性色散，此时比带边二阶导数更重要的是费米面处的一阶导数——费米速度 v<sub>F</sub>(k) = (1/ℏ)∇<sub>k</sub>E(k)。研究论文常将 v<sub>F</sub>(k) 的模值以颜色映射在二维费米面轮廓上，并与低能能带色散和态密度并排展示。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属氮化物的低能能带色散、态密度与映射在二维费米面轮廓上的费米速度分布" loading="lazy"/><figcaption>单层二维过渡金属氮化物的低能能带色散、分波态密度以及映射在二维费米面轮廓上的费米速度 <em>v</em><sub>F</sub>(<strong>k</strong>) 分布。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属氮化物的低能能带色散、态密度与映射在二维费米面轮廓上的费米速度分布" loading="lazy"/><figcaption>单层二维过渡金属氮化物的低能能带色散、总态密度以及映射在二维费米面轮廓上的费米速度 <em>v</em><sub>F</sub>(<strong>k</strong>) 分布。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
 下一步：可跳到[三维能带采样](/Atlas/m/band-3d/qe/)检查谷的空间形状，或回到[带隙](/Atlas/m/band-gap/qe/)核对带边位置；[载流子迁移率](/Atlas/m/carrier-mobility/qe/)还需要散射模型或电子声子信息。
 

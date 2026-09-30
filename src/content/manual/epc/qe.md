@@ -49,7 +49,7 @@ epc-q4-k48：pwxall 48³ → pwx 16³ → phx q=4³ → … → lambdax → Tc�
 
 两条曲线的交点提供一个候选的 (σ*, Tc*)，接着要读交点两侧是否仍然接近、λ 与 ωlog 是否各自稳定。QE 开发者对这项检查的说明是：在同一展宽下继续增加 k 点，结果应趋于不变；可用的展宽区间还应向较小 σ 延伸。一个孤立交点不能代替这个区间检查。增加 q 网格后也要重新核对 k–σ 稳定区，不能默认旧区间仍然适用。[QE 开发者关于 k 网格与展宽的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)
 
-第二个目录中的实际 `cp`、`vi`、Slurm 提交与输出检查见[48³ 分支的操作记录](/Atlas/m/epc/qe/#dense-k48-run)。两份输出怎样配对、两条曲线的求交结果与差值，接着看 [Tc 页的实际叠图与交点表](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两条链的原生文件、求交脚本和绘图脚本放在[同一个下载包](/Atlas/examples/al-dense-grid-tc-files.tar.gz)。
+第二个目录中的实际 `cp`、`vi`、Slurm 提交与输出检查见[48³ 分支的操作记录](/Atlas/m/epc/qe/#dense-k48-run)。两份输出怎样配对、两条曲线的求交结果与差值，接着看 [Tc 页的实际叠图与交点表](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两条链的原生文件、求交脚本和绘图脚本放在[同一个下载包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
 
 研究材料使用的 `ph64`、`ph96` 目录沿用相同组织方式，网格关系为 64=4×16、96=6×16、16=2×8；其启动操作保留在[后半页](/Atlas/m/epc/qe/#double-grid-research-record)。下面 Al 的数值只对应本例的结构与计算设置。
 
@@ -450,7 +450,7 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 | `epc-q4` | 32 × 32 × 32 | 16 × 16 × 16 | 4 × 4 × 4 |
 | `epc-q4-k48` | 48 × 48 × 48 | 16 × 16 × 16 | 4 × 4 × 4 |
 
-[两条分支的输入、原生输出与比较脚本](/Atlas/examples/al-dense-grid-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `al-dense-grid-tc/k32/` 和 `al-dense-grid-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
+[两条分支的输入、原生输出与比较脚本](/Atlas/examples/supercon-al-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `al-dense-grid-tc/k32/` 和 `al-dense-grid-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
 
 两套电子网格和 q 网格均不作偏移。48/16 = 3、32/16 = 2，16/4 = 4；在本例的共同倒格基矢下，这保证所用响应网格及其 k + q 点能嵌入对应的致密网格。32 和 48 彼此不必是整数倍，分别满足同一条响应网格的包含关系即可。这里比较的是致密电子积分网格，q 网格保持 4³；对 q 网格的收敛判断还要另做加密。
 
@@ -837,7 +837,7 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat finished.txt
 
 这版 `lambda.x` 不打印 `JOB DONE.`，所以最后一段要结合正常退出状态、十档有限数值以及逐 q 重建结果判断；`finished.txt` 只说明脚本确实走到了末尾。现在第二条原生表已经齐全，48³ 分支的十个 Tc 都低于 32³ 分支在同一 σ 下的值。在已采样的 0.005–0.050 Ry 范围内，按相邻点作分段直线连接，两条曲线没有交点。
 
-这是一条已完成、但没有给出交点的对照。保留 32³ 和 48³ 两套结果后，下一次加密可以再独立运行 64³ 致密网格；16³ 响应网格、4³ q 网格、展宽序列与 μ* 继续固定。加密后的曲线出来以前，不给它预设位置。下一步的[展宽扫描与 Tc 对照](/Atlas/m/allen-dynes/qe/)会把真实曲线放在同一坐标轴上，并同时检查 λ、ωlog 的变化；q 网格的收敛仍需另行检验。
+32³ 与 48³ 两条完整分支在采样展宽范围内没有交点。Al 64³ 分支的 `pwxall` 与 16³ 响应 SCF 已收敛并正常结束；接续的 q=4³ 声子/EPC 作业因 walltime 到限被取消，仅留下六个 `elph.inp_lambda.*`，没有 `lambda.out`、`lambda.dat` 或 `alpha2F.dat`，尚不能加入 Tc 曲线。32³/48³ 的配对图、差值和实际求交结果见[双网格 Tc 对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。
 
 ```text
 epc-q4/al.dense.in  32³ → 本目录 16³ SCF → 本目录 q4³ ph.x → 本目录逐 q EPC → lambda.x
@@ -2084,6 +2084,8 @@ phx3.in:  recover=.true.
 本节记录 ZrCl₂/Sc₂C 的 64×64×1（ph64）与 96×96×1（ph96）原始计算链，以及对应保存输出表的核查。原始结构相对 a₀=3.308845 Å 拉伸至 a=3.358477221 Å，即 +1.499986%（约 +1.5%）。两条原始 10 THz 分支完成 10 个不可约 q 点；另外存有 18 THz 的 lambdax 输出表，但它们没有与已执行输入、命令和 QE 可执行文件对应起来。ph64.1/ph96.1 目前仅有准备输入，没有完整的加密 Tc 输出对。
 
 本节依次保留电子结构诊断、原始 10 THz 谱表和保存 Tc 表的算术核对。18 THz 来源未闭合，故交点仅用于描述现有表格。
+
+
 1. 电子轨道投影能带（Fatbands）、分波态密度（PDOS）与二维费米面（Fermi Surface）如何与电声耦合模式相互印证；
 2. 如何用有匹配输入的 10 THz 输出比较直接 λ 与谱积分，并识别频率网格上限对 α²F 与 ωlog 的影响；18 THz 保存表的来源仍未闭合，不能据此称为已验证修正。
 3. 对保存 Tc 表作线性插值：匹配输入的 10 THz 表有两个交点；18 THz 保存表有一个诊断性交点，来源仍未闭合。交点只用于说明现有打印表，不代表经验证的 Tc 或网格收敛。
@@ -2281,3 +2283,9 @@ Tc 表核查结果以机器可读文件保存为 [tc-intersections.json](/Atlas/
 - **数据组织要点**：当从 Allen–Dynes 公式进一步走向[各向异性 EPW–Eliashberg 求解](/Atlas/m/epw-eliashberg/qe/)时，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
 
 下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。
+
+## AI 后处理提示词：装配两条 EPC 输出链
+
+> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、CSV、JSON 和输入哈希，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
+
+[完整逐模解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [完整双分支重建源码 rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对源码 compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)。

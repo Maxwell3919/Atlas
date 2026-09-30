@@ -2,7 +2,7 @@
 
 真空势应当从一段平坦的区域读取。只找到 `LOCPOT`，或者从文件末尾拿一个数，都不能说明已经找到了真空能级。这个例子把三原子 SnSe₂ 单层重新做一次固定结构 SCF，在同一次计算中写出电荷密度、静电势和费米能，再沿层法向求平面平均。
 
-[下载本例的真实输入、输出和分析脚本](/Atlas/examples/vasp/snse2-workfunction-files.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。图在本机绘制，远端不需要安装图形界面。
+[下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。图在本机绘制，远端不需要安装图形界面。
 
 固定结构 SCF 的基本操作见 [SCF](/Atlas/m/scf/vasp/)。这里保留已有计算的 POSCAR、KPOINTS 和 POTCAR，用一个新目录重新生成电荷密度：
 
@@ -270,43 +270,48 @@ z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM 
 
 `workfunction_values.py` 的带边读取针对本例的偶数电子、非自旋极化体系：26 个电子对应 13 条占据带，它在所有 108 个不可约 k 点上取第 13 带的最高值和第 14 带的最低值。金属、自旋极化或非共线体系需要按实际占据和数据结构处理，不能直接套用这个计数。
 
-把解包后的 `snse2-workfunction` 目录留在本机，安装了 NumPy 和 Matplotlib 的 Python 环境中执行：
+## 用整合脚本独立核对
+
+上面的分步脚本用于说明每个文件怎样被读取；资料包还附有 `analyze_workfunction.py`，从原始 `LOCPOT`、`OUTCAR` 和 `EIGENVAL` 重新计算平面平均势和真空参考能级。它会验证 VASP 的 `EDIFF` 收敛标记、`LVHAR` / `LVTOT` 设置、网格大小、费米能与电子数、EIGENVAL 的 k 点权重和占据边界。输入不符合这个自旋非极化半导体示例时，脚本会报错退出，不会猜带边或自动挑一个平台。
 
 ```bash
+python3 analyze_workfunction.py --windows 1:3 15:17
 python3 plot_workfunction.py
 ```
 
-新的 [作图数据与脚本](/Atlas/examples/workfunction-figure-files.tar.gz) 读取同一份 `PLANAR_AVERAGE.dat` 与 `workfunction-summary.json`，输出 SVG、PDF 和 PNG。解包进入 `workfunction-figure` 后执行 `python3 plot_workfunction.py` 即可重画。
+`--windows` 的数字单位是 Å，窗口均值、窗口内标准差与最大-最小差写入 `workfunction-summary.json`；同时重建两列 `PLANAR_AVERAGE.dat`。标准差和范围只检查所选局部窗口是否平坦，不是多次计算的误差，也不检验真空厚度、截断能或 k 网格收敛。绘图使用下方真空窗口作为唯一能量零点，展示整胞势曲线、两个真空窗口、POSCAR 给出的原子层法向范围与本次 SCF 的费米能。两侧平均值只在结果表中并列：相差 −0.0181 meV，不通过单独缩放纵轴来放大这点差异。
 
-主图把左侧窗口的 V_vac=3.306283412 eV 选为绘图零点：整条 V̄(z) 与 E_F 同时减去这个数，Φ 因而保持不变。上方主图的纵轴是 eV；下方两幅放大图仍以同一个左侧真空势为参考，但改用 meV，分别只显示 1–3 Å 与 15–17 Å 的原始采样点。两侧没有各自归零，因此右侧约 −0.0181 meV 的均值差仍保留在图中。
+上述两条命令在解包目录运行，需要 Python 3、NumPy 和 Matplotlib；`atlas_plot_style.py` 随包提供。整合分析重建数据，绘图脚本据此输出 PNG、SVG 与 PDF。
 
-原子区势阱很深，在全晶胞图上看似平坦的真空部分仍可能有细微结构。放大图用于检查平台起伏和窗口位置；它的细刻度不代表整个功函数已经具有相同的材料预测精度。
+整胞图把下方窗口 V_vac=3.306283412 eV 选为能量零点，整条 V̄(z) 与 E_F 同时减去这个数，Φ 因而保持不变。图上显示 1–3 Å 与 15–17 Å 的真空取样窗口、POSCAR 中原子 z 坐标覆盖范围、平面平均 LVHAR 势及费米能；Φ 箭头标出实际读取的能量间隔。
 
-![SnSe₂ 平面平均势与费米能采用共同真空零点，两侧平台分别放大](/Atlas/examples/workfunction-figure/workfunction-z.svg)
+原子区势阱明显低于真空平台。此图用于确认所选窗口位于真空，并查看从真空平台到费米能的间隔；平台细微起伏由窗口统计值报告，不以放大后的 meV 纵轴暗示材料精度。
 
-## 文献中的相关图件与表达方式
+![SnSe₂ 整胞平面平均 LVHAR 势、真空窗口、原子层范围及费米能标记](/Atlas/examples/interface-magnet-workfunction/interface-magnet-workfunction-profile.svg)
 
-在二维材料、Janus 极化单层及异质界面体系中，文献常将平面平均静电势 `V_eff(z)` 与晶体结构侧视图或平面平均差分电荷 `Δρ(z)` 沿同一法向坐标对齐展示，以便同时读出功函数、真空势台阶与界面偶极方向：
+## 参考文献中的方法与图形设计
 
-### 1. 平面平均静电势曲线与原子结构侧视图直接叠绘
+Zhang, Li, Tang, and Cao, “Robust p-type ohmic contact in ZrI₂–Dirac semi-metal van der Waals heterostructures,” *Physical Chemistry Chemical Physics* **27**, 19410 (2025), Fig. 4–5, [DOI: 10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)。正文说明作者对六种半导体 / 半金属接触计算沿 z 的平面平均静电势（Fig. 4），结合两种材料的功函数差讨论电子转移及内建电场方向；随后用三维和一维平面平均差分电荷（Fig. 5）检验界面电荷累积、耗尽的位置。Fig. 4 中势曲线与法向位置、真空和费米能参考共同展示，方便解释界面势变化。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg" alt="平面平均静电势曲线与异质结原子结构侧视图直接叠绘及功函数、势能差标注" loading="lazy"/><figcaption>在异质结侧视球棍模型上直接叠加平面平均静电势曲线，使各处深势阱与对应原子平面在空间上一一对齐，并标出费米能级、两侧真空平台、功函数 <code>Φ</code> 与界面势能差 <code>ΔV</code>。图片来源：Zhang et al., <em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025), Fig. 4，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
+本例只计算了孤立、上下表面近似对称的 SnSe₂ 单层，因此数据支持的是所选真空平台与 Φ=V_vac−E_F 的读取，不能推出界面电荷转移或内建电场。我们借鉴的是沿 z 检查完整势曲线并把真空与 E_F 放入同一参考的分析逻辑；图由本例 LOCPOT、OUTCAR 和 POSCAR 重画，没有复用原文数据或图像。两侧窗口的均值相差 −0.0181 meV，仅列为数值核对，不作为可分辨的物理效应。
 
-- **读图与作图要点**：将异质结侧视球棍模型按相同的法向坐标比例直接叠放在平面平均势曲线下方，能让读者一眼核对每个局部势阱对应的原子层位置，以及两侧真空平台高度差 `ΔV` 与各表面功函数 `Φ` 的定义。
+## 可复制的代码生成提示
 
-### 2. 法向坐标纵置的 `V_eff(Z)` 与 `Δρ(Z)` 左右双栏并排对齐
+```text
+请为 VASP 5.4.4 的这个非自旋极化 SnSe2 单层示例编写独立 Python 3 命令行分析脚本。输入为当前目录中的 LOCPOT、OUTCAR、EIGENVAL；用户可用 --windows LOW:HIGH 指定一个或多个以 Å 为单位的真空窗口。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="以法向坐标 Z 为纵轴的 ZrI₂/NbS₂ 平面平均静电势 V_eff(Z) 与一维平面平均差分电荷 Δρ(Z) 左右并排对照图" loading="lazy"/><figcaption>将法向坐标 <code>Z</code>（Å）置于纵轴，左右两栏共享同一 <code>Z</code> 标尺并排展示：左栏为平面平均静电势 <code>V_eff(Z)</code>，在势阱处横向叠放 ZrI₂/NbS₂ 球棍结构并标出两侧势台阶 <code>ΔV</code>；右栏为一维平面平均差分电荷密度 <code>Δρ(Z)</code>（红色填充 <code>&gt; 0</code> 表示电子积累，蓝色填充 <code>&lt; 0</code> 表示电子耗尽，标出 <code>0.14 e</code> 电荷转移）。图片来源：Huang et al., <em>J. Phys. Chem. C</em> (2025), Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
+LOCPOT 是 POSCAR 头部、三维网格尺寸 nx ny nz 和一个标量势块；该势以 eV 为单位，x 方向变化最快。校验势值数量正好为 nx*ny*nz 且均为有限数，把数组按 (nz,ny,nx) 重排；用每个 xy 平面的算术平均求 Vbar(z)，z_k=k*h/nz，其中 h=abs(c·(a×b))/|a×b|，坐标单位为 Å。
 
-- **读图与作图要点**：该图把法向坐标 `Z`（Å）放在纵轴上，左右两列严格共享高度标尺：左列展示 `V_eff(Z)` 及势阱处横向对齐的 `ZrI₂/NbS₂` 原子结构与真空势差 `ΔV`，右列展示一维平面平均差分电荷 `Δρ(Z)`（红/蓝填充区分电子积累与耗尽，并标明 `0.14 e` 转移量），直观呈现界面电荷重排与静电势台阶之间的对应关系。
+从 OUTCAR 读取 NELECT 和 E-fermi，并确认输出出现 EDIFF 收敛标记、LVHAR=T、LVTOT=F 和 ISPIN=1。解析 EIGENVAL 中的 k 点权重、本征值和占据数；权重和必须为 1，按权重汇总的电子数必须匹配 NELECT，边界带不得部分占据。若输入是自旋极化、金属、缺少数据或格式不支持，清楚报错退出，禁止假定费米能、猜测带边、补零或静默接受坏数据。
 
-### 3. Janus 单层偶极修正真空台阶与两侧表面 VBM/CBM 标定
+每个窗口输出采样平面数、Vbar 均值、总体标准差、最大值减最小值，以及 Phi=Vvac-EF、IP=Vvac-VBM、EA=Vvac-CBM。VBM/CBM 只报 EIGENVAL 当前 k 网格采样值。输出 PLANAR_AVERAGE.dat（z_A, planar_potential_eV）和带有输入 SHA256、单位、公式、窗口数据及限制说明的 workfunction-summary.json。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg" alt="Janus MoSSe 单层的平面平均静电势、偶极修正真空台阶与双表面 VBM/CBM 位置标定图" loading="lazy"/><figcaption>打破镜面对称的 Janus MoSSe 单层平面平均静电势：将偶极修正后的两侧真空势台阶与上下表面各自的 VBM、CBM 位置画在同一张势分布图中，区分两侧表面的电离势与电子亲和能。图片来源：Haastrup et al., <em>2D Mater.</em> <strong>5</strong>, 042002 (2018), Fig. 12，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>。</figcaption></figure>
+另写单面板绘图脚本，读取上述文件并导出 PNG、SVG、PDF。显示完整晶胞势曲线、费米能、POSCAR 原子层法向范围和被统计的真空窗口；用下方 Vvac 作为唯一能量零点。图注注明 VASP 版本、网格、窗口、E_F 约定和本结果尚未验证的收敛项。不要用平滑、插值或拟合隐藏势斜率，也不要另行放大 −0.0181 meV 的两侧均值差；窗口不平坦时报告诊断，不要把标准差包装成收敛误差。
+```
 
-- **读图与作图要点**：对于具有面外固有偶极矩的 Janus MoSSe 单层，上下两侧真空平台存在有限台阶 `ΔV_vac`。将两侧平坦真空能级与带边 VBM/CBM 标在同一张平面平均势图上，可以清楚说明为什么极化单层的上下表面必须各自读取独立的真空参考。
+完整源码：[analyze_workfunction.py](/Atlas/examples/interface-magnet-workfunction/analyze_workfunction.py) · [plot_workfunction.py](/Atlas/examples/interface-magnet-workfunction/plot_workfunction.py) · [plane_average.py](/Atlas/examples/interface-magnet-workfunction/plane_average.py) · [workfunction_values.py](/Atlas/examples/interface-magnet-workfunction/workfunction_values.py) · [atlas_plot_style.py](/Atlas/examples/interface-magnet-workfunction/atlas_plot_style.py)。数值输出：[workfunction-summary.json](/Atlas/examples/interface-magnet-workfunction/workfunction-summary.json)。
 
-下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 E_F。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
+下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 `E_F`。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
 ```text
 固定结构 + 同一套赝势 / 均匀 k 网格
@@ -316,4 +321,3 @@ python3 plot_workfunction.py
        └─ LOCPOT → 平面平均 → 平坦真空窗口
                                     └─ V_vac − E_F；同时注明带隙中的化学势
 ```
-

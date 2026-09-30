@@ -5,9 +5,7 @@
 - [dynmat.x：读取动力学矩阵与 ASR](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)
 - [matdyn.x：路径频率、本征矢与位移文件](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算响应时，先完成 [Si SCF](/Atlas/m/scf/qe/)，再复制这份保存目录运行下面的 Γ 点声子输入。
+本页的 QE 输入/输出、动力学矩阵、两份 .modes 文件和后处理脚本可[一起下载](/Atlas/examples/stability-imaginary-si-files.tar.gz)。解包后进入 stability-imaginary-si 目录查看记录和复画图。诊断包不含 SCF XML 或波函数保存目录。若要重算上游响应，另下载[Si 教学输入/输出包](/Atlas/examples/si-pbe-lesson-files.tar.gz)，先按下文完成一致参数的 SCF；该包也不替代 SCF 运行后生成的保存目录。
 
 ## Γ 点出现 −5.59 cm⁻¹，先不要把负号删掉
 
@@ -77,14 +75,14 @@ Si Gamma phonon
 
 `tr2_ph=1.0d-14` 控制每个扰动表示的响应自洽停止条件。这里先把响应求解做得较紧，再观察平移模式；这个数本身并不保证频率误差小于某个 cm⁻¹。收紧它只能继续迭代当前电子参数下的响应，不能补上不足的 cutoff 或 k 网格，后面仍要看实际残差、表示的收敛行和同一模式的参数对照。
 
-如果从下载包重新计算，应先完成上面链接中的 SCF。以下是重新运行时的目录准备顺序：在 `si-pbe` 下另建 `gamma-recheck`，把新 SCF 的整个 `tmp` 复制进去，再复制声子输入和脚本。这个新目录与记录中的原计算目录分开。
+如果要重算，应先完成上面链接中的 Si SCF。将原有 Si 教学包解压为 si-pbe，再把本页诊断包解压到同一父目录；以下命令从 si-pbe 目录建立独立复算目录，不覆盖原计算：
 
 ```bash
 cd si-pbe
 mkdir gamma-recheck
 cp -a scf/tmp gamma-recheck/
-cp gamma-phonon/ph.in gamma-recheck/
-cp gamma-phonon/run.sh gamma-recheck/
+cp ../stability-imaginary-si/ph.in gamma-recheck/
+cp ../stability-imaginary-si/run.sh gamma-recheck/
 cd gamma-recheck
 ls tmp/si.save
 vi ph.in
@@ -179,7 +177,7 @@ tail -f ph.out
 ```
 
 
-这一页没有省略错误文件：`ph.err` 和两份 `dynmat` 的标准错误里都出现了重复的环境授权提示：
+`ph.err` 和两份 `dynmat` 标准错误保留 X11 授权提示：
 
 
 ```text
@@ -187,7 +185,7 @@ Authorization required, but no authorization protocol specified
 ```
 
 
-所以不能把这次写成“stderr 为空”。与此同时，程序确实完成了两组响应求解、矩阵写出和对角化，并打印 `JOB DONE.`。后面的比较只使用这份实际生成的矩阵；环境提示仍随[ph.err](/Atlas/examples/si-pbe/gamma-phonon/ph.err.txt)保留。完整[ph.out](/Atlas/examples/si-pbe/gamma-phonon/ph.out.txt)从开头到计时段都可以下载查看。
+程序完成了两组响应求解、矩阵写出和对角化，并打印 `JOB DONE.`。后面的 ASR 比较使用这份实际生成的矩阵；[ph.err](/Atlas/examples/stability-imaginary-si/ph.err.txt) 和完整 [ph.out](/Atlas/examples/stability-imaginary-si/ph.out.txt) 可下载核对。
 
 ## 从矩阵文件里找到负频率和原子运动
 
@@ -250,7 +248,7 @@ Si Gamma phonon
 ```
 
 
-最前面是元素、晶胞和两个原子的坐标；`q = (0,0,0)` 说明这是 Γ 点。中间 `1 1`、`1 2`、`2 1`、`2 2` 四个块对应原子对，每块有三个方向的复数分量。后面的 `Diagonalizing` 段才是频率和模式向量，不能把矩阵块里的某个负数当成虚频。
+最前面是元素、晶胞和两个原子的坐标。这里 `alat=10.2 Bohr`，原子行的 `tau` 是以 alat 为单位的笛卡尔坐标；第二个 Si 位于 `(0.25,0.25,0.25) alat`，不是原胞晶格基矢下的分数坐标。这与[父 SCF 输出](/Atlas/examples/si-pbe/scf/scf.out)中的 `positions (alat units)` 一致；[QE 7.5 矩阵写出代码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/io_dyn_mat_old.f90)将该 `tau` 直接写入头部。`q = (0,0,0)` 说明这是 Γ 点。中间 `1 1`、`1 2`、`2 1`、`2 2` 四个块对应原子对，每块有三个方向的复数分量。后面的 `Diagonalizing` 段才是频率和模式向量，不能把矩阵块里的某个负数当成虚频。
 
 看第一个模式下面的两行：两个 Si 的向量完全相同。每行六个数按 x、y、z 的实部和虚部成对排列；这里虚部为零。两个同质量原子同向运动，对应整体平移。第四个模式的两行则反号，是两个原子相向运动的光学模式。这个区别把“前三个负值”与“Γ 点平移模式”联系起来，比单看频率接近零更有依据。
 
@@ -350,50 +348,47 @@ Si Gamma phonon
 
 另外，两份历史输入都没有设置 `filxsf`，因而先后写入默认的 `dynmat.axsf`；下载包保留的是后运行的 `crystal` 分支。若复跑时还想对照两套 XCrySDen 文件，可用 `vi` 分别给两个输入设置 `filxsf='si-no.axsf'`、`filxsf='si-crystal.axsf'` 后再运行。不能把一份默认文件当作两次结果。
 
-## 把六个模式画在一起，保留零附近的细节
+## 由同一矩阵判断 Γ 点负频是否属于平移残差
 
-下面的图直接读取两份 `.modes`。左图放大声学模式，右图展示光学模式，各自的纵轴范围已经标明；负频率没有被截成零。
+比较对象是两次 `dynmat.x` 对同一 `si.dynG` 的对角化：`si-no.modes` 使用 `asr='no'`，`si-crystal.modes` 使用 `asr='crystal'`。每份文件的 `freq (i)` 行末是模式频率，单位 cm⁻¹；后接的两行各含一个 Si 原子的位移。每行六个实数按 x、y、z 方向的实部与虚部交错排列。这些向量是 QE `filout` 写出的、质量除权并归一化的无量纲位移；频率保留原符号，不把负数截到零。[QE 7.5 dynmat.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)
 
-![同一 Si Γ 点矩阵的 ASR 前后频率对照](/Atlas/examples/si-pbe/gamma-phonon/si-gamma-asr.svg)
+下面比较同一矩阵在两种 ASR 设置下的频率。左面板放大声学模并画出零线，右面板显示光学模，两个纵轴尺度分别标明。图展示同一矩阵在两种 ASR 设置下的实际结果：未施加 ASR 时声学三模约为 −5.586079 cm⁻¹；`asr='crystal'` 后三支回到零附近，光学三模仍约为 523.722542 cm⁻¹。这个对照支持“本例 Γ 点负值是平移声学和规则残差”的判断，不检验其它 q 点，也不能推出整个布里渊区稳定。
 
-把[si-no.modes](/Atlas/examples/si-pbe/gamma-phonon/si-no.modes)、[si-crystal.modes](/Atlas/examples/si-pbe/gamma-phonon/si-crystal.modes)和[plot_asr.py](/Atlas/examples/si-pbe/gamma-phonon/plot_asr.py)（同时下载 [atlas_plot_style.py](/Atlas/examples/atlas_plot_style.py)，放在同一目录）放在同一本地目录，使用装有 NumPy 和 Matplotlib 的 Python 运行：
+![同一 Si Γ 点矩阵在 ASR 前后的频率对照；声学与光学面板使用不同纵轴范围](/Atlas/examples/stability-imaginary-si/si-gamma-asr.svg)
+
+### 输入字段与变换
+
+`si-no.modes` 和 `si-crystal.modes` 各有六条频率记录；解析器取每条 `freq (i)` 行最后一个等号后的 `[cm-1]` 数值，并检查模式编号连续且频率有限。每个模式后有两行位移，每行六列实数，顺序为 x 实部/虚部、y 实部/虚部、z 实部/虚部。解析器检查 Γ 点、两个原子、有限值及打印精度内的向量范数。
+
+`analyse_modes.py` 将 `si.dynG` 头部的晶格参数从 Bohr 乘 `0.529177210903 Å/Bohr` 转成 Å，再将以 alat 为单位的笛卡尔坐标乘 alat，得到以 Å 为单位的原子位置。频率单位是 cm⁻¹，向量无量纲，原子位置单位是 Å。对这两个等质量 Si 原子，逐模平移成分采用 `P_T=||u₁+u₂||²/[2(||u₁||²+||u₂||²)]`；同向同幅给出 1，反向同幅给出 0。脚本另对声学三模和光学三模正交化，再比较子空间投影矩阵。该等权公式只适用于当前二原子 Γ 点例子，不可直接用于不同原子质量的晶体。QE 对 `filout` 位移和 `fileig` 正交本征矢有不同定义，见[官方输入说明](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)。
+
+### 可直接复制给 AI 编程助手的任务说明
+
+```text
+读取同目录中的 si-no.modes、si-crystal.modes 和 si.dynG，针对这个 QE 7.5 两原子等质量 Si Γ 点算例生成诊断数据与一张 ASR 频率对照图。不要修改原始文件，不要把脚本说成通用 QE 转换器。
+
+输入和单位：
+- .modes 的 freq (i) 行末 [cm-1] 数值是频率，保留负号。
+- 每个模式后两行各有六列实部/虚部位移，顺序 x、y、z；这是 dynmat.x filout 的质量除权归一化分量，不是 Å 位移。
+- 从 si.dynG 头部读取 alat（Bohr）和以 alat 为单位的笛卡尔坐标 tau；用 0.529177210903 Å/Bohr 将 alat 转成 Å，再计算 r=tau*alat。这里 tau 不是 crystal 分数坐标，不乘原胞基矢矩阵。
+- 本例平移分量为 P_T=||u1+u2||²/[2(||u1||²+||u2||²)]，只适用于两颗等质量 Si。按 1–3、4–6 模分别构造正交化子空间投影，比较 ASR=no 与 ASR=crystal 的 Frobenius 范数差。
+- 先验证 q=(0,0,0)、六个连续模式、每模式恰有两行向量、所有字段有限、范数符合打印精度；不匹配就明确报错，不猜测、不静默跳过、不覆盖输入。
+- 写出 mode-diagnostics.csv、mode-vectors.csv、mode-checks.json、asr-comparison.csv；只生成 ASR 前后的频率图。声学面板画零线并放大负频区，光学面板单独标明范围。单位写 cm-1，不要把负频改成零。
+- 用 NumPy 和 Matplotlib。运行后报告 Python/库版本、实际命令、stdout 与输出文件。不要声称重新运行 DFT。
+```
+
+完整数据和脚本：[si-no.modes](/Atlas/examples/stability-imaginary-si/si-no.modes)、[si-crystal.modes](/Atlas/examples/stability-imaginary-si/si-crystal.modes)、[si.dynG](/Atlas/examples/stability-imaginary-si/si.dynG)、[analyse_modes.py](/Atlas/examples/stability-imaginary-si/analyse_modes.py)、[plot_asr.py](/Atlas/examples/stability-imaginary-si/plot_asr.py)、[atlas_plot_style.py](/Atlas/examples/stability-imaginary-si/atlas_plot_style.py)。输出有[诊断表](/Atlas/examples/stability-imaginary-si/mode-diagnostics.csv)、[向量表](/Atlas/examples/stability-imaginary-si/mode-vectors.csv)、[检查 JSON](/Atlas/examples/stability-imaginary-si/mode-checks.json)和[频率对照 CSV](/Atlas/examples/stability-imaginary-si/asr-comparison.csv)；所有文件均收在[下载包](/Atlas/examples/stability-imaginary-si-files.tar.gz)。
+
+实跑环境为 Talos 上 Python 3.12.3、NumPy 2.4.6、Matplotlib 3.11.1。复画命令：
 
 ```bash
+python3 analyse_modes.py > analysis.out
 python3 plot_asr.py
 ```
 
-脚本会生成 SVG、PNG、PDF 和[逐模式数据表](/Atlas/examples/si-pbe/gamma-phonon/asr-comparison.csv)。它读取频率行的最后一个数，检查恰有六个有限值，再绘图；不会把文本里的所有负号都当成频率。关键读取部分如下，完整脚本可直接下载：
-
-
-```python
-def frequencies(filename):
-    text = Path(filename).read_text()
-    values = re.findall(r"freq\s*\(\s*\d+\)\s*=.*?=\s*([-+\d.Ee]+)\s*\[cm-1\]", text)
-    result = np.array([float(value) for value in values])
-    if len(result) != 6 or not np.isfinite(result).all():
-        raise ValueError(f"Expected six finite Gamma frequencies in {filename}")
-    return result
-```
-
-
-## 频率变了，原子的相对运动有没有变
-
-频率对照之后，再把位移本身画出来。下图 a、b 都取自未施加 ASR 的 `si-no.modes`，分别显示第 1 和第 4 个模式；c 把两组文件的六个模式都纳入比较。
-
-![Si Γ 点的同向、反相位移与 ASR 前后平移成分](/Atlas/examples/si-pbe/gamma-phonon/mode-character/si-gamma-mode-character.svg)
-
-两个原子的位置从同一份 `si.dynG` 头部读取，图 a、b 是笛卡尔坐标的 xy 投影，第二个原子的 z 坐标为 1.3494 Å。第 1 个模式里两个箭头同向，原子之间的相对位置不变；第 4 个模式里箭头反向，两个原子发生相对运动。箭头使用共同的绘图比例 `0.60 Å × 归一化位移分量`，只为看清方向，不代表计算得到的热振幅，也不是虚频模式的一段实际时间轨迹。
-
-为了不只靠肉眼看箭头，这里对两个等质量原子定义平移成分：
-
-`P_T = ‖u₁ + u₂‖² / [2(‖u₁‖² + ‖u₂‖²)]`
-
-`u₁`、`u₂` 是一个模式下两原子的三维位移。完全同向同幅时 `P_T=1`，完全反相时 `P_T=0`。分母保留实际范数，避免 `.modes` 小数截断造成的归一化偏差进入比例。这个等权公式只用于本页两个同质量 Si 的 Γ 点比较；它不是可直接套到任意多元素材料的声学支分类器。
-
-[analyse_modes.py](/Atlas/examples/si-pbe/gamma-phonon/mode-character/analyse_modes.py)逐个读取六个模式下的两行复数位移，先检查 Γ 点、原子数、有限值和打印精度内的归一化，再生成[逐模诊断表](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-diagnostics.csv)、[原子位置与位移表](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-vectors.csv)和[检查记录](/Atlas/examples/si-pbe/gamma-phonon/mode-character/mode-checks.json)。在装有 NumPy 的 Talos 后处理目录中实际执行的输出为：
+本次实际输出：
 
 ```text
-[talos@talos-MS-7D54 si-gamma-modes]$ python3 analyse_modes.py
 ASR=no: modes=6, atoms=2, max |norm-1|=3.094e-07
   translation fraction: 1.000000 1.000000 1.000000 0.000000 0.000000 0.000000
 ASR=crystal: modes=6, atoms=2, max |norm-1|=4.353e-07
@@ -401,22 +396,10 @@ ASR=crystal: modes=6, atoms=2, max |norm-1|=4.353e-07
 acoustic projector difference: 5.489e-16
 optical projector difference: 5.439e-16
 Wrote mode-diagnostics.csv, mode-vectors.csv, mode-checks.json
-[talos@talos-MS-7D54 si-gamma-modes]$
+asr-comparison.csv; si-gamma-asr.svg/png/pdf
 ```
 
-两组结果的前三个模式都完全落在平移子空间内，后三个都属于反相运动。末两行比较的是每组三个模式张成的**整个子空间**：脚本先对组内向量正交化，再比较投影矩阵，而不是要求 ASR 前后的第 1 个模式逐项相等。约 `10⁻¹⁶` 的差值是这份已打印位移的线性代数比较结果，不是 DFT 频率精度；它说明这里的方向重选没有改变平移组与光学组的性质。约 `10⁻⁷` 的范数偏差则与向量只保留六位小数相符。
-
-在本机复画时，保留下载包里的 `gamma-phonon/mode-character` 子目录；它包含同一份原始矩阵、两份 `.modes` 和两个脚本。从解包后的 `si-pbe` 进入该目录，先更新诊断表，再调用[plot_modes.py](/Atlas/examples/si-pbe/gamma-phonon/mode-character/plot_modes.py)：
-
-```bash
-cd gamma-phonon/mode-character
-python3 analyse_modes.py
-python3 plot_modes.py
-```
-
-绘图脚本读取刚生成的两个 CSV，输出 `si-gamma-mode-character.svg`、`.pdf` 和 300 dpi 的 `.png`。原子位置用 Å，平移成分无量纲；原始负频率写在对应面板上。SVG 留作网页图，PDF 用于排版，PNG 用于预览。脚本设置 `svg.fonttype='none'` 和 `pdf.fonttype=42` 保留可编辑文字；论文排版时再按实际栏宽调整字号，不把网页图缩成难读的小字。
-
-本次可写下的结论是：这份固定 Si 输入在 Γ 点出现的三支负频率属于整体平移模式；施加 ASR 后，它们回到数值零附近，而光学组基本不变。这支持把该现象作为平移声学和规则偏差来处理。这里没有扫描其它 q 点，也没有针对这些频率完成 cutoff、电子网格和响应阈值的比较，因此不能把结论扩展成“整个材料已通过动力学稳定性验证”。
+前三模的平移投影为 1，后三模为 0。`10⁻¹⁶` 量级的子空间差只描述舍入后向量的线性代数比较，不是 DFT 频率精度；`10⁻⁷` 量级的范数偏差与 `.modes` 有限小数位相符。复画需要 NumPy 和 Matplotlib；重跑 `ph.x` 另需 QE 7.5 和匹配的 Si SCF save 目录，下载包没有包含波函数目录。
 
 ## 换成一张路径声子图时，先确定负值来自哪里
 
@@ -424,7 +407,7 @@ python3 plot_modes.py
 
 定位后，要记下这个点的 **q 坐标、模式、原始/插值来源和 ASR 设置**。横轴累计距离不是 q 的三个分量，不能直接拿去填 `ph.x`。如果已有原始网格点与它重合，先比较那个矩阵；若只在插值路径上出现异常，需要针对同一个实际 q 点做直接计算对照。
 
-下面几种后续检查解决的是不同问题，不要一口气改完所有设置后只留下新图：
+按负频出现的位置与模式特征选择下一项对照：
 
 | 眼前现象 | 接着对照什么 | 对照后读什么 |
 |---|---|---|
@@ -434,17 +417,13 @@ python3 plot_modes.py
 | 插值有负值，直接网格点没有 | 该 q 的直接结果、不同 q 网格的插值 | 异常是否依赖插值或采样 |
 | 明确非平移软模持续存在 | 对应本征位移、相容超胞和位移后的能量/力 | 是否有可继续弛豫的降能方向 |
 
-最后一种情况才需要沿模式构造相容的畸变结构。在非 Γ 点，单胞里随手移动一个原子通常不能表示该波矢的周期位移；应先满足 q 与超胞周期的对应关系，再比较正负位移与后续弛豫。上表是后续计算的选择依据，不是本例已经做过这些对照的声明。
+最后一种情况才需要沿模式构造相容的畸变结构。在非 Γ 点，单胞里随手移动一个原子通常不能表示该波矢的周期位移；应先满足 q 与超胞周期的对应关系，再比较正负位移与后续弛豫。
 
 ## 文献中对软模与虚频物理起源的对照方式
 
-当金属或窄带体系在有限波矢处出现负频软模时，文献中常通过系统的电子展宽 σ 扫描或外加应变对照，区分数值采样问题与真实的电荷密度波（CDW）晶格不稳定性。若随电子展宽 σ 增大（模拟升高电子温度），软模频率由负值平滑演化为正实频，则表明该虚频源于费米面嵌套或电子—声子耦合驱动的低温对称性破缺。
+单层 NbSi₂As₄ 的 Fig. 3a 追踪指定 q₁ 处最低 LA 模，扫描 Fermi–Dirac 电子占据展宽 σ。横轴为 σ（mRy），纵轴为声子频率（meV），零线区分虚频与正频。它展示了该模式对电子占据的敏感性；σ 不代表离子温度。分析软模机制时，还需结合相同结构下的 k 网格收敛、本征位移、电子响应和相容畸变能量。本页 Si 算例采用固定占据，未进行这项 σ 扫描。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="单层 NbSi2As4 最低软模声子频率随电子展宽 σ 的演化" loading="lazy"/><figcaption>单层 NbSi<sub>2</sub>As<sub>4</sub> 中最低软模声子频率随电子展宽 σ（从 0 增至 15 mRy）的演化，频率由 −14 meV 虚频逐渐转为正实频。引自 <em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
-
-在完整布里渊区路径上展示这类软模时，常将未应变结构的虚频支与施加拉伸应变后恢复正频的色散曲线画在同一布局中，并配合分波声子态密度（PHDOS）标明主导该失稳模式的原子种类。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="单层过渡金属氮化物中 M 点 CDW 虚频软模及双轴拉伸应变下的稳定化" loading="lazy"/><figcaption>单层过渡金属氮化物的声子色散与分波声子态密度（PHDOS），其中 Fig. 3d 以绿色点线标出未应变 W<sub>2</sub>N 在 M 点的 CDW 虚频软模（<code>CDW &lt;-</code>），并在 4% 双轴拉伸应变（实线）下消除虚频实现稳定。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 3d，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="单层 NbSi2As4 最低软模声子频率随电子展宽 σ 的演化" loading="lazy"/><figcaption>单层 NbSi<sub>2</sub>As<sub>4</sub> 中指定 q₁ 处最低 LA 模频率随 Fermi–Dirac 电子占据展宽 σ 的变化；横轴为 mRy，纵轴为 meV，水平零线区分虚频与正频。引自 <em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
 
 ## 下一步
 

@@ -189,19 +189,17 @@ nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB
 
 在这组固定设置下，FM 比所算 AFM 低约 432.98 meV/atom，比非自旋极化解低约 491.52 meV/atom。这个排序回答的是三份候选解之间的比较。要形成材料磁基态结论，还需检查更多可能的磁超胞、各磁态的几何优化、k 网格及展宽对相对能量的影响。
 
-将 `magnetic-energies.json` 与 `plot_magnetic.py` 放到本机同一目录，执行 `python3 plot_magnetic.py`，即可生成能量差柱图和 PDF。图标题保留固定晶格常数，纵轴保留每原子单位，避免把每胞能量差误读成每原子值。
+## 三候选态结果表
 
-![固定晶格常数下 Fe 的三个磁构型能量](/Atlas/examples/vasp/fe-bcc/magnetic-energies.png)
+| state | E0_eV_cell | F_eV_cell | delta_E0_meV_atom_from_FM | cell_moment_muB |
+| --- | --- | --- | --- | --- |
+| fm | -16.47377314 | -16.47365594 | 0.000000 | 4.212700 |
+| afm | -15.60782301 | -15.60736142 | 432.975065 | -0.000000 |
+| nm | -15.49074150 | -15.49070763 | 491.515820 | 0.000000 |
 
-## 文献中的相关图件与表达方式
+## 文献方法与本例读数
 
-本页 bcc Fe 的反平行构型（`afm`）虽然整胞总磁矩为零，但两个 Fe 位点各自保留 ±1.317 μ<sub>B</sub> 的局域磁矩。在更一般的共线反铁磁体系中，除核对整胞净磁矩与逐原子局域投影外，还常结合两个相反自旋亚晶格之间的晶体对称操作，区分传统共线反铁磁与交错磁体（altermagnet）：若相反自旋亚晶格通过纯平移或空间反演相连，能带保持全布里渊区自旋简并；若非磁配位环境破坏了平移与反演对称，仅能通过旋转或镜面操作连接两个亚晶格，则在零净磁矩下仍会出现动量依赖的能带自旋劈裂。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_Altermagnet_Schematic_Fig1.jpg" alt="铁磁体、共线反铁磁体与交错磁体的实空间亚晶格对称性及动量空间自旋极化费米面对比" loading="lazy"/><figcaption>共线磁序的三类典型对称性与电子结构对比：将实空间相反自旋亚晶格的连接方式（平移/反演与旋转/镜面）同动量空间自旋极化费米面及能带色散并列展示（Song 等，<em>Nat. Rev. Mater.</em> <strong>10</strong>, 247 (2025)，<a href="https://doi.org/10.1038/s41578-025-00779-1" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41578-025-00779-1</a>）。</figcaption></figure>
-
-在第一性原理磁基态与电子结构研究中，通常把晶体结构中破坏反演与平移对称的非磁配位多面体、高对称路径上的红蓝双通道自旋极化能带，以及布里渊区截面与三维费米面组合在同一组图件中，从而把 `OUTCAR` 确认的共线补偿磁矩与倒空间的自旋劈裂特征直接对应起来。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_Altermagnet_Bands_FS_NbMnP_Fig3.jpg" alt="交错磁体 NbMnP 的自旋劈裂能带、晶体配位环境与三维自旋极化费米面" loading="lazy"/><figcaption>NbMnP 在共线反平行磁基态下的综合表征：包含自旋向上与自旋向下通道交替劈裂的能带结构、破坏平移与反演对称的非磁晶体配位环境，以及二维切面与三维自旋极化费米面分布（<em>Phys. Rev. B</em> (2025)，<a href="https://doi.org/10.1103/mmdm-hrj4" target="_blank" rel="noopener noreferrer">DOI: 10.1103/mmdm-hrj4</a>）。</figcaption></figure>
+Torelli 等，*High-throughput computational screening for two-dimensional magnetic materials based on experimental databases of three-dimensional compounds*，[DOI: 10.1038/s41524-020-00428-x](https://doi.org/10.1038/s41524-020-00428-x)，Fig. 1 展示磁性筛选流程，Fig. 3 比较交换参数和自旋波隙。正文通过候选磁构型能量判断排序，再建立磁模型。本例采用相同的候选态比较逻辑，表格回答固定 a=2.8 Å 晶胞中的 FM/AFM/NM 相对能量，不从净磁矩或局域磁矩推断动量空间自旋劈裂。
 
 下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。
 
@@ -212,3 +210,20 @@ nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB
   └─ ISPIN=1 → 非自旋极化解
              └─ 核对最终局域磁矩与收敛 → 统一能量定义比较
 ```
+
+## 可复制的代码生成提示与复现
+
+```text
+请编写 Python 3 独立后处理程序。从 fm/afm/nm 的 OUTCAR、OSZICAR、POSCAR、KPOINTS 和 POTCAR.identity.txt 读取数据；核对同几何/网格/PAW 指纹、EDIFF 和正常计时。使用同一 E0 定义，以最低候选为参考，除以两个 Fe 后换算 meV/atom；保留 F、总磁矩与最终局域投影。输出 JSON 与三态 CSV，不生成重复的柱图。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+```
+
+[magnetic_energies.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/magnetic_energies.py) · [export_magnetic_table.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/export_magnetic_table.py)
+
+[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-magnetic-gs/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+
+```bash
+python3 magnetic_energies.py
+python3 export_magnetic_table.py
+```
+
+实际读取结果见正文表及 [magnetic-state-energy-table.csv](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-state-energy-table.csv) · [magnetic-energies.json](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-energies.json)。这些命令只读取现有输出进行后处理。

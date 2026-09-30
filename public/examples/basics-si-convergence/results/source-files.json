@@ -1,0 +1,250 @@
+[
+  {
+    "file": "si-pbe/cutoff40/scf.in",
+    "sha256": "2a4da6832d3a5129abccca89658c59b845bdf78619cd0474de02a2bd099480fa"
+  },
+  {
+    "file": "si-pbe/cutoff40/scf.out",
+    "sha256": "d2ef4bce89f2dabe554509501ed5658ceec81dc65a1f6d5a371d38898f10ee44"
+  },
+  {
+    "file": "si-pbe/cutoff40/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/cutoff40/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/cutoff50/scf.in",
+    "sha256": "98a1a7c40b9bf949c3961e09c801039f717b2db3ff75ff93b59be48f7431d799"
+  },
+  {
+    "file": "si-pbe/cutoff50/scf.out",
+    "sha256": "fd5dcb87878247bbc5d5d0e0252889eb9da086bcc8ae8e953c2e1c84a6d175e3"
+  },
+  {
+    "file": "si-pbe/cutoff50/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/cutoff50/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/cutoff60/scf.in",
+    "sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+  },
+  {
+    "file": "si-pbe/cutoff60/scf.out",
+    "sha256": "34edfa596e0c1fe92c1159389577a0964147d52d96b034a7e319f699cf17297c"
+  },
+  {
+    "file": "si-pbe/cutoff60/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/cutoff60/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/cutoff70/scf.in",
+    "sha256": "72a00075c12d8fe5298549668dee358464d05851857f3418bd3b93924af1902d"
+  },
+  {
+    "file": "si-pbe/cutoff70/scf.out",
+    "sha256": "62294e67850a27fbf039ca98955d014a901c423f3d6794840080bc35659f9b43"
+  },
+  {
+    "file": "si-pbe/cutoff70/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/cutoff70/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/cutoff80/scf.in",
+    "sha256": "b6bccfb21c51f3f9847410937a65e4eb2d20db7f2fc59982da1b1e53bdca71a4"
+  },
+  {
+    "file": "si-pbe/cutoff80/scf.out",
+    "sha256": "4f1544a52e78994fd25cbee7f5fc515daaf2f2f3a6732025683fe5c3ddd88eae"
+  },
+  {
+    "file": "si-pbe/cutoff80/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/cutoff80/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/gamma-phonon/scf.in",
+    "sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+  },
+  {
+    "file": "si-pbe/gamma-phonon/run.sh",
+    "sha256": "7eb9e555fab21677af61b4d629f374a675aec403e33a15b364d6a8ca5a5b40ea"
+  },
+  {
+    "file": "si-pbe/k10/scf.in",
+    "sha256": "08ce056ef397c8fdd85e004061cbb0a58e69870d7db6f1cc3d924c0dac7c09ca"
+  },
+  {
+    "file": "si-pbe/k10/scf.out",
+    "sha256": "5ba4b2c912b99379c258d6c28504510952e3f984bc88ac69506d997e9b875c03"
+  },
+  {
+    "file": "si-pbe/k10/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/k10/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/k12/scf.in",
+    "sha256": "c030c57691a22ffeeafc81852de06b5851b87d50f7043d17112a3d976af7fed0"
+  },
+  {
+    "file": "si-pbe/k12/scf.out",
+    "sha256": "52d0f6381e1d943950ff64d163234637e18b93841daa216fd37e264936f5ec1f"
+  },
+  {
+    "file": "si-pbe/k12/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/k12/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/k14/scf.in",
+    "sha256": "c0d71cf4b3d4b4064c91464892a60f261ffd851f337872985fb65f15f7645827"
+  },
+  {
+    "file": "si-pbe/k14/scf.out",
+    "sha256": "ac3d723826da7c556c874adf1f969925975b401b71158949fc43e884e3616f98"
+  },
+  {
+    "file": "si-pbe/k14/scf.err",
+    "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+  },
+  {
+    "file": "si-pbe/k14/run.sh",
+    "sha256": "33a7c96705fde39f702355a82fb4c96e626c66556458e6561ffd74e2c78c49cb"
+  },
+  {
+    "file": "si-pbe/k4/scf.in",
+    "sha256": "6b55d2e01e27638c7c69841264933c1ef9a4bcbd6b2d08a8ceaed428a42f06d2"
+  },
+  {
+    "file": "si-pbe/k4/scf.out",
+    "sha256": "50453f8ad36a8a5e7cc81701eeac33fe0b400bc0a372b0a75a4f98a08e1a7247"
+  },
+  {
+    "file": "si-pbe/k4/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/k4/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/k6/scf.in",
+    "sha256": "702cc444377e18fab6c89d31cc0f4778e226b890de8fc7f6fe255147d457313f"
+  },
+  {
+    "file": "si-pbe/k6/scf.out",
+    "sha256": "9ceed4ae5dd9e5ac2a906d4292c7538a5b9c7bad660790648d07826b267cec20"
+  },
+  {
+    "file": "si-pbe/k6/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/k6/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/k8/scf.in",
+    "sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+  },
+  {
+    "file": "si-pbe/k8/scf.out",
+    "sha256": "00ef2991cb428999fdfc87f6b8218f994e9953423e9c92e22f5616db7471fab7"
+  },
+  {
+    "file": "si-pbe/k8/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/k8/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  },
+  {
+    "file": "si-pbe/relax-check/scf.in",
+    "sha256": "f6ba10317bf20d53c297e2150ad100cac915ee0b284b5f8f0b2b95c7a2b75c74"
+  },
+  {
+    "file": "si-pbe/relax-check/scf.out",
+    "sha256": "db6e0864a4df4e8587517a70c8f92d914324a7ffc9871667178bf1bafb8af561"
+  },
+  {
+    "file": "si-pbe/relax-check/scf.err",
+    "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+  },
+  {
+    "file": "si-pbe/relax-check/run.sh",
+    "sha256": "33a7c96705fde39f702355a82fb4c96e626c66556458e6561ffd74e2c78c49cb"
+  },
+  {
+    "file": "si-pbe/rho320/scf.in",
+    "sha256": "1c88cd3c2d4b5b884cea0ec4ce0886dc85a198c5f8ef52da3f6ce890dd6f7fb4"
+  },
+  {
+    "file": "si-pbe/rho320/scf.out",
+    "sha256": "c7882d0b45afe68c9c602ef3ed37406f6668347dd3875e3de1db6c0e6c399cb5"
+  },
+  {
+    "file": "si-pbe/rho320/scf.err",
+    "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+  },
+  {
+    "file": "si-pbe/rho320/run.sh",
+    "sha256": "33a7c96705fde39f702355a82fb4c96e626c66556458e6561ffd74e2c78c49cb"
+  },
+  {
+    "file": "si-pbe/rho480/scf.in",
+    "sha256": "a169bd57031ad2a136110a2d7c07713bf9e593f7e888a985780d5b6af9835ed5"
+  },
+  {
+    "file": "si-pbe/rho480/scf.out",
+    "sha256": "c2822087b21d4a76fa6f5b05324bfcc68ad54388827125ceeb3369807f065bfd"
+  },
+  {
+    "file": "si-pbe/rho480/scf.err",
+    "sha256": "555e300bc6d61f7d967108c43565d0f15f28808c313cc27aa6256690ca1dd350"
+  },
+  {
+    "file": "si-pbe/rho480/run.sh",
+    "sha256": "33a7c96705fde39f702355a82fb4c96e626c66556458e6561ffd74e2c78c49cb"
+  },
+  {
+    "file": "si-pbe/scf/scf.in",
+    "sha256": "2dc75aa4325b9ecde1e9ec7cf5a972bced622e3b6a4669cc46a9a0389a99747c"
+  },
+  {
+    "file": "si-pbe/scf/scf.out",
+    "sha256": "e34dee4baece934ca4365b0d2ab51c2018c4e7c740eca67aa12a37cfeb218bf6"
+  },
+  {
+    "file": "si-pbe/scf/scf.err",
+    "sha256": "d0ca4224c0f640c4df1568c557199572ac02333d6d75215eedfbc2f6c1830025"
+  },
+  {
+    "file": "si-pbe/scf/run.sh",
+    "sha256": "e22c2689e9e77af9f606878ed3d55320809a17ce396010c921f36c36bdd80fd4"
+  }
+]

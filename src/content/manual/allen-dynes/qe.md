@@ -6,7 +6,7 @@
 
 ## 两个目录各自跑到 lambda.x，再读两份 Tc 表
 
-[完整 EPC 会话](/Atlas/m/epc/qe/#double-grid-pwxall)记录了两条路径，第二条的 `cp`、`vi`、完整 Slurm 脚本及作业验收在 [48³ 分支](/Atlas/m/epc/qe/#dense-k48-run)。这里直接接它们的结果，不重新写一次 SCF。
+[完整 EPC 会话](/Atlas/m/epc/qe/#double-grid-pwxall)记录了两条路径，第二条的 `cp`、`vi`、完整 Slurm 脚本及运行结果在 [48³ 分支](/Atlas/m/epc/qe/#dense-k48-run)。这里直接接它们的结果，不重新写一次 SCF。
 
 | 计算路径 | pwxall 致密 k | pwx 响应 k | 实算 q 网格 | 留给本页的原件 |
 |---|---|---|---|---|
@@ -15,31 +15,50 @@
 
 两边的 `pwxall` 网格分别是响应网格的 2 倍、3 倍；响应网格又是 q 网格的 4 倍，所有网格均不偏移。`lambda.in` 使用相同的 q 权重、14 THz 谱上限、0.12 THz 频率展宽和 μ*=0.10。横轴 σ 则来自 `ph.x` 的十档电子积分展宽：0.005、0.010、…、0.050 Ry。这三个展宽概念要分开：SCF 占据的 `degauss=0.02 Ry` 没有在本图中扫描，谱函数的 0.12 THz 宽度也没有变化。
 
-第二条链已完成 8 个 q × 3 个模式 × 10 个展宽，共 240 条模式记录。两份响应 SCF 的电荷密度文件逐字节相同，32³ 与 48³ 的致密电子数据则各自保存；第二条从头执行了两次 SCF 和所有 q 响应。原生输入、输出、核验表及本节脚本可[一起下载](/Atlas/examples/al-dense-grid-tc-files.tar.gz)。解包后的 `k32/`、`k48/` 分别对应这两条路径。
+第二条链已完成 8 个 q × 3 个模式 × 10 个展宽，共 240 条模式记录。两份响应 SCF 的电荷密度文件逐字节相同，32³ 与 48³ 的致密电子数据则各自保存；第二条从头执行了两次 SCF 和所有 q 响应。原生输入、输出、核验表及本节脚本可[一起下载](/Atlas/examples/supercon-al-tc-files.tar.gz)。解包后的 `k32/`、`k48/` 分别对应这两条路径。
 
 <span id="tc-two-dense-grids"></span>
 
-## 两条 Tc(σ) 曲线的实际求交结果
+## 两条 Tc(σ) 曲线与实际求交结果
 
-在共同的 0.005—0.050 Ry 范围内，32³ 曲线在十个采样点上始终高于 48³；相邻点连接后也没有交点或重合区间。最小差值出现在 0.050 Ry：两边分别为 0.984588084 K 和 0.975366286 K，仍相差 0.009221798 K。这个点不能当作交点 Tc。
+![Al 32³ 与 48³ 实际 Tc 曲线及其逐点差值 ΔTc](/Atlas/examples/supercon-al-tc/figures/supercon-al-k32-k48-tc-delta.png)
 
-![Al 的两条独立致密网格 Tc 曲线与求交结果](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.png)
+上图每个点都来自对应分支的逐 q EPC 原件。上面把两条 Tc(σ) 放在同一坐标轴，下面画 `ΔTc=Tc₃₂−Tc₄₈`，虚线为零。十个共同采样点的 ΔTc 均为正；相邻点按直线连接后，0.005–0.050 Ry 内没有交点，也没有重合区间。最接近的位置是 σ=0.050 Ry：Tc₃₂=0.984588 K、Tc₄₈=0.975366 K，ΔTc=+0.009222 K。求交程序同时检查原生三位小数 Tc 与逐 q 重建值，结果一致。
 
-[矢量 PDF](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.pdf) · [SVG](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-tc.svg) · [逐点数据](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/paired-tc.csv) · [交点表](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/crossings.csv)
+随后计算的 64³ 分支已经完成致密与响应 SCF；`ph.x` 因三小时 walltime 到限被取消，仅留下六个逐 q EPC 文件，缺少完整八个 q 的结果和 `lambda.x` 输出。目前图中只有 32³、48³ 两条完整曲线。
 
-左图保留十个实际展宽点和完整温度范围；右图只放大纵轴范围，便于看清两条曲线之间的差距。蓝色空心圆对应 32³，橙色方块对应 48³，本图没有交点标记，两条曲线在整个采样范围内分离。相邻点之间用直线连接，没有高阶平滑，也没有向计算范围外延长曲线。
+[配对数值 CSV](/Atlas/examples/supercon-al-tc/comparison-k32-k48/paired-tc.csv) · [求交结果 JSON](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json) · [矢量 PDF](/Atlas/examples/supercon-al-tc/figures/supercon-al-k32-k48-tc-delta.pdf) · [SVG](/Atlas/examples/supercon-al-tc/figures/supercon-al-k32-k48-tc-delta.svg) · [完整绘图源码](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)
 
-| 交点 | 所在展宽区间 / Ry | σ* / Ry | Tc* / K |
-|---|---|---|---|
-| — | 0.005—0.050 | 无孤立交点 | — |
+## 用谱形、λ 和 ωlog 解释曲线差异
 
-数据表中多保留的小数用于复算与差值检查，并不代表材料温度有这样的精度。这里的曲线由两次 `lambda.x` 实际读取的逐 q 文件按 QE 7.5 源码算法重建：它们逐行复现原生 Tc 的三位小数，只补回最终打印格式损失的位数。逐模 λ 在电声文件中本来就只有四位小数，DFT 网格和有限展宽造成的误差也仍然存在。
+两条 Tc 曲线来自同一公式，差异可以沿 α²F(ω)、耦合积分 λ 和频率矩 ωlog 向上追溯。Poncé 等人的 EPW 论文第 10.3 节、图 12 分别比较 Pb 的采样网格、谱形与 λ，并在充分采样后检查展宽依赖；这里沿用这种分开查看谱与积分的方式，补充解释上面的 Al 双曲线结果。[EPW 论文](https://doi.org/10.1016/j.cpc.2016.07.028)。
 
-直接对原生三位小数 Tc 表求交，得到 0 个孤立交点和 0 个重合区间。图和上表采用逐 q 原件重建值；两种精度下的全部结果分别保留在 `crossings.json` 中。
+本例在相同的十个 σ=0.005–0.050 Ry 上配对 32³ 和 48³ 致密 k 网格的原生 alpha2F.dat。逐频率谱差使用 λ 加权的 L1 距离：
+L1λ = ∫₀¹⁴ 2|α²F₃₂(ω)−α²F₄₈(ω)|/ω dω；
+表中百分比为 L1λ 除以两条 λspec 的平均值。ω=0 点两谱均为零，积分从原生 2000 个频率点（0–14 THz）计算，不平滑、不外推。Δ 列统一为 32³−48³。
+
+| σ (Ry) | 谱差 L1 / 平均 λspec (%) | Δλq | Δωlog (K) | ΔTc (K) |
+|---:|---:|---:|---:|---:|
+| 0.005 | 35.5188 | +0.018134 | +16.061 | +0.525166 |
+| 0.010 | 17.5246 | +0.000072 | +6.072 | +0.017265 |
+| 0.015 | 10.4822 | +0.000775 | +1.949 | +0.017302 |
+| 0.020 | 5.5562 | +0.006981 | +1.118 | +0.114568 |
+| 0.025 | 3.1187 | +0.007491 | +0.939 | +0.122036 |
+| 0.030 | 1.9265 | +0.005323 | +0.722 | +0.086939 |
+| 0.035 | 1.1384 | +0.003248 | +0.492 | +0.053537 |
+| 0.040 | 0.6381 | +0.001806 | +0.312 | +0.030185 |
+| 0.045 | 0.3612 | +0.001022 | +0.204 | +0.017352 |
+| 0.050 | 0.1903 | +0.000536 | +0.114 | +0.009222 |
+
+σ=0.010 Ry 时，λq 分别为 0.371061（32³）和 0.370989（48³），Δλq 为 +0.000072；谱 L1 为 17.52%，Δωlog 为 +6.072 K。两条谱的权重分布仍有差异，尽管总 λ 很接近。沿这组展宽扫描，谱 L1 从 35.52% 降至 0.19%。这项谱检查解释了相同 σ 下的上游输入差异。
+
+谱数组 alpha2F.dat 以五位小数保存；λq、λspec、ωlog 和 Tc 则由逐 q 的 elph.inp_lambda 原件按 QE 7.5 算法复建。把保存谱直接积分与逐 q 重建的 λspec 对照，最大差为 4.13×10⁻⁶，符合 alpha2F.dat 的打印精度边界。更多有效位用于复算，不代表材料量的物理精度。
+
+[十个展宽的完整数值表](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-differences.csv) · [分析摘要与输入 SHA-256](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-summary.json) · [完整后处理源码](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py) · [Tc 配对与交点核验](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json)
 
 ## 在解包目录把两份输出配起来
 
-下载包内已经保留计算结果。在本机的 `al-dense-grid-tc` 目录运行下面两条命令即可复算表格；这里运行的是读取与求交程序，前面的两次 DFT 计算已在 Maxwell 完成。
+下载包内已经保留计算结果。在解包目录用完整的 [重建脚本 `rebuild_tc.py`](/Atlas/examples/supercon-al-tc/rebuild_tc.py) 与[配对求交脚本 `compare_tc.py`](/Atlas/examples/supercon-al-tc/compare_tc.py) 复算表格；这里运行的是读取与求交程序，前面的两次 DFT 计算已在 Maxwell 完成。
 
 ```console
 $ python3 rebuild_tc.py k32 k48 --outdir comparison-k32-k48
@@ -64,13 +83,31 @@ Native 0.001 K print check: 0 isolated points, 0 overlap intervals.
 Saved paired-tc.csv, crossings.csv, crossings.json.
 ```
 
-前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。源码中的 q 坐标一致性检查被注释掉了，因此这一步另行核对文件顺序；只看到 `lambda.x` 产生了表格还不够。
+前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。QE 7.5 `lambda.x` 源码中的 q 坐标检查被注释掉了；本页的重建脚本逐文件检查坐标和输入顺序，允许六位小数输出带来的舍入差。
 
 两个求和都使用星权重 `1, 8, 4, 6, 24, 12, 3, 6`，总和 64。程序以总权重归一化，每一档展宽独立求出 λ 和谱函数。计算 Tc 时使用输出括号外的逐 q 加权 λ；括号内的谱积分 λ 用来核对谱积分，不能换掉这一列后继续引用原来的 Tc。
 
-[重建脚本](/Atlas/examples/al-dense-grid-tc/rebuild_tc.py) · [配对与求交脚本](/Atlas/examples/al-dense-grid-tc/compare_tc.py) · [完整配对核验](/Atlas/examples/al-dense-grid-tc/comparison-k32-k48/crossings.json)
+[重建脚本](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对与求交脚本](/Atlas/examples/supercon-al-tc/compare_tc.py) · [完整配对核验](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json)
 
-## 从差值变号的区间算出交点
+### 交给代码助手的 Tc 配对、求交与绘图任务
+
+> 读取 k32/、k48/ 各自的 lambda.in、lambda.out 和八个 elph.inp_lambda 文件，只做保存数据的后处理。核对 q 坐标、顺序、权重、展宽与 μ*，按 QE 7.5 lambda.x 的公式分别重建两条 Tc(σ)，并检查原生打印精度。按相同 σ 配对，保存 Tc、λ、ωlog 和逐点 ΔTc。用相邻点的线性差值找出采样范围内所有孤立交点、端点交点和重合区间；若没有交点，明确输出零个，不外推。绘制上方两条 Tc 曲线、下方 ΔTc 与零线，保留十个采样点，用颜色、线型和标记区分分支。保存配对 CSV、求交 JSON、PNG/SVG/PDF 及可独立运行的完整 Python 源码，写明依赖和输入路径；不启动 QE 程序。
+
+已有完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。
+
+### 交给代码助手的谱差补充任务
+
+> 只做后处理，不启动 pw.x、ph.x、lambda.x 或其他计算程序，也不生成图。读取 k32/alpha2F.dat、k48/alpha2F.dat 和 comparison-k32-k48/paired-tc.csv；验证十档 sigma 一一对应、频率网格相同且覆盖 0–14 THz、所有数值有限。按 L1λ = ∫₀¹⁴ 2|alpha2F32−alpha2F48|/ω dω 计算逐频谱差，并除以两条 lambda_spectrum_rebuilt 的平均值换算百分比；ω=0 且两谱为零时该点被积函数取零。逐档输出 lambda_qsum、lambda_spectrum、omega_log、Tc 的 32³/48³ 数值及差值。检查 alpha2F.dat 直接积分得到的 lambda_spectrum 与 paired-tc.csv 的逐 q 重建值之差，并写明 alpha2F.dat 的五位小数打印精度。保存 spectral-grid-differences.csv 与 spectral-grid-summary.json，记录输入文件 SHA-256、积分定义、采样点数和频率范围；不做平滑或外推，也不把展宽扫描或无交点写成网格收敛证明。
+
+实际源码 [compare_spectral_grids.py](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py) 只读上述文件，已生成完整 [逐展宽 CSV](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-differences.csv) 与 [复算摘要 JSON](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-summary.json)。运行命令：
+
+```bash
+python3 compare_spectral_grids.py --root . --outdir comparison-k32-k48
+```
+
+程序逐档打印 λ、谱 L1、Δωlog 和 ΔTc，并保存 CSV/JSON。十档结果及积分误差见上表和摘要文件。
+
+## 从逐点差值求出交点
 
 令 `dᵢ = Tc₃₂(σᵢ) − Tc₄₈(σᵢ)`。相邻两个采样点的差值异号时，两条折线在这一区间相交：
 
@@ -83,28 +120,33 @@ Tc* = Tc₃₂(σᵢ) + [Tc₃₂(σᵢ₊₁) − Tc₃₂(σᵢ)] × (σ* − 
 
 脚本也保留恰落在采样点上的交点；若相邻采样点连续相等，则记录重合区间。原生打印值、由打印 λ/ωlog 复算的曲线和逐 q 原件重建的曲线分别保存在 JSON 中，方便核对舍入是否改变了交点数或位置。
 
-交点纵坐标就是本项双分支对照提取的候选 Tc，横坐标则是对应的电子展宽。它与 [EPW 方程页](/Atlas/m/epw-eliashberg/qe/)中本征值 η(T) 穿过 1 的温度判据各有自己的图和数据。
+折线交点表示两条 Tc(σ) 在给定展宽处相等。本页保留这一双网格比较结果；网格收敛还需固定 σ 改变 k/q 网格。[EPW 方程页](/Atlas/m/epw-eliashberg/qe/)则通过各向同性线性化 Eliashberg 方程本征值穿过 1 来确定临界温度。
 
 ## 再看两条路径的 λ 与 ωlog
 
-![两条 Al 致密网格分支的 λ 和对数平均频率](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.png)
+![两条 Al 致密网格分支的 λ 和对数平均频率](/Atlas/examples/supercon-al-tc/figures/al-k32-k48-moments.png)
 
-[矢量 PDF](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.pdf) · [SVG](/Atlas/examples/al-dense-grid-tc/figures/al-k32-k48-moments.svg)
+[矢量 PDF](/Atlas/examples/supercon-al-tc/figures/al-k32-k48-moments.pdf) · [SVG](/Atlas/examples/supercon-al-tc/figures/al-k32-k48-moments.svg)
 
 例如，在实际采样的 σ=0.050 Ry 处，32³ 与 48³ 的 λ 分别为 0.376041、0.375505，ωlog 分别为 340.145、340.031 K。本例在十个采样点上，48³ 的 λ 与 ωlog 都低于 32³，二者使 Tc 向同一方向变化。这组数据没有出现两项误差相互抵消形成交点的情况。
 
-本例固定了响应网格和 q 网格；这次两种致密采样的对照没有产生交点，不能从中指定一个交点 Tc。继续加密时，应在同一 σ 下比较结果，同时检查交点两侧是否形成稳定区；若改变真实 q 网格，也要重新核对 k 与展宽。QE 官方手册要求检查 k 网格和 Gaussian 展宽，[开发者的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)进一步强调固定 σ 的 k 收敛及稳定区向小展宽延伸。这里保留无交点的结果及全部差值。下一条 64³ 致密网格分支已经在独立目录提交，响应网格、q 网格、展宽和 μ* 保持相同；它的完整结果形成后，再作下一组对照。
+本例固定了响应网格和 q 网格；32³ 与 48³ 的致密采样没有交点，不能从中指定一个交点 Tc。QE 官方手册要求检查 k 网格和 Gaussian 展宽，[开发者的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)进一步强调固定 σ 的 k 收敛及稳定区向小展宽延伸。若改变真实 q 网格，还要重新核对 k 与展宽。
 
-## 用同一份数据重绘
+## 复画两条 Tc 曲线与差值
+
+下载包中的源码可以重画本页曲线。原始的 [双图脚本 `plot_tc_crossings.py`](/Atlas/examples/supercon-al-tc/plot_tc_crossings.py) 会重画完整温度曲线以及 λ、ωlog 对照；保留的 [差值图脚本 `plot_supercon_tc_difference.py`](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py) 直接读取配对 CSV，绘制上方 Tc 曲线和下方 ΔTc 零线判据。两段命令都只读取保存的数据：
 
 ```console
 $ python3 plot_tc_crossings.py --data comparison-k32-k48 --out figures --prefix al-k32-k48
 10 points per curve; 0 isolated intersections; 0 overlap intervals.
 Saved figures/al-k32-k48-tc.png, .svg, .pdf
 Saved figures/al-k32-k48-moments.png, .svg, .pdf
+$ python3 plot_supercon_tc_difference.py --data comparison-k32-k48/paired-tc.csv --out figures --prefix supercon-al-k32-k48-tc-delta
+rows=10; mu*=0.10; isolated crossings=0; overlap intervals=0
+delta_min_K=0.009221798; delta_max_K=0.525165797
 ```
 
-绘图需要 NumPy 和 Matplotlib。[绘图脚本](/Atlas/examples/al-dense-grid-tc/plot_tc_crossings.py)与[样式文件](/Atlas/examples/al-dense-grid-tc/atlas_plot_style.py)放在同一目录。脚本同时导出网页 PNG、可编辑 SVG 和宽 183 mm 的矢量 PDF；颜色、线型和标记共同区分两条路径，图上保留原始采样位置，表格保留全部数值。需要放大局部时，保留一幅完整范围图，并明确标注放大图的范围。
+绘图需要 NumPy 和 Matplotlib；[原始曲线样式文件](/Atlas/examples/supercon-al-tc/atlas_plot_style.py)与脚本同目录。差值图脚本核对 CSV 的列名、展宽与数值关系，导出网页 PNG、可编辑 SVG 和矢量 PDF。颜色、线型和标记共同区分路径，所有十个原始展宽样点都保留。相邻点只作直线连接，不向范围外延长。
 
 下面继续展开 32³ 分支的原生输出和公式细节，核对 λ、ωlog 怎样进入 Tc；改变 μ* 或加入 f₁、f₂ 修正时，另作相应对照。它们回答公式与输入假设的问题，两种致密电子网格的实际比较已在上面完成。
 
@@ -137,7 +179,7 @@ maxwell@maxwell:~/tc-route/replay-lambda$ wc -c lambda.err
 0 lambda.err
 ```
 
-这次副本生成的 `lambda.out`、`lambda.dat`、`alpha2F.dat` 与原件 SHA-256 完全相同。下面沿着它们的实际输出读数。这里没有新算 DFT，也不能把已有 Al 数据的重放称作 SnSe₂/Sr₂N 已经获得 Tc。
+这次副本生成的 `lambda.out`、`lambda.dat`、`alpha2F.dat` 与原件 SHA-256 完全相同。下面沿着它们的实际输出读数。
 
 ## 先知道自己代入的是哪个公式
 

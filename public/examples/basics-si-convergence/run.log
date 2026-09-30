@@ -1,0 +1,6 @@
+$ python3 analyze_si_convergence.py si-pbe --outdir results
+raw_checksums=62 complete_runs=15 excluded_runs=1 table_rows=14
+ecutwfc: 40 Ry; difference to reference = 0.900561 meV/atom
+ecutrho: 320 Ry; difference to reference = 0.025034 meV/atom
+kmesh: 10x10x10; difference to reference = 0.350551 meV/atom
+Results: results
