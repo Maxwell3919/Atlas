@@ -1,10 +1,12 @@
-[Henkelman 组：Bader 程序](https://www.henkelmanlab.org/code/bader/) · [VASP：LAECHG](https://vasp.at/wiki/LAECHG) · [CHGCAR](https://vasp.at/wiki/CHGCAR)
-
 Bader 分析把实空间分成一个个原子盆地，再积分盆地内的电子数。先用两个完全等价的 Fe 原子跑通一次：它们的分区电子数应当相同，整胞总数也应与 VASP 的价电子数一致。这个小体系很容易看清输入、三维网格、参考密度与 ACF.dat 之间的关系。
+
+[Henkelman 组：Bader 程序](https://www.henkelmanlab.org/code/bader/) · [VASP：LAECHG](https://vasp.at/wiki/LAECHG) · [CHGCAR](https://vasp.at/wiki/CHGCAR)
 
 结构和磁态来自 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的 FM 解。下载 [真实输入、OUTCAR、96³ 电荷网格及后处理脚本](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz) 后，解包进入 `fe-bcc/charge_elf`。包中保留两套网格的输出与检查结果，POTCAR 仅提供 TITEL、ZVAL 和哈希标识。
 
-这次在新的 `charge_elf` 目录中复制 POSCAR、KPOINTS、POTCAR 和提交脚本，用 `vi INCAR` 打开全电子密度输出。保存后读取实际输入。
+## 准备固定结构与密度输出
+
+在新的 `charge_elf` 目录中复制 POSCAR、KPOINTS、POTCAR 和提交脚本，用 `vi INCAR` 打开全电子密度输出。保存后读回输入。
 
 ```text
 [bcgong@localhost charge_elf]$ cat INCAR
@@ -41,6 +43,8 @@ NGZF = 96
 
 `NGXF/NGYF/NGZF` 决定沿三条晶格矢量保存多少个细网格点。它们加密的是密度的空间表示，ENCUT 控制的则是波函数平面波基组，两者不能互相替代。这里 Fe 的核区密度变化很快，先用 96³、再用 192³，是为了直接观察参考密度积分与盆地电荷对网格的敏感性；每个方向翻倍会使三维点数增加到八倍，也相应增加文件和后处理开销。
 
+## 运行 SCF，检查密度对应的电子收敛
+
 ```text
 [bcgong@localhost charge_elf]$ cat run.slurm
 #!/bin/bash
@@ -60,7 +64,7 @@ export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
 cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
-这个教学任务使用现场核验过的 8 个空闲核并行运行，与其他教学任务按次序提交；任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
+该脚本使用 8 个 MPI 进程；任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
 
 ```text
 [bcgong@localhost charge_elf]$ tail -4 OSZICAR
@@ -101,9 +105,17 @@ Direct
 ```
 结构块之后的 `96 96 96` 表示 884,736 个点。CHGCAR 第一块的存储值记为 gᵢ，晶胞体积为 V，网格点数为 N，则电子数是 Σgᵢ/N，空间数密度是 gᵢ/V。这里 V=2.8³=21.952 Å³：前一种运算给电子数，后一种才给每 Å³ 的电子数，不能把两个除数互换。[CHGCAR 的归一化约定](https://vasp.at/wiki/CHGCAR)
 
+## 相加参考密度，再运行 Bader
+
 相加时，两份文件的晶胞、元素顺序、坐标和网格都必须一致；只按行号相加，或者对不同长度的数据直接 zip，会把错误静默带入参考密度。
 
-随例子提供的 `sum_charge.py` 检查这四项，并且要求标量块长度恰好等于三维网格乘积。脚本只取第一块总电荷密度，写成 CHGCAR_sum 后重新读回，既不混入磁化密度块，也不把 augmentation occupancies 当作网格值相加。
+相加程序先核对这四项，再读取两份文件的第一块标量数据，生成找盆地边界用的 `CHGCAR_sum`。可将下面的需求交给 AI 编程助手：
+
+```text
+用 Python 3 标准库编写 sum_charge.py。读取同目录 AECCAR0、AECCAR2、CHGCAR，解析结构头，核对晶胞、元素顺序、坐标和网格一致。每份只读取第一块 nx*ny*nz 个总密度值，排除磁化密度和 augmentation occupancies；用 Σg/N 打印各自电子数积分。逐点相加 AECCAR0+AECCAR2，保留结构头写入 CHGCAR_sum，再读回检查完整网格和参考积分。源文件只读，不修正或归一化原始数值。
+```
+
+[完整源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。将脚本放入 `charge_elf`，用 Python 3 运行。原始执行记录为：
 
 ```text
 [bcgong@localhost charge_elf]$ python sum_charge.py
@@ -115,7 +127,7 @@ points = 884736
 reference_integral = 55.5212962264
 scope = first total-charge block only; no spin-density or augmentation blocks copied
 ```
-CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯电子密度很尖锐，96³ 对其积分仍不够好：AECCAR0 的积分为 39.5201，而这套 Fe 赝势每胞的芯电子数应为 2 × (26 − 8) = 36。先保留这个差异，后面加密网格检查，不用一个“总电子数对上了”掩盖参考密度的数值问题。
+CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯电子密度很尖锐，96³ 对其积分仍不够好：AECCAR0 的积分为 39.5201，而这套 Fe 赝势每胞的芯电子数应为 2 × (26 − 8) = 36。后面通过加密网格检查这个芯电子积分差异，并单独观察价电子盆地数的变化。
 
 运行 Bader 时，把 CHGCAR 作为积分目标，把刚得到的 CHGCAR_sum 作为找边界的参考：
 
@@ -142,7 +154,9 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
 
 `MIN DIST` 是原子到盆地边界的最短距离，并不是最近邻键长。这里 MIN DIST 为 1.161917 Å，而 bcc Fe 的最近邻距离约为 2.424871 Å；前者小于后者是几何上很自然的结果，不能作为分区失败的依据。
 
-再在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。后处理仍执行同一个相加脚本和 Bader 命令。
+## 加密网格，比较等价原子的盆地数
+
+在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。后处理仍执行同一个相加脚本和 Bader 命令。
 
 ```text
 [bcgong@localhost charge_elf_192]$ cat ACF.dat
@@ -173,6 +187,103 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
 ```
 
 [完整源码：extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py)；[密度相加源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。需要 Python 3；上述两个脚本均使用标准库。在解包后的 `charge-vesta/bader` 目录运行：
+
+<details>
+<summary>sum_charge.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import sys,math,json
+
+def read_scalar(name):
+    f=open(name); header=[]
+    title=f.readline(); header.append(title)
+    scale_line=f.readline(); header.append(scale_line); scale=float(scale_line.split()[0])
+    raw=[f.readline() for _ in range(3)];header+=raw; cell=[[float(x)*scale for x in t.split()[:3]] for t in raw]
+    species=f.readline();header.append(species)
+    if all(x.isdigit() for x in species.split()): counts=list(map(int,species.split())); species=''
+    else:
+        countline=f.readline();header.append(countline);counts=list(map(int,countline.split()))
+    mode=f.readline();header.append(mode)
+    if mode.strip().lower().startswith('s'): mode=f.readline();header.append(mode)
+    raw=[f.readline() for _ in range(sum(counts))];header+=raw; coords=[[float(x) for x in t.split()[:3]] for t in raw]
+    line=f.readline()
+    while line and not line.strip(): line=f.readline()
+    grid=list(map(int,line.split()))
+    if len(grid)!=3 or min(grid)<=0: raise ValueError('Invalid grid: '+name)
+    n=grid[0]*grid[1]*grid[2]; values=[]
+    while len(values)<n:
+        line=f.readline()
+        if not line: raise ValueError('Truncated scalar grid: '+name)
+        values.extend(float(x.replace('D','E')) for x in line.split())
+    if len(values)!=n: raise ValueError('Extra scalar values in last line: '+name)
+    if not all(math.isfinite(x) if hasattr(math,'isfinite') else not(math.isnan(x) or math.isinf(x)) for x in values): raise ValueError('Nonfinite scalar')
+    f.close()
+    structure=[species.strip(),counts,mode.strip().lower(),cell,coords]
+    return header,structure,grid,values
+
+if __name__=='__main__':
+    a=read_scalar('AECCAR0'); b=read_scalar('AECCAR2'); c=read_scalar('CHGCAR')
+    if not(a[1]==b[1]==c[1]): raise ValueError('Cell, species, counts or coordinates differ')
+    if not(a[2]==b[2]==c[2]): raise ValueError('FFT grids differ')
+    if not(len(a[3])==len(b[3])==len(c[3])): raise ValueError('Scalar lengths differ')
+    v=[x+y for x,y in zip(a[3],b[3])]; n=len(v)
+    with open('CHGCAR_sum','w') as f:
+        f.writelines(a[0]);f.write('\n%d %d %d\n'%tuple(a[2]))
+        for i in range(0,n,5): f.write(' '.join('%18.11E'%x for x in v[i:i+5])+'\n')
+    verify=read_scalar('CHGCAR_sum')
+    if verify[2]!=a[2] or len(verify[3])!=n: raise ValueError('Read-back failed')
+    report={'grid':a[2],'points':n,'AECCAR0_integral':sum(a[3])/n,'AECCAR2_integral':sum(b[3])/n,'CHGCAR_integral':sum(c[3])/n,'reference_integral':sum(v)/n,'scope':'first total-charge block only; no spin-density or augmentation blocks copied'}
+    json.dump(report,open('charge-grid-check.json','w'),indent=2)
+    for k in sorted(report): print('%s = %s'%(k,report[k]))
+```
+
+</details>
+
+<details>
+<summary>extract_bader_grid.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Extract the preserved 96³/192³ Fe ACF.dat tables without running Bader."""
+import argparse, csv, json, re
+from pathlib import Path
+p=argparse.ArgumentParser(description=__doc__)
+p.add_argument('--root', type=Path, default=Path('.'))
+p.add_argument('--output', type=Path, default=Path('new-bader-grid.csv'))
+a=p.parse_args()
+if a.output.exists():raise FileExistsError(f'Refusing to overwrite {a.output}')
+rows=[]
+for size in (96,192):
+    text=(a.root/str(size)/'ACF.dat').read_text()
+    entries=[]
+    for line in text.splitlines():
+        fields=line.split()
+        if len(fields)==7 and fields[0].isdigit():
+            entries.append([int(fields[0])]+[float(x) for x in fields[1:]])
+    if [r[0] for r in entries]!=[1,2]:raise ValueError('Expected two Fe basins')
+    footer={}
+    for label in ('VACUUM CHARGE','VACUUM VOLUME','NUMBER OF ELECTRONS'):
+        match=re.search(re.escape(label)+r':\s*([\d.Ee+-]+)',text)
+        if not match:raise ValueError(f'Missing {label}')
+        footer[label]=float(match[1])
+    basin=sum(r[4] for r in entries);vol=sum(r[6] for r in entries)
+    if abs(basin+footer['VACUUM CHARGE']-footer['NUMBER OF ELECTRONS'])>2e-4:raise ValueError('Charge balance outside footer precision')
+    if abs(basin-16)>2e-6 or abs(vol-21.952)>2e-6:raise ValueError('Example sum differs')
+    check=json.loads((a.root/str(size)/'charge-grid-check.json').read_text())
+    if check['grid']!=[size]*3:raise ValueError('Wrong grid')
+    for r in entries:
+        atom,x,y,z,charge,distance,volume=r
+        rows.append([size,atom,x,y,z,charge,charge-8,8-charge,distance,volume,check['AECCAR0_integral'],check['AECCAR2_integral'],check['CHGCAR_integral'],check['reference_integral']])
+        print(f'{size}^3 Fe{atom}: N={charge:.6f} e; Q={8-charge:+.6f} e')
+    print(f'{size}^3 printed basin sum residual={basin-16:.3e} e; volume residual={vol-21.952:.3e} Å³; core integral={check["AECCAR0_integral"]:.9f} e')
+a.output.parent.mkdir(parents=True,exist_ok=True)
+with a.output.open('x',newline='') as f:
+    w=csv.writer(f);w.writerow(['grid','atom','x_A','y_A','z_A','basin_e','delta_e','net_charge_e','min_dist_A','volume_A3','core_integral_e','valence_integral_e','CHGCAR_integral_e','reference_integral_e']);w.writerows(rows)
+print(f'wrote: {a.output}; zero printed residual does not establish an exact integral')
+```
+
+</details>
 
 ```bash
 python3 -B ../scripts/extract_bader_grid.py --output new-bader-grid.csv

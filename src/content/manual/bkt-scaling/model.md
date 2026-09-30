@@ -6,6 +6,68 @@
 
 [下载完整算例](/Atlas/examples/xy-bkt-files.tar.gz)后，可以查看全部随机种子、热化记录、抽样序列和末态构型。[mc.py](/Atlas/examples/xy-bkt/mc.py) 是完整计算输入，[analyse.py](/Atlas/examples/xy-bkt/analyse.py) 提取相位刚度与误差，[verify.py](/Atlas/examples/xy-bkt/verify.py) 核对保存数据，[plot.py](/Atlas/examples/xy-bkt/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/xy-bkt/atlas_plot_style.py)） 重新作图。
 
+<details>
+<summary>plot.py 的完整源码</summary>
+
+```python
+"""Read actual Monte Carlo CSVs and render figures; no generated fit data."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import csv,json
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+R=Path(__file__).resolve().parent;O=R/'figures';O.mkdir(exist_ok=True)
+plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False})
+rows=list(csv.DictReader((R/'results/helicity.csv').open()))
+fig,axs=plt.subplots(1,2,figsize=(10,4),layout='constrained')
+for n,color in [(8,'#326ca8'),(16,'#bf6635'),(24,'#39816d')]:
+    selected=[r for r in rows if int(r['L'])==n]
+    temp=np.array([float(r['temperature_J']) for r in selected])
+    axs[0].errorbar(temp,[float(r['Y_J']) for r in selected],yerr=[float(r['display_error_J']) for r in selected],fmt='o-',capsize=3,color=color,label=f'L={n}, two seeds')
+    axs[1].plot(temp,[float(r['vortex_abs_density']) for r in selected],'o-',color=color,label=f'L={n}')
+t=np.linspace(.68,1.12,100);axs[0].plot(t,2*t/np.pi,'--',color='.25',label='2T / pi reference')
+axs[0].set(xlabel='T / J  (kB=1)',ylabel='Helicity modulus Y / J',title='Finite square lattices; no TBKT extrapolation')
+axs[1].set(xlabel='T / J',ylabel='Mean absolute plaquette vorticity',title='Defect density, not an unbinding test')
+for ax in axs:ax.legend(fontsize=8)
+fig.savefig(O/'xy-helicity.png',dpi=200);fig.savefig(O/'xy-helicity.pdf');plt.close(fig)
+fig,axs=plt.subplots(1,2,figsize=(10,5),layout='constrained')
+for ax,temp in zip(axs,[.70,1.10]):
+    run=sorted((R/'base').glob(f'L24-T{temp:.2f}-s*'))[0]
+    angle=np.loadtxt(run/'final-angles.csv',delimiter=',');vort=np.loadtxt(run/'final-vortices.csv',delimiter=',')
+    n=angle.shape[0];x,y=np.indices(angle.shape)
+    ax.quiver(x,y,np.cos(angle),np.sin(angle),angle,cmap='twilight',clim=(-np.pi,np.pi),pivot='mid',scale=32,width=.0025)
+    for charge,color,marker in [(1,'#d02525','o'),(-1,'#18449e','s')]:
+        px,py=np.where(vort==charge)
+        ax.scatter((px+.5)%n,(py+.5)%n,s=45,facecolors='none',edgecolors=color,marker=marker,label=f'vorticity {charge:+d}')
+    meta=json.loads((run/'run.json').read_text())
+    ax.set(xlim=(-.7,n+.2),ylim=(-.7,n+.2),aspect='equal',xlabel='lattice x',ylabel='lattice y',title=f'L=24, T/J={temp:.2f}, seed={meta["seed"]}')
+    ax.legend(fontsize=8,loc='upper center',bbox_to_anchor=(.5,-.13),ncol=2)
+fig.suptitle('Actual final Monte Carlo configurations; periodic square lattice',fontsize=12)
+fig.savefig(O/'xy-configurations.png',dpi=200);fig.savefig(O/'xy-configurations.pdf');plt.close(fig)
+fig,axs=plt.subplots(1,2,figsize=(10,3.7),layout='constrained')
+cases=[r for r in csv.DictReader((R/'results/extension-comparison.csv').open()) if int(r['L'])==24]
+for i,r in enumerate(cases):
+    label=f'T={r["temperature_J"]}, {r["initialization"]}'
+    axs[0].errorbar([20000,40000],[float(r['Y_base_J']),float(r['Y_extended_J'])],yerr=[float(r['base_error_J']),float(r['extended_error_J'])],fmt='o-',capsize=3,label=label)
+for d in sorted((R/'extended').glob('L24-T0.92-*')):
+    a=np.loadtxt(d/'series.csv',delimiter=',',skiprows=1);meta=json.loads((d/'run.json').read_text())
+    means=a.reshape(80,100,10).mean(axis=1)
+    axs[1].plot(means[:,0],means[:,1],label=meta['initialization'])
+axs[0].set(xlabel='Production sweeps',ylabel='Helicity modulus Y / J',title='Nested continuation of the same chains')
+axs[1].set(xlabel='Production sweep',ylabel='Block-mean energy / (N J)',title='L=24, T/J=0.92; blocks of 500 sweeps')
+axs[0].set_xticks([20000,40000])
+axs[1].set_xticks([0,10000,20000,30000,40000])
+for ax in axs:ax.legend(fontsize=7)
+fig.savefig(O/'xy-sampling.png',dpi=200);fig.savefig(O/'xy-sampling.pdf');plt.close(fig)
+print('Saved xy-helicity, xy-configurations, xy-sampling as PNG and PDF')
+```
+
+</details>
+
 ## 模型、周期边界和一次更新
 
 方格有 L×L 个格点，两个方向都周期连接。每个格点保存一个角 θ，哈密顿量为
@@ -107,11 +169,300 @@ MONTE_CARLO_FINISHED 8 cases wall=15.59s
 
 ## 有限尺寸曲线与 2T/π 相遇在哪里
 
-### AI 后处理提示词：分析已有 XY 轨迹
+### 交给代码助手的任务：分析已有 XY 轨迹
 
 > 读取保存的 base/、extended/ 轨迹参数与抽样序列，按 L、temperature_J、随机种子和初态分组。J=kB=1，温度按无量纲 kBT/J 解释；sweep 是抽样次数。按原 analyse.py 的公式计算能量、涡旋密度和 helicity modulus，保留逐链热化/样本长度、分块误差与两种子差异。汇总误差使用既有 display_error_J 定义，不能再除以样本数。用各 L 的 Y−2T/π 在相邻温度点的符号变化输出 crossing_brackets；本数据只给出0.92–1.00交叉温区，不拟合热力学极限温度。保存链级和温度级 CSV、诊断 JSON 及完整源码，报告缺失/非有限记录；只分析已有44条轨迹，不运行 Monte Carlo 或材料计算，不把无量纲温区改标为 K。
 
 [完整分析源码 analyse.py](/Atlas/examples/xy-bkt/analyse.py) · [保存数据核对源码 verify.py](/Atlas/examples/xy-bkt/verify.py) · [原抽样源码 mc.py](/Atlas/examples/xy-bkt/mc.py)。
+
+<details>
+<summary>mc.py 的完整源码</summary>
+
+```python
+"""Nearest-neighbour classical XY Monte Carlo on even periodic square lattices.
+
+J=k_B=1. Checkerboard Metropolis, fixed symmetric angle proposal.
+One sweep attempts every spin once. NumPy only; no DFT/material parameters.
+"""
+from pathlib import Path
+import argparse
+import csv
+import json
+import time
+import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import numpy as np
+
+ROOT=Path(__file__).resolve().parent
+
+def energy(theta):
+    return -float(np.sum(np.cos(np.roll(theta,-1,axis=0)-theta)+np.cos(np.roll(theta,-1,axis=1)-theta)))
+
+def sweep(theta,rng,temperature,masks):
+    accepted=0
+    for mask in masks:
+        c=np.cos(theta);s=np.sin(theta)
+        hc=np.roll(c,1,0)+np.roll(c,-1,0)+np.roll(c,1,1)+np.roll(c,-1,1)
+        hs=np.roll(s,1,0)+np.roll(s,-1,0)+np.roll(s,1,1)+np.roll(s,-1,1)
+        proposal=theta+rng.uniform(-np.pi/2,np.pi/2,theta.shape)
+        delta=-(np.cos(proposal)-c)*hc-(np.sin(proposal)-s)*hs
+        take=mask&(rng.random(theta.shape)<np.exp(-np.maximum(delta,0)/temperature))
+        theta[take]=(proposal[take]+np.pi)%(2*np.pi)-np.pi
+        accepted+=int(np.count_nonzero(take))
+    return accepted/theta.size
+
+def observe(theta):
+    dx=np.roll(theta,-1,axis=0)-theta
+    dy=np.roll(theta,-1,axis=1)-theta
+    cx=float(np.cos(dx).sum());cy=float(np.cos(dy).sum())
+    ix=float(np.sin(dx).sum());iy=float(np.sin(dy).sum())
+    magnetization=abs(np.exp(1j*theta).mean())**2
+    wrap=lambda x:(x+np.pi)%(2*np.pi)-np.pi
+    vortex=np.rint((wrap(dx)+np.roll(wrap(dy),-1,axis=0)-np.roll(wrap(dx),-1,axis=1)-wrap(dy))/(2*np.pi)).astype(int)
+    assert int(vortex.sum())==0
+    return [-(cx+cy)/theta.size,float(magnetization),cx,cy,ix,iy,ix*ix,iy*iy,float(np.abs(vortex).mean())],vortex
+
+def self_check():
+    n=8;theta=np.zeros((n,n));assert energy(theta)==-2*n*n
+    rng=np.random.default_rng(9135701);theta=rng.uniform(-np.pi,np.pi,(n,n))
+    errors=[]
+    for _ in range(25):
+        i,j=map(int,rng.integers(0,n,size=2));old=theta[i,j];new=rng.uniform(-np.pi,np.pi)
+        neighbours=[theta[(i+1)%n,j],theta[(i-1)%n,j],theta[i,(j+1)%n],theta[i,(j-1)%n]]
+        local=-sum(np.cos(new-v)-np.cos(old-v) for v in neighbours)
+        before=energy(theta);theta[i,j]=new;actual=energy(theta)-before
+        errors.append(abs(local-actual))
+    assert max(errors)<1e-12
+    values,vort=observe(theta)
+    assert abs(values[0]*n*n-energy(theta))<1e-12
+    result={'ordered_energy_per_spin':-2.0,'random_local_delta_energy_max_error':max(errors),'periodic_net_vorticity':int(vort.sum()),'numpy':np.__version__}
+    print('SELF_CHECK',json.dumps(result),flush=True)
+    return result
+
+def run_case(spec):
+    length,temperature,seed,initial,extend=spec
+    name=f'L{length}-T{temperature:.2f}-s{seed}'
+    base=ROOT/'base'/name;target=(ROOT/'extended'/name) if extend else base
+    target.mkdir(parents=True,exist_ok=False)
+    rng=np.random.default_rng(seed)
+    parity=np.indices((length,length)).sum(axis=0)%2
+    masks=[parity==0,parity==1]
+    started=time.perf_counter()
+    if extend:
+        theta=np.load(base/'final-angles.npy')
+        rng.bit_generator.state=json.loads((base/'rng-state.json').read_text())
+        previous=np.loadtxt(base/'series.csv',delimiter=',',skiprows=1)
+        warmup=0
+    else:
+        theta=np.zeros((length,length)) if initial=='ordered' else rng.uniform(-np.pi,np.pi,(length,length))
+        previous=None;warmup=5000
+    initial_energy=energy(theta)/theta.size
+    initial_angles=theta.copy()
+    warm_records=[]
+    warm_accept=0
+    for step in range(1,warmup+1):
+        warm_accept+=sweep(theta,rng,temperature,masks)
+        if step%50==0:
+            obs,_=observe(theta);warm_records.append([step,*obs])
+    rows=[];acceptance=0
+    for step in range(1,20001):
+        acceptance+=sweep(theta,rng,temperature,masks)
+        if step%5==0:
+            obs,_=observe(theta);rows.append([step+(20000 if extend else 0),*obs])
+    data=np.array(rows)
+    if previous is not None:data=np.vstack([previous,data])
+    header='sweep,energy_per_spin,M2,cos_x,cos_y,current_x,current_y,current_x2,current_y2,vortex_abs_density'
+    np.savetxt(target/'series.csv',data,delimiter=',',header=header,comments='')
+    if warm_records:np.savetxt(target/'warmup.csv',np.array(warm_records),delimiter=',',header=header,comments='')
+    obs,vort=observe(theta)
+    np.save(target/'initial-angles.npy',initial_angles);np.save(target/'final-angles.npy',theta)
+    np.savetxt(target/'final-angles.csv',theta,delimiter=',')
+    np.savetxt(target/'final-vortices.csv',vort,delimiter=',',fmt='%d')
+    (target/'rng-state.json').write_text(json.dumps(rng.bit_generator.state,indent=2)+'\n')
+    receipt=dict(L=length,temperature_J=temperature,J=1,kB=1,seed=seed,initialization=initial,extension_from_base=extend,initial_energy_per_spin=initial_energy,warmup_sweeps=warmup,production_sweeps=40000 if extend else 20000,additional_production_sweeps=20000,measurement_every_sweeps=5,measurements=len(data),proposal_half_width_rad=float(np.pi/2),sweep_definition='two checkerboard sublattice updates, each spin attempted once',warmup_acceptance=warm_accept/warmup if warmup else None,production_acceptance=acceptance/20000,periodic_net_vorticity=int(vort.sum()),wall_seconds=time.perf_counter()-started,numpy_version=np.__version__)
+    (target/'run.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print('FINISHED',str(target.relative_to(ROOT)),f"samples={len(data)} acceptance={receipt['production_acceptance']:.4f} wall={receipt['wall_seconds']:.2f}s",flush=True)
+    return receipt
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--benchmark',action='store_true');parser.add_argument('--base',action='store_true');parser.add_argument('--extended',action='store_true');args=parser.parse_args()
+    check=self_check()
+    if args.benchmark:
+        theta=np.zeros((24,24));rng=np.random.default_rng(20260922);parity=np.indices(theta.shape).sum(0)%2;masks=[parity==0,parity==1]
+        start=time.perf_counter()
+        for i in range(1000):sweep(theta,rng,.92,masks)
+        duration=time.perf_counter()-start
+        print(f'BENCHMARK L24 1000 sweeps = {duration:.6f} s; 36 base + 8 extension cases at 2 workers estimated < {duration*1060/2:.1f} s plus I/O',flush=True)
+        return
+    temps=[.70,.80,.88,.92,1.00,1.10]
+    specifications=[]
+    for length in [8,16,24]:
+        for ti,temp in enumerate(temps):
+            for replica,initial in [(0,'ordered'),(1,'random')]:
+                if args.extended and not(length in [16,24] and temp in [.88,.92]):continue
+                seed=2026092200+length*100+ti*2+replica
+                specifications.append((length,temp,seed,initial,args.extended))
+    assert args.base or args.extended
+    start=time.perf_counter()
+    with ProcessPoolExecutor(max_workers=2) as pool:
+        result=[f.result() for f in as_completed([pool.submit(run_case,s) for s in specifications])]
+    record=dict(hamiltonian='H/J=-sum_nearest_neighbour_once cos(theta_i-theta_j)',boundary='periodic square',software='Python/NumPy, two workers, one thread each',cases=result,total_wall_seconds=time.perf_counter()-start,self_check=check,interpretation='finite size and finite sampling model demonstration; no material J or thermodynamic-limit transition estimate')
+    (ROOT/('extended-summary.json' if args.extended else 'base-summary.json')).write_text(json.dumps(record,indent=2)+'\n')
+    print('MONTE_CARLO_FINISHED',len(result),'cases',f"wall={record['total_wall_seconds']:.2f}s",flush=True)
+
+if __name__=='__main__':main()
+```
+
+</details>
+
+<details>
+<summary>analyse.py 的完整源码</summary>
+
+```python
+"""Block jackknife of helicity modulus; preserve finite-sampling limitations."""
+from pathlib import Path
+import csv,json,hashlib
+import numpy as np
+R=Path(__file__).resolve().parent;O=R/'results';O.mkdir(exist_ok=True)
+
+def write(name,rows):
+    with (O/name).open('w') as f:
+        w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
+
+def helicity(mean,n,temp):
+    # mean refers to the columns in series.csv, including sweep at index 0.
+    return .5*(mean[3]+mean[4]-(mean[7]-mean[5]**2+mean[8]-mean[6]**2)/temp)/(n*n)
+
+def jackknife(data,n,temp,blocks=16):
+    length=len(data)//blocks
+    assert length>=10
+    a=data[:length*blocks].reshape(blocks,length,-1).mean(axis=1)
+    mean=a.mean(axis=0)
+    raw=helicity(mean,n,temp)
+    leave=np.array([helicity((blocks*mean-b)/(blocks-1),n,temp) for b in a])
+    corrected=blocks*raw-(blocks-1)*leave.mean()
+    error=np.sqrt((blocks-1)/blocks*np.sum((leave-leave.mean())**2))
+    return float(corrected),float(error),float(raw),length
+
+def tau_positive_window(values):
+    a=values-values.mean();n=len(a)
+    if np.dot(a,a)==0:return .5
+    size=1<<(2*n-1).bit_length()
+    f=np.fft.rfft(a,n=size)
+    cov=np.fft.irfft(f*np.conj(f),n=size)[:n]/np.arange(n,0,-1)
+    ac=cov/cov[0];tau=.5
+    for k in range(1,n//4):
+        if ac[k]<=0:break
+        tau+=ac[k]
+        if k>=6*tau:break
+    return float(tau)
+
+cases=[]
+for family in ['base','extended']:
+    for d in sorted((R/family).glob('L*')):
+        if not (d/'run.json').exists():continue
+        run=json.loads((d/'run.json').read_text());n=run['L'];temp=run['temperature_J']
+        data=np.loadtxt(d/'series.csv',delimiter=',',skiprows=1)
+        assert len(data)==run['measurements'] and np.isfinite(data).all()
+        assert np.array_equal(data[:,0],np.arange(1,len(data)+1)*5)
+        assert np.all((-2<=data[:,1])&(data[:,1]<=2)) and np.all((0<=data[:,2])&(data[:,2]<=1+1e-12))
+        assert np.allclose(data[:,1],-(data[:,3]+data[:,4])/(n*n),rtol=0,atol=1e-12)
+        assert np.allclose(data[:,7],data[:,5]**2,atol=1e-10) and np.allclose(data[:,8],data[:,6]**2,atol=1e-10)
+        y,error,raw,blocklength=jackknife(data,n,temp)
+        y8,e8,_,_=jackknife(data,n,temp,8);y32,e32,_,_=jackknife(data,n,temp,32)
+        tauE=tau_positive_window(data[:,1]);tauI=tau_positive_window(data[:,7]+data[:,8]);tau=max(tauE,tauI)
+        half=len(data)//2;first=jackknife(data[:half],n,temp,8);last=jackknife(data[half:],n,temp,8)
+        case=dict(family=family,case=d.name,L=n,temperature_J=temp,seed=run['seed'],initialization=run['initialization'],production_sweeps=run['production_sweeps'],measurements=len(data),energy_per_spin=float(data[:,1].mean()),M2=float(data[:,2].mean()),vortex_abs_density=float(data[:,9].mean()),Y_J=y,Y_block_stderr_J=error,Y_raw_J=raw,Y_error_8_blocks_J=e8,Y_error_32_blocks_J=e32,block_sweeps=blocklength*5,tau_energy_sweeps=tauE*5,tau_current_squared_sweeps=tauI*5,block_over_max_tau=blocklength/tau,effective_samples_diagnostic=len(data)/(2*tau),first_half_Y_J=first[0],second_half_Y_J=last[0],half_shift_J=last[0]-first[0],half_shift_over_combined_block_error=abs(last[0]-first[0])/max(np.hypot(first[1],last[1]),1e-15),acceptance=run['production_acceptance'])
+        cases.append(case)
+write('cases.csv',cases)
+groups=[]
+for n in [8,16,24]:
+    for temp in [.70,.80,.88,.92,1.00,1.10]:
+        family='extended' if n in [16,24] and temp in [.88,.92] else 'base'
+        rows=[c for c in cases if c['L']==n and c['temperature_J']==temp and c['family']==family]
+        assert len(rows)==2
+        y=np.array([c['Y_J'] for c in rows]);e=np.array([c['Y_block_stderr_J'] for c in rows])
+        within=float(np.linalg.norm(e)/2);between=float(abs(y[0]-y[1])/2)
+        groups.append(dict(L=n,temperature_J=temp,family=family,independent_seeds=2,Y_J=float(y.mean()),within_chain_stderr_J=within,between_seed_stderr_J=between,display_error_J=max(within,between),seed_difference_J=float(abs(y[0]-y[1])),seed_difference_over_combined_block_error=float(abs(y[0]-y[1])/max(np.linalg.norm(e),1e-15)),reference_2T_over_pi=float(2*temp/np.pi),min_block_over_tau=min(c['block_over_max_tau'] for c in rows),max_half_shift_over_combined_error=max(c['half_shift_over_combined_block_error'] for c in rows),vortex_abs_density=float(np.mean([c['vortex_abs_density'] for c in rows]))))
+write('helicity.csv',groups)
+extensions=[]
+for c in cases:
+    if c['family']!='extended':continue
+    b=next(x for x in cases if x['family']=='base' and x['case']==c['case'])
+    extensions.append(dict(L=c['L'],temperature_J=c['temperature_J'],seed=c['seed'],initialization=c['initialization'],base_sweeps=b['production_sweeps'],extended_sweeps=c['production_sweeps'],Y_base_J=b['Y_J'],base_error_J=b['Y_block_stderr_J'],Y_extended_J=c['Y_J'],extended_error_J=c['Y_block_stderr_J'],shift_J=c['Y_J']-b['Y_J'],note='nested same-chain extension, not an independent second estimate'))
+write('extension-comparison.csv',extensions)
+brackets=[]
+for n in [8,16,24]:
+    rows=sorted([g for g in groups if g['L']==n],key=lambda g:g['temperature_J'])
+    for a,b in zip(rows,rows[1:]):
+        if (a['Y_J']-a['reference_2T_over_pi'])*(b['Y_J']-b['reference_2T_over_pi'])<0:
+            brackets.append(dict(L=n,lower_sampled_T=a['temperature_J'],upper_sampled_T=b['temperature_J'],meaning='finite-size mean-curve crossing bracket only; no extrapolation to thermodynamic limit'))
+flags=[{'case':c['family']+'/'+c['case'],'block_over_tau':c['block_over_max_tau'],'half_shift_over_error':c['half_shift_over_combined_block_error']} for c in cases if c['block_over_max_tau']<10 or c['half_shift_over_combined_block_error']>3]
+seed_flags=[g for g in groups if g['seed_difference_over_combined_block_error']>3]
+summary=dict(model='periodic nearest-neighbour square-lattice classical XY; J=kB=1',helicity_definition='Y=(<Cx+Cy>-[Var(Ix)+Var(Iy)]/T)/(2 L^2)',uncertainty='16-block delete-one jackknife per chain; plotted error=max(within-chain combined error, half the two-seed difference); diagnostic error, not a calibrated confidence interval',autocorrelation='positive autocorrelation window capped at six tau; diagnostic only',case_count=len(cases),base_cases=sum(c['family']=='base' for c in cases),extended_cases=sum(c['family']=='extended' for c in cases),crossing_brackets=brackets,sampling_flags=flags,seed_disagreement_flags=seed_flags,conclusion='finite-size Monte Carlo workflow completed; thermodynamic-limit TBKT and material temperatures not estimated')
+(O/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print('L  T/J    Y/J      display_error   seed_delta/error  minimum_block/tau')
+for g in groups:print(f"{g['L']:2d} {g['temperature_J']:.2f}  {g['Y_J']:+.6f}   {g['display_error_J']:.6f}          {g['seed_difference_over_combined_block_error']:.2f}             {g['min_block_over_tau']:.1f}")
+print('Mean-curve crossing brackets:',brackets)
+print('Sampling flags:',len(flags),'seed disagreement flags:',len(seed_flags))
+print('No thermodynamic-limit TBKT, no material J, no material superconducting temperature.')
+```
+
+</details>
+
+<details>
+<summary>verify.py 的完整源码</summary>
+
+```python
+"""Verify saved Monte Carlo snapshots and continuations without a new campaign."""
+from pathlib import Path
+import csv,json,math
+import numpy as np
+R=Path(__file__).resolve().parent
+errors=[];vortex_errors=[];extensions=0;current_z=[]
+for family in ['base','extended']:
+    for d in sorted((R/family).glob('L*')):
+        a=np.loadtxt(d/'final-angles.csv',delimiter=',');q=np.loadtxt(d/'final-vortices.csv',delimiter=',',dtype=int)
+        n=len(a);energy=0;charge=np.zeros((n,n),int)
+        wrap=lambda x:(x+math.pi)%(2*math.pi)-math.pi
+        for i in range(n):
+            for j in range(n):
+                energy-=math.cos(a[(i+1)%n,j]-a[i,j])+math.cos(a[i,(j+1)%n]-a[i,j])
+                edges=[a[(i+1)%n,j]-a[i,j],a[(i+1)%n,(j+1)%n]-a[(i+1)%n,j],a[i,(j+1)%n]-a[(i+1)%n,(j+1)%n],a[i,j]-a[i,(j+1)%n]]
+                charge[i,j]=round(sum(wrap(x) for x in edges)/(2*math.pi))
+        data=np.loadtxt(d/'series.csv',delimiter=',',skiprows=1)
+        errors.append(abs(energy/(n*n)-data[-1,1]));vortex_errors.append(int(np.max(np.abs(charge-q))))
+        assert charge.sum()==0
+        blocks=data.reshape(16,len(data)//16,10).mean(axis=1)
+        for k in [5,6]:
+            se=np.std(blocks[:,k],ddof=1)/4
+            current_z.append(abs(blocks[:,k].mean())/max(se,1e-15))
+        if family=='extended':
+            base=R/'base'/d.name;b=np.loadtxt(base/'series.csv',delimiter=',',skiprows=1)
+            assert np.array_equal(data[:len(b)],b)
+            assert np.array_equal(np.load(d/'initial-angles.npy'),np.load(base/'final-angles.npy'))
+            extensions+=1
+assert max(errors)<1e-12 and max(vortex_errors)==0 and extensions==8
+# Seed reproducibility check of the saved first 100 warmup sweeps.
+from mc import sweep,observe
+d=R/'base/L8-T0.70-s2026093001'
+meta=json.loads((d/'run.json').read_text());n=meta['L'];rng=np.random.default_rng(meta['seed'])
+theta=rng.uniform(-np.pi,np.pi,(n,n));parity=np.indices((n,n)).sum(0)%2;masks=[parity==0,parity==1]
+saved=np.loadtxt(d/'warmup.csv',delimiter=',',skiprows=1);prefix=[]
+for step in range(1,101):
+    sweep(theta,rng,meta['temperature_J'],masks)
+    if step%50==0:obs,_=observe(theta);prefix.append([step,*obs])
+replay_error=float(np.max(np.abs(np.array(prefix)-saved[:2])))
+# Short replay only: permit floating-point reductions across BLAS/libm/CPU variants.
+# Stored base/extension sample equality above remains exact.
+assert np.allclose(np.array(prefix),saved[:2],rtol=1e-13,atol=1e-13), f'Short seed replay differs by {replay_error}'
+receipt=dict(checked_snapshots=len(errors),max_snapshot_energy_error_per_spin=max(errors),max_snapshot_vorticity_error=max(vortex_errors),continuations_with_identical_original_samples=extensions,seed_warmup_replay_max_error=replay_error,max_current_mean_over_block_error=max(current_z),current_mean_note='zero-current symmetry check is a finite-sampling diagnostic, not a proof of winding-sector ergodicity')
+(R/'results/independent-check.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps(receipt,indent=2))
+print('SAVED_DATA_CHECKS_PASSED; sampling and thermodynamic-limit convergence remain separate.')
+```
+
+</details>
 
 ```console
 talos@talos-MS-7D54:~/xy-bkt$ python3 -B analyse.py > analyse.out 2> analyse.err; echo "exit=$?"

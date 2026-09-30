@@ -1,104 +1,50 @@
 ---
-// 方法页 /m/<method>/：标题 + 引擎按钮；未接入的引擎渲染为不可点的「未接入」徽标。
 import Base from '../../../layouts/Base.astro';
 import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
+import { methodTeaching, manualTeaching } from '../../../data/teaching.js';
 import { availableManualIds } from '../../../lib/manual.js';
-
 export function getStaticPaths() {
-  return methodList().map(({ slug, zh }) => ({
-    params: { method: slug },
-    props: { zh },
-  }));
+  return methodList().map(({ slug, zh }) => ({ params: { method: slug }, props: { zh } }));
 }
-
 const { zh } = Astro.props;
 const slug = Astro.params.method;
 const method = methods[slug];
 const base = normalizeBase(import.meta.env.BASE_URL);
-const activeEngines = engines.filter((e) => (method.engines ?? []).includes(e.id));
-const placeholderEngines = method.placeholderEngines ?? [];
 const available = await availableManualIds();
+const cases = engines.filter((engine) => method.engines.includes(engine.id) && available.has(`${slug}/${engine.id}`));
+const otherEngines = engines.filter((engine) => method.engines.includes(engine.id) && !available.has(`${slug}/${engine.id}`));
 ---
 <Base title={`${zh} · Atlas`}>
   <article class="hub">
+    <p class="crumb"><a href={`${base}/?open=1`}>← 计算目录</a></p>
     <h1>{zh}</h1>
-
-    <div class="engine-grid">
-      {
-        activeEngines.map((e) => (
-          available.has(`${slug}/${e.id}`) ? <a class="engine" href={`${base}/m/${slug}/${e.id}/`}>
-            <span class="engine-name">{e.name}</span>
-          </a> : <span class="engine engine-ph" aria-disabled="true">
-            <span class="engine-name">{e.name}</span>
-            <span class="ph-badge">尚无算例</span>
-          </span>
-        ))
-      }
-      {
-        placeholderEngines.map((name) => (
-          <span class="engine engine-ph" aria-disabled="true">
-            <span class="engine-name">{name}</span>
-            <span class="ph-badge">未接入</span>
-          </span>
-        ))
-      }
+    <p class="overview">{methodTeaching[slug]?.overview}</p>
+    <div class="cases">
+      {cases.map((engine) => {
+        const example = manualTeaching[`${slug}/${engine.id}`];
+        return <a class="case" href={`${base}/m/${slug}/${engine.id}/`}>
+          <span class="engine">{engine.name}<small>{example?.kind}</small></span>
+          <strong>{example?.title ?? method.zh}</strong>
+          <span class="description">{example?.summary}</span>
+          <span class="enter">读这个算例 →</span>
+        </a>;
+      })}
     </div>
+    {otherEngines.length > 0 && <p class="other">其他实现的算例：{otherEngines.map((engine) => engine.name).join('、')} 尚未收录。</p>}
   </article>
 </Base>
-
 <style>
-  .hub { padding-top: 2.6rem; }
-  h1 {
-    font-size: 2.1rem;
-    margin: 0 0 2.2rem;
-  }
-
-  .engine-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.1rem;
-  }
-  @media (max-width: 560px) {
-    .engine-grid { grid-template-columns: 1fr; }
-  }
-  .engine {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.7rem;
-    padding: 1.6rem 1.5rem;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: var(--card);
-    color: var(--fg);
-    text-decoration: none;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  a.engine:hover {
-    text-decoration: none;
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-  }
-  .engine-name {
-    font-family: Georgia, "Songti SC", serif;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  /* 未接入引擎：与按钮同构，但虚线边框、弱化配色、无交互 */
-  .engine-ph {
-    cursor: default;
-    color: var(--muted);
-    border-style: dashed;
-  }
-  .ph-badge {
-    font-family: "SF Mono", ui-monospace, Menlo, monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    border: 1px dashed var(--line);
-    border-radius: 999px;
-    padding: 0.1rem 0.6rem;
-  }
+  .hub { padding-top: 1.5rem; }
+  .crumb { margin: 0 0 1.2rem; font-size: .88rem; }
+  h1 { font-size: 2rem; margin: 0 0 1.1rem; }
+  .overview { margin: 0 0 1.8rem; }
+  .cases { display: grid; gap: 1rem; }
+  .case { display: flex; flex-direction: column; align-items: flex-start; gap: .5rem; padding: 1.15rem 1.3rem; border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--fg); }
+  .case:hover { text-decoration: none; border-color: var(--accent); }
+  .engine { color: var(--muted); font-size: .85rem; }
+  .engine small { margin-left: .7rem; font-size: .75rem; }
+  .case strong { font-family: Georgia, "Songti SC", serif; font-size: 1.16rem; font-weight: 600; }
+  .description { font-size: .93rem; }
+  .enter { color: var(--accent); font-size: .87rem; margin-top: .3rem; }
+  .other { color: var(--muted); font-size: .82rem; margin: 1.5rem 0; }
 </style>

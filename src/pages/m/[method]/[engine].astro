@@ -1,181 +1,40 @@
 ---
-// 方法 × 引擎页 /m/<method>/{qe,vasp}/：唯一放操作内容的地方。
-// 有 src/content/manual/<slug>/<engine>.md 时整篇自由叙述渲染；
-// 无内容文件时渲染固定 7 节骨架（每节「待填充」）。
-// 提及栏只放方法名链接（指向各方法的 HUB，绝不直连其他引擎页）。
 import Base from '../../../layouts/Base.astro';
+import ArticleBody from '../../../components/ArticleBody.astro';
 import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
-import { loadManualBody } from '../../../lib/manual.js';
-
+import { manualTeaching } from '../../../data/teaching.js';
+import { availableManualIds, loadManualBody } from '../../../lib/manual.js';
 export function getStaticPaths() {
-  const routes = [];
-  for (const m of methodList()) {
-    for (const e of engines.filter((engine) => m.engines.includes(engine.id))) {
-      routes.push({ params: { method: m.slug, engine: e.id }, props: { m, e } });
-    }
-  }
-  return routes;
+  return methodList().flatMap((method) => engines.filter((engine) => method.engines.includes(engine.id)).map((engine) => ({ params: { method: method.slug, engine: engine.id }, props: { m: method, e: engine } })));
 }
-
 const { m, e } = Astro.props;
 const base = normalizeBase(import.meta.env.BASE_URL);
-const hubUrl = `${base}/m/${m.slug}/`;
-const needs = (m.needsByEngine?.[e.id] ?? m.needs).map((s) => ({ slug: s, zh: methods[s].zh }));
-const produces = m.producesByEngine?.[e.id] ?? m.produces;
+const example = manualTeaching[`${m.slug}/${e.id}`];
+const available = await availableManualIds();
+const direct = (slug) => `${base}/m/${slug}/${e.id}/`;
+const inputs = (example?.inputs ?? []).filter((input) => available.has(`${input.method}/${e.id}`));
+const related = (example?.related ?? []).filter((slug) => available.has(`${slug}/${e.id}`));
 const body = await loadManualBody(m.slug, e.id);
-const sections = body ? [...body.matchAll(/<h2 id="([^"]+)">([\s\S]*?)<\/h2>/g)].map((match) => ({id:match[1], label:match[2].replace(/<[^>]+>/g,'')})) : [];
 ---
 <Base title={`${m.zh} · ${e.name} · Atlas`}>
   <article class="page">
-    <p class="crumb">
-      <a href={hubUrl}>← {m.zh}</a>
-      <span class="crumb-slug">{m.slug}</span>
-    </p>
-
+    <p class="crumb"><a href={`${base}/m/${m.slug}/`}>← {m.zh}</a></p>
     <h1>{m.zh}</h1>
-    <p class="engine-line">{e.name}</p>
-
-    {/* 提及栏：需要 ≤3 / 产出 ≤3 */}
-    <div class="mention">
-      <div class="mention-row">
-        <span class="mention-label">相关前置</span>
-        {
-          needs.length > 0 ? (
-            needs.map((n) => (
-              <a href={`${base}/m/${n.slug}/`}>{n.zh}</a>
-            ))
-          ) : (
-            <span class="mention-plain">—</span>
-          )
-        }
-      </div>
-      <div class="mention-row">
-        <span class="mention-label">产出</span>
-        {produces.map((p) => <span class="mention-plain">{p}</span>)}
-      </div>
-    </div>
-    {m.needsNote && <p class="route-note">{m.needsNote}</p>}
-    {sections.length > 3 && <details class="contents"><summary>本页目录</summary><ol>{sections.map((s) => <li><a href={`#${s.id}`}>{s.label}</a></li>)}</ol></details>}
-
-    {
-      body ? (
-        <div class="md-body" set:html={body} />
-      ) : (
-        <section><p class="fill">这个方法尚无可跟随的算例记录。</p><p><a href={`${base}/`}>返回已有正文的目录 →</a></p></section>
-      )
-    }
+    <p class="case-line">{e.name}{example && <> · {example.title}</>}</p>
+    {body && (inputs.length > 0 || related.length > 0) && <div class="connections">
+      {inputs.length > 0 && <p><span class="label">接续文件</span>{inputs.map((input, index) => <>{index > 0 && '；'}<a href={direct(input.method)}>{input.label}</a></>)}</p>}
+      {related.length > 0 && <p><span class="label">方法参考</span>{related.map((slug, index) => <>{index > 0 && ' · '}<a href={direct(slug)}>{methods[slug].zh}</a></>)}</p>}
+    </div>}
+    {body ? <ArticleBody body={body} /> : <p class="empty">这一实现的算例尚未收录。<a href={`${base}/m/${m.slug}/`}>查看已有算例 →</a></p>}
   </article>
 </Base>
-
 <style>
-  .page { padding-top: 1.4rem; }
-  .crumb {
-    margin: 0 0 1.6rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.7rem;
-    font-size: 0.88rem;
-  }
-  .crumb-slug {
-    font-family: "SF Mono", ui-monospace, Menlo, monospace;
-    color: var(--muted);
-    font-size: 0.78rem;
-  }
+  .page { padding-top: 1.5rem; }
+  .crumb { margin: 0 0 1.2rem; font-size: .88rem; }
   h1 { font-size: 1.9rem; margin: 0; }
-  .engine-line {
-    font-family: "SF Mono", ui-monospace, Menlo, monospace;
-    font-size: 0.82rem;
-    color: var(--muted);
-    letter-spacing: 0.06em;
-    margin: 0.25rem 0 1.4rem;
-  }
-
-  .mention {
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--accent);
-    border-radius: 10px;
-    background: var(--card);
-    padding: 0.9rem 1.1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-    margin-bottom: 1rem;
-  }
-  .mention-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.4rem 0.9rem;
-    font-size: 0.92rem;
-  }
-  .mention-label {
-    color: var(--muted);
-    font-size: 0.78rem;
-    letter-spacing: 0.2em;
-    min-width: 3.2em;
-  }
-  .mention-plain { color: var(--fg); }
-
-  section { margin-top: 2.5rem; }
-  h2 {
-    font-size: 1.18rem;
-    margin: 0 0 0.7rem;
-  }
-  .fill {
-    color: var(--muted);
-    margin: 0;
-  }
-
-  /* 自由叙述正文排版：行高宽松，标题/表格/代码走 CSS 变量，明暗皆可读 */
-  .md-body { line-height: 1.85; }
-  .route-note { color: var(--muted); font-size: .88rem; }
-  .contents { margin: 1rem 0; font-size: .9rem; }
-  .contents summary { cursor: pointer; color: var(--accent); }
-  .md-body :global(img) { display: block; width: 100%; height: auto; margin: 1.4rem 0 .8rem; background: white; border: 1px solid var(--line); border-radius: 6px; }
-  .md-body :global(.research-figure) { margin:1.3rem 0 1rem; }
-  .md-body :global(.research-figure img) { margin:0 0 .35rem; border-radius:0; }
-  .md-body :global(.research-figure figcaption) { font-size:.8rem; color:var(--muted); line-height:1.65; }
-  .md-body :global(.figure-downloads) { display:block; margin-top:.35rem; }
-  .md-body :global(h2) {
-    font-size: 1.18rem;
-    margin: 2.4rem 0 0.7rem;
-  }
-  .md-body :global(h2:first-child) { margin-top: 0.4rem; }
-  .md-body :global(h3) {
-    font-family: Georgia, "Songti SC", "STSong", "Noto Serif SC", serif;
-    font-size: 1.04rem;
-    font-weight: 600;
-    margin: 1.5rem 0 0.4rem;
-  }
-  .md-body :global(p) { margin: 0.5rem 0; }
-  .md-body :global(ul),
-  .md-body :global(ol) { margin: 0.5rem 0; padding-left: 1.5rem; }
-  .md-body :global(li) { margin: 0.25rem 0; }
-  .md-body :global(table) {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    border-collapse: collapse;
-    margin: 0.9rem 0;
-    font-size: 0.88rem;
-  }
-  .md-body :global(th),
-  .md-body :global(td) {
-    border: 1px solid var(--line);
-    padding: 0.3rem 0.7rem;
-    text-align: left;
-  }
-  .md-body :global(th) { background: var(--code-bg); }
-  .md-body :global(blockquote) {
-    border-left: 3px solid var(--accent);
-    background: var(--card);
-    border-radius: 0 10px 10px 0;
-    margin: 0.9rem 0;
-    padding: 0.5rem 0.9rem;
-  }
-  .md-body :global(hr) {
-    border: none;
-    border-top: 1px solid var(--line);
-    margin: 1.4rem 0;
-  }
+  .case-line { color: var(--muted); font-size: .84rem; margin: .4rem 0 1.3rem; }
+  .connections { font-size: .86rem; line-height: 1.7; border-bottom: 1px solid var(--line); margin-bottom: 1.3rem; padding-bottom: .8rem; }
+  .connections p { margin: .3rem 0; }
+  .label { color: var(--muted); margin-right: .7rem; }
+  .empty { color: var(--muted); margin-top: 1.6rem; }
 </style>

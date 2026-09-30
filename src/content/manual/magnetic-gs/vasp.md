@@ -1,8 +1,10 @@
-[VASP：MAGMOM](https://vasp.at/wiki/MAGMOM) · [ISPIN](https://vasp.at/wiki/ISPIN) · [磁构型能量比较教程](https://vasp.at/tutorials/latest/magnetism/part2/) · [OUTCAR](https://vasp.at/wiki/OUTCAR)
-
-总磁矩为零，可以是两个局域磁矩相互抵消，也可以是每个原子都没有自旋极化。用 bcc Fe 的两个原子比较一次，就能在 OUTCAR 里看到这两种情况的区别。
+总磁矩为零，可以是两个局域磁矩相互抵消，也可以是每个原子都没有自旋极化。下面比较两原子 bcc Fe 的 FM、AFM 和非自旋极化解，从 OUTCAR 读取最终局域磁矩，再按统一的 E0 定义排列三态能量。
 
 采用 MAGMOM 官方示例中的两原子 bcc 常规胞，元素选 Fe，固定晶格常数 2.8 Å。分别从平行、反平行和非自旋极化三个初始条件计算；三份结构、POTCAR、截断能、k 网格和展宽保持相同。这里只比较这个固定晶胞内的三个候选态。
+
+普通输入与提交操作见 [VASP SCF](/Atlas/m/scf/vasp/)。
+
+## 在同一晶胞中准备三种初态
 
 进入新建的 `fe_bcc/fm` 目录，用 `vi` 编辑输入，保存后逐项读取。
 
@@ -82,14 +84,16 @@ export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
 cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
-这份脚本实际使用 8 个 MPI 进程。所在节点的调度器有 64 个核，提交时原有声子任务使用 16 个核，新任务使总申请达到 24 个核，保留了 40 个核。运行中也检查了其他用户进程与实际亲和性。
+这份脚本使用 8 个 MPI 进程。
 
-脚本里的 16–23 是这次现场核验的空闲核编号。它解决的是本机 Intel MPI 从 `SLURM_CPUS_PER_TASK` 隐式推导 pin domain、导致默认绑核与现有任务重叠的问题；换节点时需重新核验分配与实际绑核，不能把这组编号作为通用参数。两次发生重叠的教学试跑已停止并保留旧目录，下面使用修正后结束的结果。
+脚本里的 16–23 是这次现场核验的空闲核编号。它解决的是本机 Intel MPI 从 `SLURM_CPUS_PER_TASK` 隐式推导 pin domain、导致默认绑核与现有任务重叠的问题；换节点时需重新核验分配与实际绑核，不能把这组编号作为通用参数。
 
 ```text
 [bcgong@localhost fm]$ sbatch run.slurm
 Submitted batch job 18184
 ```
+## 读取最终磁矩，确认初态收敛成了什么
+
 提交后可以用 `squeue -j 18184` 看队列，用 `tail -f out` 连续查看 DAV 行。离开 tail 的 Ctrl-C 只退出查看；不等于取消调度器中的作业。下面读取这次实际结束后的末尾。
 
 ```text
@@ -197,11 +201,9 @@ nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB
 | afm | -15.60782301 | -15.60736142 | 432.975065 | -0.000000 |
 | nm | -15.49074150 | -15.49070763 | 491.515820 | 0.000000 |
 
-## 文献方法与本例读数
+## 对照文献中的分析方法
 
-Torelli 等，*High-throughput computational screening for two-dimensional magnetic materials based on experimental databases of three-dimensional compounds*，[DOI: 10.1038/s41524-020-00428-x](https://doi.org/10.1038/s41524-020-00428-x)，Fig. 1 展示磁性筛选流程，Fig. 3 比较交换参数和自旋波隙。正文通过候选磁构型能量判断排序，再建立磁模型。本例采用相同的候选态比较逻辑，表格回答固定 a=2.8 Å 晶胞中的 FM/AFM/NM 相对能量，不从净磁矩或局域磁矩推断动量空间自旋劈裂。
-
-下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。
+Torelli 等，*High-throughput computational screening for two-dimensional magnetic materials based on experimental databases of three-dimensional compounds*，[DOI: 10.1038/s41524-020-00428-x](https://doi.org/10.1038/s41524-020-00428-x)，Fig. 1 展示磁性筛选流程，Fig. 3 比较交换参数和自旋波隙。正文通过候选磁构型能量判断排序，再建立磁模型。本例采用相同的候选态比较逻辑，表格回答固定 a=2.8 Å 晶胞中的 FM/AFM/NM 相对能量。
 
 ```text
 同一固定晶胞与同一组数值参数
@@ -211,13 +213,78 @@ Torelli 等，*High-throughput computational screening for two-dimensional magne
              └─ 核对最终局域磁矩与收敛 → 统一能量定义比较
 ```
 
-## 可复制的代码生成提示与复现
+## 从原始文件重建结果
+
+后处理先确认三份输入可比，再读取最终磁矩和 E0。每胞两个 Fe，能量差除以 2 后换算为 meV/atom，F 与 E0 分列保留。可以把这些读取规则写成下面的请求：
 
 ```text
 请编写 Python 3 独立后处理程序。从 fm/afm/nm 的 OUTCAR、OSZICAR、POSCAR、KPOINTS 和 POTCAR.identity.txt 读取数据；核对同几何/网格/PAW 指纹、EDIFF 和正常计时。使用同一 E0 定义，以最低候选为参考，除以两个 Fe 后换算 meV/atom；保留 F、总磁矩与最终局域投影。输出 JSON 与三态 CSV，不生成重复的柱图。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [magnetic_energies.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/magnetic_energies.py) · [export_magnetic_table.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/export_magnetic_table.py)
+
+<details>
+<summary>magnetic_energies.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import re,json,hashlib,os
+
+def sha(p):
+    if os.path.basename(p)=='POTCAR' and not os.path.exists(p):
+        record=open('POTCAR.identity.txt').read()
+        hashes=re.findall(r'[0-9a-f]{64}',record)
+        if len(hashes)!=1:raise ValueError('Expected one recorded PAW hash')
+        return hashes[0]
+    return hashlib.sha256(open(p,'rb').read()).hexdigest()
+rows=[]
+for state in ['fm','afm','nm']:
+    for name in ['POSCAR','KPOINTS','POTCAR']:
+        if sha(state+'/'+name)!=sha('fm/'+name): raise ValueError('Different '+name)
+    text=open(state+'/OUTCAR').read()
+    reference=open('fm/OUTCAR').read()
+    titles=re.findall(r'TITEL\s*=([^\n]+)',text)
+    if titles!=re.findall(r'TITEL\s*=([^\n]+)',reference):raise ValueError('OUTCAR PAW identity differs')
+    if 'aborting loop because EDIFF is reached' not in text or 'General timing and accounting' not in text: raise ValueError('Incomplete '+state)
+    f=float(re.findall(r'free  energy\s+TOTEN\s*=\s*([-0-9.]+)',text)[-1])
+    e0=float(re.findall(r'energy\(sigma->0\)\s*=\s*([-0-9.]+)',text)[-1])
+    mag=re.findall(r'mag=\s*([-0-9.]+)',open(state+'/OSZICAR').read())
+    rows.append({'state':state,'F_eV_cell':f,'E0_eV_cell':e0,'mag_cell_muB':float(mag[-1]) if mag else 0.0})
+for row in rows:
+    row['dE0_meV_atom']=(row['E0_eV_cell']-rows[0]['E0_eV_cell'])*1000/2
+    print('%-3s F=% .8f eV  E0=% .8f eV  dE0=%9.4f meV/atom  M=%7.4f muB/cell'%(row['state'],row['F_eV_cell'],row['E0_eV_cell'],row['dE0_meV_atom'],row['mag_cell_muB']))
+json.dump(rows,open('magnetic-energies.json','w'),indent=2)
+```
+
+</details>
+
+<details>
+<summary>export_magnetic_table.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Export the three-state Fe comparison as a compact CSV table."""
+import csv, json
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+rows = json.loads((root / "magnetic-energies.json").read_text(encoding="utf-8"))
+with (root / "magnetic-state-energy-table.csv").open("w", newline="", encoding="utf-8") as handle:
+    fields = ["state", "E0_eV_cell", "F_eV_cell", "delta_E0_meV_atom_from_FM", "cell_moment_muB"]
+    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer.writeheader()
+    for row in rows:
+        writer.writerow({
+            "state": row["state"],
+            "E0_eV_cell": f'{row["E0_eV_cell"]:.8f}',
+            "F_eV_cell": f'{row["F_eV_cell"]:.8f}',
+            "delta_E0_meV_atom_from_FM": f'{row["dE0_meV_atom"]:.6f}',
+            "cell_moment_muB": f'{row["mag_cell_muB"]:.6f}',
+        })
+print(f"Wrote {len(rows)} rows to magnetic-state-energy-table.csv")
+```
+
+</details>
 
 [输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-magnetic-gs/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
 
@@ -226,4 +293,8 @@ python3 magnetic_energies.py
 python3 export_magnetic_table.py
 ```
 
-实际读取结果见正文表及 [magnetic-state-energy-table.csv](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-state-energy-table.csv) · [magnetic-energies.json](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-energies.json)。这些命令只读取现有输出进行后处理。
+实际读取结果见正文表及 [magnetic-state-energy-table.csv](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-state-energy-table.csv) · [magnetic-energies.json](/Atlas/examples/interface-magnet-magnetic-gs/magnetic-energies.json)。
+
+相关输入说明：[VASP：MAGMOM](https://vasp.at/wiki/MAGMOM) · [ISPIN](https://vasp.at/wiki/ISPIN) · [磁构型能量比较教程](https://vasp.at/tutorials/latest/magnetism/part2/) · [OUTCAR](https://vasp.at/wiki/OUTCAR)
+
+下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。

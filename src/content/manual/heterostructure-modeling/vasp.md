@@ -1,8 +1,8 @@
-[VASP：POSCAR](https://vasp.at/wiki/POSCAR) · [ISIF](https://vasp.at/wiki/ISIF) · [VESTA 使用手册](https://jp-minerals.org/vesta/en/doc.html)
-
 这份六原子 SnSe₂/Sr₂N 结构里，相邻原子面沿法向相隔 2.1578 Å，跨层最近的两个原子却相距 3.1397 Å。侧向错位让这两个距离不同。构造新模型时，先把距离的定义和周期边界理清楚，再移动坐标。
 
-[下载原结构、3.0 Å 模型和核对脚本](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)。本例从已存在的异质结 POSCAR 出发，保留其面内晶胞和层内几何，实际制作一个法向层间距为 3.0 Å、整体居中的新模型。这里完成的是几何构造；新模型尚未做离子松弛或能量比较。
+[下载原结构、3.0 Å 模型和核对脚本](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)。本例从已存在的异质结 POSCAR 出发，保留其面内晶胞和层内几何，构造一个法向层间距为 3.0 Å、整体居中的新模型。这里完成的是几何构造；新模型尚未做离子松弛或能量比较。
+
+## 读清层归属、法向距离和周期空白
 
 先保留源文件，读取元素顺序和所有坐标。
 
@@ -31,6 +31,8 @@ Direct
 `Direct` 坐标的第三列要乘以第三晶格矢量才是长度。比如 0.01 在此晶胞中对应约 0.3940 Å，不能把分数坐标增加 0.1 当作移动 0.1 Å。
 
 原文件中的两层占据 z≈16.74–24.92 Å。SnSe₂ 最下方的 Se 在 21.59988 Å，Sr₂N 最上方的 Sr 在 19.44204 Å，它们的 z 差给出法向间距 2.15784 Å。两个原子的平面位置不同，所以三维距离更长。
+
+## 刚性移动两层并将双层居中
 
 这次采用 3.0 Å 作为新模型的法向间距，并把整个异质层居中。操作前先复制原文件：
 
@@ -62,6 +64,8 @@ Direct
 ```
 
 现在上层三个原子仍共享同一个位移，下层三个原子也共享同一个位移，层内的相对坐标没有变化。只移动其中一个原子，会同时改变层厚和键长；只改晶胞高度却保留全部分数坐标，则会连层内长度也一起缩放。这两种操作都与这里的刚性层平移不同。
+
+## 读回坐标，检查层厚、镜像和面内参考
 
 下载包的 `check_model.py` 重新读取两份 POSCAR，把分数坐标转成笛卡尔坐标，并用 a×b 定义层法向。它核对 6 个原子的种类和数量、面内坐标、层内刚性位移、法向间距、最短跨层距离和周期镜像之间的空白区间。最短距离包含相邻周期单元，避免只比较当前文件内的原子配对。
 
@@ -101,7 +105,7 @@ Direct
 
 这份单层参考的 a≈3.8464052688 Å，而共同晶胞的 a≈3.9501156207 Å。按 (a_common/a_reference − 1)×100% 计算，SnSe₂ 相对这份参考的两个面内方向均伸长约 2.69629%。这是有明确参考文件的几何比较；它不能替代两种材料在同一计算协议下的平衡晶格与应变能检验。
 
-共同晶胞的第一矢量与这份 SnSe₂ 参考的第一矢量几乎平行，数值角度约 2×10⁻⁹ 度。这里没有额外施加相对转角，面内堆垛也保持了原文件的配准关系。这个检查说明本次操作没有意外旋转或滑移，不能据此说已经比较过不同扭角或堆垛。
+共同晶胞的第一矢量与这份 SnSe₂ 参考的第一矢量几乎平行，数值角度约 2×10⁻⁹ 度。这里没有额外施加相对转角，面内堆垛也保持了原文件的配准关系。这个检查说明本次操作没有意外旋转或滑移，本次模型沿用一个配准关系；扭角或不同堆垛需另建模型比较。
 
 `reference-atoms.csv` 和 `gap3p0-atoms.csv` 将元素、层归属以及笛卡尔坐标展开，便于绘图时检查颜色和标签对应是否正确。
 
@@ -143,11 +147,9 @@ index,element,layer,x_A,y_A,z_A,normal_A
 | SnSe₂ 层厚 | 3.3249000154 | 3.3249000154 |
 | Sr₂N 层厚 | 2.7037385710 | 2.7037385710 |
 
-## 文献方法与本例读数
+## 对照文献中的分析方法
 
-Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；没有堆垛能量或距离优化数据。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。
-
-下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
+Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；层间距与堆垛的能量选择则需要后续计算。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。
 
 ```text
 已有异质结 POSCAR + 明确的单层几何参考
@@ -158,8 +160,9 @@ Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures 
              └─ 新 POSCAR → 后续结构优化或层间距扫描
 ```
 
+## 从原始文件重建结果
 
-## 可复制的代码生成提示与复现
+把三份 POSCAR 转到同一笛卡尔参考后，分别检查层内刚性位移、跨层最近距离和周期镜像空白，再按单层参考计算面内伸长。可以把这些读取规则写成下面的请求：
 
 ```text
 请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；按缩放系数和 Direct/Cartesian 格式得到笛卡尔坐标，a×b 定义法向。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。不要自动解释成键或最低能结构， 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
@@ -167,10 +170,84 @@ Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures 
 
 [check_model.py 完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)
 
+<details>
+<summary>check_model.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import math,sys,json,csv,itertools,hashlib,os
+
+def dot(a,b): return sum(x*y for x,y in zip(a,b))
+def cross(a,b): return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+def norm(a): return math.sqrt(dot(a,a))
+def read_poscar(name):
+    s=open(name).readlines(); scale=float(s[1])
+    if scale<=0:raise ValueError('Positive POSCAR scale required')
+    cell=[[float(x)*scale for x in row.split()[:3]] for row in s[2:5]]
+    species=s[5].split();counts=list(map(int,s[6].split()))
+    if len(species)!=len(counts):raise ValueError('Species/count mismatch')
+    if not s[7].strip().lower().startswith('d'):raise ValueError('This example expects Direct coordinates')
+    f=[list(map(float,row.split()[:3])) for row in s[8:8+sum(counts)]]
+    if len(f)!=sum(counts) or any(len(row)!=3 for row in f):raise ValueError('Incomplete atomic coordinates')
+    if any(not 0<=row[2]<1 for row in f):raise ValueError('Unwrap/recenter fractional c coordinates first')
+    syms=[el for el,n in zip(species,counts) for _ in range(n)]
+    xyz=[[sum(row[i]*cell[i][j] for i in range(3)) for j in range(3)] for row in f]
+    n=cross(cell[0],cell[1]);n=[x/norm(n) for x in n]
+    height=dot(cell[2],n)
+    if height<=0:raise ValueError('Expected right-handed slab cell')
+    return cell,f,xyz,syms,n,height
+
+def analyze(name,label):
+    cell,f,xyz,symbols,n,height=read_poscar(name)
+    if sorted(symbols)!=sorted(['Sn','Se','Se','N','Sr','Sr']):raise ValueError('Expected SnSe2/Sr2N six-atom model')
+    zz=[dot(row,n) for row in xyz]
+    a=[i for i,x in enumerate(symbols) if x in ['Sn','Se']];b=[i for i,x in enumerate(symbols) if x in ['Sr','N']]
+    za=[zz[i] for i in a];zb=[zz[i] for i in b]
+    if min(za)<=max(zb):raise ValueError('Expected separated SnSe2 upper layer and Sr2N lower layer')
+    def dist(i,j):
+        return min(norm([sum((f[i][k]-f[j][k]+shift[k])*cell[k][d] for k in range(3)) for d in range(3)]) for shift in itertools.product([-1,0,1],repeat=3))
+    report={'file':os.path.basename(name),'sha256':hashlib.sha256(open(name,'rb').read()).hexdigest(),'n_atoms':len(symbols),'a_A':norm(cell[0]),'b_A':norm(cell[1]),'gamma_deg':math.degrees(math.acos(dot(cell[0],cell[1])/norm(cell[0])/norm(cell[1]))),'normal_height_A':height,'normal_gap_A':min(za)-max(zb),'minimum_interlayer_distance_A':min(dist(i,j) for i in a for j in b),'empty_interval_A':height-max(zz)+min(zz),'slab_center_normal_A':(max(zz)+min(zz))/2,'SnSe2_thickness_A':max(za)-min(za),'Sr2N_thickness_A':max(zb)-min(zb),'cell':cell}
+    with open(label+'-atoms.csv','w') as out:
+        w=csv.writer(out);w.writerow(['index','element','layer','x_A','y_A','z_A','normal_A'])
+        for i,(el,row) in enumerate(zip(symbols,xyz)):w.writerow([i+1,el,'SnSe2' if el in ['Sn','Se'] else 'Sr2N']+row+[zz[i]])
+    return report,(cell,f,xyz,symbols,n,height)
+
+if __name__=='__main__':
+    before,old=analyze('POSCAR.reference','reference')
+    after,new=analyze('POSCAR.gap3p0','gap3p0')
+    ref=read_poscar('POSCAR.SnSe2.reference')
+    shift_by_layer=[]
+    for ids in [[0,1,2],[3,4,5]]:
+        shifts=[new[1][i][2]-old[1][i][2] for i in ids]
+        if max(shifts)-min(shifts)>1e-12:raise ValueError('Layer was not moved rigidly')
+        shift_by_layer.append(shifts[0])
+    maxcell=max(abs(x-y) for a,b in zip(old[0],new[0]) for x,y in zip(a,b))
+    maxxy=max(abs(old[1][i][j]-new[1][i][j]) for i in range(6) for j in [0,1])
+    if maxcell>1e-12 or maxxy>1e-12:raise ValueError('Unexpected cell or lateral-registry change')
+    if abs(after['normal_gap_A']-3)>1e-10:raise ValueError('Target gap was not attained')
+    if abs(after['slab_center_normal_A']-after['normal_height_A']/2)>1e-10:raise ValueError('Slab is not centered')
+    comp={'max_cell_change_A':maxcell,'max_fractional_xy_change':maxxy,'rigid_fractional_c_shifts_SnSe2_Sr2N':shift_by_layer,'SnSe2_reference_a_A':norm(ref[0][0]),'SnSe2_reference_b_A':norm(ref[0][1]),'SnSe2_a_extension_percent':100*(after['a_A']/norm(ref[0][0])-1),'SnSe2_b_extension_percent':100*(after['b_A']/norm(ref[0][1])-1),'a_vector_angle_to_SnSe2_reference_deg':math.degrees(math.atan2(new[0][0][1],new[0][0][0])-math.atan2(ref[0][0][1],ref[0][0][0]))}
+    json.dump({'reference':before,'gap3p0':after,'comparison':comp},open('model-check.json','w'),indent=2)
+    for label,r in [('reference',before),('gap3p0',after)]:
+        print('%s: atoms=%d a=%.10f b=%.10f gamma=%.6f height=%.10f A'%(label,r['n_atoms'],r['a_A'],r['b_A'],r['gamma_deg'],r['normal_height_A']))
+        print('  normal gap=%.10f A; nearest interlayer distance=%.10f A; empty interval=%.10f A'%(r['normal_gap_A'],r['minimum_interlayer_distance_A'],r['empty_interval_A']))
+        print('  layer thickness: SnSe2=%.10f A; Sr2N=%.10f A; slab center=%.10f A'%(r['SnSe2_thickness_A'],r['Sr2N_thickness_A'],r['slab_center_normal_A']))
+    print('cell unchanged; fractional x/y unchanged; both layers moved rigidly')
+    print('fractional c shifts SnSe2/Sr2N = %.16f %.16f'%tuple(shift_by_layer))
+    print('relative to SnSe2 reference: a extension=%.8f%%; b extension=%.8f%%; a-axis rotation=%.10f deg'%(comp['SnSe2_a_extension_percent'],comp['SnSe2_b_extension_percent'],comp['a_vector_angle_to_SnSe2_reference_deg']))
+    print('Wrote model-check.json, reference-atoms.csv and gap3p0-atoms.csv')
+```
+
+</details>
+
 [输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
 
 ```bash
 python3 check_model.py
 ```
 
-实际读取结果见正文表及 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json) · [reference-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/reference-atoms.csv) · [gap3p0-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/gap3p0-atoms.csv)。这些命令只读取现有输出进行后处理。
+实际读取结果见正文表及 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json) · [reference-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/reference-atoms.csv) · [gap3p0-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/gap3p0-atoms.csv)。
+
+相关输入说明：[VASP：POSCAR](https://vasp.at/wiki/POSCAR) · [ISIF](https://vasp.at/wiki/ISIF) · [VESTA 使用手册](https://jp-minerals.org/vesta/en/doc.html)
+
+下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。

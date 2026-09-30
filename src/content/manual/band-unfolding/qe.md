@@ -1,8 +1,8 @@
-[QE：pw.x 输入参数](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [EPW/ZG：bands_unfold.x 输入说明](https://epwdoc.gitlab.io/source/doc/InputsZG.html) · [EPW/ZG：能带展开实例](https://epwdoc.gitlab.io/source/doc/TutorialZG.html) · [QE 7.5：展开程序源码](https://gitlab.com/QEF/q-e/-/blob/qe-7.5/EPW/ZG/src/bands_unfold.f90)
-
 把同一块完美 Si 晶体沿一个原胞基矢重复两次，原子从 2 个变成 4 个。电子结构并没有因此增加一种材料性质，超胞的布里渊区却缩小了，能带图里会出现更多折叠后的支线。要回到原胞的图，除了本征值，还必须读取每个超胞本征态的波函数，判断它在指定原胞 k 点上有多少权重。
 
 这里实际完成了一次 2×1×1 完美超胞校验：原胞、超胞分别重新做 SCF，再沿同一条 Γ–X–W–L–Γ 路径计算能带，最后用 QE 自带的 `bands_unfold.x` 读取超胞波函数。没有引入缺陷或热位移，因此图中恢复出清楚的原胞能带正是应当看到的结果。普通能带的 SCF 与能带步骤可在[能带计算](/Atlas/m/bands/qe/)查看；这一页集中说明超胞映射、谱权重和检验。
+
+[QE：pw.x 输入参数](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [EPW/ZG：bands_unfold.x 输入说明](https://epwdoc.gitlab.io/source/doc/InputsZG.html) · [EPW/ZG：能带展开实例](https://epwdoc.gitlab.io/source/doc/TutorialZG.html) · [QE 7.5：展开程序源码](https://gitlab.com/QEF/q-e/-/blob/qe-7.5/EPW/ZG/src/bands_unfold.f90)
 
 [下载本例的输入、原始输出、谱权重、核验表和后处理源码](/Atlas/examples/si-unfolding-electronic-files.tar.gz)。解压后进入 `si-unfolding`，运行 `python3 extract_native_unfold.py` 核对原生能量与谱权重，再运行 `python3 plot_unfold.py` 重画结果。包内保留 `analyse_unfold.py` 及已完成的验证表；从波函数重算验证时，另需两种晶胞各自的完整 `tmp/si.save/`。公开包提供独立 XML 与表格，计算脚本中的 `<qe_bin>` 由本机 QE 路径替换。
 
@@ -383,7 +383,7 @@ maxwell@maxwell:<工作目录>/si-unfolding/supercell$ cat unfold.in
 /
 ```
 
-`dim1/2/3` 在这份输入里描述沿三个原胞基矢的整数重复关系，不是电子 k 网格，也不是输出图的像素数。改变它们之前，应先核对实际超胞基矢和原子映射。当前 2×1×1 的偶、奇 Miller 分量校验依赖这个明确关系；任意旋转或非对角超胞需要重新建立对应的倒格矢陪集，不能照搬下面的奇偶筛选。
+`dim1/2/3` 在这份输入里描述沿三个原胞基矢的整数重复关系。改变它们之前，应先核对实际超胞基矢和原子映射。当前 2×1×1 的偶、奇 Miller 分量校验依赖这个明确关系；任意旋转或非对角超胞需要重新建立对应的倒格矢陪集，不能照搬下面的奇偶筛选。
 
 原胞的 `unfold.in` 只把 `dim1` 改成 1，得到的每条带权重应为 1，作为读取和归一化的另一项对照。它的完整输入是：
 
@@ -544,7 +544,7 @@ maxwell@maxwell:<工作目录>/si-unfolding$ grep -A 22 "End of band structure c
 
 Γ 点的 6.2300 eV 出现三次，与原胞的三重价带顶对应。但是超胞的第 2、3、4、5 条带也落在这段能量范围里，仅看能量无法判断哪几条应该出现在目标原胞 k 点。
 
-`bands_unfold.x` 会打印 `Program BANDS v.7.5`；这是程序自身的名字，并不意味着误跑了普通 `bands.x`。提交脚本中的可执行文件和输出的谱权重文件共同确认实际调用。它先读取保存目录，再读取波函数，最后写能量与权重：
+`bands_unfold.x` 的程序头也写作 `Program BANDS v.7.5`。提交脚本中的可执行文件和输出的谱权重文件共同确认实际调用。它先读取保存目录，再读取波函数，最后写能量与权重：
 
 ```text
 Reading xml data from directory:
@@ -662,7 +662,7 @@ Reference energy: primitiveGammaVBM(eV)= 6.230001317
 Native Cartesian headers are not used as primitive fractional coordinates; input kpath was checked against XML and binary wfc headers.
 ```
 
-超胞 40×24=960 个态的最大范数偏差为 3.54×10⁻¹²，互补权重和的偏差为 3.55×10⁻¹²。原生文件的权重与独立平面波求和最大相差约 3.99×10⁻⁶；它们并非逐位相同，本例把这个差异原样报告，不能把它解释成缺陷混合或热展宽，也不把相同精度自动推广到别的超胞、赝势和程序版本。
+超胞 40×24=960 个态的最大范数偏差为 3.54×10⁻¹²，互补权重和的偏差为 3.55×10⁻¹²。原生文件的权重与独立平面波求和最大相差约 3.99×10⁻⁶；这一差异来自两种数值读取与投影路径的比较；本例保持原始数值。其他超胞、赝势和程序版本需重新核对映射与投影精度。
 
 对于简并态，还需要检查整个简并子空间。程序可以在简并态之间任选正交组合，单条带的权重可能分摊；比较时按原胞能量差小于 10⁻⁴ eV 分组，在超胞能量邻域 0.002 eV 内求权重和与加权能量质心。原胞 Γ 的第 2–4 带对应超胞第 6–8 带，三个权重应合计为 3：
 
@@ -680,9 +680,9 @@ ik,primitive_bands,supercell_bands,expected_weight,measured_weight,primitive_mea
 
 40 个路径点的 320 个原胞本征值全部找到对应，共比较 238 组。能量质心最大差 5.91×10⁻⁷ eV，RMS 为 1.35×10⁻⁷ eV，分组权重与预期整数的最大差 6.65×10⁻⁶。这些核对确认了完美超胞与原胞的能量、简并子空间及谱权重映射一致。
 
-## 可复制的 AI 编码提示词
+## 把后处理要求写成提示词
 
-将下面的需求和本页示例文件交给代码助手：
+上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
 
 ```text
 编写 Si 2×1×1 完美超胞展开结果后处理程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -696,6 +696,176 @@ ik,primitive_bands,supercell_bands,expected_weight,measured_weight,primitive_mea
 
 完整源码：[extract_native_unfold.py](/Atlas/examples/si-unfolding-electronic/extract_native_unfold.py) · [plot_unfold.py](/Atlas/examples/si-unfolding-electronic/plot_unfold.py) · [atlas_plot_style.py](/Atlas/examples/si-unfolding-electronic/atlas_plot_style.py) · [analyse_unfold.py](/Atlas/examples/si-unfolding-electronic/analyse_unfold.py)。Python 3 依赖：NumPy、Matplotlib。
 
+<details>
+<summary>extract_native_unfold.py 的完整源码</summary>
+
+```python
+"""Check native QE unfolding energy/weight tables against saved XML and CSV.
+No binary wavefunctions required. Original wavefunction checks are separate.
+"""
+from pathlib import Path
+import csv,json,re,xml.etree.ElementTree as ET
+import numpy as np
+root=Path(__file__).resolve().parent
+def native(path):
+ lines=path.read_text().splitlines()
+ nb,nk=map(int,re.findall(r'\d+',lines[0]))
+ a=np.array([float(x) for line in lines[1:] for x in line.split()])
+ if a.size!=nk*(3+nb):raise ValueError(f'{path}: incomplete native blocks')
+ a=a.reshape(nk,3+nb)
+ return a[:,:3],a[:,3:]
+path=np.genfromtxt(root/'kpath.csv',delimiter=',',names=True)
+meta=json.loads((root/'metadata.json').read_text())
+expected=np.column_stack([path[x] for x in ['k1_pc','k2_pc','k3_pc']])@np.linalg.inv(np.array(meta['lattice_pc_A'])).T*(10.2*.529177210903)
+rows=[];receipt=[]
+for tag,nb in [('primitive',8),('supercell',24)]:
+ d=root/tag
+ ke,e=native(d/'bands01.dat');kw,w=native(d/'spectral_weights01.dat')
+ assert e.shape==w.shape==(40,nb) and np.max(abs(ke-kw))<1e-12
+ assert np.isfinite(e).all() and np.isfinite(w).all() and w.min()>=-1e-8 and w.max()<=1+1e-5
+ states=ET.parse(d/'bands.data-file-schema.xml').getroot().findall('output/band_structure/ks_energies')
+ xe=np.array([np.fromstring(x.findtext('eigenvalues'),sep=' ') for x in states])*27.211386245988
+ xk=np.array([np.fromstring(x.findtext('k_point'),sep=' ') for x in states])
+ assert xe.shape==e.shape and np.max(abs(xk-expected))<1e-8
+ err=float(np.max(abs(xe-e)));assert err<2e-5
+ saved=np.genfromtxt(d/'bands.csv',delimiter=',',names=True)
+ assert len(saved)==40*nb
+ assert np.max(abs(saved['energy_eV'].reshape(40,nb)-xe))<1e-10
+ assert np.max(abs(saved['native_weight'].reshape(40,nb)-w))<1e-12
+ receipt.append(dict(cell=tag,nk=40,nbnd=nb,max_native_xml_energy_difference_eV=err,max_xml_kpath_difference_tpiba=float(np.max(abs(xk-expected))),native_weight_range=[float(w.min()),float(w.max())]))
+ for i in range(40):
+  for j in range(nb):
+   rows.append(dict(cell=tag,ik=i+1,band=j+1,distance_inv_A=float(path['distance_inv_A'][i]),energy_xml_eV=float(xe[i,j]),energy_native_eV=float(e[i,j]),native_weight=float(w[i,j])))
+with (root/'native-result-check.csv').open('w') as f:
+ writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+(root/'native-result-check.json').write_text(json.dumps(receipt,indent=2)+'\n')
+for x in receipt:print(x)
+print('NATIVE_UNFOLDING_TABLE_CHECKS_PASSED')
+```
+
+</details>
+
+<details>
+<summary>analyse_unfold.py 的完整源码</summary>
+
+```python
+"""Audit scalar norm-conserving QE7.5 unfolding without changing weights.
+Binary layout follows QE Modules/io_base.f90: write_wfc.
+For diagonal2x1x1 cell, even/odd Miller h are complementary projectors.
+Unsupported spinors, Gamma-only, non-unit scale and US/PAW are rejected.
+"""
+from pathlib import Path
+import csv,json,re,struct,hashlib,xml.etree.ElementTree as ET
+import numpy as np
+R=Path(__file__).resolve().parent
+HARTREE_EV=27.211386245988
+meta=json.loads((R/'metadata.json').read_text())
+upf=ET.parse(R/'pseudo/Si.pz-vbc.UPF').getroot().find('PP_HEADER')
+assert upf.attrib['pseudo_type']=='NC'
+assert upf.attrib['is_ultrasoft'].lower() in ['f','false','.false.']
+assert upf.attrib['is_paw'].lower() in ['f','false','.false.']
+
+def record(f):
+ raw=f.read(4)
+ if len(raw)!=4:raise ValueError('Truncated Fortran record')
+ n=struct.unpack('<i',raw)[0]
+ if not 0<n<1000000000:raise ValueError('Unsupported record marker/endian')
+ a=f.read(n);tail=f.read(4)
+ assert len(a)==n and len(tail)==4 and struct.unpack('<i',tail)[0]==n
+ return a
+
+def wfc(path):
+ with path.open('rb') as f:
+  hdr=record(f)
+  assert len(hdr)==44,len(hdr)
+  ik=struct.unpack('<i',hdr[:4])[0];k=np.frombuffer(hdr[4:28],'<f8').copy()
+  spin,gamma=struct.unpack('<ii',hdr[28:36]);scale=struct.unpack('<d',hdr[36:44])[0]
+  ngw,igwx,npol,nbnd=np.frombuffer(record(f),'<i4')
+  assert npol==1 and gamma==0 and spin==1 and abs(scale-1)<1e-12
+  reciprocal=np.frombuffer(record(f),'<f8').reshape(3,3).copy()
+  mill=np.frombuffer(record(f),'<i4').reshape(igwx,3).copy()
+  c=np.array([np.frombuffer(record(f),'<c16').copy() for j in range(nbnd)])
+  assert c.shape==(nbnd,igwx) and not f.read(1)
+ return ik,k,mill,c,reciprocal
+
+def native(path):
+ lines=path.read_text().splitlines(); nband,nk=map(int,re.findall(r'\d+',lines[0]))
+ a=np.array([float(x) for line in lines[1:] for x in line.split()]).reshape(nk,3+nband)
+ return a[:,:3],a[:,3:]
+
+def xml(path):
+ root=ET.parse(path).getroot();bs=root.find('output/band_structure')
+ ks=bs.findall('ks_energies')
+ return np.array([np.fromstring(x.find('k_point').text,sep=' ') for x in ks]), np.array([np.fromstring(x.find('eigenvalues').text,sep=' ') for x in ks])*HARTREE_EV,root
+
+kpath=np.genfromtxt(R/'kpath.csv',delimiter=',',names=True)
+a=np.array(meta['lattice_pc_A'])
+expected=np.column_stack([kpath[x] for x in ['k1_pc','k2_pc','k3_pc']])@np.linalg.inv(a).T*(10.2*.529177210903)
+summary={'scope':meta['claimed_scope'],'pseudo_sha256':hashlib.sha256((R/'pseudo/Si.pz-vbc.UPF').read_bytes()).hexdigest(),'pseudo_type':'NC','method':'Native bands_unfold.x and independent even/odd plane-wave projectors','native_weights_modified':False,'k_header_note':'Native file prints Cartesian xk(i)/dimi. This is not a primitive fractional k coordinate for an anisotropic non-orthogonal supercell. Plots use validated input kpath.csv distances.'}
+rows=[]; energies={}; norms={}; weights={}
+for tag in ['primitive','supercell']:
+ d=R/tag
+ for outfile in ['si.scf.out','si.bands.out','unfold.out']:
+  text=(d/outfile).read_text();assert 'JOB DONE.' in text,outfile
+  assert 'not converged' not in text and 'Error in routine' not in text,outfile
+ assert 'convergence has been achieved' in (d/'si.scf.out').read_text()
+ k,e,root=xml(d/'bands.data-file-schema.xml');energies[tag]=e
+ assert e.shape==(40,24 if tag=='supercell' else 8)
+ assert np.max(abs(k-expected))<1e-8
+ kn,en=native(d/'bands01.dat');kw,wn=native(d/'spectral_weights01.dat')
+ assert en.shape==wn.shape==e.shape
+ assert np.max(abs(e-en))<2e-5,np.max(abs(e-en))
+ wn0=[];ww1=[];nn=[]
+ for ik in range(1,len(k)+1):
+  idx,wk,m,c,b=wfc(d/f'tmp/si.save/wfc{ik}.dat')
+  assert idx==ik and np.max(abs(wk-k[ik-1]*(2*np.pi/10.2)))<1e-9
+  norm=np.sum(abs(c)**2,axis=1)
+  even=np.sum(abs(c[:,m[:,0]%2==0])**2,axis=1) if tag=='supercell' else norm
+  odd=np.sum(abs(c[:,m[:,0]%2!=0])**2,axis=1) if tag=='supercell' else np.zeros_like(norm)
+  nn.append(norm);wn0.append(even);ww1.append(odd)
+  for j in range(len(norm)):
+   rows.append([tag,ik,j+1,e[ik-1,j],wn[ik-1,j],even[j],odd[j],norm[j],wn[ik-1,j]-even[j]])
+ norms[tag]=np.array(nn);weights[tag]=np.array(wn0)
+ err=np.max(abs(norms[tag]-1));assert err<1e-7,err
+ summary[tag]={'nk':len(k),'nbnd':e.shape[1],'max_norm_error':float(err),'max_coset_sum_error':float(np.max(abs(np.array(wn0)+np.array(ww1)-1))),'native_vs_pw_max_abs':float(np.max(abs(wn-weights[tag]))),'native_range':[float(wn.min()),float(wn.max())],'max_xml_native_energy_difference_eV':float(np.max(abs(e-en))),'max_xml_input_kdifference_tpiba':float(np.max(abs(k-expected)))}
+ with (d/'bands.csv').open('w') as f:
+  w=csv.writer(f);w.writerow(['ik','band','distance_inv_A','energy_eV','native_weight','pw_weight'])
+  for i in range(len(k)):
+   for j in range(e.shape[1]):w.writerow([i+1,j+1,kpath['distance_inv_A'][i],e[i,j],wn[i,j],weights[tag][i,j]])
+
+with (R/'wavefunction-audit.csv').open('w') as f:
+ w=csv.writer(f);w.writerow(['cell','ik','band','energy_eV','native_weight','even_weight','odd_weight','norm','native_minus_even']);w.writerows(rows)
+# Match each primitive state to the energy-nearby supercell eigenspace.
+# Sum weights over that eigenspace to handle arbitrary degenerate rotations.
+# The primitive bands are checked as groups, not by a fragile same-index mapping.
+comparisons=[]
+for i,(pe,se,sw) in enumerate(zip(energies['primitive'],energies['supercell'],weights['supercell'])):
+ used=set()
+ for j,p in enumerate(pe):
+  if j in used:continue
+  pgroup=np.where(abs(pe-p)<1e-4)[0];used.update(pgroup.tolist())
+  # tolerance0.002eV only for association, measured error retained separately
+  sg=np.where(abs(se-p)<.002)[0]
+  if not len(sg):raise ValueError(f'No matched SC eigenspace k{i+1} primitive band{j+1}: {p}')
+  weight=float(sw[sg].sum());centroid=float(np.dot(sw[sg],se[sg])/weight)
+  err=centroid-float(pe[pgroup].mean())
+  comparisons.append([i+1,';'.join(str(x+1) for x in pgroup),';'.join(str(x+1) for x in sg),len(pgroup),weight,float(pe[pgroup].mean()),centroid,err,weight-len(pgroup)])
+with (R/'primitive-comparison.csv').open('w') as f:
+ w=csv.writer(f);w.writerow(['ik','primitive_bands','supercell_bands','expected_weight','measured_weight','primitive_mean_eV','supercell_weighted_mean_eV','delta_eV','weight_error']);w.writerows(comparisons)
+summary['comparison']={'primitive_eigenvalues_compared':int(energies['primitive'].size),'degenerate_groups':len(comparisons),'energy_association_window_eV':.002,'primitive_group_tolerance_eV':1e-4,'max_abs_centroid_difference_eV':max(abs(x[7]) for x in comparisons),'RMS_centroid_difference_eV':float(np.sqrt(np.mean([x[7]**2 for x in comparisons]))),'max_group_weight_error':max(abs(x[8]) for x in comparisons),'energy_zero_eV':float(energies['primitive'][0,3])}
+(R/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print('Si perfect2x1x1 supercell:40 path points,320 primitive eigenvalues checked')
+print('cell       nbnd   max|norm-1|   max|even+odd-1|   max|native-even|')
+for tag in ['primitive','supercell']:
+ s=summary[tag];print(f"{tag:10s} {s['nbnd']:4d}   {s['max_norm_error']:.3e}       {s['max_coset_sum_error']:.3e}       {s['native_vs_pw_max_abs']:.3e}")
+s=summary['comparison'];print('Degenerate-eigenspace centroid max/RMS difference(eV):',f"{s['max_abs_centroid_difference_eV']:.9f}",f"{s['RMS_centroid_difference_eV']:.9f}")
+print('Degenerate-eigenspace weight maximum error:',f"{s['max_group_weight_error']:.3e}")
+print('Reference energy: primitiveGammaVBM(eV)=',f"{s['energy_zero_eV']:.9f}")
+print('Native Cartesian headers are not used as primitive fractional coordinates; input kpath was checked against XML and binary wfc headers.')
+```
+
+</details>
+
 解压本页示例包后，在 `si-unfolding` 根目录执行：
 
 ```bash
@@ -706,17 +876,9 @@ python3 plot_unfold.py
 
 `analyse_unfold.py` 是原波函数独立验证源码，运行它另需两种晶胞各自的完整 `tmp/si.save/`；上面的轻量包命令使用原生表格、XML 和已有核验表。
 
-
 ## 把折叠态和展开后的权重画在同一页
 
 绘图所需文件是 `primitive/bands.csv`、`supercell/bands.csv`、`kpath.csv`、`metadata.json`、`summary.json`、`wavefunction-audit.csv` 与 `primitive-comparison.csv`。不需要先把二进制波函数全部搬到绘图电脑；若要独立复算权重，才需要同时复制两个 `tmp/si.save/`。
-
-原生文件提取与绘图源码分别为 [extract_native_unfold.py](/Atlas/examples/si-unfolding-electronic/extract_native_unfold.py) 和 [plot_unfold.py](/Atlas/examples/si-unfolding-electronic/plot_unfold.py)。在保存这些文件的目录运行附带脚本：
-
-```bash
-python3 extract_native_unfold.py
-python3 plot_unfold.py
-```
 
 脚本使用 NumPy 与 Matplotlib，写出 `unfolded-bands.png/.svg` 和 `unfolding-audit.png/.svg`。左图把超胞所有保留态画成等大的灰点，并叠加原胞直接能带；右图用原生展开权重控制散点大小和颜色。两图统一减去原胞 Γ 价带顶 6.230001317 eV。绘图仅隐藏权重小于 10⁻⁵ 的散点以便看清主线，CSV 与原始文件保持原值。
 
@@ -731,7 +893,7 @@ python3 plot_unfold.py
 <details>
 <summary>绘图脚本 plot_unfold.py</summary>
 
-绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/si-unfolding-electronic/atlas_plot_style.py)；下载完整算例包时已包含这个文件。源码中的显式保存循环写出 PNG 与 SVG；包内保留既有 PDF 文件。版式见[重绘与导出](/Atlas/plotting/)。
+绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/si-unfolding-electronic/atlas_plot_style.py)；下载完整算例包时已包含这个文件。源码中的显式保存循环写出 PNG 与 SVG；包内保留既有 PDF 文件。
 
 ```python
 """Run beside summary.json after analyse_unfold.py; matplotlib/numpy only.

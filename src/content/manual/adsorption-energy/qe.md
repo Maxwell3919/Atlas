@@ -1,10 +1,12 @@
-[QE：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE：结构优化](https://www.quantum-espresso.org/Doc/pw_user_guide/node11.html) · [ASE：表面与吸附体建模](https://wiki.fysik.dtu.dk/ase/ase/build/surface.html)
-
 把两个 H 放到 Al 表面，程序会给出一个新的总能。但吸附态比洁净表面多了两个原子，两个 OUT 的总能直接相减还没有说明 H 从哪里来。这里选气相 H₂ 作为来源：一分子 H₂ 提供两个 H，分别放到薄膜上下表面的 Al 顶位。要计算的反应是 `洁净 Al 薄膜 + H₂ → 两面各吸附一个 H 的 Al 薄膜`。
 
 这次使用三个明确的结构：三层 Al(111) 洁净薄膜、同一薄膜上增加两个 H 的吸附态，以及独立盒子中的 H₂。每个表面原胞含一个 Al，表面每胞再放一个 H，所以**每一面都是 1 ML 覆盖度**。这是一个三层、指定 atop 位点的例子；三个目录始终一起核对。
 
+[QE：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE：结构优化](https://www.quantum-espresso.org/Doc/pw_user_guide/node11.html) · [ASE：表面与吸附体建模](https://wiki.fysik.dtu.dk/ase/ase/build/surface.html)
+
 本页的[完整计算文件包](/Atlas/examples/h-al111-adsorption-files.tar.gz)包含 13 项实际计算的输入、OUT、XML、逐项核对记录和绘图脚本。解压后保留目录层级；运行脚本里的 `<qe_bin>` 需改为本机 QE 的程序目录。包内没有保存波函数或电荷密度，图表可直接从 OUT、XML 和 CSV 重建，重新做电子计算则从所附输入开始。
+
+## 准备洁净表面、吸附态与 H₂
 
 ```console
 [preston@preston-System-Product-Name h-al111-adsorption]$ ls -lh clean-slab/relax.* adsorbed/relax.* h2-10A/relax.*
@@ -34,6 +36,8 @@ cc4f5dc6afe09c8f482dc7645e6e7cca546a55f8d907c71c825c62bf85a38d3e  pseudo/Al.pbe-
 e03cd098d78e3eeb37cc9f790690f5827234cbc019fb621913391689a9ddacf7  pseudo/H.pbe-rrkjus_psl.1.0.0.UPF
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
+
+## 写入结构与优化条件
 
 先用 5 原子的初始吸附态做一次短 SCF，确认输入和预计耗时。实际用了 `26.31 s`，电子部分 10 轮收敛，但 H 的初始力分量约为 `0.00331637 Ry/Bohr`，还不能把这个结构直接拿来作为优化后的吸附态。
 
@@ -159,6 +163,8 @@ K_POINTS gamma
 ```
 
 两电子 H₂ 按闭壳层非磁性模型处理。它与表面使用相同的 H 赝势、PBE、截断和展宽；它的三维周期盒使用 Γ 点，并在后面用更大的盒子检查镜像影响。表面与分子的 k 网格不同来自两个模型的周期性，不是从不相干的研究目录各取一个能量。
+
+## 提交优化并读出最终结构
 
 ```console
 [preston@preston-System-Product-Name h-al111-adsorption]$ cat adsorbed/run.sh
@@ -463,6 +469,8 @@ End final coordinates
 
 坐标数据见 [structures.json](/Atlas/examples/h-al111-adsorption/structures.json)；各协议的输入、输出摘要和哈希见 [energy-table.csv](/Atlas/examples/h-al111-adsorption/energy-table.csv)。
 
+## 用三能差计算每个 H 的吸附能
+
 取能量时三者都使用 QE 的 `! total energy`。它包含当前冷展宽下的 `F=E−TS` 数值约定；不能从某份输出改取 `internal energy`，再与另两份的 `F` 相减。本次 H₂ 的占据已接近整数，但仍使用同一项读取。按“每一个吸附 H”归一化：
 
 ```text
@@ -477,6 +485,8 @@ Eads (eV/H) = [E(Al3H2) − E(Al3) − E(H2)] × 13.605693122994 / 2
 ```
 
 这个定义下负值表示相对“洁净薄膜 + 气相 H₂”降低了电子能量，正值表示提高。本次 6×6×1 协议给出正值：在这组指定模型和参考态下，这个解离吸附构型并不放热。它没有给出 H₂ 解离势垒，也没有证明 atop 是最低吸附位点；高对称点的力小，同样不能代替横向位移或振动稳定性检查。
+
+## 成对检查网格、真空和分子盒
 
 三能差还可能对数值设置敏感，因此只改一项并成对重算。k 网格检查同时把洁净与吸附表面改到 8×8×1；真空检查同时增加两者晶胞高度 5 Å，并把原子整体平移到新胞中心。两种检查都固定刚才已优化的内部几何。H₂ 的检查只把盒长由 10 Å 改为 12 Å，保持键长不变。
 
@@ -512,7 +522,7 @@ Comparison completed for the named finite model; untested model dimensions remai
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
 
-[独立表格复核脚本](/Atlas/examples/thermo-postprocessing/adsorption/review_al111_adsorption.py)读取同目录提供的 [energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/energy-table.csv)、[adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/adsorption-energy.csv)、[refined-energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-energy-table.csv)、[refined-adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-adsorption-energy.csv) 与 [refined-force-check.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-force-check.csv)，重算三能差并交叉核对原有协议汇总及力阈值标记。复核产物包括[协议对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.csv)、[力对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)。把这些文件放在同一目录后运行 <code>python3 review_al111_adsorption.py --outdir review</code>；脚本只使用 Python 标准库。
+[独立表格复核脚本](/Atlas/examples/thermo-postprocessing/adsorption/review_al111_adsorption.py)读取同目录提供的 [energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/energy-table.csv)、[adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/adsorption-energy.csv)、[refined-energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-energy-table.csv)、[refined-adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-adsorption-energy.csv) 与 [refined-force-check.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-force-check.csv)，重算三能差并交叉核对原有协议汇总及力阈值标记。复核产物包括[协议对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.csv)、[力对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)。把这些文件放在同一目录，按下方完整脚本后的命令运行；脚本只使用 Python 标准库。
 
 | 参数变化 | Eads (eV/H) | 相对 k6 (meV/H) | 本例 10 meV/H 比较线 |
 | --- | ---: | ---: | --- |
@@ -520,11 +530,7 @@ Comparison completed for the named finite model; untested model dimensions remai
 | 晶胞高度 c 增加 5 Å | 0.36701288 | +0.000675 | 线内 |
 | H₂ 盒长 10 → 12 Å | 0.36701462 | +0.002419 | 线内 |
 
-AI 辅助复核可使用以下提示；它要求输出表格并遵守能量定义，不生成图件。
-
-```
-仅依据 energy-table.csv、adsorption-energy.csv、refined-energy-table.csv、refined-adsorption-energy.csv、refined-force-check.csv 和表格复核报告，重算 Eads = [E(Al3H2) − E(Al3) − E(H2)] × 13.605693122994 / 2，单位 eV/H。列出 k6、k8、真空、H2 盒长四项的 Eads 和相对 k6 的变化；明确 6→8 网格变化超过本例 10 meV/H 比较线。另列表比较 k12-relaxed 与 k16-fixed 的 Eads、能量差及两结构 16 网格最大力，并与 2×10⁻⁴ Ry/Bohr 阈值比较。说明 k16 是沿用 k12 几何的固定几何静态计算，能量差线内不等于整体能量与力验收通过。正值在此定义下表示相对洁净薄膜加气相 H2 的电子能量升高。不得绘图，不要把数值称为所有位点的吸附能，也不要推断其它位点、覆盖度、薄膜厚度、解离势垒、零点能或温度贡献；任何 CSV 不一致需指出行与列。
-```
+## 在更密网格优化后，分别检查能量与力
 
 进一步将洁净与吸附表面同时改到 12×12×1，重新做内部优化。起点使用各自 6 网格优化的最终坐标，晶胞、赝势、截断、展宽和中层约束全部保留。实际输入差别可以直接用 diff 核对：
 
@@ -649,6 +655,301 @@ Named energy and force comparisons: False
 这轮能量与力的联合检查未通过：能量差位于本例 10 meV/H 比较线内，洁净与吸附表面的 16 网格最大力分别约为所设力阈值的 12.6 倍和 8.3 倍。
 
 原始数值和 SHA 在 [refined-energy-table.csv](/Atlas/examples/h-al111-adsorption/refined-energy-table.csv)，配对三能差在 [refined-adsorption-energy.csv](/Atlas/examples/h-al111-adsorption/refined-adsorption-energy.csv)，力对照在 [refined-force-check.csv](/Atlas/examples/h-al111-adsorption/refined-force-check.csv)。表格复核结果另见[汇总报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)与[逐结构力对照](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)；原始提取脚本为 [analyse_refinement.py](/Atlas/examples/h-al111-adsorption/analyse_refinement.py)。
+
+<details>
+<summary>analyse_refinement.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+from pathlib import Path
+import json,numpy as np
+from analyse_adsorption import read_run,save_csv,RY_EV
+ROOT=Path(__file__).resolve().parent
+def main():
+    names={'clean-k12-relax':'relax','ads-k12-relax':'relax','clean-k16':'scf','ads-k16':'scf','h2-10A':'relax'}
+    runs={n:read_run(n,stem) for n,stem in names.items()}
+    for clean,ads in [('clean-k12-relax','ads-k12-relax'),('clean-k16','ads-k16')]:
+        assert np.allclose(runs[clean][1]['cell_A'],runs[ads][1]['cell_A'],atol=1e-10,rtol=0)
+    forces=[]
+    for child,parent in [('clean-k16','clean-k12-relax'),('ads-k16','ads-k12-relax')]:
+        cg=runs[child][1];pg=runs[parent][1]
+        assert cg['symbols']==pg['symbols']
+        assert np.allclose(cg['cell_A'],pg['cell_A'],atol=1e-10,rtol=0)
+        assert np.allclose(cg['positions_A'],pg['positions_A'],atol=1e-10,rtol=0)
+        delta=float(np.abs(np.array(cg['forces_Ry_Bohr'])-np.array(pg['forces_Ry_Bohr'])).max())
+        force16=runs[child][0]['max_force_component_Ry_Bohr']
+        forces.append(dict(case=child,parent=parent,max_force_k12_Ry_Bohr=runs[parent][0]['max_force_component_Ry_Bohr'],max_force_k16_Ry_Bohr=force16,max_force_change_Ry_Bohr=delta,k16_within_2e4=force16<=2e-4,change_within_2e4=delta<=2e-4))
+    gas=runs['h2-10A'][0]['total_energy_Ry'];energies=[]
+    for label,clean,ads in [('k12-relaxed','clean-k12-relax','ads-k12-relax'),('k16-fixed','clean-k16','ads-k16')]:
+        rc=runs[clean][0];ra=runs[ads][0]
+        assert (rc['nAl'],rc['nH'],ra['nAl'],ra['nH'])==(3,0,3,2)
+        e=(ra['total_energy_Ry']-rc['total_energy_Ry']-gas)*RY_EV/2
+        energies.append(dict(protocol=label,clean_case=clean,adsorbed_case=ads,gas_case='h2-10A',clean_energy_Ry=rc['total_energy_Ry'],adsorbed_energy_Ry=ra['total_energy_Ry'],h2_energy_Ry=gas,adsorption_eV_H=e))
+    delta=(energies[1]['adsorption_eV_H']-energies[0]['adsorption_eV_H'])*1000
+    save_csv('refined-energy-table.csv',[r[0] for r in runs.values()])
+    save_csv('refined-adsorption-energy.csv',energies);save_csv('refined-force-check.csv',forces)
+    (ROOT/'refined-structures.json').write_text(json.dumps({k:v[1] for k,v in runs.items()},indent=2)+'\n')
+    result={'scientific_acceptance':'not_assessed','scope':'Two meshes on the k12-relaxed, nonmagnetic three-layer one-ML atop model; does not establish a complete converged series or all physical/model dimensions','energy_change_meV_H':delta,'energy_comparison_within_10meV_H':abs(delta)<=10,'force_checks':forces,'both_energy_and_force_comparisons_pass':abs(delta)<=10 and all(f['k16_within_2e4'] and f['change_within_2e4'] for f in forces),'energies':energies,'runs':[v[0] for v in runs.values()]}
+    (ROOT/'evidence/refined-analysis-receipt.json').write_text(json.dumps(result,indent=2)+'\n')
+    for r in energies:print(f"{r['protocol']:<13} Eads = {r['adsorption_eV_H']:.8f} eV/H")
+    print(f'k12 -> k16 fixed-geometry energy change: {delta:+.6f} meV/H')
+    for f in forces:print(f"{f['case']:<10} max|F|={f['max_force_k16_Ry_Bohr']:.8f} Ry/Bohr; max force change={f['max_force_change_Ry_Bohr']:.8f} Ry/Bohr")
+    print('Named energy comparison:',result['energy_comparison_within_10meV_H'])
+    print('Named energy and force comparisons:',result['both_energy_and_force_comparisons_pass'])
+if __name__=='__main__':main()
+```
+
+</details>
+
+## 编写三能差与力检查脚本
+
+从原始输出提取能量后，表格后处理要保持每组洁净表面、吸附态和 H₂ 的配对关系。先按两颗 H 归一化，再比较不同协议的能量差；力检查另列两种表面的最大力。这能避免把能量差在线内误读为更密网格下的几何也已通过检查。
+
+~~~text
+编写 review_al111_adsorption.py，仅使用 Python 标准库。读取 energy-table.csv、adsorption-energy.csv、refined-energy-table.csv、refined-adsorption-energy.csv、refined-force-check.csv，保留输入。按协议对应的 clean、ads、H2 case 读取 total_energy_Ry，使用 [Eadsorbed-Eclean-EH2]*13.605693122994/2 计算 eV/H，并核对原表。输出 k6、k8、vacuum20、H2-box12 相对 k6 的 meV/H 差，以及 k12-relaxed 到 k16-fixed 的变化。缺少配对项、重复 case、非有限数或重算不一致时停止，报告行与字段。
+单独核对 clean-k16 与 ads-k16 的最大力和 refined-force-check.csv，沿用 2e-4 Ry/Bohr 力阈值与 10 meV/H 能量比较线；k16 是 k12 优化几何上的静态计算。支持 --outdir，写出 al111-h-adsorption-review.csv、al111-h-refined-force-review.csv、al111-h-adsorption-review.md。报告 k6→k8 的 13.072091 meV/H、k12→k16 的 5.356413 meV/H 和两结构的力判断。不要绘图；正值解释为相对洁净薄膜+气相 H2 的电子能量升高。
+~~~
+
+完整源码如下，与上面的下载文件相同。保存为 `review_al111_adsorption.py`，和所需 CSV 放在同一目录。
+
+<details>
+<summary>review_al111_adsorption.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Recompute the finite Al(111)-H adsorption checks as audit tables."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import math
+from pathlib import Path
+
+RY_TO_EV = 13.605693122994
+FORCE_LIMIT_RY_BOHR = 2e-4
+ENERGY_LIMIT_EV_H = 0.010
+ROOT = Path(__file__).resolve().parent
+
+
+def read_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if not reader.fieldnames:
+            raise ValueError(f"{path}: missing CSV header")
+        return list(reader)
+
+
+def unique_by(rows: list[dict[str, str]], key: str, label: str) -> dict[str, dict[str, str]]:
+    out: dict[str, dict[str, str]] = {}
+    for row in rows:
+        value = row.get(key, "")
+        if not value or value in out:
+            raise ValueError(f"{label}: empty or duplicate {key} {value!r}")
+        out[value] = row
+    return out
+
+
+def close(a: float, b: float, label: str, atol: float = 1e-10) -> None:
+    if not math.isfinite(a) or not math.isclose(a, b, rel_tol=0, abs_tol=atol):
+        raise ValueError(f"{label}: values disagree ({a:.12g} vs {b:.12g})")
+
+
+def adsorption_eV_H(
+    raw: dict[str, dict[str, str]], clean_case: str, ads_case: str, gas_case: str, label: str
+) -> tuple[float, dict[str, dict[str, str]]]:
+    try:
+        clean, ads, gas = raw[clean_case], raw[ads_case], raw[gas_case]
+    except KeyError as exc:
+        raise ValueError(f"{label}: missing raw case {exc.args[0]!r}") from exc
+    if (int(clean["nAl"]), int(clean["nH"])) != (3, 0):
+        raise ValueError(f"{label}: clean reference is not the three-Al slab")
+    if (int(ads["nAl"]), int(ads["nH"])) != (3, 2):
+        raise ValueError(f"{label}: adsorbed reference is not Al3H2")
+    if (int(gas["nAl"]), int(gas["nH"])) != (0, 2):
+        raise ValueError(f"{label}: gas reference is not H2")
+    value = (
+        float(ads["total_energy_Ry"])
+        - float(clean["total_energy_Ry"])
+        - float(gas["total_energy_Ry"])
+    ) * RY_TO_EV / 2
+    return value, {"clean": clean, "ads": ads, "gas": gas}
+
+
+def write_csv(path: Path, fieldnames: list[str], rows: list[dict[str, str]]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--outdir", type=Path, default=ROOT / "review")
+    args = parser.parse_args()
+    outdir = args.outdir if args.outdir.is_absolute() else ROOT / args.outdir
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    base_raw = unique_by(read_rows(ROOT / "energy-table.csv"), "case", "baseline raw table")
+    refined_raw = unique_by(read_rows(ROOT / "refined-energy-table.csv"), "case", "refined raw table")
+    summary = read_rows(ROOT / "adsorption-energy.csv")
+    summary_by_protocol = unique_by(summary, "protocol", "baseline summary")
+    required_protocols = {"baseline-k6", "k8", "vacuum20", "H2-box12"}
+    if set(summary_by_protocol) != required_protocols:
+        raise ValueError(f"baseline summary protocols differ: {sorted(summary_by_protocol)}")
+
+    baseline_values: dict[str, float] = {}
+    baseline_table: list[dict[str, str]] = []
+    for protocol in ("baseline-k6", "k8", "vacuum20", "H2-box12"):
+        row = summary_by_protocol[protocol]
+        value, matched = adsorption_eV_H(
+            base_raw, row["clean_case"], row["adsorbed_case"], row["gas_case"], protocol
+        )
+        close(value, float(row["adsorption_eV_H"]), f"{protocol} summary Eads")
+        baseline_values[protocol] = value
+        close((value - baseline_values["baseline-k6"]) * 1000, float(row["change_from_baseline_meV_H"]), f"{protocol} summary delta")
+        baseline_table.append({
+            "protocol": protocol,
+            "clean_case": row["clean_case"],
+            "adsorbed_case": row["adsorbed_case"],
+            "gas_case": row["gas_case"],
+            "clean_stage": matched["clean"]["stage"],
+            "adsorbed_stage": matched["ads"]["stage"],
+            "gas_stage": matched["gas"]["stage"],
+            "adsorption_eV_H": f"{value:.12f}",
+            "delta_from_baseline_meV_H": f"{(value - baseline_values['baseline-k6']) * 1000:.9f}",
+        })
+
+    refined_summary = read_rows(ROOT / "refined-adsorption-energy.csv")
+    refined_by_protocol = unique_by(refined_summary, "protocol", "refined summary")
+    expected_refined = {"k12-relaxed", "k16-fixed"}
+    if set(refined_by_protocol) != expected_refined:
+        raise ValueError(f"refined protocols differ: {sorted(refined_by_protocol)}")
+    refined_values: dict[str, float] = {}
+    for protocol in ("k12-relaxed", "k16-fixed"):
+        row = refined_by_protocol[protocol]
+        value, matched = adsorption_eV_H(
+            refined_raw, row["clean_case"], row["adsorbed_case"], row["gas_case"], protocol
+        )
+        close(value, float(row["adsorption_eV_H"]), f"{protocol} summary Eads")
+        for name, raw_value in (
+            ("clean_energy_Ry", matched["clean"]["total_energy_Ry"]),
+            ("adsorbed_energy_Ry", matched["ads"]["total_energy_Ry"]),
+            ("h2_energy_Ry", matched["gas"]["total_energy_Ry"]),
+        ):
+            close(float(row[name]), float(raw_value), f"{protocol} {name}")
+        refined_values[protocol] = value
+
+    delta_refined_meV = (refined_values["k16-fixed"] - refined_values["k12-relaxed"]) * 1000
+    energy_status = (
+        "within selected 10 meV/H line"
+        if abs(delta_refined_meV) <= ENERGY_LIMIT_EV_H * 1000
+        else "outside selected 10 meV/H line"
+    )
+
+    force_rows = unique_by(read_rows(ROOT / "refined-force-check.csv"), "case", "force summary")
+    refined_table: list[dict[str, str]] = []
+    for case, parent_case in (("clean-k16", "clean-k12-relax"), ("ads-k16", "ads-k12-relax")):
+        expected = force_rows.get(case)
+        if not expected:
+            raise ValueError(f"force summary missing {case}")
+        current, prior = refined_raw[case], refined_raw[parent_case]
+        close(float(expected["max_force_k16_Ry_Bohr"]), float(current["max_force_component_Ry_Bohr"]), f"{case} force")
+        close(float(expected["max_force_k12_Ry_Bohr"]), float(prior["max_force_component_Ry_Bohr"]), f"{case} parent force")
+        force_k12 = float(prior["max_force_component_Ry_Bohr"])
+        force_k16 = float(current["max_force_component_Ry_Bohr"])
+        force_change = float(expected["max_force_change_Ry_Bohr"])
+        if not math.isfinite(force_change) or force_change < 0:
+            raise ValueError(f"{case}: invalid stored component-wise force change")
+        k16_flag = expected["k16_within_2e4"].strip().lower() == "true"
+        change_flag = expected["change_within_2e4"].strip().lower() == "true"
+        if k16_flag != (force_k16 <= FORCE_LIMIT_RY_BOHR):
+            raise ValueError(f"{case}: stored k16 force criterion disagrees with recomputed value")
+        if change_flag != (force_change <= FORCE_LIMIT_RY_BOHR):
+            raise ValueError(f"{case}: stored force-change criterion disagrees with recomputed value")
+        refined_table.append({
+            "case": case,
+            "parent_case": parent_case,
+            "k12_Eads_eV_H": f"{refined_values['k12-relaxed']:.12f}",
+            "k16_fixed_Eads_eV_H": f"{refined_values['k16-fixed']:.12f}",
+            "k12_to_k16_delta_meV_H": f"{delta_refined_meV:.9f}",
+            "max_force_k12_Ry_Bohr": f"{force_k12:.12g}",
+            "max_force_k16_Ry_Bohr": f"{force_k16:.12g}",
+            "max_force_change_k12_to_k16_Ry_Bohr": f"{force_change:.12g}",
+            "force_change_within_limit": str(force_change <= FORCE_LIMIT_RY_BOHR),
+            "selected_force_limit_Ry_Bohr": f"{FORCE_LIMIT_RY_BOHR:.1e}",
+            "k16_force_factor_over_limit": f"{force_k16 / FORCE_LIMIT_RY_BOHR:.6f}",
+            "energy_delta_within_10_meV_H": str(abs(delta_refined_meV) <= ENERGY_LIMIT_EV_H * 1000),
+            "k16_force_within_limit": str(force_k16 <= FORCE_LIMIT_RY_BOHR),
+        })
+
+    write_csv(outdir / "al111-h-adsorption-review.csv", list(baseline_table[0]), baseline_table)
+    write_csv(outdir / "al111-h-refined-force-review.csv", list(refined_table[0]), refined_table)
+
+    report = [
+        "# Al(111)-H adsorption energy review",
+        "",
+        "- The stated observable is Eads = (E(Al3H2) - E(Al3) - E(H2)) × 13.605693122994 / 2 in eV per H.",
+        "- Energies are read from the supplied Quantum ESPRESSO total_energy_Ry fields; the two adsorbed H atoms account for the divisor 2.",
+        "- The 10 meV/H energy comparison and 2×10⁻⁴ Ry/Bohr force limit are the selected teaching thresholds for this case.",
+        "- The 6→8 k-grid adsorption-energy change exceeds 10 meV/H; vacuum and H2-box changes are below it.",
+        f"- The 12-relaxed→16-fixed energy difference is {delta_refined_meV:+.6f} meV/H ({energy_status}).",
+        "- The 16-grid clean-slab and adsorbed-slab forces are checked separately; both exceed the selected force limit, so the combined energy-and-force acceptance is false.",
+        "- Component-wise force changes come from the supplied refined-force-check.csv, generated from matched k12 and k16 force arrays; this script checks their reported threshold flags against the selected limit.",
+        "- Scope is the supplied symmetric two-H atop model and its stated finite checks; this review makes no claim about other adsorption sites, coverage, slab thickness, barriers, or vibrational and thermal terms.",
+        "",
+        "## Finite protocol comparisons",
+        "",
+        "| protocol | clean / adsorbed / gas cases | Eads (eV/H) | change from k6 (meV/H) |",
+        "| --- | --- | ---: | ---: |",
+    ]
+    for row in baseline_table:
+        report.append(
+            f"| {row['protocol']} | {row['clean_case']} / {row['adsorbed_case']} / {row['gas_case']} | {float(row['adsorption_eV_H']):.8f} | {float(row['delta_from_baseline_meV_H']):+.6f} |"
+        )
+    report.extend([
+        "",
+        "## 12-grid relaxation to 16-grid fixed-geometry check",
+        "",
+        "| pair | Eads k12 (eV/H) | Eads k16 (eV/H) | Δ (meV/H) | Fmax clean k16 (Ry/Bohr) | Fmax ads k16 (Ry/Bohr) | force limit (Ry/Bohr) |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        f"| k12-relaxed → k16-fixed | {refined_values['k12-relaxed']:.8f} | {refined_values['k16-fixed']:.8f} | {delta_refined_meV:+.6f} | {float(refined_table[0]['max_force_k16_Ry_Bohr']):.8f} | {float(refined_table[1]['max_force_k16_Ry_Bohr']):.8f} | {FORCE_LIMIT_RY_BOHR:.1e} |",
+        "",
+        "The energy difference is within the selected 10 meV/H comparison line. The maximum forces are 12.60× and 8.33× the selected force limit, respectively; energy-only agreement therefore does not pass the combined check.",
+    ])
+    (outdir / "al111-h-adsorption-review.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+    print(f"baseline_protocols={','.join(sorted(required_protocols))}")
+    print(f"baseline_k6={baseline_values['baseline-k6']:.12f} eV/H")
+    print(f"k8_change={(baseline_values['k8']-baseline_values['baseline-k6'])*1000:+.6f} meV/H")
+    print(f"k12_to_k16_change={delta_refined_meV:+.6f} meV/H ({energy_status})")
+    print(f"force_limit={FORCE_LIMIT_RY_BOHR:.1e} Ry/Bohr clean={float(refined_table[0]['max_force_k16_Ry_Bohr']):.8f} ads={float(refined_table[1]['max_force_k16_Ry_Bohr']):.8f}")
+    print(f"wrote {outdir / 'al111-h-adsorption-review.csv'}")
+    print(f"wrote {outdir / 'al111-h-refined-force-review.csv'}")
+    print(f"wrote {outdir / 'al111-h-adsorption-review.md'}")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+将本节前面链接的五份 CSV 和脚本放在同一目录后运行：
+
+```bash
+python3 review_al111_adsorption.py --outdir review
+```
+
+终端的关键结果为：
+
+```text
+baseline_k6=0.367012203736 eV/H
+k8_change=+13.072091 meV/H
+k12_to_k16_change=+5.356413 meV/H (within selected 10 meV/H line)
+force_limit=2.0e-04 Ry/Bohr clean=0.00252060 ads=0.00166686
+```
+
+k6→k8 的能量变化超出比较线；k12→k16 的能量变化在线内，但两结构的最大力均超出力阈值。后处理与前面的原始输出给出相同判断，接下来应继续处理密网格下的几何。
 
 ## 文献方法与吸附能参考态
 

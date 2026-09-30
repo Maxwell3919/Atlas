@@ -1,12 +1,12 @@
 [Wannier90 官方 Si 教程](https://wannier90.readthedocs.io/en/latest/tutorials/tutorial_11/) · [Wannier90 参数说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/) · [QE 的 pw2wannier90 接口](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 
-输入、完整输出、接口矩阵、数据表和绘图脚本可[一起下载](/Atlas/examples/si-wannier-lesson-files.tar.gz)。包内不含 QE 的电荷密度与波函数保存目录；重新计算应从本页自己的 SCF 开始。读取结果、核对接口矩阵和重新作图可以使用包内文件。
-
 一条很密的能带曲线可以逐点运行 DFT，也可以先在均匀 k 网格上构造 Wannier 表象，再做插值。插值很快，但“曲线很平滑”和“与直接 DFT 相符”是两回事。这一页先把接口完整走通，再另算几个路径点，把差异画在图下面。
 
 例子采用 Wannier90 3.1.0 随附官方 example11 的两原子金刚石 Si 结构，晶格常数为 10.2 bohr。结构在本例中保持固定，没有重新优化。赝势从 QE 公开库重新下载 `Si.pbe-n-van.UPF`，是非相对论 PBE 超软赝势；本次使用 QE 7.5、40/320 Ry 截断能。计算目录中的 SCF、NSCF、重叠矩阵与 Wannier 结果均在这次实际运行中生成，没有使用官方示例附带的预计算矩阵。
 
 这里先只做四条价带。两个 Si 原子一共提供八个价电子，在不自旋极化的计算中填满四条能带，因此选择 `nbnd=4`、`num_bands=4`、`num_wann=4`。本例没有导带，不从这四条价带推断带隙，也没有使用纠缠能带的解缠窗口。SCF 和 NSCF 的一般操作分别见 [SCF](/Atlas/m/scf/qe/) 与 [NSCF](/Atlas/m/nscf/qe/)，下面只展开与这次接口有关的文件。
+
+输入、完整输出、接口矩阵、数据表和绘图脚本可[一起下载](/Atlas/examples/si-wannier-lesson-files.tar.gz)。包内不含 QE 的电荷密度与波函数保存目录；重新计算应从本页自己的 SCF 开始。读取结果、核对接口矩阵和重新作图可以使用包内文件。
 
 ## 先把 SCF 和均匀 NSCF 网格接好
 
@@ -515,11 +515,188 @@ maxwell@maxwell:~/si-wannier/k4/validation$ tail -10 si.bands.out
 
 核对脚本读取 QE XML 里的本征值，明确从 Hartree 换成 eV，再按相同 k 点与能带排序比较。作图统一减去直接 DFT Γ 点的最高占据态 6.386039243 eV，原始能量与误差在 CSV 中同时保留。
 
-### AI 后处理提示词：核对接口、展布与插值误差
+### 交给代码助手的任务：核对接口、展布与插值误差
 
 > 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序。读取 k4/、k6/ 下的 si.win、si.wout、接口输出及直接 DFT 验证数据；核对 mp_grid、显式 k 点数/坐标/顺序、四个价带的 num_wann/num_bands 和接口正常结束状态。提取逐次 spread 与最终四个 Wannier 函数展布，单位保留 bohr²；以 direct-bands.csv 和相同 k 坐标上的 Wannier 插值值计算逐带误差及最大绝对误差，单位 eV，沿用原脚本的能量参考和带排序。输出检查 JSON 与逐点 CSV，标出缺文件或不匹配项，不以零填充。只解析已有结果，不运行 QE/Wannier90，也不将四价带 Si 模型外推到金属费米面。
 
 [已有完整核对源码 analyse_wannier.py](/Atlas/examples/si-wannier/analyse_wannier.py) · [完整准备源码 prepare_si_wannier.py](/Atlas/examples/si-wannier/prepare_si_wannier.py)。
+
+<details>
+<summary>prepare_si_wannier.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import shutil,json,hashlib
+r=Path(__file__).resolve().parent
+source=Path('<Wannier90源码目录>/examples/example11')
+for name in ['silicon.scf','silicon.nscf','silicon.pw2wan','silicon.win']:
+ shutil.copy2(source/name,r/'evidence'/('official-'+name))
+common=f'''&CONTROL
+ calculation = '{{calculation}}'
+ prefix = 'si'
+ pseudo_dir = '{r}/pseudo'
+ outdir = './tmp'
+ tprnfor = .true.
+ verbosity = 'high'
+/
+&SYSTEM
+ ibrav = 2
+ celldm(1) = 10.2
+ nat = 2
+ ntyp = 1
+ ecutwfc = 40
+ ecutrho = 320
+ nbnd = 4
+ occupations = 'fixed'
+{{sym}}/
+&ELECTRONS
+ conv_thr = 1.0d-12
+ diagonalization = 'cg'
+ diago_thr_init = 1.0d-10
+ diago_full_acc = .true.
+ diago_cg_maxiter = 200
+/
+ATOMIC_SPECIES
+Si 28.0855 Si.pbe-n-van.UPF
+ATOMIC_POSITIONS crystal
+Si -0.25 0.75 -0.25
+Si 0.00 0.00 0.00
+'''
+for n in [4,6]:
+ d=r/f'k{n}';(d/'tmp').mkdir(parents=True,exist_ok=True);(d/'validation/tmp').mkdir(parents=True,exist_ok=True)
+ kpts=[(i/n,j/n,k/n) for i in range(n) for j in range(n) for k in range(n)]
+ (d/'si.scf.in').write_text(common.format(calculation='scf',sym='')+'K_POINTS automatic\n10 10 10 0 0 0\n')
+ (d/'si.nscf.in').write_text(common.format(calculation='nscf',sym=' nosym = .true.\n noinv = .true.\n')+f'K_POINTS crystal\n{n**3}\n'+''.join(' '.join(f'{v:.12f}' for v in p)+f' {1/n**3:.12f}\n' for p in kpts))
+ win=f'''num_bands = 4
+num_wann = 4
+num_iter = 200
+conv_tol = 1.0d-10
+conv_window = 5
+iprint = 2
+length_unit = bohr
+write_hr = true
+write_xyz = true
+bands_plot = true
+bands_num_points = 80
+begin projections
+f=-0.125,-0.125,0.375:s
+f=0.375,-0.125,-0.125:s
+f=-0.125,0.375,-0.125:s
+f=-0.125,-0.125,-0.125:s
+end projections
+begin unit_cell_cart
+bohr
+-5.10 0.00 5.10
+0.00 5.10 5.10
+-5.10 5.10 0.00
+end unit_cell_cart
+begin atoms_frac
+Si -0.25 0.75 -0.25
+Si 0.00 0.00 0.00
+end atoms_frac
+begin kpoint_path
+G 0.00 0.00 0.00 X 0.50 0.00 0.50
+X 0.50 0.00 0.50 W 0.50 0.25 0.75
+W 0.50 0.25 0.75 L 0.50 0.50 0.50
+L 0.50 0.50 0.50 G 0.00 0.00 0.00
+end kpoint_path
+mp_grid = {n} {n} {n}
+begin kpoints
+'''+''.join(' '.join(f'{v:.12f}' for v in p)+'\n' for p in kpts)+'end kpoints\n'
+ (d/'silicon.win').write_text(win)
+ (d/'silicon.pw2wan').write_text("&INPUTPP\n outdir='./tmp'\n prefix='si'\n seedname='silicon'\n write_amn=.true.\n write_mmn=.true.\n write_unk=.false.\n/\n")
+ script=f'''#!/bin/bash
+#SBATCH --job-name=atlas-si-w{n}
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH --cpus-per-task=1
+#SBATCH --time=00:30:00
+#SBATCH --output=_out.%j.log
+#SBATCH --error=_err.%j.log
+ulimit -s unlimited
+ulimit -l unlimited
+source /opt/intel/oneapi/setvars.sh
+export OMP_NUM_THREADS=1
+cd "$SLURM_SUBMIT_DIR"
+set -e
+mpirun -np 8 <qe_bin>/pw.x -in si.scf.in > si.scf.out 2> si.scf.err
+cp tmp/si.save/data-file-schema.xml scf.data-file-schema.xml
+cp -r tmp/si.save validation/tmp/
+mpirun -np 8 <qe_bin>/pw.x -in si.nscf.in > si.nscf.out 2> si.nscf.err
+cp tmp/si.save/data-file-schema.xml nscf.data-file-schema.xml
+<qe_bin>/wannier90.x -pp silicon > wannier-pp.out 2> wannier-pp.err
+mpirun -np 8 <qe_bin>/pw2wannier90.x -in silicon.pw2wan > pw2wan.out 2> pw2wan.err
+<qe_bin>/wannier90.x silicon > wannier.out 2> wannier.err
+'''
+ # Keep a plain numeric job label.
+ script=script.replace(f'{{n}}',str(n))
+ (d/'run.slurm').write_text(script)
+(r/'structure-source.json').write_text(json.dumps({'source':'Wannier90 3.1.0 official example11 shipped with QE7.5','structure':'diamond Si, 2 atoms, ibrav=2, celldm(1)=10.2 bohr','not_relaxed_here':True,'modifications':['40/320 Ry cutoffs','explicit fixed occupations and 4 valence bands','full k grid with nosym/noinv','four bond-centred s projections; isolated valence subspace; no disentanglement','4^3 and 6^3 uniform meshes'],'protocol_convergence':'not established'},indent=2)+'\n')
+print('Prepared independent k4 and k6 SCF -> NSCF -> interface -> Wannier chains')
+```
+
+</details>
+
+<details>
+<summary>analyse_wannier.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import numpy as np,xml.etree.ElementTree as ET,re,json,csv,hashlib
+r=Path(__file__).resolve().parent;HAEV=27.211386245988
+sel=np.loadtxt(r/'validation-kpoints.csv',delimiter=',',skiprows=1);inds=sel[:,0].astype(int);nsel=len(sel)
+valid=r/'k4/validation'
+out=(valid/'si.bands.out').read_text();assert 'JOB DONE.' in out and 'eigenvalues not converged' not in out and (valid/'si.bands.err').stat().st_size==0
+xml=ET.parse(valid/'bands.data-file-schema.xml').getroot();ks=xml.findall('./output/band_structure/ks_energies');assert len(ks)==nsel
+rec=xml.find('./output/basis_set/reciprocal_lattice');B=np.array([list(map(float,rec.find(t).text.split())) for t in ['b1','b2','b3']])
+kfrac=np.array([list(map(float,x.find('k_point').text.split())) for x in ks])@np.linalg.inv(B)
+assert np.max(np.abs(kfrac-sel[:,1:4]))<2e-10
+energy=np.array([list(map(float,x.find('eigenvalues').text.split())) for x in ks])*HAEV;assert energy.shape==(nsel,4)
+reference=float(max(energy[0]));summary={'qe_version':'7.5','wannier90_version':'3.1.0','validation_unique_kpoints':len(np.unique(np.round(sel[:,1:4],12),axis=0)),'validation_points':nsel,'validation_eigenvalues':nsel*4,'energy_reference':'highest occupied direct DFT Gamma eigenvalue','energy_reference_eV':reference,'direct_DFT_source':'k4/validation/si.bands.in and bands.data-file-schema.xml','scope':'4 isolated valence bands only; no conduction bands, gap or transport claim','kmesh_results':{}}
+records=[]
+for mesh in [4,6]:
+ d=r/f'k{mesh}'
+ for prog in ['si.scf','si.nscf','pw2wan']:
+  txt=(d/f'{prog}.out').read_text();assert 'JOB DONE.' in txt and not re.search('eigenvalues not converged|convergence NOT achieved|Error in routine',txt);assert (d/f'{prog}.err').stat().st_size==0
+ for name in ['wannier.err','wannier-pp.err']:assert (d/name).stat().st_size==0
+ wo=(d/'silicon.wout').read_text();assert 'Wannierisation convergence criteria satisfied' in wo and 'All done: wannier90 exiting' in wo
+ eig=np.loadtxt(d/'silicon.eig');assert eig.shape==(mesh**3*4,3)
+ nxml=ET.parse(d/'nscf.data-file-schema.xml').getroot();nks=nxml.findall('./output/band_structure/ks_energies');assert len(nks)==mesh**3
+ nbasis=nxml.find('./output/basis_set/reciprocal_lattice');nB=np.array([list(map(float,nbasis.find(t).text.split())) for t in ['b1','b2','b3']])
+ xmlk=np.array([list(map(float,x.find('k_point').text.split())) for x in nks])@np.linalg.inv(nB)
+ wink=np.array([list(map(float,l.split())) for l in (d/'silicon.win').read_text().split('begin kpoints')[1].split('end kpoints')[0].strip().splitlines()])
+ assert wink.shape==xmlk.shape and np.max(np.abs((xmlk-wink+.5)%1-.5))<2e-10
+ assert list(map(int,(d/'silicon.mmn').read_text().splitlines()[1].split()))==[4,mesh**3,8]
+ assert list(map(int,(d/'silicon.amn').read_text().splitlines()[1].split()))==[4,mesh**3,4]
+ xmlE=np.array([list(map(float,x.find('eigenvalues').text.split())) for x in nks])*HAEV
+ assert np.max(np.abs(eig[:,2].reshape(-1,4)-xmlE))<1e-7
+ x=np.loadtxt(d/'silicon_band.dat');assert x.shape==(247*4,2)
+ band=x[:,1].reshape(4,247).T;distance=x[:247,0]
+ assert np.max(np.abs(distance[inds]-sel[:,-1]))<1e-7
+ err=band[inds]-energy
+ spread=float(re.search(r'Final Spread \(Bohr\^2\)\s+Omega Total\s*=\s*([.\d]+)',wo).group(1))
+ convrows=re.findall(r'^\s*(\d+)\s+([-+\d.Ee]+)\s+([-+\d.Ee]+)\s+([-+\d.Ee]+).*?<-- CONV',wo,re.M)
+ conv=np.array([[int(v[0]),float(v[1]),float(v[2]),float(v[3])] for v in convrows]);assert conv.ndim==2
+ np.savetxt(d/'spread-history.csv',conv,delimiter=',',header='iteration,delta_spread_bohr2,rms_gradient,total_spread_bohr2',comments='')
+ np.savetxt(d/'bands.csv',np.column_stack([distance,band,band-reference]),delimiter=',',header='distance_Ainv,E1_eV,E2_eV,E3_eV,E4_eV,E1_minus_VBM_eV,E2_minus_VBM_eV,E3_minus_VBM_eV,E4_minus_VBM_eV',comments='')
+ maxerr=float(np.max(np.abs(err)));rms=float(np.sqrt(np.mean(err**2)))
+ summary['kmesh_results'][str(mesh)]={'num_kpoints':mesh**3,'num_bands':4,'num_wann':4,'spread_bohr2':spread,'spread_angstrom2':spread*.529177210903**2,'wannier_iterations':int(conv[-1,0]),'validation_max_abs_error_eV':maxerr,'validation_RMSE_eV':rms,'native_complete':True,'scientific_protocol_convergence':'not established'}
+ for i,idx in enumerate(inds):
+  for ib in range(4):
+   records.append(dict(training_mesh=mesh,path_index=int(idx),k1=sel[i,1],k2=sel[i,2],k3=sel[i,3],distance_Ainv=sel[i,4],band=ib+1,E_DFT_eV=energy[i,ib],E_Wannier_eV=band[idx,ib],error_eV=err[i,ib]))
+with (r/'validation-errors.csv').open('w') as f:
+ w=csv.DictWriter(f,fieldnames=records[0]);w.writeheader();w.writerows(records)
+np.savetxt(r/'direct-bands.csv',np.column_stack([sel,energy,energy-reference]),delimiter=',',header='path_index,k1,k2,k3,distance_Ainv,E1_eV,E2_eV,E3_eV,E4_eV,E1_minus_VBM_eV,E2_minus_VBM_eV,E3_minus_VBM_eV,E4_minus_VBM_eV',comments='')
+summary['pseudopotential']={'filename':'Si.pbe-n-van.UPF','source':'https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-van.UPF','sha256':hashlib.sha256((r/'pseudo/Si.pbe-n-van.UPF').read_bytes()).hexdigest(),'type':'USPP','functional':'PBE','relativistic':'nonrelativistic','valence_electrons':4}
+(r/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print('Direct DFT validation: 13 path points, 4 valence eigenvalues at each point')
+print(f'Common energy reference: direct Gamma valence maximum = {reference:.9f} eV')
+print('mesh   n_k   spread_bohr2   MLWF_iterations   max_error_eV   RMSE_eV')
+for n,v in summary['kmesh_results'].items(): print(f"{n}^3    {v['num_kpoints']:3d}    {v['spread_bohr2']:.9f}      {v['wannier_iterations']:3d}           {v['validation_max_abs_error_eV']:.9f}   {v['validation_RMSE_eV']:.9f}")
+print('Interpolation comparison is limited to these 13 points; no full-grid convergence or conduction-band claim.')
+```
+
+</details>
 
 ```console
 maxwell@maxwell:~/si-wannier$ python3 analyse_wannier.py > analysis.out
@@ -546,6 +723,52 @@ Interpolation comparison is limited to these 13 points; no full-grid convergence
 ## 下载后重新画图
 
 将 `k4`、`k6`、`direct-bands.csv`、`validation-errors.csv` 与 [plot_wannier.py](/Atlas/examples/si-wannier/plot_wannier.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/si-wannier/atlas_plot_style.py)） 放在同一目录，运行：
+
+<details>
+<summary>plot_wannier.py 的完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import csv
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent;out=r/'figures';out.mkdir(exist_ok=True)
+plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':220})
+cols={4:'#ad623e',6:'#277f8e'}
+def load(p):return np.loadtxt(r/p,delimiter=',',skiprows=1)
+b4=load('k4/bands.csv');b6=load('k6/bands.csv');direct=load('direct-bands.csv');e=list(csv.DictReader((r/'validation-errors.csv').open()))
+labels=[x.split() for x in (r/'k4/silicon_band.labelinfo.dat').read_text().splitlines()];ticks=[float(x[2]) for x in labels];names=['Γ' if x[0]=='G' else x[0] for x in labels]
+fig,ax=plt.subplots(2,1,figsize=(7.5,7),sharex=True,gridspec_kw={'height_ratios':[3,1.3]})
+for mesh,b,ls in [(4,b4,'--'),(6,b6,'-')]:
+ for ib in range(4):ax[0].plot(b[:,0],b[:,5+ib],color=cols[mesh],ls=ls,lw=1.2,label=f'{mesh}³ Wannier' if ib==0 else None)
+for ib in range(4):ax[0].plot(direct[:,4],direct[:,9+ib],'o',mfc='white',mec='#24242a',ms=4,label='Direct DFT checks' if ib==0 else None)
+ax[0].set(ylabel='Energy relative to direct Γ valence maximum (eV)',title='Si | four valence bands only');ax[0].legend(frameon=False,ncol=3,fontsize=9)
+for mesh in [4,6]:
+ rows=[v for v in e if int(v['training_mesh'])==mesh];ix=sorted(set(int(v['path_index']) for v in rows));x=[];y=[]
+ for j in ix:
+  values=[v for v in rows if int(v['path_index'])==j];x.append(float(values[0]['distance_Ainv']));y.append(max(abs(float(v['error_eV'])) for v in values)*1000)
+ ax[1].plot(x,y,'o-',color=cols[mesh],label=f'{mesh}³ mesh')
+ax[1].set(ylabel='Maximum band error (meV)',xticks=ticks,xticklabels=names,xlim=(ticks[0],ticks[-1]))
+for a in ax:
+ for x in ticks:a.axvline(x,color='#bfbfc4',lw=.6,zorder=0)
+fig.tight_layout();fig.savefig(out/'wannier-bands.png',bbox_inches='tight');fig.savefig(out/'wannier-bands.pdf',bbox_inches='tight');plt.close(fig)
+fig,ax=plt.subplots(1,2,figsize=(9,3.8))
+for mesh in [4,6]:
+ x=load(f'k{mesh}/spread-history.csv');ax[0].plot(x[:,0],x[:,3],'o-',color=cols[mesh],label=f'{mesh}³')
+ ax[1].semilogy(x[:,0],np.maximum(abs(x[:,1]),1e-16),'o-',color=cols[mesh],label=f'{mesh}³')
+ax[0].set(xlabel='Wannier iteration',ylabel='Total spread (bohr²)');ax[0].legend(frameon=False)
+ax[1].axhline(1e-10,color='#777',ls='--',lw=1,label='Tolerance');ax[1].set(xlabel='Wannier iteration',ylabel='Absolute spread change (bohr²)');ax[1].legend(frameon=False)
+fig.suptitle('Spread convergence within a mesh does not establish interpolation accuracy',fontsize=11)
+fig.tight_layout();fig.savefig(out/'wannier-spread.png',bbox_inches='tight');fig.savefig(out/'wannier-spread.pdf',bbox_inches='tight');plt.close(fig)
+print('Wrote wannier-bands and wannier-spread as PNG/PDF')
+```
+
+</details>
 
 ```bash
 python plot_wannier.py

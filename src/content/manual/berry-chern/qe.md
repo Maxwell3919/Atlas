@@ -1,32 +1,8 @@
-本页用 QE 7.5 导出的金刚石 Si 占据态重叠矩阵，计算固定分数坐标 k₃ 的周期二维切片陈数。先读取完整 4×4×4 与 6×6×6 网格，再构造沿倒格方向 b₁、b₂ 的 FHS 回路。十个实际采样切片均得到离散整数 C=0。
+占据态在相邻 k 点的重叠矩阵，怎样给出一个周期二维切片的陈数？这里从 QE 7.5 导出的金刚石 Si 原生矩阵出发，读取完整 4×4×4 与 6×6×6 网格，在固定分数坐标 k₃ 的平面内沿倒格方向 b₁、b₂ 构造 FHS 回路。十个实际采样切片均得到离散整数 C=0。
 
 准备这类文件的前置步骤见 [QE–Wannier90 接口](/Atlas/m/wannier90/qe/)。重叠矩阵格式见 [Wannier90 的后处理文件说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/postproc/)，接口参数见 [pw2wannier90.x 文档](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html)。
 
-## 下载并运行占据态后处理
-
-[下载完整示例包](/Atlas/examples/topo_berry_si_files.tar.gz)。包中含两套 QE 输入、输出和 XML，原生 Wannier90 文件，完整源码、结果表及运行日志。下载后在终端解压，先检查保存文件，再运行：
-
-~~~console
-tar -xzf topo_berry_si_files.tar.gz
-cd topo_berry_si
-sha256sum --check SHA256SUMS
-python3 -B analyse.py > analyse.out 2> analyse.err
-python3 -B verify.py > verify.out 2> verify.err
-cat verify.out
-~~~
-
-依赖是 Python 3 与 NumPy；保存结果使用 Python 3.12.3、NumPy 2.4.6，版本写在 <code>requirements.txt</code> 中。<code>analyse.py</code> 生成 <code>results/</code> 下的表和摘要，随后 <code>verify.py</code> 读取这些结果做独立回路核对。程序用 <code>assert</code> 检查输入及数值条件，运行时须保留断言，不能加 <code>-O</code> 或 <code>-OO</code>。输入不满足条件时程序终止，具体断言位置见 stderr；应先检查该位置对应的文件和条件。
-
-保存的独立核对输出为：
-
-~~~text
-k4: independent SVD polar-matrix loop phase difference = 1.681e-15 rad
-k6: independent SVD polar-matrix loop phase difference = 1.587e-15 rad
-Synthetic periodic link field: C = 1.000000000000 (expected +1; algebra check only)
-INDEPENDENT_CHECKS_PASSED
-~~~
-
-合成周期链接场的 C=+1 用来检查绕行方向与周期索引；Si 的结果来自下面的真实重叠矩阵。
+[下载输入、原生重叠矩阵、完整源码与结果](/Atlas/examples/topo_berry_si_files.tar.gz)。已有矩阵可以直接用于 Python 后处理；若从 QE 重新生成矩阵，需先完成 SCF、完整均匀网格 NSCF 和 pw2wannier90 接口导出。
 
 ## 结构、网格和脚本输入
 
@@ -140,22 +116,9 @@ C_raw = sum(phi_on_fixed_k3_slice) / (2*pi)
 
 <code>verify.py</code> 重新解析 MMN，并对各重叠矩阵作 SVD 极分解，取幺正部分构造矩阵回路，再比较其行列式相位。它读取主分析输出的方向链接表，因此独立核对的是回路计算，周期链接识别仍由主分析器完成。
 
-## 源码与结果
+## 把矩阵处理逻辑写成程序
 
-| 文件 | 下载及用途 |
-| --- | --- |
-| 主分析器 | [analyse.py](/Atlas/examples/topo_berry_si/analyse.py) |
-| 极分解回路与合成场核对 | [verify.py](/Atlas/examples/topo_berry_si/verify.py) |
-| 十个切片的原始和、整数及小格面积 | [slices.csv](/Atlas/examples/topo_berry_si/slices.csv) |
-| 逐小格相位 | [4³ CSV](/Atlas/examples/topo_berry_si/k4-plaquettes.csv) · [6³ CSV](/Atlas/examples/topo_berry_si/k6-plaquettes.csv) |
-| 数值条件与逐切片摘要 | [summary.json](/Atlas/examples/topo_berry_si/summary.json) |
-| 独立核对结果 | [independent-check.json](/Atlas/examples/topo_berry_si/independent-check.json) |
-
-完整包还包含逐链接表、随机规范检查表、30 份输入文件的 <code>source-sha256.json</code> 和运行日志。<code>SHA256SUMS</code> 校验下载包内保存的文件；重新执行后处理会重写结果及日志，摘要中的运行时间也会变化，应在重跑前检查保存文件。
-
-## 编写同类后处理的提示词
-
-以下是独立的代码生成任务说明。它描述本例当前输入和输出约定，适用于编写可对照现有脚本的程序；更换网格、占据子空间或自旋设置时，需要相应修改并核对输入条件。
+程序需要把坐标、邻接关系与矩阵点序先对齐，再计算链接和回路，最后检查规范不变性及切片整数。下面的提示词可交给 AI 编写这套后处理；文件名、子空间和数值条件均对应当前 Si 数据。更换网格、占据子空间或自旋设置时，先改输入条件，再改索引与检查。
 
 ~~~text
 编写 Python 3 / NumPy 程序，重现本包中 QE 7.5 Si 占据态重叠矩阵的 FHS 后处理。
@@ -173,10 +136,274 @@ C_raw = sum(phi_on_fixed_k3_slice) / (2*pi)
 提供完整源码、依赖和终端命令；只处理已保存数据，逐切片表直接呈现结果。
 ~~~
 
+## 源码与结果
+
+| 文件 | 下载及用途 |
+| --- | --- |
+| 主分析器 | [analyse.py](/Atlas/examples/topo_berry_si/analyse.py) |
+| 极分解回路与合成场核对 | [verify.py](/Atlas/examples/topo_berry_si/verify.py) |
+| 十个切片的原始和、整数及小格面积 | [slices.csv](/Atlas/examples/topo_berry_si/slices.csv) |
+| 逐小格相位 | [4³ CSV](/Atlas/examples/topo_berry_si/k4-plaquettes.csv) · [6³ CSV](/Atlas/examples/topo_berry_si/k6-plaquettes.csv) |
+| 数值条件与逐切片摘要 | [summary.json](/Atlas/examples/topo_berry_si/summary.json) |
+| 独立核对结果 | [independent-check.json](/Atlas/examples/topo_berry_si/independent-check.json) |
+
+<details>
+<summary>analyse.py 的完整源码</summary>
+
+```python
+"""FHS determinant links from native QE/Wannier90 overlaps; NumPy only."""
+from pathlib import Path
+import csv
+import hashlib
+import json
+import re
+import time
+import xml.etree.ElementTree as ET
+import numpy as np
+
+ROOT = Path(__file__).resolve().parent
+OUT = ROOT / "results"
+OUT.mkdir(exist_ok=True)
+
+def block(text, name):
+    return re.search(r"begin\s+"+name+r"\s*\n(.*?)end\s+"+name,
+                     text, re.S | re.I).group(1).strip().splitlines()
+
+def write_csv(name, rows):
+    with (OUT / name).open("w") as stream:
+        writer = csv.DictWriter(stream, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+
+def read_case(n):
+    directory = ROOT / "source" / f"k{n}"
+    win = (directory / "silicon.win").read_text()
+    points = np.array([list(map(float, line.split())) for line in block(win, "kpoints")])
+    indices = np.rint(points * n).astype(int)
+    assert np.max(np.abs(points * n - indices)) < 1e-8
+    assert len(set(map(tuple, indices))) == n**3
+    lookup = {tuple(v): i for i, v in enumerate(indices)}
+    nnkp = (directory / "silicon.nnkp").read_text()
+    nn_points = block(nnkp, "kpoints")
+    assert int(nn_points[0]) == len(points)
+    assert np.allclose(points, np.array([list(map(float, x.split())) for x in nn_points[1:]]), atol=1e-8, rtol=0)
+    bvecs = np.array([list(map(float, line.split())) for line in block(nnkp, "recip_lattice")])
+    real = np.array([list(map(float, line.split())) for line in block(nnkp, "real_lattice")])
+    reciprocal_error = float(np.max(np.abs(real @ bvecs.T - 2*np.pi*np.eye(3))))
+    assert reciprocal_error < 1e-6
+    nn_lines = block(nnkp, "nnkpts")
+    nnb = int(nn_lines[0])
+    declared = {tuple(map(int, line.split())) for line in nn_lines[1:]}
+    with (directory / "silicon.mmn").open() as stream:
+        stream.readline()
+        nb, nk, nn = map(int, stream.readline().split())
+        assert (nb, nk, nn) == (4, n**3, nnb)
+        matrices = {}
+        for _ in range(nk*nn):
+            header = tuple(map(int, stream.readline().split()))
+            assert len(header) == 5 and header not in matrices
+            values = [complex(*map(float, stream.readline().split())) for _ in range(nb*nb)]
+            matrices[header] = np.array(values).reshape((nb, nb), order="F")
+        assert not stream.read().strip()
+    assert set(matrices) == declared
+    tree = ET.parse(directory / "nscf.data-file-schema.xml").getroot()
+    vals = lambda tag: [e.text.strip() for e in tree.iter() if e.tag.split('}')[-1] == tag]
+    assert set(vals("nbnd")) == {"4"} and set(vals("nks")) == {str(n**3)}
+    assert all(float(x) == 8 for x in vals("nelec"))
+    for tag in ["lsda", "noncolin", "spinorbit"]:
+        assert set(vals(tag)) == {"false"}
+    occ = [e for e in vals("occupations") if e != "fixed"]
+    assert len(occ) == n**3 and all(np.array_equal(np.fromstring(x, sep=" "), np.ones(4)) for x in occ)
+    for stem in ["si.scf", "si.nscf", "pw2wan"]:
+        text = (directory / (stem+".out")).read_text()
+        assert text.count("JOB DONE.") == 1
+        assert not re.search(r"Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT", text)
+        assert (directory / (stem+".err")).stat().st_size == 0
+    selected = {}
+    reverse_error = 0.0
+    for header, matrix in matrices.items():
+        i, j, *g = header
+        reverse = (j, i, *[-v for v in g])
+        assert reverse in matrices
+        reverse_error = max(reverse_error, float(np.max(np.abs(matrix-matrices[reverse].conj().T))))
+        delta = (points[j-1]+g-points[i-1])*n
+        step = np.rint(delta).astype(int)
+        assert np.max(np.abs(delta-step)) < 1e-8
+        for axis in [0, 1]:
+            unit = np.eye(3, dtype=int)[axis]
+            if np.array_equal(step, unit):
+                assert (i-1, axis) not in selected
+                assert j-1 == lookup[tuple((indices[i-1]+unit) % n)]
+                selected[i-1, axis] = (j-1, tuple(g), matrix)
+    assert len(selected) == 2*n**3 and reverse_error < 1e-9
+    return directory, points, indices, lookup, selected, bvecs, reciprocal_error, reverse_error
+
+def links_and_flux(n, indices, lookup, selected, gauge=None):
+    links = {}
+    for (i, axis), (j, g, matrix) in selected.items():
+        if gauge is not None:
+            matrix = gauge[i].conj().T @ matrix @ gauge[j]
+        determinant = np.linalg.det(matrix)
+        assert abs(determinant) > 1e-12
+        links[i, axis] = determinant / abs(determinant)
+    flux = np.empty(n**3)
+    for i, coord in enumerate(indices):
+        i1 = lookup[tuple((coord + [1, 0, 0]) % n)]
+        i2 = lookup[tuple((coord + [0, 1, 0]) % n)]
+        flux[i] = np.angle(links[i,0]*links[i1,1]*np.conj(links[i2,0])*np.conj(links[i,1]))
+    return links, flux
+
+def run(n):
+    start = time.perf_counter()
+    directory, points, indices, lookup, selected, bvecs, reciprocal_error, reverse_error = read_case(n)
+    area = float(np.linalg.norm(np.cross(bvecs[0], bvecs[1])) / n**2)
+    rows = []
+    for (i, axis), (j, g, matrix) in selected.items():
+        sv = np.linalg.svd(matrix, compute_uv=False)
+        rows.append(dict(grid=n,k_index=i+1,axis=axis+1,neighbor_index=j+1,G1=g[0],G2=g[1],G3=g[2],min_singular=float(sv[-1]),max_singular=float(sv[0]),abs_determinant=float(abs(np.linalg.det(matrix)))))
+    minsv = min(x["min_singular"] for x in rows)
+    maxsv = max(x["max_singular"] for x in rows)
+    assert minsv > 1e-8 and maxsv < 1.001
+    links, flux = links_and_flux(n, indices, lookup, selected)
+    link_norm_error = max(abs(abs(v)-1) for v in links.values())
+    assert link_norm_error < 1e-14
+    gauge_rows = []
+    for trial in range(12):
+        seed = 2026092200 + 100*n + trial
+        rng = np.random.default_rng(seed)
+        gauge = []
+        for _ in range(n**3):
+            z = rng.normal(size=(4,4)) + 1j*rng.normal(size=(4,4))
+            q, rr = np.linalg.qr(z)
+            q = q @ np.diag(np.diag(rr)/np.abs(np.diag(rr)))
+            gauge.append(q)
+        gauge = np.array(gauge)
+        norm_error = float(np.max(np.abs(gauge.conj().transpose(0,2,1)@gauge-np.eye(4))))
+        _, changed = links_and_flux(n, indices, lookup, selected, gauge)
+        flux_error = float(np.max(np.abs(np.angle(np.exp(1j*(changed-flux))))))
+        chern_error = max(abs(np.sum(changed[indices[:,2]==s]-flux[indices[:,2]==s])/(2*np.pi)) for s in range(n))
+        assert norm_error < 1e-12 and flux_error < 1e-12 and chern_error < 1e-12
+        gauge_rows.append(dict(grid=n,trial=trial,seed=seed,unitary_error=norm_error,max_flux_difference_rad=flux_error,max_chern_difference=float(chern_error)))
+    slice_rows=[]
+    for s in range(n):
+        f = flux[indices[:,2]==s]
+        chern = float(np.sum(f)/(2*np.pi))
+        integer = int(np.rint(chern))
+        assert abs(chern-integer) < 1e-10
+        slice_rows.append(dict(grid=n,k3_index=s,k3_fraction=s/n,plaquettes=n*n,chern_raw=chern,chern_integer=integer,max_abs_phase_rad=float(np.max(np.abs(f))),plaquette_area_invA2=area))
+    write_csv(f"k{n}-links.csv", rows)
+    write_csv(f"k{n}-gauge-check.csv", gauge_rows)
+    write_csv(f"k{n}-plaquettes.csv", [dict(grid=n,k_index=i+1,k1_index=int(c[0]),k2_index=int(c[1]),k3_index=int(c[2]),k1_fraction=float(points[i,0]),k2_fraction=float(points[i,1]),k3_fraction=float(points[i,2]),phase_rad=float(flux[i]),phase_per_area_A2=float(flux[i]/area)) for i,c in enumerate(indices)])
+    summary=dict(grid=n,occupied_bands=4,kpoints=n**3,mmn_neighbors=8,selected_links=len(selected),boundary_links=sum(any(x['G'+str(i)] for i in [1,2,3]) for x in rows),min_link_singular_value=minsv,max_link_singular_value=maxsv,min_abs_determinant=min(x['abs_determinant'] for x in rows),reciprocal_duality_error=reciprocal_error,reverse_link_max_error=reverse_error,normalized_link_norm_error=link_norm_error,max_abs_phase_rad=float(np.max(np.abs(flux))),branch_margin_rad=float(np.pi-np.max(np.abs(flux))),random_gauge_trials=12,max_gauge_flux_difference_rad=max(x['max_flux_difference_rad'] for x in gauge_rows),max_gauge_chern_difference=max(x['max_chern_difference'] for x in gauge_rows),slices=slice_rows,wall_seconds=time.perf_counter()-start)
+    print(f"GRID {n}x{n}x{n}: {n**3} k points, 4 occupied bands, {len(selected)} directed links")
+    print(f"  singular values: min={minsv:.12f} max={maxsv:.12f}; min|det M|={summary['min_abs_determinant']:.12f}")
+    print(f"  reverse overlap residual={reverse_error:.3e}; max plaquette phase={summary['max_abs_phase_rad']:.6e} rad")
+    print(f"  12 random U(4) gauges: max phase difference={summary['max_gauge_flux_difference_rad']:.3e} rad")
+    for row in slice_rows:
+        print(f"  k3={row['k3_fraction']:.9f}: C={row['chern_raw']:+.12e}, integer={row['chern_integer']}, max|phase|={row['max_abs_phase_rad']:.6e}")
+    return summary, slice_rows
+
+summaries=[]
+slices=[]
+for n in [4,6]:
+    result, rows = run(n)
+    summaries.append(result)
+    slices.extend(rows)
+write_csv("slices.csv", slices)
+record=dict(method="Fukui-Hatsugai-Suzuki determinant links of four occupied native QE/pw2wannier90 bands",phase_convention="Arg(U1(k) U2(k+e1) conj(U1(k+e2)) conj(U2(k)))",surface="fixed fractional k3, oriented reciprocal b1,b2 torus",spin="nonmagnetic scalar calculation: one equivalent spin channel; four spatial bands, eight electrons",claim="Discrete slice Chern calculation and internal numerical checks only; no full-zone insulating-gap or Z2 validation",numpy_version=np.__version__,cases=summaries)
+(OUT/"summary.json").write_text(json.dumps(record,indent=2)+"\n")
+hashes={str(f.relative_to(ROOT)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted((ROOT/'source').rglob('*')) if f.is_file()}
+(OUT/'source-sha256.json').write_text(json.dumps(hashes,indent=2)+"\n")
+print("POSTPROCESS_CHECKS_PASSED; full-zone gap and material topological classification not established.")
+```
+
+</details>
+
+<details>
+<summary>verify.py 的完整源码</summary>
+
+```python
+"""Independent polar-matrix loop check, plus a nonzero synthetic link test."""
+from pathlib import Path
+import csv, hashlib, json
+import numpy as np
+root=Path(__file__).resolve().parent
+hashes=json.loads((root/'results/source-sha256.json').read_text())
+assert all(hashlib.sha256((root/n).read_bytes()).hexdigest()==h for n,h in hashes.items())
+receipts=[]
+for n in [4,6]:
+    raw=(root/f'source/k{n}/silicon.mmn').read_text().splitlines()
+    nb,nk,nn=map(int,raw[1].split())
+    matrices={}
+    for at in range(2,len(raw),nb*nb+1):
+        header=tuple(map(int,raw[at].split()))
+        z=np.array([complex(*map(float,line.split())) for line in raw[at+1:at+1+nb*nb]]).reshape(nb,nb,order='F')
+        u,sv,vh=np.linalg.svd(z)
+        matrices[header]=u@vh
+    rows=list(csv.DictReader((root/f'results/k{n}-links.csv').open()))
+    links={(int(x['k_index'])-1,int(x['axis'])-1):(int(x['neighbor_index'])-1,matrices[(int(x['k_index']),int(x['neighbor_index']),int(x['G1']),int(x['G2']),int(x['G3']))]) for x in rows}
+    phases={}
+    for k in range(nk):
+        k1,m1=links[k,0];k2,m2=links[k,1]
+        k12,m12=links[k1,1];k21,m21=links[k2,0]
+        assert k12==k21
+        phases[k]=float(np.angle(np.linalg.det(m1@m12@m21.conj().T@m2.conj().T)))
+    saved=list(csv.DictReader((root/f'results/k{n}-plaquettes.csv').open()))
+    error=max(abs(np.angle(np.exp(1j*(phases[int(x['k_index'])-1]-float(x['phase_rad']))))) for x in saved)
+    assert error<1e-12
+    receipts.append(dict(grid=n,independent_polar_loop_max_phase_error_rad=error,raw_mmn_sha256=hashlib.sha256((root/f'source/k{n}/silicon.mmn').read_bytes()).hexdigest()))
+    print(f'k{n}: independent SVD polar-matrix loop phase difference = {error:.3e} rad')
+# Periodic link field with a known +1 total flux; not a material calculation.
+n=7
+u1=np.array([[np.exp(-2j*np.pi*j/(n*n)) for j in range(n)] for i in range(n)])
+u2=np.ones((n,n),complex)
+for i in range(n):u2[i,-1]=np.exp(2j*np.pi*i/n)
+phase=np.empty((n,n))
+for i in range(n):
+    for j in range(n):phase[i,j]=np.angle(u1[i,j]*u2[(i+1)%n,j]*np.conj(u1[i,(j+1)%n])*np.conj(u2[i,j]))
+synthetic=float(phase.sum()/(2*np.pi))
+assert abs(synthetic-1)<1e-12
+print(f'Synthetic periodic link field: C = {synthetic:.12f} (expected +1; algebra check only)')
+assert all(hashlib.sha256((root/n).read_bytes()).hexdigest()==h for n,h in hashes.items())
+receipt=dict(source_files_unchanged=len(hashes),polar_loop_checks=receipts,synthetic_link_chern=synthetic,synthetic_scope='Algorithm orientation and periodic-boundary check, not a Si/QE result')
+(root/'results/independent-check.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print('INDEPENDENT_CHECKS_PASSED')
+```
+
+</details>
+
+完整包还包含逐链接表、随机规范检查表、30 份输入文件的 <code>source-sha256.json</code> 和运行日志。<code>SHA256SUMS</code> 校验下载包内保存的文件；重新执行后处理会重写结果及日志，摘要中的运行时间也会变化，应在重跑前检查保存文件。
+
+## 运行后处理，读取保存的核对输出
+
+上面的完整包包含两套 QE 输入、输出和 XML、原生 Wannier90 文件及运行日志。先核对包内保存文件的哈希，再执行后处理；以下是对应命令：
+
+~~~console
+tar -xzf topo_berry_si_files.tar.gz
+cd topo_berry_si
+sha256sum --check SHA256SUMS
+python3 -B analyse.py > analyse.out 2> analyse.err
+python3 -B verify.py > verify.out 2> verify.err
+cat verify.out
+~~~
+
+依赖是 Python 3 与 NumPy；保存结果使用 Python 3.12.3、NumPy 2.4.6，版本写在 <code>requirements.txt</code> 中。<code>analyse.py</code> 生成 <code>results/</code> 下的表和摘要，随后 <code>verify.py</code> 读取这些结果做独立回路核对。程序用 <code>assert</code> 检查输入及数值条件，运行时须保留断言，不能加 <code>-O</code> 或 <code>-OO</code>。输入不满足条件时程序终止，具体断言位置见 stderr；应先检查该位置对应的文件和条件。
+
+保存的独立核对输出为：
+
+~~~text
+k4: independent SVD polar-matrix loop phase difference = 1.681e-15 rad
+k6: independent SVD polar-matrix loop phase difference = 1.587e-15 rad
+Synthetic periodic link field: C = 1.000000000000 (expected +1; algebra check only)
+INDEPENDENT_CHECKS_PASSED
+~~~
+
+合成周期链接场的 C=+1 用来检查绕行方向与周期索引；Si 的结果来自前面列出的真实重叠矩阵。
+
 ## 从切片整数到材料解释
 
 LaH₂ 的研究用 Fukui 方法计算二维六角布里渊区的 Berry 曲率，Fig. 4(a) 显示带符号 Ωz 分布，随后结合谷附近的曲率讨论反常谷霍尔响应。这说明局部几何量如何参与物理响应的分析。[Shi et al., J. Phys.: Condens. Matter 34, 475303 (2022)](https://doi.org/10.1088/1361-648X/ac96bb)。
 
 TbCl 的研究在 Fig. 2(b) 比较 k_z=0、π 平面的 Wannier 电荷中心流，并在 Fig. 4 将含 SOC 能隙、反常霍尔电导及手性边缘谱联系起来。平面不变量、能隙和边界响应各回答材料解释中的一个问题。[Zhong et al., npj Comput. Mater. 11, 236 (2025)](https://doi.org/10.1038/s41524-025-01732-0)。
 
-Si 示例把计算链的起点具体化：读取原生占据态重叠，识别周期链接，检验规范不变性，再列出实际切片整数。进一步研究材料时，应按目标物理量补齐能带与相应的响应计算。
+这里的 C=0 来自四条占据空间带的重叠与十个周期切片。讨论完整材料的拓扑性质时，还需确定全布里渊区能隙，并按目标不变量或响应选择相应计算。

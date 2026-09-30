@@ -1,14 +1,14 @@
+金刚石中，每个 C 原子有四个最近邻。本次从两原子原胞出发，计算这四条 C–C 键的 pCOHP，并检查把 k 网格和波函数截断提高后，每条键的积分值变了多少。先看实际生成了哪些键，再看它们在哪些能量范围呈现成键、反键贡献。
+
 - [Quantum ESPRESSO 7.5：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 - [LOBSTER 官方页面、下载与配套手册](https://www.cohp.de/)
 - [QE 官方 C PAW 赝势](https://pseudopotentials.quantum-espresso.org/upf_files/C.pbe-n-kjpaw_psl.0.1.UPF)
-
-金刚石中，每个 C 原子有四个最近邻。本次从两原子原胞出发，计算这四条 C–C 键的 pCOHP，并检查把 k 网格和波函数截断提高后，每条键的积分值变了多少。先看实际生成了哪些键，再看它们在哪些能量范围呈现成键、反键贡献。
 
 通用操作见 [SCF](/Atlas/m/scf/qe/)。这里每组重新进行静态 SCF → LOBSTER，没有使用其它 Si 或 Al 教案的密度，也没有独立 NSCF 步骤。LOBSTER 6.0.0 要读取 `.scf.in`、对应 PAW UPF 和 `.save` 中的波函数；只有 `scf.out` 不能完成投影。
 
 [本次输入、输出和绘图脚本](/Atlas/examples/diamond-cohp-files.tar.gz)解压为 `diamond-cohp`。包内包括四组正式比较和两份同波函数的基组诊断，没有程序、手册、UPF 和大体积波函数。已有结果可直接重画；重算时需要自己的 LOBSTER、下面的赝势，以及重新运行产生的 `.save`。
 
-结构采用 LOBSTER 6.0.0 配套 QE diamond 示例的两原子金刚石原胞，常规立方晶格常数固定为 `6.746 bohr`，约 `3.56981 Å`。本轮没有重新优化，不把它称为这套赝势的零压平衡结构。相较配套示例，本次明确改用非自旋 `nspin=1`、8 条带、固定占据，并重新做网格和截断对照。
+结构采用 LOBSTER 6.0.0 配套 QE diamond 示例的两原子金刚石原胞，常规立方晶格常数固定为 `6.746 bohr`，约 `3.56981 Å`。以下计算保持这一几何；零压平衡结构需另做晶胞优化。相较配套示例，本次明确改用非自旋 `nspin=1`、8 条带、固定占据，并重新做网格和截断对照。
 
 ## 从固定原胞准备波函数
 
@@ -103,6 +103,8 @@ Submitted batch job 865
              JOBID             NAME    STATE   CPUS       TIME
                865  atlas-c-cohp-k6  RUNNING      4       0:00
 ```
+## 从 SCF 输出核对波函数
+
 队列中的 RUNNING 说明已经分配资源。实际读入什么、电子迭代走到哪里，要看 `scf.out`。开头依次列出程序与并行设置、晶胞与电子数、截断、赝势信息。
 ```console
 [preston@preston-System-Product-Name diamond-k6]$ head -n 80 scf.out
@@ -237,7 +239,7 @@ Submitted batch job 865
      iteration #  2     ecut=    60.00 Ry     beta= 0.70
      CG style diagonalization
 ```
-第一轮真实出现了 `eigenvalues not converged`。它从随机化原子波函数开始，不能把这几行删掉，也不能只凭它们就断定最终状态。这次继续迭代后，后续电子步和最终求解中都没有该警告，最终残差降到 `1.6E-11 Ry`。若警告延续至最后一轮，或 SCF 残差未通过，应先处理波函数精度再投影。
+第一轮从随机化原子波函数开始，出现了 `eigenvalues not converged`。继续迭代后，后续电子步和最终求解中该警告消失，最终残差降到 `1.6E-11 Ry`。若警告延续至最后一轮，或 SCF 残差未通过，应先处理波函数精度再投影。
 
 输出末尾先列逐 k 本征值和占据数，再给最终能量、能量分项、收敛结论和力。
 ```console
@@ -361,6 +363,8 @@ wfc105.dat
 ```
 XML 保存设置、结构、k 点、本征值和占据；`charge-density.dat` 是密度，`wfc*.dat` 是波函数，`paw.txt` 和对应 UPF 提供 PAW 数据。112 份波函数与 XML 和原生输出中的 112 个独立 k 点吻合。这些文件来自同一次 SCF，才构成后处理的输入。
 
+## 配置 LOBSTER，检查投影质量
+
 同目录写入 `lobsterin`。C 显式选用 2s、2p，保留默认正交化；距离筛选包括最近邻而排除更远的壳层。
 ```console
 [preston@preston-System-Product-Name diamond-k6]$ cat > lobsterin <<'EOF'
@@ -470,7 +474,9 @@ finished in 0 h  0 min  1 s 704 ms of wall time
 
 另用同一份 k6 波函数选 Koga 和 pbeVaspFit2015，仍只使用 C 2s/2p。原生输出分别回显库名，charge/total spilling 仍为 1.12%/9.23%，ICOHP 与 Bunge 最多差 0.00001 eV。两套替代库的投影矩阵在输出精度内相同，不能将三个库名当成三个独立基组空间的收敛证明。本次没有明确理由换库，正式的网格、截断对照全部固定 Bunge。
 
-现在读每条键的积分值。
+## 按周期平移识别四条键，读取谱与积分
+
+先读每条键的积分值。
 ```console
 [preston@preston-System-Product-Name diamond-k6]$ cat ICOHPLIST.lobster
   COHP#    atomMU    atomNU   distance   translation   ICOHP (at) eF 
@@ -484,7 +490,7 @@ finished in 0 h  0 min  1 s 704 ms of wall time
 
 本例非自旋输出只有 `for spin 1` 这一组数据，不能再把每个数乘 2。金刚石的四个最近邻应等价，这里差约 0.00001 eV，属于数值精度与文本舍入。比较设置时按原子编号和晶胞平移匹配同一条键，同时检查平均变化和最大单键变化。
 
-本轮实际结构文件名带有 `.vasp` 后缀。
+对应结构文件为 `POSCAR.lobster.vasp`。
 ```console
 [preston@preston-System-Product-Name cohp]$ cat diamond-k6/POSCAR.lobster.vasp
 C2
@@ -561,7 +567,7 @@ No.4:C1->C2(1.5457814950700495)
 Submitted batch job 867
 ```
 
-计算中读输出末尾，看当前电子迭代是否还在推进。这是本次尚未结束时的真实状态：
+计算中读输出末尾，查看电子迭代是否继续推进。下面的输出停在第 15 轮：
 
 ```console
 [preston@preston-System-Product-Name cohp]$ tail -n 8 diamond-k8/scf.out
@@ -607,7 +613,7 @@ k10 同样建立独立目录，改成 `10 10 10 0 0 0`；最后一组仍用 k10�
 
 ![相同几何、PAW、基组与积分设置下的 ICOHP 对照](/Atlas/figures/cohp-diamond/cohp-comparison.png)
 
-三个变化都小于本次比较线，支持“在已测试的 k 网格与 60→80 Ry 波函数截断范围内，最近邻 ICOHP 对这些设置不敏感”。这个结论只覆盖已测试范围：密度截断未单独收敛，展宽固定，几何未重新优化，空态总 spilling 仍约 9.26%。
+三个变化都小于本次比较线，说明最近邻 ICOHP 在所测试的 k 网格与 60→80 Ry 波函数截断范围内，对这些设置不敏感。比较保持密度截断 640 Ry、Gaussian 展宽 0.2 eV 和固定几何；空态总 spilling 约为 9.26%，因此高能空态谱还需另行检查。
 
 ## 从原始文件重画并导出论文用图
 
@@ -623,13 +629,282 @@ k10 同样建立独立目录，改成 `10 10 10 0 0 0`；最后一组仍用 k10�
 
 完整脚本可单独下载：[plot_cohp.py](/Atlas/examples/diamond-cohp/plot_cohp.py)。一般的轴标、图例、配色与矢量导出操作见[科研图的后处理与导出](/Atlas/plotting/)。
 
-最后在本机重画。公开包解压后进入 `diamond-cohp`，在 **NumPy ≥ 2.0、Matplotlib** 的 Python 环境执行：
+<details>
+<summary>plot_cohp.py 的完整源码</summary>
+
+```python
+"""Plot this non-magnetic diamond example from native QE/LOBSTER output.
+
+Run in the unpacked cohp-diamond directory: python3 plot_cohp.py
+Requires NumPy >= 2.0 and Matplotlib. No LOBSTER executable is needed to replot.
+"""
+from pathlib import Path
+import argparse
+import json
+import re
+import xml.etree.ElementTree as ET
+
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib import font_manager
+
+ROOT = Path(__file__).resolve().parent
+BOHR_TO_ANGSTROM = 0.529177210903
+HARTREE_TO_EV = 27.211386245988
+BLUE, ORANGE, INK, GREY = '#0072b2', '#d55e00', '#111111', '#777777'
+MODE = 'web'
+
+
+def set_style(mode):
+    global MODE
+    MODE = mode
+    available = {f.name for f in font_manager.fontManager.ttflist}
+    family = next((name for name in ('Arial', 'Helvetica') if name in available), 'DejaVu Sans')
+    plt.rcParams.update({
+        'font.family': family, 'font.size': size(10, 7),
+        'axes.labelsize': size(10.5, 7), 'axes.titlesize': size(10.5, 7),
+        'xtick.labelsize': size(9, 6), 'ytick.labelsize': size(9, 6),
+        'legend.fontsize': size(9, 6), 'mathtext.fontset': 'dejavusans',
+        'axes.labelcolor': INK, 'text.color': INK, 'xtick.color': INK,
+        'ytick.color': INK, 'axes.edgecolor': INK, 'axes.linewidth': .65,
+        'axes.spines.top': False, 'axes.spines.right': False,
+        'axes.grid': False, 'savefig.facecolor': 'white',
+        'pdf.fonttype': 42, 'ps.fonttype': 42, 'svg.fonttype': 'none',
+        'xtick.direction': 'out', 'ytick.direction': 'out',
+        'xtick.major.width': .65, 'ytick.major.width': .65,
+    })
+
+
+def size(web, paper):
+    return paper if MODE == 'paper' else web
+
+
+def panel(ax, letter):
+    ax.text(-.16, 1.075, letter, transform=ax.transAxes,
+            fontsize=size(12, 8), fontweight='bold', va='bottom')
+
+
+def load_case(name):
+    folder = ROOT / name
+    lines = (folder / 'COHPCAR.lobster').read_text().splitlines()
+    meta = lines[1].split()
+    sets, spins, points = map(int, meta[:3])
+    if spins != 1:
+        raise ValueError('This lesson parser handles its non-magnetic, one-block output only.')
+    pairs = sets - 1
+    assert pairs == 4 and lines[2].strip() == 'Average'
+    data = np.loadtxt(folder / 'COHPCAR.lobster', skiprows=sets + 2)
+    assert data.shape == (points, 1 + 2 * sets)
+    assert np.all(np.diff(data[:, 0]) > 0) and np.all(np.isfinite(data))
+    assert np.max(np.abs(data[:, 1] - data[:, 3::2].mean(axis=1))) <= 1.1e-5
+    assert np.max(np.abs(data[:, 2] - data[:, 4::2].mean(axis=1))) <= 1.1e-5
+
+    rows = []
+    for line in (folder / 'ICOHPLIST.lobster').read_text().splitlines():
+        tokens = line.split()
+        if not tokens or not tokens[0].isdigit():
+            continue
+        assert len(tokens) == 8, 'Unexpected ICOHPLIST spin/vector layout'
+        index = int(tokens[0])
+        atoms = [int(re.fullmatch(r'C(\d+)', token)[1]) for token in tokens[1:3]]
+        rows.append({'index': index, 'atoms': atoms, 'distance_A': float(tokens[3]),
+                     'translation': list(map(int, tokens[4:7])), 'icohp_eV': float(tokens[7])})
+    assert len(rows) == pairs and [row['index'] for row in rows] == list(range(1, 5))
+
+    xml_file = folder / 'data-file-schema.xml'
+    if not xml_file.exists():
+        xml_file = folder / 'tmp/diamond.save/data-file-schema.xml'
+    tree = ET.parse(xml_file).getroot()
+    structure = tree.find('./output/atomic_structure')
+    lattice = np.array([np.fromstring(node.text, sep=' ') for node in structure.find('cell')]) * BOHR_TO_ANGSTROM
+    atoms = np.array([np.fromstring(node.text, sep=' ') for node in structure.find('atomic_positions')]) * BOHR_TO_ANGSTROM
+    assert lattice.shape == (3, 3) and atoms.shape == (2, 3)
+    bs = tree.find('./output/band_structure')
+    ef = float(bs.findtext('fermi_energy')) * HARTREE_TO_EV
+    ho = float(bs.findtext('highestOccupiedLevel')) * HARTREE_TO_EV
+    lu = float(bs.findtext('lowestUnoccupiedLevel')) * HARTREE_TO_EV
+    assert int(bs.findtext('nbnd')) == 8 and float(bs.findtext('nelec')) == 8
+    assert abs(ef - ho) < 1e-8
+    assert abs(ef - float(meta[5])) < 5.1e-5
+    for row in rows:
+        first, second = [atoms[i - 1] for i in row['atoms']]
+        row['vector_A'] = (second + np.array(row['translation']) @ lattice - first).tolist()
+        row['xml_distance_A'] = float(np.linalg.norm(row['vector_A']))
+        assert abs(row['xml_distance_A'] - row['distance_A']) < 6e-6
+
+    text = (folder / 'diamond.scf.in').read_text()
+    cutoff = float(re.search(r'ecutwfc\s*=\s*([\d.]+)', text, re.I)[1])
+    rho = float(re.search(r'ecutrho\s*=\s*([\d.]+)', text, re.I)[1])
+    mesh = list(map(int, re.search(r'K_POINTS\s+automatic\s*\n\s*(\d+)\s+(\d+)\s+(\d+)', text, re.I).groups()))
+    output = (folder / 'lobsterout').read_text()
+    charge = float(re.search(r'abs\. charge spilling:\s*([\d.]+)%', output)[1])
+    total = float(re.search(r'abs\. total\s+spilling:\s*([\d.]+)%', output)[1])
+    assert 'C (bunge)' in output
+    ef_column = float(np.interp(0, data[:, 0], data[:, 2]))
+    below = data[:, 0] < 0
+    integral_x = np.r_[data[below, 0], 0.0]
+    integral_y = np.r_[data[below, 1], np.interp(0, data[:, 0], data[:, 1])]
+    trapezoid = float(np.trapezoid(integral_y, integral_x))
+    return dict(name=name, data=data, bonds=rows, lattice=lattice, atoms=atoms,
+                ef=ef, ho=ho, lu=lu, cutoff=cutoff, rho=rho, mesh=mesh,
+                charge_spilling=charge, total_spilling=total,
+                native_icohp=float(np.mean([row['icohp_eV'] for row in rows])),
+                cumulative_at_zero=ef_column, trapezoid_at_zero=trapezoid)
+
+
+def save(fig, stem):
+    directory = ROOT / 'figures'
+    directory.mkdir(exist_ok=True)
+    extension = 'pdf' if MODE == 'paper' else 'png'
+    fig.savefig(directory / f'{stem}.{extension}', dpi=300)
+    plt.close(fig)
+
+
+def spectrum(case):
+    data = case['data']
+    energy, curve, cumulative = data[:, 0], -data[:, 1], -data[:, 2]
+    fig, axes = plt.subplots(1, 2, figsize=(183/25.4, 112/25.4), sharey=True)
+    fig.subplots_adjust(top=.88, bottom=.14, left=.10, right=.975, wspace=.24)
+    for ax in axes:
+        ax.axhline(0, color=INK, linestyle='--', linewidth=.7)
+        ax.set_ylim(energy.min(), energy.max())
+        ax.tick_params(direction='out')
+    axes[0].fill_betweenx(energy, 0, curve, where=curve >= 0, interpolate=True, color=BLUE, alpha=.23)
+    axes[0].fill_betweenx(energy, 0, curve, where=curve < 0, interpolate=True, color=ORANGE, alpha=.23)
+    axes[0].plot(curve, energy, color=INK, linewidth=.8)
+    axes[0].axvline(0, color=GREY, linewidth=.7)
+    axes[0].set_xlabel(r'$-$pCOHP')
+    axes[0].set_ylabel(r'$E-E_F$ (eV)')
+    axes[0].set_title('Antibonding ← 0 → Bonding', pad=11)
+    axes[1].plot(cumulative, energy, color=BLUE, linewidth=1.1)
+    axes[1].plot(-case['cumulative_at_zero'], 0, marker='o', markerfacecolor='white',
+                 markeredgecolor=INK, markersize=4, markeredgewidth=.75)
+    axes[1].set_xlabel(r'$-$ICOHP$(E)$ (eV per bond)')
+    axes[1].set_title('Integrated contribution', pad=11)
+    axes[1].text(.96, .04, 'Four-bond average\n' + r'$E_F = E_{VBM}$',
+                 transform=axes[1].transAxes, va='bottom', ha='right', fontsize=size(9, 6))
+    panel(axes[0], 'a')
+    panel(axes[1], 'b')
+    save(fig, 'cohp-spectrum')
+
+
+def bonds(case):
+    fig = plt.figure(figsize=(183/25.4, 88/25.4))
+    ax = fig.add_axes([.01, .04, .55, .90], projection='3d')
+    origin = np.array([0., 0., 0.])
+    for row in case['bonds']:
+        end = np.array(row['vector_A'])
+        ax.plot(*np.stack([origin, end]).T, color=GREY, linewidth=1.4)
+        ax.scatter(*end, color=BLUE, s=90, edgecolor=INK, linewidth=.6, depthshade=False)
+        text_at = end * 1.34
+        ax.text(*text_at, f"{row['index']}", ha='center', va='center', fontsize=size(10, 7))
+    ax.scatter(0, 0, 0, color=INK, s=100, depthshade=False)
+    ax.text(0, 0, .25, 'C1', ha='center', va='bottom', color=INK, fontsize=size(10, 7))
+    extent = max(np.abs(row['vector_A']).max() for row in case['bonds']) * 1.45
+    for setter in (ax.set_xlim, ax.set_ylim, ax.set_zlim):
+        setter(-extent, extent)
+    ax.set_box_aspect([1, 1, 1])
+    ax.view_init(elev=18, azim=30)
+    ax.set_proj_type('ortho')
+    ax.set_axis_off()
+    fig.text(.57, .85, 'Four periodic C2 neighbours', fontsize=size(10.5, 7))
+    fig.text(.57, .76, 'Bond    Translation T', fontsize=size(9.5, 6.5))
+    for i, row in enumerate(case['bonds']):
+        t = ', '.join(map(str, row['translation']))
+        fig.text(.58, .65-i*.12, f"{row['index']}          ({t})", fontsize=size(10, 7))
+    fig.text(.57, .12, f"C–C = {case['bonds'][0]['xml_distance_A']:.6f} Å", fontsize=size(10, 7))
+    save(fig, 'cohp-bonds')
+
+
+def comparison(cases):
+    assert len(cases) == 4
+    for case in cases:
+        assert case['rho'] == cases[0]['rho']
+        assert np.allclose(case['lattice'], cases[0]['lattice'], rtol=0, atol=1e-12)
+        assert [b['translation'] for b in case['bonds']] == [b['translation'] for b in cases[0]['bonds']]
+    changes = []
+    for previous, current in zip(cases[:-1], cases[1:]):
+        delta = np.array([b['icohp_eV'] for b in current['bonds']]) - np.array([b['icohp_eV'] for b in previous['bonds']])
+        changes.append({'from': previous['name'], 'to': current['name'],
+                        'absolute_mean_change_eV': abs(float(delta.mean())),
+                        'maximum_single_bond_change_eV': float(np.abs(delta).max())})
+    values = [x['maximum_single_bond_change_eV'] for x in changes]
+    labels = ['6³ → 8³', '8³ → 10³', '60 → 80 Ry']
+    fig, (left, ax) = plt.subplots(1, 2, figsize=(183/25.4, 105/25.4))
+    fig.subplots_adjust(top=.84, bottom=.24, left=.13, right=.98, wspace=.50)
+    left.plot(np.arange(3), [c['native_icohp'] for c in cases[:3]], '-o',
+              color=BLUE, linewidth=.9, markersize=4)
+    left.plot(3, cases[3]['native_icohp'], 's', color=INK, markerfacecolor='white',
+              markersize=4, markeredgewidth=.8)
+    left.set_xticks(range(4), ['6³', '8³', '10³', '10³\n80 Ry'])
+    left.set_xlim(-.35, 3.35)
+    left.set_ylim(-9.6092, -9.6033)
+    left.set_yticks([-9.609, -9.607, -9.605, -9.6035])
+    left.ticklabel_format(axis='y', style='plain', useOffset=False)
+    left.set_ylabel('Mean ICOHP (eV per bond)')
+    left.set_xlabel('k grid; 60 Ry unless labelled')
+    left.set_title('Native occupied-state integral', pad=14)
+    ax.plot(np.arange(3), values, linestyle='none', marker='o', color=BLUE,
+            markeredgecolor=INK, markeredgewidth=.5, markersize=4)
+    ax.axhline(.02, color=INK, linestyle='--', linewidth=.7)
+    ax.set_yscale('log')
+    ax.set_ylim(5e-5, .08)
+    for i, value in enumerate(values):
+        ax.annotate(f'{value:.5f}', (i, value), xytext=(0, 8), textcoords='offset points',
+                    ha='center', fontsize=size(8.5, 6))
+    ax.text(.98, .83, 'Comparison criterion: 0.02', transform=ax.transAxes,
+            ha='right', va='bottom', fontsize=size(8, 6))
+    ax.set_xticks(np.arange(3), labels)
+    ax.set_xlim(-.45, 2.45)
+    ax.set_ylabel('Maximum |ΔICOHP| (eV per bond)')
+    ax.set_title('Change of matching bonds', pad=14)
+    ax.tick_params(axis='x', labelrotation=18)
+    panel(left, 'a')
+    panel(ax, 'b')
+    save(fig, 'cohp-comparison')
+    return changes
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--case', default='diamond-k10-80')
+    parser.add_argument('--skip-comparison', action='store_true')
+    args = parser.parse_args()
+    case = load_case(args.case)
+    fields = ['name', 'mesh', 'cutoff', 'rho', 'ef', 'ho', 'lu', 'native_icohp',
+              'cumulative_at_zero', 'trapezoid_at_zero', 'charge_spilling', 'total_spilling', 'bonds']
+    report = {'selected_case': {key: case[key] for key in fields}}
+    if not args.skip_comparison:
+        cases = [load_case(name) for name in ['diamond-k6', 'diamond-k8', 'diamond-k10', 'diamond-k10-80']]
+        report['cases'] = [{key: c[key] for key in fields} for c in cases]
+    for mode in ('web', 'paper'):
+        set_style(mode)
+        spectrum(case)
+        bonds(case)
+        if not args.skip_comparison:
+            report['comparisons'] = comparison(cases)
+    report['figure_export'] = {'width_mm': 183, 'paper_font_pt': [5, 7],
+                               'paper_panel_font_pt': 8, 'pdf_fonttype': 42,
+                               'web_png_dpi': 300, 'gridlines': False}
+    (ROOT / 'figures/plot-checks.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == '__main__':
+    main()
+```
+
+</details>
+
+公开包解压后进入 `diamond-cohp`，在 **NumPy ≥ 2.0、Matplotlib** 的 Python 环境执行：
 
 ```bash
 python3 plot_cohp.py
 ```
 
-本次在 Mac 的 NumPy 2.3.4、Matplotlib 3.10.7 环境重画并核对了三张图。输出在 `figures/`：三张网页用 PNG、对应矢量 PDF，以及 `plot-checks.json`。PDF 按 183 mm 宽单独排版，正文标注 5–7 pt、面板字母 8 pt；PNG 使用较大的阅读字号。字体使用本机 Arial，PDF 已检查为嵌入的 TrueType；有数学符号的部分同时嵌入 DejaVu Sans。其他机器若没有 Arial 或 Helvetica，脚本明确回退到 DejaVu Sans。
+三张图对应的绘图环境为 NumPy 2.3.4、Matplotlib 3.10.7。输出在 `figures/`：三张网页用 PNG、对应矢量 PDF，以及 `plot-checks.json`。PDF 按 183 mm 宽单独排版，正文标注 5–7 pt、面板字母 8 pt；PNG 使用较大的阅读字号。字体使用本机 Arial，PDF 已检查为嵌入的 TrueType；有数学符号的部分同时嵌入 DejaVu Sans。其他机器若没有 Arial 或 Helvetica，脚本明确回退到 DejaVu Sans。
 
 读图时先定位 0 eV 与正负号，再核对画的是单键、四键平均还是总和。引用数字时回到相应目录的原生 ICOHPLIST 和参数对照，便能把成键图连回具体波函数、局域基组和周期原子对。
 

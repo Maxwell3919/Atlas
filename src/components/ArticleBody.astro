@@ -1,0 +1,62 @@
+---
+import { bodySections } from '../lib/manual.js';
+const { body, contents = true } = Astro.props;
+const sections = bodySections(body);
+---
+{contents && sections.length > 2 && (
+  <details class="contents">
+    <summary>目录</summary>
+    <ol>{sections.map((section) => <li><a href={`#${section.id}`} set:html={section.label} /></li>)}</ol>
+  </details>
+)}
+<div class="md-body" set:html={body} />
+
+<script>
+  // A contents link can point into a folded execution record or source listing.
+  const revealAnchor = () => {
+    if (!location.hash) return;
+    let anchor: HTMLElement | null;
+    try { anchor = document.getElementById(decodeURIComponent(location.hash.slice(1))); } catch { return; }
+    if (!anchor) return;
+    const legacyTarget = anchor.dataset.legacyTarget;
+    if (legacyTarget) { location.replace(legacyTarget); return; }
+    let parent = anchor.parentElement;
+    let opened = false;
+    while (parent) {
+      if (parent instanceof HTMLDetailsElement && !parent.open) { parent.open = true; opened = true; }
+      parent = parent.parentElement;
+    }
+    if (opened) requestAnimationFrame(() => anchor?.scrollIntoView({ block: 'start' }));
+  };
+  addEventListener('hashchange', revealAnchor);
+  revealAnchor();
+</script>
+
+<style>
+  .contents { margin: 1.2rem 0 1.5rem; font-size: .9rem; }
+  .contents summary { cursor: pointer; color: var(--accent); }
+  .contents ol { padding-left: 1.4rem; margin: .5rem 0; }
+  .contents li { margin: .2rem 0; }
+  .md-body { line-height: 1.85; overflow-wrap: anywhere; }
+  .md-body :global(img) { display: block; width: 100%; height: auto; margin: 1.4rem 0 .8rem; background: white; border: 1px solid var(--line); border-radius: 6px; }
+  .md-body :global(figure) { margin: 1.3rem 0 1rem; }
+  .md-body :global(figure img) { margin: 0 0 .35rem; border-radius: 0; }
+  .md-body :global(figcaption) { font-size: .82rem; color: var(--muted); line-height: 1.65; }
+  .md-body :global(.figure-downloads) { display: block; margin-top: .35rem; }
+  .md-body :global(h2) { font-size: 1.23rem; margin: 2.4rem 0 .8rem; scroll-margin-top: 1.2rem; }
+  .md-body :global(h2:first-child) { margin-top: .4rem; }
+  .md-body :global(h3) { font-family: Georgia, "Songti SC", "STSong", "Noto Serif SC", serif; font-size: 1.06rem; font-weight: 600; margin: 1.5rem 0 .5rem; scroll-margin-top: 1.2rem; }
+  .md-body :global(p) { margin: .6rem 0; }
+  .md-body :global(ul), .md-body :global(ol) { margin: .5rem 0; padding-left: 1.5rem; }
+  .md-body :global(li) { margin: .25rem 0; }
+  .md-body :global(pre) { overflow-wrap: normal; }
+  .md-body :global(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: .9rem 0; font-size: .88rem; }
+  .md-body :global(th), .md-body :global(td) { border: 1px solid var(--line); padding: .3rem .7rem; text-align: left; }
+  .md-body :global(th) { background: var(--code-bg); }
+  .md-body :global(blockquote) { border-left: 3px solid var(--accent); background: var(--card); border-radius: 0 8px 8px 0; margin: .9rem 0; padding: .5rem .9rem; }
+  .md-body :global(hr) { border: none; border-top: 1px solid var(--line); margin: 1.4rem 0; }
+  .md-body :global(details) { margin: 1rem 0; }
+  .md-body :global(summary) { cursor: pointer; color: var(--accent); }
+  .md-body :global(.legacy-anchor) { display: block; height: 0; scroll-margin-top: 1.2rem; }
+  @media (max-width: 560px) { .md-body :global(table) { font-size: .82rem; } }
+</style>

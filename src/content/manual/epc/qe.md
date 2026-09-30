@@ -32,7 +32,7 @@ epc-q4-k48：pwxall 48³ → pwx 16³ → phx q=4³ → … → lambdax → Tc�
 
 <span id="dense-k-branches"></span>
 
-### 第一条完成后，换 pwxall 网格再走一遍
+### 两条独立链采用同一比较协议
 
 第二条路径只改变 `al.dense.in` 末尾的 `K_POINTS`。`al.scf.in`、`al.elph.in`、`q2r.in`、`matdyn-dos.in`、`lambda.in` 五份输入逐字相同，分别在自己的目录运行。因而两边采用相同结构、赝势、截断能、电子与声子响应阈值、q 权重、频率积分范围、频率展宽和 μ*。
 
@@ -51,106 +51,8 @@ epc-q4-k48：pwxall 48³ → pwx 16³ → phx q=4³ → … → lambdax → Tc�
 
 第二个目录中的实际 `cp`、`vi`、Slurm 提交与输出检查见[48³ 分支的操作记录](/Atlas/m/epc/qe/#dense-k48-run)。两份输出怎样配对、两条曲线的求交结果与差值，接着看 [Tc 页的实际叠图与交点表](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两条链的原生文件、求交脚本和绘图脚本放在[同一个下载包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
 
-研究材料使用的 `ph64`、`ph96` 目录沿用相同组织方式，网格关系为 64=4×16、96=6×16、16=2×8；其启动操作保留在[后半页](/Atlas/m/epc/qe/#double-grid-research-record)。下面 Al 的数值只对应本例的结构与计算设置。
+Al 使用 QE 7.5、LDA-PZ 与 `Al.pz-vbc.UPF`，晶格常数 3.95606780081 Å；结构来源见 [晶胞优化](/Atlas/m/vc-relax/qe/)。完整终端会话、XML 与文件哈希的逐项解释保存在 [Al 执行与核验记录](/Atlas/cases/epc-al-verification/)。
 
-### 先核对电子网格，再看文件有没有接对
-
-下面是在已经完成的 Al 目录重新读到的原件。`al.dense.in` 就承担 `pwxall` 的角色：
-
-```console
-maxwell@maxwell:~/al/epc-q4$ grep -A1 K_POINTS al.dense.in al.scf.in
-al.dense.in:K_POINTS automatic
-al.dense.in-32 32 32 0 0 0
---
-al.scf.in:K_POINTS automatic
-al.scf.in-16 16 16 0 0 0
-maxwell@maxwell:~/al/epc-q4$ grep -n la2F al.dense.in al.scf.in
-al.dense.in:20: la2F = .true.
-```
-
-这两份输入只有致密电子步骤打开 `la2F`。它位于 `pw.x` 的 `&SYSTEM` 中，作用是写出专供这条 EPC 路线使用的电子信息；它没有计算声子，也没有在这里产生 λ 或 α²F。完整结构、截断能、带数与输入文件继续见[下面的两次 SCF 输入](/Atlas/m/epc/qe/#double-grid-al-inputs)。
-
-```console
-maxwell@maxwell:~/al/epc-q4$ head -1 tmp/al.a2Fsave
-           6         897
-```
-
-这里的 6 是带数，897 是这次对称性约化后保存的 k 点数，不能把它读成一个 897×897×897 网格。这个文件随后还保存电子本征值、k 坐标、权重、`32 32 32` 网格以及对称信息。它是格式化文本，但并非只有三列的谱函数表；不要直接把它作为 α²F 曲线加载。
-
-在本例 `prefix='al'`、`outdir='./tmp'` 的设置下，文件实际位于 `tmp/al.a2Fsave`。此前已经在致密 SCF 结束后，用普通复制保留了它和对应 XML：
-
-```console
-maxwell@maxwell:~/al/epc-q4$ cp tmp/al.a2Fsave al.a2Fsave.k32
-maxwell@maxwell:~/al/epc-q4$ cp tmp/al.save/data-file-schema.xml dense.data-file-schema.xml
-```
-
-接下来的响应 SCF 会更新当前 `tmp/al.save`。粗网格输入没有开启 `la2F`，本次保存的致密文件未被改写；实际提交脚本在粗网格 SCF 与 `ph.x` 之间使用 `cmp` 检查，比较不相同就停止该脚本。完整执行记录见[运行与检查](/Atlas/m/epc/qe/#double-grid-al-run)。
-
-现在重新读取两个 XML，可以同时看到被保留的致密父计算与当前响应父计算：
-
-```console
-maxwell@maxwell:~/al/epc-q4$ grep monkhorst_pack dense.data-file-schema.xml tmp/al.save/data-file-schema.xml
-dense.data-file-schema.xml:      <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-dense.data-file-schema.xml:        <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-tmp/al.save/data-file-schema.xml:      <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-tmp/al.save/data-file-schema.xml:        <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-maxwell@maxwell:~/al/epc-q4$ cmp tmp/al.a2Fsave al.a2Fsave.k32 && sha256sum tmp/al.a2Fsave al.a2Fsave.k32
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
-```
-
-下载包将响应 XML 单独保存为 [response.data-file-schema.xml](/Atlas/examples/al/epc-q4/response.data-file-schema.xml)，便于在不附带整个波函数目录的情况下核对。只读下载文件时，在 `al/epc-q4` 中使用 `grep monkhorst_pack dense.data-file-schema.xml response.data-file-schema.xml`；上面的会话仍保留实际计算目录中的原位置。
-
-同一 XML 中输入段与输出段各记一行，所以这里每个网格出现两次。两个文件各自一致，当前 `.save` 为 16³，致密本征值文件仍与 32³ 备份逐字节相同。仅仅看见一个 `.a2Fsave` 文件名，不足以完成这项父链检查。
-
-若在自己的独立计算副本中误把粗网格的 `la2F` 也打开，它可能重新写同名文件。应在进入 `ph.x` 前停下，先检查输入与备份的来源；确认同结构、同协议、同带数的致密备份后，才用 `cp al.a2Fsave.k32 tmp/al.a2Fsave` 恢复，并重新比较哈希。若没有可信的致密备份，需要重新完成那一步。本例哈希一直相同，没有发生这次恢复操作；正在运行的 `ph.x` 目录也不应被覆盖文件。
-
-这里的行为已分别核对 QE 7.1 和 7.5 的版本源码：`punch` 仅在 `la2F` 为真时调用写出例程；`ph.x` 的 `elphsum` 从原先的 `outdir` 读取该文件，检查带数，并核对 q 是否落在致密网格中。两个版本在这条读写链上相符，计算文件仍应各自保持同一版本、同一物理设置。[QE 7.1 写出例程](https://github.com/QEF/q-e/blob/qe-7.1/PW/src/a2fmod.f90) · [QE 7.5 写出例程](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/a2fmod.f90) · [QE 7.5 致密积分读取](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/elphon.f90#L838-L943)
-
-`ph.x` 的 `nk1/nk2/nk3` 是另一组参数：显式设置它们会让声子程序在所指定电子网格上重新进行非自洽步骤。它们不负责声明 `a2Fsave` 中的致密网格。本例未填写这些参数，沿用响应父计算的电子网格；致密网格由已保存文件读入。保持这两个入口清楚，才不会把 32³ 同时填入所有看起来像网格的字段。[ph.x 电子网格参数](https://www.quantum-espresso.org/Doc/INPUT_PH.html#nk1)
-
-### 沿同一条链读到真正的 Tc 输出
-
-完整 Al 链中的 `al.dyn0` 已列出 4³ 网格与 8 个不可约 q，`elph_dir/elph.inp_lambda.1` 至 `.8` 对应这些实际响应。后处理由此分成两条：
-
-```text
-pwxall：致密电子网格 → outdir/prefix.a2Fsave ───────┐
-                                               │
-pwx：响应电子网格 → outdir/prefix.save ──────────┤
-                                               ↓
-                     ph.x：独立 q 网格 + interpolated EPC
-                             ├─ dyn 与 elph_dir/elph.* → q2r → matdyn → a2F.dos*
-                             └─ elph.inp_lambda.* + q 权重 → lambda.x
-                                                               ↓
-                                                   alpha2F.dat / λ / ωlog / Tc
-```
-
-`q2r/matdyn` 的谱与 `lambda.x` 的直接逐 q 求和谱需要分开读取；后者并不先读入 `matdyn` 的输出。本例 `lambda.x` 已经实际结束，文件末尾是：
-
-```console
-maxwell@maxwell:~/al/epc-q4$ tail -11 lambda.out
-lambda        omega_log          T_c
-   0.43038       355.877              2.212
-   0.37106       344.606              0.916
-   0.37030       343.420              0.900
-   0.37449       343.741              0.969
-   0.37461       343.537              0.971
-   0.37377       342.831              0.955
-   0.37358       342.006              0.949
-   0.37409       341.243              0.955
-   0.37502       340.631              0.969
-   0.37604       340.145              0.985
-```
-
-十行依次对应 0.005—0.050 Ry 的电子展宽。0.020 Ry 的第 4 行给出 λ≈0.37449、ωlog=343.741 K、μ*=0.10 下的原生公式结果 Tc=0.969 K；它是第一条曲线上的一个采样点。完整对照还会读入 48³ 分支的十行，逐个展宽求差，再定位两条折线的交点。
-
-如果要保留完整 α²F 的频率结构，继续求解温度依赖的能隙函数和 Tc，可以转到 [EPW / Eliashberg 方程](/Atlas/m/epw-eliashberg/qe/)。其中分别记录读取本页谱函数的各向同性求解，以及从 DFPT、Wannier 插值重新生成谱的路线。两者都需要完整的谱或矩阵元，不能只把 λ、ωlog 两个数写进 EPW 就还原出原来的频率信息。
-
-继续沿这条路线：[Al 两次 SCF 的完整输入](/Atlas/m/epc/qe/#double-grid-al-inputs) → [原生执行脚本与运行检查](/Atlas/m/epc/qe/#double-grid-al-run) → [α²F、权重与谱积分](/Atlas/m/eliashberg-a2f/qe/) → [双网格结果如何进入 Tc 公式](/Atlas/m/allen-dynes/qe/#tc-from-double-grid)。研究材料的历史操作在[ph64/ph96 启动记录](/Atlas/m/epc/qe/#double-grid-research-record)中单独保留。
-
-下面按实际文件重走 Al 这条链。QE 版本为 7.5，单原子原胞采用 LDA-PZ 与官方 `Al.pz-vbc.UPF`，晶格常数为 3.95606780081 Å。结构来源及优化过程见[晶胞优化](/Atlas/m/vc-relax/qe/)，逐个响应迭代见[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)；这里接着看新增的致密电子步骤怎样与响应父计算配合。
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文读取和重绘。
 
 <span id="double-grid-al-inputs"></span>
 
@@ -420,30 +322,6 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 
 这三个正频率残差约为 0.08785 THz，即约 2.93 cm⁻¹。本次 QE 7.5 `interpolated` 实现对低于 20 cm⁻¹ 的模式将 λ 置零，而 γ 仍然打印。因此不能把这里的零 λ 解读为已经证明 Γ 声学模没有物理耦合，也不能隐去这个低频处理后称为没有截断的积分。实质性虚频应先回到[虚频排查](/Atlas/m/imaginary-phonon/qe/)，不能取绝对值后继续计算 Tc。
 
-## 完整逐 q 文件之后，后处理分两条路
-
-`q2r.x → matdyn.x` 将动力学矩阵和 EPC 数据变到实空间，再插值。`lambda.x` 则直接读取 `elph.inp_lambda.*` 与 q 权重；它不读取 matdyn 的谱文件，所以两个谱不是同一个数组先后换了名字。
-
-### AI 后处理提示词：装配两条 EPC 输出链
-
-> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、CSV、JSON 和输入哈希，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
-
-[完整逐模解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [完整双分支重建源码 rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对源码 compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)。
-
-```text
-32³ 致密 SCF ── al.a2Fsave ─┐
-                            ├→ 16³ 响应 SCF → 4³ q 网格 ph.x
-同结构 / 赝势 / 截断 / 展宽 ┘                      ↓
-                                     8 q × 3 模 × 10 电子展宽
-                                     ├→ q2r → matdyn → a2F.dos*（Ry）
-                                     └→ lambda.x → alpha2F.dat（THz）
-                                                        ↓
-                                                λ、ωlog、明确 μ*
-                                                        ↓
-                                                公式 Tc + 数值验收
-```
-
-这条 Al 链已完成文件和算术核对，但还没有更密真实 k/q 网格与截断能的独立收敛证据。接着读 [α²F、λ 与频率矩](/Atlas/m/eliashberg-a2f/qe/)，然后到 [从 λ、ωlog 获取 Tc](/Atlas/m/allen-dynes/qe/)执行简式和完整 Allen–Dynes 的交叉计算。
 
 <a id="dense-k48-run"></a>
 
@@ -540,66 +418,11 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ squeue -o '%.10i %.18j %.8T %.10M 
       2016       atlas-al-k48  RUNNING       0:00      8 maxwell
 ```
 
-提交后先看队列，再看当前程序自己的输出。`_out.2016.log` 记录的是作业外层输出；这份脚本已将三个主要程序分别重定向到 `al.dense.out`、`al.scf.out` 和 `al.elph.out`，因此声子进度要到 `al.elph.out` 里找。
+两次 SCF 的 XML 分别保存 48³ 与 16³ 网格；第二次 SCF 后 `.a2Fsave` 与本分支备份的 SHA-256 相同。作业 2016 最终返回 `COMPLETED`、`ExitCode=0:0`；两次 SCF 和八个 q 点响应正常结束。完整监控、逐 q 文件头及结束检查见 [48³ 会话](/Atlas/cases/epc-al-verification/#dense-k48-run)。
 
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep -E 'Program PWSCF|number of k points|estimated scf accuracy|convergence has|PWSCF        |JOB DONE' al.dense.out al.scf.out | tail -n 24
-al.dense.out:     Program PWSCF v.7.5 starts on 23Sep2026 at 17:52:26 
-al.dense.out:     number of k points=  2769  Marzari-Vanderbilt smearing, width (Ry)=  0.0200
-al.dense.out:     estimated scf accuracy    <       0.00575324 Ry
-al.dense.out:     estimated scf accuracy    <       0.00044397 Ry
-al.dense.out:     estimated scf accuracy    <       0.00000031 Ry
-al.dense.out:     estimated scf accuracy    <          5.9E-09 Ry
-al.dense.out:     estimated scf accuracy    <          9.0E-12 Ry
-al.dense.out:     estimated scf accuracy    <          1.7E-12 Ry
-al.dense.out:     estimated scf accuracy    <          1.4E-15 Ry
-al.dense.out:     convergence has been achieved in   7 iterations
-al.dense.out:     PWSCF        :     24.60s CPU     28.39s WALL
-al.dense.out:   JOB DONE.
-al.scf.out:     Program PWSCF v.7.5 starts on 23Sep2026 at 17:52:56 
-al.scf.out:     number of k points=   145  Marzari-Vanderbilt smearing, width (Ry)=  0.0200
-al.scf.out:     estimated scf accuracy    <       0.00572737 Ry
-al.scf.out:     estimated scf accuracy    <       0.00044172 Ry
-al.scf.out:     estimated scf accuracy    <       0.00000031 Ry
-al.scf.out:     estimated scf accuracy    <          5.7E-09 Ry
-al.scf.out:     estimated scf accuracy    <          8.5E-12 Ry
-al.scf.out:     estimated scf accuracy    <          1.8E-12 Ry
-al.scf.out:     estimated scf accuracy    <          1.5E-15 Ry
-al.scf.out:     convergence has been achieved in   7 iterations
-al.scf.out:     PWSCF        :      1.31s CPU      1.53s WALL
-al.scf.out:   JOB DONE.
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ wc -c al.dense.err al.scf.err al.elph.err _err.2016.log
-0 al.dense.err
-0 al.scf.err
-0 al.elph.err
-0 _err.2016.log
-0 总计
-```
+## 后处理输入与两条输出路线
 
-两次 SCF 都用了 7 轮迭代，最后的估计误差分别为 1.4 × 10⁻¹⁵ Ry 和 1.5 × 10⁻¹⁵ Ry，已小于本次 `conv_thr=1.0d-12`，并各自正常结束。2769 和 145 是程序实际处理的不可约 k 点数；它们不是网格每个方向的大小。更直接的网格证据在保存的 XML 中。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ head -1 tmp/al.a2Fsave
-           6        2769
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep monkhorst_pack dense.data-file-schema.xml response.data-file-schema.xml
-dense.data-file-schema.xml:      <monkhorst_pack nk1="48" nk2="48" nk3="48" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-dense.data-file-schema.xml:        <monkhorst_pack nk1="48" nk2="48" nk3="48" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-response.data-file-schema.xml:      <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-response.data-file-schema.xml:        <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat a2Fsave-after-response.sha256
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  tmp/al.a2Fsave
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  al.a2Fsave.k48
-```
-
-`.a2Fsave` 首行的 6 和 2769 分别对应这次保存的能带数和致密计算的 k 点数。它存的是电子本征值等中间数据，不能当作 α²F(ω) 谱读取。两份 XML 分别保留了 48³ 与 16³ 的网格，所有偏移标志都为 0；第二次 SCF 后，工作文件与 `al.a2Fsave.k48` 的 SHA-256 仍完全相同。到这里，响应计算可以读取自己的 16³ `.save`，同时使用本分支的 48³ 致密电子数据。
-
-## 声子开始输出频率后，继续看 EPC 是否仍在运行
-
-本次 `al.elph.in` 与 32³ 分支相同：`electron_phonon='interpolated'` 选择这里的双网格 EPC 路线，`fildvscf='aldv'` 保存一阶自洽势，`tr2_ph=1.0d-14` 控制响应自洽迭代的停止阈值。`nq1=nq2=nq3=4` 对应完整 4³ q 网格，在这份 Al 晶胞的对称性下需要计算 8 个不可约 q 点。
-
-`el_ph_sigma=0.005`、`el_ph_nsigma=10` 扫描的是电子双 δ 积分展宽，从 0.005 到 0.050 Ry，共十档。它与 SCF 中决定金属占据的 `degauss=0.02 Ry` 作用不同；横向比较两条分支时，要把同一档 EPC 展宽配在一起。
-
-计算时使用的四份输入依次如下。前三份是各自程序的 namelist，最后一份 `lambda.in` 按固定行序读取，不能给它加上 `&INPUT`。
+`q2r.x → matdyn.x` 用力常数与 EPC 数据做实空间变换、插值；`lambda.x` 直接读取逐 q 文件与星权重，并不读取 `matdyn` 的谱。后处理输入如下，两条分支逐字相同。
 
 ```console
 maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat al.elph.in q2r.in matdyn-dos.in lambda.in
@@ -657,160 +480,11 @@ elph_dir/elph.inp_lambda.8
 0.10
 ```
 
-`q2r.in` 保留了 `zasr='simple'`，它约束的是 Born 有效电荷；本次金属 Al 没有计算这项响应，不能把该参数当作声子频率已修正的证据。[q2r.x 的参数说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html)中区分了这个对象。后续 `matdyn-dos.in` 的 `asr='simple'` 才对力常数施加平移声学求和规则；原始 `al.elph.out` 中的 Γ 点频率仍应保留，不能拿修正后的零频替换原始输出来声称数值已经收敛。
+`q2r` 的 `zasr` 作用于 Born 有效电荷；力常数的平移声学求和规则由 `matdyn` 的 `asr` 处理。这里金属 Al 未计算 Born 有效电荷，输出的 `Z* not found` 与此一致。`matdyn` 的 24³ 是插值积分网格，400 是频率取样点数。48³ 分支的 `a2F.dos1/2/3` 分别有 145、88、5 行负总谱值，原件保留在附件；下面的 Tc 使用直接逐 q 求和的 `lambda.x` 路线。
 
-`matdyn-dos.in` 中的 24³ 是声子插值积分网格，`ndos=400` 是频率取样点数，它们控制后处理的分辨率，没有新增 DFPT q 点。`la2F=.true.` 还开启了相应 EPC 量的插值，其定义见 [matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)。
+`lambda.in` 的 `14.0 0.12 0` 指 14 THz 上限、0.12 THz 频率展宽和普通高斯。八行 q 必须与八个文件头逐个配对，星权重 `1,8,4,6,24,12,3,6` 合计 64；末行 `0.10` 是 μ*。它们与 `ph.x` 扫描的 0.005–0.050 Ry 电子展宽属于不同参数。
 
-`lambda.in` 第一行的 `14.0 0.12 0` 分别是 α²F(ω) 的频率上限 14 THz、频率轴高斯展宽 0.12 THz，以及普通高斯类型。0.12 THz 与前面 0.005 Ry 的电子双 δ 展宽不是同一个量。接下来的 `8` 表示读八个 q 点；权重之和是 1 + 8 + 4 + 6 + 24 + 12 + 3 + 6 = 64，程序按总和归一化。八个文件名的顺序必须与这八行 q 及权重对应；最后一行 `0.10` 才是两条分支共用的库仑赝势 μ*。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep -E 'Calculation of q|irreducible representations|Representation.*modes' al.elph.out | tail -n 8
-     Saving dvscf to file. Distribute only q points, not irreducible representations.
-     Calculation of q =    0.0000000   0.0000000   0.0000000
-     There are    1 irreducible representations
-     Representation     1      3 modes -  To be done
-     Representation #   1 modes #   1   2   3
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ tail -n 12 al.elph.out
-
- **************************************************************************
-     freq (    1) =       0.087851 [THz] =       2.930394 [cm-1]
-     freq (    2) =       0.087851 [THz] =       2.930394 [cm-1]
-     freq (    3) =       0.087851 [THz] =       2.930394 [cm-1]
- **************************************************************************
-
-     Mode symmetry, O_h (m-3m)  point group:
-
-     freq (   1-   3) =          2.9  [cm-1]   --> T_1u G_15  G_4- I  
-     Electron-phonon interaction  ...
-
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ squeue -j 2016 -o '%.10i %.18j %.8T %.10M %.6C %R'
-     JOBID               NAME    STATE       TIME   CPUS NODELIST(REASON)
-      2016       atlas-al-k48  RUNNING       3:45      8 maxwell
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep -E 'Calculation of q|JOB DONE' al.elph.out
-     Calculation of q =    0.0000000   0.0000000   0.0000000
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ ls -l lambda.out finished.txt 2>/dev/null
-```
-
-这一段监控中，Γ 点已经打印了三条频率，输出却仍停在 `Electron-phonon interaction ...`。Al 原胞只有一个原子，所以每个 q 点有三个振动模；这里 Γ 点的约 2.93 cm⁻¹ 是施加后处理声学求和规则前的原始结果，不能拿它替代全 q 网格的检查。频率先出现并不意味着该 q 点的 EPC 展宽扫描已经写完，队列此时也仍显示 `RUNNING`。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ scontrol show job 2016 | grep -E 'JobState=|RunTime=|NumCPUs='
-   JobState=RUNNING Reason=None Dependency=(null)
-   RunTime=00:07:53 TimeLimit=01:00:00 TimeMin=N/A
-   NumNodes=1 NumCPUs=8 NumTasks=8 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep -E 'Calculation of q|JOB DONE' al.elph.out
-     Calculation of q =    0.0000000   0.0000000   0.0000000
-     Calculation of q =   -0.1767767   0.1767767  -0.1767767
-```
-
-继续查看时，`Calculation of q` 已从一行增加到两行，说明程序进入了第二个不可约 q 点。运行中可以反复使用上面的 `squeue`、`grep` 和 `tail`：前者回答作业是否还在调度器中，后两者回答它现在在算哪一个 q、响应或 EPC 的哪一段。一个 q 的 `Convergence has been achieved` 只说明对应响应迭代达到阈值；必须等预定的八个 q 及其十档 EPC 数据都齐全，才能对这条分支做最终汇总。
-
-脚本随后会用 `q2r.x` 将动力学矩阵转为实空间力常数，再由 `matdyn.x` 进行声子插值与相应后处理。`lambda.x` 则按 `lambda.in` 中的八个文件名和 q 权重，直接读取 `elph_dir/elph.inp_lambda.*`；虽然脚本把它放在 `matdyn.x` 之后，它并不读取 `matdyn.x` 的输出。
-
-## 八个 q 点结束后，把每一段输出接起来
-
-这次作业最终运行了 38 分 02 秒，其中 `ph.x` 的墙钟时间为 37 分 02.49 秒。先用 `scontrol` 回读退出状态，下面截取它的状态与耗时部分，再检查各阶段的错误输出和结束标记。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ scontrol show job 2016
-JobId=2016 JobName=atlas-al-k48
-   UserId=maxwell(1000) GroupId=maxwell(1000) MCS_label=N/A
-   Priority=1 Nice=0 Account=(null) QOS=(null)
-   JobState=COMPLETED Reason=None Dependency=(null)
-   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
-   RunTime=00:38:02 TimeLimit=01:00:00 TimeMin=N/A
-```
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ wc -c al.dense.err al.scf.err al.elph.err q2r.err matdyn-dos.err lambda.err _err.2016.log
-0 al.dense.err
-0 al.scf.err
-0 al.elph.err
-0 q2r.err
-0 matdyn-dos.err
-0 lambda.err
-0 _err.2016.log
-0 总计
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ grep 'JOB DONE' al.dense.out al.scf.out al.elph.out q2r.out matdyn-dos.out
-al.dense.out:   JOB DONE.
-al.scf.out:   JOB DONE.
-al.elph.out:   JOB DONE.
-q2r.out:   JOB DONE.
-matdyn-dos.out:   JOB DONE.
-```
-
-调度器返回 `COMPLETED`、`ExitCode=0:0`，两次 SCF、`ph.x`、`q2r.x`、`matdyn.x` 都打印了结束标记，七份错误输出为空。这与前面只看到队列仍在运行、部分 q 点已打印频率的状态不同；此时才能检查完整的逐 q 数据。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ head -n 1 elph_dir/elph.inp_lambda.*
-==> elph_dir/elph.inp_lambda.1 <==
-           0.000000      0.000000      0.000000    10     3
-
-==> elph_dir/elph.inp_lambda.2 <==
-          -0.176777      0.176777     -0.176777    10     3
-
-==> elph_dir/elph.inp_lambda.3 <==
-           0.353553     -0.353553      0.353553    10     3
-
-==> elph_dir/elph.inp_lambda.4 <==
-           0.000000      0.353553      0.000000    10     3
-
-==> elph_dir/elph.inp_lambda.5 <==
-           0.530330     -0.176777      0.530330    10     3
-
-==> elph_dir/elph.inp_lambda.6 <==
-           0.353553      0.000000      0.353553    10     3
-
-==> elph_dir/elph.inp_lambda.7 <==
-           0.000000     -0.707107      0.000000    10     3
-
-==> elph_dir/elph.inp_lambda.8 <==
-          -0.353553     -0.707107      0.000000    10     3
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat al.dyn0
-   4   4   4
-   8
-   0.000000000000000E+00   0.000000000000000E+00   0.000000000000000E+00
-  -0.176776695296637E+00   0.176776695296637E+00  -0.176776695296637E+00
-   0.353553390593273E+00  -0.353553390593273E+00   0.353553390593273E+00
-   0.000000000000000E+00   0.353553390593273E+00   0.000000000000000E+00
-   0.530330085889910E+00  -0.176776695296637E+00   0.530330085889910E+00
-   0.353553390593273E+00   0.000000000000000E+00   0.353553390593273E+00
-   0.000000000000000E+00  -0.707106781186547E+00   0.000000000000000E+00
-  -0.353553390593273E+00  -0.707106781186547E+00   0.000000000000000E+00
-```
-
-每个 EPC 文件首行最后的 `10 3` 表示十档展宽、三个振动模。八个文件的前三列坐标与 `lambda.in` 中八行 q 的顺序一致；表头只打印六位小数，核对时应容许末位舍入。`al.dyn0` 还给出 4 × 4 × 4 网格和八个不可约 q 点，两者对应同一批计算。
-
-这一步不能只检查文件名。QE 7.5 的 `lambda.x` 中，输入 q 与文件头 q 的一致性检查被注释掉了；文件排列错了，程序仍可能把一个 q 的结果乘上另一个 q 的权重。随例包提供的 `rebuild_tc.py` 会逐个核对坐标、十档展宽和模数，并从这些原始记录重建 λ、ωlog 与 Tc。本次八个星权为 1、8、4、6、24、12、3、6，合计覆盖完整网格的 64 个点。
-
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cmp tmp/al.a2Fsave al.a2Fsave.k48
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ sha256sum tmp/al.a2Fsave al.a2Fsave.k48
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  tmp/al.a2Fsave
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  al.a2Fsave.k48
-```
-
-计算结束后再比较一次，致密电子文件的 SHA-256 仍与 SCF 后保存的备份一致，确认后续程序没有把它换成另一套网格的数据。`q2r.out` 同时报告 `q-space grid ok, #points = 64` 和 `fft-check success`，并完成了十档展宽的相应变换。
-
-`matdyn-dos.out` 的末尾保留了下面这条提示及正常结束记录：
-
-```text
-Message from routine matdyn:
-     Z* not found in file al.fc, TO-LO splitting at q=0 will be absent!
- 
-     MATDYN       :     25.81s CPU     25.93s WALL
-
- 
-   This run was terminated on:  18:30:28  23Sep2026            
-
-=------------------------------------------------------------------------------=
-   JOB DONE.
-=------------------------------------------------------------------------------=
-```
-
-这里的 `Z* not found` 与本例金属 Al 未计算 Born 有效电荷一致，不是八个 q 点中断的标志。仍要检查后处理生成的谱：这次 48³ 分支的 `a2F.dos1`、`a2F.dos2`、`a2F.dos3` 总谱分别出现 145、88、5 行负值，说明这些低展宽下的插值谱需要进一步检查。原文件保留；下面的 Tc 对照使用 `lambda.x` 从逐 q EPC 文件构成的另一套谱与输出表，不能把这两套结果交替使用。
-
-最后直接读本分支的 `lambda.out`。前十行逐档列出参数，后十行给出对应 Tc；两部分的顺序相同。
+## 两份 Tc 表按相同展宽配对求交
 
 ```console
 maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat lambda.out
@@ -839,1453 +513,683 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat finished.txt
 2026年 09月 23日 星期三 10:30:28 UTC
 ```
 
-以 σ = 0.020 Ry 这一行为例，括号外的 λ = 0.367505 来自 q 加权求和，括号内的 0.367565 来自 α²F(ω) 积分。二者接近是谱离散化的一项核对，不是致密 k 网格已经收敛的证明。`<log w>=342.622 K` 是以温度单位表示的 ωlog；后表的 `T_c=0.854 K` 使用固定 μ* = 0.10 和此版本的近似公式计算。
+`lambda.x` 在此版本不打印 `JOB DONE.`；正常退出、十档有限输出和逐 q 重建共同检查这一段。σ=0.020 Ry 时，32³ 分支给出 λ=0.37449、ωlog=343.741 K、Tc=0.969 K；48³ 分支给出 λ=0.367505、ωlog=342.622 K、Tc=0.854 K。两条曲线使用同一 μ*=0.10。
 
-这版 `lambda.x` 不打印 `JOB DONE.`，所以最后一段要结合正常退出状态、十档有限数值以及逐 q 重建结果判断；`finished.txt` 只说明脚本确实走到了末尾。现在第二条原生表已经齐全，48³ 分支的十个 Tc 都低于 32³ 分支在同一 σ 下的值。在已采样的 0.005–0.050 Ry 范围内，按相邻点作分段直线连接，两条曲线没有交点。
+![Al 32³ 与 48³ 的 Tc 曲线及逐点差值](/Atlas/examples/supercon-al-tc/figures/supercon-al-k32-k48-tc-delta.png)
 
-32³ 与 48³ 两条完整分支在采样展宽范围内没有交点。Al 64³ 分支的 `pwxall` 与 16³ 响应 SCF 已收敛并正常结束；接续的 q=4³ 声子/EPC 作业因 walltime 到限被取消，仅留下六个 `elph.inp_lambda.*`，没有 `lambda.out`、`lambda.dat` 或 `alpha2F.dat`，尚不能加入 Tc 曲线。32³/48³ 的配对图、差值和实际求交结果见[双网格 Tc 对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。
+十个共同采样点的 `Tc₃₂−Tc₄₈` 均为正，分段直线求交得到 **0 个交点、0 个重合区间**。最近的 σ=0.050 Ry 处，重建 Tc 分别为 0.984588、0.975366 K，差值 +0.009222 K。Al 64³ 的致密与响应 SCF 已结束，声子/EPC 因 walltime 到限取消，留下六份逐 q 文件，缺少完整八个 q 和 `lambda.x` 输出，不能加入此图。
 
-```text
-epc-q4/al.dense.in  32³ → 本目录 16³ SCF → 本目录 q4³ ph.x → 本目录逐 q EPC → lambda.x
-                                                                                  ↘
-                                                                                   两条 Tc(σ) 配对比较
-                                                                                  ↗
-epc-q4-k48/al.dense.in 48³ → 本目录 16³ SCF → 本目录 q4³ ph.x → 本目录逐 q EPC → lambda.x
-```
+### 交给代码助手的配对与求交任务
 
-<span id="double-grid-research-record"></span>
+> 读取 k32/、k48/ 各自的 lambda.in/out 和八个 elph.inp_lambda 文件。逐分支核对 q 坐标、文件顺序、星权重、十档电子展宽和 μ*，按 QE 7.5 算法重建 λ、ωlog、Tc，核对原生打印精度。按同一 σ 配对，计算 ΔTc；检查分段直线的端点交点、异号区间与重合区间，没有交点时输出零个。保存配对 CSV、求交 JSON 和完整可运行源码；画两条 Tc 曲线及 ΔTc 零线，保留原始采样点。只处理保存文件，不外推或补算缺失分支。
 
-## 另一份材料的实际启动记录
-
-下面保留 bcgong 的 SnSe₂/Sr₂N 终端会话。它包含 BFGS 尚未通过的结构、质量索引修正、两步 SCF 与声子任务启动；这份记录没有提供完整十个不可约 q 的验收结果，也没有该材料可采用的 Tc。Al 的数值不能移到这条研究计算上。
+完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。在 [双分支下载包](/Atlas/examples/supercon-al-tc-files.tar.gz) 解包后的 `al-dense-grid-tc` 运行：
 
 <details>
-<summary>展开 SnSe₂/Sr₂N 的目录整理、两步 SCF 与 ph.x 启动记录</summary>
-
-## 从 SnSe₂/Sr₂N 的计算目录接着做
-
-这次在 bcgong 的 tmux 窗口里准备 EPC 输入。`qe` 下已经建好了两个空目录：`ph64` 和 `ph96`。它们用来比较两套致密电子网格。先看文件从哪里来，再开始复制。
-
-以下保留终端里的真实账号和命令；工作目录、程序路径和赝势库路径作了简写。
-
-```text
-[bcgong@localhost qe]$ pwd
-<工作目录>/qe
-[bcgong@localhost qe]$ grep -n 'bfgs failed' config3/relax/rx.out
-49794:     bfgs failed after  43 scf cycles and  40 bfgs steps, convergence not achieved
-[bcgong@localhost qe]$
-```
-
-
-这条输出要先读完：程序在 43 次 SCF、40 步 BFGS 后结束，**BFGS 没有收敛，不能判定为结构优化通过**。下面沿用它的末步结构准备输入，并继续做两步固定结构 SCF；这能检查电子迭代与数据衔接，不能替代结构验收。下面也继续观察这份固定结构的声子任务如何启动；最终使用声子与 EPC 结果时，结构问题仍需解决。如何看力、应力与优化结束信息，见[结构优化](/Atlas/m/vc-relax/qe/)。
-
-还有一处会直接影响声子频率的输入错误：
-
-```text
-[bcgong@localhost qe]$ grep amass config3/ph64/phx.in
-  amass(1)=87.620
-  amass(2)=14.007
-  amass(2)=118.71
-  amass(4)=78.971
-[bcgong@localhost qe]$
-```
-
-
-`amass(2)` 写了两次。对照本材料 `ATOMIC_SPECIES` 的顺序 Sr、N、Sn、Se，118.71 应该属于第三种元素 Sn。新目录中修正这一行，同时检查 `matdynxline.in`；旧结果原样保留，不能把改过质量的输入和旧声子输出拼成一套结果。
-
-## 先复制输入，再用 vi 改
-
-参考 hzw 上 Sc₂C 的步骤：致密网格 SCF → 粗网格 SCF → 声子与 EPC → 后处理。那个算例使用 QE 7.2 和 USPP；这里使用 bcgong 上的 QE 7.1，保留 SnSe₂/Sr₂N 原有的 PAW 赝势、泛函和截断能。借用的是计算步骤，材料参数仍来自本材料。
-
-先只复制输入。新目录里不放旧的 `out/`、动力学矩阵或电声输出。
-
-```text
-[bcgong@localhost qe]$ cp config3/ph64/pwx.in config3/ph64/pwxall.in config3/ph64/phx.in config3/ph64/q2rx.in config3/ph64/matdynxline.in ph64/
-[bcgong@localhost qe]$ cd ph64
-[bcgong@localhost ph64]$
-```
-
-
-用 `vi` 打开输入，按 `i` 编辑，完成后按 `Esc`，输入 `:wq` 保存退出。两份 SCF 输入均打开 `tprnfor` 和 `tstress`，使后续输出包含力和应力；`pwxall.in` 保留 `la2F=.true.` 和 64×64×1 网格。
-
-```text
-[bcgong@localhost ph64]$ vi pwxall.in
-```
-
-
-保存后用 `cat` 读回整个文件：
-
-```text
-[bcgong@localhost ph64]$ cat pwxall.in
-&CONTROL
-  calculation = 'scf'
-  outdir = './out/'
-  prefix = 'srnsnse'
-  pseudo_dir = '<赝势库路径>'
-  tprnfor = .true.
-  tstress = .true.
-  verbosity = 'high'
-/
-&SYSTEM
-  ibrav = 0,
-  nat = 6,
-  ntyp = 4,
-  ecutwfc = 120,
-  ecutrho = 960,
-  input_dft = 'vdw-DF3-opt1'
-  occupations = 'smearing'
-  smearing = 'gaussian'
-  degauss = 3.7d-3
-  la2F=.true.
-/
-&ELECTRONS
-  conv_thr = 1.0000000000d-12
-  mixing_beta = 4.0000000000d-01
-/
-&ions
-/
-&cell
-/
-ATOMIC_SPECIES
-Sr  87.620  Sr.pbe-spn-kjpaw_psl.1.0.0.UPF
-N   14.007  N.pbe-n-kjpaw_psl.1.0.0.UPF
-Sn  118.71  Sn.pbe-dn-kjpaw_psl.1.0.0.UPF
-Se  78.971  Se.pbe-dn-kjpaw_psl.1.0.0.UPF
-CELL_PARAMETERS (angstrom)
-   3.915211298  -0.000000000   0.000000000
-  -1.957605649   3.390672445   0.000000000
-   0.000000000   0.000000000  40.000000000
-ATOMIC_POSITIONS (crystal)
-Sr            0.3333333333        0.6666666667        0.4858621609
-Sr            0.6666666667        0.3333333333        0.4189402327
-Sn            0.3333333333        0.6666666667        0.5848669832
-Se            0.0000000000        0.0000000000        0.6229981775
-Se            0.6666666667        0.3333333333        0.5395777160
-N             0.0000000000        0.0000000000        0.4476047279
-K_POINTS automatic
-  64 64 1 0 0 0
-[bcgong@localhost ph64]$
-```
-
-
-文件从上到下依次是控制项、体系设置、电子迭代、元素与赝势、晶胞、原子坐标和 k 网格。`nat=6` 对应六行坐标，`ntyp=4` 对应四种元素；`prefix='srnsnse'` 与 `outdir='./out/'` 后面还要在声子输入中对上。
-
-这里的 120/960 Ry、0.0037 Ry 展宽和电子阈值沿用现有输入，尚不是针对超导温度完成的收敛结论。两套 SCF 的一般操作见[固定结构 SCF](/Atlas/m/scf/qe/)；本页继续看它们与 EPC 相接的地方。
-
-对照输入读 OUT 时，先把容易混在一起的几个量分开：
-
-| 输入项 | 在这一轮中的作用 | 读输出时核对什么 |
-| --- | --- | --- |
-| `ecutwfc=120`、`ecutrho=960` | 分别限制波函数与电荷密度/势的平面波展开，单位 Ry | 两次 SCF 的截断与 FFT 网格回显是否匹配；这个比值来自当前协议，不能机械套给所有赝势 |
-| `degauss=0.0037` | 配合 Gaussian 占据处理金属费米面附近的占据 | 电子网格变化时保留相同设置；这不是稍后给谱峰画宽的参数 |
-| `conv_thr=1.0d-12` | 电子自洽残差的能量估计阈值，单位 Ry | 最后一次 `estimated scf accuracy` 与收敛信息；不是只算相邻两个总能量之差 |
-| `la2F=.true.` | 在致密网格步骤保存后续 EPC 所需的本征值数据 | `a2Fsave` 的带数、k 点、网格及文件身份；文件名含 a2F 仍不代表已经得到谱函数 |
-
-因此，先用致密网格取得费米面积分所需的电子采样，再用响应计算所依赖的粗网格保存 SCF 父链。两步共享结构与物理协议，承担的数值任务不同。后面的 `nq1/nq2/nq3` 则采样声子扰动波矢 q；把电子 k 网格加密，不会同时增加实际求解的声子 q 点。
-
-## 声子输入里，质量与 q 网格一起核对
-
-打开 `phx.in`，把 Sn 的质量索引改为 3，并去掉旧文件只计算第一点的 `start_q/last_q` 限制。这次先保留完整 8×8×1 q 网格输入；如果后续需要分批，范围应来自本材料实际列出的不可约 q 点。
-
-```text
-[bcgong@localhost ph64]$ vi phx.in
-```
-
-```text
-[bcgong@localhost ph64]$ cat phx.in
-  &inputph
-  tr2_ph=1.0d-16
-  nmix_ph=12
-  verbosity='high'
-  prefix='srnsnse'
-  fildvscf='srnsnsedv'
-  amass(1)=87.620
-  amass(2)=14.007
-  amass(3)=118.71
-  amass(4)=78.971
-  outdir='./out/'
-  fildyn='srnsnse.dyn'
-  electron_phonon='interpolated'
-  el_ph_sigma=0.002
-  el_ph_nsigma=20
-  trans=.true.
-  ldisp=.true.
-  nq1=8
-  nq2=8
-  nq3=1
-/
-[bcgong@localhost ph64]$
-```
-
-
-此处四个 `amass` 与元素表逐一对应。`el_ph_sigma=0.002`、`el_ph_nsigma=20` 也只是当前准备使用的设置，后面要结合实际逐 q 输出检查展宽依赖。Sc₂C 的不可约 q 点数量和分段不能直接照搬过来。
-
-上方官方输入手册目前为 QE 7.5；本机使用 QE 7.1，尚未找到与它匹配的官方输入手册来核实全部精确行为。这套 PAW、泛函与 EPC 的兼容性仍需在本地版本上验证，文件准备完成不等于这些检查已经通过。
-
-## 脚本里的进程数要和申请资源一致
-
-致密网格 SCF 的脚本已在 `vi` 中写入，读回如下：
-
-```text
-[bcgong@localhost ph64]$ cat pwxall.slurm
-#!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks=32
-#SBATCH --cpus-per-task=1
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-ulimit -s unlimited
-ulimit -l unlimited
-source /data/intel/oneapi/setvars.sh
-export OMP_NUM_THREADS=1
-cd "$SLURM_SUBMIT_DIR" || exit 1
-
-mpirun -np 32 <qe_bin>/pw.x -in pwxall.in > pwxall.out 2> pwxall.err
-[bcgong@localhost ph64]$
-```
-
-
-这里申请 32 个任务，`mpirun` 也使用 32 个进程。程序输出写到 `pwxall.out`，标准错误单独写到 `pwxall.err`；Slurm 自身仍保留 `_out.%j.log` 和 `_err.%j.log`。粗网格脚本 `pwx.slurm` 对应 `pwx.in → pwx.out`。
-
-声子脚本使用 16 个 MPI 进程，并设 `OMP_NUM_THREADS=1`：
-
-```text
-[bcgong@localhost ph64]$ cat phx.slurm
-#!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks=16
-#SBATCH --cpus-per-task=1
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-ulimit -s unlimited
-ulimit -l unlimited
-source /data/intel/oneapi/setvars.sh
-export OMP_NUM_THREADS=1
-cd "$SLURM_SUBMIT_DIR" || exit 1
-
-mpirun -np 16 <qe_bin>/ph.x -in phx.in > phx.out 2> phx.err
-[bcgong@localhost ph64]$
-```
-
-
-两个 SCF 与声子步骤需要依次完成并检查。下面实际提交的是 64×64×1 的 `pwxall`；它结束并核对通过后，才接 16×16×1 的 `pwx`。声子任务另行处理。
-
-## 把 ph96 只改成另一套致密网格
-
-输入和脚本在 ph64 核对后，复制到 ph96：
-
-```text
-[bcgong@localhost ph64]$ cp *.in *.slurm ../ph96/
-[bcgong@localhost ph64]$ cd ../ph96
-[bcgong@localhost ph96]$
-```
-
-```text
-[bcgong@localhost ph96]$ vi pwxall.in
-```
-
-
-在 `vi` 中把最后一行的 `64 64 1 0 0 0` 改成 `96 96 1 0 0 0`。保存后看差异：
-
-```text
-[bcgong@localhost ph96]$ diff ../ph64/pwxall.in pwxall.in
-47c47
-<   64 64 1 0 0 0
----
->   96 96 1 0 0 0
-[bcgong@localhost ph96]$ grep -A1 K_POINTS pwx.in pwxall.in
-pwx.in:K_POINTS automatic
-pwx.in-  16 16 1 0 0 0
---
-pwxall.in:K_POINTS automatic
-pwxall.in-  96 96 1 0 0 0
-[bcgong@localhost ph96]$
-```
-
-
-`diff` 只显示致密网格这一行变化；`pwx.in` 仍为 16×16×1。两目录的声子输入都是 8×8×1 q 网格。这样后续比较时，才知道这两套输入改变的是哪一个量。
-
-再把声子和插值输入中的质量一起读出来：
-
-```text
-[bcgong@localhost ph96]$ grep amass phx.in matdynxline.in
-phx.in:  amass(1)=87.620
-phx.in:  amass(2)=14.007
-phx.in:  amass(3)=118.71
-phx.in:  amass(4)=78.971
-matdynxline.in:  amass(1)=87.620
-matdynxline.in:  amass(2)=14.007
-matdynxline.in:  amass(3)=118.71
-matdynxline.in:  amass(4)=78.971
-[bcgong@localhost ph96]$
-```
-
-
-四个索引和四个数值现在一致。ph96 的设置更密，但是否足够，需要比较后续 λ、谱函数及目标物理量；目录名本身不能说明收敛。
-
-## 后处理先把文件关系接好
-
-回到 ph64，`q2rx.in` 把逐 q 动力学矩阵接到力常数文件，`matdynxline.in` 再读取同名力常数：
-
-```text
-[bcgong@localhost ph96]$ cd ../ph64
-[bcgong@localhost ph64]$ cat q2rx.in
-&input
-zasr='crystal'
-fildyn='srnsnse.dyn'
-flfrc='srnsnse.fc'
-la2F=.true.
-/
-[bcgong@localhost ph64]$ cat matdynxline.in
-&input
-  asr='crystal'
-  amass(1)=87.620
-  amass(2)=14.007
-  amass(3)=118.71
-  amass(4)=78.971
-  flfrc='srnsnse.fc'
-  flfrq='srnsnse.freq'
-  la2F=.true.
-  dos=.false.
-  q_in_band_form = .true.
-  q_in_cryst_coord = .true.
-
-/
-4
-0.0000000000   0.0000000000   0.0000000000 50    !G
-0.5000000000   0.0000000000   0.0000000000 50    !M
-0.3333333333   0.3333333333   0.0000000000 50    !K
-0.0000000000   0.0000000000   0.0000000000  1    !G
-/
-[bcgong@localhost ph64]$
-```
-
-
-`fildyn='srnsnse.dyn'` 与声子输入相同，`flfrc='srnsnse.fc'` 在两份后处理输入中相同。末尾列的是 Γ–M–K–Γ 路径；它用于画声子色散，完整 q 网格的稳定性仍要另外核对。已有输出的读取方法见[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)。
-
-`lambda.x` 的脚本也准备好了。它从标准输入读取 `lambdax.in`：
-
-```text
-[bcgong@localhost ph64]$ cat lambdax.slurm
-#!/bin/bash
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=1
-#SBATCH -o _out.%j.log
-#SBATCH -e _err.%j.log
-
-ulimit -s unlimited
-ulimit -l unlimited
-source /data/intel/oneapi/setvars.sh
-export OMP_NUM_THREADS=1
-cd "$SLURM_SUBMIT_DIR" || exit 1
-
-mpirun -np 1 <qe_bin>/lambda.x < lambdax.in > lambdax.out 2> lambdax.err
-[bcgong@localhost ph64]$
-```
-
-
-**当前没有生成 `lambdax.in`。** 它要用本次计算实际得到的不可约 q 点、权重与逐 q 电声文件；频率积分上限也要覆盖实际声子范围。先复制另一材料的 q 列表和频率上限，会让后面的积分失去依据。
-
-最后看一次目录：
-
-```text
-[bcgong@localhost ph64]$ ls -1
-lambdax.slurm
-matdynxline.in
-matdynxline.slurm
-phx.in
-phx.slurm
-pwxall.in
-pwxall.slurm
-pwx.in
-pwx.slurm
-q2rx.in
-q2rx.slurm
-README.md
-[bcgong@localhost ph64]$
-```
-
-
-每套目录都有五份输入、六份 Slurm 脚本和一份说明。脚本分别做过 `bash -n` 检查，远端文件也已回读；这些检查只验证文件和 shell 语法。输入准备到这里完成，接着在同一个 ph64 目录提交致密网格 SCF。
-
-<!-- ph64-scf-session-start -->
-## 提交 pwxall，先确认程序确实读对了文件
-
-在 ph64 中检查网格和脚本，然后提交：
-
-```text
-[bcgong@localhost ph64]$ grep -A1 K_POINTS pwxall.in
-K_POINTS automatic
-  64 64 1 0 0 0
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ bash -n pwxall.slurm
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ sbatch -J srnsnse-k64 pwxall.slurm
-Submitted batch job 18178
-[bcgong@localhost ph64]$
-```
-
-
-`18178` 是调度器返回的作业号。先记住它，接下来的队列和日志检查都指向这一份作业，避免读到其他目录的同名 `pwxall.out`。
-
-```text
-[bcgong@localhost ph64]$ squeue -j 18178 -o "%.10i %.16j %.8T %.10M %.6D %R"
-     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
-     18178      srnsnse-k64  RUNNING       0:33      1 localhost
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ scontrol show job 18178 | grep -E 'JobId=|JobState=|RunTime=|NumNodes=|WorkDir='
-JobId=18178 JobName=srnsnse-k64
-   JobState=RUNNING Reason=None Dependency=(null)
-   RunTime=00:00:35 TimeLimit=365-00:00:00 TimeMin=N/A
-   NumNodes=1 NumCPUs=32 NumTasks=32 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
-   WorkDir=<工作目录>/qe/ph64
-[bcgong@localhost ph64]$
-```
-
-
-`RUNNING` 表示调度器已经启动作业。这里申请并分配了 32 个任务，工作目录也确实是 ph64。此时还不能判断 SCF 是否收敛，继续打开程序输出的开头：
-
-```text
-[bcgong@localhost ph64]$ head -n 43 pwxall.out
-
-     Program PWSCF v.7.1 starts on 22Sep2026 at 18:53:36
-
-     This program is part of the open-source Quantum ESPRESSO suite
-     for quantum simulation of materials; please cite
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
-         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
-          URL http://www.quantum-espresso.org",
-     in publications or presentations arising from this work. More details at
-     http://www.quantum-espresso.org/quote
-
-     Parallel version (MPI), running on    32 processors
-
-     MPI processes distributed on     1 nodes
-     76371 MiB available memory on the printing compute node when the environment starts
-
-     Reading input from pwxall.in
-Warning: card &CELL ignored
-Warning: card / ignored
-
-     Current dimensions of program PWSCF are:
-     Max number of different atomic species (ntypx) = 10
-     Max number of k-points (npk) =  40000
-     Max angular momentum in pseudopotentials (lmaxx) =  4
-     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
-     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
-     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
-     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
-
-     IMPORTANT: XC functional enforced from input :
-     Exchange-correlation= VDW-DF3-OPT1
-                           (   1   4  45   0   3   0   0)
-     Any further DFT definition will be discarded
-     Please, verify this is what you really want
-
-     Message from routine setup:
-     using ibrav=0 with symmetry is DISCOURAGED, use correct ibrav instead
-
-     R & G space division:  proc/nbgrp/npool/nimage =      32
-     Subspace diagonalization in iterative solution of the eigenvalue problem:
-     a serial algorithm will be used
-
-[bcgong@localhost ph64]$
-```
-
-
-这一段先核对三件事：程序是 QE 7.1，使用 32 个 MPI 进程，读取的是 `pwxall.in`。`&CELL ignored` 来自 SCF 输入里保留的空晶胞控制块；这条提示不表示程序进行了晶胞优化。赝势波函数归一化、强制指定泛函和 `ibrav=0` 的提示也保留在输出中，需要结合本次输入逐项读，不能只摘出没有提示的几行。
-
-再读实际采用的体系与数值设置：
-
-```text
-[bcgong@localhost ph64]$ grep -E 'number of atoms|number of atomic types|number of electrons|Kohn-Sham states|kinetic-energy cutoff|charge density cutoff|convergence threshold|number of k points' pwxall.out
-     number of atoms/cell      =            6
-     number of atomic types    =            4
-     number of electrons       =        71.00
-     number of Kohn-Sham states=           43
-     kinetic-energy cutoff     =     120.0000  Ry
-     charge density cutoff     =     960.0000  Ry
-     scf convergence threshold =      1.0E-12
-     number of k points=   374  Gaussian smearing, width (Ry)=  0.0037
-[bcgong@localhost ph64]$
-```
-
-
-这里的 374 是程序经过对称性处理后列出的 k 点数，不能拿它和 `64×64×1` 的完整网格直接比较大小。六个原子、四种元素、120/960 Ry 截断、0.0037 Ry 展宽以及 `1.0E-12` 的电子阈值，都应与输入对应。
-
-## 运行中看队列，也看电子迭代
-
-在这个窗口实际使用的两个连续查看命令是：
-
-```text
-[bcgong@localhost ph64]$ watch -n 10 'squeue -j 18178 -o "%.10i %.16j %.8T %.10M %.6D %R"'
-```
-
-按 `Ctrl-C` 退出队列监视，再跟随程序输出：
-
-```text
-[bcgong@localhost ph64]$ tail -f pwxall.out
-```
-
-这里的 `Ctrl-C` 结束的是 `watch` 或 `tail -f`；已经交给 Slurm 的计算仍在后台运行。输出在一次较长的对角化期间可能暂时不增加，不能因此马上重复提交。
-
-初次查看时，程序进入了第一轮迭代：
-
-```text
-[bcgong@localhost ph64]$ tail -n 20 pwxall.out
-
-     Starting wfcs are   47 randomized atomic wfcs
-     Checking if some PAW data can be deallocated...
-       PAW data deallocated on   20 nodes for type:  1
-       PAW data deallocated on   27 nodes for type:  2
-       PAW data deallocated on   27 nodes for type:  3
-       PAW data deallocated on   22 nodes for type:  4
-
-     total cpu time spent up to now is       39.4 secs
-
-     Self-consistent Calculation
-
-     iteration #  1     ecut=   120.00 Ry     beta= 0.40
-     Davidson diagonalization with overlap
-
----- Real-time Memory Report at c_bands before calling an iterative solver
-           800 MiB given to the printing process from OS
-             0 MiB allocation reported by mallinfo(arena+hblkhd)
-         53432 MiB available memory on the node where the printing process lives
-------------------
-[bcgong@localhost ph64]$
-```
-
-
-`iteration #` 是电子迭代编号。每一轮完成后，继续看 `total energy` 和 `estimated scf accuracy`。接受这次电子迭代时，要对照输入阈值检查最终误差和程序的收敛信息；相邻两轮总能量看起来接近，不能代替这个检查。
-
-在本机这个作业中，计算节点就是当前主机，因此还可以查看进程。这里只截取前四行：
-
-```text
-[bcgong@localhost ph64]$ ps -u bcgong -o pid,ppid,stat,etime,%cpu,%mem,args | grep '[p]w.x' | head -n 4
-124342 124325 S          02:18  0.0  0.0 /bin/sh /data/intel/oneapi/mpi/2021.5.0//bin/mpirun -np 32 <qe_bin>/pw.x -in pwxall.in
-124347 124342 S          02:18  0.0  0.0 mpiexec.hydra -np 32 <qe_bin>/pw.x -in pwxall.in
-124373 124364 R          02:17  100  0.3 <qe_bin>/pw.x -in pwxall.in
-124374 124364 R          02:17  100  0.3 <qe_bin>/pw.x -in pwxall.in
-[bcgong@localhost ph64]$
-```
-
-
-启动器本身占用 CPU 很少，后面的 `pw.x` 工作进程则在计算。这是当时的进程快照；在计算节点与登录节点分开的集群上，应使用该集群允许的节点监控方式，不能把登录节点的 `ps` 当成远端计算节点的状态。
-
-错误日志也单独检查：
-
-```text
-[bcgong@localhost ph64]$ wc -c pwxall.err _err.18178.log
-0 pwxall.err
-0 _err.18178.log
-0 total
-[bcgong@localhost ph64]$
-```
-
-
-两份文件在这次查看时都是零字节。运行中为空只表示截至这一刻没有写入错误，结束后还要再读一次。
-
-这台机器的历史记账命令返回：
-
-```text
-[bcgong@localhost ph64]$ sacct -j 18178 --format=JobID,State,ExitCode,Elapsed,MaxRSS
-Slurm accounting storage is disabled
-[bcgong@localhost ph64]$
-```
-
-
-因此这里不能从 `sacct` 获取最终退出码和内存统计。作业结束后要及时用 [scontrol](https://slurm.schedmd.com/scontrol.html) 读取 `scontrol show job 18178` 并保留结果，再结合程序输出、错误日志和保存文件判断。作业从 `squeue` 消失，只表示它不再排队或运行。
-
-## pwxall 结束后，怎样决定能否接 pwx
-
-任务退出后，先按下面的顺序检查；这一轮的实际结果接在后面：
-
-```bash
-scontrol show job 18178
-tail -n 30 pwxall.out
-grep -E 'convergence has been achieved|estimated scf accuracy|^!|JOB DONE' pwxall.out | tail -n 8
-cat pwxall.err
-cat _err.18178.log
-grep -niE 'error in routine|convergence NOT achieved|eigenvalues not converged|MPI_ABORT|killed|out of memory|IEEE_' pwxall.out pwxall.err _out.18178.log _err.18178.log
-```
-
-先看调度状态与退出码，再看 QE 是否正常结束、电子迭代是否达到本输入的阈值。任何报错、未收敛本征值或异常退出，都需要先解释清楚；即使出现 `JOB DONE.`，也不能跳过它们。`grep` 没有输出时仍要读尾部和错误文件，因为一个关键词列表不可能覆盖全部故障。
-
-致密网格这一步还承担保存电子本征值数据的任务。核对本机 QE 7.1 的写出代码后，对应文件应位于 `out/srnsnse.a2Fsave`。它不是已经积分得到的 α²F 谱。结束后要核实文件非空、内部带数与 k 点数和本次输出一致，并确认记录的是 64×64×1 网格。
-
-进入粗网格 SCF 前，还要保留这份数据和致密网格的 XML 描述。两次 SCF 使用相同的 `prefix/outdir`，粗网格会更新 `.save` 里的内容；保存文件不能只看最后一次修改后的样子来追认上一步。
-
-这里验收的是“这一份固定结构 SCF 是否正常完成、能否用于下一步数据衔接”。结构优化、赝势适用性和 k/q/展宽对目标物理量的收敛仍是另外的检查，不能由这次 SCF 通过一并代替。
-
-## 密网格这一轮实际怎样结束
-
-先读调度器记录，再读输出末尾的收敛信息：
-
-```text
-[bcgong@localhost ph64]$ scontrol show job 18178 | grep -E 'JobId=|JobState=|RunTime=|ExitCode='
-JobId=18178 JobName=srnsnse-k64
-   JobState=COMPLETED Reason=None Dependency=(null)
-   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
-   RunTime=00:40:37 TimeLimit=365-00:00:00 TimeMin=N/A
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -E 'iteration #|estimated scf accuracy|convergence has|^!|JOB DONE' pwxall.out | tail -n 10
-     estimated scf accuracy    <          1.0E-10 Ry
-     iteration # 21     ecut=   120.00 Ry     beta= 0.40
-     estimated scf accuracy    <          2.3E-12 Ry
-     iteration # 22     ecut=   120.00 Ry     beta= 0.40
-     estimated scf accuracy    <          2.0E-12 Ry
-     iteration # 23     ecut=   120.00 Ry     beta= 0.40
-!    total energy              =   -1784.37924631 Ry
-     estimated scf accuracy    <          5.5E-13 Ry
-     convergence has been achieved in  23 iterations
-   JOB DONE.
-[bcgong@localhost ph64]$
-```
-
-
-作业 18178 在 40 分 37 秒后结束，退出码为 `0:0`。电子迭代共 23 轮，最后打印的误差上界为 `5.5E-13 Ry`，低于本输入的 `1.0E-12 Ry`，并出现 `JOB DONE.`。
-
-结束后再检查错误日志与异常信息：
-
-```text
-[bcgong@localhost ph64]$ wc -c pwxall.err _err.18178.log
-0 pwxall.err
-0 _err.18178.log
-0 total
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -niE 'Error in routine|convergence NOT achieved|eigenvalues not converged|MPI_ABORT|out.of.memory|IEEE_' pwxall.out pwxall.err _out.18178.log _err.18178.log
-[bcgong@localhost ph64]$
-```
-
-
-两份错误文件都是零字节，上面的关键词检查没有匹配。但仍应阅读完整输出：例如本次 vdW-DF 的文献说明也用了百分号边框，单独搜索一长串 `%` 会把正常说明一起找出来。
-
-把实际 23 轮的误差画在一起，可以看到前几轮上升、后期小幅反弹，以及最后跨过输入阈值的过程：
-
-![SnSe₂/Sr₂N 64×64×1 网格 SCF 的电子迭代误差](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.svg)
-
-这张图可用[本机绘图脚本](/Atlas/examples/snse2-sr2n/ph64/plot_scf_accuracy.py)重新生成，数据来自[完整 pwxall.out](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)，配套[绘图样式脚本](/Atlas/examples/snse2-sr2n/ph64/atlas_plot_style.py)放在同一目录。读取时保留原始迭代行，不把图中的下降趋势代替最终电子收敛与参数收敛验收。
-
-
-纵轴是输出打印的 `estimated scf accuracy` 上界，采用对数刻度，虚线为本次输入阈值。[下载这张图的数据](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.csv)，或直接阅读[完整 pwxall.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)。这张图对应一次固定输入的电子迭代，k 网格的物理量收敛仍需另外比较。
-
-## 先保留密网格数据，再让粗网格写入
-
-这次结束后实际留下了以下文件：
-
-```text
-[bcgong@localhost ph64]$ ls -lh out/srnsnse.a2Fsave out/srnsnse.save/data-file-schema.xml out/srnsnse.save/charge-density.dat
--rw-rw-r-- 1 bcgong bcgong 419K Sep 22 19:34 out/srnsnse.a2Fsave
--rw-rw-r-- 1 bcgong bcgong  49M Sep 22 19:33 out/srnsnse.save/charge-density.dat
--rw-rw-r-- 1 bcgong bcgong 859K Sep 22 19:33 out/srnsnse.save/data-file-schema.xml
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ head -n 1 out/srnsnse.a2Fsave
-          43         374
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep monkhorst_pack out/srnsnse.save/data-file-schema.xml
-      <monkhorst_pack nk1="64" nk2="64" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-        <monkhorst_pack nk1="64" nk2="64" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-[bcgong@localhost ph64]$
-```
-
-
-`a2Fsave` 第一行的 43 和 374 分别对应带数和 k 点数，与本次输出一致；XML 中记录的网格为 64×64×1，三个偏移都是 0。文件内部的本征值、k 点、权重和网格记录也已核对。电荷密度和波函数文件均已写出。
-
-接下来粗网格仍使用同一个 `out/`，先把致密网格的本征值文件和 XML 描述复制出来：
-
-```text
-[bcgong@localhost ph64]$ cp out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ cp out/srnsnse.save/data-file-schema.xml pwxall.data-file-schema.xml
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
-[bcgong@localhost ph64]$
-```
-
-
-两行哈希相同，说明这份复制与原文件逐字节一致。`srnsnse.a2Fsave.k64` 保存密网格数据，`pwxall.data-file-schema.xml` 保存这一轮的 XML 描述。随后 `.save` 中的 XML 会由粗网格计算更新。
-
-打开力的输出，还能看到为什么电子迭代通过不代表结构已经优化通过：
-
-```text
-[bcgong@localhost ph64]$ grep -A8 'Forces acting on atoms' pwxall.out
-     Forces acting on atoms (cartesian axes, Ry/au):
-
-     atom    1 type  1   force =     0.00000000    0.00000000    0.00047248
-     atom    2 type  1   force =     0.00000000    0.00000000    0.00017962
-     atom    3 type  3   force =     0.00000000    0.00000000    0.00006384
-     atom    4 type  4   force =     0.00000000    0.00000000   -0.00032075
-     atom    5 type  4   force =     0.00000000    0.00000000   -0.00006845
-     atom    6 type  2   force =     0.00000000    0.00000000   -0.00032673
-     The non-local contrib.  to forces
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -E 'Total force|negative rho' pwxall.out | tail -n 3
-     negative rho (up, down):  3.709E-05 0.000E+00
-     Total force =     0.000688     Total SCF correction =     0.000002
-     negative rho (up, down):  3.709E-05 0.000E+00
-[bcgong@localhost ph64]$
-```
-
-
-这是固定结构上的力，单位为 Ry/au。程序打印的 `Total force` 为 0.000688，`Total SCF correction` 为 0.000002。输出中的 `negative rho` 诊断也保留在这里；它需要结合赝势、网格与数值设置复核。原来的 BFGS 未收敛问题仍然存在，不能用本次电子收敛行替代结构验收。
-
-## 在同一窗口串行提交 pwx
-
-密网格的结束和保存文件核对完后，再看一次粗网格输入并提交：
-
-```text
-[bcgong@localhost ph64]$ grep -A1 K_POINTS pwx.in
-K_POINTS automatic
-  16 16 1 0 0 0
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ sbatch -J srnsnse-k16 pwx.slurm
-Submitted batch job 18179
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ squeue -j 18179 -o "%.10i %.16j %.8T %.10M %.6D %R"
-     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
-     18179      srnsnse-k16  RUNNING       0:02      1 localhost
-[bcgong@localhost ph64]$
-```
-
-
-作业 18179 使用 `pwx.in`。提交发生在 18178 完成并保留密网格数据之后，两份 SCF 没有同时写入同一个目录。
-
-```text
-[bcgong@localhost ph64]$ head -n 35 pwx.out
-
-     Program PWSCF v.7.1 starts on 22Sep2026 at 19:36:47
-
-     This program is part of the open-source Quantum ESPRESSO suite
-     for quantum simulation of materials; please cite
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
-         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
-          URL http://www.quantum-espresso.org",
-     in publications or presentations arising from this work. More details at
-     http://www.quantum-espresso.org/quote
-
-     Parallel version (MPI), running on    32 processors
-
-     MPI processes distributed on     1 nodes
-     55847 MiB available memory on the printing compute node when the environment starts
-
-     Reading input from pwx.in
-Warning: card &CELL ignored
-Warning: card / ignored
-
-     Current dimensions of program PWSCF are:
-     Max number of different atomic species (ntypx) = 10
-     Max number of k-points (npk) =  40000
-     Max angular momentum in pseudopotentials (lmaxx) =  4
-     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
-     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
-     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
-     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
-
-     IMPORTANT: XC functional enforced from input :
-     Exchange-correlation= VDW-DF3-OPT1
-                           (   1   4  45   0   3   0   0)
-     Any further DFT definition will be discarded
-     Please, verify this is what you really want
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -E 'number of atoms|number of atomic types|number of electrons|Kohn-Sham states|kinetic-energy cutoff|charge density cutoff|convergence threshold|number of k points' pwx.out
-     number of atoms/cell      =            6
-     number of atomic types    =            4
-     number of electrons       =        71.00
-     number of Kohn-Sham states=           43
-     kinetic-energy cutoff     =     120.0000  Ry
-     charge density cutoff     =     960.0000  Ry
-     scf convergence threshold =      1.0E-12
-     number of k points=    30  Gaussian smearing, width (Ry)=  0.0037
-[bcgong@localhost ph64]$
-```
-
-
-程序读取的是 `pwx.in`，仍使用 QE 7.1 和 32 个 MPI 进程。网格改变后，这一轮列出 30 个 k 点；元素数、截断、展宽和电子阈值保持配套。监控时把前面的作业号换成 18179，输出文件换成 `pwx.out`，错误文件换成 `pwx.err` 和 `_err.18179.log`。
-
-
-## 粗网格结束后，再核对数据有没有接错
-
-```text
-[bcgong@localhost ph64]$ scontrol show job 18179 | grep -E 'JobId=|JobState=|RunTime=|ExitCode='
-JobId=18179 JobName=srnsnse-k16
-   JobState=COMPLETED Reason=None Dependency=(null)
-   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
-   RunTime=00:04:15 TimeLimit=UNLIMITED TimeMin=N/A
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -E 'iteration #|estimated scf accuracy|convergence has|^!|JOB DONE' pwx.out | tail -n 10
-     estimated scf accuracy    <          7.4E-11 Ry
-     iteration # 21     ecut=   120.00 Ry     beta= 0.40
-     estimated scf accuracy    <          6.6E-12 Ry
-     iteration # 22     ecut=   120.00 Ry     beta= 0.40
-     estimated scf accuracy    <          2.5E-12 Ry
-     iteration # 23     ecut=   120.00 Ry     beta= 0.40
-!    total energy              =   -1784.37930124 Ry
-     estimated scf accuracy    <          4.6E-13 Ry
-     convergence has been achieved in  23 iterations
-   JOB DONE.
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ wc -c pwx.err _err.18179.log
-0 pwx.err
-0 _err.18179.log
-0 total
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep monkhorst_pack out/srnsnse.save/data-file-schema.xml
-      <monkhorst_pack nk1="16" nk2="16" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-        <monkhorst_pack nk1="16" nk2="16" nk3="1" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
-[bcgong@localhost ph64]$
-```
-
-
-粗网格作业用时 4 分 15 秒，23 轮电子迭代后打印的误差上界为 `4.6E-13 Ry`，低于输入的 `1.0E-12 Ry`。这一轮同样结合了调度器退出状态、电子收敛、错误文件和 XML 检查。当前 `.save` 的 XML 网格已经变成 16×16×1，而致密网格 `a2Fsave` 与复制出来的文件哈希仍相同；后续所需的两套电子数据没有被混成同一个网格。
-
-再看当前 XML 的 k 点数与几个波函数文件的时间：
-
-```text
-[bcgong@localhost ph64]$ grep nks out/srnsnse.save/data-file-schema.xml
-      <nks>30</nks>
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ ls -lh out/srnsnse.save/wfc1.dat out/srnsnse.save/wfc30.dat out/srnsnse.save/wfc31.dat out/srnsnse.save/wfc374.dat
--rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:40 out/srnsnse.save/wfc1.dat
--rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:41 out/srnsnse.save/wfc30.dat
--rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:33 out/srnsnse.save/wfc31.dat
--rw-rw-r-- 1 bcgong bcgong 54M Sep 22 19:34 out/srnsnse.save/wfc374.dat
-[bcgong@localhost ph64]$
-```
-
-当前 XML 记录 `nks=30`。前 30 份波函数已在粗网格运行时重新写入，后面的编号仍保留密网格运行时的文件。因此，数一遍 `wfc*.dat` 得到的 374 不能当作当前粗网格的 k 点数；读取保存数据要以当前 XML、对应输出和实际写入的文件为准。
-
-可以继续阅读[完整 pwx.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwx.out.txt)，从程序开头、参数回显、逐轮电子迭代一直看到力、应力、计时和结束标记。两步 SCF 的运行和保存数据核对到这里完成，接下来在同一目录启动 ph.x。
-
-<!-- ph64-scf-session-end -->
-
-<!-- ph64-phonon-session-start -->
-## 接着提交 ph.x
-
-两步 SCF 留下的文件已经对上。声子输入继续使用 `prefix='srnsnse'`、`outdir='./out/'`，读取粗网格的保存数据；密网格本征值仍保存在 `out/srnsnse.a2Fsave`。本次沿用前面展示的 `phx.in` 和 `phx.slurm`，完整计算 8×8×1 q 网格，没有设置 `start_q/last_q` 分段。
-
-提交前再检查脚本，然后交给 Slurm：
-
-```text
-[bcgong@localhost ph64]$ bash -n phx.slurm
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ sbatch -J srnsnse-ph64 phx.slurm
-Submitted batch job 18180
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ squeue -j 18180 -o "%.10i %.16j %.8T %.10M %.6D %R"
-     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
-     18180     srnsnse-ph64  RUNNING       0:02      1 localhost
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ scontrol show job 18180 | grep -E 'JobId=|JobState=|RunTime=|NumNodes=|WorkDir='
-JobId=18180 JobName=srnsnse-ph64
-   JobState=RUNNING Reason=None Dependency=(null)
-   RunTime=00:00:04 TimeLimit=UNLIMITED TimeMin=N/A
-   NumNodes=1 NumCPUs=16 NumTasks=16 CPUs/Task=1 ReqB:S:C:T=0:0:*:*
-   WorkDir=<工作目录>/qe/ph64
-[bcgong@localhost ph64]$
-```
-
-
-作业号是 18180，申请的 16 个任务已经分配。这里 `RUNNING` 只说明作业正在运行；继续读 `phx.out`，确认启动的是哪一个程序、读了哪一份输入和保存目录：
-
-```text
-[bcgong@localhost ph64]$ head -n 34 phx.out
-
-     Program PHONON v.7.1 starts on 22Sep2026 at 20:44:51
-
-     This program is part of the open-source Quantum ESPRESSO suite
-     for quantum simulation of materials; please cite
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
-         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
-          URL http://www.quantum-espresso.org",
-     in publications or presentations arising from this work. More details at
-     http://www.quantum-espresso.org/quote
-
-     Parallel version (MPI), running on    16 processors
-
-     MPI processes distributed on     1 nodes
-     R & G space division:  proc/nbgrp/npool/nimage =      16
-     56695 MiB available memory on the printing compute node when the environment starts
-
-     Reading input from phx.in
-      Title line not specified: using 'default'.
-
-     Reading xml data from directory:
-
-     ./out/srnsnse.save/
-     file Sr.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4P renormalized
-     file N.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S renormalized
-     file Sn.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  5S 5P 4D renormalized
-     file Se.pbe-dn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  4S 4P 3D renormalized
-
-     IMPORTANT: XC functional enforced from input :
-     Exchange-correlation= VDW-DF3-OPT1
-                           (   1   4  45   0   3   0   0)
-     Any further DFT definition will be discarded
-     Please, verify this is what you really want
-[bcgong@localhost ph64]$
-```
-
-
-输出确认本次运行的是 PHONON 7.1，使用 16 个 MPI 进程，读取 `phx.in` 和 `./out/srnsnse.save/`。脚本里的 `OMP_NUM_THREADS=1` 与前面的 16 个 MPI 进程配置相配。没有写标题行时，本次程序使用了 `default`；这条提示之后仍继续读取 SCF 数据。
-
-页首的官方输入文档目前标注为 QE 7.5；这里逐项记录的是本机 QE 7.1 的实际输入与输出，不能用新版手册直接保证旧版本所有组合都适用。当前任务成功启动，也不等于 PAW、泛函与电声计算的数值结果已经通过验证。
-
-## 先看 q 点，再看原子质量和位移模式
-
-程序开头先列出这次真正要处理的 q 点：
-
-```text
-[bcgong@localhost ph64]$ grep -A12 'uniform grid of q-points' phx.out
-     Dynamical matrices for ( 8, 8, 1)  uniform grid of q-points
-     (  10 q-points):
-       N         xq(1)         xq(2)         xq(3)
-       1   0.000000000   0.000000000   0.000000000
-       2   0.000000000   0.144337567   0.000000000
-       3   0.000000000   0.288675135   0.000000000
-       4   0.000000000   0.433012702   0.000000000
-       5   0.000000000  -0.577350269   0.000000000
-       6   0.125000000   0.216506351   0.000000000
-       7   0.125000000   0.360843918   0.000000000
-       8   0.125000000   0.505181486   0.000000000
-       9   0.250000000   0.433012702   0.000000000
-      10   0.250000000   0.577350269   0.000000000
-[bcgong@localhost ph64]$
-```
-
-
-8×8×1 是完整均匀网格，经过本次结构的对称性处理后，需要处理的是上面 10 个不可约 q 点。第一个为 Γ 点。后面的逐 q 文件应与这份列表相对应；不能只从目录名 ph64 推断有多少个声子 q 点。
-
-再看程序实际采用的质量。前面修正过 N/Sn 的索引，这里要从输出再核对一次：
-
-```text
-[bcgong@localhost ph64]$ grep -A7 'site n.  atom      mass' phx.out
-     site n.  atom      mass           positions (alat units)
-        1     Sr  87.6200   tau(    1) = (   -0.00000    0.57735    4.96384  )
-        2     Sr  87.6200   tau(    2) = (    0.50000    0.28868    4.28013  )
-        3     Sn 118.7100   tau(    3) = (   -0.00000    0.57735    5.97533  )
-        4     Se  78.9710   tau(    4) = (    0.00000    0.00000    6.36490  )
-        5     Se  78.9710   tau(    5) = (    0.50000    0.28868    5.51263  )
-        6     N   14.0070   tau(    6) = (    0.00000    0.00000    4.57298  )
-
-[bcgong@localhost ph64]$
-```
-
-
-N 现在打印为 14.0070，Sn 为 118.7100。六行依次对应六个原子；同一种元素可以出现多次，`amass(i)` 的索引仍按 `ATOMIC_SPECIES` 中的元素种类排列。
-
-Γ 点接着给出了这些表示：
-
-```text
-[bcgong@localhost ph64]$ grep -E 'Calculation of q|irreducible representations|Representation.*modes' phx.out
-     Calculation of q =    0.0000000   0.0000000   0.0000000
-     There are   12 irreducible representations
-     Representation     1      1 modes -  To be done
-     Representation     2      1 modes -  To be done
-     Representation     3      1 modes -  To be done
-     Representation     4      1 modes -  To be done
-     Representation     5      1 modes -  To be done
-     Representation     6      1 modes -  To be done
-     Representation     7      2 modes -  To be done
-     Representation     8      2 modes -  To be done
-     Representation     9      2 modes -  To be done
-     Representation    10      2 modes -  To be done
-     Representation    11      2 modes -  To be done
-     Representation    12      2 modes -  To be done
-[bcgong@localhost ph64]$
-```
-
-
-这份输出中，前六个表示各含一个模式，后六个各含两个，一共 18 个，正好对应六个原子的 18 个位移自由度。这里的 12 个表示和前面的 10 个 q 点是不同层次。`To be done` 表示这份启动输出还没有把它们算完，下面列出的位移图样也不能当成已经得到的声子频率。
-
-## 运行时有哪些文件，怎样继续看进度
-
-此时 `srnsnse.dyn0` 已经出现：
-
-```text
-[bcgong@localhost ph64]$ cat srnsnse.dyn0
-   8   8   1
-  10
-   0.000000000000000E+00   0.000000000000000E+00   0.000000000000000E+00
-   0.000000000000000E+00   0.144337567308136E+00   0.000000000000000E+00
-   0.000000000000000E+00   0.288675134616271E+00   0.000000000000000E+00
-   0.000000000000000E+00   0.433012701924407E+00   0.000000000000000E+00
-   0.000000000000000E+00  -0.577350269232543E+00   0.000000000000000E+00
-   0.125000000000007E+00   0.216506350962204E+00   0.000000000000000E+00
-   0.125000000000007E+00   0.360843918270339E+00   0.000000000000000E+00
-   0.125000000000007E+00   0.505181485578475E+00   0.000000000000000E+00
-   0.250000000000014E+00   0.433012701924407E+00   0.000000000000000E+00
-   0.250000000000014E+00   0.577350269232543E+00   0.000000000000000E+00
-[bcgong@localhost ph64]$
-```
-
-
-第一行是网格，第二行是 10，后面是十个 q 点坐标。这个文件在初始化时就能写出，因此看到 `dyn0` 不能认定全部动力学矩阵已经完成。
-
-再打开声子保存目录：
-
-```text
-[bcgong@localhost ph64]$ ls -1 out/_ph0/srnsnse.phsave
-control_ph.xml
-patterns.10.xml
-patterns.1.xml
-patterns.2.xml
-patterns.3.xml
-patterns.4.xml
-patterns.5.xml
-patterns.6.xml
-patterns.7.xml
-patterns.8.xml
-patterns.9.xml
-status_run.xml
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ cat out/_ph0/srnsnse.phsave/status_run.xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Root>
-  <STATUS_PH>
-    <STOPPED_IN>phq_setup.</STOPPED_IN>
-    <RECOVER_CODE>-40</RECOVER_CODE>
-    <CURRENT_Q>1</CURRENT_Q>
-    <CURRENT_IU>1</CURRENT_IU>
-  </STATUS_PH>
-</Root>
-[bcgong@localhost ph64]$
-```
-
-
-现在已经有十份 `patterns.*.xml`。结合刚才输出中的 `To be done`，可以看到“位移模式文件已经建立”与“响应求解已经完成”是两件事。这份状态文件记录 `CURRENT_Q=1`、`CURRENT_IU=1`；尽管字段叫 `STOPPED_IN`，当时 Slurm 仍为 `RUNNING`，16 个 ph.x 工作进程也在使用 CPU，不能单凭这个字段名认定任务已终止。
-
-在共享窗口中继续跟随输出：
-
-```text
-[bcgong@localhost ph64]$ tail -f phx.out
-```
-
-按 `Ctrl-C` 退出查看后，再用下面两条命令分别看队列和最近的响应迭代：
-
-```bash
-squeue -j 18180 -o "%.10i %.16j %.8T %.10M %R"
-grep -E 'Calculation of q|Representation|iter #|Convergence|convergence|freq' phx.out | tail -n 30
-```
-
-较长的一次求解中，输出可能暂时停在同一段。先联合检查队列、进程和错误日志，再判断是否异常；不要因为屏幕不滚动就重复提交，让两个 ph.x 同时写这个目录。
-
-随后，Γ 点第一个表示开始出现自洽响应迭代：
-
-```text
-[bcgong@localhost ph64]$ tail -n 20 phx.out
-
-     PHONON       :   2m42.11s CPU   2m44.00s WALL
-
-
-
-     Representation #   1 mode #   1
-
-     Self-consistent Calculation
-
-     Pert. #  1: Fermi energy shift (Ry) =     2.3174E-01     0.0000E+00
-
-      iter #   1 total cpu time :   206.5 secs   av.it.:   5.4
-      thresh= 1.000E-02 alpha_mix =  0.700 |ddv_scf|^2 =  1.884E-04
-
-     Pert. #  1: Fermi energy shift (Ry) =    -4.6446E+00     0.0000E+00
-
-      iter #   2 total cpu time :   271.4 secs   av.it.:  12.8
-      thresh= 1.372E-03 alpha_mix =  0.700 |ddv_scf|^2 =  9.325E-02
-
-     Pert. #  1: Fermi energy shift (Ry) =    -1.1181E+00     0.0000E+00
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -E 'convergence threshold|number of atoms|number of k points' phx.out
-     number of atoms/cell      =            6
-     convergence threshold     =      1.0E-16
-     number of k points=    30  Gaussian smearing, width (Ry)=  0.0037
-[bcgong@localhost ph64]$
-```
-
-
-这部分已经进入声子响应求解。迭代行中的 `thresh` 是内层线性方程求解使用的阈值，不能把它当成输入的 `tr2_ph`。本次程序在前面的设置回显中打印 `convergence threshold = 1.0E-16`；继续看 `|ddv_scf|^2` 的变化和该表示的最终收敛信息。初始几轮残差可以上升，一两行输出还不足以判断整段求解是否失败。
-
-同时再检查错误文件：
-
-```text
-[bcgong@localhost ph64]$ wc -c phx.err _err.18180.log
-0 phx.err
-0 _err.18180.log
-0 total
-[bcgong@localhost ph64]$
-```
-
-```text
-[bcgong@localhost ph64]$ grep -niE 'Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT|IEEE_' phx.out phx.err _err.18180.log
-[bcgong@localhost ph64]$
-```
-
-
-两份错误文件此时为空，关键词检查也没有匹配；这只是启动与早期迭代的观察。可以阅读[本次 phx.out 的启动快照（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/phx.startup.out.txt)，从程序开头、q 点列表、对称性和位移模式一路看到 Γ 点开始迭代。该文件是当时截取的静态副本，后续进度仍以计算目录中的 `phx.out` 为准。
-
-## ph.x 结束后，怎样决定能否进入后处理
-
-结束时仍要及时保存 `scontrol show job 18180`，因为这台机器的 `sacct` 没有开启。先核对正常退出、错误日志和程序结束信息：
-
-```bash
-scontrol show job 18180
-tail -n 50 phx.out
-cat phx.err
-cat _err.18180.log
-grep -niE 'Error in routine|convergence NOT|eigenvalues not converged|MPI_ABORT|IEEE_|JOB DONE' phx.out phx.err _out.18180.log _err.18180.log
+<summary>rebuild_tc.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Rebuild the QE7.5 lambda.x result from its native elph input files. No QE executable is run."""
+
+import argparse, csv, hashlib, json, math, re
+from pathlib import Path
+
+NUMBER = r"[-+]?\d*\.?\d+(?:[EeDd][-+]?\d+)?"
+num = lambda x: float(x.replace("D", "E").replace("d", "e"))
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def reconstruct(root):
+    root = Path(root)
+    lines = [
+        l.split("!")[0].strip()
+        for l in (root / "lambda.in").read_text().splitlines()
+        if l.split("!")[0].strip()
+    ]
+    emax, width, order = map(float, lines[0].split())
+    assert order == 0, "This script supports the actual simple-Gaussian spectrum only"
+    nq = int(lines[1])
+    qs = [list(map(float, l.split())) for l in lines[2 : 2 + nq]]
+    names = lines[2 + nq : 2 + 2 * nq]
+    mu = float(lines[2 + 2 * nq])
+    totalweight = sum(q[3] for q in qs)
+    native = (root / "lambda.out").read_text()
+    details = re.findall(
+        r"lambda\s*=\s*("
+        + NUMBER
+        + r")\s*\(\s*("
+        + NUMBER
+        + r")\s*\)\s*<log w>=\s*("
+        + NUMBER
+        + r")\s*K\s*N\(Ef\)=\s*("
+        + NUMBER
+        + r")\s*at degauss=\s*("
+        + NUMBER
+        + r")",
+        native,
+    )
+    printed = [
+        list(map(num, line.split()))
+        for line in native.split("T_c")[-1].strip().splitlines()
+        if len(line.split()) == 3
+    ]
+    assert len(details) == len(printed) == 10
+    n = 2000
+    step = emax / (n - 1)
+    freq = [i * step for i in range(n)]
+    lq = [0.0] * 10
+    a2f = [[0.0] * n for _ in range(10)]
+    sigma0 = None
+    dos0 = None
+    ef0 = None
+    hashes = {p: sha(root / p) for p in ["lambda.in", "lambda.out"]}
+    qcheck = []
+    for iq, (qinfo, name) in enumerate(zip(qs, names), 1):
+        p = root / name
+        hashes[name] = sha(p)
+        records = p.read_text().splitlines()
+        head = records[0].split()
+        qread = list(map(num, head[:3]))
+        ns, nm = map(int, head[3:])
+        w2 = list(map(num, records[1].split()))
+        assert ns == 10 and nm == 3 and len(w2) == 3 and min(w2) >= 0
+        coordinate_error = max(abs(x - y) for x, y in zip(qinfo[:3], qread))
+        assert (
+            coordinate_error <= 5.005e-7
+        ), "q differs beyond its six-decimal output rounding"
+        weight = qinfo[3] / totalweight
+        sig = []
+        doses = []
+        efs = []
+        for j in range(ns):
+            k = 2 + j * (nm + 2)
+            sm = re.search(
+                r"Gaussian Broadening:\s*(" + NUMBER + r") Ry, ngauss=\s*(-?\d+)",
+                records[k],
+            )
+            sigma = num(sm.group(1))
+            assert int(sm.group(2)) == 0
+            d = re.search(
+                r"DOS =\s*(" + NUMBER + r").*at Ef=\s*(" + NUMBER + r")", records[k + 1]
+            )
+            dos, ef = map(num, d.groups())
+            sig.append(sigma)
+            doses.append(dos)
+            efs.append(ef)
+            for im in range(nm):
+                m = re.search(
+                    r"lambda\(\s*(\d+)\)=\s*("
+                    + NUMBER
+                    + r")\s*gamma=\s*("
+                    + NUMBER
+                    + r")",
+                    records[k + im + 2],
+                )
+                assert int(m.group(1)) == im + 1
+                lam = num(m.group(2))
+                om = math.sqrt(w2[im]) * 3289.828
+                lq[j] += weight * lam
+                coefficient = weight * lam * om * 0.5 / math.sqrt(math.pi) / width
+                for i, e in enumerate(freq):
+                    a2f[j][i] += coefficient * math.exp(
+                        -min(200.0, ((e - om) / width) ** 2)
+                    )
+        if sigma0 is None:
+            sigma0, dos0, ef0 = sig, doses, efs
+        else:
+            assert (
+                sig == sigma0 and doses == dos0 and efs == ef0
+            ), "Sigma/DOS/EF metadata mismatch between q files"
+        qcheck.append(
+            {
+                "q_index": iq,
+                "q_lambda_in": qinfo[:3],
+                "q_elph": qread,
+                "weight": qinfo[3],
+                "coordinate_error": coordinate_error,
+            }
+        )
+    rows = []
+    for j, detail in enumerate(details):
+        lp, l2p, wp, dosp, sigmap = map(num, detail)
+        assert sigmap == sigma0[j]
+        l2 = 2 * step * sum(a2f[j][i] / freq[i] for i in range(1, n))
+        wlog = (
+            math.exp(
+                2
+                * step
+                * sum(a2f[j][i] * math.log(freq[i]) / freq[i] for i in range(1, n))
+                / l2
+            )
+            * 47.9924
+        )
+        value = (
+            wlog
+            / 1.2
+            * math.exp(-1.04 * (1 + lq[j]) / (lq[j] - mu * (1 + 0.62 * lq[j])))
+        )
+        assert (
+            abs(lp - lq[j]) <= 0.500001e-6
+            and abs(l2p - l2) <= 0.500001e-6
+            and abs(wp - wlog) <= 0.500001e-3
+        )
+        assert (
+            abs(printed[j][2] - value) <= 0.500001e-3
+        ), "Reconstruction does not round to native Tc"
+        rows.append(
+            {
+                "sigma_Ry": sigmap,
+                "mu_star": mu,
+                "lambda_qsum": lq[j],
+                "lambda_spectrum": l2,
+                "omega_log_K": wlog,
+                "N_EF": dosp,
+                "N_EF_unit": "states/spin/Ry/cell",
+                "Tc_K": value,
+                "native_printed_Tc_K": printed[j][2],
+                "native_lambda_6dp": lp,
+                "native_lambda_spectrum_6dp": l2p,
+                "native_omega_log_K_3dp": wp,
+                "EF_eV": ef0[j],
+            }
+        )
+    metadata = {
+        "source_sha256": hashes,
+        "q_pairing": qcheck,
+        "q_weight_sum": totalweight,
+        "nq": nq,
+        "spectrum_points": n,
+        "spectrum_max_THz": emax,
+        "spectrum_gaussian_width_THz": width,
+        "mu_star": mu,
+        "formula": "Tc=omega_log/1.2*exp(-1.04*(1+lambda_qsum)/(lambda_qsum-mu_star*(1+0.62*lambda_qsum)))",
+        "frequency_constants": "3289.828THz/Ry;47.9924K/THz, matching QE7.5lambda.f90",
+        "precision_scope": "Reconstruction of lambda.x from the exact printed elph records, not recovery of unprinted DFT precision. Mode lambda is stored to4decimals; final native Tc is printed to3decimals.",
+        "source": "https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90",
+        "no_QE_executable_run": True,
+    }
+    return rows, metadata
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "branches",
+        nargs="+",
+        type=Path,
+        help="Directories containing lambda.in/lambda.out/elph_dir",
+    )
+    p.add_argument("--outdir", type=Path, default=Path("."))
+    args = p.parse_args()
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    for branch in args.branches:
+        rows, meta = reconstruct(branch)
+        name = branch.name
+        with (args.outdir / (name + "-rebuilt.csv")).open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0]))
+            w.writeheader()
+            w.writerows(rows)
+        (args.outdir / (name + "-rebuild-checks.json")).write_text(
+            json.dumps(meta, indent=2) + "\n"
+        )
+        print(
+            name
+            + ":10sigma rows reconstructed; native lambda/omega/Tc match their printed precision"
+        )
+
+
+if __name__ == "__main__":
+    main()
 ```
-
-随后逐 q 核对：本次列表中的十个 q 点是否全部处理，每个点所需的不可约表示是否都求解完成，有没有未收敛提示。再核对 `srnsnse.dyn1` 到 `srnsnse.dyn10` 的 q 坐标、六原子结构、质量与频率内容；文件存在或总数等于十，都不足以证明其中内容完整。
-
-本次还要求计算电声耦合，因此要另外检查 `elph_dir` 中对应的逐 q 数据，确认模数与本体系的 18 个模式相符，展宽记录与 `el_ph_nsigma=20` 配套，且没有混入旧质量、其他网格或其他材料的结果。完整文件尚未生成前，不能把 Sc₂C/ZrCl₂ 的 λ 表接到这条计算链上。
-
-动力学矩阵齐全且核对通过后，才接 q2r.x 与 matdyn.x。当前 matdynxline.in 的 dos=false 表示沿给定 q 列表生成声子频散路径；la2F 只控制电声系数插值，并不代替 lambda.x 对完整不可约 q 网格作权重积分。生成 lambda.x 输入前，必须逐项核对输入 q 坐标、顺序和权重与 elph.inp_lambda.* 文件头；QE 7.1 lambda.f90 中的 q 坐标一致性检查已注释。参见 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/PH/lambda.f90">QE 7.1 lambda.f90</a> 与 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/Doc/INPUT_MATDYN.def">QE 7.1 INPUT_MATDYN.def</a>。
-<!-- ph64-phonon-session-end -->
-
-## 质量修正后的高频声子范围、逐 q 快照与当前任务状态
-
-本节保留了旧计算的逐 q 快照和提交时的队列输出。它们不代表当前任务状态。2026-09-29 核查显示：作业 18344 与 18345 的两步 SCF 均已完成，分别经过 23 轮迭代，最终误差约为 5.5×10⁻¹³ Ry 与 4.6×10⁻¹³ Ry，低于输入阈值 1.0×10⁻¹² Ry；随后作业 18346 的 Γ 点 ph.x 在第 9 个不可约表示、第 11/12 个位移时于 15:56:15 被取消，残差为 2.225×10⁻¹¹，未达到 tr2_ph=1.0×10⁻¹⁶。dyn1 为零字节，且没有 elph_dir。ph96 目录只有输入和脚本，没有计算输出。因此当前没有完成的 q 网格、EPC、α²F 或 Tc；文中的 q=1、2 耦合数字是错误氮质量修正前的历史输出。
-
-历史声子范围记录：
-现存新目录的 lambdax.in 预设频率上限为 12 THz，首行是 12 0.12 1；第三列 1 表示 Methfessel–Paxton 展宽。因为当前声子响应没有完成，这个输入仍是计划设置，不能据此称 12 THz 谱范围已经验证。
-历史 q=1、2 的逐模耦合与低频阈值记录：
-   阶段性留存的 [`elph.inp_lambda.1`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.1) 与 [`elph.inp_lambda.2`](/Atlas/examples/snse2-sr2n/ph64/elph.inp_lambda.2) 记录了质量修正前（`M_N = 118.71`）前两个 q 点的逐模输出：在 `q = 1`（Γ 点）处，第 13 支（`4.23 THz`）与第 16 支（`4.60 THz`）在 `σ = 0.040 Ry` 下分别给出 `λ = 0.0328`（`γ = 7.70 GHz`）与 `λ = 0.0233`（`γ = 6.44 GHz`），而在 `σ = 0.004 Ry` 下分别升至 `λ = 0.3102`（`γ = 89.08 GHz`）与 `λ = 0.1620`（`γ = 54.86 GHz`）；在 `q = 2` 处，第一支声学模 `ν = 1` 的频率为 `0.5318 THz`（`17.74 cm⁻¹`），因低于 QE 7.1 `elph.f90` 中 `20 cm⁻¹` 的低频阈值，程序将其 `λ` 置为 `0.0000`（保留 `γ = 0.09 GHz`），而紧邻的 `ν = 2`（`0.7075 THz = 23.60 cm⁻¹`）与 `ν = 3`（`1.1465 THz = 38.24 cm⁻¹`）在 `σ = 0.040 Ry` 下分别给出 `λ = 0.0572` 与 `0.0336`（在 `σ = 0.032 Ry` 下 `ν = 2` 达 `0.0647`）。
-
-下面的 squeue 记录是依赖链提交时的快照，不是当前排队状态。原计划将 8×8×1 网格的 10 个不可约 q 点分为四批，再接 q2r.x、matdyn.x 与 lambda.x；但 2026-09-29 的现场状态如上，本链未完成。
-
-```text
-[bcgong@localhost ph64]$ head -n 5 lambdax.in
-12 0.12 1
-       10
-    0.000000000   0.000000000   0.000000000   1.00
-    0.000000000   0.144337567   0.000000000   6.00
-    0.000000000   0.288675135   0.000000000   6.00
-[bcgong@localhost ph64]$ grep -E 'start_q|last_q|recover' phx.in phx1.in phx2.in phx3.in
-phx.in:  start_q=1
-phx.in:  last_q=3
-phx1.in:  start_q=4
-phx1.in:  last_q=5
-phx1.in:  recover=.true.
-phx2.in:  start_q=6
-phx2.in:  last_q=7
-phx2.in:  recover=.true.
-phx3.in:  start_q=8
-phx3.in:  last_q=10
-phx3.in:  recover=.true.
-[bcgong@localhost ph64]$ squeue -u bcgong -o "%.10i %.16j %.8T %.10M %.6D %R"
-     JOBID             NAME    STATE       TIME  NODES NODELIST(REASON)
-     18344     pwxall.slurm  RUNNING      56:17      1 localhost
-     18345        pwx.slurm  PENDING       0:00      1 (Dependency)
-     18346        phx.slurm  PENDING       0:00      1 (Dependency)
-     18347       phx1.slurm  PENDING       0:00      1 (Dependency)
-     18348       phx2.slurm  PENDING       0:00      1 (Dependency)
-     18349       phx3.slurm  PENDING       0:00      1 (Dependency)
-     18350       q2rx.slurm  PENDING       0:00      1 (Dependency)
-     18351 matdynxline.slur  PENDING       0:00      1 (Dependency)
-     18352    lambdax.slurm  PENDING       0:00      1 (Dependency)
-     18353     pwxall.slurm  PENDING       0:00      1 (Dependency)
-     18354        pwx.slurm  PENDING       0:00      1 (Dependency)
-     18355        phx.slurm  PENDING       0:00      1 (Dependency)
-     18356       phx1.slurm  PENDING       0:00      1 (Dependency)
-     18357       phx2.slurm  PENDING       0:00      1 (Dependency)
-     18358       phx3.slurm  PENDING       0:00      1 (Dependency)
-     18359       q2rx.slurm  PENDING       0:00      1 (Dependency)
-     18360 matdynxline.slur  PENDING       0:00      1 (Dependency)
-     18361    lambdax.slurm  PENDING       0:00      1 (Dependency)
-```
-
-图中左面板为 2026-09-29 已完成的两步 SCF；中、右面板仍是错误质量诊断和质量修正前 q=1、2 记录的历史快照，不表示当前 PH/EPC 已完成。
-
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的两步 SCF 收敛，错误质量与修正质量声子快照，以及质量修正前 q=1、2 的 EPC 记录" loading="lazy"/><figcaption>SnSe₂/Sr₂N 阶段性记录：（左）2026-09-29 的 64×64×1 与 16×16×1 SCF 均收敛；（中）旧质量错误与修正后质量的声子/PHDOS 对照快照；（右）旧质量 q=1（Γ）和 q=2 的逐模耦合快照。当前 Γ 点 ph.x 在 2026-09-29 中止，尚无完整声子与 EPC 结果。</figcaption></figure>
-
-配套输入、历史输出和绘图脚本见 snse2-sr2n/ph64 与 snse2-sr2n/ph96。2026-09-29 仅确认两步 SCF 收敛及 Γ 点 PH 中止；后续是否重提由材料计算协调决定，此处不把旧快照写成当前完整 Tc(σ) 结果。
 
 </details>
 
+<details>
+<summary>compare_tc.py 的完整源码</summary>
+
+```python
+"""Pair two complete QE lambda.x branches and find straight-segment crossings.
+
+Example, after both independent calculations have completed:
+    python3 compare_tc.py --a k32 --b k48 --out comparison
+
+Only Python's standard library is required. Keep rebuild_tc.py beside this
+script. Curves reconstructed from lambda.x's actual elph inputs retain the
+digits lost by its final 0.001 K printing. Printed Tc and a cross-check from
+the printed moments are reported separately, without editing native files.
+"""
+
+from pathlib import Path
+import argparse
+import csv
+import hashlib
+import json
+import math
+import re
+from rebuild_tc import reconstruct
+
+NUMBER = r"[-+0-9.eEdD]+"
+MOMENT = re.compile(
+    rf"lambda\s*=\s*({NUMBER})\s*\(\s*({NUMBER})\s*\)\s*"
+    rf"<log w>\s*=\s*({NUMBER})\s*K\s*N\(Ef\)\s*=\s*({NUMBER})"
+    rf"\s*at degauss=\s*({NUMBER})"
+)
+
+
+def number(value):
+    result = float(value.replace("D", "E").replace("d", "e"))
+    if not math.isfinite(result):
+        raise ValueError("Non-finite native value")
+    return result
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def load_branch(path):
+    text = (path / "lambda.out").read_text()
+    rows = []
+    for m in MOMENT.finditer(text):
+        lam, spectral_lam, omega, nef, sigma = map(number, m.groups())
+        rows.append(
+            dict(
+                sigma_Ry=sigma,
+                lambda_qsum=lam,
+                lambda_spectrum=spectral_lam,
+                omega_log_K=omega,
+                N_Ef_native=nef,
+            )
+        )
+    sections = re.split(r"lambda\s+omega_log\s+T_c", text)
+    if len(sections) != 2 or not rows:
+        raise ValueError(f"{path}: expected one native Tc table")
+    table = []
+    for line in sections[1].splitlines():
+        if not line.strip():
+            continue
+        fields = line.split()
+        if len(fields) != 3 or not all(re.fullmatch(NUMBER, x) for x in fields):
+            raise ValueError(f"{path}: unexpected native Tc row: {line}")
+        table.append(list(map(number, fields)))
+    if len(table) != len(rows):
+        raise ValueError(f"{path}: incomplete moment/Tc pairing")
+    sigmas = [r["sigma_Ry"] for r in rows]
+    if len(set(sigmas)) != len(sigmas) or sigmas != sorted(sigmas):
+        raise ValueError(f"{path}: duplicated or unordered sigma points")
+    input_lines = [
+        x.split("!")[0].strip() for x in (path / "lambda.in").read_text().splitlines()
+    ]
+    input_lines = [x for x in input_lines if x]
+    mu = number(input_lines[-1])
+    for row, (lam, omega, tc) in zip(rows, table):
+        # These bounds follow the native five/three-place output formats.
+        if abs(row["lambda_qsum"] - lam) > 0.0000051 or row["omega_log_K"] != omega:
+            raise ValueError(f"{path}: lambda/Tc table rows do not correspond")
+        denominator = row["lambda_qsum"] - mu * (1 + 0.62 * row["lambda_qsum"])
+        if denominator <= 0 or omega <= 0 or tc < 0:
+            raise ValueError(f"{path}: formula outside the supported positive regime")
+        recomputed = (
+            omega / 1.2 * math.exp(-1.04 * (1 + row["lambda_qsum"]) / denominator)
+        )
+        if abs(recomputed - tc) > 0.00055:
+            raise ValueError(
+                f"{path}: printed moments do not reproduce native Tc rounding"
+            )
+        row.update(mu_star=mu, Tc_printed_K=tc, Tc_printed_moments_K=recomputed)
+    dat = []
+    for line in (path / "lambda.dat").read_text().splitlines():
+        if line.strip() and not line.lstrip().startswith("#"):
+            dat.append(list(map(number, line.split())))
+    if len(dat) != len(rows):
+        raise ValueError(f"{path}: lambda.dat count mismatch")
+    for row, fields in zip(rows, dat):
+        expected = [
+            row[k]
+            for k in (
+                "sigma_Ry",
+                "lambda_qsum",
+                "lambda_spectrum",
+                "omega_log_K",
+                "N_Ef_native",
+            )
+        ]
+        if fields != expected:
+            raise ValueError(f"{path}: lambda.dat differs from stdout")
+    return rows, {
+        n: digest(path / n) for n in ("lambda.in", "lambda.out", "lambda.dat")
+    }
+
+
+def crossings(x, a, b):
+    """Return all isolated sampled zeros, sign changes and overlap intervals."""
+    difference = [y - z for y, z in zip(a, b)]
+    overlaps = []
+    overlap_indices = set()
+    for i in range(len(x) - 1):
+        if difference[i] == 0 and difference[i + 1] == 0:
+            if overlaps and overlaps[-1]["right_index"] == i:
+                overlaps[-1].update(sigma_hi_Ry=x[i + 1], right_index=i + 1)
+            else:
+                overlaps.append(
+                    dict(
+                        kind="overlap",
+                        sigma_lo_Ry=x[i],
+                        sigma_hi_Ry=x[i + 1],
+                        left_index=i,
+                        right_index=i + 1,
+                    )
+                )
+            overlap_indices.update((i, i + 1))
+    points = []
+    for i, d in enumerate(difference):
+        if d == 0 and i not in overlap_indices:
+            points.append(
+                dict(
+                    kind="sampled_equality",
+                    sigma_Ry=x[i],
+                    Tc_K=a[i],
+                    sigma_lo_Ry=x[i],
+                    sigma_hi_Ry=x[i],
+                    delta_lo_K=0.0,
+                    delta_hi_K=0.0,
+                )
+            )
+    for i, (d1, d2) in enumerate(zip(difference, difference[1:])):
+        if d1 * d2 < 0:
+            t = -d1 / (d2 - d1)
+            xc = x[i] + t * (x[i + 1] - x[i])
+            ya = a[i] + t * (a[i + 1] - a[i])
+            yb = b[i] + t * (b[i + 1] - b[i])
+            if not x[i] < xc < x[i + 1] or abs(ya - yb) > 1e-12:
+                raise ValueError("Crossing interpolation arithmetic failed")
+            points.append(
+                dict(
+                    kind="segment_crossing",
+                    sigma_Ry=xc,
+                    Tc_K=ya,
+                    sigma_lo_Ry=x[i],
+                    sigma_hi_Ry=x[i + 1],
+                    delta_lo_K=d1,
+                    delta_hi_K=d2,
+                )
+            )
+    points.sort(key=lambda r: r["sigma_Ry"])
+    for i, p in enumerate(points, 1):
+        p["id"] = f"C{i}"
+    return dict(points=points, overlap_intervals=overlaps)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--a", type=Path, default=Path("k32"))
+    parser.add_argument("--b", type=Path, default=Path("k48"))
+    parser.add_argument("--out", type=Path, default=Path("comparison"))
+    args = parser.parse_args()
+    a, ha = load_branch(args.a)
+    b, hb = load_branch(args.b)
+    xa = [r["sigma_Ry"] for r in a]
+    xb = [r["sigma_Ry"] for r in b]
+    if xa != xb or {r["mu_star"] for r in a + b} != {a[0]["mu_star"]}:
+        raise ValueError("Branches must have identical native sigma values and mu_star")
+    # This reconstruction follows the actual QE 7.5 simple-Gaussian inputs.
+    # Its own checks compare each result with native output-format precision.
+    precise_a, checks_a = reconstruct(args.a)
+    precise_b, checks_b = reconstruct(args.b)
+    for native, precise in ((a, precise_a), (b, precise_b)):
+        if len(native) != len(precise):
+            raise ValueError("Incomplete raw-input reconstruction")
+        for record, exact in zip(native, precise):
+            if (record["sigma_Ry"], record["mu_star"]) != (
+                exact["sigma_Ry"],
+                exact["mu_star"],
+            ):
+                raise ValueError(
+                    "Raw-input reconstruction is not paired with the native table"
+                )
+            record.update(
+                Tc_rebuilt_K=exact["Tc_K"],
+                lambda_qsum_rebuilt=exact["lambda_qsum"],
+                lambda_spectrum_rebuilt=exact["lambda_spectrum"],
+                omega_log_rebuilt_K=exact["omega_log_K"],
+            )
+    paired = []
+    for ra, rb in zip(a, b):
+        row = {"sigma_Ry": ra["sigma_Ry"], "mu_star": ra["mu_star"]}
+        for tag, record in [("A", ra), ("B", rb)]:
+            row.update({k + "_" + tag: v for k, v in record.items() if k not in row})
+        row["delta_Tc_printed_K"] = ra["Tc_printed_K"] - rb["Tc_printed_K"]
+        row["delta_Tc_printed_moments_K"] = (
+            ra["Tc_printed_moments_K"] - rb["Tc_printed_moments_K"]
+        )
+        row["delta_Tc_rebuilt_K"] = ra["Tc_rebuilt_K"] - rb["Tc_rebuilt_K"]
+        paired.append(row)
+    printed = crossings(
+        xa, [r["Tc_printed_K"] for r in a], [r["Tc_printed_K"] for r in b]
+    )
+    reconstructed = crossings(
+        xa,
+        [r["Tc_printed_moments_K"] for r in a],
+        [r["Tc_printed_moments_K"] for r in b],
+    )
+    raw = crossings(xa, [r["Tc_rebuilt_K"] for r in a], [r["Tc_rebuilt_K"] for r in b])
+    report = {
+        "branch_A": args.a.name,
+        "branch_B": args.b.name,
+        "points_per_branch": len(a),
+        "mu_star": a[0]["mu_star"],
+        "branch_A_hashes": ha,
+        "branch_B_hashes": hb,
+        "branch_A_rebuild_checks": checks_a,
+        "branch_B_rebuild_checks": checks_b,
+        "raw_input_reconstruction": raw,
+        "native_printed_curves": printed,
+        "printed_moment_crosscheck": reconstructed,
+        "native_output_files_identical": ha["lambda.out"] == hb["lambda.out"],
+        "scope": "All in-range straight-segment intersections; no fit or extrapolation. The plotted curves are reconstructed from exact elph inputs to lambda.x, whose final Tc print precision is 0.001 K. Reconstruction does not recover unprinted DFPT precision. Source files alone do not establish matched protocols: inspect the accompanying independent run review.",
+        "scientific_convergence": "not assessed by this postprocessor",
+    }
+    args.out.mkdir(parents=True, exist_ok=True)
+    with (args.out / "paired-tc.csv").open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=list(paired[0]))
+        writer.writeheader()
+        writer.writerows(paired)
+    (args.out / "crossings.json").write_text(json.dumps(report, indent=2) + "\n")
+    with (args.out / "crossings.csv").open("w", newline="") as f:
+        fields = [
+            "id",
+            "kind",
+            "sigma_Ry",
+            "Tc_K",
+            "sigma_lo_Ry",
+            "sigma_hi_Ry",
+            "delta_lo_K",
+            "delta_hi_K",
+        ]
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(raw["points"])
+    print(
+        f'Paired branches: {args.a.name} / {args.b.name}; {len(a)} common sigma points; mu*={a[0]["mu_star"]:.2f}'
+    )
+    print("sigma_Ry  Tc_A_native_K  Tc_B_native_K  Delta_Tc_rebuilt_K")
+    for row in paired:
+        print(
+            f'{row["sigma_Ry"]:8.3f}  {row["Tc_printed_K_A"]:13.3f}  {row["Tc_printed_K_B"]:13.3f}  {row["delta_Tc_rebuilt_K"]:+18.9f}'
+        )
+    print("All in-range intersections, reconstructed from native elph inputs:")
+    for p in raw["points"]:
+        print(
+            f'{p["id"]}: sigma={p["sigma_Ry"]:.9f} Ry; Tc={p["Tc_K"]:.9f} K; bracket=[{p["sigma_lo_Ry"]:.3f}, {p["sigma_hi_Ry"]:.3f}] Ry'
+        )
+    if not raw["points"]:
+        print("No isolated crossing in the sampled range.")
+    if raw["overlap_intervals"]:
+        print("Overlap intervals:", json.dumps(raw["overlap_intervals"]))
+    print(
+        f'Native 0.001 K print check: {len(printed["points"])} isolated points, {len(printed["overlap_intervals"])} overlap intervals.'
+    )
+    print("Saved paired-tc.csv, crossings.csv, crossings.json.")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+<details>
+<summary>plot_supercon_tc_difference.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Plot the paired Al k32/k48 Tc curves and their signed difference."""
+from __future__ import annotations
+import argparse
+import csv
+import math
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MultipleLocator
+
+
+def read_rows(path: Path):
+    with path.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    if not rows:
+        raise ValueError(f"no rows in {path}")
+    sigma = [float(r["sigma_Ry"]) for r in rows]
+    tc32 = [float(r["Tc_rebuilt_K_A"]) for r in rows]
+    tc48 = [float(r["Tc_rebuilt_K_B"]) for r in rows]
+    delta_saved = [float(r["delta_Tc_rebuilt_K"]) for r in rows]
+    mu = [float(r["mu_star"]) for r in rows]
+    if any(not math.isfinite(x) for seq in (sigma, tc32, tc48, delta_saved, mu) for x in seq):
+        raise ValueError("non-finite input value")
+    if sigma != sorted(sigma) or len(set(sigma)) != len(sigma):
+        raise ValueError("sigma values must be strictly increasing")
+    if max(mu) - min(mu) > 1e-12:
+        raise ValueError("mu* differs between paired rows")
+    delta = [a - b for a, b in zip(tc32, tc48)]
+    if any(abs(x - y) > 2e-9 for x, y in zip(delta, delta_saved)):
+        raise ValueError("stored Delta Tc does not equal Tc32 - Tc48")
+    return sigma, tc32, tc48, delta, mu[0]
+
+
+def intersections(sigma, delta):
+    points = []
+    intervals = []
+    i = 0
+    while i < len(delta):
+        if delta[i] != 0:
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(delta) and delta[j + 1] == 0:
+            j += 1
+        if j > i:
+            intervals.append((sigma[i], sigma[j]))
+        else:
+            points.append((sigma[i], 0.0))
+        i = j + 1
+    for i in range(len(delta) - 1):
+        if delta[i] * delta[i + 1] < 0:
+            x = sigma[i] - delta[i] * (sigma[i + 1] - sigma[i]) / (delta[i + 1] - delta[i])
+            points.append((x, 0.0))
+    return points, intervals
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--data", type=Path, default=Path("comparison-k32-k48/paired-tc.csv"))
+    ap.add_argument("--out", type=Path, default=Path("figures"))
+    ap.add_argument("--prefix", default="supercon-al-k32-k48-tc-delta")
+    args = ap.parse_args()
+    sigma, tc32, tc48, delta, mu = read_rows(args.data)
+    points, intervals = intersections(sigma, delta)
+    args.out.mkdir(parents=True, exist_ok=True)
+
+    blue, vermillion = "#0072B2", "#D55E00"
+    fig, (ax_tc, ax_delta) = plt.subplots(
+        2, 1, figsize=(7.4, 6.1), sharex=True,
+        gridspec_kw={"height_ratios": [1.55, 1.0], "hspace": 0.08},
+        layout="constrained",
+    )
+    ax_tc.plot(sigma, tc32, color=blue, marker="o", ms=5, lw=1.8,
+               label=r"$32^3$ dense $k$ mesh")
+    ax_tc.plot(sigma, tc48, color=vermillion, marker="s", ms=5, lw=1.8,
+               ls="--", label=r"$48^3$ dense $k$ mesh")
+    ax_tc.set_ylabel(r"$T_c$ (K)")
+    ax_tc.set_ylim(0, max(tc32 + tc48) * 1.12)
+    ax_tc.legend(frameon=False, ncol=2, loc="upper right")
+    ax_tc.text(0.02, 0.94, rf"$\mu^*= {mu:.2f}$; {len(sigma)} calculated widths",
+               transform=ax_tc.transAxes, va="top", fontsize=9)
+
+    ax_delta.axhline(0, color="#333333", lw=1.15, ls=(0, (4, 2)), zorder=4)
+    ax_delta.plot(sigma, delta, color="#6A3D9A", marker="D", ms=4.5, lw=1.7)
+    ax_delta.fill_between(sigma, 0, delta, where=[d >= 0 for d in delta],
+                          color="#6A3D9A", alpha=0.10, interpolate=True)
+    for x, y in points:
+        ax_tc.scatter([x], [y], s=50, facecolor="white", edgecolor="#111111", zorder=5)
+        ax_delta.scatter([x], [y], s=45, facecolor="white", edgecolor="#111111", zorder=5)
+    ax_delta.set_ylabel(r"$\Delta T_c=T_c(32^3)-T_c(48^3)$ (K)")
+    ax_delta.set_xlabel(r"Electronic smearing $\sigma$ (Ry)")
+    ax_delta.set_xlim(min(sigma) - 0.002, max(sigma) + 0.002)
+    ax_delta.xaxis.set_major_locator(MultipleLocator(0.005))
+    span = max(delta) - min(delta)
+    lo = min(0.0, min(delta)) - 0.24 * span
+    hi = max(0.0, max(delta)) + 0.16 * span
+    ax_delta.set_ylim(lo, hi)
+    if points or intervals:
+        summary = f"{len(points)} isolated crossing(s), {len(intervals)} overlap interval(s)"
+    else:
+        min_i = min(range(len(delta)), key=delta.__getitem__)
+        summary = ("No crossing in sampled range; "
+                   rf"min $\Delta T_c={delta[min_i]:.6f}$ K at $\sigma={sigma[min_i]:.3f}$ Ry")
+    ax_delta.text(0.02, 0.94, summary, transform=ax_delta.transAxes,
+                  va="top", fontsize=8.7)
+    for ax in (ax_tc, ax_delta):
+        ax.grid(axis="both", color="#B7B7B7", alpha=0.28, lw=0.65)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.tick_params(direction="out", length=3.5, width=0.8)
+    fig.suptitle("Al: paired dense-mesh Allen–Dynes results", fontsize=12, y=1.015)
+    for ext in ("png", "svg", "pdf"):
+        fig.savefig(args.out / f"{args.prefix}.{ext}", dpi=320 if ext == "png" else None,
+                    bbox_inches="tight")
+    plt.close(fig)
+    print(f"rows={len(sigma)}; mu*={mu:.2f}; isolated crossings={len(points)}; overlap intervals={len(intervals)}")
+    print(f"delta_min_K={min(delta):.9f}; delta_max_K={max(delta):.9f}")
+    print(f"saved {args.out / (args.prefix + '.png')}, .svg, .pdf")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+```bash
+python3 rebuild_tc.py k32 k48 --outdir comparison-k32-k48
+python3 compare_tc.py --a k32 --b k48 --out comparison-k32-k48
+python3 plot_supercon_tc_difference.py --data comparison-k32-k48/paired-tc.csv --out figures --prefix supercon-al-k32-k48-tc-delta
+```
+
+[原始求交结果](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json) 与 [配对 CSV](/Atlas/examples/supercon-al-tc/comparison-k32-k48/paired-tc.csv) 留下计算结果。交点算法、原生输出与重建值的核对接着读 [Tc 页](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)；谱积分和频率矩读 [α²F 页](/Atlas/m/eliashberg-a2f/qe/)，逐模线宽读 [声子线宽页](/Atlas/m/phonon-linewidth/qe/)，完整谱求解读 [EPW 页](/Atlas/m/epw-eliashberg/qe/)。这组比较固定了 16³ 响应和 4³ q 网格；无交点是当前采样结果，尚未确定网格收敛的材料 Tc。
+
+<span id="double-grid-research-record"></span>
+
+## 材料启动与排错记录
+
+SnSe₂/Sr₂N 的 BFGS 状态、质量索引修正、两步 SCF 与声子启动会话已移至 [研究记录](/Atlas/cases/epc-research-notes/#double-grid-research-record)。这里保留入口，完整命令与输出在附件中。
+
 <span id="zrcl2-sc2c-k64-k96-record"></span>
 
-## 二维异质结 ZrCl₂/Sc₂C 的保存双网格结果与谱积分上限核对
-
-本节记录 ZrCl₂/Sc₂C 的 64×64×1（ph64）与 96×96×1（ph96）原始计算链，以及对应保存输出表的核查。原始结构相对 a₀=3.308845 Å 拉伸至 a=3.358477221 Å，即 +1.499986%（约 +1.5%）。两条原始 10 THz 分支完成 10 个不可约 q 点；另外存有 18 THz 的 lambdax 输出表，但它们没有与已执行输入、命令和 QE 可执行文件对应起来。ph64.1/ph96.1 目前仅有准备输入，没有完整的加密 Tc 输出对。
-
-本节依次保留电子结构诊断、原始 10 THz 谱表和保存 Tc 表的算术核对。18 THz 来源未闭合，故交点仅用于描述现有表格。
-
-
-1. 电子轨道投影能带（Fatbands）、分波态密度（PDOS）与二维费米面（Fermi Surface）如何与电声耦合模式相互印证；
-2. 如何用有匹配输入的 10 THz 输出比较直接 λ 与谱积分，并识别频率网格上限对 α²F 与 ωlog 的影响；18 THz 保存表的来源仍未闭合，不能据此称为已验证修正。
-3. 对保存 Tc 表作线性插值：匹配输入的 10 THz 表有两个交点；18 THz 保存表有一个诊断性交点，来源仍未闭合。交点只用于说明现有打印表，不代表经验证的 Tc 或网格收敛。
-
-### 体系设置与已保存的双网格分支
-
-`ZrCl₂/Sc₂C` 原胞含 6 个原子（1 个 Zr、1 个 C、2 个 Cl、2 个 Sc，共 18 条声子支），采用 `vdw-DF3-opt1` 泛函、PAW 赝势与 `ecutwfc = 100 Ry`、`ecutrho = 800 Ry`、SCF 展宽 `degauss = 0.0037 Ry`（`3.7d-3`）。两套双网格分支的目录结构与参数对照如下：
-
-| 分支目录 | 致密电子网格 (`pwxall.in`) | 响应粗网格 (`pwx.in`) | 声子 q 网格 (`phx*.in`) | 双 δ 展宽步长与档数 | `lambdax.in` 积分上限 |
-| --- | --- | --- | --- | --- | --- |
-| ph64 | 64 × 64 × 1，la2F=true | 16 × 16 × 1 | 8 × 8 × 1，10 个不可约 q，分 4 批 | el_ph_sigma=0.001，20 档（0.001–0.020 Ry） | 10 THz：输入记录为 10 0.12 1；18 THz：保存输出表，来源未核实 |
-| ph96 | 96 × 96 × 1，la2F=true | 16 × 16 × 1 | 8 × 8 × 1，10 个不可约 q，分 4 批 | el_ph_sigma=0.001，20 档（0.001–0.020 Ry） | 10 THz：输入记录为 10 0.12 1；18 THz：保存输出表，来源未核实 |
-| ph64.1 / ph96.1 | 64 × 64 × 1 / 96 × 96 × 1 | 16 × 16 × 1 | 输入准备为 8 × 8 × 1、10 个不可约 q | el_ph_sigma=0.0005，20 档 | 18 0.12 1 为候选输入；没有完整 Tc 输出对 |
-
-原始 ph64 与 ph96 使用相同的 8×8×1 q 网格，10 个不可约 q 点分四批完成，随后得到 10 THz 的原生 lambdax 数据。18 THz 保存表目前没有执行输入或命令可追溯；准备好的 ph64.1/ph96.1 输入不能替代输出生成记录。完整输入与原始输出见 zrcl2-sc2c/ph64 和 zrcl2-sc2c/ph96。
-
-```text
-[bcgong@localhost ph64]$ ls -1 zrclscc.dyn* elph_dir/elph.inp_lambda.*
-elph_dir/elph.inp_lambda.1
-elph_dir/elph.inp_lambda.2
-elph_dir/elph.inp_lambda.3
-elph_dir/elph.inp_lambda.4
-elph_dir/elph.inp_lambda.5
-elph_dir/elph.inp_lambda.6
-elph_dir/elph.inp_lambda.7
-elph_dir/elph.inp_lambda.8
-elph_dir/elph.inp_lambda.9
-elph_dir/elph.inp_lambda.10
-zrclscc.dyn0
-zrclscc.dyn1
-zrclscc.dyn2
-zrclscc.dyn3
-zrclscc.dyn4
-zrclscc.dyn5
-zrclscc.dyn6
-zrclscc.dyn7
-zrclscc.dyn8
-zrclscc.dyn9
-zrclscc.dyn10
-[bcgong@localhost ph64]$ diff ../ph64/pwxall.in ../ph96/pwxall.in
-47c47
-<   64 64 1 0 0 0
----
->   96 96 1 0 0 0
-```
-
-### 第一步后处理：电子结构三联图（Fatbands + PDOS + 二维费米面）
-
-在分析声子线宽之前，先从 [`zrcl2-sc2c/scf/fatbands.projwfc_up`](/Atlas/examples/zrcl2-sc2c/pdos/pdos.in) 与 [`zrcl2-sc2c/FS/zrclscc_fs.bxsf`](/Atlas/examples/zrcl2-sc2c/FS/fs.in) 提取费米能级（SCF 中 `EF = 0.3133 eV`，`64×64×1` BXSF 网格中 `EF = 0.3154 eV`，`ph64` 粗网格 `pwx.out` 中 `EF = 0.3130 eV`）附近的轨道组成与费米面拓扑。单看总 DOS 曲线无法分辨层间杂化，将**高对称路径轨道权重能带（Fatbands）**、**共享能量纵轴的水平分波态密度（PDOS）**与**第一布里渊区二维费米面等能线**组合为三联图后，各轨道的角色一目了然：
-
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面拓扑" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构三联图：（左）沿 Γ–M–K–Γ 路径的轨道分辨 Fatbands，散点面积正比于 Zr-4d（深蓝）、Sc-3d（青绿）、C-2p（锈红）与 Cl-3p（琥珀）的 Löwdin 投影权重；（中）共享 E − E<sub>F</sub> 纵轴的水平轨道分辨 PDOS；（右）由 64×64×1 BXSF 网格提取的 Band 26（深蓝，围绕 Γ 的空穴口袋与围绕 K 的口袋）和 Band 27（锈红，围绕 Γ 的内圈口袋）二维费米面等能线。</figcaption></figure>
-
-从图中可以直接读出三项物理信息：
-- 穿过费米能级的第 26、27 条能带由 **`Zr-4d`（深蓝）与 `Sc-3d`（青绿）巡游 d 电子**共同主导，同时在 `E − EF ∈ [−1.8, 0.2] eV` 区间内与 **`C-2p`（锈红）**发生显著共价杂化；
-- 在 Γ–M 方向接近费米能级紧邻下方存在平坦的鞍点色散，对应中间面板 PDOS 在 `E − EF ≈ 0 eV` 附近的态密度峰值；
-- 右侧六角布里渊区中，Band 26 与 Band 27 在 Γ 点周围形成同心双口袋，Band 26 还在 K 点周围形成三角形口袋。这两组口袋之间的区中心小动量散射（`q → Γ`）与有限动量散射（如 `q = 7`）正是下方声子线宽与耦合峰值的动量来源。
-
-### 第二步后处理：从 `lambda` 与 `int alpha2F` 的偏差定位 `emax = 10 THz` 截断
-
-打开 `ph64` 与 `ph96` 最初由 `lambdax.in`（首行 `10 0.12 1`）生成的 [`lambdax.out`](/Atlas/examples/zrcl2-sc2c/ph64/lambdax.out)，对比每一行的直接求和 `lambda` 与括号内的谱积分 `( int alpha2F )`：
-
-```text
-[bcgong@localhost ph64]$ head -n 6 lambdax.out
-     lambda = 3.405555 (   3.390234 )  <log w>=   81.606 K  N(Ef)= 25.881772 at degauss= 0.001
-     lambda = 2.766416 (   2.740642 )  <log w>=   82.499 K  N(Ef)= 29.975283 at degauss= 0.002
-     lambda = 2.459034 (   2.427435 )  <log w>=   83.155 K  N(Ef)= 30.598111 at degauss= 0.003
-     lambda = 2.237823 (   2.204605 )  <log w>=   83.519 K  N(Ef)= 29.793451 at degauss= 0.004
-     lambda = 2.045189 (   2.011305 )  <log w>=   83.916 K  N(Ef)= 28.780891 at degauss= 0.005
-     lambda = 1.883891 (   1.849465 )  <log w>=   84.375 K  N(Ef)= 27.843494 at degauss= 0.006
-```
-
-在前面的 Al 算例中，括号内外两个数仅相差 `6 × 10⁻⁵`；而这里在 `σ = 0.003 Ry` 处 `2.459034` 与 `2.427435` 相差 `0.0316`（在 `σ = 0.020 Ry` 处 `1.059142` 与 `1.012117` 更相差 `0.0470`）。为什么 `alpha2F.dat` 的频率积分会系统性地漏掉一部分耦合？检查 `q = 1`（Γ 点）的 [`elph_dir/elph.inp_lambda.1`](/Atlas/examples/zrcl2-sc2c/ph64/elph_dir/elph.inp_lambda.1) 和声子色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 即可定位原因：
-
-```text
-[bcgong@localhost ph64]$ sed -n '45,64p' elph_dir/elph.inp_lambda.1
-     Gaussian Broadening:   0.003 Ry, ngauss=   0
-     DOS = 30.598111 states/spin/Ry/Unit Cell at Ef=  0.313512 eV
-     lambda(    1)=  0.0181   gamma=    0.81 GHz
-     lambda(    2)=  0.0181   gamma=    0.81 GHz
-     lambda(    3)=  0.0238   gamma=    2.03 GHz
-     lambda(    4)=  0.0249   gamma=    7.69 GHz
-     lambda(    5)=  0.0250   gamma=    7.70 GHz
-     lambda(    6)=  0.0269   gamma=   15.47 GHz
-     lambda(    7)=  0.0580   gamma=   44.85 GHz
-     lambda(    8)=  0.0584   gamma=   45.14 GHz
-     lambda(    9)=  0.0299   gamma=   34.58 GHz
-     lambda(   10)=  0.0302   gamma=   39.03 GHz
-     lambda(   11)=  0.0302   gamma=   39.08 GHz
-     lambda(   12)=  0.0099   gamma=   17.16 GHz
-     lambda(   13)=  0.0100   gamma=   17.30 GHz
-     lambda(   14)=  0.0066   gamma=   16.18 GHz
-     lambda(   15)=  0.0462   gamma=  133.87 GHz
-     lambda(   16)=  0.0581   gamma=  260.01 GHz
-     lambda(   17)=  0.0454   gamma=  315.55 GHz
-     lambda(   18)=  0.0458   gamma=  318.58 GHz
-```
-
-`ZrCl₂/Sc₂C` 的声子谱明显分成两个频段：
-- `0–10.11 THz`（直接 DFPT q 网格上为 `0–10.02 THz`）：由重原子 Zr、Sc、Cl 主导的 15 条声学支与中低频光学支，其中 Γ 点 `ν = 7, 8`（`5.15 THz`）给出 `λ = 0.0580 / 0.0584`，而在有限波矢 `q = 7`（`(0.125000, 0.360844, 0)`）处最低声学支 `ν = 1`（`1.42 THz`）给出 `γ = 280.36 GHz`、单模耦合高达 **`λ = 4.7525`**（`ph96` 为 `4.7043`）；
-- `12.49–17.11 THz`（`416.6–570.7 cm⁻¹`，原始 DFPT 网格为 `12.38–17.11 THz`）：由轻原子 C 主导的三条高频光学支（`ν = 16, 17, 18`），其中 Γ 点面外模 `ν = 16`（`12.38 THz`）与双重简并面内模 `ν = 17, 18`（`15.42 THz`）的声子线宽高达 **`γ = 260.01、315.55、318.58 GHz`**（`ph96` 中为 `297.74、318.99、322.13 GHz`），单模耦合分别为 `λ = 0.0581、0.0454、0.0458`（`ph96` 中为 `0.0662、0.0456、0.0461`）。
-
-QE 7.1 的 lambda.f90 说明，lambdax.in 第一列是 emax，第三列 ngaussq 控制频率展宽核：0 为普通 Gaussian，1 为 Methfessel–Paxton。实际 ph64/ph96 输入首行为 10 0.12 1，因此原始输入不是 Gaussian。源码中的直接 λ 求和遍历逐 q EPC 数据；α²F 与 ωlog 则由 emax 限定的频率网格计算，高于上限的模式仍可能通过展宽尾部贡献低于上限的频率。18 THz 文件没有可核验的执行输入、命令或可执行文件身份，故不能断言该组输出只改变了 emax。参见 QE 7.1 的 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/PH/lambda.f90">lambda.f90 源码</a>。
-
-```text
-[bcgong@localhost ph64]$ head -n 6 lambdax.emax18.out
-     lambda = 3.405555 (   3.405453 )  <log w>=   82.396 K  N(Ef)= 25.881772 at degauss= 0.001
-     lambda = 2.766416 (   2.766329 )  <log w>=   84.148 K  N(Ef)= 29.975283 at degauss= 0.002
-     lambda = 2.459034 (   2.458955 )  <log w>=   85.447 K  N(Ef)= 30.598111 at degauss= 0.003
-     lambda = 2.237823 (   2.237751 )  <log w>=   86.178 K  N(Ef)= 29.793451 at degauss= 0.004
-     lambda = 2.045189 (   2.045122 )  <log w>=   86.896 K  N(Ef)= 28.780891 at degauss= 0.005
-     lambda = 1.883891 (   1.883828 )  <log w>=   87.678 K  N(Ef)= 27.843494 at degauss= 0.006
-```
-
-已保存的 18 THz 表中，σ=0.003 Ry 的 ph64 行直接 λ 为 2.459034、谱积分为 2.458955；全表最大绝对差为 0.000102，因此不能写成严格小于 1×10⁻⁴。该比较是输出表算术，因生成来源未闭合，不代表已验证的 emax-only 修正。配套图为保持可追溯性，展示有匹配 10 THz 输入的 alpha2F.dat，并在图上标出 10 THz 截止与 18 THz 来源未闭合。
-
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨 PHDOS 与有匹配 10 THz 输入的 α²F 表" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 三联图：（左）声子色散与模式耦合，红虚线标出 10 THz 频率网格上限；（中）原子分辨 PHDOS，C 的高频光学模由原子位移识别；（右）来自匹配 10 THz 输入的保存 α²F 表。18 THz 输出表的生成来源尚未闭合。</figcaption></figure>
-
-### 保存 Tc 表的插值核查与来源边界
-
-下表并列展示已保存输出中的 10 THz 与 18 THz 数据。18 THz 列来自现存打印表，但来源链没有闭合；所有交点均由打印到 0.001 K 的 Tc 采样值作线性插值，只用于表格诊断。
-
-| 电子展宽 `σ` (Ry) | `N_64(EF)` | `N_96(EF)` | `λ_64` | `λ_96` | `ω_log,64` (K, 18 THz) | `ω_log,96` (K, 18 THz) | `Tc,64` (K, 18 THz) | `Tc,96` (K, 18 THz) | `ΔTc = Tc,64 − Tc,96` (K) |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `0.001` | 25.882 | 31.638 | 3.4056 | 3.1835 | 82.396 | 84.843 | 15.620 | 15.658 | `−0.038` |
-| `0.002` | 29.975 | 31.560 | 2.7664 | 2.7267 | 84.148 | 85.364 | 14.588 | 14.696 | `−0.108` |
-| `0.003` | 30.598 | 30.772 | 2.4590 | 2.4511 | 85.447 | 85.664 | 13.947 | 13.958 | `−0.011` |
-| `0.004` | 29.793 | 29.802 | 2.2378 | 2.2329 | 86.178 | 86.239 | 13.325 | 13.317 | `+0.008` |
-| `0.005` | 28.781 | 28.781 | 2.0452 | 2.0410 | 86.896 | 86.949 | 12.689 | 12.680 | `+0.009` |
-| `0.010` | 25.941 | 25.941 | 1.4945 | 1.4914 | 91.633 | 91.701 | 10.409 | 10.397 | `+0.012` |
-| `0.020` | 26.058 | 26.058 | 1.0591 | 1.0576 | 103.462 | 103.529 | 7.846 | 7.835 | `+0.011` |
-
-保存表的数值说明：
-1. 在 18 THz 保存表中，Nσ(EF) 在 σ=0.004 Ry 为 29.793 对 29.802、在 σ=0.005 Ry 为 28.780891 对 28.781039；这两个采样点较接近，但不足以证明电子网格收敛。
-2. 按打印 Tc 表逐段线性插值，匹配输入的 10 THz 表有两个交点：σ≈0.001750 Ry、Tc≈14.594 K，以及 σ≈0.003091 Ry、Tc≈13.513 K。18 THz 保存表有一个诊断性交点：σ≈0.003579 Ry、Tc≈13.587 K；按两位小数为 13.59 K。插值用到的 Tc 仅打印到 0.001 K，额外小数不是物理精度，而且该 18 THz 输出缺少生成记录。
-
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png" alt="ZrCl₂/Sc₂C 两网格保存 Tc 表及线性插值交点核对" loading="lazy"/><figcaption>存储 Tc 表的算术核对：（左）10 THz 匹配输入数据与来源未闭合的 18 THz 保存表；（右）由 Tc 表相邻采样点插值得到的 ΔTc=0 位置。所有标记由脚本动态计算。18 THz 交点只代表保存表，不能证明更改 emax 后的物理结果或电子网格收敛；ph64.1/ph96.1 尚无完整 Tc 输出对。</figcaption></figure>
-
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png" alt="ZrCl₂/Sc₂C 两个网格的存储 N(EF)、λ、积分 α²F 与 ωlog 对照" loading="lazy"/><figcaption>保存表的物理量对照：（左）Nσ(EF)；（中）与匹配 10 THz 输入对应的直接 λ 和谱积分；（右）10 THz 输出中的 ωlog。两个网格在部分展宽点较接近，但这些点不构成收敛证明。</figcaption></figure>
-
-ph64.1 与 ph96.1 的准备输入首行均为 18 0.12 1，el_ph_sigma 设为 0.0005 Ry。它们是候选输入，不是现存 18 THz 输出的已证实来源；目前没有完整加密 Tc 输出对，因此这里不把它们描述为已完成的复核计算。
-
-```text
-[bcgong@localhost 0015]$ diff -u ph64/phx.in ph64.1/phx.in
---- ph64/phx.in
-+++ ph64.1/phx.in
-@@ -11,7 +11,7 @@
-   outdir='./out/'
-   fildyn='zrclscc.dyn'
-   electron_phonon='interpolated'
--  el_ph_sigma=0.001
-+  el_ph_sigma=0.0005
-   el_ph_nsigma=20
-   trans=.true.
-   ldisp=.true.
-[bcgong@localhost 0015]$ head -n 2 ph64.1/lambdax.in ph96.1/lambdax.in
-==> ph64.1/lambdax.in <==
-18 0.12 1
-       10
-
-==> ph96.1/lambdax.in <==
-18 0.12 1
-       10
-```
-
-Tc 表核查结果以机器可读文件保存为 [tc-intersections.json](/Atlas/examples/zrcl2-sc2c/tc-intersections.json)。绘图脚本可从保存表重绘；该脚本不补造 18 THz 的输入或运行来源。
+ZrCl₂/Sc₂C 的 ph64/ph96、18 THz 候选后处理输入和来源核验保存在 [保存双网格结果与谱积分上限记录](/Atlas/cases/epc-research-notes/#zrcl2-sc2c-k64-k96-record)。
 
 <span id="epc-literature-aesthetics"></span>
 
-## 文献中的电声耦合与超导后处理图例（附 DOI 溯源）
-
-在电声耦合与超导计算的后处理中，文献通常通过共享频率轴或动量轴，将微观声子振动模式、动量分辨线宽、能量积分谱函数以及费米面各向异性超导能隙组合展示。下面结合四幅代表性文献原图（均标注原始出处与 DOI 号）说明其构图方式与适用场景：
-
-### 1. 五面板电声耦合组合图：声子色散投影、模式 λ_qν、原子 PHDOS、Eliashberg α²F(ω)/λ(ω) 与布里渊区分布
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散投影、模式耦合 λ_qν、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与二维布里渊区 λ(q) 分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板电声后处理图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) 对齐频率轴的 Al 与 H 分波声子态密度（PHDOS），(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与阶梯上升的累计耦合强度 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
-
-- **数据组织要点**：子图 (a)–(d) 共享同一频率纵轴 `ω`，横向对照即可确认：哪一段高对称路径上的声子支（a、b）产生了局域态密度峰（c），并在对应频段把累计 `λ(ω)` 推上台阶（d）；右上角子图 (e) 进一步给出全布里渊区积分前的动量空间耦合分布 `λ(q)`。
-
-### 2. Eliashberg 谱函数特征峰与实空间声子振动本征矢的对应展示
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="四种二维过渡金属碳氮化物的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及底部关键声子振动模式实空间箭头图" loading="lazy"/><figcaption>子面板 (a)–(d) 绘制四种二维过渡金属碳氮化物的 α<sup>2</sup>F(ω)（蓝色左轴）与累计 λ(ω)（红色右轴）并标出特征峰 I、II、III，底部子面板 (e) 展示特征峰 I、II、III 对应的三维实空间原子位移本征矢（振动箭头）。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-- **数据组织要点**：单独的 `α²F(ω)` 曲线只能显示峰值频率，而将 `matdyn.modes`（或 `dynmat.x`）提取出的特征峰原子位移矢量在底部子面板 (e) 中列出，能够直观区分低频过渡金属振动峰（I、II）与高频轻原子光学振动峰（III）对累计配对强度 `λ(ω)` 的不同贡献。
-
-### 3. 声子色散上的连续变宽度线宽色带（Fat-Phonon Ribbon）
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 变宽度红色色带叠加图" loading="lazy"/><figcaption>二维电子化合物 Ba<sub>2</sub>N 的声子色散与声子线宽 γ<sub>qν</sub> 叠加表示：黑色实线给出声子本征色散骨架，沿声子支填充的实心红色色带宽度编码对应 (q, ν) 处的电声线宽大小。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
-
-- **数据组织要点**：在声子支较少或重点突出特定光学支/声学支时，沿色散曲线绘制变宽度实心色带（`fill_between`）能直观标出 Γ 点附近或科恩反常（Kohn anomaly）波矢处的强线宽区；而在声子支密集交叉的多原子异质结中，也可改用半透明散点编码以避免分支遮挡。
-
-### 4. 各向异性超导能隙 Δ_nk(T) 的小提琴统计分布图与费米面三维着色
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="超导能隙随温度演化的小提琴统计分布图与费米面能隙热力投影" loading="lazy"/><figcaption>各向异性 Migdal–Eliashberg 方程求解得到的超导能隙 Δ(T) 随温度演化的小提琴统计分布（Violin Plot）及低温费米面能隙分布内嵌图。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
-
-- **数据组织要点**：当从 Allen–Dynes 公式进一步走向[各向异性 EPW–Eliashberg 求解](/Atlas/m/epw-eliashberg/qe/)时，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
-
-下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。
+[文献图例与 DOI](/Atlas/cases/epc-al-verification/#epc-literature-aesthetics) 展示模式投影、谱函数、累计耦合与能隙的组合画法。

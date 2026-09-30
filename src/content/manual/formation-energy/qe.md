@@ -1,8 +1,12 @@
-[QE：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE：结构优化与总能计算](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Materials Project：形成能与相图方法](https://docs.materialsproject.org/methodology/materials-methodology/thermodynamic-stability/phase-diagrams-pds) · [AFLOW：晶体原型库](https://aflow.org/prototype-encyclopedia/)
+把 B2 AlSi 的 OUT 打开，可以找到一个以 Ry 为单位的总能。这个数随原子数、元素和赝势改变；要判断形成 AlSi 是否比拆成 Al 和 Si 更有利，必须把三者放到同一套计算约定下相减。这里实际计算了五个小晶胞：fcc Al、金刚石 Si，以及在 B2、L1₂ 原型上替换元素得到的三个 Al–Si 候选。
+
+本算例求的是相对 **fcc Al 和 diamond Si 元素晶体**的每原子形成能。内聚能则比较晶体与同元素的孤立原子，参考态和常用符号约定均需另行说明；这里没有计算孤立原子能量。24³ 下 B2 AlSi 的形成能为 `0.265762 eV/atom`，下面从输入、优化输出和匹配的静态能量读出这个数。
 
 [下载本例完整输入、输出、表格与绘图脚本](/Atlas/examples/alsi-formation-hull-files.tar.gz)。解压后在 `alsi-formation-hull` 目录运行分析与绘图；包内包含原始 OUT/XML，足以重新提取本文数值。大体积的电荷密度与波函数另由实际计算生成，重跑时先按下文准备对应父目录。
 
-把 B2 AlSi 的 OUT 打开，可以找到一个以 Ry 为单位的总能。这个数随原子数、元素和赝势改变；要判断形成 AlSi 是否比拆成 Al 和 Si 更有利，必须把三者放到同一套计算约定下相减。这里实际计算了五个小晶胞：fcc Al、金刚石 Si，以及在 B2、L1₂ 原型上替换元素得到的三个 Al–Si 候选。
+[QE：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE：结构优化与总能计算](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Materials Project：形成能与相图方法](https://docs.materialsproject.org/methodology/materials-methodology/thermodynamic-stability/phase-diagrams-pds) · [AFLOW：晶体原型库](https://aflow.org/prototype-encyclopedia/)
+
+## 准备五个候选与元素晶体参考
 
 中间三个结构是明确构造的教学候选。B2 的位点来自 [CsCl 原型](https://aflow.org/prototype-encyclopedia/AB_cP2_221_a_b-002/)，L1₂ 的位点来自 [Cu₃Au 原型](https://aflow.org/prototype-encyclopedia/AB3_cP4_221_a_c-001/)。初始晶格常数只是优化的起点；这套文件没有把它们称为已报道的 Al–Si 稳定化合物。Al 和 Si 分别使用 [fcc](https://aflow.org/prototype-encyclopedia/A_cF4_225_a-001/) 与 [diamond](https://aflow.org/prototype-encyclopedia/A_cF8_227_a-001/) 结构。
 
@@ -29,7 +33,9 @@ al-fcc  al3si-l12  alsi-b2  alsi3-l12  si-diamond
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-赝势分别可从 QE 的 [Al 文件](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pbe-n-rrkjus_psl.1.0.0.UPF) 和 [Si 文件](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF) 下载。本次对文件做了独立下载与 SHA 核对。这里的元素参考能来自同批端元计算；不能把另一种泛函、另一份赝势或孤立原子的能量直接填进来。
+赝势分别可从 QE 的 [Al 文件](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pbe-n-rrkjus_psl.1.0.0.UPF) 和 [Si 文件](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF) 下载。文件来源与 SHA 随下载包保留。这里的元素参考能来自同批端元计算；不能把另一种泛函、另一份赝势或孤立原子的能量直接填进来。
+
+## 在指定原型内优化晶胞
 
 先在各自原型内优化晶格尺度。完整的 B2 输入是 [alsi-b2/vc-relax.in](/Atlas/examples/alsi-formation-hull/alsi-b2/vc-relax.in)，其余四份对应为 [al-fcc](/Atlas/examples/alsi-formation-hull/al-fcc/vc-relax.in), [si-diamond](/Atlas/examples/alsi-formation-hull/si-diamond/vc-relax.in), [al3si-l12](/Atlas/examples/alsi-formation-hull/al3si-l12/vc-relax.in), [alsi3-l12](/Atlas/examples/alsi-formation-hull/alsi3-l12/vc-relax.in)。普通结构优化的操作见 [vc-relax](/Atlas/m/vc-relax/qe/)；这次为了保留各候选的定义，使用了以下晶胞约束。
 
@@ -110,6 +116,8 @@ End final coordinates
 `alat=6.27389073` 仍是这一段打印所用的长度单位。晶胞矩阵乘上它、再由 Bohr 转为 Å，得到约 `3.15761069 Å` 的立方边长；原子坐标也要用同样的单位解释。把打印的 `0.4755437783` 当成分数坐标，会把体心原子放错位置。后续输入直接写出 Å 制晶胞，并把体心原子写成 `crystal` 下的 `(0.5,0.5,0.5)`。
 
 五个优化的末次压力均约为 `0±0.01 kbar`。优化中间轮的本征值警告保存在原始 OUT 里；固定几何后另做静态求解，并检查最终电子迭代，而不是只看到 BFGS 或 `JOB DONE.` 就取数。
+
+## 固定几何，计算匹配的静态能量
 
 为了比较数值设置，五个候选分别建立同名子目录；每一行协议都必须凑齐五项才能组成一组形成能。
 
@@ -287,7 +295,7 @@ B2 晶胞含 1 个 Al 和 1 个 Si，赝势价电子数合计为 7，所以这�
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-末尾同时保留了耗时和 `JOB DONE.`。提取脚本要求最后一轮电子迭代没有本征值未收敛行、OUT 给出电子收敛、XML 的收敛标记为 true，并要求 XML 与 OUT 总能一致。初轮警告的数量另存为表列，不会从源文件里删掉。20³ 高截断结果还进行了电子自洽重算。其中四项沿用已完成的密度和波函数；AlSi₃ 的原生输入重复写了 `startingpot` 与 `startingwfc`，实际 OUT 显示读取已有密度、重新生成随机化原子波函数，不能把它也写成波函数延续。五项重算全程均没有本征值未收敛行，与父计算的能量差最大为 `0.000006 meV/atom`；这检验的是同一数值协议下电子求解的一致性，不能替代 k 网格收敛。错误流保留了本机重复出现的 `Authorization required, but no authorization protocol specified` 环境提示，不能写成空文件。示例输入见 [alsi-b2/verify/scf.in](/Atlas/examples/alsi-formation-hull/alsi-b2/verify/scf.in)。
+末尾同时保留了耗时和 `JOB DONE.`。提取脚本要求最后一轮电子迭代没有本征值未收敛行、OUT 给出电子收敛、XML 的收敛标记为 true，并要求 XML 与 OUT 总能一致。初轮警告的数量另存为表列。20³ 高截断结果还进行了电子自洽重算。其中四项沿用已完成的密度和波函数；AlSi₃ 的原生输入重复写了 `startingpot` 与 `startingwfc`，实际 OUT 显示读取已有密度、重新生成随机化原子波函数，不能把它也写成波函数延续。五项重算全程均没有本征值未收敛行，与父计算的能量差最大为 `0.000006 meV/atom`；这检验的是同一数值协议下电子求解的一致性，不能替代 k 网格收敛。错误流保留了本机重复出现的 `Authorization required, but no authorization protocol specified` 环境提示，不能写成空文件。示例输入见 [alsi-b2/verify/scf.in](/Atlas/examples/alsi-formation-hull/alsi-b2/verify/scf.in)。
 
 `verify` 的父计算是同一候选的 `cutoff80`，不是 12³ 的优化波函数。重跑时应等 `cutoff80` 验收后，在干净的验证目录中复制：
 
@@ -296,6 +304,8 @@ cp -a alsi-b2/cutoff80/tmp alsi-b2/verify/
 ```
 
 AlSi₃ 的原始输入保留在下载包中，便于核对这次输出。如果重新提交这一项，先用 `vi` 删除重复赋值，只保留一组 `startingpot='file'`、`startingwfc='atomic+random'`；这与原始 OUT 实际采用的起始方式一致。最终输入应清楚表达一个选择，不能依靠重复项的读取顺序。
+
+## 按原子数减去元素参考能
 
 真正取形成能时，先把端元能量换成每原子：`μAl=E(Al原胞)/1`，`μSi=E(Si原胞)/2`。对含 nAl 个 Al、nSi 个 Si 的候选：
 
@@ -306,6 +316,218 @@ AlSi₃ 的原始输入保留在下载包中，便于核对这次输出。如果
 例如这组 24³ 结果中，Al 为 `-5.0395901951 Ry/atom`，Si 两原子原胞为 `-22.8402546465 Ry`，所以 Si 参考需要先除以 2。B2 AlSi 的 `-16.4206511902 Ry/cell` 减去 1 个 Al 和 1 个 Si 的参考后，再除以 2，得到 `0.265762 eV/atom`。
 
 提取程序 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py) 会从实际输入、OUT 和 XML 生成下表，同时留下各文件的 SHA。画图程序 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 只读取 CSV，因此可以把数据拉到本机绘图。
+
+<details>
+<summary>analyse_alsi.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Read actual QE 7.5 outputs; compare matched Al--Si candidate sets."""
+from pathlib import Path
+import csv, hashlib, json, re, shutil, xml.etree.ElementTree as ET
+import numpy as np
+
+ROOT=Path(__file__).resolve().parent
+RY_EV=13.605693122994
+BOHR_A=0.529177210903
+CASES={'al-fcc':(1,0),'al3si-l12':(3,1),'alsi-b2':(1,1),'alsi3-l12':(1,3),'si-diamond':(0,2)}
+PROTOCOLS=['k12','k16','k20','sigma005','cutoff80','k24']
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def numbers(node):return np.array([float(v) for v in node.text.split()])
+def save_csv(path,rows):
+    with path.open('w',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+def qexml(path):
+    r=ET.parse(path).getroot()
+    assert r.get('Units')=='Hartree atomic units'
+    assert r.find('general_info/creator').get('VERSION')=='7.5'
+    return r
+def read_run(case,label):
+    folder=ROOT/case/label
+    txt=(folder/'scf.out').read_text()
+    if txt.count('JOB DONE.')!=1 or 'convergence has been achieved' not in txt:
+        raise ValueError(f'Incomplete native SCF: {case}/{label}')
+    last_iteration=re.split(r'\n\s+iteration #\s*\d+',txt)[-1]
+    if re.search(r'Error in routine|convergence NOT',txt,re.I) or 'not converged' in last_iteration:
+        raise ValueError(f'Adverse native SCF: {case}/{label}')
+    p=folder/'data-file-schema.xml'
+    if not p.exists():shutil.copy2(folder/'tmp'/f'{case}.save'/'data-file-schema.xml',p)
+    r=qexml(p);out=r.find('output')
+    conv=out.find('convergence_info/scf_conv/convergence_achieved')
+    assert conv is not None and conv.text.strip()=='true'
+    e_ry=float(out.find('total_energy/etot').text)*2
+    printed=float(re.findall(r'!\s+total energy\s+=\s+([-\d.]+)\s+Ry',txt)[-1])
+    assert abs(e_ry-printed)<1e-7
+    st=out.find('atomic_structure')
+    cell=np.array([numbers(st.find('cell/'+a)) for a in ['a1','a2','a3']])
+    atoms=st.findall('atomic_positions/atom')
+    symbols=[a.get('name') for a in atoms]
+    nAl,nSi=CASES[case];nat=nAl+nSi
+    assert symbols.count('Al')==nAl and symbols.count('Si')==nSi
+    shape={'cell':np.round(cell,9).tolist(),'symbols':symbols,'positions':[np.round(numbers(a),9).tolist() for a in atoms]}
+    geometry_hash=hashlib.sha256(json.dumps(shape,sort_keys=True).encode()).hexdigest()
+    inp=r.find('input')
+    assert inp.find('dft/functional').text.strip()=='PBE'
+    assert inp.find('spin/lsda').text.strip()=='false'
+    assert inp.find('spin/noncolin').text.strip()=='false'
+    assert inp.find('spin/spinorbit').text.strip()=='false'
+    assert inp.find('bands/occupations').text.strip()=='smearing'
+    smear=inp.find('bands/smearing');assert smear.text.strip()=='mv'
+    mesh=inp.find('k_points_IBZ/monkhorst_pack')
+    if mesh is None:raise ValueError('Missing echoed automatic mesh')
+    k=[int(mesh.get(v)) for v in ['nk1','nk2','nk3']]
+    assert len(set(k))==1
+    assert [int(mesh.get(v)) for v in ['k1','k2','k3']]==[0,0,0]
+    force=out.find('forces')
+    fmax=float(np.linalg.norm(numbers(force).reshape(nat,3)*2,axis=1).max())
+    row=dict(case=case,protocol=label,nAl=nAl,nSi=nSi,natoms=nat,xSi=nSi/nat,
+             k_mesh=k[0],ecutwfc_Ry=float(inp.find('basis/ecutwfc').text)*2,
+             ecutrho_Ry=float(inp.find('basis/ecutrho').text)*2,
+             degauss_Ry=float(smear.get('degauss'))*2,total_energy_Ry=e_ry,
+             energy_per_atom_eV=e_ry*RY_EV/nat,
+             final_pressure_kbar=float(re.findall(r'P=\s*([-\d.]+)',txt)[-1]),
+             initial_eigensolver_warnings=txt.count('not converged'),final_iteration_eigensolver_warnings=last_iteration.count('not converged'),
+             max_force_Ry_per_bohr=fmax,volume_A3=abs(float(np.linalg.det(cell)))*BOHR_A**3,
+             input_sha256=sha(folder/'scf.in'),output_sha256=sha(folder/'scf.out'),
+             xml_sha256=sha(p),geometry_sha256=geometry_hash)
+    return row
+def lower_hull(rows):
+    points=sorted(rows,key=lambda p:p['xSi'])
+    hull=[]
+    for p in points:
+        while len(hull)>=2:
+            a,b=hull[-2:]
+            cross=(b['xSi']-a['xSi'])*(p['formation_eV_atom']-a['formation_eV_atom'])-(b['formation_eV_atom']-a['formation_eV_atom'])*(p['xSi']-a['xSi'])
+            if cross>1e-12:break
+            hull.pop()
+        hull.append(p)
+    return hull
+def main():
+    (ROOT/'plots').mkdir(exist_ok=True)
+    rows=[read_run(c,p) for p in PROTOCOLS for c in CASES]
+    for case in CASES:
+        assert len({r['geometry_sha256'] for r in rows if r['case']==case})==1,'Geometry differs across numerical checks'
+    for label in PROTOCOLS:
+        rr=[r for r in rows if r['protocol']==label]
+        for key in ['k_mesh','ecutwfc_Ry','ecutrho_Ry','degauss_Ry']:
+            assert len({r[key] for r in rr})==1,f'Mixed {key} in {label}'
+        al=next(r for r in rr if r['case']=='al-fcc')['total_energy_Ry']
+        si=next(r for r in rr if r['case']=='si-diamond')['total_energy_Ry']/2
+        for r in rr:
+            r['reference_energy_Ry']=r['nAl']*al+r['nSi']*si
+            r['formation_eV_formula']=(r['total_energy_Ry']-r['reference_energy_Ry'])*RY_EV
+            r['formation_eV_atom']=r['formation_eV_formula']/r['natoms']
+        hull=lower_hull(rr)
+        for r in rr:
+            for left,right in zip(hull,hull[1:]):
+                if left['xSi']-1e-12<=r['xSi']<=right['xSi']+1e-12:
+                    wr=(r['xSi']-left['xSi'])/(right['xSi']-left['xSi']);wl=1-wr
+                    r.update(hull_eV_atom=wl*left['formation_eV_atom']+wr*right['formation_eV_atom'],
+                             hull_left=left['case'],hull_right=right['case'],left_atom_fraction=wl,right_atom_fraction=wr)
+                    break
+            r['above_hull_eV_atom']=r['formation_eV_atom']-r['hull_eV_atom']
+            assert r['above_hull_eV_atom']>=-1e-10
+    save_csv(ROOT/'energy-table.csv',rows)
+    final=[r for r in rows if r['protocol']=='k24']
+    save_csv(ROOT/'formation-energy.csv',final)
+    save_csv(ROOT/'formation-summary.csv',[{k:r[k] for k in ['case','natoms','xSi','total_energy_Ry','formation_eV_atom','above_hull_eV_atom']} for r in final])
+    checks=[]
+    for case in CASES:
+        if case in ['al-fcc','si-diamond']:continue
+        d={r['protocol']:r for r in rows if r['case']==case}
+        for a,b,axis in [('k12','k16','k mesh at sigma .01'),('k16','k20','k mesh at sigma .01'),('k20','sigma005','smearing at k20'),('sigma005','cutoff80','wavefunction cutoff at k20'),('cutoff80','k24','k mesh at sigma .005')]:
+            delta=(d[b]['formation_eV_atom']-d[a]['formation_eV_atom'])*1000
+            checks.append(dict(case=case,axis=axis,from_protocol=a,to_protocol=b,formation_change_meV_atom=delta,within_1meV_atom=abs(delta)<=1.0))
+    save_csv(ROOT/'numerical-checks.csv',checks)
+    receipt={'schema':'alsi-evidence-v1','qe_version':'7.5','energy_definition':'QE ! total energy, finite cold-smearing F=E-TS, identical setting for all five candidates within each protocol',
+             'scientific_acceptance':'not_assessed','candidate_scope':'Five constrained cubic prototypes only; no global structure search, phonon/free-energy or experimental claim',
+             'geometry_optimization':'Native BFGS with cell_dofree=ibrav; initial Davidson warnings preserved. Final independent CG static inputs/outputs are checked separately.',
+             'numerical_line_meV_atom':1.0,'reference_per_atom_Ry':{r['case']:r['total_energy_Ry']/r['natoms'] for r in final if r['case'] in ['al-fcc','si-diamond']},
+             'hull_vertices':[r['case'] for r in lower_hull(final)],'files':{str(p.relative_to(ROOT)):sha(p) for r in rows for p in [ROOT/r['case']/r['protocol']/name for name in ['scf.in','scf.out','scf.err','data-file-schema.xml']]},
+             'checks':checks}
+    (ROOT/'evidence/analysis-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print('case           xSi   total_energy(Ry/cell) formation(eV/atom) above_hull(eV/atom)')
+    for r in final:
+        print(f"{r['case']:<15} {r['xSi']:4.2f} {r['total_energy_Ry']:20.10f} {r['formation_eV_atom']:18.8f} {r['above_hull_eV_atom']:19.8f}")
+    print('Finite-set hull vertices:',', '.join(receipt['hull_vertices']))
+    print('Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line)')
+if __name__=='__main__':main()
+```
+
+</details>
+
+<details>
+<summary>plot_alsi.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Plot the actual tables produced by analyse_alsi.py; no QE installation needed."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import argparse,csv
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+ROOT=Path(__file__).resolve().parent
+BLUE='#0072b2';ORANGE='#d55e00';GRAY='#657081'
+LABELS={'al-fcc':'Al (fcc)','al3si-l12':'Al₃Si (L1₂)','alsi-b2':'AlSi (B2)','alsi3-l12':'AlSi₃ (L1₂)','si-diamond':'Si (diamond)'}
+plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':180})
+def read(name):
+    with (ROOT/name).open() as f:return list(csv.DictReader(f))
+def save(fig,name):
+    (ROOT/'plots').mkdir(exist_ok=True)
+    for suffix in ['png','svg']:fig.savefig(ROOT/'plots'/f'{name}.{suffix}',bbox_inches='tight')
+    plt.close(fig)
+    print(f'plots/{name}.png and plots/{name}.svg')
+def formation():
+    rows=[r for r in read('formation-energy.csv') if r['case'] not in ['al-fcc','si-diamond']]
+    checks=read('numerical-checks.csv')
+    fig,axes=plt.subplots(1,2,figsize=(12,4.2),layout='constrained',gridspec_kw={'width_ratios':[1,1.8]})
+    x=np.arange(len(rows));y=np.array([float(r['formation_eV_atom']) for r in rows])
+    axes[0].bar(x,y,color=BLUE,width=.64)
+    for xx,yy in zip(x,y):axes[0].text(xx,yy+max(y)*.025,f'{yy:.3f}',ha='center')
+    axes[0].set_xticks(x,[LABELS[r['case']].replace(' ','\n',1) for r in rows]);axes[0].set_ylim(0,max(y)*1.2)
+    axes[0].set_ylabel('Formation energy (eV/atom)');axes[0].set_title('Same reference energies and protocol')
+    transitions=[('k12','k16','k:12→16'),('k16','k20','k:16→20'),('k20','sigma005','σ:0.01→0.005'),('sigma005','cutoff80','cutoff:60→80'),('cutoff80','k24','k:20→24')]
+    colors=[BLUE,ORANGE,'#009e73']
+    for case,col in zip([r['case'] for r in rows],colors):
+        yy=[float(next(c for c in checks if c['case']==case and c['from_protocol']==a and c['to_protocol']==b)['formation_change_meV_atom']) for a,b,_ in transitions]
+        axes[1].plot(np.arange(len(transitions)),yy,'o-',label=LABELS[case],color=col,ms=5)
+    axes[1].axhspan(-1,1,color='#dde8f0',alpha=.7,label='±1 meV/atom comparison line')
+    axes[1].axhline(0,color=GRAY,lw=.7);axes[1].set_xticks(np.arange(len(transitions)),[x[2] for x in transitions],rotation=25,ha='right')
+    axes[1].set_ylabel('Change in formation energy (meV/atom)');axes[1].set_title('Controlled numerical checks at fixed geometry')
+    axes[1].legend(fontsize=8,loc='best');axes[1].grid(axis='y',alpha=.15)
+    save(fig,'formation-energy')
+def hull():
+    rows=sorted(read('formation-energy.csv'),key=lambda r:float(r['xSi']))
+    fig,ax=plt.subplots(figsize=(8,4.8),layout='constrained')
+    x=np.array([float(r['xSi']) for r in rows]);y=np.array([float(r['formation_eV_atom']) for r in rows]);h=np.array([float(r['hull_eV_atom']) for r in rows])
+    nodes=[r for r in rows if abs(float(r['above_hull_eV_atom']))<1e-10]
+    ax.plot([float(r['xSi']) for r in nodes],[float(r['formation_eV_atom']) for r in nodes],color=BLUE,lw=2,label='Lower hull of these five candidates')
+    for r,xx,yy,hh in zip(rows,x,y,h):
+        if yy-hh>1e-10:
+            ax.vlines(xx,hh,yy,color=ORANGE,ls='--',lw=1)
+            ax.scatter([xx],[yy],s=55,marker='s',color=ORANGE,zorder=3)
+            ax.annotate(LABELS[r['case']],(xx,yy),xytext=(0,10),textcoords='offset points',ha='center')
+            ax.text(xx+.018,(yy+hh)/2,f'{1000*(yy-hh):.1f}\nmeV/atom',rotation=0,va='center',fontsize=8,color=GRAY)
+        else:
+            ax.scatter([xx],[yy],s=58,color=BLUE,zorder=3)
+            ax.annotate(LABELS[r['case']],(xx,yy),xytext=(4,10) if xx==0 else (-4,10),textcoords='offset points',ha='left' if xx==0 else 'right')
+    ax.set_xlim(-.04,1.04);ax.set_ylim(-.025,max(y)*1.23);ax.set_xticks([0,.25,.5,.75,1]);ax.set_xlabel('Si atomic fraction x = N(Si) / [N(Al) + N(Si)]')
+    ax.set_ylabel('Formation energy (eV/atom)');ax.set_title('Al–Si: a finite set of constrained cubic prototypes')
+    ax.legend(fontsize=9,loc='upper right');ax.grid(axis='y',alpha=.12)
+    save(fig,'convex-hull')
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('figure',choices=['formation','hull','all']);a=p.parse_args()
+    if a.figure in ['formation','all']:formation()
+    if a.figure in ['hull','all']:hull()
+```
+
+</details>
 
 ```console
 [preston@preston-System-Product-Name alsi-formation-hull]$ python3 analyse_alsi.py
@@ -441,15 +663,249 @@ Davidson-CG Al3Si difference: 1.15852021e-07 meV/atom
 
 另外保留了 Al₃Si 的 [Davidson 对照](/Atlas/examples/alsi-k32-supplement/al3si-l12/k32-davidson/scf.out)，作业号 851。其初轮有 43 条本征值未收敛提示，末轮没有；最终能量与 CG 相差约 `1.16×10⁻⁷ meV/atom`。这个对照只检查同协议下的求解器一致性，形成能表仍统一使用五份 CG 结果，不能用它来替代网格比较。
 
-表格复核脚本 [review_alsi_thermo.py](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py) 读取同目录的 [24³ formation-energy.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-energy.csv)、[32³ formation-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-k32.csv) 与 [comparison-k24-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/comparison-k24-k32.csv)，重新计算五个候选的形成能与有限集合凸包，并核对形成能变化中候选能和端元参考能的分量。可下载[复核 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。把这些文件放在同一目录后运行 <code>python3 review_alsi_thermo.py --outdir review</code>；脚本只依赖 Python 标准库。
+表格复核脚本 [review_alsi_thermo.py](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py) 读取同目录的 [24³ formation-energy.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-energy.csv)、[32³ formation-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/formation-k32.csv) 与 [comparison-k24-k32.csv](/Atlas/examples/thermo-postprocessing/formation-hull/comparison-k24-k32.csv)，重新计算五个候选的形成能与有限集合凸包，并核对形成能变化中候选能和端元参考能的分量。可下载[复核 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。把这些文件放在同一目录，按下方完整脚本后的命令运行；脚本只依赖 Python 标准库。
 
 形成能变化满足 ΔEform = ΔEcandidate − ΔEreference。Al₃Si 这一行中，候选本身改变约 +0.168 meV/atom，而端元组合能改变约 −1.631 meV/atom，因此形成能最终上移约 1.798 meV/atom。复核表保留更多位数；正文中的四舍五入值可能相差末位。
 
-AI 辅助复核可从下方提示开始。它要求模型只报告可由当前 CSV 重算的量，并把有限候选集与完整相图区分开。
+## 编写形成能与凸包复核脚本
 
+后处理分成两步：先按晶胞原子数重算形成能，再用成分与形成能构造下凸包。24³ 和 32³ 各自使用匹配的元素参考；最后核对网格差中的候选与参考分量。这里的输入是已经提取的 CSV，原始 OUT/XML 的电子求解检查仍由前面的提取程序完成。
+
+可以把下面的具体需求交给 AI 编写 Python 脚本：
+
+~~~text
+编写 review_alsi_thermo.py，只使用 Python 标准库。读取 formation-energy.csv、formation-k32.csv、comparison-k24-k32.csv，保留原文件。按 protocol 和 case 分组，每组须有 al-fcc、si-diamond、al3si-l12、alsi-b2、alsi3-l12 五项且无重复。核对 nAl+nSi=natoms、xSi=nSi/natoms，再用 (total_energy_Ry-reference_energy_Ry)*13.605693122994/natoms 重算 formation_eV_atom。
+按 xSi 排序构造下凸包；同成分保留最低能量，依相邻线段斜率构造下边界，用线性组合计算每个候选到边界的高度。分别核对 k24 的 above_hull_eV_atom 和 k32 的 above_hull_meV_atom。计算 (Eform32-Eform24)*1000，核对 formation_change_meV_atom 和 candidate_energy_change_meV_atom-reference_energy_change_meV_atom。出错时报告协议、候选和具体字段并停止。
+用 --outdir 参数输出 alsi-thermo-review.csv 和 alsi-thermo-review.md。报告两组凸包顶点、三个中间候选的形成能、above-hull 距离和网格变化；1 meV/atom 沿用本例比较线，不改变判断标准。不要绘图，不推断未计算结构或温度项。
+~~~
+
+完整源码如下，与上面的下载文件相同。保存为 `review_alsi_thermo.py`，和所需 CSV 放在同一目录。
+
+<details>
+<summary>review_alsi_thermo.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Recompute Al-Si formation energies and finite binary hulls as tables."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import math
+from pathlib import Path
+
+RY_TO_EV = 13.605693122994
+EXPECTED = {"al-fcc", "al3si-l12", "alsi-b2", "alsi3-l12", "si-diamond"}
+COMPOUNDS = ("al3si-l12", "alsi-b2", "alsi3-l12")
+
+
+def read_rows(path: Path) -> tuple[list[str], list[dict[str, str]]]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if not reader.fieldnames:
+            raise ValueError(f"{path}: missing header")
+        return reader.fieldnames, list(reader)
+
+
+def unique_by_case(rows: list[dict[str, str]], protocol: str) -> dict[str, dict[str, str]]:
+    selected = [row for row in rows if row.get("protocol") == protocol]
+    out: dict[str, dict[str, str]] = {}
+    for row in selected:
+        case = row.get("case", "")
+        if not case or case in out:
+            raise ValueError(f"{protocol}: empty or duplicate case {case!r}")
+        out[case] = row
+    if set(out) != EXPECTED:
+        raise ValueError(
+            f"{protocol}: expected cases {sorted(EXPECTED)}, found {sorted(out)}"
+        )
+    return out
+
+
+def validated_values(rows: dict[str, dict[str, str]], protocol: str) -> dict[str, tuple[float, float]]:
+    values: dict[str, tuple[float, float]] = {}
+    for case, row in rows.items():
+        n_al = int(row["nAl"])
+        n_si = int(row["nSi"])
+        n_atoms = int(row["natoms"])
+        if n_atoms <= 0 or n_al + n_si != n_atoms:
+            raise ValueError(f"{protocol}/{case}: nAl+nSi does not equal natoms")
+        x = float(row["xSi"])
+        expected_x = n_si / n_atoms
+        if not math.isclose(x, expected_x, rel_tol=0, abs_tol=1e-12):
+            raise ValueError(f"{protocol}/{case}: xSi disagrees with stoichiometry")
+        total = float(row["total_energy_Ry"])
+        reference = float(row["reference_energy_Ry"])
+        computed = (total - reference) * RY_TO_EV / n_atoms
+        stored = float(row["formation_eV_atom"])
+        if not math.isfinite(computed) or not math.isclose(computed, stored, rel_tol=0, abs_tol=1e-9):
+            raise ValueError(f"{protocol}/{case}: formation_eV_atom disagrees with raw energies")
+        values[case] = (x, computed)
+    return values
+
+
+def lower_hull(values: dict[str, tuple[float, float]]) -> list[tuple[str, float, float]]:
+    lowest: dict[float, tuple[str, float]] = {}
+    for case, (x, energy) in values.items():
+        if x not in lowest or energy < lowest[x][1]:
+            lowest[x] = (case, energy)
+    points = [(case, x, energy) for x, (case, energy) in sorted(lowest.items())]
+    hull: list[tuple[str, float, float]] = []
+    for point in points:
+        while len(hull) >= 2:
+            _, x0, e0 = hull[-2]
+            _, x1, e1 = hull[-1]
+            _, x2, e2 = point
+            if (e1 - e0) / (x1 - x0) >= (e2 - e1) / (x2 - x1) - 1e-12:
+                hull.pop()
+            else:
+                break
+        hull.append(point)
+    if len(hull) < 2 or not math.isclose(hull[0][1], 0, abs_tol=1e-12) or not math.isclose(hull[-1][1], 1, abs_tol=1e-12):
+        raise ValueError("binary lower hull does not include xSi=0 and xSi=1")
+    return hull
+
+
+def hull_energy(x: float, hull: list[tuple[str, float, float]]) -> float:
+    for _, xv, energy in hull:
+        if math.isclose(x, xv, abs_tol=1e-12):
+            return energy
+    for left, right in zip(hull, hull[1:]):
+        _, x0, e0 = left
+        _, x1, e1 = right
+        if x0 < x < x1:
+            weight = (x - x0) / (x1 - x0)
+            return e0 + weight * (e1 - e0)
+    raise ValueError(f"xSi={x:g} is outside hull range")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--k24", type=Path, default=Path("formation-energy.csv"))
+    parser.add_argument("--k32", type=Path, default=Path("formation-k32.csv"))
+    parser.add_argument("--comparison", type=Path, default=Path("comparison-k24-k32.csv"))
+    parser.add_argument("--outdir", type=Path, default=Path("review"))
+    args = parser.parse_args()
+
+    _, raw24 = read_rows(args.k24)
+    _, raw32 = read_rows(args.k32)
+    _, raw_comparison = read_rows(args.comparison)
+    rows24 = unique_by_case(raw24, "k24")
+    rows32 = unique_by_case(raw32, "k32")
+    comparison: dict[str, dict[str, str]] = {}
+    for row in raw_comparison:
+        case = row["case"]
+        if case in comparison:
+            raise ValueError(f"comparison table: duplicate case {case}")
+        comparison[case] = row
+    if set(comparison) != EXPECTED:
+        raise ValueError("comparison table must contain exactly the five reviewed cases")
+
+    values24 = validated_values(rows24, "k24")
+    values32 = validated_values(rows32, "k32")
+    hull24 = lower_hull(values24)
+    hull32 = lower_hull(values32)
+
+    results: list[dict[str, str]] = []
+    max_change = 0.0
+    max_case = ""
+    for case in sorted(EXPECTED, key=lambda item: values24[item][0]):
+        x24, e24 = values24[case]
+        x32, e32 = values32[case]
+        if not math.isclose(x24, x32, rel_tol=0, abs_tol=1e-12):
+            raise ValueError(f"{case}: composition changed between meshes")
+        above24 = e24 - hull_energy(x24, hull24)
+        above32 = e32 - hull_energy(x32, hull32)
+        if not math.isclose(above24, float(rows24[case]["above_hull_eV_atom"]), rel_tol=0, abs_tol=2e-8):
+            raise ValueError(f"k24/{case}: reconstructed hull distance disagrees")
+        if not math.isclose(above32 * 1000.0, float(rows32[case]["above_hull_meV_atom"]), rel_tol=0, abs_tol=2e-5):
+            raise ValueError(f"k32/{case}: reconstructed hull distance disagrees")
+        delta = (e32 - e24) * 1000.0
+        row = comparison[case]
+        candidate = float(row["candidate_energy_change_meV_atom"])
+        reference = float(row["reference_energy_change_meV_atom"])
+        stored_delta = float(row["formation_change_meV_atom"])
+        if not math.isclose(delta, stored_delta, rel_tol=0, abs_tol=2e-5):
+            raise ValueError(f"{case}: stored mesh change disagrees with recomputed energies")
+        if not math.isclose(candidate - reference, delta, rel_tol=0, abs_tol=2e-5):
+            raise ValueError(f"{case}: candidate/reference decomposition does not close")
+        results.append({
+            "case": case,
+            "xSi": f"{x24:.8f}",
+            "formation_k24_eV_atom": f"{e24:.9f}",
+            "above_hull_k24_eV_atom": f"{above24:.9f}",
+            "formation_k32_eV_atom": f"{e32:.9f}",
+            "above_hull_k32_meV_atom": f"{above32*1000:.6f}",
+            "formation_change_meV_atom": f"{delta:.6f}",
+            "candidate_energy_change_meV_atom": f"{candidate:.6f}",
+            "reference_energy_change_meV_atom": f"{reference:.6f}",
+        })
+        if case in COMPOUNDS and abs(delta) > max_change:
+            max_change, max_case = abs(delta), case
+
+    if max_case != "al3si-l12" or not math.isclose(max_change, 1.79822269267, rel_tol=0, abs_tol=2e-6):
+        raise ValueError(f"unexpected maximum intermediate formation-energy change: {max_case} {max_change}")
+    if {item[0] for item in hull24} != {"al-fcc", "si-diamond"}:
+        raise ValueError("k24 finite hull vertices changed from the reviewed endpoints")
+    if {item[0] for item in hull32} != {"al-fcc", "si-diamond"}:
+        raise ValueError("k32 finite hull vertices changed from the reviewed endpoints")
+
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    csv_path = args.outdir / "alsi-thermo-review.csv"
+    md_path = args.outdir / "alsi-thermo-review.md"
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(results[0]))
+        writer.writeheader()
+        writer.writerows(results)
+    md_lines = [
+        "# Al-Si formation-energy and finite-hull review",
+        "",
+        "- Scope: the five supplied cubic prototypes only; no omitted compositions are inferred.",
+        "- Both k24 and k32 finite hulls contain only fcc Al and diamond Si endpoints.",
+        "- At 32³, Al3Si L12, B2 AlSi, and AlSi3 L12 remain above the endpoint tie-line.",
+        f"- Largest intermediate 24³-to-32³ formation-energy change: {max_change:.6f} meV/atom ({max_case}).",
+        "- The 1 meV/atom line is a selected numerical comparison, not a universal criterion.",
+        "- Component relation: formation-energy change = candidate energy change − reference energy change.",
+        "",
+        "| case | xSi | ΔEform k24 (eV/atom) | above hull k24 (eV/atom) | ΔEform k32 (eV/atom) | above hull k32 (meV/atom) | Δ mesh (meV/atom) | candidate Δ (meV/atom) | reference Δ (meV/atom) |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in results:
+        md_lines.append(
+            f"| {row['case']} | {row['xSi']} | {row['formation_k24_eV_atom']} | "
+            f"{row['above_hull_k24_eV_atom']} | {row['formation_k32_eV_atom']} | "
+            f"{row['above_hull_k32_meV_atom']} | {row['formation_change_meV_atom']} | "
+            f"{row['candidate_energy_change_meV_atom']} | {row['reference_energy_change_meV_atom']} |"
+        )
+    md_path.write_text("\n".join(md_lines) + "\n", encoding="utf-8")
+    print(f"rows={len(results)} k24_hull=Al-fcc,Si-diamond k32_hull=Al-fcc,Si-diamond")
+    print(f"max_intermediate_change={max_change:.6f} meV/atom case={max_case}")
+    print(f"wrote {csv_path}")
+    print(f"wrote {md_path}")
+
+
+if __name__ == "__main__":
+    main()
 ```
-只使用 formation-energy.csv、formation-k32.csv、comparison-k24-k32.csv 和 review/alsi-thermo-review.csv。按原始列与单位复核五个 Al–Si 候选的形成能、24³ 与 32³ 的有限下凸包、各中间候选的 above-hull 距离，以及 ΔEform = ΔEcandidate − ΔEreference 的分量关系。用一个紧凑表格列出 24³/32³ 形成能、网格差、候选总能变化、端元参考组合变化；说明 1 meV/atom 只是本例选择的比较线，指出哪些候选超过它。不得绘图，不要把有限原型集合称作完整 Al–Si 相图，不要推断未计算的相、有限温度自由能或声子稳定性；遇到输入不一致就列明具体列和行。
+
+</details>
+
+在下载 CSV 的目录运行：
+
+```bash
+python3 review_alsi_thermo.py --outdir review
 ```
+
+核对输出中的关键行：
+
+```text
+rows=5 k24_hull=Al-fcc,Si-diamond k32_hull=Al-fcc,Si-diamond
+max_intermediate_change=1.798223 meV/atom case=al3si-l12
+```
+
+五个候选的表格关系能够重算一致；最大网格变化仍来自 Al₃Si，超过原定的 1 meV/atom 比较线。这两个判断分别对应数据核对和数值参数检查。
+
 ## 文献中的候选相与能量修正
 
 He 等人在 300 GPa 下研究 La–Sc–H 氢化物时，Fig. 1A–B 将候选相相对元素及二元相的形成焓分别按未计入和计入谐振零点能展示；正文讨论该修正对候选相排序与热力学稳定性的影响。这里借用的是方法要点：凸包依赖候选相集合与一致的能量修正，特别是含氢体系不能默认静态电子能已给出最终排序。本例 Al–Si 只纳入五个立方原型和匹配的元素端元，未加入声子零点能或温度项，因此结论限于这组静态能量与有限候选集。[He 等，PNAS 121, e2401840121 (2024)](https://doi.org/10.1073/pnas.2401840121)。

@@ -1,10 +1,16 @@
+## 跑过一次 SCF，再比较截断能和 k 网格
+
+先读[Si 的固定结构 SCF](/Atlas/m/scf/qe/)，认识输入、电子迭代和最后总能量。现在把同一结构算几遍，每次只改变一个数值参数，看总能量怎样变化。
+
+先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。下面在这个固定晶胞内比较 PBE 总能量对三个数值参数的响应。
+
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
 
 本例的输入、输出、能量表和 Python 提取脚本可[一起下载](/Atlas/examples/basics-si-convergence-files.tar.gz)。解包得到 `basics-si-convergence`。原始计算文件在其 `si-pbe/` 子目录；在包的根目录运行后面的提取命令。
 
 下载包保留实际输入、OUT、错误流、提交脚本和数值表。读取与换算能量只需 Python 3 标准库；重跑 QE 时，按官方链接准备赝势并将 `run.sh` 中的 `<qe_bin>` 改为本机安装路径。
 
-先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。下面在这个固定晶胞内比较 PBE 总能量对三个数值参数的响应。
+## 为每个参数点保留独立输入与输出
 
 `scf` 保存一份起点，`cutoff40` 等目录改变波函数截断能，`rho320`、`rho480` 改变电荷密度截断能，`k4` 到 `k14` 改变均匀 k 网格。每个目录各有自己的 `tmp/si.save`，不会轮流覆盖同一份密度。
 
@@ -92,7 +98,9 @@ Submitted batch job 783
 [preston@preston-System-Product-Name rho320]$ cd ..
 ```
 
-先看一份完成的 SCF 输出的开头，而不是只搜索能量。这里能确认版本、4 个 MPI 进程、读到的输入文件，以及实际使用的晶格、原子数和截断。
+## 核对每份 SCF 实际计算了什么
+
+先看一份完成的 SCF 输出的开头。这里能确认版本、4 个 MPI 进程、读到的输入文件，以及实际使用的晶格、原子数和截断。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ head -n 82 scf/scf.out
@@ -268,6 +276,8 @@ Submitted batch job 783
 ```
 
 
+## 在同一组内比较能量差
+
 现在把各个目录的最终能量并排看。先看波函数截断：
 
 ```text
@@ -334,9 +344,242 @@ k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1
 
 后续 Si 教案继续使用 60/640 Ry，并把带边计算的父 SCF 加密到 12³。用于力、应力或声子时，应直接比较那个目标量：`conv_thr` 负责一次 SCF 的电子误差，目标量对截断和网格的变化由相应扫描决定。最高已测点是这张表的有限参照；1 meV/atom 是本例选定的总能量比较线。
 
+## 用 AI 编写同类提取工具
+
+[完整编程提示词](/Atlas/examples/basics-si-convergence/ai_prompt.md)说明输入文件、单位、分组与选点规则。可复制下述需求，请 AI 生成脚本，再用原始 OUT 核对结果：
+
+```text
+用 Python 3 标准库读取 si-pbe/*/scf.in、scf.out、scf.err，按 SHA256SUMS.raw 核对文件。
+只把同时有最终 ! total energy、SCF 收敛行和 JOB DONE 的两原子 SCF 纳入能量表；
+不完整目录保留在运行清单。核对输入与输出的截断和原子数，并验证每组只有一个参数改变。
+分别整理 ecutwfc、ecutrho 和均匀 k 网格。每组最高已测点为参照，计算
+|E_i-E_ref|*13.6056931229905*1000/2 和相邻差，单位 meV/atom。
+按 1 meV/atom 比较线选取参照差及后续相邻差均满足的最低采样点。
+输出完整 CSV、SCF 迭代表、JSON 摘要和 Markdown 数值报告，保留原始文件的相对路径与哈希。
+```
+
 ## 从原始文件重新生成表格
 
 完整脚本 [analyze_si_convergence.py](/Atlas/examples/basics-si-convergence/analyze_si_convergence.py)读取每个目录的 `scf.in`、`scf.out` 和 `scf.err`，先核对 [原始文件校验和](/Atlas/examples/basics-si-convergence/SHA256SUMS.raw)，再检查原子数、截断回显、QE 版本、SCF 收敛与结束标志。它按数字排序扫描点，并核对每组其余输入相同；`scf`、`cutoff60`、`k8` 的等效设置在同一组中只计一次。
+
+<details>
+<summary>analyze_si_convergence.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Read the supplied Si QE SCF files and tabulate total-energy changes.
+
+Usage: python3 analyze_si_convergence.py si-pbe --outdir reproduced
+Python standard library only. SHA256SUMS.raw is read beside this script.
+"""
+from __future__ import annotations
+import argparse
+import csv
+import hashlib
+import json
+import math
+import re
+from pathlib import Path
+
+RY_EV = 13.6056931229905
+AXES = {
+    'ecutwfc': ['cutoff40', 'cutoff50', 'cutoff60', 'cutoff70', 'cutoff80'],
+    'ecutrho': ['rho320', 'rho480', 'scf'],
+    'kmesh': ['k4', 'k6', 'k8', 'k10', 'k12', 'k14'],
+}
+LOGISTICS = {'prefix', 'outdir', 'pseudo_dir', 'wfcdir'}
+
+
+def sha256(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def verify_sources(package):
+    records = []
+    for line in (package / 'SHA256SUMS.raw').read_text().splitlines():
+        digest, name = line.split('  ', 1)
+        path = package / name
+        if not path.is_file() or sha256(path) != digest:
+            raise ValueError(f'Raw-file checksum mismatch: {name}')
+        records.append({'file': name, 'sha256': digest})
+    return records
+
+
+def read_input(path):
+    lines = [re.sub(r'\s+', ' ', line.split('!', 1)[0].strip()).lower()
+             for line in path.read_text().splitlines() if line.split('!', 1)[0].strip()]
+    params = {}
+    for line in lines:
+        match = re.fullmatch(r'([a-z][a-z0-9_]*)\s*=\s*(.*?)\s*,?', line)
+        if match:
+            params[match[1]] = match[2].rstrip(',').strip().strip("'\"")
+    index = lines.index('k_points automatic')
+    grid = tuple(int(value) for value in lines[index + 1].split())
+    if len(grid) != 6 or len(set(grid[:3])) != 1:
+        raise ValueError(f'{path}: expected an n x n x n automatic grid')
+    return params, grid, lines, index
+
+
+def read_run(directory, source_names, package):
+    inp = directory / 'scf.in'
+    out = directory / 'scf.out'
+    err = directory / 'scf.err'
+    for path in (inp, out, err):
+        if path.exists() and path.relative_to(package).as_posix() not in source_names:
+            raise ValueError(f'Raw file missing from SHA256SUMS.raw: {path.name}')
+    params, grid, lines, index = read_input(inp)
+    text = out.read_text(errors='replace') if out.is_file() else ''
+    energies = re.findall(r'^\s*!\s*total energy\s*=\s*([-+\d.eEdD]+)\s+Ry', text, re.M)
+    completed = 'JOB DONE.' in text and len(re.findall('convergence has been achieved', text)) == 1
+    reasons = []
+    if not out.is_file():
+        reasons.append('missing scf.out')
+    if len(energies) != 1 or not completed:
+        reasons.append('one converged SCF energy and normal end required')
+    energy = float(energies[0].replace('D', 'E').replace('d', 'e')) if len(energies) == 1 else None
+    if energy is not None and not math.isfinite(energy):
+        reasons.append('nonfinite energy')
+    version = re.search(r'Program PWSCF v\.([^\s]+)', text)
+    if text:
+        echoes = {'nat': r'number of atoms/cell\s*=\s*(\d+)',
+                  'ecutwfc': r'kinetic-energy cutoff\s*=\s*([-+\d.]+)',
+                  'ecutrho': r'charge density cutoff\s*=\s*([-+\d.]+)'}
+        for key, pattern in echoes.items():
+            match = re.search(pattern, text)
+            if not match or not math.isclose(float(match[1]), float(params[key]), abs_tol=1e-6):
+                reasons.append(f'{key} input/output mismatch')
+        if not version or version[1] != '7.5':
+            reasons.append('expected QE 7.5')
+        if not re.search(r'Exchange-correlation\s*=\s*PBE', text):
+            reasons.append('expected PBE output')
+    if params.get('calculation') != 'scf' or int(params['nat']) != 2:
+        reasons.append('expected a two-atom SCF input')
+    stderr = [line.strip() for line in err.read_text(errors='replace').splitlines() if line.strip()] if err.is_file() else []
+    errclass = ('empty' if not stderr else 'X11 authorization notice' if all(
+        line == 'Authorization required, but no authorization protocol specified' for line in stderr
+    ) else 'inspect stderr')
+    if errclass == 'inspect stderr':
+        reasons.append('unclassified stderr')
+    return {'directory': directory.name, 'params': params, 'grid': grid,
+            'lines': lines, 'grid_line': index + 1, 'energy': energy,
+            'complete': not reasons, 'reasons': '; '.join(reasons),
+            'stderr': errclass, 'input_sha256': sha256(inp),
+            'output_sha256': sha256(out) if out.is_file() else ''}
+
+
+def signature(run, axis):
+    kept = []
+    for index, line in enumerate(run['lines']):
+        assignment = re.match(r'([a-z][a-z0-9_]*)\s*=', line)
+        if assignment and (assignment[1] in LOGISTICS or assignment[1] == axis):
+            continue
+        if axis == 'kmesh' and index == run['grid_line']:
+            kept.append(' '.join(str(value) for value in run['grid'][3:]))
+        else:
+            kept.append(line)
+    return tuple(kept)
+
+
+def write_csv(path, rows):
+    with path.open('w', newline='', encoding='utf-8') as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def scf_history(path):
+    history = []
+    for match in re.finditer(r'iteration #\s*(\d+)(.*?)(?=iteration #|\Z)', path.read_text(), re.S):
+        energy = re.search(r'(?:!\s*)?total energy\s*=\s*([-+\d.]+)\s+Ry', match[2])
+        accuracy = re.search(r'estimated scf accuracy\s*<\s*([-+\d.Ee]+)\s+Ry', match[2])
+        if not energy or not accuracy:
+            raise ValueError(f'incomplete SCF iteration {match[1]}')
+        history.append({'iteration': int(match[1]), 'energy_Ry_per_cell': float(energy[1]),
+                        'estimated_scf_accuracy_Ry': float(accuracy[1])})
+    return history
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('raw', type=Path)
+    parser.add_argument('--outdir', type=Path, default=Path('results'))
+    parser.add_argument('--tolerance', type=float, default=1.0, help='meV/atom')
+    args = parser.parse_args()
+    if not math.isfinite(args.tolerance) or args.tolerance <= 0:
+        raise ValueError('tolerance must be finite and positive')
+    raw = args.raw.resolve()
+    package = Path(__file__).resolve().parent
+    sources = verify_sources(package)
+    source_names = {row['file'] for row in sources}
+    runs = [read_run(path.parent, source_names, package) for path in sorted(raw.glob('*/scf.in'))]
+    by_name = {run['directory']: run for run in runs}
+    base = by_name['scf']
+    for name in ('cutoff60', 'k8'):
+        other = by_name[name]
+        if signature(other, '') != signature(base, '') or not other['complete'] or not base['complete']:
+            raise ValueError(f'{name}: baseline copy differs')
+        if abs(other['energy'] - base['energy']) > 1e-8:
+            raise ValueError(f'{name}: baseline energies differ beyond output precision')
+    rows, selections = [], []
+    for axis, names in AXES.items():
+        members = [by_name[name] for name in names]
+        if not all(run['complete'] for run in members):
+            raise ValueError(f'{axis}: a required scan point is incomplete')
+        if len({signature(run, axis) for run in members}) != 1:
+            raise ValueError(f'{axis}: fixed input settings differ')
+        reference = members[-1]['energy']
+        series = []
+        previous = None
+        for run in members:
+            setting = run['grid'][0] if axis == 'kmesh' else float(run['params'][axis])
+            adjacent = None if previous is None else abs(run['energy'] - previous) * RY_EV * 1000 / 2
+            series.append({'parameter': axis, 'directory': run['directory'], 'setting': setting,
+                'natoms': 2, 'energy_Ry_per_cell': run['energy'],
+                'delta_meV_per_atom': abs(run['energy'] - reference) * RY_EV * 1000 / 2,
+                'adjacent_meV_per_atom': adjacent, 'selected': False,
+                'input_sha256': run['input_sha256'], 'output_sha256': run['output_sha256']})
+            previous = run['energy']
+        chosen = next(i for i, row in enumerate(series) if row['delta_meV_per_atom'] <= args.tolerance
+                      and all(later['adjacent_meV_per_atom'] <= args.tolerance for later in series[i + 1:]))
+        series[chosen]['selected'] = True
+        selections.append({'parameter': axis, 'selected': series[chosen]['setting'],
+            'reference': series[-1]['setting'], 'delta_meV_per_atom': series[chosen]['delta_meV_per_atom']})
+        rows.extend(series)
+    inventory = [{key:run[key] for key in ('directory','complete','reasons','stderr','input_sha256','output_sha256')} for run in runs]
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    write_csv(args.outdir / 'convergence.csv', rows)
+    write_csv(args.outdir / 'run-inventory.csv', inventory)
+    write_csv(args.outdir / 'scf-history.csv', scf_history(raw/'scf/scf.out'))
+    summary = {'QE_version': '7.5', 'Ry_to_eV': RY_EV, 'natoms': 2,
+        'tolerance_meV_per_atom': args.tolerance, 'candidate_runs': len(runs),
+        'complete_runs': sum(run['complete'] for run in runs), 'table_rows': len(rows),
+        'reference': 'highest sampled setting in each axis', 'selections': selections,
+        'independent_scans': True, 'joint_selected_settings_calculated': False}
+    (args.outdir/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n')
+    (args.outdir/'source-files.json').write_text(json.dumps(sources,indent=2)+'\n')
+    report = ['# Si 固定晶胞总能量扫描', '',
+        f'QE 7.5；两个原子/原胞；1 Ry = {RY_EV} eV。', '',
+        '| 参数 | 设置 | 总能量 (Ry/原胞) | 与最高点差值 (meV/atom) | 相邻变化 (meV/atom) | 选择 |',
+        '| --- | ---: | ---: | ---: | ---: | --- |']
+    for row in rows:
+        adjacent = '—' if row['adjacent_meV_per_atom'] is None else f"{row['adjacent_meV_per_atom']:.6f}"
+        report.append(f"| {row['parameter']} | {row['setting']:g} | {row['energy_Ry_per_cell']:.8f} | {row['delta_meV_per_atom']:.6f} | {adjacent} | {'✓' if row['selected'] else ''} |")
+    report.extend(['', f'按 {args.tolerance:g} meV/atom 比较线，选择同时满足参照差和后续相邻差的最低采样点。',
+        '参照是每组最高已测设置。三组分别固定其余参数；所选最低设置尚未组合为同一次计算。',
+        'conv_thr 控制单次电子自洽；力、应力及后续性质按各自目标量继续比较。', ''])
+    (args.outdir/'energy-report.md').write_text('\n'.join(report),encoding='utf-8')
+    print(f"raw_checksums={len(sources)} complete_runs={summary['complete_runs']} excluded_runs={len(runs)-summary['complete_runs']} table_rows={len(rows)}")
+    for item in selections:
+        setting = f"{int(item['selected'])}x{int(item['selected'])}x{int(item['selected'])}" if item['parameter']=='kmesh' else f"{item['selected']:g} Ry"
+        print(f"{item['parameter']}: {setting}; difference to reference = {item['delta_meV_per_atom']:.6f} meV/atom")
+    print(f'Results: {args.outdir}')
+
+
+if __name__ == '__main__':
+    main()
+```
+
+</details>
 
 解压下载包后，实际运行命令和输出如下：
 
@@ -354,20 +597,6 @@ Results: results
 
 可分别下载 [能量表](/Atlas/examples/basics-si-convergence/results/convergence.csv)、[运行清单](/Atlas/examples/basics-si-convergence/results/run-inventory.csv)、[设置摘要](/Atlas/examples/basics-si-convergence/results/summary.json)、[文件哈希](/Atlas/examples/basics-si-convergence/results/source-files.json)、[数值报告](/Atlas/examples/basics-si-convergence/results/energy-report.md)及[实际命令输出](/Atlas/examples/basics-si-convergence/run.log)。将源码与原始文件目录一起保存，便可重算所有差值。
 
-## 用 AI 编写同类提取工具
-
-[完整编程提示词](/Atlas/examples/basics-si-convergence/ai_prompt.md)说明输入文件、单位、分组与选点规则。可复制下述需求，请 AI 生成脚本，再用原始 OUT 核对结果：
-
-```text
-用 Python 3 标准库读取 si-pbe/*/scf.in、scf.out、scf.err，按 SHA256SUMS.raw 核对文件。
-只把同时有最终 ! total energy、SCF 收敛行和 JOB DONE 的两原子 SCF 纳入能量表；
-不完整目录保留在运行清单。核对输入与输出的截断和原子数，并验证每组只有一个参数改变。
-分别整理 ecutwfc、ecutrho 和均匀 k 网格。每组最高已测点为参照，计算
-|E_i-E_ref|*13.6056931229905*1000/2 和相邻差，单位 meV/atom。
-按 1 meV/atom 比较线选取参照差及后续相邻差均满足的最低采样点。
-输出完整 CSV、SCF 迭代表、JSON 摘要和 Markdown 数值报告，保留原始文件的相对路径与哈希。
-```
-
 EPW 的方法论文同样按目标物理量组织网格检查，Fig. 1 分开比较粗网格、细积分网格和展宽，并展示网格与展宽的共同影响。本例采用同样的控制变量思路，目标量为固定晶胞 Si 总能量。参见 Lee 等，*npj Computational Materials* **9**, 156 (2023)，[DOI: 10.1038/s41524-023-01107-3](https://doi.org/10.1038/s41524-023-01107-3)。单位换算见 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
 
-接下来进入[离子弛豫](/Atlas/m/relax/qe/)、[晶胞弛豫](/Atlas/m/vc-relax/qe/)或[固定结构 SCF](/Atlas/m/scf/qe/)，按实际要计算的量继续设置输入。
+接下来可用[离子弛豫](/Atlas/m/relax/qe/)观察原子位置的调整，或继续固定结构的[均匀 NSCF](/Atlas/m/nscf/qe/)与[路径能带](/Atlas/m/bands/qe/)；需要优化晶胞时，另读[Al 的变胞算例](/Atlas/m/vc-relax/qe/#al-vc-relax)。

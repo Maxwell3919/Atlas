@@ -1,21 +1,25 @@
-参考：
+固定晶胞优化只能移动原子。这里把金刚石 Si 的立方胞边长设成 5.60 Å，同时给一个原子加上小位移，让原子坐标和六个晶胞应变自由度一起调整。问题变成了：能量降低之后，原子力和晶胞应力是否同时足够小？
+
+模型准备沿用[固定晶胞优化](/Atlas/m/relax/mace/)中的 MACE-MP-0 small，SHA256 为 `2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736`。这里只读同一份模型，重新建立一个明确的 8 原子 Si 输入。
 
 - [MACE：预训练模型与 ASE 接口](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
 - [ASE：晶体结构的构造](https://docs.ase-lib.org/ase/build/build.html)
 - [ASE：结构优化](https://docs.ase-lib.org/ase/optimize.html)
 - [ASE：FrechetCellFilter 与晶胞自由度](https://docs.ase-lib.org/ase/filters.html)
 
-## 让偏大的 Si 晶胞自己收缩
-
-固定晶胞优化只能移动原子。这里把金刚石 Si 的立方胞边长设成 5.60 Å，同时给一个原子加上小位移，让原子坐标和六个晶胞应变自由度一起调整。问题变成了：能量降低之后，原子力和晶胞应力是否同时足够小？
-
-模型准备沿用[固定晶胞优化](/Atlas/m/relax/mace/)中的 MACE-MP-0 small，SHA256 为 `2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736`。这里只读同一份模型，重新建立一个明确的 8 原子 Si 输入。
-
-### 把应力交给优化器
+## 把应力交给优化器
 
 `FrechetCellFilter` 把晶胞变形与原子位移一起传给 BFGS。`scalar_pressure=0.0` 给出零外压条件；这里是三维体相，各晶胞方向都可以变化。二维薄层的真空方向需要另行约束，不能原封不动照搬这一行。
 
 这份输入没有设置 `mask`，也没有打开 `hydrostatic_strain` 或 `constant_volume`，因此体积和剪切都参与优化。它要检验的是从偏大、略有扰动的晶胞能否走回零外压附近，因此末态三条边的长度与三个角都要从结果中读回。若只希望保持立方形状并改变边长，应另设均匀缩放约束；那将是另一组几何自由度，须重新检查末态应力。
+
+可把下面的具体需求交给 AI 编程助手：
+
+```text
+编写 vc-relax.py，使用 ASE、MACECalculator、NumPy、PyTorch，在CPU/float64下读取 ../models/mace-mp-0-small.model，设置2线程并打印版本及模型SHA256。生成a=5.60 Å的8原子金刚石Si常规胞，将首原子移动[0.05,-0.03,0.02] Å并保存初态。使用FrechetCellFilter(atoms,scalar_pressure=0.0)，开放六个应变自由度，以BFGS优化，filter fmax=0.0005、最多150步，保存轨迹和日志。末态单独计算最大原子力、六应力分量、体积、三边长度和三角，写result.json及extxyz/CIF；仅当优化器收敛、原子力<0.001 eV/Å、各应力分量绝对值<0.0001 eV/Å³时打印VC_RELAX_ACCEPTED。
+```
+
+[完整输入源码 vc-relax.py](/Atlas/examples/mace-si/si-vc-relax/vc-relax.py)。保存后读回内容：
 
 ```python
 (venv) talos@talos-MS-7D54:<工作目录>$ vi si-vc-relax/vc-relax.py
@@ -77,7 +81,7 @@ print("VC_RELAX_ACCEPTED")
 
 `fmax=0.0005` 是优化器面对这个 filter 时的停止条件。晶胞自由度也参与了这个量，所以脚本收尾时另取真实原子力和六个应力分量核对：最大原子力要小于 0.001 eV/Å，各应力分量绝对值要小于 0.0001 eV/Å³。后一个阈值约等于 0.0160 GPa。
 
-### 将日志里的变化对应到晶胞
+## 将日志里的变化对应到晶胞
 
 ```text
 (venv) talos@talos-MS-7D54:<工作目录>/si-vc-relax$ python -u vc-relax.py > vc-relax.out 2>&1; echo "exit=$?"
@@ -151,9 +155,15 @@ ASE 的应力数组按 `xx, yy, zz, yz, xz, xy` 排列，原始值单位是 eV/�
 
 本次得到的是 MACE-MP-0 small 预测的在零外压下优化后的结构。没有做 DFT 对照，也没有测定有限温度晶格常数；后续 MD 沿用这份模型和结构，结论需要保持相同范围。
 
-### 画出体积收缩与力的收敛
+## 画出体积收缩与力的收敛
 
-[optimization.csv](/Atlas/examples/mace-si/si-vc-relax/optimization.csv) 是从 `vc-relax.traj` 逐帧提取的 8 原子超胞总能量、最大原子力和晶胞体积。将它与 [plot.py](/Atlas/examples/mace-si/si-vc-relax/plot.py) 放在同一个本地目录，运行 `python3 plot.py`：
+[optimization.csv](/Atlas/examples/mace-si/si-vc-relax/optimization.csv) 是从 `vc-relax.traj` 逐帧提取的 8 原子超胞总能量、最大原子力和晶胞体积。可把以下绘图需求交给 AI 编程助手：
+
+```text
+编写plot.py，用NumPy、Matplotlib读取同目录optimization.csv的step、energy_eV、volume_A3、fmax_eV_A。三面板共享BFGS步数横轴：每原子相对初态能量1000*(E-E0)/8，单位meV/atom；体积，单位Å³；对数纵轴上的最大原子力，单位eV/Å，标0.001原子力阈值。这里画的是实际原子力而非filter日志fmax。导入同目录atlas_plot_style.install，不平滑或补点，输出cell-relaxation.svg和180 dpi cell-relaxation.png。
+```
+
+[完整绘图源码 plot.py](/Atlas/examples/mace-si/si-vc-relax/plot.py) 如下：
 
 绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-vc-relax/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
 
@@ -183,6 +193,12 @@ for ax in axes:
 fig.savefig("cell-relaxation.svg")
 fig.savefig("cell-relaxation.png", dpi=180)
 print("cell-relaxation.svg", "cell-relaxation.png")
+```
+
+将 `optimization.csv`、`plot.py` 和 `atlas_plot_style.py` 放在同一个目录后运行：
+
+```bash
+python3 plot.py
 ```
 
 ![Si 可变晶胞优化的能量、体积与原子力](/Atlas/examples/mace-si/si-vc-relax/cell-relaxation.svg)

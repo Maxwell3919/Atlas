@@ -1,23 +1,14 @@
-参考：
-
-- [PHonon：负频率与声学和规则的排查](https://www.quantum-espresso.org/Doc/ph_user_guide/node18.html)
-- [ph.x 输入与单个 q 点计算](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
-- [dynmat.x：读取动力学矩阵与 ASR](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)
-- [matdyn.x：路径频率、本征矢与位移文件](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
-
-本页的 QE 输入/输出、动力学矩阵、两份 .modes 文件和后处理脚本可[一起下载](/Atlas/examples/stability-imaginary-si-files.tar.gz)。解包后进入 stability-imaginary-si 目录查看记录和复画图。诊断包不含 SCF XML 或波函数保存目录。若要重算上游响应，另下载[Si 教学输入/输出包](/Atlas/examples/si-pbe-lesson-files.tar.gz)，先按下文完成一致参数的 SCF；该包也不替代 SCF 运行后生成的保存目录。
-
-## Γ 点出现 −5.59 cm⁻¹，先不要把负号删掉
-
 这次在 Preston 上用 QE 7.5 计算金刚石 Si。原胞有两个原子，Γ 点应有六个振动模式；`ph.x` 打印的前三个频率却是 −5.585702 cm⁻¹。接下来就从这六行输出开始：先看计算是否做完，再看哪些原子在怎样移动，最后对同一份矩阵作 ASR 对照。
 
-这里沿用 QE 随附 Si 例子的固定晶胞，常规立方晶格参数为 5.397607551 Å，使用 PBE、Si 的 USPP、60/640 Ry 截断和 8×8×8 电子网格。它是一个明确的教学输入，不是本次优化并验收过的 Si 平衡晶格。SCF 的操作见[固定结构计算](/Atlas/m/scf/qe/)，本例配套的[完整 SCF 输入](/Atlas/examples/si-pbe/scf/scf.in)和[输出](/Atlas/examples/si-pbe/scf/scf.out.txt)也一起保留；换算例时不要复制其他材料的保存目录。
+这里沿用 QE 随附 Si 例子的固定晶胞，常规立方晶格参数为 5.397607551 Å，使用 PBE、Si 的 USPP、60/640 Ry 截断和 8×8×8 电子网格。本例固定这份晶胞，未重新优化 Si 晶格。SCF 的操作见[固定结构计算](/Atlas/m/scf/qe/)，本例配套的[完整 SCF 输入](/Atlas/examples/si-pbe/scf/scf.in)和[输出](/Atlas/examples/si-pbe/scf/scf.out.txt)也一起保留；换算例时不要复制其他材料的保存目录。
 
 QE 用负数标记动力学矩阵的负本征值，也就是 ω² < 0。这里打印 −5.59 的含义是一个虚频，而不是“振动反方向传播”。至于它来自数值误差还是结构的真实不稳定，要继续看证据，不能由大小一项直接决定。
 
+本页的 QE 输入/输出、动力学矩阵、两份 .modes 文件和后处理脚本可[一起下载](/Atlas/examples/stability-imaginary-si-files.tar.gz)。解包后进入 stability-imaginary-si 目录查看记录和复画图。诊断包不含 SCF XML 或波函数保存目录。若要重算上游响应，另下载[Si 教学输入/输出包](/Atlas/examples/si-pbe-lesson-files.tar.gz)，先按下文完成一致参数的 SCF；该包也不替代 SCF 运行后生成的保存目录。
+
 ## 先认清目录里的几种文件
 
-声子已经运行过，先在原来的 tmux 窗口读取现有文件：
+先进入保存 Γ 点声子输出的目录：
 
 
 ```text
@@ -365,7 +356,7 @@ Si Gamma phonon
 ### 可直接复制给 AI 编程助手的任务说明
 
 ```text
-读取同目录中的 si-no.modes、si-crystal.modes 和 si.dynG，针对这个 QE 7.5 两原子等质量 Si Γ 点算例生成诊断数据与一张 ASR 频率对照图。不要修改原始文件，不要把脚本说成通用 QE 转换器。
+读取同目录中的 si-no.modes、si-crystal.modes 和 si.dynG，针对这个 QE 7.5 两原子等质量 Si Γ 点算例生成诊断数据与一张 ASR 频率对照图。保留原始文件；解析约定限定于下面的两原子等质量 Γ 点数据。
 
 输入和单位：
 - .modes 的 freq (i) 行末 [cm-1] 数值是频率，保留负号。
@@ -374,10 +365,205 @@ Si Gamma phonon
 - 本例平移分量为 P_T=||u1+u2||²/[2(||u1||²+||u2||²)]，只适用于两颗等质量 Si。按 1–3、4–6 模分别构造正交化子空间投影，比较 ASR=no 与 ASR=crystal 的 Frobenius 范数差。
 - 先验证 q=(0,0,0)、六个连续模式、每模式恰有两行向量、所有字段有限、范数符合打印精度；不匹配就明确报错，不猜测、不静默跳过、不覆盖输入。
 - 写出 mode-diagnostics.csv、mode-vectors.csv、mode-checks.json、asr-comparison.csv；只生成 ASR 前后的频率图。声学面板画零线并放大负频区，光学面板单独标明范围。单位写 cm-1，不要把负频改成零。
-- 用 NumPy 和 Matplotlib。运行后报告 Python/库版本、实际命令、stdout 与输出文件。不要声称重新运行 DFT。
+- 用 NumPy 和 Matplotlib，记录实际运行命令、stdout 与输出文件。
 ```
 
 完整数据和脚本：[si-no.modes](/Atlas/examples/stability-imaginary-si/si-no.modes)、[si-crystal.modes](/Atlas/examples/stability-imaginary-si/si-crystal.modes)、[si.dynG](/Atlas/examples/stability-imaginary-si/si.dynG)、[analyse_modes.py](/Atlas/examples/stability-imaginary-si/analyse_modes.py)、[plot_asr.py](/Atlas/examples/stability-imaginary-si/plot_asr.py)、[atlas_plot_style.py](/Atlas/examples/stability-imaginary-si/atlas_plot_style.py)。输出有[诊断表](/Atlas/examples/stability-imaginary-si/mode-diagnostics.csv)、[向量表](/Atlas/examples/stability-imaginary-si/mode-vectors.csv)、[检查 JSON](/Atlas/examples/stability-imaginary-si/mode-checks.json)和[频率对照 CSV](/Atlas/examples/stability-imaginary-si/asr-comparison.csv)；所有文件均收在[下载包](/Atlas/examples/stability-imaginary-si-files.tar.gz)。
+
+
+<details>
+<summary>analyse_modes.py 完整源码</summary>
+
+```python
+"""Read the two saved QE 7.5 Si Gamma displacement files; no DFT rerun.
+
+Run in this directory: python3 analyse_modes.py
+Requires NumPy. This intentionally validates only the supplied equal-mass,
+two-atom Si Gamma example. It is not a general phonon file converter.
+"""
+from pathlib import Path
+import csv
+import hashlib
+import json
+import re
+import numpy as np
+
+ROOT = Path(__file__).resolve().parent
+BOHR_ANGSTROM = 0.529177210903
+NUMBER = r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[EeDd][-+]?\d+)?"
+
+def number(text):
+    return float(text.replace("D", "E").replace("d", "e"))
+
+def modes(filename):
+    text = (ROOT / filename).read_text()
+    q = re.search(r"q\s*=\s*("+NUMBER+r")\s+("+NUMBER+r")\s+("+NUMBER+r")", text)
+    if q is None or not np.allclose([number(x) for x in q.groups()], 0, atol=1e-12, rtol=0):
+        raise ValueError("This diagnostic requires Gamma: " + filename)
+    pattern = re.compile(r"freq\s*\(\s*(\d+)\)\s*=.*?=\s*("+NUMBER+r")\s*\[cm-1\]")
+    hits = list(pattern.finditer(text))
+    if [int(m[1]) for m in hits] != list(range(1, 7)):
+        raise ValueError("Expected six consecutive modes: " + filename)
+    frequencies, vectors = [], []
+    for i, hit in enumerate(hits):
+        end = hits[i+1].start() if i+1 < len(hits) else len(text)
+        rows = re.findall(r"^\s*\(\s*([^\n]+?)\s*\)\s*$", text[hit.end():end], re.M)
+        if len(rows) != 2:
+            raise ValueError("Expected two atomic vectors per mode: " + filename)
+        values = np.array([[number(s) for s in row.split()] for row in rows])
+        if values.shape != (2, 6) or not np.isfinite(values).all():
+            raise ValueError("Expected six finite real/imaginary columns per atom")
+        frequencies.append(number(hit[2]))
+        vectors.append(values[:, 0::2] + 1j*values[:, 1::2])
+    return np.array(frequencies), np.array(vectors)
+
+def geometry():
+    lines = (ROOT / "si.dynG").read_text().splitlines()
+    header = lines[2].split()
+    if [int(x) for x in header[:3]] != [1, 2, 2] or "'Si" not in lines[3]:
+        raise ValueError("Expected this two-atom, one-species fcc Si matrix")
+    alat = number(header[3]) * BOHR_ANGSTROM
+    rows = [line.split() for line in lines[4:6]]
+    if [(int(x[0]), int(x[1])) for x in rows] != [(1, 1), (2, 1)]:
+        raise ValueError("Unexpected atom/species order")
+    # QE .dyn tau is Cartesian in units of alat, not crystal fractional coordinates.
+    return alat, np.array([[number(x) for x in row[2:5]] for row in rows])*alat
+
+def projector(vectors):
+    matrix = vectors.reshape(3, 6).T
+    if np.linalg.matrix_rank(matrix, tol=1e-7) != 3:
+        raise ValueError("A three-mode group lost rank")
+    q, _ = np.linalg.qr(matrix)
+    return q @ q.conj().T
+
+def write_csv(name, header, rows):
+    with (ROOT / name).open("w", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(header)
+        writer.writerows(rows)
+
+alat, positions = geometry()
+sets = {name: modes(filename) for name, filename in
+        [("no", "si-no.modes"), ("crystal", "si-crystal.modes")]}
+translation_basis = np.vstack([np.eye(3), np.eye(3)]) / np.sqrt(2)
+p_translation = translation_basis @ translation_basis.T
+records, arrows = [], []
+summary = {"case": "Si, two equal-mass atoms, Gamma, fixed example geometry",
+           "numpy_version": np.__version__, "alat_angstrom": alat,
+           "input_position_convention": "Cartesian tau in units of alat (QE .dyn header)",
+           "position_transform": "r_angstrom = tau_cartesian_alat * alat_angstrom",
+           "mode_vector_convention": "dynmat filout: eigenvectors divided by sqrt(mass), then normalized",
+           "scope": "Diagnostics of rounded filout displacements; no new phonon calculation",
+           "maximum_imaginary_component": 0.0, "sets": {}, "subspace_comparison": {}}
+for name, (frequencies, u) in sets.items():
+    if not np.isfinite(frequencies).all():
+        raise ValueError("Nonfinite frequency")
+    norm = np.linalg.norm(u.reshape(6, 6), axis=1)
+    if not np.allclose(norm, 1, atol=3e-6, rtol=0):
+        raise ValueError("Displacements not normalized to printed precision")
+    imaginary = float(np.max(np.abs(u.imag)))
+    if imaginary > 1e-12:
+        raise ValueError("This real-vector diagnostic requires the supplied real Gamma modes")
+    summary["maximum_imaginary_component"] = max(summary["maximum_imaginary_component"], imaginary)
+    same = np.linalg.norm(u[:, 0]-u[:, 1], axis=1)/norm
+    opposite = np.linalg.norm(u[:, 0]+u[:, 1], axis=1)/norm
+    fraction = np.sum(np.abs(u[:, 0]+u[:, 1])**2, axis=1)/(2*norm**2)
+    if np.any(fraction < -1e-12) or np.any(fraction > 1+1e-12):
+        raise ValueError("Invalid projection fraction")
+    acoustic = projector(u[:3])
+    optical = projector(u[3:])
+    gram = (u.reshape(6, 6)/norm[:, None]) @ (u.reshape(6, 6)/norm[:, None]).conj().T
+    summary["sets"][name] = {
+        "max_norm_deviation": float(np.max(np.abs(norm-1))),
+        "max_gram_deviation": float(np.max(np.abs(gram-np.eye(6)))),
+        "acoustic_translation_projector_frobenius": float(np.linalg.norm(acoustic-p_translation)),
+        "optical_translation_projector_frobenius": float(np.linalg.norm(optical-(np.eye(6)-p_translation))),
+        "acoustic_frequency_range_cm-1": [float(x) for x in (frequencies[:3].min(), frequencies[:3].max())],
+        "optical_frequency_range_cm-1": [float(x) for x in (frequencies[3:].min(), frequencies[3:].max())]}
+    for i in range(6):
+        records.append([name, i+1, frequencies[i], norm[i], same[i], opposite[i], fraction[i]])
+        for atom in range(2):
+            arrows.append([name, i+1, atom+1, *positions[atom], *u[i, atom].real, *u[i, atom].imag])
+    print(f"ASR={name}: modes=6, atoms=2, max |norm-1|={np.max(np.abs(norm-1)):.3e}")
+    print("  translation fraction: " + " ".join(f"{x:.6f}" for x in fraction))
+for label, group in [("acoustic", slice(0, 3)), ("optical", slice(3, 6))]:
+    delta = float(np.linalg.norm(projector(sets["no"][1][group])-projector(sets["crystal"][1][group])))
+    summary["subspace_comparison"][label+"_projector_frobenius"] = delta
+    print(f"{label} projector difference: {delta:.3e}")
+summary["sha256"] = {f: hashlib.sha256((ROOT/f).read_bytes()).hexdigest()
+                     for f in ["si-no.modes", "si-crystal.modes", "si.dynG"]}
+write_csv("mode-diagnostics.csv", ["asr", "mode", "frequency_cm-1", "displacement_norm",
+          "same_displacement_residual", "opposite_displacement_residual", "translation_fraction"], records)
+write_csv("mode-vectors.csv", ["asr", "mode", "atom", "x_angstrom", "y_angstrom", "z_angstrom",
+          "ux_real", "uy_real", "uz_real", "ux_imag", "uy_imag", "uz_imag"], arrows)
+(ROOT/"mode-checks.json").write_text(json.dumps(summary, indent=2)+"\n")
+print("Wrote mode-diagnostics.csv, mode-vectors.csv, mode-checks.json")
+```
+
+</details>
+
+<details>
+<summary>plot_asr.py 完整源码</summary>
+
+```python
+"""Compare two dynmat runs of one unchanged Si Gamma matrix.
+
+Run next to si-no.modes and si-crystal.modes. Needs NumPy and Matplotlib.
+Numbers are read from files; negative frequencies are never clipped.
+"""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import csv
+import re
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+def frequencies(filename):
+    text = Path(filename).read_text()
+    values = re.findall(r"freq\s*\(\s*\d+\)\s*=.*?=\s*([-+\d.Ee]+)\s*\[cm-1\]", text)
+    result = np.array([float(value) for value in values])
+    if len(result) != 6 or not np.isfinite(result).all():
+        raise ValueError(f"Expected six finite Gamma frequencies in {filename}")
+    return result
+
+raw = frequencies("si-no.modes")
+asr = frequencies("si-crystal.modes")
+with open("asr-comparison.csv", "w", newline="") as handle:
+    writer = csv.writer(handle)
+    writer.writerow(["mode", "no_asr_cm-1", "crystal_asr_cm-1", "change_cm-1"])
+    writer.writerows((i + 1, x, y, y - x) for i, (x, y) in enumerate(zip(raw, asr)))
+
+plt.rcParams.update({"font.size": 11, "axes.spines.top": False,
+                     "axes.spines.right": False, "svg.fonttype": "none"})
+fig, axes = plt.subplots(1, 2, figsize=(8.5, 4.7))
+for ax, indices, title in [(axes[0], np.arange(3), "Acoustic modes (zoom)"),
+                            (axes[1], np.arange(3, 6), "Optical modes")]:
+    x = indices + 1
+    ax.scatter(x - .08, raw[indices], s=70, facecolors="none",
+               edgecolors="#0072b2", linewidths=1.6, label="ASR = no", zorder=3)
+    ax.scatter(x + .08, asr[indices], s=50, marker="x", color="#d55e00",
+               linewidths=1.8, label="ASR = crystal", zorder=3)
+    ax.set(xticks=x, xlabel="Mode index", title=title, ylabel="Frequency (cm$^{-1}$)")
+    ax.grid(axis="y", alpha=.18)
+axes[0].axhline(0, color="#404040", lw=.8)
+axes[0].set_ylim(-6.4, 1.0)
+axes[0].text(2, -5.0, "-5.586079 → about 0", ha="center", fontsize=10)
+axes[1].set_ylim(520, 528)
+axes[1].text(5, 525, "523.722542 in both runs", ha="center", fontsize=10)
+axes[0].legend(frameon=False, loc="center right")
+fig.suptitle("Si at Γ: diagonalize the same matrix twice", x=.09, ha="left", fontsize=15)
+fig.text(.09, .895, "QE 7.5 · fixed input structure · two separate vertical scales", fontsize=10, color="#555555")
+fig.tight_layout(rect=(0, 0, 1, .87))
+for ext in ("svg", "png", "pdf"):
+    fig.savefig(f"si-gamma-asr.{ext}", dpi=180, facecolor="white")
+print("asr-comparison.csv; si-gamma-asr.svg/png/pdf")
+```
+
+</details>
 
 实跑环境为 Talos 上 Python 3.12.3、NumPy 2.4.6、Matplotlib 3.11.1。复画命令：
 
@@ -436,3 +622,12 @@ asr-comparison.csv; si-gamma-asr.svg/png/pdf
                                              ↓
                          直接 q / 插值复核 → 后续声子或畸变
 ```
+
+## 参考资料
+
+参考：
+
+- [PHonon：负频率与声学和规则的排查](https://www.quantum-espresso.org/Doc/ph_user_guide/node18.html)
+- [ph.x 输入与单个 q 点计算](https://www.quantum-espresso.org/Doc/INPUT_PH.html)
+- [dynmat.x：读取动力学矩阵与 ASR](https://www.quantum-espresso.org/Doc/INPUT_DYNMAT.html)
+- [matdyn.x：路径频率、本征矢与位移文件](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)

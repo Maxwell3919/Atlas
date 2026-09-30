@@ -1,8 +1,6 @@
-[ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/) · [q2r.x](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
-
 把原子轻轻推开，电子云会重新调整，原子受到的恢复力也随之改变。DFPT 直接求这一响应，不必为每一个位移再建一份超胞。计算结束时得到的是各个 q 点的动力学矩阵；我们还要把它们连成一张能读的声子图。
 
-下面用新计算的 **fcc Al 单原子原胞**走完整条路线。QE 7.5、LDA-PZ、官方 `Al.pz-vbc.UPF` 赝势，晶格由 [Al 的晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 得到，立方晶格常数为 3.95606780 Å。这是一个明确的小体系计算示例；它不能替代任意材料自己的电子参数与 q 网格收敛检查。
+下面用 **fcc Al 单原子原胞**计算 SCF、q 网格动力学矩阵和路径频率。QE 7.5、LDA-PZ、官方 `Al.pz-vbc.UPF` 赝势，晶格由 [Al 的晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 得到，立方晶格常数为 3.95606780 Å。这是一个明确的小体系计算示例；它不能替代任意材料自己的电子参数与 q 网格收敛检查。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -46,7 +44,7 @@ CELL_PARAMETERS angstrom
 K_POINTS automatic
 16 16 16 0 0 0
 ```
-本例明确写出原胞的三条晶格矢量，所以采用 `ibrav=0`。程序会提示这不是它最推荐的对称性表达方式；我们保留了完整精度的 fcc 晶格，继续核对程序识别的结构及 q 点对称性，没有把提示从原始输出中删掉。电子网格是 16×16×16，波函数/电荷密度截断为 40/160 Ry，`degauss=0.02 Ry`。这些值定义了这一组教案数据，并不因为 SCF 收敛就自动成为 Al 的最终推荐值。
+本例明确写出原胞的三条晶格矢量，所以采用 `ibrav=0`。程序会提示这不是它最推荐的对称性表达方式；我们保留了完整精度的 fcc 晶格，继续核对程序识别的结构及 q 点对称性，没有把提示从原始输出中删掉。电子网格是 16×16×16，波函数/电荷密度截断为 40/160 Ry，`degauss=0.02 Ry`。这些值定义了本例的电子采样与基组；声子频率对它们的敏感性需要另外检查。
 
 Al 的能带穿过费米能，因此这里用 `occupations='smearing'` 和 `smearing='mv'` 处理部分占据。0.02 Ry 约为 0.272 eV，是本次冷展宽参数；把它减小会改变费米面附近的占据和响应，需要同时比较电子 k 网格。`nbnd=6` 保留空态，让展宽附近的占据有足够的能带可用；换成另一材料时，应在 OUT 中核对最高带的占据是否已经可以忽略。较紧的 `conv_thr=1.0d-12` 先约束基态电子误差，下面的 `tr2_ph` 则另管响应迭代。
 
@@ -221,7 +219,7 @@ maxwell@maxwell:~/al/dfpt$ less al.ph.out
 
      Convergence has been achieved
 ```
-读迭代时先看 `Calculation of q`，再看 `Representation`，最后看残差和 `Convergence has been achieved`。一个表示通过后，还会继续同一点的其余表示，再进入下一个 q 点。正在变化的 `thresh` 是内层求解量，不能拿它直接替代输入的 `tr2_ph` 作最终验收。
+读迭代时先看 `Calculation of q`，再看 `Representation`，最后看残差和 `Convergence has been achieved`。一个表示通过后，还会继续同一点的其余表示，再进入下一个 q 点。正在变化的 `thresh` 是内层求解量，不能拿它直接替代输入的 `tr2_ph` 判断响应收敛。
 
 ## 动力学矩阵与最终收尾要一起检查
 
@@ -313,6 +311,40 @@ maxwell@maxwell:~/al/dfpt$ head -6 al.freq.gp
 ```
 第一列是路径距离，后面 3 列分别对应三支声子频率，单位 cm⁻¹。[绘图脚本](/Atlas/examples/al/plot_phonon.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取这 4 列，按节点位置加标签，不再手工抄频率。
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 plot_phonon.py，从 Al 根目录读取 dfpt/al.freq.gp，要求 161 行、4 列。首列是路径累计距离，后三列为 cm⁻¹ 频率，直接绘制全部三条分支并保留负号。以行 0、40、80、120、160 的距离标 Γ—X—W—L—Γ，画零线和分段界线，输出 figures/phonon-dfpt.png 与 PDF。使用同目录 atlas_plot_style.py，读取文件而不是从示意图拟合曲线。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot_phonon.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent;d=np.loadtxt(r/"dfpt/al.freq.gp")
+assert d.shape==(161,4), d.shape
+fig,ax=plt.subplots(figsize=(7,4.3),layout="constrained")
+for i in range(1,4):ax.plot(d[:,0],d[:,i],lw=1.6,color="#0072b2")
+ticks=d[[0,40,80,120,160],0]
+ax.set_xticks(ticks,["Γ","X","W","L","Γ"])
+for x in ticks:ax.axvline(x,color="0.8",lw=.7)
+ax.axhline(0,color="0.4",lw=.7)
+ax.set(xlim=(ticks[0],ticks[-1]),ylabel="Frequency (cm⁻¹)")
+(r/"figures").mkdir(exist_ok=True)
+fig.savefig(r/"figures/phonon-dfpt.png",dpi=220);fig.savefig(r/"figures/phonon-dfpt.pdf")
+```
+
+</details>
+
 ```bash
 python3 plot_phonon.py
 ```
@@ -366,3 +398,7 @@ python3 plot_phonon.py
                                            ├→ matdyn 路径 → 声子图
                                            └→ matdyn 均匀网格 → 声子 DOS
 ```
+
+## 参考资料
+
+[ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/) · [q2r.x](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)

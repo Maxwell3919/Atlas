@@ -1,16 +1,14 @@
-[pw.x 的 MD、时间步与温控输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Verlet 实现](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/dynamics_module.f90)
-
 结构优化把原子移向一个局部能量极小值。分子动力学则给原子初速度，让它们按力随时间运动：每走一个离子步，都要重新求电子基态，再用得到的力推进下一步。这样的一份 OUT 会反复出现 SCF、力、坐标、动能和温度。读 AIMD 输出，要按“离子步里包含一段电子自洽”的层次往下看。
 
 这里用实际运行的 8 原子周期 fcc Al 演示。它由 [晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 中的单原子原胞沿三个原胞基矢各重复两次得到，原始立方晶格常数为 3.95606780081 Å。保持晶胞不变，使用 QE 7.5、LDA-PZ、`Al.pz-vbc.UPF`、40/160 Ry 截断能和 4³ 超胞 k 网格。后者是本例的短轨迹设置，尚未证明力和统计量对电子采样收敛。
 
-本次有三个完成的分支：100 步 SVR 恒温轨迹，以及两种步长覆盖相同时间的 NVE 轨迹。它们的作用是把输入、监控和验收过程走完整，不足以判断长期热稳定、熔点或扩散。
+本次有三个完成的分支：100 步 SVR 恒温轨迹，以及两种步长覆盖相同时间的 NVE 轨迹。从这些输出提取逐步温度、总能量与坐标，比较同一初态下的时间步长误差；这段采样未覆盖长期热稳定、熔点或扩散过程。
 
 完整输入、输出、逐步数据和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。在解包后的 `al` 目录运行文末的作图命令；重新进行 MD 时，按实际位置填写赝势库与 QE 可执行文件路径。
 
 ## 先准备同一份位置和初速度
 
-8 个原子的初速度来自固定种子 20260922 的正态分布，先减去质心速度，再按 21 个自由度归一化到 300 K。初速度和坐标都写进输入，因此两条 NVE 可以从同一个初态比较步长。最初的输入准备过程保存在 `prepare_aimd.py`，具体初速度记录在 `initial-velocities.json`；没有从一次已经升温的轨迹中任意摘取几行。
+8 个原子的初速度来自固定种子 20260922 的正态分布，先减去质心速度，再按 21 个自由度归一化到 300 K。初速度和坐标都写进输入，因此两条 NVE 可以从同一个初态比较步长。最初的输入准备过程保存在 `prepare_aimd.py`，具体初速度记录在 `initial-velocities.json`。
 
 下面是最终用于恒温轨迹的完整输入。`ATOMIC_POSITIONS crystal` 是超胞的分数坐标，`ATOMIC_VELOCITIES` 使用 QE 的原子单位，不是 Å/fs。
 
@@ -260,6 +258,91 @@ maxwell@maxwell:~/al/aimd/nvt-dt20-cg$ tail -12 al.md.out
 
 NVE 大步长分支也有一次对角化警告，但发生在最后一个离子步的中间 SCF 迭代，随后的最终迭代已经消失。提取脚本区分中途警告与最终未解决的警告，不用简单的关键字计数代替这项检查。
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 analyse_aimd.py，读取 nvt-dt20-cg、nve-dt20-nosym、nve-dt10-nosym 的最终 al.md.in/out/err。分别要求 100、50、100 个离子步、正常步数停止和 JOB DONE、空 stderr、每段电子收敛；区分中间 SCF 对角化警告与每步末次迭代仍存在的警告。Ry 转 eV，dt 的时间单位乘 0.04837768653 转 fs；记录 QE Verlet 坐标时间 n*dt 与能量采样时间 (n-1)*dt 两列。总能量取程序 Etot 加离子动能，再除以 8 个原子。保留晶胞与连续坐标以计算短时 RMS 位移；写 thermo.csv、轨迹与 JSON 摘要，报告 NVE 总能量峰峰变化和共同末时刻位置差。不由短时位移拟合扩散系数。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>analyse_aimd.py 完整源码</summary>
+
+```python
+from pathlib import Path
+import re,csv,json,sys
+import numpy as np
+r=Path(__file__).resolve().parent
+BOHR=0.529177210903;RYEV=13.605693122994;RYTIME_FS=0.04837768653
+scenarios=[('nvt-dt20-cg',20.,100),('nve-dt20-nosym',20.,50),('nve-dt10-nosym',10.,100)]
+if '--nve-only' in sys.argv: scenarios=scenarios[1:]
+all_summary={};all_rows={};all_xyz={}
+for name,dt,nstep in scenarios:
+    d=r/name;txt=(d/'al.md.out').read_text();inp=(d/'al.md.in').read_text()
+    assert 'JOB DONE.' in txt and 'The maximum number of steps has been reached.' in txt
+    assert (d/'al.md.err').stat().st_size==0
+    assert not re.search(r'convergence NOT achieved|Error in routine',txt)
+    starts=list(re.finditer(r'Entering Dynamics:\s+iteration\s*=\s*(\d+)',txt));assert len(starts)==nstep
+    cellblock=inp.split('CELL_PARAMETERS angstrom')[1].split('K_POINTS')[0]
+    cell=np.array([list(map(float,l.split())) for l in cellblock.strip().splitlines()])
+    init=np.array([list(map(float,l.split()[1:4])) for l in inp.split('ATOMIC_POSITIONS crystal')[1].split('CELL_PARAMETERS')[0].strip().splitlines()])
+    assert init.shape==(8,3) and cell.shape==(3,3)
+    nconv=len(re.findall(r'convergence has been achieved in\s+(\d+) iterations',txt));assert nconv==nstep
+    rows=[];positions=[init@cell]
+    for i,m in enumerate(starts):
+        step=int(m.group(1));assert step==i+1
+        pre=txt[(starts[i-1].end() if i else 0):m.start()]
+        end=starts[i+1].start() if i+1<len(starts) else len(txt)
+        b=txt[m.start():end]
+        potential=float(re.findall(r'!\s+total energy\s*=\s*([-\d.]+)\s+Ry',pre)[-1])
+        kinetic=float(re.search(r'kinetic energy \(Ekin\)\s*=\s*([-\d.]+)',b).group(1))
+        total=float(re.search(r'Ekin \+ Etot \(const\)\s*=\s*([-\d.]+)',b).group(1))
+        temperature=float(re.search(r'temperature\s*=\s*([-\d.]+)\s*K',b).group(1))
+        assert abs(total-(potential+kinetic))<2e-8
+        assert 'eigenvalues not converged' not in re.split(r'iteration\s+#\s*\d+',pre)[-1]
+        early_warnings=pre.count('eigenvalues not converged')
+        conv=int(re.findall(r'convergence has been achieved in\s+(\d+) iterations',pre)[-1])
+        residual=float(re.findall(r'estimated scf accuracy\s*<\s*([.\dEe+\-]+)\s*Ry',pre)[-1])
+        assert residual<=1.0e-10
+        posblock=b.split('ATOMIC_POSITIONS (crystal)')[1].strip().splitlines()[:8]
+        frac=np.array([list(map(float,l.split()[1:4])) for l in posblock]);assert frac.shape==(8,3)
+        positions.append(frac@cell)
+        # Position-Verlet in QE 7.5 advances coordinates before output_tau.
+        # Etot and the centred finite-difference velocity belong to the preceding position.
+        rows.append(dict(step=step,energy_sample_time_fs=(step-1)*dt*RYTIME_FS,position_time_fs=step*dt*RYTIME_FS,temperature_K=temperature,potential_Ry=potential,kinetic_Ry=kinetic,total_Ry=total,scf_iterations=conv,early_diagonalization_warning_count=early_warnings,scf_estimated_accuracy_Ry=residual))
+    t=np.array([v['energy_sample_time_fs'] for v in rows]);en=np.array([v['total_Ry'] for v in rows]);temps=np.array([v['temperature_K'] for v in rows]);de=(en-en[0])*RYEV*1000/8
+    for v,x in zip(rows,de):v['total_change_meV_atom']=float(x)
+    with (d/'thermo.csv').open('w') as f:
+        w=csv.DictWriter(f,fieldnames=rows[0].keys());w.writeheader();w.writerows(rows)
+    xyz=np.array(positions);np.savez_compressed(d/'trajectory.npz',positions_A=xyz,cell_A=cell,time_fs=np.arange(nstep+1)*dt*RYTIME_FS)
+    lattice=' '.join(f'{v:.12f}' for v in cell.ravel())
+    with (d/'trajectory.xyz').open('w') as f:
+        for j,pos in enumerate(xyz):
+            f.write('8\nLattice="'+lattice+'" Properties=species:S:1:pos:R:3 pbc="T T T" time_fs='+str(j*dt*RYTIME_FS)+'\n')
+            f.writelines('Al '+' '.join(f'{x:.10f}' for x in p)+'\n' for p in pos)
+    wall=re.findall(r'PWSCF\s*:\s*(.*?)\s+CPU\s+(.*?)\s+WALL',txt)[-1][1]
+    summary=dict(nsteps=nstep,natoms=8,dt_Ry_au=dt,dt_fs=dt*RYTIME_FS,coordinate_end_time_fs=nstep*dt*RYTIME_FS,energy_end_time_fs=float(t[-1]),all_scf_converged=True,final_scf_iteration_diagonalization_warnings=0,early_scf_diagonalization_warnings=sum(v['early_diagonalization_warning_count'] for v in rows),scf_cycles=nconv,scf_iterations_min=min(x['scf_iterations'] for x in rows),scf_iterations_max=max(x['scf_iterations'] for x in rows),temperature_first_K=float(temps[0]),temperature_mean_K=float(np.mean(temps)),temperature_min_K=float(np.min(temps)),temperature_max_K=float(np.max(temps)),temperature_last_K=float(temps[-1]),energy_change_final_meV_atom=float(de[-1]),energy_peak_to_peak_meV_atom=float(np.ptp(de)),energy_linear_slope_meV_atom_ps=float(np.polyfit(t,de,1)[0]*1000),rms_displacement_final_A=float(np.sqrt(np.mean(np.sum((xyz[-1]-xyz[0])**2,axis=1)))),max_atom_displacement_A=float(np.max(np.linalg.norm(xyz[-1]-xyz[0],axis=1))),wall_time=wall,interpretation='short fixed-volume small-cell trajectory; not thermal-stability or equilibrium-property evidence')
+    (d/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');all_summary[name]=summary;all_rows[name]=rows;all_xyz[name]=xyz
+coarse=np.array([v['total_change_meV_atom'] for v in all_rows['nve-dt20-nosym']]);fine=np.array([v['total_change_meV_atom'] for v in all_rows['nve-dt10-nosym'][::2]])
+assert coarse.shape==fine.shape
+matched=dict(matched_energy_times=50,energy_time_end_fs=all_rows['nve-dt20-nosym'][-1]['energy_sample_time_fs'],max_energy_change_difference_meV_atom=float(np.max(np.abs(coarse-fine))),final_position_same_time_fs=all_summary['nve-dt20-nosym']['coordinate_end_time_fs'],rms_position_difference_at_same_end_A=float(np.sqrt(np.mean(np.sum((all_xyz['nve-dt20-nosym'][-1]-all_xyz['nve-dt10-nosym'][-1])**2,axis=1)))))
+all_summary['nve_matched_time_comparison']=matched
+all_summary['time_axis_note']='QE7.5 position Verlet prints advanced coordinates at n*dt; Etot and centred velocity in that block refer to preceding geometry at (n-1)*dt. CSV keeps both clocks.'
+(r/'summary.json').write_text(json.dumps(all_summary,indent=2)+'\n')
+print('case                steps  dt_fs    coord_end_fs  energy_range_meV_atom  mean_T_K')
+for name,s in all_summary.items():
+    if not isinstance(s,dict) or 'nsteps' not in s:continue
+    print(f"{name:20s} {s['nsteps']:3d}  {s['dt_fs']:.6f}  {s['coordinate_end_time_fs']:9.6f}  {s['energy_peak_to_peak_meV_atom']:13.6f}       {s['temperature_mean_K']:.3f}")
+print(f"All {sum(n for _,_,n in scenarios)} SCF cycles converged; no final-iteration diagonalization warning; {len(scenarios)} native JOB DONE endings.")
+print('Early SCF diagonalization warnings:', {n: all_summary[n]['early_scf_diagonalization_warnings'] for n,_,_ in scenarios})
+print('NVE position difference at the common final time:',matched['rms_position_difference_at_same_end_A'],'angstrom RMS')
+print('NVE total-energy conservation tested only over ~48 fs; no thermodynamic convergence claim.')
+```
+
+</details>
+
 ```console
 maxwell@maxwell:~/al/aimd$ ../.venv/bin/python analyse_aimd.py > analysis.out
 maxwell@maxwell:~/al/aimd$ cat analysis.out
@@ -310,11 +393,99 @@ step,energy_sample_time_fs,position_time_fs,temperature_K,potential_Ry,kinetic_R
 
 图中 RMS 位移是相对初始原子位置的短时变化，没有据此拟合扩散系数。要重新出图，把 `aimd` 子目录和 [plot_aimd.py](/Atlas/examples/al/plot_aimd.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 放在同一 Al 数据目录，运行：
 
+
+画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+
+```text
+编写 plot_aimd.py，从 Al 根目录读取三条轨迹各自的 aimd/<case>/thermo.csv。温度按真实时间绘制；NVE 总能量用 energy_sample_time_fs 对齐，以各自第一行作能量变化基准，换成 meV/atom；同时画势能与动能交换。位移从各目录 trajectory.npz 的 positions_A 计算相对初帧的 RMS，横轴使用其中 time_fs，保留坐标与能量两套时间约定。输出现有温度、能量和位移三组 PNG/PDF，复用 atlas_plot_style.py。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot_aimd.py 完整源码</summary>
+
+```python
+"""Plot the verified QE Al AIMD records from the Al bundle root."""
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent;d=r/'aimd';out=r/'figures';out.mkdir(exist_ok=True)
+plt.rcParams.update({'font.size':10,'axes.spines.top':False,'axes.spines.right':False,'savefig.dpi':220})
+colors=['#009e73','#d55e00','#cc79a7']
+def data(name):return np.genfromtxt(d/name/'thermo.csv',delimiter=',',names=True)
+def save(fig,name):
+    fig.tight_layout();fig.savefig(out/(name+'.png'),bbox_inches='tight');fig.savefig(out/(name+'.pdf'),bbox_inches='tight');plt.close(fig)
+nvt=data('nvt-dt20-cg');nve20=data('nve-dt20-nosym');nve10=data('nve-dt10-nosym')
+fig,ax=plt.subplots(2,1,figsize=(7.4,6),sharex=True)
+ax[0].plot(nvt['energy_sample_time_fs'],nvt['temperature_K'],color=colors[0],label='SVR target 300 K; dt = 0.968 fs')
+ax[0].axhline(300,color='#777',ls='--',lw=1,label='Target')
+ax[0].set(ylabel='Instantaneous temperature (K)');ax[0].legend(frameon=False,fontsize=9)
+for arr,c,label in [(nve20,colors[1],'NVE dt = 0.968 fs'),(nve10,colors[2],'NVE dt = 0.484 fs')]:
+    ax[1].plot(arr['energy_sample_time_fs'],arr['temperature_K'],color=c,label=label)
+ax[1].set(xlabel='Time of the sampled energy/velocity (fs)',ylabel='Instantaneous temperature (K)');ax[1].legend(frameon=False,fontsize=9)
+fig.suptitle('8-atom periodic Al | short trajectories, not a thermal-stability test',fontsize=11);save(fig,'aimd-temperature')
+fig,ax=plt.subplots(1,2,figsize=(10,4))
+for arr,c,label in [(nve20,colors[1],'dt = 0.968 fs'),(nve10,colors[2],'dt = 0.484 fs')]:
+    ax[0].plot(arr['energy_sample_time_fs'],arr['total_change_meV_atom'],color=c,label=label)
+ax[0].set(xlabel='Time (fs)',ylabel='Change of total energy (meV/atom)');ax[0].legend(frameon=False)
+conv=13.605693122994*1000/8
+for field,c,label in [('kinetic_Ry',colors[1],'Kinetic'),('potential_Ry',colors[0],'Potential')]:
+    ax[1].plot(nve10['energy_sample_time_fs'],(nve10[field]-nve10[field][0])*conv,color=c,label=label)
+ax[1].set(xlabel='Time (fs)',ylabel='Energy change (meV/atom)');ax[1].legend(frameon=False)
+fig.suptitle('NVE step-size check over ~48 fs | identical initial positions and velocities',fontsize=11);save(fig,'aimd-energy')
+fig,ax=plt.subplots(figsize=(7.2,3.7))
+for name,c,label in [('nvt-dt20-cg',colors[0],'SVR'),('nve-dt20-nosym',colors[1],'NVE dt = 0.968 fs'),('nve-dt10-nosym',colors[2],'NVE dt = 0.484 fs')]:
+    a=np.load(d/name/'trajectory.npz');p=a['positions_A'];rms=np.sqrt(np.mean(np.sum((p-p[0])**2,axis=2),axis=1))
+    ax.plot(a['time_fs'],rms,color=c,label=label)
+ax.set(xlabel='Coordinate time (fs)',ylabel='RMS displacement from initial positions (Å)',title='Short-time displacement; no diffusion or long-term stability inference')
+ax.legend(frameon=False);save(fig,'aimd-displacement')
+print('Wrote aimd-temperature, aimd-energy, aimd-displacement as PNG and PDF')
+```
+
+</details>
+
 ```bash
 python plot_aimd.py
 ```
 
 这会生成温度、能量与位移三组 PNG/PDF。原始提取代码为 [analyse_aimd.py](/Atlas/examples/al/aimd/analyse_aimd.py)，初态记录为 [initial-velocities.json](/Atlas/examples/al/aimd/initial-velocities.json)；最初的输入准备记录为 [prepare_aimd.py](/Atlas/examples/al/prepare_aimd.py)。它保留初态的生成过程；本页实际完成的三条路线使用后续调整过的 `nosym` 与 CG 设置，重跑时应使用上表各目录中的最终输入和 `run.slurm`，不能把最初的生成脚本当成最终三条路线的一键入口。
+
+<details>
+<summary>prepare_aimd.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import numpy as np,json
+from phonopy import Phonopy
+from phonopy.structure.atoms import PhonopyAtoms
+r=Path(__file__).resolve().parent;d=r/'aimd';d.mkdir()
+cell=np.array(json.loads((r/'structure.json').read_text())['cell_angstrom'])
+p=Phonopy(PhonopyAtoms(symbols=['Al'],cell=cell,scaled_positions=[[0,0,0]],masses=[26.9815385]),np.eye(3,dtype=int)*2,primitive_matrix='P')
+sc=p.supercell;N=len(sc);rng=np.random.default_rng(20260922)
+v=rng.normal(size=(N,3));v-=v.mean(axis=0)
+kb=1.380649e-23;mass=26.9815385*1.66053906660e-27;dof=3*N-3
+v*=np.sqrt(dof*kb*300/(mass*np.sum(v*v)))
+va=v/(0.529177210903e-10/4.837768653e-17)
+base=(r/'finite-disp/n2-d0.01/disp-001/al.scf.in').read_text()
+base=base[:base.index('ATOMIC_POSITIONS crystal')]+'ATOMIC_POSITIONS crystal\n'+''.join('Al '+' '.join(f'{x:.14f}' for x in row)+'\n' for row in sc.scaled_positions)+'CELL_PARAMETERS angstrom\n'+''.join(' '.join(f'{x:.14f}' for x in row)+'\n' for row in sc.cell)+'K_POINTS automatic\n4 4 4 0 0 0\nATOMIC_VELOCITIES\n'+''.join('Al '+' '.join(f'{x:.14e}' for x in row)+'\n' for row in va)
+for name,dt,nstep,thermostat in [('nvt-dt20',20,100,'svr'),('nve-dt20',20,50,'not_controlled'),('nve-dt10',10,100,'not_controlled')]:
+ sub=d/name;sub.mkdir();(sub/'tmp').mkdir()
+ inp=base.replace(" calculation = 'scf'",f" calculation = 'md'\n nstep = {nstep}\n dt = {dt}\n iprint = 1").replace(" verbosity = 'high'"," verbosity = 'low'").replace(' conv_thr = 1.0d-12',' conv_thr = 1.0d-10')
+ ions=f"&IONS\n ion_dynamics = 'verlet'\n ion_velocities = 'from_input'\n ion_temperature = '{thermostat}'\n tempw = 300\n nraise = 20\n/\n"
+ inp=inp.replace('ATOMIC_SPECIES',ions+'ATOMIC_SPECIES');(sub/'al.md.in').write_text(inp)
+ head=(r/'dfpt/run.slurm').read_text().split('set -e\n')[0].replace('atlas-al-ph4',f'atlas-al-{name}')
+ (sub/'run.slurm').write_text(head+'set -e\nmpirun -np 8 <qe_bin>/pw.x -in al.md.in > al.md.out 2> al.md.err\n')
+(d/'initial-velocities.json').write_text(json.dumps({'seed':20260922,'temperature_K_from_21_dof':mass*np.sum(v*v)/(dof*kb),'center_of_mass_velocity_m_s':v.mean(axis=0).tolist(),'velocity_unit':'bohr/Rydberg atomic time','velocities':va.tolist(),'physical_time_fs':{'nvt-dt20':96.75537306,'nve-dt20':48.37768653,'nve-dt10':48.37768653},'scope':'short integration and thermostat demonstration; 8-atom box and 4^3 mesh are not a production thermal-stability protocol'},indent=2))
+print('Prepared 8-atom Al: SVR 100xdt20, matched-duration NVE 50xdt20 and 100xdt10; explicit identical initial velocities, 300K/21 DOF.')
+```
+
+</details>
 
 | 分支 | 输入与脚本 | 完整 OUT | 数值与坐标 |
 |---|---|---|---|
@@ -335,3 +506,7 @@ python plot_aimd.py
                                     ├─ NVE：相同步长时间对照与能量守恒
                                     └─ SVR：温控响应与平衡、采样长度检查
 ```
+
+## 参考资料
+
+[pw.x 的 MD、时间步与温控输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Verlet 实现](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/dynamics_module.f90)

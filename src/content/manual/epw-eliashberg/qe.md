@@ -7,7 +7,7 @@
 
 本页有两个入口：[已有完整 α²F，直接求解](#external-spectrum-tc)；[从 DFPT 与 Wannier 插值生成谱](#wannier-epw-tc)。
 
-先走现成谱函数这条路线。这里的电子–声子数据仍来自 QE 双网格计算：32³ 密 k 网格、16³ 响应 k 网格、4³ q 网格；选取的电子展宽是 σ=0.020 Ry。下面没有重新计算电子–声子矩阵元，也没有把这份谱称为 EPW Wannier 插值的产物。完整插值路线会有自己的输入、输出和谱文件，不能拿两条链的文件互相冒名。
+先走现成谱函数这条路线。这里的电子–声子数据仍来自 QE 双网格计算：32³ 密 k 网格、16³ 响应 k 网格、4³ q 网格；选取的电子展宽是 σ=0.020 Ry。这一路求解直接使用该谱；DFPT–Wannier 插值路线的输入、矩阵元与生成谱在第二部分分别给出。
 
 [下载本页的输入、原生输出和绘图程序](/Atlas/examples/al-epw-tc-files.tar.gz)。压缩包不包含 QE/EPW 可执行程序；重算需要匹配的 EPW 6.0 环境。只读输出、重画图不需要启动 EPW。本次没有做各向异性方程，也没有计算解析延拓后的实频准粒子能隙。
 
@@ -352,11 +352,146 @@ preston@preston-System-Product-Name:epw-tc$ tail -n 20 nonlinear-w010/epw.out
 
 画图从原生输出重新提取，命令保持很短：
 
-### AI 后处理提示词：分开解析线性判据与非线性解
+### 交给代码助手的任务：分开解析线性判据与非线性解
 
 > 在外部谱 EPW 算例的各温度/截断分支目录读取 epw.in/out/err 与 al.imag_iso_* 文件，编写独立输出解析程序。按输入记录 muc、请求 wscut（eV）、nsiter、温度和求解器，按输出保留实际 Matsubara 截断及迭代次数。线性方程逐温度提取最大本征值 η，仅对正常完成且相邻 η 跨1的点给出 Tc 温区与线性插值；非线性方程逐温度记录明确收敛状态，提取首 Matsubara 点的 Z 和 Δ，将 Δ 从 eV 换为 meV。达到迭代上限或未收敛时保留失败状态，不能写成零能隙。输出 linear.csv、gap.csv、solver-status.json 和 tc-brackets.json，给出完整源码与输入路径。外部谱求解和 Wannier/EPW 原生谱入口分开归档；仅解析已有文件，不运行求解器或其他计算。
 
 [已有完整输出解析源码 analyse_tc.py](/Atlas/examples/al-epw-tc/analyse_tc.py) · [原生结果核对源码 verify_native.py](/Atlas/examples/al-epw-tc/verify_native.py) · [外部谱单位转换源码 prepare_spectrum.py](/Atlas/examples/al-epw-tc/prepare_spectrum.py)。
+
+<details>
+<summary>analyse_tc.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+from pathlib import Path
+import csv,json,re,hashlib
+b=Path(__file__).resolve().parent
+linear=[]; nonlinear=[]; status=[]
+pattern=re.compile(r'^\s*(\d+\.\d+)\s+(-?\d+\.\d{7})\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s*$',re.M)
+for d in sorted(b.glob('*linear-w*')):
+ if not d.is_dir() or not (d/'epw.out').exists():continue
+ inp=(d/'epw.in').read_text();out=(d/'epw.out').read_text();err=(d/'epw.err').read_text() if (d/'epw.err').exists() else ''
+ get=lambda k:re.search(r'\b'+k+r'\s*=\s*([^\n!,/]+)',inp,re.I).group(1).strip()
+ w=float(get('wscut'));mu=float(get('muc'));ns=int(get('nsiter'))
+ islinear=get('tc_linear').lower()=='.true.'
+ finish=('Finish: Solving (isotropic) linearized Eliashberg equation' in out) if islinear else ('Finish: Free energy' in out or ('EPW          :' in out and 'Error in routine' not in out))
+ status.append({'run':d.name,'native_finish':finish,'stderr_bytes':len(err.encode()),'fatal':'Error in routine' in out or bool(err),'iteration_limit':'Convergence was not reached' in out,'requested_wscut_eV':w,'muc':mu})
+ if islinear:
+  for T,eta,n,wa,it in pattern.findall(out):
+   linear.append({'run':d.name,'T_K':float(T),'max_eigenvalue':float(eta),'nsiw':int(n),'actual_wscut_eV':float(wa),'iterations':int(it),'requested_wscut_eV':w,'muc':mu,'solver':get('tc_linear_solver').strip("'"),'complete':finish and not err,'nsiter':ns})
+ else:
+  its=[int(x) for x in re.findall(r'Convergence was reached in nsiter =\s*(\d+)',out)]
+  temperatures=[float(x) for x in re.findall(r'Temp \(itemp =\s*\d+\) =\s*([\d.]+)',out)]
+  for f in sorted(d.glob('al.imag_iso_*')):
+   T=float(f.name.split('_')[-1]);row=f.read_text().splitlines()[1].split();vals=[float(x.replace('D','E')) for x in row]
+   if T not in temperatures:continue
+   idx=temperatures.index(T)
+   nonlinear.append({'run':d.name,'T_K':T,'omega0_eV':vals[0],'Z_omega0':vals[1],'Delta_omega0_meV':vals[2]*1000,'converged':idx<len(its),'iterations':its[idx] if idx<len(its) else None,'requested_wscut_eV':w,'muc':mu,'whole_run_complete':finish and not err})
+for name,rows in [('linear.csv',linear),('gap.csv',nonlinear)]:
+ with (b/name).open('w',newline='') as f:
+  wr=csv.DictWriter(f,fieldnames=list(rows[0]) if rows else ['empty']);wr.writeheader();wr.writerows(rows)
+(b/'solver-status.json').write_text(json.dumps(status,indent=2)+'\n')
+manifest={str(p.relative_to(b)):hashlib.sha256(p.read_bytes()).hexdigest() for p in b.rglob('*') if p.is_file() and p.suffix not in ('.gz',) and p.name not in ('terminal.log','SHA256.json') and p.stat().st_size<5000000}
+(b/'SHA256.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print(json.dumps({'linear_rows':len(linear),'converged_gap_rows':len(nonlinear),'status':status},indent=2))
+
+brackets=[]
+for requested, run in [(.1,'linear-w010-refine'),(.2,'linear-w020-refine'),(.4,'linear-w040-refine')]:
+ rows=sorted([r for r in linear if r['run']==run and r['complete']],key=lambda r:r['T_K'])
+ for a,z in zip(rows,rows[1:]):
+  if a['max_eigenvalue']>=1 and z['max_eigenvalue']<=1:
+   frac=(a['max_eigenvalue']-1)/(a['max_eigenvalue']-z['max_eigenvalue'])
+   brackets.append({'run':run,'requested_wscut_eV':requested,'muc':.1,'T_low_K':a['T_K'],'T_high_K':z['T_K'],'eta_low':a['max_eigenvalue'],'eta_high':z['max_eigenvalue'],'linear_interpolation_K':a['T_K']+frac*(z['T_K']-a['T_K']),'claim':'conditional model crossing bracket; interpolation is a plotting estimate, not material accuracy'})
+(b/'tc-brackets.json').write_text(json.dumps(brackets,indent=2)+'\n')
+```
+
+</details>
+
+<details>
+<summary>verify_native.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import csv, json, re, hashlib, sys
+
+root=Path(sys.argv[1])
+linear=list(csv.DictReader((root/'linear.csv').open()))
+gap=list(csv.DictReader((root/'gap.csv').open()))
+errors=[]; sources={}; checked_linear=checked_gap=0
+for row in linear:
+    p=root/row['run']/'epw.out'; text=p.read_text()
+    sources[str(p.relative_to(root))]=hashlib.sha256(p.read_bytes()).hexdigest()
+    table=[m.groups() for m in re.finditer(r'^\s*(\d+\.\d+)\s+(\d+\.\d+)\s+(\d+)\s+(\d+\.\d+)\s+(\d+)\s*$', text, re.M)]
+    selected=[r for r in table if abs(float(r[0])-float(row['T_K']))<1e-9]
+    if len(selected)!=1:
+        errors.append(['linear-row',row['run'],row['T_K'],len(selected)]); continue
+    a=selected[0]
+    expected=[float(row['max_eigenvalue']),int(row['nsiw']),float(row['actual_wscut_eV']),int(row['iterations'])]
+    actual=[float(a[1]),int(a[2]),float(a[3]),int(a[4])]
+    if actual!=expected:errors.append(['linear-values',row['run'],actual,expected])
+    if 'Finish: Solving (isotropic) linearized Eliashberg equation' not in text:
+        errors.append(['linear-no-finish',row['run']])
+    if int(row['iterations'])>=int(row['nsiter']):errors.append(['linear-hit-limit',row['run']])
+    checked_linear+=1
+for row in gap:
+    if row['converged']!='True' or row['whole_run_complete']!='True':continue
+    d=root/row['run']; p=d/'epw.out'; text=p.read_text()
+    sources[str(p.relative_to(root))]=hashlib.sha256(p.read_bytes()).hexdigest()
+    if 'Convergence was reached' not in text or (d/'epw.err').stat().st_size:
+        errors.append(['nonlinear-state',row['run']])
+    fs=list(d.glob('*.imag_iso_*'))
+    if len(fs)!=1:errors.append(['gap-file-count',row['run'],len(fs)]);continue
+    data=[line.split() for line in fs[0].read_text().splitlines() if re.match(r'^\s*[+\-\d.]',line)]
+    omega,z,delta=map(float,data[0]); expected=float(row['Delta_omega0_meV'])
+    if abs(1000*delta-expected)>1e-10:errors.append(['gap-unit-or-value',row['run'],1000*delta,expected])
+    if abs(omega-float(row['omega0_eV']))>1e-14:errors.append(['omega',row['run']])
+    sources[str(fs[0].relative_to(root))]=hashlib.sha256(fs[0].read_bytes()).hexdigest()
+    checked_gap+=1
+report={'linear_rows_checked':checked_linear,'independent_converged_gap_rows_checked':checked_gap,
+        'source_sha256':sources,'errors':errors}
+print(json.dumps(report,indent=2))
+assert checked_gap==9 and checked_linear>=30 and not errors
+```
+
+</details>
+
+<details>
+<summary>prepare_spectrum.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+from pathlib import Path
+import hashlib,json,math,xml.etree.ElementTree as ET
+import numpy as np
+b=Path(__file__).resolve().parent
+raw=b/'source/alpha2F.dat'
+a=np.loadtxt(raw); f=a[:,0]; y=a[:,4]
+assert a.shape==(2000,11)
+assert f[0]==0 and y[0]==0 and np.all(f[1:]>0) and np.all(y>=0)
+h_meV_THz=6.62607015e-34/1.602176634e-19*1e15
+f1=f[1:]; y1=y[1:]; w=f1*h_meV_THz
+n=len(w)
+np.savetxt(b/'al-sigma020.a2f',np.column_stack([w,y1]),fmt=['%.12f','%.8f'],header='omega_meV alpha2F ; QE lambda.x sigma=0.020 Ry; zero row removed only',comments='# ')
+l_epw=2*w[-1]/n*np.sum(y1/w)
+kbeV=8.617333262145e-5
+wlogeV=math.exp(float(2*(w[-1]/1000)/n*np.sum(y1*np.log(w/1000)/(w/1000))/l_epw))
+l_trap=float(np.sum(np.diff(f1)*((y1/f1)[1:]+(y1/f1)[:-1])))
+x=ET.parse(b/'source/data-file-schema.xml').getroot()
+aout=x.find('output/atomic_structure'); alat=float(aout.attrib['alat']); nat=int(aout.attrib['nat'])
+avec=np.array([[float(v) for v in aout.find('cell/'+z).text.split()] for z in ('a1','a2','a3')]); at=avec/alat
+bg=np.linalg.inv(at).T
+atoms=list(aout.find('atomic_positions')); tau=np.array([[float(v) for v in a.text.split()] for a in atoms])/alat
+species=list(x.find('input/atomic_species')); names=[a.attrib['name'] for a in species]; masses=[float(a.findtext('mass')) for a in species]
+noncolin=x.findtext('input/spin/noncolin')=='true'
+nelec=float(x.findtext('output/band_structure/nelec'))
+fmt=lambda v:' '.join('%.16e'%float(z) for z in np.asarray(v).ravel())
+lines=[str(nat),str(3*nat),fmt([nelec,0]),fmt(at),fmt(bg),fmt([abs(np.linalg.det(avec))]),fmt([alat]),fmt(tau),fmt([m*1.66053906660e-27/9.1093837015e-31/2 for m in masses]+[0.0]*(10-len(masses))),' '.join(str(names.index(a.attrib['name'])+1) for a in atoms),'T' if noncolin else 'F','F','! spectrum-only adapter: no Wannier centers calculated','! spectrum-only adapter: no Wannier lattice L calculated']
+(b/'crystal.fmt').write_text('\n'.join(lines)+'\n')
+r={'source_sha256':hashlib.sha256(raw.read_bytes()).hexdigest(),'source_shape':list(a.shape),'selected_sigma_Ry':.020,'source_spectrum_width_THz':.12,'source_mu_star':.1,'solver_mu_star':.1,'source_xml_sha256':hashlib.sha256((b/'source/data-file-schema.xml').read_bytes()).hexdigest(),'frequency_conversion_meV_per_THz':h_meV_THz,'removed_rows':[{'omega_THz':0,'alpha2F':0}],'nqstep':n,'omega_max_meV':float(w[-1]),'epw_rectangle_lambda':float(l_epw),'trapz_lambda_printed_grid':float(l_trap),'epw_omega_log_K':wlogeV/kbeV,'max_print_rounding_step_deviation_THz':float(np.max(abs(np.diff(f)-f[-1]/n))),'crystal_adapter':'QE XML physical fields; amass uses native Rydberg mass unit AMU_RY=AMU_SI/ELECTRONMASS_SI/2, fixed ntypx=10 with unused species slots zero; no computed Wannier centers; trailing comments are skipped records in EPW6.0 isotropic fila2f reader','material_Tc_acceptance':'not assessed'}
+(b/'spectrum-checks.json').write_text(json.dumps(r,indent=2)+'\n'); print(json.dumps(r,indent=2))
+```
+
+</details>
 
 ```bash
 python3 analyse_tc.py
@@ -562,7 +697,7 @@ liso = .true.
 mp_mesh_k = .true.
 ```
 
-还需显式给出电子粗网格 `nk1..3=12`、声子粗网格 `nq1..3=4` 以及本轮细网格 `nkf1..3`、`nqf1..3`。这里把 `fsthick=1.0` 作为积分中保留费米能附近态的窗口控制，不把它当作 Wannier 冻结窗。谱文件 `al.a2f` 前三列为 ω（meV）、α²F(ω) 和累计 λ(ω)；脚本读取数值行，保留文件尾部的电子展宽、Fermi 窗口、DOS 与耦合总和，不把尾部说明误读成数据。
+还需显式给出电子粗网格 `nk1..3=12`、声子粗网格 `nq1..3=4` 以及本例细网格 `nkf1..3`、`nqf1..3`。这里把 `fsthick=1.0` 作为积分中保留费米能附近态的窗口控制，不把它当作 Wannier 冻结窗。谱文件 `al.a2f` 前三列为 ω（meV）、α²F(ω) 和累计 λ(ω)；脚本读取数值行，保留文件尾部的电子展宽、Fermi 窗口、DOS 与耦合总和，不把尾部说明误读成数据。
 
 要检查临界温度，先在已形成的谱上运行 `tc_linear` 并找出本征值跨越 1 的温度括区，再单独检查低温非线性方程的迭代。一次 `epw.x` 正常结束仍可能包含 `Convergence was not reached in nsiter`；这种情况下可以报告已形成的谱，不能称该温度的能隙求解收敛。谱积分定义可接着看 [Eliashberg 谱](/Atlas/m/eliashberg-a2f/qe/)，近似 Tc 公式见 [Allen–Dynes](/Atlas/m/allen-dynes/qe/#tc-from-double-grid)。
 
@@ -613,7 +748,7 @@ EPW 6.0 的谱构造对每个声子模判断 `wq > eps_acoustic`；负频率及�
 
 最终 `al.wout` 的总 spread 为 11.997746862 Å²，解纠缠和局域化各自满足本次输入的迭代判据。实空间衰减也须结合所覆盖的距离看：对原生 `decay.H`、`decay.epmate` 和 `decay.epmatp`，把距离最外侧 20% 区间的最大幅度除以全局最大幅度，分别为 0.0001289、0.001995、0.02914；对应最大距离为 23.7364、23.7364、7.9121 Å。这些只是可复核的衰减诊断，不是预先接受的容限，声子方向的尾部仍比电子方向更明显。
 
-本轮没有继续扩展粗电子网格。48³ / 24³ 的细积分尝试在约 118 s 时只处理了 942/13563 个筛选后 q 点，估计无法在预定短时作业内完成，故停止并保留输出。最终 24³ / 12³ 路线已经形成完整的谱和方程求解证据；它没有给出电子粗网格、声子粗网格、细积分、展宽、Fermi 窗口及 Matsubara 截断的联合收敛结论。最初 4³ 插值的谱及 1 K 非线性未收敛输出也保留在包中，只用于展示诊断过程。
+粗电子网格仍采用 12³。48³ / 24³ 的细积分尝试在约 118 s 时只处理了 942/13563 个筛选后 q 点，估计无法在预定短时作业内完成，故停止并保留输出。最终 24³ / 12³ 路线已经形成完整的谱和方程求解证据；它没有给出电子粗网格、声子粗网格、细积分、展宽、Fermi 窗口及 Matsubara 截断的联合收敛结论。最初 4³ 插值的谱及 1 K 非线性未收敛输出也保留在包中，只用于展示诊断过程。
 
 ### 重跑与输出核对
 

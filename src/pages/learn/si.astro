@@ -1,0 +1,22 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../../layouts/Base.astro';
+import ArticleBody from '../../components/ArticleBody.astro';
+import { renderMarkdownBody } from '../../lib/manual.js';
+import { normalizeBase } from '../../data/methods.js';
+const base = normalizeBase(import.meta.env.BASE_URL);
+const body = await renderMarkdownBody(readFileSync(resolve('src/content/learning/si.md'), 'utf8'));
+---
+<Base title="从 Si 的 SCF 到能带与 DOS · Atlas">
+  <article class="learning">
+    <p class="crumb"><a href={`${base}/?open=1`}>← 计算目录</a></p>
+    <h1>从 Si 的 SCF 到能带与 DOS</h1>
+    <ArticleBody body={body} />
+  </article>
+</Base>
+<style>
+  .learning { padding-top: 1.5rem; }
+  .crumb { margin: 0 0 1.2rem; font-size: .88rem; }
+  h1 { font-size: 1.9rem; margin: 0 0 1.4rem; }
+</style>

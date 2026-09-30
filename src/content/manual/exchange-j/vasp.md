@@ -1,10 +1,10 @@
-[VASP：从磁构型能量映射 Heisenberg 模型](https://vasp.at/tutorials/latest/magnetism/part2/) · [MAGMOM](https://vasp.at/wiki/MAGMOM) · [LORBIT](https://vasp.at/wiki/LORBIT)
-
 两份磁构型能量可以解出一个有效交换参数，但是否能预测第三个磁构型，还需要实际检查。这里接着两原子 bcc Fe 的 FM、AFM 结果，先逐条枚举周期最近邻键，再用一个四原子超胞检验计数、能量归一化和磁态是否保留。
 
 [下载原始计算目录、周期键表与分析脚本](/Atlas/examples/interface-magnet-exchange-j/example-pack.tar.gz)。本页使用固定 a=2.8 Å、PBE、ENCUT=400 eV 的同一套输入协议。已有两原子计算的准备和结果见 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，SCF 文件读法见 [SCF](/Atlas/m/scf/vasp/)。
 
-先写清本页采用的模型约定：
+## 定义自旋模型并数清周期键
+
+先写清本例采用的模型约定：
 
 ```text
 E(N, C) = N * epsilon_ref - J * C
@@ -55,9 +55,11 @@ afm2/OUTCAR:  energy  without entropy=      -15.60874618  energy(sigma->0) =    
 
 两份 E0 分别为 −16.47377314 和 −15.60782301 eV/晶胞，差值为 0.86595013 eV。代入后 J_eff≈0.0541218831 eV/键，即 54.1218831 meV/键；参考能 ε_ref≈−8.0203990375 eV/原子。
 
-这两个方程恰好决定 ε_ref 和 J 两个未知数，所以能把两份输入能量回代到零误差。这一步只证明代数闭合，还不能证明最近邻模型适合 Fe。
+这两个方程恰好决定 ε_ref 和 J 两个未知数，所以能把两份输入能量回代到零误差。独立磁构型则用来检验这个模型的预测。
 
-为了增加一次实际检查，将常规胞沿 x 加倍，准备 `fm4`、`neel4`、`stripe4` 三个目录。坐标对应先前同一 bcc 几何：
+## 在四原子超胞中检查磁态与归一化
+
+将常规胞沿 x 加倍，准备 `fm4`、`neel4`、`stripe4` 三个目录。坐标对应先前同一 bcc 几何：
 
 ```text
 [bcgong@localhost fm4]$ cat POSCAR
@@ -138,7 +140,7 @@ cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
 
-三个任务均使用 8 个 MPI 进程，5 分钟限时，按 FM → Néel → 层状初态串行提交。脚本中的 CPU 编号只对这次已核验的节点分配成立；运行中实际亲和性为 16–23。原有声子任务占用另 16 核，总申请保持 24/64 核。
+三个任务均使用 8 个 MPI 进程，5 分钟限时，按 FM → Néel → 层状初态串行提交。脚本中的 CPU 编号只对这次已核验的节点分配成立；运行中实际亲和性为 16–23。
 
 ```text
 [bcgong@localhost fm4]$ sbatch run.slurm
@@ -191,7 +193,7 @@ tot          0.000  -0.000  -0.000  -0.000
 
 虽然电子循环结束，四个局域磁矩只剩约 −0.007、+0.007、+0.007、−0.007 μB，既远小于 FM/AFM 的磁矩，也没有保持所指定的逐原子初始符号。总磁矩为零不能说明目标反铁磁态保留了；这里的局域幅值已衰减到接近零。
 
-完整验收脚本因此拒绝把这份输出当作固定单位向量的第三磁态：
+磁矩检查脚本因此拒绝把这份输出当作固定单位向量的第三磁态：
 
 ```text
 [bcgong@localhost fe_exchange_j]$ python fit_exchange.py
@@ -220,9 +222,9 @@ The intended third magnetic state was not obtained. The nearest-neighbor model h
 
 FM4 和 Néel4 相对两原子拟合式的回代误差分别约 −0.0151、−0.0056 meV/原子。它们说明在这里的精度下，超胞计数、能量归一化和匹配 k 密度得到了较好的数值复现。这两个对照代表的仍是原来的两种磁序，不能代替独立第三磁序的检验。
 
-第三个初态未通过磁态保持检查，所以这个最近邻模型尚未完成独立验证。J_eff=54.1219 meV/键只能作为本页明确定义的两态有效参数，不能称为唯一材料交换常数。FM 与 AFM 的 PAW 局域磁矩幅值本就从约 2.098 变为 1.317 μB，刚性局域磁矩假设已经需要审查；若存在更远邻、非 Heisenberg 项或其他电子重排，它们也会混入这两个总能量的差值。
+因此 J_eff=54.1219 meV/键表示指定两态与最近邻键定义下的有效参数。FM 与 AFM 的 PAW 局域磁矩幅值从约 2.098 变为 1.317 μB；刚性局域磁矩模型的预测，需要更多实际保持的独立磁构型来检查，更远邻或其他电子重排也可能贡献这份能量差。
 
-若要继续建立可转用的自旋模型，需要获取更多实际保持的磁构型，或采用合适的约束/响应方法，再用足够独立的数据区分不同作用项。仅扩大线性方程求解器的输出小数位，不能补上这些信息。
+若要继续建立可转用的自旋模型，需要获取更多实际保持的磁构型，或采用合适的约束/响应方法，再用足够独立的数据区分不同作用项。
 
 ## 状态与模型核对表
 
@@ -236,11 +238,9 @@ FM4 和 Néel4 相对两原子拟合式的回代误差分别约 −0.0151、−0
 
 J_eff=54.12188312 meV/唯一最近邻键，Eref=−8.0203990375 eV/原子；stripe4 的空白关联与残差表示它被排除，不能按初始模式计算预测残差。
 
-## 文献方法与本例读数
+## 对照文献中的分析方法
 
-Rezaei 等，*Benchmarking first-principles approaches for extracting magnetic exchange interactions*，[DOI: 10.1038/s41524-026-02161-3](https://doi.org/10.1038/s41524-026-02161-3)，Fig. 3 比较交换参数随磁构型数变化的结果，并区分全部与展宽/熵筛选后的构型集合。正文讨论金属构型选择和配置数对能量映射的影响。本例的 FM4/Néel4 检查的是晶胞折叠，stripe4 磁矩塌缩后被排除；因此 J_eff 是指定两态和最近邻键定义下的有效参数。当前资料没有独立模型验证或蒙特卡洛输出，结果停在参数与状态核对表。
-
-下一步接 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，扩大能够稳定保持的磁构型集合。若关心同一磁序相对晶体方向的能量差，则接 [磁各向异性能量](/Atlas/m/mae/vasp/)，采用一致的 SOC 与方向协议。
+Rezaei 等，*Benchmarking first-principles approaches for extracting magnetic exchange interactions*，[DOI: 10.1038/s41524-026-02161-3](https://doi.org/10.1038/s41524-026-02161-3)，Fig. 3 比较交换参数随磁构型数变化的结果，并区分全部与展宽/熵筛选后的构型集合。正文讨论金属构型选择和配置数对能量映射的影响。本例的 FM4/Néel4 检查的是晶胞折叠，stripe4 磁矩塌缩后被排除；因此 J_eff 是指定两态和最近邻键定义下的有效参数。
 
 ```text
 同协议的真实磁构型能量
@@ -250,13 +250,226 @@ Rezaei 等，*Benchmarking first-principles approaches for extracting magnetic e
              └─ 独立第三磁态：先验收磁矩与模式，再谈模型预测
 ```
 
-## 可复制的代码生成提示与复现
+## 从原始文件重建结果
+
+周期键表给出关联和，最终局域磁矩决定某份能量能否按指定模式进入映射。两态拟合和四原子折叠对照分别输出；塌缩的 stripe4 保留实际读数。可以把这些读取规则写成下面的请求：
 
 ```text
 请编写 Python 3 独立后处理程序。先从真实 POSCAR 枚举周期唯一最近邻键并输出键表，注明单位向量模型 H=NEref-J*sum(e_i·e_j)。读取 fm2/afm2/fm4/neel4/stripe4 的实际 OUTCAR/OSZICAR，检查收敛、计时和最终局域磁矩；两态拟合 J，四原子同序仅作折叠对照，塌缩的 stripe4 排除关联和残差。输出能量、原子数、键关联和、局域矩及残差 CSV，不从单个 J 生成温度或 Tc 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [fit_two_states.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_two_states.py) · [export_exchange_table.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/export_exchange_table.py) · [enumerate_bonds.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/enumerate_bonds.py) · [fit_exchange.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_exchange.py)
+
+<details>
+<summary>fit_two_states.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import json,math
+from fit_exchange import read_case,file_sha,sampling_length
+
+bonds=json.load(open('bonds-summary.json'))
+names=['fm2','afm2','fm4','neel4'];rows=[read_case(n) for n in names]
+if len(set(file_sha(n+'/POTCAR') for n in names))!=1:raise ValueError('Different PAW')
+protocol=[dict((k,v) for k,v in r['active_incar'].items() if k not in ['SYSTEM','MAGMOM']) for r in rows]
+if any(p!=protocol[0] for p in protocol):raise ValueError('Protocol mismatch')
+for group in [['fm2','afm2'],['fm4','neel4']]:
+ for file in ['POSCAR','KPOINTS']:
+  if len(set(file_sha(n+'/'+file) for n in group))!=1:raise ValueError('Different '+file)
+ks=sampling_length('fm2')
+if any(max(abs(x-y) for x,y in zip(sampling_length(n),ks))>1e-9 for n in names):raise ValueError('Different reciprocal mesh density')
+for r in rows:
+ want=bonds['states'][r['state']]['spin_directions']
+ if r['final_spin_signs']!=want and r['final_spin_signs']!=[-x for x in want]:raise ValueError('Final signs changed')
+cf=bonds['states']['fm2']['correlation_sum'];ca=bonds['states']['afm2']['correlation_sum']
+j=(rows[1]['E0_eV_cell']-rows[0]['E0_eV_cell'])/(cf-ca)
+ere=(rows[0]['E0_eV_cell']+j*cf)/rows[0]['n_atoms']
+for r in rows:
+ corr=bonds['states'][r['state']]['correlation_sum'];pred=ere*r['n_atoms']-j*corr
+ r['predicted_E0_eV_cell']=pred;r['correlation_sum']=corr;r['residual_meV_atom']=1000*(r['E0_eV_cell']-pred)/r['n_atoms']
+# Read the rejected trial only for diagnosis; it is excluded from fitting and residual validation.
+rejected=read_case('stripe4',enforce_moment=False)
+rejected['requested_initial_signs']=bonds['states']['stripe4']['spin_directions']
+rejected['accepted_as_target_state']=False
+rejected['reason']='local moments fall to about 0.007 muB and requested site pattern is not retained'
+report={'definition':bonds['definition'],'J_effective_meV_per_bond':j*1000,'Eref_eV_atom':ere,'fit_states':['fm2','afm2'],'folding_checks':['fm4','neel4'],'rows':rows,'rejected_trial':rejected,'independent_third_state_validation':'not passed; the intended third magnetic state was not obtained','scope':'two-state effective parameter; no unique material J or validated nearest-neighbor model claimed'}
+json.dump(report,open('exchange-summary.json','w'),indent=2)
+print('J_eff = %.8f meV per unique NN bond; Eref = %.10f eV/atom'%(j*1000,ere))
+for r in rows:print('%-5s N=%d C=%+3d E0=% .8f predicted=% .8f eV/cell residual=%+.6f meV/atom; moments=%s'%(r['state'],r['n_atoms'],r['correlation_sum'],r['E0_eV_cell'],r['predicted_E0_eV_cell'],r['residual_meV_atom'],r['local_moment_muB']))
+print('stripe4: EXCLUDED from fit/model residual; E0=%.8f eV/cell; local moments=%s'%(rejected['E0_eV_cell'],rejected['local_moment_muB']))
+print('The intended third magnetic state was not obtained. The nearest-neighbor model has not passed independent validation.')
+```
+
+</details>
+
+<details>
+<summary>export_exchange_table.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Export model-fit states and the rejected stripe trial without implying Tc."""
+import csv, json
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+summary = json.loads((root / "exchange-summary.json").read_text(encoding="utf-8"))
+roles = {"fm2": "fit", "afm2": "fit", "fm4": "folding check", "neel4": "folding check"}
+rows = []
+for row in summary["rows"]:
+    rows.append({
+        "state": row["state"], "role": roles[row["state"]], "atoms": row["n_atoms"],
+        "correlation_sum": row["correlation_sum"], "E0_eV_cell": f'{row["E0_eV_cell"]:.8f}',
+        "model_E0_eV_cell": f'{row["predicted_E0_eV_cell"]:.8f}',
+        "residual_meV_atom": f'{row["residual_meV_atom"]:.8f}',
+        "local_moments_muB": ";".join(f"{m:.3f}" for m in row["local_moment_muB"]),
+        "interpretation": "two-state fit" if row["state"] in ("fm2", "afm2") else "supercell folding check",
+    })
+trial = summary["rejected_trial"]
+rows.append({
+    "state": trial["state"], "role": "rejected target",
+    "atoms": trial["n_atoms"], "correlation_sum": "",
+    "E0_eV_cell": f'{trial["E0_eV_cell"]:.8f}', "model_E0_eV_cell": "",
+    "residual_meV_atom": "", "local_moments_muB": ";".join(f"{m:.3f}" for m in trial["local_moment_muB"]),
+    "interpretation": "moment collapsed; not an independent validation state",
+})
+with (root / "exchange-state-model-checks.csv").open("w", newline="", encoding="utf-8") as handle:
+    fields = ["state", "role", "atoms", "correlation_sum", "E0_eV_cell", "model_E0_eV_cell", "residual_meV_atom", "local_moments_muB", "interpretation"]
+    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer.writeheader()
+    writer.writerows(rows)
+with (root / "exchange-fit-summary.csv").open("w", newline="", encoding="utf-8") as handle:
+    fields = ["J_eff_meV_per_unique_NN_bond", "Eref_eV_atom", "fit_states", "independent_third_state_validation", "scope"]
+    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer.writeheader()
+    writer.writerow({
+        "J_eff_meV_per_unique_NN_bond": f'{summary["J_effective_meV_per_bond"]:.8f}',
+        "Eref_eV_atom": f'{summary["Eref_eV_atom"]:.10f}',
+        "fit_states": ";".join(summary["fit_states"]),
+        "independent_third_state_validation": summary["independent_third_state_validation"],
+        "scope": summary["scope"],
+    })
+print("Wrote 5 model-state rows and one fit-summary row; no finite-temperature result is inferred")
+```
+
+</details>
+
+<details>
+<summary>enumerate_bonds.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import itertools,math,json,csv
+
+def read_poscar(name):
+    s=open(name).readlines();scale=float(s[1]);cell=[[float(v)*scale for v in l.split()[:3]] for l in s[2:5]]
+    n=sum(map(int,s[6].split()))
+    if not s[7].lower().startswith('d'):raise ValueError('Direct coordinates required')
+    f=[list(map(float,l.split()[:3])) for l in s[8:8+n]]
+    return cell,f
+
+def enumerate_cell(name,label):
+    cell,f=read_poscar(name);n=len(f);a=math.sqrt(sum(x*x for x in cell[1]));distance=math.sqrt(3)*a/2
+    bonds=set();coordination=[0]*n
+    for i,j in itertools.product(range(n),repeat=2):
+        for t in itertools.product([-1,0,1],repeat=3):
+            delta=[sum((f[j][k]+t[k]-f[i][k])*cell[k][d] for k in range(3)) for d in range(3)]
+            r=math.sqrt(sum(v*v for v in delta))
+            if abs(r-distance)<1e-9:
+                coordination[i]+=1
+                forward=(i,j)+t;reverse=(j,i)+tuple(-v for v in t)
+                bonds.add(min(forward,reverse))
+    if any(z!=8 for z in coordination):raise ValueError('bcc nearest-neighbor coordination is not eight')
+    bonds=sorted(bonds)
+    with open('bonds-'+label+'.csv','w') as out:
+        w=csv.writer(out);w.writerow(['atom_i','atom_j','shift_x','shift_y','shift_z','distance_A'])
+        for row in bonds:w.writerow([row[0]+1,row[1]+1]+list(row[2:])+[distance])
+    return {'n_atoms':n,'neighbor_distance_A':distance,'coordination':coordination,'n_unique_bonds':len(bonds),'bonds':[list(t) for t in bonds]}
+
+if __name__=='__main__':
+    cells={'2fe':enumerate_cell('fm2/POSCAR','2fe'),'4fe':enumerate_cell('fm4/POSCAR','4fe')}
+    states=[('fm2','2fe',[1,1]),('afm2','2fe',[1,-1]),('fm4','4fe',[1,1,1,1]),('neel4','4fe',[1,-1,1,-1]),('stripe4','4fe',[1,1,-1,-1])]
+    report={'definition':'H = Eref - J * sum_unique_periodic_NN_bonds(e_i dot e_j); unit vectors; each bond counted once','cells':cells,'states':{}}
+    for name,label,spin in states:
+        corr=sum(spin[b[0]]*spin[b[1]] for b in cells[label]['bonds'])
+        report['states'][name]={'cell':label,'spin_directions':spin,'correlation_sum':corr}
+        print('%s: N=%d; neighbors/site=%s; unique bonds=%d; correlation sum=%+d'%(name,cells[label]['n_atoms'],cells[label]['coordination'],cells[label]['n_unique_bonds'],corr))
+    json.dump(report,open('bonds-summary.json','w'),indent=2)
+    print('nearest-neighbor distance = %.10f A'%cells['2fe']['neighbor_distance_A'])
+```
+
+</details>
+
+<details>
+<summary>fit_exchange.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import re,json,math,os,hashlib
+
+def active(path):
+    d={}
+    for line in open(path):
+        line=line.split('#')[0].split('!')[0]
+        if '=' in line:
+            k,v=line.split('=',1);d[k.strip()]=v.strip()
+    return d
+
+def file_sha(name):
+    if os.path.basename(name)=='POTCAR' and not os.path.exists(name):
+        values=re.findall(r'[0-9a-f]{64}',open(os.path.join(os.path.dirname(name),'POTCAR.identity.txt')).read())
+        if len(values)!=1:raise ValueError('Expected one recorded PAW hash')
+        return values[0]
+    return hashlib.sha256(open(name,'rb').read()).hexdigest()
+
+def sampling_length(name):
+    pos=open(name+'/POSCAR').readlines();scale=float(pos[1])
+    lengths=[math.sqrt(sum(float(x)**2 for x in l.split()[:3]))*scale for l in pos[2:5]]
+    nk=list(map(int,open(name+'/KPOINTS').readlines()[3].split()))
+    return [x*y for x,y in zip(lengths,nk)]
+
+def read_case(name,enforce_moment=True):
+    p=active(name+'/INCAR');out=open(name+'/OUTCAR').read()
+    if 'aborting loop because EDIFF is reached' not in out or 'General timing and accounting' not in out:raise ValueError('Unfinished '+name)
+    if p.get('ISPIN')!='2':raise ValueError('Expected collinear spin polarization')
+    n=sum(map(int,open(name+'/POSCAR').readlines()[6].split()))
+    block=out.split('magnetization (x)')[-1]
+    moment=[]
+    for line in block.splitlines():
+        fields=line.split()
+        if len(fields)==5 and fields[0].isdigit():moment.append(float(fields[-1]))
+        if len(moment)==n:break
+    if len(moment)!=n:raise ValueError('Missing local magnetic moments')
+    signs=[1 if x>0 else -1 for x in moment]
+    if enforce_moment and min(abs(x) for x in moment)<.1:raise ValueError('Local moment collapsed; direction mapping invalid')
+    return {'state':name,'n_atoms':n,'E0_eV_cell':float(re.findall(r'energy\(sigma->0\)\s*=\s*([-+0-9.Ee]+)',out)[-1]),'F_eV_cell':float(re.findall(r'free\s+energy\s+TOTEN\s*=\s*([-+0-9.Ee]+)',out)[-1]),'local_moment_muB':moment,'final_spin_signs':signs,'elapsed_s':float(re.findall(r'Elapsed time \(sec\):\s*([0-9.]+)',out)[-1]),'active_incar':p,'OUTCAR_sha256':hashlib.sha256(open(name+'/OUTCAR','rb').read()).hexdigest()}
+
+if __name__=='__main__':
+    bonds=json.load(open('bonds-summary.json'));names=['fm2','afm2','fm4','neel4','stripe4'];rows=[read_case(n) for n in names]
+    if len(set(file_sha(n+'/POTCAR') for n in names))!=1:raise ValueError('PAW identity differs')
+    for family in [['fm2','afm2'],['fm4','neel4','stripe4']]:
+        if len(set(file_sha(n+'/POSCAR') for n in family))!=1:raise ValueError('Structure differs within cell family')
+        if len(set(file_sha(n+'/KPOINTS') for n in family))!=1:raise ValueError('KPOINTS differ within cell family')
+    density=sampling_length('fm2')
+    if any(max(abs(x-y) for x,y in zip(sampling_length(n),density))>1e-9 for n in names):raise ValueError('Reciprocal sampling density differs')
+    reference=dict((k,v) for k,v in rows[0]['active_incar'].items() if k not in ['SYSTEM','MAGMOM'])
+    for r in rows:
+        if dict((k,v) for k,v in r['active_incar'].items() if k not in ['SYSTEM','MAGMOM'])!=reference:raise ValueError('Protocol mismatch: '+r['state'])
+        want=bonds['states'][r['state']]['spin_directions']
+        if r['final_spin_signs']!=want and r['final_spin_signs']!=[-v for v in want]:raise ValueError('Final magnetic pattern changed')
+    fm,afm=rows[:2];n2=fm['n_atoms'];cf=bonds['states']['fm2']['correlation_sum'];ca=bonds['states']['afm2']['correlation_sum']
+    j=(afm['E0_eV_cell']-fm['E0_eV_cell'])/(cf-ca)
+    ref=(fm['E0_eV_cell']+j*cf)/n2
+    for r in rows:
+        corr=bonds['states'][r['state']]['correlation_sum'];pred=ref*r['n_atoms']-j*corr
+        r['correlation_sum']=corr;r['predicted_E0_eV_cell']=pred;r['residual_meV_atom']=1000*(r['E0_eV_cell']-pred)/r['n_atoms']
+    report={'definition':bonds['definition'],'J_effective_meV_per_bond':j*1000,'Eref_eV_atom':ref,'fit_states':['fm2','afm2'],'validation_states':['fm4','neel4','stripe4'],'rows':rows,'scope':'two-state effective nearest-neighbor parameter; third-state residual tests transferability; local moment magnitudes are not constrained equal'}
+    json.dump(report,open('exchange-summary.json','w'),indent=2)
+    print('J_eff = %.8f meV per unique NN bond; Eref = %.10f eV/atom'%(j*1000,ref))
+    for r in rows:
+        print('%-7s N=%d C=%+3d E0=% .8f predicted=% .8f eV/cell residual=%+.6f meV/atom; moments=%s'%(r['state'],r['n_atoms'],r['correlation_sum'],r['E0_eV_cell'],r['predicted_E0_eV_cell'],r['residual_meV_atom'],r['local_moment_muB']))
+```
+
+</details>
 
 [输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-exchange-j/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
 
@@ -266,4 +479,8 @@ python3 fit_two_states.py
 python3 export_exchange_table.py
 ```
 
-实际读取结果见正文表及 [exchange-state-model-checks.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-state-model-checks.csv) · [exchange-fit-summary.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-fit-summary.csv) · [exchange-summary.json](/Atlas/examples/interface-magnet-exchange-j/exchange-summary.json)。这些命令只读取现有输出进行后处理。
+实际读取结果见正文表及 [exchange-state-model-checks.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-state-model-checks.csv) · [exchange-fit-summary.csv](/Atlas/examples/interface-magnet-exchange-j/exchange-fit-summary.csv) · [exchange-summary.json](/Atlas/examples/interface-magnet-exchange-j/exchange-summary.json)。
+
+相关输入说明：[VASP：从磁构型能量映射 Heisenberg 模型](https://vasp.at/tutorials/latest/magnetism/part2/) · [MAGMOM](https://vasp.at/wiki/MAGMOM) · [LORBIT](https://vasp.at/wiki/LORBIT)
+
+下一步接 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，扩大能够稳定保持的磁构型集合。若关心同一磁序相对晶体方向的能量差，则接 [磁各向异性能量](/Atlas/m/mae/vasp/)，采用一致的 SOC 与方向协议。

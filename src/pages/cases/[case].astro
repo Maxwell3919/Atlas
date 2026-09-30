@@ -1,0 +1,31 @@
+---
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import Base from '../../layouts/Base.astro';
+import ArticleBody from '../../components/ArticleBody.astro';
+import { renderMarkdownBody } from '../../lib/manual.js';
+import { normalizeBase } from '../../data/methods.js';
+
+export function getStaticPaths() {
+  return [
+    { slug: 'epc-al-verification', title: 'Al 双网格 EPC：完整执行与核验记录' },
+    { slug: 'epc-research-notes', title: 'EPC 研究记录：SnSe₂/Sr₂N 与 ZrCl₂/Sc₂C' },
+  ].map((entry) => ({ params: { case: entry.slug }, props: entry }));
+}
+const { slug, title } = Astro.props;
+const base = normalizeBase(import.meta.env.BASE_URL);
+const raw = readFileSync(resolve('src/content/cases', `${slug}.md`), 'utf8').replace(/^# [^\n]+\n/, '');
+const body = await renderMarkdownBody(raw);
+---
+<Base title={`${title} · Atlas`}>
+  <article class="record">
+    <p class="crumb"><a href={`${base}/m/epc/qe/`}>← Al EPC 教程</a></p>
+    <h1>{title}</h1>
+    <ArticleBody body={body} />
+  </article>
+</Base>
+<style>
+  .record { padding-top: 1.5rem; }
+  .crumb { margin: 0 0 1.2rem; font-size: .88rem; }
+  h1 { font-size: 1.9rem; margin: 0 0 1.4rem; }
+</style>

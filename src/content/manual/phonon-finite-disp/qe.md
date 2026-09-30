@@ -1,5 +1,3 @@
-[Phonopy 的 QE 接口](https://phonopy.github.io/phonopy/qe.html) · [Phonopy Python API](https://phonopy.github.io/phonopy/phonopy-module.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
-
 有限位移声子把“推一下原子”变成真正的输入文件。原子位移后，做固定结构 SCF，读取所有原子的力；用正负位移的力差得到力常数，再求不同 q 点的振动频率。
 
 这里沿用 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 中的 fcc Al 原胞，改用超胞和 QE 力计算。两条路线的电子结构程序都是 QE 7.5，赝势都是 LDA-PZ 的 `Al.pz-vbc.UPF`。差别在于如何求恢复力，不是换成一个已有势函数来预测它。
@@ -17,6 +15,32 @@ ph.generate_displacements(distance=0.01, is_plusminus=True)
 ```
 
 这两行是实际输入生成过程的核心。`unitcell` 的晶格单位为 Å，质量单位为原子质量单位；因此这里的 0.01 是 Å。完整的 [结构和位移生成脚本](/Atlas/examples/al/prepare_finite.py) 保存晶格、质量、位移方向和生成顺序，不能只拿一份力文件猜它对应哪个位移。
+
+<details>
+<summary>prepare_finite.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import json
+import numpy as np
+from phonopy import Phonopy
+from phonopy.structure.atoms import PhonopyAtoms
+r=Path(__file__).resolve().parent
+j=json.loads((r/"structure.json").read_text())
+u=PhonopyAtoms(symbols=["Al"],cell=j["cell_angstrom"],scaled_positions=[[0,0,0]],masses=[26.9815385])
+output=r/"finite-generated-check";output.mkdir(exist_ok=True)
+for dim,amp in [(2,.01),(2,.02),(3,.01)]:
+    ph=Phonopy(u,np.eye(3,dtype=int)*dim,primitive_matrix="P")
+    ph.generate_displacements(distance=amp,is_plusminus=True)
+    dst=output/f"n{dim}-d{amp:.2f}";dst.mkdir(exist_ok=True)
+    ph.save(dst/"phonopy_disp.yaml")
+    for i,sc in enumerate(ph.supercells_with_displacements,1):
+        np.savetxt(dst/f"cell-{i:03d}.txt",sc.cell,fmt="%.14f")
+        np.savetxt(dst/f"positions-{i:03d}.txt",sc.scaled_positions,fmt="%.14f")
+    print(dst.name,len(ph.supercells_with_displacements),"displaced supercells")
+```
+
+</details>
 
 ```console
 maxwell@maxwell:~/al/finite-disp/n2-d0.01$ ls
@@ -144,6 +168,68 @@ maxwell@maxwell:~/al/finite-disp/n2-d0.01$ tail -9 disp-001/al.scf.out
 
 [analyse.py](/Atlas/examples/al/finite-disp/analyse.py) 从 `phonopy_disp.yaml` 读取位移顺序，从相同编号的 `.out` 读取力，先生成未额外对称化的力常数，再保存平移和规则处理后的力常数与声子路径数据。
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写有限位移后处理 analyse.py。读取四个目录 n2-d0.01、n2-d0.02、n2-d0.01-k9、n3-d0.01，各自将 phonopy_disp.yaml 与 disp-001/002 的 QE 力输出按编号配对。未完成的目录打印 still running 并不填数；已完成输出检查唯一 JOB DONE、电子收敛和空 stderr。用 ASE 读取 eV/Å 的原子力，Phonopy 使用 primitive_matrix=P，先记录未经对称化的平移残差，再对称化力常数并保存 phonopy_params.yaml。保存 Γ、X、W、L 的原始和处理后频率（THz）；路径 bands.csv 的列为 segment,distance_A_minus1,q1,q2,q3,f1_cm_minus1,f2_cm_minus1,f3_cm_minus1，频率在写表时乘 33.3564095198152 换为 cm⁻¹。保留负频，并保存每份力输出的哈希和净力。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>analyse.py 完整源码</summary>
+
+```python
+from pathlib import Path
+import json,hashlib
+import numpy as np
+import phonopy
+from ase.io import read
+from phonopy.phonon.band_structure import get_band_qpoints_and_path_connections
+root=Path(__file__).resolve().parent
+summary=[]
+for label in ['n2-d0.01','n2-d0.02','n2-d0.01-k9','n3-d0.01']:
+ d=root/label
+ files=[d/'disp-001/al.scf.out',d/'disp-002/al.scf.out']
+ if not all(f.exists() and 'JOB DONE.' in f.read_text() for f in files):
+  print(label, 'still running');continue
+ forces=[];provenance=[]
+ for file in files:
+  out=file.read_text();err=file.with_suffix('.err').read_text()
+  assert out.count('JOB DONE.')==1 and 'convergence has been achieved' in out and not err
+  assert 'convergence NOT achieved' not in out
+  f=read(file,format='espresso-out').get_forces()
+  forces.append(f)
+  provenance.append({'file':str(file.relative_to(root)),'sha256':hashlib.sha256(file.read_bytes()).hexdigest(),'net_force_eV_A':f.sum(axis=0).tolist()})
+ ph=phonopy.load(d/'phonopy_disp.yaml',produce_fc=False,symmetrize_fc=False,primitive_matrix='P')
+ ph.forces = forces
+ ph.produce_force_constants(fc_calculator='traditional')
+ raw_fc=ph.force_constants.copy();drift=float(np.max(np.abs(raw_fc.sum(axis=1))))
+ ph.run_qpoints([[0,0,0],[.5,0,.5],[.5,.25,.75],[.5,.5,.5]],with_eigenvectors=True)
+ raw_freq=ph.qpoints.frequencies.copy()
+ ph.symmetrize_force_constants()
+ ph.run_qpoints([[0,0,0],[.5,0,.5],[.5,.25,.75],[.5,.5,.5]],with_eigenvectors=True)
+ freq=ph.qpoints.frequencies.copy()
+ # Angstrom cells, ASE forces eV/Angstrom, phonopy's default THz conversion.
+ ph.save(d/'phonopy_params.yaml',settings={'force_constants':True})
+ path=[[[0,0,0],[.5,0,.5],[.5,.25,.75],[.5,.5,.5],[0,0,0]]]
+ q,connections=get_band_qpoints_and_path_connections(path,npoints=41)
+ ph.run_band_structure(q,path_connections=connections,labels=['Γ','X','W','L','Γ'])
+ b={k:getattr(ph.band_structure,k) for k in ['distances','qpoints','frequencies']};lines=[]
+ for segment,(dist,qs,fs) in enumerate(zip(b['distances'],b['qpoints'],b['frequencies'])):
+  lines.extend([[segment,float(x),*qpt.tolist(),*(f*33.3564095198152).tolist()] for x,qpt,f in zip(dist,qs,fs)])
+ np.savetxt(d/'bands.csv',np.array(lines),delimiter=',',header='segment,distance_A_minus1,q1,q2,q3,f1_cm_minus1,f2_cm_minus1,f3_cm_minus1',comments='')
+ data={'label':label,'phonopy_version':phonopy.__version__,'unit_length':'angstrom','force_unit':'eV/angstrom','frequency_unit':'THz','raw_fc_drift_eV_A2':drift,'raw_gamma_X_W_L_THz':raw_freq.tolist(),'symmetrized_gamma_X_W_L_THz':freq.tolist(),'displacements':[{k:(v.tolist() if hasattr(v,'tolist') else v) for k,v in p.items()} for p in ph.dataset['first_atoms'] if 'forces' not in p],'provenance':provenance}
+ # Keep compact displacement identity without bulk force arrays in metadata.
+ data['displacements']=[{'number':int(p['number']),'displacement_A':np.asarray(p['displacement']).tolist()} for p in ph.dataset['first_atoms']]
+ (d/'summary.json').write_text(json.dumps(data,indent=2));summary.append(data)
+ print(label, 'raw FC drift=',drift,'; Gamma THz=',freq[0],'; X THz=',freq[1])
+(root/'summary.json').write_text(json.dumps(summary,indent=2))
+```
+
+</details>
+
 ```console
 maxwell@maxwell:~/al/finite-disp/..$ .venv/bin/python finite-disp/analyse.py
 n2-d0.01 raw FC drift= 1.7763568394002505e-15 ; Gamma THz= [-5.29508182e-08  4.25307894e-08  5.00338842e-08] ; X THz= [6.3569392 6.3569392 9.8421396]
@@ -168,7 +254,46 @@ n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.1
 
 <figure><img src="/Atlas/examples/al/figures/finite-displacement.png" alt="Al有限位移声子的位移幅度与超胞比较" loading="lazy"/><figcaption>左侧比较同一超胞的两种位移幅度；右侧在相同原胞等效电子采样密度下比较两种超胞。不同检查分别呈现，不混成一条收敛结论。</figcaption></figure>
 
-[plot_finite.py](/Atlas/examples/al/plot_finite.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取各目录的 `bands.csv`，将 Phonopy 的 THz 乘以 33.35640952 转为 cm⁻¹，并按 Γ—X—W—L—Γ 的分段端点放标签。下载整个 Al 示例的数据结构后，在本机运行：
+[plot_finite.py](/Atlas/examples/al/plot_finite.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取各目录的 `bands.csv`，`bands.csv` 的后三列已由分析脚本换成 cm⁻¹，绘图直接读取，按 Γ—X—W—L—Γ 的分段端点放标签。下载整个 Al 示例的数据结构后，在本机运行：
+
+
+画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+
+```text
+编写 plot_finite.py，在 Al 根目录读取 finite-disp 下四个目录的 bands.csv。第二列为累计倒空间距离，最后三列已经是 cm⁻¹，不再换算。左面板对比 n2-d0.01 与 n2-d0.02；右面板对比 n2-d0.01-k9 与 n3-d0.01。用行 0、40、81、122、163 的路径距离标 Γ—X—W—L—Γ，保留频率零线，输出 figures/finite-displacement.png 和 PDF。复用同目录 atlas_plot_style.py。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot_finite.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent
+fig,axes=plt.subplots(1,2,figsize=(11,4.3),layout="constrained",sharey=True)
+series=[[("n2-d0.01","0.01 Å", "#256b8e"),("n2-d0.02","0.02 Å", "#d97742")],[("n2-d0.01-k9","2³ supercell, 9³ k", "#256b8e"),("n3-d0.01","3³ supercell, 6³ k", "#d97742")]]
+for ax,cases,title in zip(axes,series,["Displacement amplitude","Supercell range"]):
+    for name,label,color in cases:
+        x=np.genfromtxt(r/"finite-disp"/name/"bands.csv",delimiter=",",skip_header=1)
+        for branch in [5,6,7]:ax.plot(x[:,1],x[:,branch],color=color,lw=1.3,label=label if branch==5 else None,alpha=.85)
+    ticks=x[[0,40,81,122,163],1]
+    ax.set_xticks(ticks,["Γ","X","W","L","Γ"])
+    for p in ticks:ax.axvline(p,color="0.8",lw=.6)
+    ax.axhline(0,color="0.3",lw=.7);ax.set(xlim=(ticks[0],ticks[-1]),title=title)
+    ax.legend(frameon=False,fontsize=9)
+axes[1].legend(frameon=False, fontsize=9, loc="lower center", bbox_to_anchor=(0.5, 0.07))
+axes[0].set_ylabel("Frequency (cm⁻¹)")
+(r/"figures").mkdir(exist_ok=True)
+fig.savefig(r/"figures/finite-displacement.png",dpi=220);fig.savefig(r/"figures/finite-displacement.pdf")
+```
+
+</details>
 
 ```bash
 python3 plot_finite.py
@@ -197,3 +322,7 @@ python3 plot_finite.py
                                      ↓
                           位移幅度 / 超胞 / k网格检查
 ```
+
+## 参考资料
+
+[Phonopy 的 QE 接口](https://phonopy.github.io/phonopy/qe.html) · [Phonopy Python API](https://phonopy.github.io/phonopy/phonopy-module.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)

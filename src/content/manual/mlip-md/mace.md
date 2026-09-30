@@ -1,17 +1,8 @@
-参考：
-
-- [MACE：预训练模型与分子动力学](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
-- [ASE：分子动力学、日志与时间步长](https://docs.ase-lib.org/ase/md.html)
-- [ASE：轨迹文件](https://docs.ase-lib.org/ase/io/trajectory.html)
-- [MACE-MP-0 官方模型](https://github.com/ACEsuit/mace-foundations/releases/tag/mace_mp_0)
-
-## 给 64 个 Si 原子加上温度，再检查能量能否守住
-
 这一页接着[可变晶胞优化](/Atlas/m/vc-relax/mace/)的结果往下走。把已经检查过原子力和应力的 8 原子晶胞扩成 2×2×2 超胞，先与 300 K 热浴接触 1 ps，再关掉温控器，用 NVE 积分运行 0.5 ps。最后回到同一帧，把时间步长减半，再走相同的物理时间。
 
-这样可以分别看三个变化：初始速度产生的温度、热浴交换能量时的波动，以及离开热浴之后的能量守恒。这里每一步的力来自固定的 MACE 模型，属于机器学习势分子动力学。运行过程没有调用 DFT 求解器，因此不能把这份轨迹标成 AIMD。
+这样可以分别看三个变化：初始速度产生的温度、热浴交换能量时的波动，以及离开热浴之后的能量守恒。这里每一步的力来自固定的 MACE 模型，属于机器学习势分子动力学。模型的能量—力误差需要用目标构型的 DFT 数据另行检验。
 
-### 从结构文件接上动力学
+## 从结构文件接上动力学
 
 目录沿用前两篇，模型位于 `../models/mace-mp-0-small.model`，结构位于 `../si-vc-relax/relaxed.extxyz`。模型 SHA256 为 `2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736`，与官方发布文件逐字节一致。
 
@@ -120,7 +111,7 @@ print("MD_INTEGRATION_ACCEPTED")
 
 `loginterval` 和回调的 `interval` 只控制写出频率，程序仍在每个积分步更新位置与动量。把输出间隔改大能减少文件大小，却会漏掉保存时刻之间的起伏；本页报告的最大能量变化因此明确限定在保存节点上。相邻的轨迹帧也不能因写成不同文件行就视为独立统计样本。
 
-### 计算进行时，先看时间有没有向前走
+## 计算进行时，先看时间有没有向前走
 
 这次在 Talos 的 `atlas-mace` tmux 窗口使用 2 个 CPU 线程运行，MACE 0.3.16、ASE 3.29.0、float64，没有启用 GPU。
 
@@ -158,7 +149,7 @@ Time[ps]      Etot[eV]     Epot[eV]     Ekin[eV]    T[K]
 
 NVT 允许瞬时温度和总能量波动。1 ps 的这段计算用于展示温控和后续积分的衔接；末帧温度为 376.2 K；仅凭这段短轨迹，不能断言已经充分平衡。`equilibrated.traj` 保存的就是这一段末帧，文件名也不能代替时间窗口和多种初速度的平衡检查。
 
-### 关掉热浴后，换一种方式读输出
+## 关掉热浴后，换一种方式读输出
 
 ```text
 (venv) talos@talos-MS-7D54:<工作目录>/si-md$ head -n 4 nve-1fs.csv
@@ -208,6 +199,62 @@ MD_INTEGRATION_ACCEPTED
 
 进一步用 [check_trajectory.py](/Atlas/examples/mace-si/si-md/check_trajectory.py) 直接读取二进制轨迹，逐帧核对 CSV 中的能量、原子数、晶胞和初始速度：
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 check_trajectory.py，读取 nve-1fs.traj 与 nve-0p5fs.traj 及对应 CSV。用 ASE 逐帧提取每原子总能、原子数、晶胞体积、总动量、周期最短原子间距和相对初帧的 RMS 位移；按 CSV 保存精度比较能量。比较两条轨迹首帧位置、动量和晶胞，分别报告帧数与行数。只读保存的轨迹属性，不重新调用 MACE。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>check_trajectory.py 完整源码</summary>
+
+```python
+import json
+from pathlib import Path
+import numpy as np
+from ase.io import read
+
+report = {}
+starts = []
+for label in ["nve-1fs", "nve-0p5fs"]:
+    frames = read(label + ".traj", index=":")
+    series = np.genfromtxt(label + ".csv", delimiter=",", names=True)
+    starts.append(frames[0])
+    energies = np.array([a.get_total_energy() / len(a) for a in frames])
+    volumes = np.array([a.get_volume() for a in frames])
+    momenta = np.array([np.linalg.norm(a.get_momenta().sum(axis=0)) for a in frames])
+    minimum_distances = []
+    for atoms in frames:
+        distances = atoms.get_all_distances(mic=True)
+        np.fill_diagonal(distances, np.inf)
+        minimum_distances.append(distances.min())
+    report[label] = {
+        "frames": len(frames), "csv_rows": len(series), "atoms_per_frame": len(frames[0]),
+        "all_frames_finite": bool(all(np.isfinite(a.positions).all() for a in frames)),
+        "max_energy_csv_mismatch_eV_atom": float(np.max(np.abs(energies - series["total_eV_atom"]))),
+        "volume_range_A3": float(np.ptp(volumes)),
+        "max_total_momentum_ase_units": float(momenta.max()),
+        "minimum_pair_distance_A": float(np.min(minimum_distances)),
+        "final_rms_displacement_A": float(np.sqrt(np.mean(np.sum((frames[-1].positions - frames[0].positions)**2, axis=1))))
+    }
+    assert len(frames) == len(series) == 101
+    assert all(len(a) == 64 for a in frames)
+    assert report[label]["all_frames_finite"]
+    assert report[label]["max_energy_csv_mismatch_eV_atom"] < 1e-10
+    assert report[label]["volume_range_A3"] < 1e-10
+report["initial_positions_identical"] = bool(np.array_equal(starts[0].positions, starts[1].positions))
+report["initial_momenta_identical"] = bool(np.array_equal(starts[0].get_momenta(), starts[1].get_momenta()))
+assert report["initial_positions_identical"] and report["initial_momenta_identical"]
+Path("trajectory-check.json").write_text(json.dumps(report, indent=2) + "\n")
+print(json.dumps(report, indent=2))
+print("TRAJECTORY_CHECK_ACCEPTED")
+```
+
+</details>
+
 ```text
 (venv) talos@talos-MS-7D54:<工作目录>/si-md$ python check_trajectory.py > trajectory-check.out
 (venv) talos@talos-MS-7D54:<工作目录>/si-md$ cat trajectory-check.json
@@ -241,9 +288,9 @@ MD_INTEGRATION_ACCEPTED
 
 两条轨迹都包含 101 帧，64 个原子始终保留，晶胞体积保持不变，CSV 与轨迹中存储的能量差处于写入小数位造成的舍入范围内。初始位置和动量逐项一致。这里还列出了轨迹中最短原子间距和末帧均方根位移，便于发现明显结构异常；短轨迹没有出现这种异常，仍不能外推成长时间热稳定性或新的相变结论。
 
-### 把温度和积分误差画在同一张图里
+## 把温度和积分误差画在同一张图里
 
-把 [warmup.log](/Atlas/examples/mace-si/si-md/warmup.log)、[nve-1fs.csv](/Atlas/examples/mace-si/si-md/nve-1fs.csv)、[nve-0p5fs.csv](/Atlas/examples/mace-si/si-md/nve-0p5fs.csv) 和 [plot.py](/Atlas/examples/mace-si/si-md/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-md/atlas_plot_style.py)） 放在同一目录，运行 `python3 plot.py`。绘图只需要 NumPy 与 Matplotlib；不需要在本机再加载 MACE 模型。
+把 [warmup.log](/Atlas/examples/mace-si/si-md/warmup.log)、[nve-1fs.csv](/Atlas/examples/mace-si/si-md/nve-1fs.csv)、[nve-0p5fs.csv](/Atlas/examples/mace-si/si-md/nve-0p5fs.csv) 和 [plot.py](/Atlas/examples/mace-si/si-md/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-md/atlas_plot_style.py)） 放在同一目录。绘图只需要 NumPy 与 Matplotlib；不需要在本机再加载 MACE 模型。
 
 CSV 中的 `time_ps` 已经是 ps，`total_eV_atom` 已经除过原子数。画每原子能量变化时，只需减去该条轨迹第一行的总能，再把 eV 换成 meV：
 
@@ -258,11 +305,62 @@ delta_half = 1000 * (half["total_eV_atom"] - half["total_eV_atom"][0])
 
 两张 CSV 各有 101 行记录，覆盖同一个 0—0.5 ps 区间；它们第一行的总能与初始动量一致，因此这里比较的是相同初态下的步长误差。不要再把能量除以 64，也不要把积分步号当成时间。`warmup.log` 的第一列是时间，最后一列是温度，其中能量列按整个超胞记录；本图只从它读取热化温度，不与 NVE 表的每原子能量列直接拼接。
 
+
+画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+
+```text
+编写 plot.py，读取 warmup.log（跳过标题）及 nve-1fs.csv、nve-0p5fs.csv。CSV time_ps 已是 ps，total_eV_atom 已按原子数归一；每条 NVE 减去自己的首行总能并乘 1000，画 ΔE 的 meV/atom 曲线，不再除以 64。三个面板依次画 warmup 的实际温度与 300 K 参考线、两种步长 NVE 的能量变化、两种步长的真实温度。输出 md-check.svg/png/pdf，复用 atlas_plot_style.py。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+warmup = np.loadtxt("warmup.log", skiprows=1)
+one = np.genfromtxt("nve-1fs.csv", delimiter=",", names=True)
+half = np.genfromtxt("nve-0p5fs.csv", delimiter=",", names=True)
+plt.rcParams.update({"font.size": 11, "axes.spines.top": False, "axes.spines.right": False})
+fig, axes = plt.subplots(3, 1, figsize=(8, 9), layout="constrained")
+axes[0].plot(warmup[:, 0], warmup[:, 4], color="#cc79a7")
+axes[0].axhline(300, color="#666666", linestyle="--", linewidth=1)
+axes[0].set(title="64-atom Si with MACE-MP-0 small", ylabel="Temperature (K)",
+            xlabel="Bussi warmup time (ps)")
+for data, label, color in [(one, "1.0 fs", "#0072b2"), (half, "0.5 fs", "#B45309")]:
+    delta = 1000 * (data["total_eV_atom"] - data["total_eV_atom"][0])
+    axes[1].plot(data["time_ps"], delta, label=label, color=color)
+    axes[2].plot(data["time_ps"], data["temperature_K"], label=label, color=color)
+axes[1].set(ylabel="Energy change (meV/atom)", xlabel="NVE time (ps)")
+axes[2].set(ylabel="Temperature (K)", xlabel="NVE time (ps)")
+for ax in axes:
+    ax.grid(alpha=0.18)
+for ax in axes[1:]:
+    ax.legend(frameon=False, title="Time step")
+fig.savefig("md-check.svg")
+fig.savefig("md-check.png", dpi=180)
+print("md-check.svg", "md-check.png")
+```
+
+</details>
+
+```bash
+python3 plot.py
+```
+
 ![64 原子 Si 的热化温度和两种步长的 NVE 能量检查](/Atlas/examples/mace-si/si-md/md-check.svg)
 
 第一幅图看热浴交换能量时的温度起伏；第二幅图从两条轨迹各自的初始总能中减去同一个基准，放大每原子能量的微小变化；第三幅图保留真实温度波动。不能用一条平滑温度曲线代替能量守恒检验，也不能把 NVT 中的总能变化按 NVE 的标准判错。
 
-### 将同一份数据导出成论文图
+## 将同一份数据导出成论文图
 
 网页图保留足够大的刻度与图例。准备论文图时，在绘图脚本建立画布之前选用本机已安装的 Arial 或 Helvetica，设置 `pdf.fonttype=42` 和 `svg.fonttype='none'`，使 PDF 嵌入 TrueType 字体、SVG 保留文字；画完后在保存 PNG/SVG 的位置另存 PDF：
 
@@ -300,3 +398,12 @@ fig.savefig("md-check.pdf", bbox_inches="tight", facecolor="white")
                                       ↓
                       原始轨迹核对 → 能量、温度与步长图
 ```
+
+## 参考资料
+
+参考：
+
+- [MACE：预训练模型与分子动力学](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
+- [ASE：分子动力学、日志与时间步长](https://docs.ase-lib.org/ase/md.html)
+- [ASE：轨迹文件](https://docs.ase-lib.org/ase/io/trajectory.html)
+- [MACE-MP-0 官方模型](https://github.com/ACEsuit/mace-foundations/releases/tag/mace_mp_0)

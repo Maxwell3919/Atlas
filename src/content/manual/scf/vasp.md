@@ -1,8 +1,10 @@
-[VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
-
 先跑一个两个原子的 bcc Fe 固定结构计算，再沿着它实际生成的文件读一遍。电子自洽这一步解决的是：在指定晶格、原子位置和计算设置下，找到相互一致的电荷密度与有效势。它可以计算能量、磁矩和力，但不会因为电子收敛就自动把几何结构变成平衡结构。
 
+[VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
+
 [下载本次 SCF 的输入和输出](/Atlas/examples/vasp/fe-scf-files.tar.gz)。包内保留输入、OUTCAR、OSZICAR 和本例生成的其他小输出文件；POTCAR 只提供 TITEL、ZVAL 与 SHA256，使用前需从自己的授权赝势库准备对应文件。下面保留这次已执行的终端操作和结果。
+
+## 准备结构、电子参数与 PAW 数据
 
 ```text
 [bcgong@localhost vasp]$ mkdir -p fe_bcc/fm
@@ -89,7 +91,9 @@ Gamma
 
 POTCAR 给出元素的 PAW 数据集，元素顺序必须与 POSCAR 一致。这里只有 Fe；标题确认采用 `PAW_PBE Fe 06Sep2000`，`ZVAL = 8` 表示每个 Fe 显式处理 8 个价电子。两个原子的中性晶胞因此应有 16 个价电子。
 
-这四份文件分别负责结构、计算控制、k 点取样和 PAW 数据，缺一项都不能把本例完整复现。提交脚本负责在服务器上启动程序，它不属于上述四种物理输入。
+这四份文件分别负责结构、计算控制、k 点取样和 PAW 数据。接下来用提交脚本启动 VASP。
+
+## 提交固定结构 SCF，检查电子循环
 
 ```text
 [bcgong@localhost fm]$ cat run.slurm
@@ -111,7 +115,7 @@ cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
 
-这次使用 8 个 MPI 进程和单线程，提交前节点已有 16 核研究任务，总申请保持在 24/64 核。脚本中的 16–23 是现场核验后的 CPU 编号；它与本节点 Intel MPI 的绑核行为有关，不是 Fe 计算的物理参数，也不是通用服务器设置。换节点时要跟着调度器分配核验实际亲和性。
+这份脚本使用 8 个 MPI 进程和单线程。`I_MPI_PIN_PROCESSOR_LIST` 是该节点 Intel MPI 的核绑定设置；换节点时按调度器实际分配的 CPU 配置。
 
 ```text
 [bcgong@localhost fm]$ sbatch run.slurm
@@ -158,6 +162,8 @@ DAV:  18    -0.164736559415E+02   -0.30582E-08   -0.59411E-11  3008   0.941E-05
 ```
 
 OUTCAR 明确写出电子循环因为 EDIFF 已达到而停止，并在末尾给出正常计时；实际耗时约 13 秒。把这两条与迭代末尾一起核验，比只看队列里任务消失更可靠。
+
+## 读 OUTCAR 的参数、能量、力和压力
 
 ```text
 [bcgong@localhost fm]$ head -7 OUTCAR
@@ -232,6 +238,8 @@ Reciprocal lattice
 ```
 
 两个高对称位置上的力接近零，但外压为 56.94 kbar，约 5.694 GPa。这个例子清楚地区分了电子收敛与晶胞平衡：对称性可以让原子受力抵消，固定的晶格常数仍可能远离零压位置。若要优化几何，先确定需要开放哪些自由度：只移动原子时查看 [固定晶胞结构优化](/Atlas/m/relax/)，连晶格一起调整时查看 [晶胞优化](/Atlas/m/vc-relax/)。这两处进入方法目录，各条计算路线会说明自己的程序和结构前提。
+
+## 按后续任务选择输出文件
 
 ```text
 [bcgong@localhost fm]$ ls -lh INCAR POSCAR KPOINTS OUTCAR OSZICAR CONTCAR IBZKPT EIGENVAL DOSCAR PROCAR CHGCAR WAVECAR vasprun.xml

@@ -1,8 +1,6 @@
-[matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/)
-
 声子色散告诉我们一条指定路径上的频率怎样变化。声子态密度换了一个问法：在整个布里渊区里，有多少振动模式落在这一小段频率内？路径上的点再密，也不能代替布里渊区积分。
 
-这里接着 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的结果做。例子是新计算的单原子 fcc Al 原胞，使用 QE 7.5 和官方示例中的 `Al.pz-vbc.UPF`。这次完整计算了 4×4×4 q 网格；下面每一个文件都来自同一个 Al 结构、同一份 SCF 电荷密度。本次 Al 的结构与父 SCF 设置在上面的 DFPT 算例中核对，在这里从声子计算已经结束的目录开始。
+这里接着 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的结果做。例子是单原子 fcc Al 原胞，使用 QE 7.5 和官方示例中的 `Al.pz-vbc.UPF`。这次完整计算了 4×4×4 q 网格；需要准备 `al.dyn0` 和八份编号动力学矩阵，它们对应同一个 Al 结构和父 SCF；下面从声子计算结束的目录开始。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -169,6 +167,40 @@ cat matdyn-dos32.err
 
 解包本页开头的 Al 算例并保留目录结构，在 `al` 目录运行[绘图脚本](/Atlas/examples/al/plot_phdos.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。脚本从 `dfpt/al.phdos.dat` 和 `dfpt/al.phdos32.dat` 读取 24³、32³ 两份数据；[单独下载的原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat)也应放回对应的 `dfpt` 子目录。它先输出积分再画曲线，这样能发现列读错、单位弄错或数据截断的问题。
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 plot_phdos.py，从 Al 根目录读取 dfpt/al.phdos.dat 与 dfpt/al.phdos32.dat，比较 24³ 和 32³ 后处理积分网格。第一列频率单位 cm⁻¹，第二列总 DOS 单位 states/(cm⁻¹)；用梯形积分打印原始积分，与单原子原胞的 3 个模式比较，不强制归一化。以真实频率列画 DOS 曲线、标单位和网格，输出 figures/phdos.png 与 PDF，复用 atlas_plot_style.py。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot_phdos.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+root=Path(__file__).resolve().parent
+fig,ax=plt.subplots(figsize=(6.8,4.3),layout="constrained")
+for n,file in [(24,"al.phdos.dat"),(32,"al.phdos32.dat")]:
+    d=np.loadtxt(root/"dfpt"/file)
+    print(f"mesh={n} integral={np.trapezoid(d[:,1],d[:,0]):.8f}")
+    ax.plot(d[:,0],d[:,1],label=f"{n}³ integration mesh",lw=1.8)
+ax.set(xlabel="Frequency (cm⁻¹)",ylabel="Phonon DOS (states / cm⁻¹)",xlim=(0,None))
+ax.legend(frameon=False);ax.grid(alpha=.18)
+(root/"figures").mkdir(exist_ok=True)
+fig.savefig(root/"figures/phdos.png",dpi=220)
+fig.savefig(root/"figures/phdos.pdf")
+```
+
+</details>
+
 ```bash
 python3 plot_phdos.py
 ```
@@ -220,3 +252,7 @@ python3 plot_phdos.py
                                   ├→ matdyn 高对称路径 → 声子色散
                                   └→ matdyn 均匀网格 → 声子 DOS → 积分与网格检查
 ```
+
+## 参考资料
+
+[matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/)

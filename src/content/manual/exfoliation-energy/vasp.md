@@ -1,6 +1,6 @@
-[VASP：OUTCAR 输出](https://vasp.at/wiki/OUTCAR) · [VASP：展宽与能量选择](https://vasp.at/wiki/Smearing_technique) · [VASP：IVDW 色散修正](https://vasp.at/wiki/IVDW) · [Jung 等：剥离能与参考态](https://arxiv.org/abs/1805.04527)
+一个六层 slab 的最上面一层被逐渐抬高，能量会怎样变化？这里读取一组已经存在的 HfI₂ 固定结构单点：位移零点与 2–20 Å 共 20 个完整结果。另有 7 个目录缺少完整电子收敛或正常结束记录，保存在排除表中。本例以这份冻结六层 slab 的位移零点为参考，得到 `W(20 Å)=0.36641176 J/m²` 的有限距离分离功。材料剥离能需要相应的体相或 bulk-like 参考；解理能对应分开两块材料的界面操作，两者应按各自结构与分离方式定义。
 
-一个六层 slab 的最上面一层被逐渐抬高，能量会怎样变化？这里读取一组已经存在的 HfI₂ 固定结构单点：位移零点与 2–20 Å 共 20 个完整结果。另有 7 个目录缺少完整电子收敛或正常结束记录，单独列出，图中没有为它们补数。
+[VASP：OUTCAR 输出](https://vasp.at/wiki/OUTCAR) · [VASP：展宽与能量选择](https://vasp.at/wiki/Smearing_technique) · [VASP：IVDW 色散修正](https://vasp.at/wiki/IVDW) · [Jung 等：剥离能与参考态](https://arxiv.org/abs/1805.04527)
 
 [下载本例原始输入、OUTCAR、提取与绘图脚本](/Atlas/examples/hfi2-frozen20-files.tar.gz)，解压为 `hfi2-frozen20`。包内 `raw/` 保留各目录的实际文件，电子失败的长标准输出以 `out.gz` 保存；读取能量与验收使用 OUTCAR。重新提取已有结果不需要 VASP，重新计算则需要自行准备有权限的匹配 POTCAR。
 
@@ -213,7 +213,7 @@ mpirun -np 16  <vasp_bin>/vasp_std > out
 [bcgong@localhost hfi2-frozen20]$
 ```
 
-标准输出确认这些历史单点实际使用了 16 个进程。脚本没有把申请进程数写成 SBATCH 参数，复算时应明确申请与 `-np 16` 对应的资源，例如 `sbatch --nodes=1 --ntasks=16 script_std`，并根据当前队列保留公共节点所需的空闲资源。本次整理只读取这些已存在结果，没有重新提交这一系列任务。
+标准输出确认这些历史单点实际使用了 16 个进程。脚本没有把申请进程数写成 SBATCH 参数，复算时应明确申请与 `-np 16` 对应的资源，例如 `sbatch --nodes=1 --ntasks=16 script_std`，并根据当前队列保留公共节点所需的空闲资源。各目录中的输出对应这批已完成或失败的单点尝试。
 
 ## 按电子收敛与完整输出筛选扫描点
 
@@ -412,7 +412,7 @@ W(20) = ΔE(20) / A
 
 ## 从有限位移数据判断分离功的范围
 
-这里关注的是：在明确定义的参考结构与移动原子集合下，把最外一层移开所需的能量是否代表从堆叠材料中剥下一层，以及大距离能量是否已达到可接受的极限。层状材料论文通常从体相或 bulk-like 多层模型开始，以相对平衡层距的位移为自变量，按面积归一化，再比较足够大的分离距离与厚度/堆垛敏感性。本例的参考不是体相：<code>scf_eq</code> 是 18 原子、六个 HfI₂ 化学式单元组成的六层 slab，c=82.1873167 Å，面内面积 A=10.8482214944 Å²；外侧周期镜像间距为 43.993243 Å。接受点均为 VASP 5.4.4（build 26 Feb 2024）的固定几何静态计算：PBE（<code>GGA=PE</code>）、<code>IVDW=11</code>、400 eV、电子阈值 10⁻⁶、Γ-centered 18×18×1，<code>IBRION=-1</code>。沿用已核验输入，只移动顶层三原子 11、12、18 号，逐点读取 OUTCAR 的 <code>energy without entropy</code>。
+前面的几何与输出确定了能量差的参考：18 原子的冻结六层 slab，以 11、12、18 号原子的共同位移打开一个界面。判断大距离结果时，还要同时查看能量变化和外侧周期镜像间距。
 
 所以本页能报告的是一个冻结六层模型中打开一个界面的有限距离分离功：
 $$
@@ -437,7 +437,7 @@ $$
 
 d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降低 0.42288 meV/cell。这个有限样本显示末段存在起伏，不能据此给出统计误差，也不足以确认能量已经达到解理曲线的平台。与此同时，c 保持固定时，外侧周期镜像间距从 43.993 Å 缩到 23.993 Å。增加顶层位移并没有保持周期镜像间距不变；还需在更大 c 下成对重算 d=0 与分离点，才可量化这一误差来源。
 
-### 用 AI 编写分离功分析脚本
+## 编写分离功分析脚本
 
 ~~~text
 请用 Python 3 编写 review_hfi2_exfoliation.py，读取同目录的 exfoliation.csv、excluded.csv 和 scf_eq 的 POSCAR；这些输入不可修改。接受点 CSV 的关键字段是 directory、d_A（Å）、energy_without_entropy_eV（eV/cell）、energy_sigma0_eV（eV/cell）、delta_E_meV（meV/cell）、W_meV_A2（meV/Å²）、W_J_m2（J/m²）、outer_periodic_gap_A（Å）。排除表字段为 directory、reason、energy_lines、ediff、normal_end。
@@ -451,7 +451,332 @@ d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降�
 验收检查：A≈10.8482214944 Å²；accepted=20、excluded=7；d20 的 W≈0.36641176 J/m²；16…20 Å 能量范围≈0.77266 meV/cell；所有结果使用同一 OUTCAR 能量定义。不要将本例有限距离的 W 称为已收敛的材料剥离能。
 ~~~
 
-完整原始输出提取器仍为 [extract_scan.py](/Atlas/examples/hfi2-frozen20/extract_scan.py)。配套表格复核脚本为 [review_hfi2_exfoliation.py](/Atlas/examples/thermo-postprocessing/exfoliation/review_hfi2_exfoliation.py)；同目录下载 [采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/exfoliation.csv)、[排除目录表](/Atlas/examples/thermo-postprocessing/exfoliation/excluded.csv) 与 [scf_eq POSCAR](/Atlas/examples/thermo-postprocessing/exfoliation/POSCAR)。复核脚本只用 Python 3.12.3 标准库；从该目录运行 <code>python3 review_hfi2_exfoliation.py --outdir review</code>，输出选点表、排除表和 数据核对记录。 实际结果可下载：[采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-selected-separation-review.csv)、[排除点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-exclusion-review.csv)、[数据核对记录](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-separation-review.md)。
+完整原始输出提取器为 [extract_scan.py](/Atlas/examples/hfi2-frozen20/extract_scan.py)。配套表格复核脚本为 [review_hfi2_exfoliation.py](/Atlas/examples/thermo-postprocessing/exfoliation/review_hfi2_exfoliation.py)；同目录下载 [采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/exfoliation.csv)、[排除目录表](/Atlas/examples/thermo-postprocessing/exfoliation/excluded.csv) 与 [scf_eq POSCAR](/Atlas/examples/thermo-postprocessing/exfoliation/POSCAR)。复核脚本只用 Python 3.12.3 标准库；下方给出完整源码和运行命令，输出选点表、排除表和数据核对记录。 实际结果可下载：[采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-selected-separation-review.csv)、[排除点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-exclusion-review.csv)、[数据核对记录](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-separation-review.md)。
+
+<details>
+<summary>extract_scan.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import os, re, math, csv, json, hashlib
+
+def digest(path):
+    h=hashlib.sha256()
+    with open(path,'rb') as f:
+        for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
+    return h.hexdigest()
+
+def read_poscar(path):
+    lines=open(path).read().splitlines()
+    scale=float(lines[1])
+    if scale<=0:raise ValueError('Positive scalar POSCAR scale required')
+    cell=[[float(x)*scale for x in line.split()[:3]] for line in lines[2:5]]
+    species=lines[5].split();counts=list(map(int,lines[6].split()));nat=sum(counts)
+    at=7
+    if lines[at].lower().startswith('s'):at+=1
+    mode=lines[at].lower();at+=1
+    raw=[[float(x) for x in line.split()[:3]] for line in lines[at:at+nat]]
+    if mode.startswith('d'):
+        pos=[[sum(v[k]*cell[k][j] for k in range(3)) for j in range(3)] for v in raw]
+    elif mode.startswith(('c','k')):
+        pos=[[x*scale for x in v] for v in raw]
+    else:raise ValueError('Unsupported coordinates')
+    return cell,species,counts,pos
+
+def area(cell):
+    a,b=cell[:2]
+    cross=[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+    return math.sqrt(sum(x*x for x in cross))
+
+base='raw'
+rows=[];excluded=[];fingerprints={}
+reference=read_poscar(os.path.join(base,'scf_eq','POSCAR'))
+protocol=[digest(os.path.join(base,'scf_eq',f)) for f in ('INCAR','KPOINTS')]
+expected_titles=None
+for name in sorted(os.listdir(base)):
+    folder=os.path.join(base,name)
+    if not os.path.isdir(folder) or not name.startswith('scf_'):continue
+    outpath=os.path.join(folder,'OUTCAR')
+    if not os.path.isfile(outpath):
+        excluded.append(dict(directory=name,reason='OUTCAR absent',energy_lines=0,ediff=0,normal_end=0))
+        continue
+    out=open(outpath).read()
+    energies=re.findall(r'energy\s+without entropy=\s*([-\d.]+)\s+energy\(sigma->0\)\s*=\s*([-\d.]+)',out)
+    ediff=out.count('aborting loop because EDIFF is reached')
+    normal=out.count('General timing and accounting')
+    if len(energies)!=1 or ediff!=1 or normal!=1:
+        excluded.append(dict(directory=name,reason='Incomplete static SCF',energy_lines=len(energies),ediff=ediff,normal_end=normal))
+        continue
+    if re.search(r'VERY BAD NEWS|BRMIX:|Error EDD|ZHEGV failed',out,re.I):
+        raise ValueError(name+': electronic solver error')
+    current=read_poscar(os.path.join(folder,'POSCAR'))
+    if current[:3]!=reference[:3]:raise ValueError(name+': cell/species/counts changed')
+    if [digest(os.path.join(folder,f)) for f in ('INCAR','KPOINTS')]!=protocol:
+        raise ValueError(name+': input protocol differs')
+    titles=re.findall(r'TITEL\s*=\s*(.*)',out)
+    if expected_titles is None:expected_titles=titles
+    if titles!=expected_titles:raise ValueError(name+': output pseudopotentials differ')
+    if float(re.findall(r'NELECT\s*=\s*([-\d.]+)',out)[-1])!=156.:
+        raise ValueError(name+': unexpected electron count')
+    shifts=[[v-w for v,w in zip(p,q)] for p,q in zip(current[3],reference[3])]
+    d=0. if name=='scf_eq' else float(name.split('scf_d')[1])
+    for index,vec in enumerate(shifts):
+        expected=d if index in (10,11,17) else 0.
+        if max(abs(vec[0]),abs(vec[1]),abs(vec[2]-expected))>1e-7:
+            raise ValueError(name+': incorrect frozen-layer displacement')
+    energy=float(energies[0][0]);sigma=float(energies[0][1])
+    ez=[v[2] for v in current[3]]
+    outer_gap=current[0][2][2]-(max(ez)-min(ez))
+    fingerprints[name]={f:digest(os.path.join(folder,f)) for f in
+                       ('INCAR','KPOINTS','POSCAR','OUTCAR','OSZICAR','script_std')
+                       if os.path.isfile(os.path.join(folder,f))}
+    rows.append(dict(directory=name,d_A=d,energy_without_entropy_eV=energy,
+                     energy_sigma0_eV=sigma,outer_periodic_gap_A=outer_gap))
+rows.sort(key=lambda row:row['d_A'])
+if len(rows)!=20 or [row['d_A'] for row in rows]!=[0.]+list(map(float,range(2,21))):
+    raise ValueError('Expected exactly the verified 20-point set')
+area_A2=area(reference[0]);e0=rows[0]['energy_without_entropy_eV']
+for row in rows:
+    row['delta_E_meV']=1000*(row['energy_without_entropy_eV']-e0)
+    row['W_meV_A2']=row['delta_E_meV']/area_A2
+    row['W_J_m2']=row['W_meV_A2']*.01602176634
+keys=['directory','d_A','energy_without_entropy_eV','energy_sigma0_eV','delta_E_meV','W_meV_A2','W_J_m2','outer_periodic_gap_A']
+with open('exfoliation.csv','w') as f:
+    w=csv.DictWriter(f,keys,lineterminator='\n');w.writeheader();w.writerows(rows)
+with open('excluded.csv','w') as f:
+    w=csv.DictWriter(f,['directory','reason','energy_lines','ediff','normal_end'],lineterminator='\n')
+    w.writeheader();w.writerows(excluded)
+summary=dict(natoms=18,species=reference[1],counts=reference[2],area_A2=area_A2,
+             c_A=reference[0][2][2],moved_atom_indices_1based=[11,12,18],
+             accepted_points=len(rows),excluded_points=len(excluded),
+             energy_reference_eV=e0,energy_definition='energy without entropy',
+             geometry_scope='Frozen prototype-derived HfI2 structure; no accepted HfI2 relaxation in this dataset',
+             final_point=rows[-1],tail_16_to_20_range_meV=max(r['delta_E_meV'] for r in rows[-5:])-min(r['delta_E_meV'] for r in rows[-5:]),
+             output_potential_titles=expected_titles,sha256=fingerprints)
+with open('summary.json','w') as f:json.dump(summary,f,indent=2,sort_keys=True)
+print('accepted=%d excluded=%d atoms=18 moved=11,12,18'%(len(rows),len(excluded)))
+print('area=%.12f A^2 c=%.12f A'%(area_A2,reference[0][2][2]))
+for row in rows:
+    print('d=%4.1f A E=%14.8f eV dE=%10.5f meV W=%10.6f meV/A^2 outer_gap=%9.5f A'%
+          (row['d_A'],row['energy_without_entropy_eV'],row['delta_E_meV'],row['W_meV_A2'],row['outer_periodic_gap_A']))
+print('16--20 A energy range=%.5f meV'%summary['tail_16_to_20_range_meV'])
+for row in excluded:
+    print('excluded %s: %s energy=%d EDIFF=%d end=%d'%(row['directory'],row['reason'],row['energy_lines'],row['ediff'],row['normal_end']))
+```
+
+</details>
+
+
+完整源码如下，与上面的下载文件相同。保存为 `review_hfi2_exfoliation.py`，和所需 CSV 放在同一目录。
+
+<details>
+<summary>review_hfi2_exfoliation.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Validate HfI2 separation-energy bookkeeping and emit a focused review table."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import math
+from pathlib import Path
+
+EV_A2_TO_J_M2 = 16.02176634
+EXPECTED_AREA_A2 = 10.848221494425957
+TAIL_DISTANCES = {16.0, 17.0, 18.0, 19.0, 20.0}
+
+
+def read_csv(path: Path) -> tuple[list[str], list[dict[str, str]]]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None:
+            raise ValueError(f"{path}: missing CSV header")
+        return reader.fieldnames, list(reader)
+
+
+def poscar_area(path: Path) -> float:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if len(lines) < 5:
+        raise ValueError(f"{path}: incomplete POSCAR lattice")
+    scale = float(lines[1].split()[0])
+    if scale <= 0:
+        raise ValueError(f"{path}: expected positive POSCAR scale factor")
+    a = [float(value) * scale for value in lines[2].split()[:3]]
+    b = [float(value) * scale for value in lines[3].split()[:3]]
+    if len(a) != 3 or len(b) != 3:
+        raise ValueError(f"{path}: malformed first two lattice vectors")
+    cross = (
+        a[1] * b[2] - a[2] * b[1],
+        a[2] * b[0] - a[0] * b[2],
+        a[0] * b[1] - a[1] * b[0],
+    )
+    area = math.sqrt(sum(value * value for value in cross))
+    if not math.isfinite(area) or area <= 0:
+        raise ValueError(f"{path}: non-positive/non-finite in-plane area")
+    return area
+
+
+def write_csv(path: Path, header: list[str], rows: list[dict[str, str]]) -> None:
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=header)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--accepted", type=Path, default=Path("exfoliation.csv"))
+    parser.add_argument("--excluded", type=Path, default=Path("excluded.csv"))
+    parser.add_argument("--poscar", type=Path, default=Path("POSCAR"))
+    parser.add_argument("--outdir", type=Path, default=Path("review"))
+    args = parser.parse_args()
+
+    accepted_header, accepted_rows = read_csv(args.accepted)
+    excluded_header, excluded_rows = read_csv(args.excluded)
+    area = poscar_area(args.poscar)
+    if not math.isclose(area, EXPECTED_AREA_A2, rel_tol=0, abs_tol=2e-9):
+        raise ValueError(
+            f"{args.poscar}: area {area:.12f} A^2 differs from reviewed cell "
+            f"{EXPECTED_AREA_A2:.12f} A^2"
+        )
+    required = {
+        "directory", "d_A", "energy_without_entropy_eV", "energy_sigma0_eV",
+        "delta_E_meV", "W_meV_A2", "W_J_m2", "outer_periodic_gap_A",
+    }
+    missing = required - set(accepted_header)
+    if missing:
+        raise ValueError(f"{args.accepted}: missing columns {sorted(missing)}")
+    for required_name in ("directory", "reason", "energy_lines", "ediff", "normal_end"):
+        if required_name not in excluded_header:
+            raise ValueError(f"{args.excluded}: missing column {required_name}")
+
+    by_distance: dict[float, dict[str, str]] = {}
+    for row in accepted_rows:
+        d = float(row["d_A"])
+        if d in by_distance:
+            raise ValueError(f"{args.accepted}: duplicate accepted d={d:g} A")
+        for column in required - {"directory"}:
+            value = float(row[column])
+            if not math.isfinite(value):
+                raise ValueError(f"{args.accepted}: non-finite {column} at d={d:g} A")
+        by_distance[d] = row
+    expected_distances = {0.0} | set(float(d) for d in range(2, 21))
+    if set(by_distance) != expected_distances:
+        missing_d = sorted(expected_distances - set(by_distance))
+        unexpected_d = sorted(set(by_distance) - expected_distances)
+        raise ValueError(
+            f"accepted d set differs: missing={missing_d}, unexpected={unexpected_d}"
+        )
+    if by_distance[0.0]["directory"] != "scf_eq":
+        raise ValueError("the sole d=0 reference must be scf_eq")
+
+    e0 = float(by_distance[0.0]["energy_without_entropy_eV"])
+    recalculated: dict[float, tuple[float, float, float]] = {}
+    for d, row in by_distance.items():
+        energy = float(row["energy_without_entropy_eV"])
+        delta_e = energy - e0
+        delta_mev = delta_e * 1000.0
+        work_mev_a2 = delta_mev / area
+        work_j_m2 = delta_e / area * EV_A2_TO_J_M2
+        checks = (
+            ("delta_E_meV", delta_mev, 2e-5),
+            ("W_meV_A2", work_mev_a2, 2e-7),
+            ("W_J_m2", work_j_m2, 2e-8),
+        )
+        for column, calculated, tolerance in checks:
+            stored = float(row[column])
+            if not math.isclose(calculated, stored, rel_tol=0, abs_tol=tolerance):
+                raise ValueError(
+                    f"d={d:g} A: recomputed {column}={calculated:.12g}, "
+                    f"stored={stored:.12g}"
+                )
+        recalculated[d] = (delta_mev, work_mev_a2, work_j_m2)
+
+    if len(accepted_rows) != 20 or len(excluded_rows) != 7:
+        raise ValueError(
+            f"reviewed dataset requires 20 accepted and 7 excluded; "
+            f"found {len(accepted_rows)} and {len(excluded_rows)}"
+        )
+    excluded_by_name = {row["directory"]: row for row in excluded_rows}
+    if len(excluded_by_name) != len(excluded_rows):
+        raise ValueError(f"{args.excluded}: duplicate excluded directory")
+    expected_d1 = {"scf_d1", "scf_d1.00"}
+    if expected_d1 - set(excluded_by_name):
+        raise ValueError(f"nominal d=1 A exclusions are missing: {sorted(expected_d1 - set(excluded_by_name))}")
+    if excluded_by_name["scf_d1"]["reason"] != "OUTCAR absent":
+        raise ValueError("scf_d1 exclusion reason no longer matches the reviewed record")
+    if excluded_by_name["scf_d1.00"]["reason"] != "Incomplete static SCF":
+        raise ValueError("scf_d1.00 exclusion reason no longer matches the reviewed record")
+
+    selected = [0.0, 2.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    selected_rows: list[dict[str, str]] = []
+    for d in selected:
+        row = by_distance[d]
+        delta_mev, work_mev_a2, work_j_m2 = recalculated[d]
+        selected_rows.append({
+            "directory": row["directory"],
+            "d_A": f"{d:.1f}",
+            "energy_without_entropy_eV": row["energy_without_entropy_eV"],
+            "delta_E_meV": f"{delta_mev:.8f}",
+            "W_meV_A2": f"{work_mev_a2:.8f}",
+            "W_J_m2": f"{work_j_m2:.10f}",
+            "outer_periodic_gap_A": row["outer_periodic_gap_A"],
+        })
+
+    args.outdir.mkdir(parents=True, exist_ok=True)
+    table_path = args.outdir / "hfi2-selected-separation-review.csv"
+    exclusion_path = args.outdir / "hfi2-exclusion-review.csv"
+    report_path = args.outdir / "hfi2-separation-review.md"
+    write_csv(table_path, [
+        "directory", "d_A", "energy_without_entropy_eV", "delta_E_meV",
+        "W_meV_A2", "W_J_m2", "outer_periodic_gap_A",
+    ], selected_rows)
+    write_csv(exclusion_path, excluded_header, excluded_rows)
+
+    tail_energies = [float(by_distance[d]["energy_without_entropy_eV"]) for d in sorted(TAIL_DISTANCES)]
+    tail_spread_mev = (max(tail_energies) - min(tail_energies)) * 1000.0
+    step_19_20_mev = (
+        float(by_distance[20.0]["energy_without_entropy_eV"])
+        - float(by_distance[19.0]["energy_without_entropy_eV"])
+    ) * 1000.0
+    w20 = recalculated[20.0][2]
+    report_path.write_text(
+        "# HfI2 frozen-slab separation review\n\n"
+        f"- POSCAR area: {area:.12f} Å².\n"
+        f"- Accepted scan points: {len(accepted_rows)}; excluded directories: {len(excluded_rows)}.\n"
+        "- Accepted distances: d=0 and d=2…20 Å. The nominal d=1 Å attempts are not accepted: "
+        "scf_d1 has no OUTCAR and scf_d1.00 is an incomplete static SCF.\n"
+        "- Energy field used throughout: OUTCAR energy without entropy, eV/cell.\n"
+        f"- At d=20 Å, ΔE={recalculated[20.0][0]:.8f} meV/cell and W={w20:.10f} J/m².\n"
+        f"- The d=16…20 Å five-point energy spread is {tail_spread_mev:.5f} meV/cell; "
+        f"the d=19→20 Å change is {step_19_20_mev:.5f} meV/cell.\n\n"
+        "Interpretation: these values describe the frozen six-layer, prototype-derived slab under "
+        "one specified layer-separation operation. The d=0 reference is itself a six-layer slab, "
+        "not a bulk calculation. The finite-distance energy and non-monotone high-distance spread "
+        "do not establish a bulk-referenced exfoliation energy or a converged asymptote.\n",
+        encoding="utf-8",
+    )
+    print(f"accepted={len(accepted_rows)} excluded={len(excluded_rows)} area={area:.12f} A^2")
+    print(f"d20: delta_E={recalculated[20.0][0]:.8f} meV/cell W={w20:.10f} J/m^2")
+    print(f"d16-20 energy spread={tail_spread_mev:.5f} meV/cell; d19->20={step_19_20_mev:.5f} meV/cell")
+    print(table_path)
+    print(exclusion_path)
+    print(report_path)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+将上面的 CSV、POSCAR 与脚本放在同一目录，运行：
+
+```bash
+python3 review_hfi2_exfoliation.py --outdir review
+```
 
 从原始 OUTCAR 运行提取器，再运行复核脚本，终端输出为：
 
@@ -465,11 +790,11 @@ d20: delta_E=248.09474000 meV/cell W=0.3664117622 J/m^2
 d16-20 energy spread=0.77266 meV/cell; d19->20=-0.42288 meV/cell
 ~~~
 
-下面按采用点与排除点表，核对统一能量定义下的 ΔE/A，并检查 d=16–20 Å 的原始能量变化。
+20 个接受点的归一化量与原表一致；末段起伏和 19→20 Å 的下降也在复算中保留。它们提示下一步要检查大距离结果与周期镜像的关系。
 
 ## 文献中的体相参照与层厚检查
 
-两篇本地论文都把材料剥离能与明确的多层参考结构和分离距离联系起来。TbCl 研究的 **Fig. 3a** 使用五层 slab；正文报告单层剥离能 0.24 J/m²，并与 graphite（约 0.32 J/m²）和 H-MoS₂（约 0.29 J/m²）比较，随后把较低能量解释为从 bulk 更易剥离。见 “5d orbital induced room temperature quantum anomalous Hall effect in TbCl,” *npj Computational Materials* 11, 236 (2025), [DOI](https://doi.org/10.1038/s41524-025-01732-0)。
+以下两篇论文都把材料剥离能与明确的多层参考结构和分离距离联系起来。TbCl 研究的 **Fig. 3a** 使用五层 slab；正文报告单层剥离能 0.24 J/m²，并与 graphite（约 0.32 J/m²）和 H-MoS₂（约 0.29 J/m²）比较，随后把较低能量解释为从 bulk 更易剥离。见 “5d orbital induced room temperature quantum anomalous Hall effect in TbCl,” *npj Computational Materials* 11, 236 (2025), [DOI](https://doi.org/10.1038/s41524-025-01732-0)。
 
 CaCl 研究的 **Fig. 5(a)** 比较 AB-stacking 与 P3m1 结构的距离曲线，图注明确说明 bulk 以 16 个原子层建模；正文报告 AB-stacking 的剥离能为 0.17 J/m²，并据此讨论其较易剥离。见 Ying Chen et al., “A van der Waals CaCl semiconducting electride and ferromagnetic half-metallicity induced by superhalogen decoration,” *Materials Today Communications* 32 (2022), 104176, [DOI](https://doi.org/10.1016/j.mtcomm.2022.104176)。
 

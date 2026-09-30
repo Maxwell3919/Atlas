@@ -1,9 +1,4 @@
-// Atlas — DFT 计算方法手册 · 单一数据源
-// slug 保持英文；zh 为页面显示中文名；needs/produces 驱动各引擎页「提及栏」。
-// engines：该方法当前提供页面、可点击进入的引擎 id（对应路由 /m/<slug>/<id>/）。
-// placeholderEngines：尚未接入的引擎显示名，只在方法页渲染为不可点的
-// 「未接入」徽标，不生成任何路由；未来接入新引擎时在此做纯数据修改即可。
-
+// Method routes stay stable; examples and teaching metadata live in teaching.js.
 export const engines = [
   { id: 'qe', name: 'Quantum ESPRESSO' },
   { id: 'vasp', name: 'VASP' },
@@ -14,15 +9,117 @@ export const engines = [
 // 分类与类内展示顺序（目录页与全部索引的唯一顺序来源）
 // subtitle 仅存档；现有各组标题均为纯文本，各组保持同构，不渲染。
 export const categories = [
-  { id: 'basics',    name: '基础',     order: ['convergence', 'relax', 'vc-relax', 'scf', 'nscf'] },
-  { id: 'thermo',    name: '结构与热力学', subtitle: '这个相在能量上站得住吗？', order: ['formation-energy', 'convex-hull', 'exfoliation-energy', 'adsorption-energy'] },
-  { id: 'stability', name: '稳定',     order: ['phonon-dfpt', 'phonon-finite-disp', 'imaginary-phonon', 'elastic-born', 'aimd', 'phdos', 'elastic-moduli', 'mlip-md', 'anharmonic-sscha'] },
-  { id: 'electronic', name: '电子',    order: ['bands', 'band-gap', 'band-3d', 'band-unfolding', 'dos', 'fatband', 'fermi-surface', 'spin-texture', 'electrostatic-potential', 'fermi-nesting', 'effective-mass'] },
-  { id: 'charge',    name: '电荷',     order: ['delta-charge', 'bader', 'elf', 'cohp', 'population-analysis'] },
-  { id: 'supercon',  name: '超导',     order: ['wannier90', 'epc', 'eliashberg-a2f', 'allen-dynes', 'epw-eliashberg', 'phonon-linewidth', 'bkt-scaling'] },
-  { id: 'interface-magnet', name: '界面与磁', order: ['workfunction', 'band-alignment', 'magnetic-gs', 'dft-plus-u', 'mae', 'exchange-j', 'strain-doping-scan', 'heterostructure-modeling'] },
-  { id: 'topo',      name: '拓扑',     subtitle: '有没有边缘态？', order: ['berry-chern'] },
-  { id: 'transport', name: '输运',     subtitle: '迁移率多高？', order: ['carrier-mobility'] },
+  {
+    "id": "basics",
+    "name": "计算基础与数值可靠性",
+    "order": [
+      "scf",
+      "convergence",
+      "relax",
+      "vc-relax",
+      "nscf",
+      "strain-doping-scan"
+    ]
+  },
+  {
+    "id": "thermo",
+    "name": "结构能量与相稳定性",
+    "order": [
+      "formation-energy",
+      "convex-hull",
+      "exfoliation-energy",
+      "adsorption-energy"
+    ]
+  },
+  {
+    "id": "stability",
+    "name": "声子、力学与有限温度",
+    "order": [
+      "phonon-dfpt",
+      "phonon-finite-disp",
+      "imaginary-phonon",
+      "phdos",
+      "elastic-born",
+      "elastic-moduli",
+      "aimd",
+      "mlip-md",
+      "anharmonic-sscha"
+    ]
+  },
+  {
+    "id": "electronic",
+    "name": "电子结构",
+    "order": [
+      "bands",
+      "band-gap",
+      "dos",
+      "fatband",
+      "band-3d",
+      "band-unfolding",
+      "fermi-surface",
+      "fermi-nesting",
+      "effective-mass",
+      "spin-texture",
+      "wannier90"
+    ]
+  },
+  {
+    "id": "charge",
+    "name": "电荷分布与成键",
+    "order": [
+      "delta-charge",
+      "bader",
+      "elf",
+      "electrostatic-potential",
+      "cohp",
+      "population-analysis"
+    ]
+  },
+  {
+    "id": "supercon",
+    "name": "电子–声子耦合与超导",
+    "order": [
+      "epc",
+      "eliashberg-a2f",
+      "allen-dynes",
+      "epw-eliashberg",
+      "phonon-linewidth",
+      "bkt-scaling"
+    ]
+  },
+  {
+    "id": "interface",
+    "name": "表面与界面",
+    "order": [
+      "workfunction",
+      "band-alignment",
+      "heterostructure-modeling"
+    ]
+  },
+  {
+    "id": "magnet",
+    "name": "磁性与自旋",
+    "order": [
+      "magnetic-gs",
+      "dft-plus-u",
+      "mae",
+      "exchange-j"
+    ]
+  },
+  {
+    "id": "topo",
+    "name": "拓扑",
+    "order": [
+      "berry-chern"
+    ]
+  },
+  {
+    "id": "transport",
+    "name": "输运",
+    "order": [
+      "carrier-mobility"
+    ]
+  }
 ];
 
 export const methods = {
@@ -66,7 +163,7 @@ export const methods = {
   },
 
   'formation-energy': {
-    zh: '形成能 / 内聚能',
+    zh: '形成能与参考态',
     category: 'thermo',
     needs: ['relax'],
     produces: ['形成能 / 凸包距离'],
@@ -83,14 +180,14 @@ export const methods = {
     producesByEngine: { qe: ['有限候选集凸包 / 凸包距离'] },
   },
   'exfoliation-energy': {
-    zh: '剥离能 / 解理能',
+    zh: '层间分离能',
     category: 'thermo',
     needs: ['relax'],
     produces: ['剥离能 / 解理能'],
     engines: ['qe', 'vasp'],
   },
   'adsorption-energy': {
-    zh: '吸附能 / 界面结合能',
+    zh: '吸附能',
     category: 'thermo',
     needs: ['relax'],
     produces: ['吸附能 / 界面结合能'],
@@ -155,7 +252,7 @@ export const methods = {
     engines: ['mace'],
   },
   'anharmonic-sscha': {
-    zh: '非谐效应 / 有限温度声子',
+    zh: '有限温度有效力常数',
     category: 'stability',
     needs: ['phonon-dfpt'],
     produces: ['温度重整化声子 / 非谐自由能'],
@@ -175,7 +272,7 @@ export const methods = {
   'band-gap': {
     zh: '带隙（直接 / 间接）',
     category: 'electronic',
-    needs: ['bands'],
+    needs: ['nscf'],
     produces: ['直接 / 间接带隙'],
     engines: ['qe', 'vasp'],
   },
@@ -216,7 +313,7 @@ export const methods = {
     engines: ['qe', 'vasp'],
   },
   'spin-texture': {
-    zh: '自旋纹理 / Rashba / Ising',
+    zh: 'SOC 自旋投影',
     category: 'electronic',
     needs: ['bands'],
     produces: ['自旋纹理图'],
@@ -225,13 +322,13 @@ export const methods = {
   },
   'electrostatic-potential': {
     zh: '静电势 / 平面平均电势',
-    category: 'electronic',
+    category: 'charge',
     needs: ['scf'],
     produces: ['平面平均静电势 / 电势阶跃'],
     engines: ['qe', 'vasp'],
   },
   'fermi-nesting': {
-    zh: '费米面嵌套 / Lifshitz',
+    zh: '费米面几何嵌套',
     category: 'electronic',
     needs: ['fermi-surface'],
     produces: ['嵌套函数 / χ(q)'],
@@ -241,7 +338,7 @@ export const methods = {
   'effective-mass': {
     zh: '有效质量',
     category: 'electronic',
-    needs: ['bands'],
+    needs: ['band-gap'],
     produces: ['有效质量 m*'],
     engines: ['qe', 'vasp'],
   },
@@ -284,7 +381,7 @@ export const methods = {
 
   'wannier90': {
     zh: 'Wannier90',
-    category: 'supercon',
+    category: 'electronic',
     needs: ['scf'],
     produces: ['最大局域化 Wannier 函数'],
     engines: ['qe', 'vasp'],
@@ -328,7 +425,7 @@ export const methods = {
     engines: ['qe', 'vasp'],
   },
   'bkt-scaling': {
-    zh: 'Ginzburg–Landau / BKT',
+    zh: 'BKT 相位转变（XY 模型）',
     category: 'supercon',
     needs: ['epc'],
     produces: ['BKT 转变 / 标度分析'],
@@ -339,14 +436,14 @@ export const methods = {
 
   'workfunction': {
     zh: '功函数',
-    category: 'interface-magnet',
+    category: 'interface',
     needs: ['scf'],
     produces: ['功函数'],
     engines: ['qe', 'vasp'],
   },
   'band-alignment': {
     zh: '能带对齐',
-    category: 'interface-magnet',
+    category: 'interface',
     needs: ['bands', 'workfunction'],
     produces: ['能带对齐图'],
     engines: ['qe', 'vasp'],
@@ -355,49 +452,49 @@ export const methods = {
   },
   'magnetic-gs': {
     zh: '磁基态',
-    category: 'interface-magnet',
+    category: 'magnet',
     needs: ['relax', 'vc-relax', 'scf'],
     produces: ['FM/AFM/NM 能量比较'],
     engines: ['qe', 'vasp'],
   },
   'dft-plus-u': {
     zh: 'DFT+U',
-    category: 'interface-magnet',
+    category: 'magnet',
     needs: ['scf'],
     produces: ['U 修正后的结果'],
     engines: ['qe', 'vasp'],
   },
   'mae': {
     zh: '磁各向异性能 MAE',
-    category: 'interface-magnet',
+    category: 'magnet',
     needs: ['magnetic-gs'],
     produces: ['磁各向异性能'],
     engines: ['qe', 'vasp'],
   },
   'exchange-j': {
     zh: '磁交换耦合 J',
-    category: 'interface-magnet',
+    category: 'magnet',
     needs: ['magnetic-gs'],
     produces: ['交换参数 J'],
     engines: ['qe', 'vasp'],
   },
   'strain-doping-scan': {
-    zh: '应变 / 掺杂调控扫描',
-    category: 'interface-magnet',
+    zh: '应变响应扫描',
+    category: 'basics',
     needs: ['vc-relax'],
     produces: ['性质随应变 / 掺杂的扫描'],
     engines: ['qe', 'vasp'],
   },
   'heterostructure-modeling': {
-    zh: '异质结 / 莫尔建模',
-    category: 'interface-magnet',
+    zh: '异质结构建模',
+    category: 'interface',
     needs: ['convergence'],
     produces: ['异质结 / 莫尔超晶格模型'],
     engines: ['qe', 'vasp'],
   },
 
   'berry-chern': {
-    zh: 'Berry 曲率 / 陈数 / ℤ₂',
+    zh: 'Berry 相位与陈数',
     category: 'topo',
     needs: ['wannier90'],
     produces: ['Berry 曲率 / 陈数 / ℤ₂'],
@@ -406,7 +503,7 @@ export const methods = {
   },
 
   'carrier-mobility': {
-    zh: '载流子迁移率',
+    zh: '形变势迁移率',
     category: 'transport',
     needs: ['bands'],
     produces: ['迁移率 / 弛豫时间'],

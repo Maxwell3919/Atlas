@@ -1,17 +1,8 @@
-参考：
-
-- [MACE：ASE calculator](https://mace-docs.readthedocs.io/en/latest/guide/ase.html)
-- [Phonopy：Python API、力常数与色散](https://phonopy.github.io/phonopy/phonopy-module.html)
-- [symfc：位移—力数据与对称化力常数](https://symfc.github.io/symfc/)
-- [hiPhive：从 MD 轨迹建立有效谐模型](https://hiphive.materialsmodeling.org/advanced_topics/effective_harmonic_models.html)
-
-## 从 Si 热运动轨迹拟合有限温度有效二阶力常数
-
 [64 个 Si 原子的 MACE 分子动力学](/Atlas/m/mlip-md/mace/)已经留下每一帧的结构、原子力和温度。这里接着取出位移 `u` 和力 `F`，用一个二阶模型近似这段热运动中的力：`F ≈ −Φu`。得到 `Φ` 后，再交给 phonopy 构造动力学矩阵，沿同一条倒空间路径输出频率。
 
-这条路线叫有限温度有效二阶力常数拟合。这里实际运行的是 MACE、symfc 和 phonopy，没有执行 SSCHA 的变分自由能最小化。算例的作用是把数据准备、拟合、独立验证和声子图接通；后面会看到，样本数由 40 增至 60 时，色散仍有可见变化，因此这份结果还不能称为已经收敛的温度重整化声子。
+这条路线叫有限温度有效二阶力常数拟合。这里实际运行的是 MACE、symfc 和 phonopy，没有执行 SSCHA 的变分自由能最小化。需要准备每帧的位移—力数组、原子顺序映射和独立初速度轨迹。拟合后保存完整力常数、色散 CSV 和预测力误差；后面会看到，样本数由 40 增至 60 时，色散仍有可见变化，因此这份结果还不能称为已经收敛的温度重整化声子。
 
-### 把参考结构写清楚，再取位移
+## 把参考结构写清楚，再取位移
 
 沿用前两页的相邻目录，模型仍为 MACE-MP-0 small。`prepare.py` 从 `../si-vc-relax/relaxed.extxyz` 取晶胞，从 `../si-md/nve-1fs.traj` 取旧轨迹。复算核验还会读取旧的 `../si-md/initial.traj`。模型文件位于 `../models/mace-mp-0-small.model`，SHA256 为 `2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736`；来源与下载方法见[前面的 MACE 模型准备](/Atlas/m/relax/mace/)。
 
@@ -27,6 +18,168 @@
 ```
 
 [完整的 prepare.py](/Atlas/examples/mace-si/si-effective-fc/prepare.py)是本次实际运行的输入。它依次建立参考结构、计算两种小位移幅度、重新计算映射构型的力，再运行独立初速度轨迹。建立参考的部分是：
+
+<details>
+<summary>prepare.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import csv
+import hashlib
+import importlib.metadata as metadata
+import json
+import time
+import numpy as np
+import torch
+import ase, scipy, phonopy, symfc
+from ase import units
+from ase.build import bulk
+from ase.calculators.singlepoint import SinglePointCalculator
+from ase.constraints import FixCom
+from ase.filters import FrechetCellFilter
+from ase.io import read, write
+from ase.md.bussi import Bussi
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution, Stationary
+from ase.md.verlet import VelocityVerlet
+from ase.optimize import BFGS
+from mace.calculators import MACECalculator
+from phonopy import Phonopy
+from phonopy.structure.atoms import PhonopyAtoms
+from scipy.optimize import linear_sum_assignment
+
+torch.set_num_threads(2)
+start = time.perf_counter()
+model = Path('../models/mace-mp-0-small.model')
+versions = {name: metadata.version(name) for name in ['mace-torch','ase','phonopy','symfc','spglib','scipy','numpy','torch']}
+paths = {mod.__name__: mod.__file__ for mod in [ase, scipy, phonopy, symfc]}
+provenance = dict(versions=versions, module_paths=paths,
+                  model_sha256=hashlib.sha256(model.read_bytes()).hexdigest(),
+                  cpu_threads=2, source_trajectory_sha256=hashlib.sha256(Path('../si-md/nve-1fs.traj').read_bytes()).hexdigest())
+print('ENVIRONMENT', json.dumps(provenance, indent=2), flush=True)
+Path('environment.json').write_text(json.dumps(provenance, indent=2)+'\n')
+calc = MACECalculator(model_paths=str(model), device='cpu', default_dtype='float64')
+
+# Define the cubic reference explicitly. No old trajectory file is modified.
+old_uc = read('../si-vc-relax/relaxed.extxyz')
+old_ref = old_uc.repeat((2,2,2))
+a0 = old_uc.get_volume()**(1/3)
+uc = bulk('Si','diamond',a=a0,cubic=True)
+uc.calc = calc
+opt = BFGS(FrechetCellFilter(uc, hydrostatic_strain=True), logfile='reference-relax.log', trajectory='reference-relax.traj')
+accepted = opt.run(fmax=1e-5, steps=100)
+assert accepted
+assert np.ptp(uc.cell.lengths()) < 1e-10
+assert np.max(np.abs(uc.cell.angles()-90)) < 1e-10
+write('reference-unitcell.extxyz', uc)
+ase_ref = uc.repeat((2,2,2))
+write('reference-supercell.extxyz', ase_ref)
+ref_info = dict(a_initial_A=a0, a_final_A=float(uc.cell.lengths()[0]), steps=opt.nsteps,
+                volume_A3=uc.get_volume(), fmax_eV_A=float(np.linalg.norm(uc.get_forces(),axis=1).max()),
+                stress_eV_A3=uc.get_stress().tolist())
+print('CUBIC_REFERENCE',json.dumps(ref_info),flush=True)
+Path('reference.json').write_text(json.dumps(ref_info,indent=2)+'\n')
+
+def new_phonon():
+    cell=PhonopyAtoms(symbols=uc.get_chemical_symbols(), cell=uc.cell.array, scaled_positions=uc.get_scaled_positions())
+    return Phonopy(cell, supercell_matrix=[2,2,2], primitive_matrix='F', symprec=1e-5)
+
+ph = new_phonon()
+ph_ref = ph.supercell
+# Explicit atom-order mapping: phonopy's supercell order differs from ASE.repeat.
+frac = ph_ref.scaled_positions[:,None,:]-ase_ref.get_scaled_positions()[None,:,:]
+frac -= np.rint(frac)
+cost = np.linalg.norm(frac@ase_ref.cell.array,axis=2)
+rows, order = linear_sum_assignment(cost)
+assert np.array_equal(rows,np.arange(64))
+assert cost[rows,order].max()<1e-8
+np.save('phonopy-to-ase-order.npy',order)
+ph.save('reference-phonopy.yaml')
+print('ATOM_ORDER max_mapping_error_A',cost[rows,order].max(),'primitive_atoms',len(ph.primitive),flush=True)
+
+baseline={}
+for amplitude in [0.01,0.005]:
+    label=f'harmonic-{amplitude:g}'
+    ph=new_phonon()
+    ph.generate_displacements(distance=amplitude,is_plusminus=True)
+    forces=[]
+    displaced=[]
+    for index, sc in enumerate(ph.supercells_with_displacements):
+        from ase import Atoms
+        atoms=Atoms(symbols=sc.symbols,cell=sc.cell,scaled_positions=sc.scaled_positions,pbc=True)
+        atoms.calc=calc
+        force=atoms.get_forces()
+        forces.append(force)
+        displaced.append(atoms.copy())
+        displaced[-1].calc=SinglePointCalculator(displaced[-1],energy=atoms.get_potential_energy(),forces=force)
+        print('FINITE_DISPLACEMENT',label,index+1,'fmax',float(np.linalg.norm(force,axis=1).max()),flush=True)
+    ph.forces=np.array(forces)
+    ph.produce_force_constants(fc_calculator='traditional')
+    raw_drift=float(np.abs(ph.force_constants.sum(axis=1)).max())
+    ph.symmetrize_force_constants()
+    np.save(label+'-fc.npy',ph.force_constants)
+    ph.save(label+'.yaml',settings={'force_constants':True})
+    write(label+'-forces.traj',displaced)
+    baseline[label]=dict(amplitude_A=amplitude, force_evaluations=len(forces),raw_fc_translational_drift_eV_A2=raw_drift,
+                         corrected_fc_translational_drift_eV_A2=float(np.abs(ph.force_constants.sum(axis=1)).max()))
+print('HARMONIC_BASELINES',json.dumps(baseline),flush=True)
+Path('baseline.json').write_text(json.dumps(baseline,indent=2)+'\n')
+
+# Transfer only displacements from the old cell. Every mapped configuration gets new forces.
+source=read('../si-md/nve-1fs.traj',':')
+us=[]; fs=[]; mapped=[]; temperatures=[]
+for i,frame in enumerate(source):
+    delta=frame.get_scaled_positions(wrap=False)-old_ref.get_scaled_positions(wrap=False)
+    delta-=np.rint(delta)
+    u=delta@ase_ref.cell.array
+    u-=u.mean(axis=0)
+    atoms=ase_ref.copy()
+    atoms.positions+=u
+    atoms.calc=calc
+    force=atoms.get_forces()
+    us.append(u[order]); fs.append(force[order]); temperatures.append(frame.get_temperature())
+    copy=atoms.copy()
+    copy.calc=SinglePointCalculator(copy,energy=atoms.get_potential_energy(),forces=force)
+    mapped.append(copy)
+    if i%20==0: print('MAPPED_FORCE',i,'of',len(source),'max_u_A',float(np.linalg.norm(u,axis=1).max()),flush=True)
+np.savez_compressed('mapped-dataset.npz',displacements=np.array(us),forces=np.array(fs),source_temperature_K=temperatures,
+                    source_time_ps=np.arange(len(source))*0.005,order=order)
+write('mapped-configurations.traj',mapped)
+print('MAPPING_DONE snapshots',len(source),'all_forces_recomputed',True,flush=True)
+
+# An independent velocity seed probes transfer beyond the original short trajectory.
+atoms=ase_ref.copy(); atoms.set_constraint(FixCom()); atoms.calc=calc
+MaxwellBoltzmannDistribution(atoms,temperature_K=300,force_temp=True,rng=np.random.default_rng(2026092202))
+Stationary(atoms,preserve_temperature=True)
+seed_hash=hashlib.sha256(atoms.get_momenta().tobytes()).hexdigest()
+write('independent-initial.traj',atoms)
+print('INDEPENDENT_START seed=2026092202 momentum_sha256',seed_hash,flush=True)
+warm=Bussi(atoms,1*units.fs,temperature_K=300,taut=100*units.fs,rng=np.random.default_rng(924),
+           trajectory='independent-warmup.traj',logfile='independent-warmup.log',loginterval=10)
+t0=time.perf_counter(); warm.run(1000)
+print('INDEPENDENT_WARMUP_DONE steps',warm.nsteps,'temperature_K',atoms.get_temperature(),'wall_s',time.perf_counter()-t0,flush=True)
+write('independent-after-warmup.traj',atoms)
+dyn=VelocityVerlet(atoms,1*units.fs,trajectory='independent-nve.traj',logfile='independent-nve.log',loginterval=10)
+rows=[]
+with open('independent-nve.csv','w',newline='') as h:
+    writer=csv.writer(h); writer.writerow(['time_ps','temperature_K','potential_eV_atom','total_eV_atom'])
+    def record():
+        ep=atoms.get_potential_energy()/64
+        row=[dyn.get_time()/(1000*units.fs),atoms.get_temperature(),ep,ep+atoms.get_kinetic_energy()/64]
+        writer.writerow(row);h.flush();rows.append(row)
+    dyn.attach(record,interval=10)
+    t0=time.perf_counter();dyn.run(500)
+series=np.array(rows)
+info=dict(warmup_steps=1000,production_steps=500,timestep_fs=1,snapshots=len(rows),
+          velocity_seed=2026092202,momentum_sha256=seed_hash,mean_temperature_K=float(series[:,1].mean()),
+          temperature_std_K=float(series[:,1].std()),
+          max_abs_delta_total_meV_atom=float(np.max(np.abs(series[:,3]-series[0,3]))*1000),
+          production_wall_s=time.perf_counter()-t0,total_prepare_wall_s=time.perf_counter()-start)
+Path('independent.json').write_text(json.dumps(info,indent=2)+'\n')
+print('INDEPENDENT_MD_DONE',json.dumps(info,indent=2),flush=True)
+print('DATA_PREPARATION_FINISHED',flush=True)
+```
+
+</details>
 
 ```python
 old_uc = read('../si-vc-relax/relaxed.extxyz')
@@ -83,7 +236,7 @@ ENVIRONMENT {
 
 日志首行说明没有启用可选的 cuequivariance 加速，本次计算明确使用 CPU；继续往下读，版本和模型校验信息仍然正常写出。参考晶格常数为 **5.464664315456402 Å**。`steps: 0` 表示初始参考已经满足所设优化阈值，优化器没有再移动原子或晶胞，并不表示遗漏了结构检查。原子最大力约 `5.8e-15 eV/Å`，三个正应力约 `1.35e-7 eV/Å³`。
 
-### 同时保留小位移基线和热运动构型
+## 同时保留小位移基线和热运动构型
 
 小位移基线描述这个参考结构附近的势能曲率。脚本分别生成正负 0.01 Å、正负 0.005 Å 位移，用 MACE 计算每个构型的力，然后由 phonopy 重建二阶力常数。这个高对称 Si 超胞每个幅度只有 2 个对称不等价的位移构型；换成低对称结构后，位移数量会变化。
 
@@ -117,7 +270,7 @@ force = atoms.get_forces()
 
 映射后的构型、力保存在 `mapped-configurations.traj` 与 `mapped-dataset.npz`。NPZ 中 `displacements` 和 `forces` 都是 `(101, 64, 3)` 数组，单位分别为 Å 和 eV/Å；`source_time_ps` 和 `source_temperature_K` 描述原始轨迹。映射后的构型集合不能自动视作新晶胞中充分平衡的正则系综，原轨迹温度也只是它们的来源信息。
 
-### 用另一组初速度检查能否预测新轨迹
+## 用另一组初速度检查能否预测新轨迹
 
 独立验证重新从理想立方参考开始，使用速度种子 `2026092202`。先与 300 K 的 Bussi 热浴接触 1 ps，再关闭温控器，采用 1 fs 时间步长运行 0.5 ps NVE，每 10 fs 保存一帧，共 51 帧。它没有从旧轨迹末帧接着运行。
 
@@ -167,7 +320,7 @@ DATA_PREPARATION_FINISHED
 
 `INDEPENDENT_WARMUP_DONE` 后的 408.675 K 是预热末帧温度；生产段平均值是 **322.462 K**，标准差约 **42.462 K**。300 K 是热浴设定值，不能把这一短轨迹的所有帧都标成 300 K 平衡样本。程序末尾同时给出步数、帧数、速度种子和动量校验值，核验脚本还会直接比较新旧初始速度，确认这次验证有独立起点。
 
-### 拟合时给后来的一段轨迹留位置
+## 拟合时给后来的一段轨迹留位置
 
 [fit.py](/Atlas/examples/mace-si/si-effective-fc/fit.py)读取已经得到的力，不再运行 MACE。源轨迹共有 101 帧，间隔 5 fs。三次拟合分别使用编号 1–20、1–40、1–60 的连续帧，对应 0.005–0.100、0.005–0.200、0.005–0.300 ps。编号 80–100 的 21 帧，即 0.400–0.500 ps，始终留作同轨迹的后段验证。
 
@@ -189,6 +342,141 @@ prediction = -np.einsum('ijab,sjb->sia', fc, positions, optimize=True)
 symfc 使用参考晶体的对称性与力常数约束来拟合 `Φ`。最后一行把所得力常数乘回验证位移，得到预测力。报告中的 RMSE 是所有帧、所有原子和三个笛卡尔力分量的均方根误差；这使训练、后段验证和独立验证可以用相同定义比较。
 
 `calculate_full_force_constants=True` 选择完整原子对矩阵的存储布局，不是把拟合阶数提高了。当前模型仍只包含对位移线性的恢复力；将训练帧数从 20 增至 60，改变的是这些系数的拟合数据。即使增加数据，二阶表达式本身仍可能不能准确描述热运动中较大的位移，所以后面必须同时读取验证力误差与频率变化。
+
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 fit.py，用 reference-unitcell.extxyz、reference-supercell.extxyz、phonopy-to-ase-order.npy、mapped-dataset.npz 及 independent-nve.traj 建立有限温度有效二阶力常数。位移为 Å、力为 eV/Å，预测力为 -Φu；按周期最小像处理位移并减去整体平移，再按保存映射排序。原数据 101×64×3，独立轨迹 51×64×3；训练索引依次 1–20、1–40、1–60，后段 80–100 与独立轨迹始终不拟合。用 symfc 拟合完整 (64,64,3,3) 力常数，与两种简谐位移基线比较。保存 NPY/YAML、Γ—X—W—K—Γ—L 色散 CSV（THz）、学习曲线、三组力预测误差及真实平均温度到 fit-summary.json。保留负频，比较 40/60 帧色散差；这段程序不执行 SSCHA 自由能变分。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>fit.py 完整源码</summary>
+
+```python
+from pathlib import Path
+import csv
+import hashlib
+import json
+import time
+import numpy as np
+from ase.io import read
+from phonopy import Phonopy
+from phonopy.structure.atoms import PhonopyAtoms
+
+start=time.perf_counter()
+uc=read('reference-unitcell.extxyz')
+ref=read('reference-supercell.extxyz')
+order=np.load('phonopy-to-ase-order.npy')
+data=np.load('mapped-dataset.npz')
+u=data['displacements']; f=data['forces']
+assert u.shape==f.shape==(101,64,3)
+assert np.isfinite(u).all() and np.isfinite(f).all()
+assert np.max(np.abs(u.mean(axis=1)))<1e-12
+assert Path('independent.json').exists(), 'Wait for independent MD to finish.'
+frames=read('independent-nve.traj',':')
+ui=[];fi=[];temps=[]
+for frame in frames:
+    d=frame.get_scaled_positions(wrap=False)-ref.get_scaled_positions(wrap=False)
+    d-=np.rint(d)
+    cart=d@ref.cell.array
+    cart-=cart.mean(axis=0)
+    ui.append(cart[order]);fi.append(frame.calc.results['forces'][order]);temps.append(frame.get_temperature())
+ui=np.array(ui);fi=np.array(fi)
+assert ui.shape==fi.shape==(51,64,3)
+assert np.isfinite(ui).all() and np.isfinite(fi).all()
+np.savez_compressed('independent-dataset.npz',displacements=ui,forces=fi,temperature_K=temps,time_ps=np.arange(len(frames))*.01)
+
+vertices=np.array([[0,0,0],[.5,0,.5],[.5,.25,.75],[.375,.375,.75],[0,0,0],[.5,.5,.5]])
+labels=['Gamma','X','W','K','Gamma','L']
+paths=[np.linspace(a,b,51) for a,b in zip(vertices[:-1],vertices[1:])]
+
+def new_phonon():
+    cell=PhonopyAtoms(symbols=uc.get_chemical_symbols(),cell=uc.cell.array,scaled_positions=uc.get_scaled_positions())
+    return Phonopy(cell,supercell_matrix=[2,2,2],primitive_matrix='F',symprec=1e-5)
+
+def dispersion(ph,label):
+    ph.run_band_structure(paths)
+    bs=ph.band_structure
+    with open(label+'-bands.csv','w',newline='') as h:
+        w=csv.writer(h);w.writerow(['segment','distance_inv_A','q1','q2','q3']+[f'frequency_{i+1}_THz' for i in range(6)])
+        for seg,(q,d,freq) in enumerate(zip(bs.qpoints,bs.distances,bs.frequencies)):
+            for qi,di,fi in zip(q,d,freq):w.writerow([seg,di,*qi,*fi])
+    ph.run_qpoints([[0,0,0]])
+    gamma=ph.qpoints.frequencies[0].tolist()
+    allfreq=np.concatenate(bs.frequencies)
+    assert np.isfinite(allfreq).all()
+    return dict(min_path_THz=float(allfreq.min()),max_path_THz=float(allfreq.max()),gamma_THz=gamma,
+                boundaries_inv_A=[float(bs.distances[0][0])]+[float(d[-1]) for d in bs.distances]),allfreq
+
+def errors(fc,positions,forces):
+    prediction=-np.einsum('ijab,sjb->sia',fc,positions,optimize=True)
+    residual=prediction-forces
+    rmse=float(np.sqrt(np.mean(residual**2)))
+    force_rms=float(np.sqrt(np.mean(forces**2)))
+    return dict(snapshots=len(positions),rmse_meV_A=1000*rmse,force_rms_meV_A=1000*force_rms,
+                relative_rmse=rmse/force_rms,max_abs_error_meV_A=1000*float(np.abs(residual).max()),
+                r2=1-float(np.sum(residual**2)/np.sum((forces-forces.mean())**2))),prediction
+
+baseline={}; allfreq={}
+for label in ['harmonic-0.01','harmonic-0.005']:
+    ph=new_phonon();ph.force_constants=np.load(label+'-fc.npy')
+    stats,freq=dispersion(ph,label);allfreq[label]=freq
+    ev,_=errors(ph.force_constants,ui,fi)
+    stats['independent_force_error']=ev
+    baseline[label]=stats
+    print('BASELINE',label,json.dumps(stats),flush=True)
+baseline_difference=float(np.max(np.abs(allfreq['harmonic-0.01']-allfreq['harmonic-0.005'])))
+print('AMPLITUDE_COMPARISON max_abs_frequency_difference_THz',baseline_difference,flush=True)
+
+results=[]
+for ntrain in [20,40,60]:
+    train=np.arange(1,ntrain+1)
+    held=np.arange(80,101)
+    ph=new_phonon()
+    ph.dataset={'displacements':np.array(u[train],order='C'),'forces':np.array(f[train],order='C')}
+    print('FIT_START ntrain',ntrain,'training_time_ps',[float(data['source_time_ps'][train[0]]),float(data['source_time_ps'][train[-1]])],flush=True)
+    t0=time.perf_counter()
+    ph.produce_force_constants(fc_calculator='symfc',calculate_full_force_constants=True,fc_calculator_log_level=1)
+    fc=ph.force_constants
+    assert fc.shape==(64,64,3,3) and np.isfinite(fc).all()
+    label=f'effective-{ntrain}'
+    np.save(label+'-fc.npy',fc)
+    ph.save(label+'.yaml',settings={'force_constants':True})
+    fit_seconds=time.perf_counter()-t0
+    train_error,_=errors(fc,u[train],f[train])
+    block_error,_=errors(fc,u[held],f[held])
+    independent_error,pred=errors(fc,ui,fi)
+    bands,freq=dispersion(ph,label)
+    out=dict(training_snapshots=ntrain,training_source_indices=train.tolist(),heldout_source_indices=held.tolist(),
+             source_training_temperature_K=float(data['source_temperature_K'][train].mean()),
+             source_heldout_temperature_K=float(data['source_temperature_K'][held].mean()),
+             independent_temperature_K=float(np.mean(temps)),fit_wall_s=fit_seconds,
+             train=train_error,heldout_block=block_error,independent=independent_error,bands=bands,
+             translational_drift_eV_A2=float(np.abs(fc.sum(axis=1)).max()),
+             permutation_difference_eV_A2=float(np.max(np.abs(fc-fc.transpose(1,0,3,2)))))
+    results.append(out);allfreq[label]=freq
+    np.save(label+'-independent-prediction.npy',pred)
+    print('FIT_RESULT',json.dumps(out,indent=2),flush=True)
+
+summary=dict(reference=json.loads(Path('reference.json').read_text()),
+             baseline=baseline,baseline_amplitude_max_frequency_difference_THz=baseline_difference,
+             fits=results,band_labels=labels,band_vertices_fractional=vertices.tolist(),
+             independent=json.loads(Path('independent.json').read_text()),
+             effective_40_vs_60_max_path_difference_THz=float(np.max(np.abs(allfreq['effective-40']-allfreq['effective-60']))),
+             total_fit_script_wall_s=time.perf_counter()-start,
+             interpretation='Finite-temperature effective second-order force-constant fitting demonstration; not a temperature-converged phonon renormalization or SSCHA calculation.')
+Path('fit-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+with open('learning-curve.csv','w',newline='') as h:
+    w=csv.writer(h);w.writerow(['training_snapshots','train_RMSE_meV_A','heldout_block_RMSE_meV_A','independent_RMSE_meV_A'])
+    for r in results:w.writerow([r['training_snapshots'],r['train']['rmse_meV_A'],r['heldout_block']['rmse_meV_A'],r['independent']['rmse_meV_A']])
+print('EFFECTIVE_40_VS_60_MAX_PATH_DIFFERENCE_THz',summary['effective_40_vs_60_max_path_difference_THz'],flush=True)
+print('FIT_PIPELINE_FINISHED wall_s',time.perf_counter()-start,flush=True)
+```
+
+</details>
 
 ```console
 [talos@talos-MS-7D54 si-effective-fc]$ vi fit.py
@@ -214,7 +502,7 @@ training_snapshots,train_RMSE_meV_A,heldout_block_RMSE_meV_A,independent_RMSE_me
 
 60 帧模型的独立误差为 **76.90 meV/Å**，相对于这段验证力分量的 RMS 为 **16.13%**，最大单分量误差约 **0.781 eV/Å**。0.005 Å 小位移基线在同一独立数据上的 RMSE 为 **82.32 meV/Å**。这说明有限温度拟合在这份验证数据上的整体误差有所减小，但最大误差仍值得保留查看。这里比较的是二阶模型对 MACE 原子力的近似程度，尚未做 MACE 与 DFT 的力对照。
 
-### 看色散，也看换一批样本时色散怎样变化
+## 看色散，也看换一批样本时色散怎样变化
 
 同一组二阶力常数写入 phonopy 后，沿 `Γ—X—W—K—Γ—L` 路径求频率。路径分数坐标相对于 F 型原胞倒格矢，在 `fit-summary.json` 中完整保存。每段含 51 个 q 点、每点 6 支频率，CSV 一共有 255 行数值。
 
@@ -233,6 +521,94 @@ segment,distance_inv_A,q1,q2,q3,frequency_1_THz,frequency_2_THz,frequency_3_THz,
 [plot.py](/Atlas/examples/mace-si/si-effective-fc/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-effective-fc/atlas_plot_style.py)）只依赖 NumPy 与 Matplotlib，读取本目录的 CSV、JSON、NPZ 和预测力数组。把[数据包](/Atlas/examples/mace-si/si-effective-fc/public-bundle.tar.gz)中、[清单](/Atlas/examples/mace-si/si-effective-fc/public-files.json)列出的文件放在同一目录后，可在本机执行：
 
 色散来自 `harmonic-0.005-bands.csv`、`harmonic-0.01-bands.csv`、`effective-40-bands.csv` 和 `effective-60-bands.csv`。曲线本身使用 THz，差值图把两组对应频率相减后乘 1000，才变成 GHz；这一步不会重新拟合力常数。`fit-summary.json` 提供高对称点的位置，不能用等间隔刻度代替真实路径长度。
+
+
+画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+
+```text
+编写 plot.py，从本目录 CSV、fit-summary.json、independent-dataset.npz 和预测力 NPY 出图。用 summary 中的路径边界，频率保持 THz，叠画简谐与有效二阶色散；并列比较训练、后段与独立轨迹的力 RMSE，画预测力对照和 40/60 帧色散变化。只读取已保存数据，使用 NumPy、Matplotlib 与 atlas_plot_style.py，不加载 MACE。保留所有负频和真实采样温度。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Run beside the CSV/JSON/NPZ outputs. No MACE, ASE or phonopy import is needed.
+root=Path(__file__).resolve().parent
+summary=json.loads((root/'fit-summary.json').read_text())
+plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,
+                     'axes.spines.right':False,'svg.fonttype':'none','savefig.dpi':200})
+colors={'harmonic':'#5d626a','effective':'#0072b2','small':'#e69f00','validation':'#009e73'}
+def bands(name): return np.genfromtxt(root/(name+'-bands.csv'),delimiter=',',skip_header=1)
+def decorate(ax):
+    ticks=summary['fits'][-1]['bands']['boundaries_inv_A']
+    for x in ticks:ax.axvline(x,color='#dddddd',lw=.6,zorder=0)
+    ax.axhline(0,color='#bbbbbb',lw=.7,zorder=0)
+    ax.set_xticks(ticks,['Γ','X','W','K','Γ','L'])
+    ax.set_xlim(ticks[0],ticks[-1])
+    ax.set_xlabel('Wave-vector path')
+base=bands('harmonic-0.005'); other=bands('harmonic-0.01'); fit=bands('effective-60')
+fig,axes=plt.subplots(1,2,figsize=(10.4,4),layout='constrained')
+for seg in range(5):
+    rows=base[:,0]==seg
+    for branch in range(5,11):
+        axes[0].plot(base[rows,1],1000*(other[rows,branch]-base[rows,branch]),color=colors['harmonic'],lw=1)
+        axes[1].plot(base[rows,1],base[rows,branch],color=colors['harmonic'],lw=1.1,ls='--')
+        axes[1].plot(fit[rows,1],fit[rows,branch],color=colors['effective'],lw=1.15)
+for ax in axes:decorate(ax)
+axes[0].set_title('Small-displacement amplitude check')
+axes[0].set_ylabel('Frequency difference (GHz)')
+axes[1].set_title('One finite-temperature fitting demonstration')
+axes[1].set_ylabel('Frequency [THz]')
+axes[1].plot([],[],color=colors['harmonic'],ls='--',label='Small displacement: 0.005 Å')
+axes[1].plot([],[],color=colors['effective'],label='Effective FCs: 60 training frames')
+axes[1].legend(frameon=False,fontsize=8,loc='upper center',bbox_to_anchor=(.5,-.18))
+fig.savefig(root/'effective-phonons.svg');fig.savefig(root/'effective-phonons.png');plt.close(fig)
+
+fig,axes=plt.subplots(2,2,figsize=(10.4,7.2),layout='constrained')
+learning=np.genfromtxt(root/'learning-curve.csv',delimiter=',',names=True)
+for field,label,color in [('train_RMSE_meV_A','Training block',colors['harmonic']),
+                         ('heldout_block_RMSE_meV_A','Held-out later block',colors['small']),
+                         ('independent_RMSE_meV_A','Independent velocity seed',colors['validation'])]:
+    axes[0,0].plot(learning['training_snapshots'],learning[field],'-o',label=label,color=color,ms=4)
+axes[0,0].set(xlabel='Training snapshots',ylabel='Force RMSE [meV/Å]',title='Sample-count comparison')
+axes[0,0].set_xticks([20,40,60]);axes[0,0].legend(frameon=False,fontsize=8)
+ind=np.load(root/'independent-dataset.npz')
+pred=np.load(root/'effective-60-independent-prediction.npy')
+true=ind['forces'].reshape(-1);estimate=pred.reshape(-1)
+lo=min(true.min(),estimate.min());hi=max(true.max(),estimate.max())
+axes[0,1].scatter(true,estimate,s=3,alpha=.22,color=colors['effective'],rasterized=True)
+axes[0,1].plot([lo,hi],[lo,hi],color='#333333',lw=.8)
+axes[0,1].set(xlabel='MACE force component [eV/Å]',ylabel='Effective-model force [eV/Å]',title='Independent trajectory, 60-frame fit')
+axes[0,1].text(.04,.94,f"RMSE = {summary['fits'][-1]['independent']['rmse_meV_A']:.2f} meV/Å",transform=axes[0,1].transAxes,va='top')
+source=np.load(root/'mapped-dataset.npz')
+axes[1,0].plot(source['source_time_ps'],source['source_temperature_K'],color=colors['harmonic'],lw=1,label='Source trajectory')
+axes[1,0].plot(ind['time_ps'],ind['temperature_K'],color=colors['validation'],lw=1,label='Independent trajectory')
+axes[1,0].axvspan(.005,.300,color=colors['effective'],alpha=.09,label='60-frame training interval')
+axes[1,0].axvspan(.400,.500,color=colors['small'],alpha=.12,label='Held-out source interval')
+axes[1,0].set(xlabel='Production time [ps]',ylabel='Instantaneous temperature [K]',title='Actual short-trajectory temperatures')
+axes[1,0].legend(frameon=False,fontsize=7,loc='best')
+short=bands('effective-40')
+for seg in range(5):
+    rows=fit[:,0]==seg
+    for branch in range(5,11):axes[1,1].plot(fit[rows,1],1000*(fit[rows,branch]-short[rows,branch]),color=colors['effective'],lw=1)
+decorate(axes[1,1]);axes[1,1].set_title('Sensitivity to 40 versus 60 training frames')
+axes[1,1].set_ylabel('Frequency(60) − frequency(40) [GHz]')
+fig.savefig(root/'fit-validation.svg');fig.savefig(root/'fit-validation.png');plt.close(fig)
+print('Created effective-phonons.svg/png and fit-validation.svg/png')
+```
+
+</details>
 
 ```bash
 python3 plot.py
@@ -254,9 +630,80 @@ python3 plot.py
 
 按照 [Nature 图稿规格](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)移除背景网格时，仍应保留表示高对称点边界的竖线与零频参考线。采样区间的浅色区域表达实际训练和验证时段，也应有明确图例。颜色同时配合实线、虚线或标记；移动图例、精简图内标题可以腾出空间，但不要删掉样本敏感性面板或放大后的 GHz 差值。
 
-### 把导出的文件重新读回来
+## 把导出的文件重新读回来
 
 [verify.py](/Atlas/examples/mace-si/si-effective-fc/verify.py)单独读取轨迹、位移—力数组和保存的力常数，用普通矩阵乘法重新计算独立误差，再从 YAML 重建 phonopy 对象。读取时明确指定 `is_compact_fc=False`，获得完整的 `(64, 64, 3, 3)` 力常数；默认压缩布局只保留原胞代表原子的行，形状会是 `(2, 64, 3, 3)`，两种布局不能直接按相同数组比较。
+
+
+回读文件的检查可按下面的说明实现：
+
+```text
+编写 verify.py，回读 fit-summary.json、environment.json、映射、NPZ、轨迹和 YAML。核对源轨迹与模型哈希、原子映射为 0–63 的排列、保存力与轨迹一致以及独立轨迹初速度不同。用普通矩阵乘法 -Φu 重算独立力误差；读取 YAML 指定 is_compact_fc=False，比较完整 (64,64,3,3) 数组，重新计算 Γ 点频率。将差异与已有摘要对照，写 verification.json 并打印实际检查结果，不运行新的力计算。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>verify.py 完整源码</summary>
+
+```python
+from pathlib import Path
+import ast
+import hashlib
+import json
+import numpy as np
+from ase.io import read
+import phonopy
+
+summary=json.loads(Path('fit-summary.json').read_text())
+environment=json.loads(Path('environment.json').read_text())
+source_hash=hashlib.sha256(Path('../si-md/nve-1fs.traj').read_bytes()).hexdigest()
+assert source_hash==environment['source_trajectory_sha256']
+assert hashlib.sha256(Path('../models/mace-mp-0-small.model').read_bytes()).hexdigest()==environment['model_sha256']
+order=np.load('phonopy-to-ase-order.npy')
+assert sorted(order.tolist())==list(range(64))
+mapped=np.load('mapped-dataset.npz')
+frames=read('mapped-configurations.traj',':')
+assert len(frames)==101
+saved_forces=np.array([a.calc.results['forces'][order] for a in frames])
+force_difference=float(np.max(np.abs(saved_forces-mapped['forces'])))
+assert force_difference<1e-12
+
+new=read('independent-initial.traj');old=read('../si-md/initial.traj')
+assert not np.array_equal(new.get_momenta(),old.get_momenta())
+ind=np.load('independent-dataset.npz')
+assert len(read('independent-nve.traj',':'))==51
+fc=np.load('effective-60-fc.npy')
+matrix=fc.transpose(0,2,1,3).reshape(192,192)
+prediction=-(ind['displacements'].reshape(-1,192)@matrix.T).reshape(-1,64,3)
+saved=np.load('effective-60-independent-prediction.npy')
+prediction_difference=float(np.max(np.abs(prediction-saved)))
+assert prediction_difference<1e-12
+rmse=float(np.sqrt(np.mean((prediction-ind['forces'])**2))*1000)
+assert abs(rmse-summary['fits'][-1]['independent']['rmse_meV_A'])<1e-10
+for fit in summary['fits']:
+    assert set(fit['training_source_indices']).isdisjoint(fit['heldout_source_indices'])
+for name in ['harmonic-0.01','harmonic-0.005','effective-20','effective-40','effective-60']:
+    table=np.genfromtxt(name+'-bands.csv',delimiter=',',skip_header=1)
+    assert table.shape==(255,11) and np.isfinite(table).all()
+ph=phonopy.load('effective-60.yaml', is_compact_fc=False, symmetrize_fc=False)
+yaml_fc_difference=float(np.max(np.abs(ph.force_constants-fc)))
+assert yaml_fc_difference<1e-10
+ph.run_qpoints([[0,0,0]])
+gamma_difference=float(np.max(np.abs(ph.qpoints.frequencies[0]-np.array(summary['fits'][-1]['bands']['gamma_THz']))))
+assert gamma_difference<1e-5
+for name in ['prepare.py','fit.py','plot.py','verify.py']:
+    ast.parse(Path(name).read_text())
+result=dict(source_trajectory_unchanged=True,independent_initial_velocities=True,mapped_frames=101,independent_frames=51,
+            saved_force_max_difference_eV_A=force_difference,independent_prediction_max_difference_eV_A=prediction_difference,
+            independently_recomputed_RMSE_meV_A=rmse,yaml_force_constant_max_difference_eV_A2=yaml_fc_difference,
+            gamma_reload_max_difference_THz=gamma_difference,all_dispersion_rows_finite=True)
+Path('verification.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(result,indent=2))
+print('DATA_AND_EXPORT_CHECKS_FINISHED')
+```
+
+</details>
 
 ```console
 [talos@talos-MS-7D54 si-effective-fc]$ <MACE环境>/bin/python verify.py > verification.out 2>&1; echo verification_exit=$?
@@ -312,3 +759,11 @@ DATA_AND_EXPORT_CHECKS_FINISHED
     └→ phonopy 色散 → 样本数与频率变化检查
 ```
 
+## 参考资料
+
+参考：
+
+- [MACE：ASE calculator](https://mace-docs.readthedocs.io/en/latest/guide/ase.html)
+- [Phonopy：Python API、力常数与色散](https://phonopy.github.io/phonopy/phonopy-module.html)
+- [symfc：位移—力数据与对称化力常数](https://symfc.github.io/symfc/)
+- [hiPhive：从 MD 轨迹建立有效谐模型](https://hiphive.materialsmodeling.org/advanced_topics/effective_harmonic_models.html)

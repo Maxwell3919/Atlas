@@ -1,8 +1,8 @@
-[VASP：Fe 单层 SOC 示例](https://vasp.at/wiki/Spin-orbit_coupling_in_a_Fe_monolayer) · [SAXIS](https://vasp.at/wiki/SAXIS) · [LSORBIT](https://vasp.at/wiki/LSORBIT) · [GGA_COMPAT](https://vasp.at/wiki/GGA_COMPAT)
-
 这组 Fe 单层计算的四份 OUTCAR 都写出了 EDIFF 已达到。可是把 k 网格从 9×9×1 改为 15×15×1 后，两个磁化方向的零展宽能量差从 −0.05659 变成 +0.63992 meV/Fe，连符号都改变了。电子循环结束与磁各向异性能量收敛，需要分开核验。
 
 [下载四个真实计算目录及提取脚本](/Atlas/examples/interface-magnet-mae/example-pack.tar.gz)。这里采用 VASP 官方 Fe 单层例子的几何，用同一份结构和 PAW 数据比较面外 z 与面内 x 两个方向；实际采用的截断能、展宽和网格都写在下面的输入中。普通固定结构计算见 [SCF](/Atlas/m/scf/vasp/)。
+
+## 用同一几何准备 x、z 两个方向
 
 先读已经完成的 `k09_z` 输入。
 
@@ -91,7 +91,7 @@ cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_ncl > out
 ```
 
-脚本实际使用 8 个 MPI 进程。这里的 CPU 编号 16–23 是当时 Slurm 分配与实际亲和性核验过的范围；相关环境设置处理的是该节点 Intel MPI 的绑定行为，换机器时须按实际分配检查。整个系列串行执行，运行中节点总申请为 24/64 核，包含原有的 16 核声子任务。
+脚本实际使用 8 个 MPI 进程。这里的 CPU 编号 16–23 是当时 Slurm 分配与实际亲和性核验过的范围；相关环境设置处理的是该节点 Intel MPI 的绑定行为，换机器时须按实际分配检查。整个系列串行执行。
 
 `k09_z` 的真实作业号是 18189。它结束后，复制四项输入与脚本，建立 x 方向计算：
 
@@ -172,6 +172,8 @@ k15_x/OUTCAR:------------------------ aborting loop because EDIFF is reached ---
 k15_x/OUTCAR:                         Elapsed time (sec):      199.324
 ```
 
+## 先核对实际磁矩方向，再相减能量
+
 四份输出均达到电子停止条件并正常计时，耗时分别约 86、89、201、199 秒。先核对方向，再读取能量差。
 
 ```text
@@ -243,7 +245,7 @@ k15_x: F=-6.33320573 eV; E0=-6.33278678 eV; NKPTS=225; wall=199.324 s
 
 9×9 时，展宽修正的方向差已与所求信号同量级，F 与 E0 甚至给出不同符号。15×15 时两种能量差更接近，但主读数相对 9×9 改变了约 0.69651 meV/Fe。仅凭这两组网格还不能把 +0.63992 meV 登记为收敛的材料 MAE，也不能据此确定最终易轴。
 
-下一轮应继续成对加密 k 网格，并在每个网格下成对缩小 SIGMA，直到所选能量差在预先规定的容差内稳定；ENCUT、真空和几何误差也要与所需精度相称。EDIFF=10⁻⁸ eV 限制的是电子迭代停止条件，不能消除有限 k 网格与展宽带来的误差。这个系列已经把两方向计算与验收路线完整走通，同时保留了尚未通过网格检查的真实结果。
+下一轮应继续成对加密 k 网格，并在每个网格下成对缩小 SIGMA，直到所选能量差在预先规定的容差内稳定；ENCUT、真空和几何误差也要与所需精度相称。EDIFF=10⁻⁸ eV 限制的是电子迭代停止条件，不能消除有限 k 网格与展宽带来的误差。
 
 ## 四份实际方向能量
 
@@ -254,11 +256,9 @@ k15_x: F=-6.33320573 eV; E0=-6.33278678 eV; NKPTS=225; wall=199.324 s
 | k15_z | 225 | -6.33342670 | -6.33383960 | 2.972900 | 0.002726 |
 | k15_x | 225 | -6.33278678 | -6.33320573 | 2.966800 | 0.002731 |
 
-## 文献方法与本例读数
+## 对照文献中的分析方法
 
-*Effect of Hubbard U-corrections on the electronic and magnetic properties of 2D materials: a high-throughput study*，[DOI: 10.1038/s41524-024-01503-3](https://doi.org/10.1038/s41524-024-01503-3)，Fig. 5 比较 287 个单层在 PBE 与 PBE+U 下的各向异性幅值和符号；方法采用非自洽 SOC 的磁力定理。本例采用自洽 SOC 总能量差，具体算法不同。四份实际能量与两组差值表清楚展示取样敏感性：9×9→15×15 的 ΔE0 翻转符号。现有两个方向不足以拟合角度函数，两个网格也未确定稳定易轴；这组结果应继续作成对取样检查。
-
-下一步可回到 [磁性候选态比较](/Atlas/m/magnetic-gs/vasp/)，先确认所研究磁构型，再在同一构型内做更严格的方向与取样检查。
+*Effect of Hubbard U-corrections on the electronic and magnetic properties of 2D materials: a high-throughput study*，[DOI: 10.1038/s41524-024-01503-3](https://doi.org/10.1038/s41524-024-01503-3)，Fig. 5 比较 287 个单层在 PBE 与 PBE+U 下的各向异性幅值和符号；方法采用非自洽 SOC 的磁力定理。本例采用自洽 SOC 总能量差，具体算法不同。四份实际能量与两组差值表清楚展示取样敏感性：9×9→15×15 的 ΔE0 翻转符号。下一轮沿用这种成对比较，检查差值随网格和展宽的变化。
 
 ```text
 同一结构 / PAW / 泛函 / 电子参数
@@ -268,13 +268,116 @@ k15_x: F=-6.33320573 eV; E0=-6.33278678 eV; NKPTS=225; wall=199.324 s
              └─ k 网格与展宽成对变化 → 差值稳定后再判断易轴
 ```
 
-## 可复制的代码生成提示与复现
+## 从原始文件重建结果
+
+先核对每个网格下的 x/z 输入与最终笛卡尔磁矩，再分别计算 ΔF 与 ΔE0。把两组差值并列，才能看清展宽影响和网格改变引起的符号翻转。可以把这些读取规则写成下面的请求：
 
 ```text
 请编写 Python 3 独立后处理程序。读取 k09_x/k09_z/k15_x/k15_z 的 INCAR、KPOINTS、POSCAR、POTCAR.identity.txt、OUTCAR 和 OSZICAR；核对同网格成对参数、电子收敛和计时，从 SAXIS 基底转到笛卡尔磁矩，输出四份 F/E0/磁矩/方向偏角以及 DeltaE0=(E0_x-E0_z)*1000 meV/Fe。保留 DeltaF 和 9→15 网格差，不用两个方向拟合角度函数，也不推断稳定易轴。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [read_mae.py 完整源码](/Atlas/examples/interface-magnet-mae/read_mae.py) · [export_mae_table.py 完整源码](/Atlas/examples/interface-magnet-mae/export_mae_table.py)
+
+<details>
+<summary>read_mae.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import os,re,json,math,hashlib
+
+def digest(name):
+    if os.path.basename(name)=='POTCAR' and not os.path.exists(name):
+        record=open(os.path.join(os.path.dirname(name),'POTCAR.identity.txt')).read()
+        hashes=re.findall(r'[0-9a-f]{64}',record)
+        if len(hashes)!=1:raise ValueError('Expected one recorded PAW hash')
+        return hashes[0]
+    return hashlib.sha256(open(name,'rb').read()).hexdigest()
+def params(name):
+    p={}
+    for l in open(name):
+        l=l.split('#')[0].split('!')[0]
+        if '=' in l:
+            key,value=l.split('=',1);p[key.strip().upper()]=value.strip()
+    return p
+
+def read_case(name):
+    p=params(name+'/INCAR');out=open(name+'/OUTCAR').read();osz=open(name+'/OSZICAR').read()
+    if 'aborting loop because EDIFF is reached' not in out:raise ValueError(name+': EDIFF not reached')
+    if 'General timing and accounting' not in out:raise ValueError(name+': no final accounting')
+    if p['LSORBIT']!='.TRUE.' or p['LNONCOLLINEAR']!='.TRUE.':raise ValueError('SOC/noncollinear is required')
+    m=list(map(float,re.findall(r'mag=\s*([-+0-9.Ee]+)\s+([-+0-9.Ee]+)\s+([-+0-9.Ee]+)',osz)[-1]))
+    axis=list(map(float,p['SAXIS'].split()));anorm=math.sqrt(sum(v*v for v in axis));axis=[v/anorm for v in axis]
+    alpha=math.atan2(axis[1],axis[0]);beta=math.atan2(math.hypot(axis[0],axis[1]),axis[2])
+    ca,sa,cb,sb=math.cos(alpha),math.sin(alpha),math.cos(beta),math.sin(beta)
+    cart=[ca*cb*m[0]-sa*m[1]+ca*sb*m[2],sa*cb*m[0]+ca*m[1]+sa*sb*m[2],-sb*m[0]+cb*m[2]]
+    mag=math.sqrt(sum(v*v for v in cart));angle=math.degrees(math.acos(max(-1,min(1,sum(x*y for x,y in zip(axis,cart))/mag))))
+    if angle>1.0:raise ValueError(name+': magnetization drifted from target direction')
+    return {'name':name,'PAW_check_source':'actual POTCAR' if os.path.exists(name+'/POTCAR') else 'recorded original hash','F_eV':float(re.findall(r'free\s+energy\s+TOTEN\s*=\s*([-+0-9.Ee]+)',out)[-1]),'E0_eV':float(re.findall(r'energy\(sigma->0\)\s*=\s*([-+0-9.Ee]+)',out)[-1]),'E_without_entropy_eV':float(re.findall(r'energy\s+without entropy\s*=\s*([-+0-9.Ee]+)',out)[-1]),'elapsed_s':float(re.findall(r'Elapsed time \(sec\):\s*([0-9.]+)',out)[-1]),'nkpoints':int(re.findall(r'NKPTS\s*=\s*(\d+)',out)[-1]),'mag_spinor_muB':m,'mag_cartesian_muB':cart,'mag_angle_from_target_deg':angle,'incar':p,'POSCAR_sha256':digest(name+'/POSCAR'),'POTCAR_sha256':digest(name+'/POTCAR'),'KPOINTS_sha256':digest(name+'/KPOINTS'),'OUTCAR_sha256':digest(name+'/OUTCAR')}
+
+if __name__=='__main__':
+    names=['k09_z','k09_x','k15_z','k15_x'];rows=[read_case(n) for n in names]
+    if len(set(r['POSCAR_sha256'] for r in rows))!=1 or len(set(r['POTCAR_sha256'] for r in rows))!=1:raise ValueError('Structure or PAW differs')
+    protocol=[dict((k,v) for k,v in r['incar'].items() if k not in ['SYSTEM','SAXIS']) for r in rows]
+    if any(p!=protocol[0] for p in protocol[1:]):raise ValueError('Protocol mismatch')
+    pairs=[]
+    for mesh,z,x in [(9,rows[0],rows[1]),(15,rows[2],rows[3])]:
+        if z['KPOINTS_sha256']!=x['KPOINTS_sha256'] or z['nkpoints']!=x['nkpoints']:raise ValueError('x/z k point mismatch')
+        pairs.append({'mesh':mesh,'delta_F_x_minus_z_meV_per_Fe':1000*(x['F_eV']-z['F_eV']),'delta_E0_x_minus_z_meV_per_Fe':1000*(x['E0_eV']-z['E0_eV'])})
+    report={'definition':'Delta E = E_x - E_z; one Fe per cell','energy_for_primary_comparison':'energy(sigma->0); free energy retained as smearing diagnostic','cases':rows,'pairs':pairs,'mesh_change_delta_E0_meV':pairs[1]['delta_E0_x_minus_z_meV_per_Fe']-pairs[0]['delta_E0_x_minus_z_meV_per_Fe']}
+    json.dump(report,open('mae-summary.json','w'),indent=2)
+    print('same POSCAR/POTCAR; same active INCAR except SYSTEM/SAXIS; x/z k grids match')
+    for r in rows:
+        print('%s: F=% .8f eV; E0=% .8f eV; NKPTS=%d; wall=%.3f s'%(r['name'],r['F_eV'],r['E0_eV'],r['nkpoints'],r['elapsed_s']))
+        print('  m_spinor='+str(r['mag_spinor_muB'])+'; m_Cartesian='+str([round(v,6) for v in r['mag_cartesian_muB']])+'; angle=%.6f deg'%r['mag_angle_from_target_deg'])
+    for r in pairs:print('%dx%dx1: DeltaF(x-z)=%+.8f meV/Fe; DeltaE0(x-z)=%+.8f meV/Fe'%(r['mesh'],r['mesh'],r['delta_F_x_minus_z_meV_per_Fe'],r['delta_E0_x_minus_z_meV_per_Fe']))
+    print('9 -> 15 change in DeltaE0 = %+.8f meV/Fe'%report['mesh_change_delta_E0_meV'])
+```
+
+</details>
+
+<details>
+<summary>export_mae_table.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Export k-mesh dependence and orientation-resolved MAE totals as CSV."""
+import csv, json
+from pathlib import Path
+
+root = Path(__file__).resolve().parent
+summary = json.loads((root / "mae-summary.json").read_text(encoding="utf-8"))
+with (root / "mae-kmesh-comparison.csv").open("w", newline="", encoding="utf-8") as handle:
+    fields = ["mesh", "nkpoints_per_calculation", "delta_E0_x_minus_z_meV_per_Fe", "delta_F_x_minus_z_meV_per_Fe", "sign_changed_vs_previous_mesh"]
+    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer.writeheader()
+    previous = None
+    for pair in summary["pairs"]:
+        delta = pair["delta_E0_x_minus_z_meV_per_Fe"]
+        writer.writerow({
+            "mesh": pair["mesh"],
+            "nkpoints_per_calculation": pair["mesh"] ** 2,
+            "delta_E0_x_minus_z_meV_per_Fe": f'{delta:.8f}',
+            "delta_F_x_minus_z_meV_per_Fe": f'{pair["delta_F_x_minus_z_meV_per_Fe"]:.8f}',
+            "sign_changed_vs_previous_mesh": "" if previous is None else str((delta > 0) != (previous > 0)).lower(),
+        })
+        previous = delta
+with (root / "mae-orientation-energies.csv").open("w", newline="", encoding="utf-8") as handle:
+    fields = ["case", "nkpoints", "E0_eV", "F_eV", "moment_magnitude_muB", "magnetization_angle_error_deg"]
+    writer = csv.DictWriter(handle, fieldnames=fields)
+    writer.writeheader()
+    for case in summary["cases"]:
+        m = case["mag_cartesian_muB"]
+        magnitude = sum(x*x for x in m) ** 0.5
+        writer.writerow({
+            "case": case["name"], "nkpoints": case["nkpoints"],
+            "E0_eV": f'{case["E0_eV"]:.8f}', "F_eV": f'{case["F_eV"]:.8f}',
+            "moment_magnitude_muB": f'{magnitude:.6f}',
+            "magnetization_angle_error_deg": f'{case["mag_angle_from_target_deg"]:.6f}',
+        })
+print("Wrote 2 mesh rows and 4 orientation rows")
+```
+
+</details>
 
 [输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-mae/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
 
@@ -283,4 +386,8 @@ python3 read_mae.py
 python3 export_mae_table.py
 ```
 
-实际读取结果见正文表及 [mae-orientation-energies.csv](/Atlas/examples/interface-magnet-mae/mae-orientation-energies.csv) · [mae-kmesh-comparison.csv](/Atlas/examples/interface-magnet-mae/mae-kmesh-comparison.csv) · [mae-summary.json](/Atlas/examples/interface-magnet-mae/mae-summary.json)。这些命令只读取现有输出进行后处理。
+实际读取结果见正文表及 [mae-orientation-energies.csv](/Atlas/examples/interface-magnet-mae/mae-orientation-energies.csv) · [mae-kmesh-comparison.csv](/Atlas/examples/interface-magnet-mae/mae-kmesh-comparison.csv) · [mae-summary.json](/Atlas/examples/interface-magnet-mae/mae-summary.json)。
+
+相关输入说明：[VASP：Fe 单层 SOC 示例](https://vasp.at/wiki/Spin-orbit_coupling_in_a_Fe_monolayer) · [SAXIS](https://vasp.at/wiki/SAXIS) · [LSORBIT](https://vasp.at/wiki/LSORBIT) · [GGA_COMPAT](https://vasp.at/wiki/GGA_COMPAT)
+
+下一步可回到 [磁性候选态比较](/Atlas/m/magnetic-gs/vasp/)，先确认所研究磁构型，再在同一构型内做更严格的方向与取样检查。

@@ -1,8 +1,10 @@
+`projwfc.x` 能把波函数投影到赝势提供的原子轨道上，并给出 Löwdin 布居。先从两个完全等价的 Si 原子开始，容易看清哪些数字是电子布居，哪些只是投影没有覆盖的部分。结构和父密度的建立见[SCF](/Atlas/m/scf/qe/)，均匀积分网格见[NSCF](/Atlas/m/nscf/qe/)；这里接 `18³` 网格的 `gap18-cg`，其输出中全部本征值求解均已结束。
+
 [projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 
-[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `population-cg/lowdin.csv`，投影输入与原始输出也已保存。包中不含波函数与可接续计算的 `tmp/si.save`；重新运行 `projwfc.x` 时，需要按下文前提完成 SCF 和匹配的均匀网格 NSCF。
+[下载 Si 算例](/Atlas/examples/si-pbe-lesson-files.tar.gz)后保留目录结构，在 `si-pbe` 中读取 `population-cg` 的投影输入、原始输出与 `lowdin.csv` 布居表。包中不含波函数与可接续计算的 `tmp/si.save`；重新运行 `projwfc.x` 时，需要按下文前提完成 SCF 和匹配的均匀网格 NSCF。
 
-`projwfc.x` 能把波函数投影到赝势提供的原子轨道上，并给出 Löwdin 布居。先从两个完全等价的 Si 原子开始，容易看清哪些数字是电子布居，哪些只是投影没有覆盖的部分。结构和父密度的建立见[SCF](/Atlas/m/scf/qe/)，均匀积分网格见[NSCF](/Atlas/m/nscf/qe/)；这里接 `18³` 网格的 `gap18-cg`，它已重新核对全部本征值求解结束。
+## 准备均匀网格波函数与投影输入
 
 布居需要对布里渊区积分，所以这次复制的是均匀网格计算后的完整 `tmp`，包含波函数。普通能带路径只沿几条线走，不能用它的权重积分来代替这一份布居。
 
@@ -41,6 +43,8 @@
 `prefix='si'` 和 `outdir='./tmp'` 必须对应那次 NSCF 的实际文件。`filproj` 保存逐态投影，`filpdos` 命名 PDOS；`degauss=0.01` 的单位是 Ry，`DeltaE=0.02` 的单位是 eV，二者用于同时生成的展宽 PDOS。不要因为输入里出现了展宽参数，就把投影电子数误读成某个能量点上的 DOS 值。
 
 这份输入的 `ngauss=0` 选择 Gaussian 展宽；`degauss` 控制每个离散能级在能量轴上铺开的宽度，`DeltaE` 控制输出曲线的取样间隔。减小 `DeltaE` 可以把已有曲线写得更细，但不会增加 NSCF 的 k 点，也不会补全赝势原子轨道没有覆盖的投影空间。
+
+## 运行 projwfc.x，核对原子轨道编号
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat population-cg/run.sh
@@ -147,6 +151,8 @@ Submitted batch job 798
 
 本例 `natomwfc=8`：每个 Si 有一组 s 和三组 p，两个原子一共八个投影通道。`state #1` 是第一个 Si 的 s，`#2–4` 是它的 p；`#5` 是第二个 Si 的 s，`#6–8` 是它的 p。这些编号由本次赝势中的原子态决定，换赝势后应重新读这一段。
 
+## 读取 Löwdin 布居与 spilling
+
 中间部分逐 k 点、逐能带列出投影，最后才对占据态和 k 权重求和得到布居。末尾的完整关键段如下：
 
 ```text
@@ -209,6 +215,62 @@ atom,total_electrons,s_electrons,p_electrons,pz_electrons,px_electrons,py_electr
 ```
 
 [完整源码：extract_lowdin.py](/Atlas/examples/charge-vesta/scripts/extract_lowdin.py)。环境为 Python 3 标准库。把源码与原始输出放在同一目录，在新目标文件执行：
+
+<details>
+<summary>extract_lowdin.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Extract the two-atom Si Löwdin table from a completed QE projwfc.out."""
+import argparse
+import csv
+from pathlib import Path
+import re
+
+p = argparse.ArgumentParser(description=__doc__)
+p.add_argument('input', type=Path)
+p.add_argument('--output', required=True, type=Path)
+a = p.parse_args()
+if a.output.exists():
+    raise FileExistsError(f'Refusing to overwrite {a.output}')
+text = a.input.read_text()
+if 'JOB DONE.' not in text or 'Lowdin Charges:' not in text:
+    raise ValueError('Missing completed Löwdin output')
+section = text.rsplit('Lowdin Charges:', 1)[1]
+rows = {}
+for match in re.finditer(r'Atom #\s*(\d+):\s*([^\n]+)', section):
+    atom = int(match[1])
+    fields = dict((k, float(v)) for k, v in re.findall(r'(total charge|s|p|pz|px|py)\s*=\s*([+-]?[\d.]+)', match[2]))
+    row = rows.setdefault(atom, {})
+    for key, value in fields.items():
+        if key in row and abs(row[key] - value) > 1e-8:
+            raise ValueError(f'Inconsistent atom {atom} field {key}')
+        row[key] = value
+if sorted(rows) != [1, 2]:
+    raise ValueError('This example requires atoms 1 and 2')
+for atom, row in rows.items():
+    if set(row) != {'total charge', 's', 'p', 'pz', 'px', 'py'}:
+        raise ValueError(f'Incomplete atom {atom}: {row}')
+    if abs(row['s'] + row['p'] - row['total charge']) > 2e-4:
+        raise ValueError('s+p differs from total beyond printed precision')
+    if abs(row['pz'] + row['px'] + row['py'] - row['p']) > 2e-4:
+        raise ValueError('p components differ from p beyond printed precision')
+sp = re.search(r'Spilling Parameter:\s*([\d.]+)', section)
+if not sp:
+    raise ValueError('Missing spilling')
+total = sum(row['total charge'] for row in rows.values())
+a.output.parent.mkdir(parents=True, exist_ok=True)
+with a.output.open('x', newline='') as stream:
+    writer = csv.writer(stream)
+    writer.writerow(['atom', 'total_electrons', 's_electrons', 'p_electrons', 'pz_electrons', 'px_electrons', 'py_electrons'])
+    for atom, row in sorted(rows.items()):
+        writer.writerow([atom] + [f'{row[k]:.4f}' for k in ('total charge', 's', 'p', 'pz', 'px', 'py')])
+print(f'atoms: {len(rows)}; projected electrons: {total:.4f} e')
+print(f'8-total: {8-total:.4f} e; fraction: {(8-total)/8:.5f}; reported spilling: {float(sp[1]):.4f}')
+print(f'wrote: {a.output}')
+```
+
+</details>
 
 ```bash
 python3 -B extract_lowdin.py projwfc.out --output new-lowdin.csv

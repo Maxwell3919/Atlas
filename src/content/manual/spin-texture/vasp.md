@@ -1,10 +1,12 @@
-[VASP：PROCAR](https://vasp.at/wiki/PROCAR) · [LSORBIT](https://vasp.at/wiki/LSORBIT) · [SAXIS](https://vasp.at/wiki/SAXIS) · [自旋纹理](https://vasp.at/wiki/Computing_the_spin_texture)
-
 普通能带图只告诉我们一个 k 点上有哪些能量。SOC 计算还可以把每个态在三个方向上的投影磁化读出来，再给能带点着色。这里沿 SnSe₂/Sr₂N 已计算的 Γ–M–K–Γ 路径读取 PROCAR，保留它的原始投影数值。
+
+这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。[SCF](/Atlas/m/scf/vasp/) 页可用于对照静态输入与输出的读法，[能带方法目录](/Atlas/m/bands/)说明相应的数据需求。本页直接从这份已经结束的 SOC 能带输出开始。
+
+[VASP：PROCAR](https://vasp.at/wiki/PROCAR) · [LSORBIT](https://vasp.at/wiki/LSORBIT) · [SAXIS](https://vasp.at/wiki/SAXIS) · [自旋纹理](https://vasp.at/wiki/Computing_the_spin_texture)
 
 [下载原始 PROCAR、对应 SCF 输出和提取脚本](/Atlas/examples/vasp/snse2-sr2n-spin-path-electronic-files.tar.gz)。包内保留 150×72 组完整的四块投影数据，可重新生成 `spin-path.dat`；不包含大体积 CHGCAR 或波函数。路径计算继承同一 SOC SCF 的结构、赝势和密度，并关闭 LCHARG。
 
-这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。[SCF](/Atlas/m/scf/vasp/) 页可用于对照静态输入与输出的读法，[能带方法目录](/Atlas/m/bands/)说明相应的数据需求。本页直接从这份已经结束的 SOC 能带输出开始。
+## 核对 SOC 密度、路径和自旋基底
 
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ head -8 POSCAR
@@ -60,7 +62,9 @@ Reciprocal
      0.0000000 m_x     1.0000000 m_y     0.0000000 m_z
      0.0000000 m_x     0.0000000 m_y     1.0000000 m_z
 ```
-本例自旋基底到 Cartesian 坐标的变换是单位矩阵，三个磁化分量可以依次记作 mx、my、mz。换了 SAXIS 后必须读取这个变换，不能继续把第三列直接称为笛卡尔 z 分量。
+本例自旋基底到 Cartesian 坐标的变换是单位矩阵，三个磁化分量可以依次记作 mx、my、mz。更换 SAXIS 后，先按该变换将三个分量转换到笛卡尔坐标。
+
+## 逐态读取四组投影
 
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ head -38 PROCAR
@@ -105,7 +109,7 @@ band     2 # energy  -36.41344142 # occ.  1.00000000
 ```
 文件第二行给出 150 个 k 点、72 条带和 6 个原子。一个 k-point 行后面跟 band 编号、能量和占据数；随后有四组投影表。第一组的 `tot` 是投影权重，后三组的 `tot` 分别是三个方向的投影磁化。上面的第一个态给出权重 0.974、mx = 0.176、my = 0.956、mz = 0.071。
 
-第一组没有恰好等于 1，是因为这里读的是原子投影子空间中的权重。本例保留后三组原值，没有把它们除以第一组，也没有把投影磁化直接改名为完整布洛赫态的归一化自旋期望值。
+第一组没有恰好等于 1，是因为这里读的是原子投影子空间中的权重。本例保留后三组磁化原值，颜色表示原子投影子空间中的磁化。完整布洛赫态的归一化自旋期望值需要覆盖全态的自旋矩阵元。
 
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ tail -3 OSZICAR
@@ -126,13 +130,6 @@ OUTCAR: E-fermi :  -1.5887     XC(G=0):  -3.0424     alpha+bet : -2.9160
 ```
 作图采用生成固定电荷密度的 SCF 费米能 −1.4881 eV。沿线 k 点不是积分网格，不能用沿线输出里重新给出的费米能取代 SCF 的参考。
 
-```text
-[bcgong@localhost snse2_sr2n_spin]$ python spin_path.py
-Parsed 150 k-points x 72 bands = 10800 four-block records
-SCF E-fermi = -1.4881 eV
-path ticks / A^-1 = [0.0, 0.9183525437502472, 1.4485636269770399, 2.5089857932241535]
-columns charge,mx,my,mz; output spin-path.dat
-```
 随例子提供的脚本逐个读取 k-point、band 和四个 tot 行，检查 150 × 72 个块全部齐全。k 的横轴根据 POSCAR 的倒易晶格换算为路径长度，并使用 SCF 的费米能移动能量零点。
 
 ```text
@@ -144,9 +141,9 @@ columns charge,mx,my,mz; output spin-path.dat
 ```
 输出的十三列依次是 k 点编号、带号、累计路径长度、三个分数倒易坐标、原能量、相对 SCF 费米能的能量、占据、投影权重、mx、my、mz。它没有把相邻带号自动当作同一条连续自旋分支；带交叉和近简并处仍需结合波函数连续性判断。
 
-## 可复制的 AI 编码提示词
+## 把后处理要求写成提示词
 
-将下面的需求和本页示例文件交给代码助手：
+上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
 
 ```text
 编写 SnSe₂/Sr₂N SOC 路径投影程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -160,6 +157,81 @@ columns charge,mx,my,mz; output spin-path.dat
 
 完整源码：[spin_path.py](/Atlas/examples/vasp/snse2_sr2n_spin/spin_path.py) · [plot_spin.py](/Atlas/examples/vasp/snse2_sr2n_spin/plot_spin.py) · [atlas_plot_style.py](/Atlas/examples/vasp/snse2_sr2n_spin/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
 
+<details>
+<summary>spin_path.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import re, math, json
+
+def cross(a,b): return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+def dot(a,b): return sum(x*y for x,y in zip(a,b))
+p=open('POSCAR').readlines(); scale=float(p[1]); cell=[[float(x)*scale for x in t.split()] for t in p[2:5]]
+vol=dot(cell[0],cross(cell[1],cell[2])); rec=[[2*math.pi*x/vol for x in cross(cell[(i+1)%3],cell[(i+2)%3])] for i in range(3)]
+ef=float(re.findall(r'E-fermi\s*:\s*([-0-9.]+)',open('SCF_OUTCAR').read())[-1])
+rows=[]; dist=0.; prev=None; k=None; b=None; sums=[]
+for line in open('PROCAR'):
+    m=re.match(r'\s*k-point\s+(\d+)\s*:\s*([-0-9.]+)\s+([-0-9.]+)\s+([-0-9.]+)',line)
+    if m:
+        k=list(map(float,m.group(2,3,4))); ik=int(m.group(1))
+        cart=[sum(k[i]*rec[i][j] for i in range(3)) for j in range(3)]
+        if prev is not None: dist+=math.sqrt(sum((x-y)**2 for x,y in zip(cart,prev)))
+        prev=cart
+    m=re.match(r'\s*band\s+(\d+)\s+# energy\s+([-0-9.]+)\s+# occ.\s+([-0-9.]+)',line)
+    if m:
+        if b is not None and len(sums)!=4: raise ValueError('Need exactly four tot rows per band')
+        b=int(m.group(1)); energy=float(m.group(2)); occ=float(m.group(3)); sums=[]
+    if line.strip().startswith('tot '):
+        sums.append(float(line.split()[-1]))
+        if len(sums)==4:
+            rows.append([ik,b,dist]+k+[energy,energy-ef,occ]+sums)
+if len(sums)!=4: raise ValueError('Truncated last band')
+if len(rows)!=150*72: raise ValueError('Unexpected k/band block count')
+with open('spin-path.dat','w') as f:
+    f.write('# ik band kdist_A-1 k1 k2 k3 energy_eV E-Ef_eV occupation charge mx my mz\n')
+    for a in rows: f.write('%d %d '%(a[0],a[1])+' '.join('%.9f'%v for v in a[2:])+'\n')
+summary={'nk':150,'nb':72,'nrows':len(rows),'fermi_scf_eV':ef,'axis':'default SAXIS=(0,0,1), Cartesian','quantity':'native PROCAR projected magnetization; no normalization','path_ticks_A-1':[rows[i*72][2] for i in [0,49,99,149]],'max_abs_mz':max(abs(a[-1]) for a in rows)}
+json.dump(summary,open('spin-summary.json','w'),indent=2)
+print('Parsed %d k-points x %d bands = %d four-block records'%(150,72,len(rows)))
+print('SCF E-fermi = %.4f eV'%ef)
+print('path ticks / A^-1 = '+str(summary['path_ticks_A-1']))
+print('columns charge,mx,my,mz; output spin-path.dat')
+```
+
+</details>
+
+<details>
+<summary>plot_spin.py 的完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+import json
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+x=np.loadtxt('spin-path.dat'); s=json.load(open('spin-summary.json'))
+a=x[(x[:,7]>=-2)&(x[:,7]<=2)]
+fig,axes=plt.subplots(1,3,figsize=(12,4.5),sharex=True,sharey=True,layout='constrained')
+for ax,col,label in zip(axes,[10,11,12],['m_x','m_y','m_z']):
+    sc=ax.scatter(a[:,2],a[:,7],c=a[:,col],s=5,cmap='coolwarm',norm=Normalize(-1,1),rasterized=True)
+    ax.axhline(0,color='0.35',ls='--',lw=.7)
+    for p in s['path_ticks_A-1']: ax.axvline(p,color='0.8',lw=.6,zorder=0)
+    ax.set_xticks(s['path_ticks_A-1'],['Γ','M','K','Γ'])
+    ax.set_title(label+' (native PROCAR projection)')
+    ax.set_xlabel('High-symmetry path')
+axes[0].set_ylabel('Energy relative to SCF Fermi level (eV)')
+fig.colorbar(sc,ax=axes,label='Projected magnetization',shrink=.75)
+fig.suptitle('SnSe2/Sr2N: spin projections along Gamma-M-K-Gamma')
+fig.savefig('spin-path.png',dpi=220)
+fig.savefig('spin-path.pdf')
+```
+
+</details>
+
 解压本页示例包后，在 `snse2-sr2n-spin-path` 根目录执行：
 
 ```bash
@@ -168,10 +240,17 @@ python3 spin_path.py
 python3 plot_spin.py
 ```
 
+本例保存的提取运行记录如下：
+
+```text
+[bcgong@localhost snse2_sr2n_spin]$ python spin_path.py
+Parsed 150 k-points x 72 bands = 10800 four-block records
+SCF E-fermi = -1.4881 eV
+path ticks / A^-1 = [0.0, 0.9183525437502472, 1.4485636269770399, 2.5089857932241535]
+columns charge,mx,my,mz; output spin-path.dat
+```
+
 `spin_path.py` 从原始 PROCAR 检查每态四个 `tot` 块并生成十三列表；已有 `spin-path.dat` 与 `spin-summary.json` 时，直接执行 `python3 plot_spin.py`。绘图入口使用已提取的表格。
-
-
-提取源码：[spin_path.py](/Atlas/examples/vasp/snse2_sr2n_spin/spin_path.py)；绘图源码：[plot_spin.py](/Atlas/examples/vasp/snse2_sr2n_spin/plot_spin.py)，样式依赖为同目录 [atlas_plot_style.py](/Atlas/examples/vasp/snse2_sr2n_spin/atlas_plot_style.py)。运行环境为 Python 3、NumPy、Matplotlib。
 
 将 `spin-path.dat`、`spin-summary.json` 和 `plot_spin.py` 放到本机同一目录，执行 `python3 plot_spin.py`。脚本并排画出 mx、my、mz 三幅着色能带，显示费米能上下 2 eV，三幅图共用 −1 到 1 的颜色标尺，同时输出 PNG 与 PDF。颜色在近简并态之间跳变时，先检查成对态和投影基底，不要把每个带号的突变都解释成独立的物理纹理。
 

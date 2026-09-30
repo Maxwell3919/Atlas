@@ -1,5 +1,3 @@
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [DOS 后处理](https://www.quantum-espresso.org/Doc/INPUT_DOS.html)
-
 ## 密度保持不变，把本征值算到更密的网格上
 
 上一份 [Si SCF](/Atlas/m/scf/qe/)在 8×8×8 网格上得到电子密度，保留 4 条占据带。现在需要 DOS 和布里渊区内的带边位置，就在这份密度上使用 24×24×24 网格，并求出 8 条能带。结构、赝势与 60/640 Ry 截断保持一致。
@@ -9,6 +7,8 @@ NSCF 不再做一轮轮密度混合，但每个 k 点的本征值仍要数值收
 本例文件可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。保留解包后的 `si-pbe` 目录结构，读取下述 OUT 与 XML 可直接核对本次能级和采样数；计算使用的赝势按 [SCF 页](/Atlas/m/scf/qe/)准备。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。读取输出和 XML 可直接使用包内文件；重新计算时，先完成 [Si SCF](/Atlas/m/scf/qe/)，再按下面的顺序复制保存目录并运行 NSCF。
+
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [DOS 后处理](https://www.quantum-espresso.org/Doc/INPUT_DOS.html)
 
 ## 从同一份 SCF 复制父数据
 

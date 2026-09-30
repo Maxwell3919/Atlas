@@ -1,3 +1,9 @@
+## 把结构固定下来，先求一份电子密度
+
+这里在 Preston 上用 QE 7.5 计算两个原子的金刚石 Si 原胞。晶格取自 QE 示例的 10.20 bohr，赝势使用公开库中的 PBE 超软赝势；这是固定结构的教学算例。后面的 NSCF、路径能带和 Γ 点声子都从这份明确的输入出发。
+
+如果结构来自自己的优化，先到[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对最后结构，再把它带进 SCF。先用这份给定输入认识 SCF 的提交、迭代与保存文件，再到[收敛测试](/Atlas/m/convergence/qe/)比较截断能和电子网格。
+
 参考：
 
 - [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
@@ -8,12 +14,6 @@
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，从本页的 SCF 输入开始生成自己的保存目录。
-
-## 把结构固定下来，先求一份电子密度
-
-这里在 Preston 上用 QE 7.5 计算两个原子的金刚石 Si 原胞。晶格取自 QE 示例的 10.20 bohr，赝势使用公开库中的 PBE 超软赝势；这是固定结构的教学算例。后面的 NSCF、路径能带和 Γ 点声子都从这份明确的输入出发。
-
-如果结构来自自己的优化，先到[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对最后结构，再把它带进 SCF。截断能与电子网格如何比较，见[收敛测试](/Atlas/m/convergence/qe/)。这一页集中看一份 SCF 怎么提交、输出分几段，以及下一步真正需要保留哪些文件。
 
 ## 读完这份小输入，再提交
 
@@ -215,13 +215,13 @@ tail -f scf.out
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；这是 X11 图形环境授权提示；本次电子循环和程序结束记录完整。
+把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；本次电子循环和程序结束记录完整。
 
 ## 下一步要带走保存目录，不只是一份 OUT
 
 `scf.out` 便于人阅读，`tmp/si.save` 才保存后续程序读取的电子态。这个目录里的 `data-file-schema.xml` 记录结构和计算信息，`charge-density.dat` 保存电子密度，`wfc*.dat` 保存波函数；文件分布还会随 QE 版本和并行方式变化。
 
-准备新的分支时，先新建目录并复制这份父数据，避免后续 NSCF 改写 SCF 原件。例如使用：
+准备新的分支时，先新建目录并复制这份父数据，避免后续 NSCF 改写 SCF 原件。下面用 `nscf` 演示分支命名；[下一页](/Atlas/m/nscf/qe/)保留的实际复算目录叫 `gap24-cg`，跟那份算例时按它的目录名接续。
 
 ```bash
 mkdir ../nscf

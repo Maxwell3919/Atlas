@@ -1,18 +1,14 @@
-参考：
+这里从金刚石结构的 Si 出发：立方常规胞有 8 个原子，边长取 5.43 Å。先把第一个原子沿三个方向分别移动 0.10、−0.06、0.04 Å，再固定晶胞做 BFGS 优化。这样起点带着明确的原子力，可以同时看见能量下降、力收敛和晶胞保持不变。
+
+结构由 ASE 的 `bulk("Si", "diamond", a=5.43, cubic=True)` 明确生成。5.43 Å 是这次教学输入，不是本次拟合出的平衡晶格常数。所用 MACE-MP-0 small 势来自[官方模型发布](https://github.com/ACEsuit/mace-foundations/releases/tag/mace_mp_0)，所用文件的 SHA256 见下面的模型准备步骤。
 
 - [MACE：预训练模型与 ASE 接口](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
 - [ASE：晶体结构的构造](https://docs.ase-lib.org/ase/build/build.html)
 - [ASE：结构优化](https://docs.ase-lib.org/ase/optimize.html)
 
-## 把一个 Si 原子挪开，再看它如何回到平衡位置
+## 先把模型和输入放在计算目录里
 
-这里从金刚石结构的 Si 出发：立方常规胞有 8 个原子，边长取 5.43 Å。先把第一个原子沿三个方向分别移动 0.10、−0.06、0.04 Å，再固定晶胞做 BFGS 优化。这样起点带着明确的原子力，可以同时看见能量下降、力收敛和晶胞保持不变。
-
-结构由 ASE 的 `bulk("Si", "diamond", a=5.43, cubic=True)` 明确生成。5.43 Å 是这次教学输入，不是本次拟合出的平衡晶格常数。所用 MACE-MP-0 small 势来自[官方模型发布](https://github.com/ACEsuit/mace-foundations/releases/tag/mace_mp_0)，本机缓存与重新下载的官方文件逐字节一致。
-
-### 先把模型和输入放在计算目录里
-
-这次在 Talos 的 `atlas-mace` tmux 会话运行，CPU 上使用 2 个计算线程。进入已有 MACE 环境后，把模型复制到相邻的 `models` 目录；三个算例共用这一份模型，后面的脚本都显式读它。
+计算使用 CPU 和 2 个线程。进入已有 MACE 环境后，把模型复制到相邻的 `models` 目录；三个算例共用这一份模型，后面的脚本都显式读它。
 
 ```text
 talos@talos-MS-7D54:<工作目录>$ source <MACE环境>/bin/activate
@@ -29,7 +25,13 @@ talos@talos-MS-7D54:<工作目录>$ source <MACE环境>/bin/activate
 
 这里把 `float64` 与较小的力阈值配在一起，便于读取优化末段的微小变化；提高浮点精度不会重新训练模型，也不会消除模型本身的力误差。若调小 `fmax`，需要继续比较末步原子力和结构变化，而不是只观察能量的小数位。`model_paths` 则直接决定采用哪一份势能面：更换模型后，即使沿用同样的优化参数，也应重新优化并核验结果。
 
-实际用 `vi` 保存后，再用 `cat` 核对内容：
+将这些要求交给 AI 编程助手时，可以明确输入和停止条件：
+
+```text
+编写 relax.py，使用 ASE、MACECalculator、NumPy 和 PyTorch，在 CPU/float64 下加载 ../models/mace-mp-0-small.model，设置 PyTorch 2 线程并打印软件版本及模型 SHA256。用 ASE bulk 生成 a=5.43 Å 的8原子金刚石Si常规胞，将第一个原子移动[0.10,-0.06,0.04] Å；保存 initial.extxyz 并保持晶胞固定。用BFGS优化，fmax=0.001 eV/Å、最多100步，保存relax.traj和relax.log。结束后保存末态extxyz/CIF、重新计算最大原子力、核对晶胞逐项不变，并写 result.json。只有优化器收敛、最大力低于0.001且晶胞未变才打印RELAX_ACCEPTED。
+```
+
+[完整输入源码 relax.py](/Atlas/examples/mace-si/si-relax/relax.py)。以下是用 `vi` 保存、再用 `cat` 读回的完整内容：
 
 ```python
 (venv) talos@talos-MS-7D54:<工作目录>$ vi si-relax/relax.py
@@ -84,7 +86,7 @@ print("RELAX_ACCEPTED")
 
 `initial.extxyz` 会在调用优化器前写出，留下扰动后的起点；`relax.traj` 保存优化各步；`relaxed.extxyz` 和 `relaxed.cif` 保存末步结构。脚本末尾再次读取最大原子力，还会逐项比较初末晶胞。最后的 `RELAX_ACCEPTED` 是这份脚本在这些检查通过后打印的标记。
 
-### 先看程序有没有运行，再看优化走到了哪里
+## 先看程序有没有运行，再看优化走到了哪里
 
 ```text
 (venv) talos@talos-MS-7D54:<工作目录>/si-relax$ python -u relax.py > relax.out 2>&1; echo "exit=$?"
@@ -140,11 +142,38 @@ BFGS:   15 21:28:05      -42.953872        0.000627
 
 这里三项相互对应：优化器返回 `converged: true`，重新计算的最大力为 6.2666×10⁻⁴ eV/Å，`cell_unchanged: true` 表明晶胞没有被改动。势能降低了约 0.06205 eV。这个结果说明这份势函数下的固定晶胞优化达到了设定阈值；它没有检验这份势对 Si 的 DFT 力误差，也没有证明结构的声子稳定性。
 
-### 把优化过程画出来
+## 把优化过程画出来
 
 从轨迹逐帧读取能量、力和体积，导出的[数据表](/Atlas/examples/mace-si/si-relax/optimization.csv) 第一列是优化步数。绘图取相对初态的每原子能量，力使用对数坐标，最后几步是否跨过阈值就能直接看清。导出脚本也保留在[这里](/Atlas/examples/mace-si/export_series.py)，它读取计算实际生成的 `.traj`，不从图片反推数值。
 
-将 `optimization.csv` 和 [plot.py](/Atlas/examples/mace-si/si-relax/plot.py) 下载到同一个本地目录，运行 `python3 plot.py`。完整绘图代码如下：
+<details>
+<summary>export_series.py 的完整源码</summary>
+
+```python
+import csv
+import numpy as np
+from ase.io import read
+
+for directory, trajectory in [("si-relax", "relax.traj"), ("si-vc-relax", "vc-relax.traj")]:
+    frames = read(f"{directory}/{trajectory}", index=":")
+    with open(f"{directory}/optimization.csv", "w", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["step", "energy_eV", "fmax_eV_A", "volume_A3"])
+        for step, atoms in enumerate(frames):
+            writer.writerow([step, atoms.get_potential_energy(),
+                             np.linalg.norm(atoms.get_forces(), axis=1).max(), atoms.get_volume()])
+    print(directory, "frames", len(frames), "last_energy_eV", frames[-1].get_potential_energy())
+```
+
+</details>
+
+绘图使用这份轨迹导出的 CSV，不重新运行优化。可把下面的需求交给 AI 编程助手：
+
+```text
+编写 plot.py，使用 NumPy 和 Matplotlib 读取同目录 optimization.csv 的 step、energy_eV、fmax_eV_A。第一面板画1000*(E-E初态)/8，单位meV/atom；第二面板按对数纵轴画最大原子力，单位eV/Å，标0.001阈值虚线。横轴为BFGS步数。导入同目录atlas_plot_style.install，保留真实数据，输出relaxation.svg与180 dpi relaxation.png。
+```
+
+[完整绘图源码 plot.py](/Atlas/examples/mace-si/si-relax/plot.py) 如下：
 
 绘图脚本使用同目录的 [atlas_plot_style.py](/Atlas/examples/mace-si/si-relax/atlas_plot_style.py)；下载完整算例包时已包含这个文件。它同时保存网页预览与可编辑 PDF，具体版式见[重绘与导出](/Atlas/plotting/)。
 
@@ -173,6 +202,12 @@ for ax in axes:
 fig.savefig("relaxation.svg")
 fig.savefig("relaxation.png", dpi=180)
 print("relaxation.svg", "relaxation.png")
+```
+
+将 `optimization.csv`、`plot.py` 和 `atlas_plot_style.py` 放在同一个目录后运行：
+
+```bash
+python3 plot.py
 ```
 
 ![固定晶胞 Si 的能量下降与最大原子力](/Atlas/examples/mace-si/si-relax/relaxation.svg)

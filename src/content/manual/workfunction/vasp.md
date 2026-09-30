@@ -1,8 +1,8 @@
-[VASP：功函数](https://vasp.at/wiki/Computing_the_work_function) · [LVHAR](https://vasp.at/wiki/LVHAR) · [LOCPOT](https://vasp.at/wiki/LOCPOT) · [LDIPOL](https://vasp.at/wiki/LDIPOL)
+SnSe₂ 单层的功函数需要两个来自同一次计算的量：真空平台 V_vac 和费米能 E_F。下面用三原子单层完成固定结构 SCF，从 LOCPOT 沿层法向求平面平均，再结合 OUTCAR 的费米能与 EIGENVAL 的带边，读出 Φ = V_vac − E_F。真空平台要从完整势曲线中选取平坦窗口。
 
-真空势应当从一段平坦的区域读取。只找到 `LOCPOT`，或者从文件末尾拿一个数，都不能说明已经找到了真空能级。这个例子把三原子 SnSe₂ 单层重新做一次固定结构 SCF，在同一次计算中写出电荷密度、静电势和费米能，再沿层法向求平面平均。
+[下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。
 
-[下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。图在本机绘制，远端不需要安装图形界面。
+## 写出同一次 SCF 的势、密度和能级
 
 固定结构 SCF 的基本操作见 [SCF](/Atlas/m/scf/vasp/)。这里保留已有计算的 POSCAR、KPOINTS 和 POTCAR，用一个新目录重新生成电荷密度：
 
@@ -13,7 +13,7 @@
 [bcgong@localhost snse2_workfunction]$ vi INCAR
 ```
 
-`snse2_lvhar` 是同一结构的前一次计算目录。此处没有复制其中的 CHGCAR 或 WAVECAR；新的 INCAR 用 `ISTART = 0`、`ICHARG = 2` 从原子电荷开始。因此本页的势与费米能不依赖一次来源不清的固定电荷重启。
+`snse2_lvhar` 是同一结构的前一次计算目录。此处没有复制其中的 CHGCAR 或 WAVECAR；新的 INCAR 用 `ISTART = 0`、`ICHARG = 2` 从原子电荷开始。势与费米能由这次新的自洽计算共同产生。
 
 ```text
 [bcgong@localhost snse2_workfunction]$ cat POSCAR
@@ -67,7 +67,7 @@ LVHAR = .TRUE.
 
 `LVHAR = .TRUE.` 写出离子势与 Hartree 势之和；`LVTOT` 则把交换关联势也包含进去。VASP 的功函数说明推荐使用 LVHAR，因为交换关联势在真空中的衰减会影响平台读取。文件单位已经是 eV，后处理时不再除以晶胞体积。
 
-`GGA = PE` 采用 PBE，`IVDW = 11` 对应带零阻尼函数的 DFT-D3 色散修正。IVDW 的编号决定具体修正形式，本例并非 DFT-D2。D3 为总能、原子力和应力加入色散贡献；由于这里固定几何，它不会自行调整层内结构或真空高度。读取真空静电势时，仍应按本页的 LVHAR 输出和实际结构判断。
+`GGA = PE` 采用 PBE，`IVDW = 11` 对应带零阻尼函数的 DFT-D3 色散修正。D3 为总能、原子力和应力加入色散贡献；由于这里固定几何，它不会自行调整层内结构或真空高度。读取真空静电势时，仍应按本页的 LVHAR 输出和实际结构判断。
 
 这份输入的 `ISMEAR = 0` 是 Gaussian 展宽，`SIGMA = 0.05` 以 eV 计，用于求电子占据；它不是离子温度。后文得到有带隙的解，因此费米能读数要连着占据设置解释。`ENCUT = 520` 与 `EDIFF = 1E-7` 分别控制基组范围和电子迭代残差；判断功函数是否稳定时，应比较提高截断能或收紧迭代后 `V_vac − E_F` 的变化。本例只计算了这一截断能，截断能的敏感性仍需这样比较。
 
@@ -118,7 +118,7 @@ cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
 
-本例实际申请 8 个 MPI 进程，限时 15 分钟。提交时节点共有 64 核，已有研究任务使用 16 核；运行中也核验了所有用户进程，新任务使总用核达到 24 核。
+本次脚本使用 8 个 MPI 进程，限时 15 分钟。
 
 脚本里的 16–23 是这次 Slurm 分配和实际亲和性共同核验过的 CPU 编号。`unset SLURM_CPUS_PER_TASK` 只作用于启动程序的环境，用于处理此节点 Intel MPI 把它解释为 pin domain 的行为；Slurm 的 8 核资源申请仍然保留。换节点或同时存在其他任务时，应按新的分配检查实际亲和性，不能照抄这组编号。
 
@@ -162,7 +162,7 @@ DAV:  22    -0.118616262492E+02   -0.44434E-07   -0.62584E-10  3884   0.883E-05
 4993:                         Elapsed time (sec):       87.188
 ```
 
-输出确认 ICHARG=2，写出的势来自 LVHAR，电子循环达到了 EDIFF，文件末尾有正常计时汇总。本次程序耗时约 87.2 秒，调度器计时 88 秒。这个验收说明当前固定结构、截断能和 k 网格的电子问题已求解；它没有替代结构、真空高度或 k 网格的收敛检查。
+输出确认 ICHARG=2，写出的势来自 LVHAR，电子循环达到了 EDIFF，文件末尾有正常计时汇总。本次程序耗时约 87.2 秒，调度器计时 88 秒。
 
 ```text
 [bcgong@localhost snse2_workfunction]$ head -7 OUTCAR
@@ -218,6 +218,8 @@ Direct
  0.33078743625E+01 0.33054753494E+01 0.33058853949E+01 0.33071917898E+01 0.33053963884E+01
 ```
 
+## 沿层法向平均势并选择真空窗口
+
 LOCPOT 的前半部分像 POSCAR：标题、缩放系数、三条晶格矢量、元素和数量、坐标。空行后出现 `60 60 280`，表示网格沿三个晶格方向各有这么多点；再往后才是势值，x 最快变化，z 最慢。总共应读到 60×60×280 = 1,008,000 个标量值。
 
 把网格值记为 Vᵢⱼₖ，在第 k 个平面上取 V̄ₖ=ΣᵢⱼVᵢⱼₖ/(60×60)。这里的平均只消去面内 x、y 起伏，保留沿 z 的变化；没有再作沿 z 的滑动平均。对于本例的正交法向，zₖ=k×18.357298/280，k 从 0 到 279，不重复 18.357298 Å 的周期端点。对应的核心操作是：
@@ -255,7 +257,9 @@ window 15.00:17.00 A  N=31  mean=3.306265353 eV  std=3.89608e-05 eV  range=0.000
 0.1966853357 3.306304820274
 ```
 
-第一列是层法向距离，第二列是平面平均势。处理 LOCPOT 的方法和它的单位已闭合；接下来从同一份 OUTCAR 取费米能，并从 EIGENVAL 取当前均匀网格的带边。
+## 把真空平台、费米能和带边放到同一能量轴
+
+第一列是层法向距离，第二列是平面平均势。接下来从同一份 OUTCAR 取费米能，并从 EIGENVAL 取当前均匀网格的带边。
 
 ```text
 [bcgong@localhost snse2_workfunction]$ python workfunction_values.py
@@ -274,28 +278,27 @@ z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM 
 
 上面的分步脚本用于说明每个文件怎样被读取；资料包还附有 `analyze_workfunction.py`，从原始 `LOCPOT`、`OUTCAR` 和 `EIGENVAL` 重新计算平面平均势和真空参考能级。它会验证 VASP 的 `EDIFF` 收敛标记、`LVHAR` / `LVTOT` 设置、网格大小、费米能与电子数、EIGENVAL 的 k 点权重和占据边界。输入不符合这个自旋非极化半导体示例时，脚本会报错退出，不会猜带边或自动挑一个平台。
 
-```bash
-python3 analyze_workfunction.py --windows 1:3 15:17
-python3 plot_workfunction.py
-```
+按窗口重建的数据用于下图；完整脚本和运行命令在后面列出。
 
-`--windows` 的数字单位是 Å，窗口均值、窗口内标准差与最大-最小差写入 `workfunction-summary.json`；同时重建两列 `PLANAR_AVERAGE.dat`。标准差和范围只检查所选局部窗口是否平坦，不是多次计算的误差，也不检验真空厚度、截断能或 k 网格收敛。绘图使用下方真空窗口作为唯一能量零点，展示整胞势曲线、两个真空窗口、POSCAR 给出的原子层法向范围与本次 SCF 的费米能。两侧平均值只在结果表中并列：相差 −0.0181 meV，不通过单独缩放纵轴来放大这点差异。
+`--windows` 的数字单位是 Å，窗口均值、窗口内标准差与最大-最小差写入 `workfunction-summary.json`；同时重建两列 `PLANAR_AVERAGE.dat`。绘图使用下方真空窗口作为唯一能量零点，展示整胞势曲线、两个真空窗口、POSCAR 给出的原子层法向范围与本次 SCF 的费米能。两侧平台均值相差 −0.0181 meV。
 
-上述两条命令在解包目录运行，需要 Python 3、NumPy 和 Matplotlib；`atlas_plot_style.py` 随包提供。整合分析重建数据，绘图脚本据此输出 PNG、SVG 与 PDF。
+后面的分析与绘图命令在解包目录运行，需要 Python 3、NumPy 和 Matplotlib；`atlas_plot_style.py` 随包提供。整合分析重建数据，绘图脚本据此输出 PNG、SVG 与 PDF。
 
 整胞图把下方窗口 V_vac=3.306283412 eV 选为能量零点，整条 V̄(z) 与 E_F 同时减去这个数，Φ 因而保持不变。图上显示 1–3 Å 与 15–17 Å 的真空取样窗口、POSCAR 中原子 z 坐标覆盖范围、平面平均 LVHAR 势及费米能；Φ 箭头标出实际读取的能量间隔。
 
-原子区势阱明显低于真空平台。此图用于确认所选窗口位于真空，并查看从真空平台到费米能的间隔；平台细微起伏由窗口统计值报告，不以放大后的 meV 纵轴暗示材料精度。
+原子区势阱低于真空平台。结合原子位置，可检查窗口是否远离原子层，并从同一能量轴读取平台到费米能的间隔。
 
 ![SnSe₂ 整胞平面平均 LVHAR 势、真空窗口、原子层范围及费米能标记](/Atlas/examples/interface-magnet-workfunction/interface-magnet-workfunction-profile.svg)
 
-## 参考文献中的方法与图形设计
+## 真空参考与界面分析
 
 Zhang, Li, Tang, and Cao, “Robust p-type ohmic contact in ZrI₂–Dirac semi-metal van der Waals heterostructures,” *Physical Chemistry Chemical Physics* **27**, 19410 (2025), Fig. 4–5, [DOI: 10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)。正文说明作者对六种半导体 / 半金属接触计算沿 z 的平面平均静电势（Fig. 4），结合两种材料的功函数差讨论电子转移及内建电场方向；随后用三维和一维平面平均差分电荷（Fig. 5）检验界面电荷累积、耗尽的位置。Fig. 4 中势曲线与法向位置、真空和费米能参考共同展示，方便解释界面势变化。
 
-本例只计算了孤立、上下表面近似对称的 SnSe₂ 单层，因此数据支持的是所选真空平台与 Φ=V_vac−E_F 的读取，不能推出界面电荷转移或内建电场。我们借鉴的是沿 z 检查完整势曲线并把真空与 E_F 放入同一参考的分析逻辑；图由本例 LOCPOT、OUTCAR 和 POSCAR 重画，没有复用原文数据或图像。两侧窗口的均值相差 −0.0181 meV，仅列为数值核对，不作为可分辨的物理效应。
+沿 z 检查完整势曲线，并把真空与 E_F 放在同一参考下，是单层功函数和界面势分析的共同步骤。本例的图来自孤立 SnSe₂ 的 LOCPOT、OUTCAR 和 POSCAR；继续分析接触后的电荷重排，需要完整界面的密度和势。
 
-## 可复制的代码生成提示
+## 从原始文件重建结果
+
+分析程序先检查电子收敛与势文件格式，再对指定真空窗口取平均，把 E_F 和采样带边一起减去同一个 V_vac。绘图读取这些结果和原子法向范围。可以把这些读取规则写成下面的请求：
 
 ```text
 请为 VASP 5.4.4 的这个非自旋极化 SnSe2 单层示例编写独立 Python 3 命令行分析脚本。输入为当前目录中的 LOCPOT、OUTCAR、EIGENVAL；用户可用 --windows LOW:HIGH 指定一个或多个以 Å 为单位的真空窗口。
@@ -311,7 +314,572 @@ LOCPOT 是 POSCAR 头部、三维网格尺寸 nx ny nz 和一个标量势块；�
 
 完整源码：[analyze_workfunction.py](/Atlas/examples/interface-magnet-workfunction/analyze_workfunction.py) · [plot_workfunction.py](/Atlas/examples/interface-magnet-workfunction/plot_workfunction.py) · [plane_average.py](/Atlas/examples/interface-magnet-workfunction/plane_average.py) · [workfunction_values.py](/Atlas/examples/interface-magnet-workfunction/workfunction_values.py) · [atlas_plot_style.py](/Atlas/examples/interface-magnet-workfunction/atlas_plot_style.py)。数值输出：[workfunction-summary.json](/Atlas/examples/interface-magnet-workfunction/workfunction-summary.json)。
 
-下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 `E_F`。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
+<details>
+<summary>analyze_workfunction.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Rebuild planar potential and vacuum-referenced levels from VASP outputs.
+
+Required files in the current directory: LOCPOT, OUTCAR, EIGENVAL.
+The reader is intentionally restricted to a non-spin-polarized, gapped,
+single-scalar LOCPOT case. It rejects unsupported inputs instead of guessing.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import math
+import re
+from pathlib import Path
+
+import numpy as np
+
+A = np.asarray
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def read_locpot(path: Path):
+    lines = path.read_text(errors="strict").splitlines()
+    if len(lines) < 10:
+        raise ValueError("LOCPOT is too short to contain a POSCAR header and grid")
+    scale = float(lines[1].split()[0])
+    if scale <= 0:
+        raise ValueError("This example reader requires a positive POSCAR scale")
+    cell = A([[float(x) * scale for x in lines[i].split()[:3]]
+              for i in (2, 3, 4)], dtype=float)
+    index = 5
+    species_or_counts = lines[index].split()
+    index += 1
+    if all(re.fullmatch(r"\d+", word) for word in species_or_counts):
+        counts = [int(word) for word in species_or_counts]
+    else:
+        counts = [int(word) for word in lines[index].split()]
+        index += 1
+    mode = lines[index].strip().lower()
+    index += 1
+    if mode.startswith("s"):
+        mode = lines[index].strip().lower()
+        index += 1
+    if not (mode.startswith("d") or mode.startswith("c") or mode.startswith("k")):
+        raise ValueError(f"Unrecognized coordinate mode in LOCPOT header: {mode!r}")
+    natoms = sum(counts)
+    if natoms <= 0:
+        raise ValueError("Invalid atom counts in LOCPOT header")
+    index += natoms
+    while index < len(lines) and not lines[index].strip():
+        index += 1
+    grid = tuple(map(int, lines[index].split()))
+    index += 1
+    if len(grid) != 3 or min(grid) <= 0:
+        raise ValueError(f"Invalid LOCPOT grid dimensions: {grid}")
+    nx, ny, nz = grid
+    expected = nx * ny * nz
+    fields = []
+    for line in lines[index:]:
+        fields.extend(float(token.replace("D", "E").replace("d", "e"))
+                      for token in line.split())
+    if len(fields) != expected:
+        raise ValueError(
+            f"Expected one scalar potential block ({expected} values), found {len(fields)}"
+        )
+    values = np.asarray(fields, dtype=float)
+    if not np.isfinite(values).all():
+        raise ValueError("LOCPOT contains non-finite potential values")
+    normal = np.cross(cell[0], cell[1])
+    area = np.linalg.norm(normal)
+    if area == 0:
+        raise ValueError("The first two lattice vectors do not span a surface")
+    normal_height = abs(float(np.dot(cell[2], normal))) / area
+    if normal_height <= 0:
+        raise ValueError("Invalid cell height along the surface normal")
+    # VASP writes x fastest, then y, with z as the slowest index.
+    field = values.reshape((nz, ny, nx))
+    planar = field.mean(axis=(1, 2))
+    z = np.arange(nz, dtype=float) * normal_height / nz
+    return grid, normal_height, z, planar
+
+
+def outcar_values(path: Path):
+    text = path.read_text(errors="strict")
+    if "aborting loop because EDIFF is reached" not in text:
+        raise ValueError("OUTCAR has no EDIFF convergence marker")
+    if "General timing and accounting" not in text:
+        raise ValueError("OUTCAR has no final timing/accounting section")
+    if "LVHAR" not in text or not re.search(r"LVHAR\s*=\s*T\b", text):
+        raise ValueError("OUTCAR does not confirm LVHAR=T")
+    if re.search(r"LVTOT\s*=\s*T\b", text):
+        raise ValueError("OUTCAR also has LVTOT=T; this route expects LVHAR only")
+    ispin = re.findall(r"^\s*ISPIN\s*=\s*(\d+)", text, flags=re.M)
+    nelect = re.findall(r"^\s*NELECT\s*=\s*([-+0-9.]+)", text, flags=re.M)
+    efermi = re.findall(r"E-fermi\s*:\s*([-+0-9.]+)", text)
+    if not ispin or int(ispin[-1]) != 1:
+        raise ValueError("This band-edge reader requires a non-spin-polarized ISPIN=1 run")
+    if not nelect or not efermi:
+        raise ValueError("OUTCAR is missing NELECT or E-fermi")
+    return int(round(float(nelect[-1]))), float(efermi[-1])
+
+
+def read_eigenval(path: Path, expected_electrons: int):
+    with path.open() as stream:
+        for _ in range(5):
+            if not stream.readline():
+                raise ValueError("EIGENVAL ended before its electron/k-point/band header")
+        try:
+            electrons, nkpoints, nbands = map(int, stream.readline().split())
+        except Exception as exc:
+            raise ValueError("Invalid EIGENVAL electron/k-point/band header") from exc
+        if electrons != expected_electrons:
+            raise ValueError(
+                f"EIGENVAL has {electrons} electrons but OUTCAR has {expected_electrons}"
+            )
+        if electrons % 2:
+            raise ValueError("An even electron count is required for this ISPIN=1 example")
+        nocc = electrons // 2
+        if not (0 < nocc < nbands):
+            raise ValueError("EIGENVAL does not contain both occupied and empty bands")
+        k_weights, energies, occupations = [], [], []
+        for _ in range(nkpoints):
+            line = stream.readline()
+            while line and not line.strip():
+                line = stream.readline()
+            if not line:
+                raise ValueError("EIGENVAL ended before all k-point blocks were read")
+            point = list(map(float, line.split()))
+            if len(point) != 4:
+                raise ValueError("Expected kx ky kz weight on each EIGENVAL k-point line")
+            k_weights.append(point[3])
+            e_k, occ_k = [], []
+            for _ in range(nbands):
+                row = stream.readline().split()
+                if len(row) != 3:
+                    raise ValueError("Expected band index, energy, and occupation (ISPIN=1)")
+                band_index, energy, occupation = map(float, row)
+                e_k.append(energy)
+                occ_k.append(occupation)
+            energies.append(e_k)
+            occupations.append(occ_k)
+    weights = np.asarray(k_weights, dtype=float)
+    eigenvalues = np.asarray(energies, dtype=float)
+    occ = np.asarray(occupations, dtype=float)
+    if abs(float(weights.sum()) - 1.0) > 1e-5:
+        raise ValueError(f"EIGENVAL k-point weights sum to {weights.sum():.8g}, not 1")
+    weighted_electrons = 2.0 * float(np.sum(weights[:, None] * occ))
+    if abs(weighted_electrons - expected_electrons) > 1e-3:
+        raise ValueError(
+            f"Weighted EIGENVAL occupations give {weighted_electrons:.8f} electrons, "
+            f"not {expected_electrons}"
+        )
+    if float(occ[:, nocc - 1].min()) < 0.5 or float(occ[:, nocc].max()) > 0.5:
+        raise ValueError(
+            "The NELECT/2 band boundary is partially occupied; this is not a gapped "
+            "non-spin-polarized case"
+        )
+    vbm = float(eigenvalues[:, nocc - 1].max())
+    cbm = float(eigenvalues[:, nocc].min())
+    if cbm <= vbm:
+        raise ValueError("Sampled EIGENVAL band edges do not form a positive gap")
+    return {
+        "electrons": electrons,
+        "nkpoints": nkpoints,
+        "bands": nbands,
+        "weighted_electrons": weighted_electrons,
+        "vbm_eV": vbm,
+        "cbm_eV": cbm,
+        "indirect_gap_eV": cbm - vbm,
+    }
+
+
+def parse_window(spec: str):
+    try:
+        low, high = map(float, spec.split(":"))
+    except Exception as exc:
+        raise argparse.ArgumentTypeError("Use a window such as 1:3 (angstrom)") from exc
+    if not (math.isfinite(low) and math.isfinite(high) and low < high):
+        raise argparse.ArgumentTypeError("Window endpoints must be finite with low < high")
+    return low, high
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Average LVHAR from LOCPOT and align the gapped band edges to vacuum."
+    )
+    parser.add_argument(
+        "--windows", nargs="+", type=parse_window, default=[(1.0, 3.0), (15.0, 17.0)],
+        metavar="LOW:HIGH", help="vacuum windows in angstrom (default: 1:3 15:17)"
+    )
+    args = parser.parse_args()
+    if not args.windows:
+        raise ValueError("At least one vacuum window is required")
+    loct = Path("LOCPOT")
+    outcar = Path("OUTCAR")
+    eigenval = Path("EIGENVAL")
+    if not all(path.is_file() for path in (loct, outcar, eigenval)):
+        raise FileNotFoundError("Run in a directory containing LOCPOT, OUTCAR, EIGENVAL")
+
+    grid, height, z, potential = read_locpot(loct)
+    nelect, ef = outcar_values(outcar)
+    bands = read_eigenval(eigenval, nelect)
+    windows = []
+    for low, high in args.windows:
+        if low < 0 or high > height:
+            raise ValueError(
+                f"Window {low:g}:{high:g} A lies outside 0:{height:.8f} A"
+            )
+        chosen = (z >= low) & (z <= high)
+        values = potential[chosen]
+        if values.size == 0:
+            raise ValueError(f"Window {low:g}:{high:g} A contains no LOCPOT planes")
+        mean = float(values.mean())
+        row = {
+            "lo_A": low, "hi_A": high, "n": int(values.size),
+            "mean_eV": mean,
+            "std_eV": float(values.std(ddof=0)),
+            "range_eV": float(values.max() - values.min()),
+            "vacuum_minus_fermi_eV": mean - ef,
+            "vacuum_minus_vbm_eV": mean - bands["vbm_eV"],
+            "vacuum_minus_cbm_eV": mean - bands["cbm_eV"],
+        }
+        windows.append(row)
+
+    order = sorted(windows, key=lambda item: item["lo_A"])
+    for left, right in zip(order, order[1:]):
+        if left["hi_A"] > right["lo_A"]:
+            raise ValueError("Vacuum windows overlap")
+
+    np.savetxt(
+        "PLANAR_AVERAGE.dat", np.column_stack((z, potential)),
+        fmt=("%.10f", "%.12f"),
+        header="z_A  planar_potential_eV",
+        comments="# ",
+    )
+    result = {
+        "code": "VASP",
+        "potential_component": "LVHAR (ionic + Hartree; LVTOT is false)",
+        "surface_normal": "normal to lattice vectors a and b",
+        "normal_height_A": height,
+        "grid": list(grid),
+        "scalar_values": int(np.prod(grid)),
+        "ispin": 1,
+        "electrons": nelect,
+        "nkpoints": bands["nkpoints"],
+        "bands": bands["bands"],
+        "weighted_electrons": bands["weighted_electrons"],
+        "fermi_eV": ef,
+        "vbm_eV": bands["vbm_eV"],
+        "cbm_eV": bands["cbm_eV"],
+        "indirect_gap_eV": bands["indirect_gap_eV"],
+        "formula": {
+            "work_function_eV": "V_vacuum - E_F",
+            "ionization_potential_eV": "V_vacuum - VBM",
+            "electron_affinity_eV": "V_vacuum - CBM",
+            "potential_spread_eV": "max(Vbar) - min(Vbar) within each selected window",
+        },
+        "windows": windows,
+        "input_sha256": {
+            path.name: sha256(path) for path in (loct, outcar, eigenval)
+        },
+        "limits": [
+            "EIGENVAL band edges are extrema on the sampled SCF k mesh, not a continuous-Brillouin-zone search.",
+            "E_F in a semiconductor is the chemical potential printed for this occupation setup; it can move within the gap.",
+            "Window spread is a local flatness diagnostic, not an uncertainty or convergence estimate.",
+        ],
+    }
+    Path("workfunction-summary.json").write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n"
+    )
+    print(
+        f"grid={grid}; scalar values={int(np.prod(grid))}; normal height={height:.10f} A"
+    )
+    print(
+        f"NELECT={nelect}; NKPTS={bands['nkpoints']}; weighted electrons="
+        f"{bands['weighted_electrons']:.8f}; E_F={ef:.6f} eV"
+    )
+    print(
+        f"sampled VBM={bands['vbm_eV']:.6f} eV; CBM={bands['cbm_eV']:.6f} eV; "
+        f"gap={bands['indirect_gap_eV']:.6f} eV"
+    )
+    for item in windows:
+        print(
+            f"z={item['lo_A']:.2f}:{item['hi_A']:.2f} A N={item['n']} "
+            f"V_vac={item['mean_eV']:.9f} eV std={item['std_eV']:.6g} eV "
+            f"range={item['range_eV']:.6g} eV Phi={item['vacuum_minus_fermi_eV']:.9f} eV"
+        )
+
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+<details>
+<summary>plot_workfunction.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Plot the actual full-cell planar LVHAR profile used to inspect the vacuum plateau."""
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+import numpy as np
+
+from atlas_plot_style import install
+
+install()
+
+
+def poscar_atomic_extent(path: Path, normal_height: float, normal: np.ndarray) -> tuple[float, float]:
+    """Return the z extent of atomic coordinates projected along the cell normal."""
+    lines = path.read_text().splitlines()
+    scale = float(lines[1].split()[0])
+    cell = np.asarray([[float(x) for x in lines[i].split()[:3]] for i in (2, 3, 4)]) * scale
+    i = 5
+    fields = lines[i].split()
+    i += 1
+    if all(word.lstrip("+").isdigit() for word in fields):
+        counts = [int(word) for word in fields]
+    else:
+        counts = [int(word) for word in lines[i].split()]
+        i += 1
+    if lines[i].strip().lower().startswith("s"):
+        i += 1
+    mode = lines[i].strip().lower()
+    i += 1
+    coordinates = np.asarray([
+        [float(x) for x in lines[i + j].split()[:3]]
+        for j in range(sum(counts))
+    ])
+    if mode.startswith("d"):
+        cartesian = coordinates @ cell
+    elif mode.startswith(("c", "k")):
+        cartesian = coordinates * scale
+    else:
+        raise ValueError(f"Unsupported POSCAR coordinate mode: {mode!r}")
+    z = np.mod(cartesian @ normal, normal_height)
+    return float(z.min()), float(z.max())
+
+
+profile_path = Path("PLANAR_AVERAGE.dat")
+summary_path = Path("workfunction-summary.json")
+if not profile_path.is_file() or not summary_path.is_file():
+    raise FileNotFoundError("Run analyze_workfunction.py first")
+
+profile = np.loadtxt(profile_path, comments="#")
+summary = json.loads(summary_path.read_text())
+windows = sorted(summary["windows"], key=lambda item: item["lo_A"])
+if profile.ndim != 2 or profile.shape[1] != 2:
+    raise ValueError("Expected z_A and planar_potential_eV columns")
+if len(windows) != 2:
+    raise ValueError("This example expects its two measured surface vacuum windows")
+z, potential = profile[:, 0], profile[:, 1]
+height = float(summary["normal_height_A"])
+if not np.all(np.isfinite(profile)) or z.max() >= height:
+    raise ValueError("Profile contains invalid values or an out-of-cell z coordinate")
+
+cell = np.asarray([[float(x) for x in line.split()[:3]]
+                   for line in Path("POSCAR").read_text().splitlines()[2:5]], dtype=float)
+scale = float(Path("POSCAR").read_text().splitlines()[1].split()[0])
+cell *= scale
+normal = np.cross(cell[0], cell[1])
+normal /= np.linalg.norm(normal)
+if np.dot(cell[2], normal) < 0:
+    normal *= -1.0
+atom_lo, atom_hi = poscar_atomic_extent(Path("POSCAR"), height, normal)
+
+vacuum_reference = float(windows[0]["mean_eV"])
+relative_potential = potential - vacuum_reference
+fermi_relative = float(summary["fermi_eV"]) - vacuum_reference
+work_function = vacuum_reference - float(summary["fermi_eV"])
+colors = ("#0072b2", "#d55e00")
+
+fig, ax = plt.subplots(figsize=(8.1, 4.8), layout="constrained")
+ax.plot(z, relative_potential, color="#222222", lw=1.25,
+        label=r"Planar-averaged $V_{\mathrm{LVHAR}}(z)$")
+ax.axhline(0.0, color=colors[0], ls="--", lw=1.0,
+           label="Lower-z vacuum reference")
+ax.axhline(fermi_relative, color=colors[1], ls="-.", lw=1.0,
+           label=r"$E_F$ from the same SCF")
+ax.axvspan(atom_lo, atom_hi, color="#777777", alpha=0.12, zorder=0)
+for window in windows:
+    ax.axvspan(window["lo_A"], window["hi_A"], color=colors[0], alpha=0.08, zorder=0)
+
+handles = [
+    Line2D([0], [0], color="#222222", lw=1.25,
+           label=r"Planar-averaged $V_{\mathrm{LVHAR}}(z)$"),
+    Line2D([0], [0], color=colors[0], ls="--", lw=1.0,
+           label="Lower-z vacuum reference"),
+    Line2D([0], [0], color=colors[1], ls="-.", lw=1.0,
+           label=r"$E_F$ from the same SCF"),
+    Patch(facecolor="#777777", alpha=0.12, label="Atomic z extent from POSCAR"),
+    Patch(facecolor=colors[0], alpha=0.08, label="Vacuum windows used in the table"),
+]
+ax.legend(handles=handles, frameon=False, ncols=2, loc="lower left")
+arrow_x = 2.55
+ax.annotate(
+    "", xy=(arrow_x, fermi_relative), xytext=(arrow_x, 0.0),
+    arrowprops={"arrowstyle": "<->", "color": colors[1], "lw": 1.1},
+)
+ax.text(arrow_x + 0.22, 0.5 * fermi_relative,
+        rf"$\Phi={work_function:.4f}\ \mathrm{{eV}}$",
+        color=colors[1], ha="left", va="center")
+
+span = float(relative_potential.max() - relative_potential.min())
+ax.set_xlim(0.0, height)
+ax.set_ylim(relative_potential.min() - 0.04 * span,
+            relative_potential.max() + 0.04 * span)
+ax.set_xlabel("Distance along the surface normal (Å)")
+ax.set_ylabel(r"$\bar{V}(z)-V_{\mathrm{vac,lower}}$ (eV)")
+ax.set_title(r"SnSe$_2$ monolayer: planar-averaged LVHAR and work-function reference")
+ax.grid(False)
+
+output = "interface-magnet-workfunction-profile.png"
+fig.savefig(output)
+plt.close(fig)
+
+upper_minus_lower = float(windows[1]["mean_eV"] - windows[0]["mean_eV"])
+print(f"Wrote interface-magnet-workfunction-profile.png, .svg, and .pdf")
+print(f"Lower-z Vvac = {vacuum_reference:.9f} eV; E_F = {summary['fermi_eV']:.6f} eV")
+print(f"Phi at the printed E_F = {work_function:.9f} eV")
+print(f"Upper-minus-lower vacuum mean = {upper_minus_lower * 1000.0:+.5f} meV")
+print("That last difference is reported numerically only; it is not resolved as a material effect.")
+```
+
+</details>
+
+<details>
+<summary>plane_average.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import sys, math, json, hashlib
+
+def cross(a,b):
+    return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+def dot(a,b): return sum(x*y for x,y in zip(a,b))
+
+def read_grid(name):
+    f=open(name)
+    title=f.readline().strip()
+    scale=float(f.readline().split()[0])
+    cell=[[float(x)*scale for x in f.readline().split()[:3]] for i in range(3)]
+    if scale <= 0: raise ValueError('This reader requires a positive POSCAR scale')
+    words=f.readline().split()
+    if all(x.isdigit() for x in words):
+        counts=list(map(int,words))
+    else:
+        counts=list(map(int,f.readline().split()))
+    mode=f.readline().strip()
+    if mode.lower().startswith('s'): mode=f.readline().strip()
+    coords=[f.readline().split()[:3] for i in range(sum(counts))]
+    line=f.readline()
+    while line and not line.strip(): line=f.readline()
+    grid=list(map(int,line.split()))
+    if len(grid)!=3 or min(grid)<=0: raise ValueError('Invalid FFT grid')
+    n=grid[0]*grid[1]*grid[2]
+    vals=[]
+    while len(vals)<n:
+        line=f.readline()
+        if not line: raise ValueError('Truncated potential: %d/%d'%(len(vals),n))
+        vals.extend(float(x.replace('D','E')) for x in line.split())
+    if len(vals)!=n: raise ValueError('Unexpected extra values in scalar block')
+    f.close()
+    if any(math.isnan(x) or math.isinf(x) for x in vals):
+        raise ValueError("Non-finite potential value")
+    return cell,grid,vals
+
+if __name__=='__main__':
+    name=sys.argv[1] if len(sys.argv)>1 else 'LOCPOT'
+    cell,grid,v=read_grid(name)
+    area=math.sqrt(dot(cross(cell[0],cell[1]),cross(cell[0],cell[1])))
+    height=abs(dot(cell[2],cross(cell[0],cell[1])))/area
+    nxy=grid[0]*grid[1]
+    avg=[sum(v[i*nxy:(i+1)*nxy])/nxy for i in range(grid[2])]
+    zz=[height*i/grid[2] for i in range(grid[2])]
+    with open('PLANAR_AVERAGE.dat','w') as f:
+        f.write('# z_A  planar_potential_eV\n')
+        for z,p in zip(zz,avg): f.write('%.10f %.12f\n'%(z,p))
+    summary={'grid':grid,'points':len(v),'normal_height_A':height,'source_sha256':hashlib.sha256(open(name,'rb').read()).hexdigest(),'windows':[]}
+    print('grid = %d %d %d; scalar values = %d'%tuple(grid+[len(v)]))
+    print('normal height = %.10f A; output = PLANAR_AVERAGE.dat'%height)
+    for spec in sys.argv[2:]:
+        lo,hi=map(float,spec.split(':'))
+        a=[p for z,p in zip(zz,avg) if lo<=z<=hi]
+        if not a: raise ValueError('Empty averaging window')
+        mean=sum(a)/len(a); std=math.sqrt(sum((x-mean)**2 for x in a)/len(a)); span=max(a)-min(a)
+        row={'lo_A':lo,'hi_A':hi,'n':len(a),'mean_eV':mean,'std_eV':std,'range_eV':span}
+        summary['windows'].append(row)
+        print('window %.2f:%.2f A  N=%d  mean=%.9f eV  std=%.6g eV  range=%.6g eV'%(lo,hi,len(a),mean,std,span))
+    with open('potential-summary.json','w') as f: json.dump(summary,f,indent=2,sort_keys=True)
+```
+
+</details>
+
+<details>
+<summary>workfunction_values.py 的完整源码</summary>
+
+```python
+from __future__ import print_function
+import json,re,hashlib
+out=open('OUTCAR').read()
+if 'aborting loop because EDIFF is reached' not in out:
+    raise ValueError('Electronic convergence line is absent')
+if 'General timing and accounting' not in out:
+    raise ValueError('Normal final accounting section is absent')
+ef=float(re.findall(r'E-fermi\s*:\s*([-+0-9.]+)',out)[-1])
+p=json.load(open('potential-summary.json'))
+with open('EIGENVAL') as f:
+    for i in range(5): f.readline()
+    ne,nk,nb=map(int,f.readline().split())
+    if ne % 2: raise ValueError('This band-edge reader expects even-electron, non-spin-polarized input')
+    occupied=[];empty=[]
+    for ik in range(nk):
+        line=f.readline()
+        while line and not line.strip(): line=f.readline()
+        if not line: raise ValueError('Truncated EIGENVAL before k point')
+        if len(line.split())!=4: raise ValueError('Invalid k-point line')
+        bands=[list(map(float,f.readline().split())) for ib in range(nb)]
+        if any(len(row)!=3 for row in bands): raise ValueError('Invalid or truncated non-spin EIGENVAL band block')
+        occupied.append(bands[ne//2-1][1]);empty.append(bands[ne//2][1])
+vbm=max(occupied);cbm=min(empty)
+r={'fermi_eV':ef,'vbm_eV':vbm,'cbm_eV':cbm,'indirect_gap_eV':cbm-vbm,'nkpoints':nk,'bands':nb,'electrons':ne,'windows':[]}
+for w in p['windows']:
+    item=dict(w)
+    item['vacuum_minus_fermi_eV']=w['mean_eV']-ef
+    item['vacuum_minus_vbm_eV']=w['mean_eV']-vbm
+    item['vacuum_minus_cbm_eV']=w['mean_eV']-cbm
+    r['windows'].append(item)
+json.dump(r,open('workfunction-summary.json','w'),indent=2)
+print('E_F = %.6f eV; VBM = %.6f eV; CBM = %.6f eV; gap = %.6f eV'%(ef,vbm,cbm,cbm-vbm))
+for w in r['windows']:
+    print('z = %.2f:%.2f A; V_vac = %.9f eV; Phi(E_F) = %.9f eV; V_vac-VBM = %.9f eV; V_vac-CBM = %.9f eV'%(w['lo_A'],w['hi_A'],w['mean_eV'],w['vacuum_minus_fermi_eV'],w['vacuum_minus_vbm_eV'],w['vacuum_minus_cbm_eV']))
+```
+
+</details>
+
+解包后进入 `example-pack`，在有 Python 3、NumPy 和 Matplotlib 的环境运行：
+
+```bash
+python3 analyze_workfunction.py --windows 1:3 15:17
+python3 plot_workfunction.py
+```
+
+本次读取的下侧平台为 3.306283412 eV，Φ 为 5.784583412 eV；上侧平台为 3.306265353 eV，Φ 为 5.784565353 eV。两列势数据写入 `PLANAR_AVERAGE.dat`，窗口和能级写入 `workfunction-summary.json`，绘图脚本据此生成前面的整胞势图。
 
 ```text
 固定结构 + 同一套赝势 / 均匀 k 网格
@@ -321,3 +889,7 @@ LOCPOT 是 POSCAR 头部、三维网格尺寸 nx ny nz 和一个标量势块；�
        └─ LOCPOT → 平面平均 → 平坦真空窗口
                                     └─ V_vac − E_F；同时注明带隙中的化学势
 ```
+
+相关输入说明：[VASP：功函数](https://vasp.at/wiki/Computing_the_work_function) · [LVHAR](https://vasp.at/wiki/LVHAR) · [LOCPOT](https://vasp.at/wiki/LOCPOT) · [LDIPOL](https://vasp.at/wiki/LDIPOL)
+
+下一步接 [能带对齐](/Atlas/m/band-alignment/vasp/)。把两个材料放到同一能量参考前，需要分别取得它们自己的真空势和带边；不能直接比较两个计算各自打印的 `E_F`。若只需要三维势和平面平均的文件读法，接 [静电势](/Atlas/m/electrostatic-potential/vasp/)。

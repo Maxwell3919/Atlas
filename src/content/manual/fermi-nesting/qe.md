@@ -1,8 +1,8 @@
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [Johannes 与 Mazin：费米面嵌套与 CDW](https://doi.org/10.1103/PhysRevB.77.165135)
-
 把费米面平移 q 后的重叠程度，可以用完整 k 网格上的几何联合权重 J(q) 定量比较。本页以 Al 为例，计算它对 q、电子网格和能量窗口的依赖。
 
-这里从 [费米面](/Atlas/m/fermi-surface/qe/) 已验收的 Al 24³/32³ NSCF 继续。SCF 和 NSCF 不再重复；需要的是该页保存的 `fermi-grid.npz`，其中每个格点、每条能带的 Eₙ(k)−E_F 都能追到同一份 QE XML。
+这里从 [费米面](/Atlas/m/fermi-surface/qe/) 已完成本征值检查的 Al 24³/32³ NSCF 继续。SCF 和 NSCF 不再重复；需要的是该页保存的 `fermi-grid.npz`，其中每个格点、每条能带的 Eₙ(k)−E_F 都能追到同一份 QE XML。
+
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [Johannes 与 Mazin：费米面嵌套与 CDW](https://doi.org/10.1103/PhysRevB.77.165135)
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-electronic-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -79,18 +79,9 @@ python3 fermi/extract_fermi_electronic.py
 
 下载包把 XML 放在 `fermi/k24-cg/data-file-schema.xml` 和 `fermi/k32-cg/data-file-schema.xml`，提取脚本读取这些外置文件。`.venv/bin/python` 是原执行记录中的环境路径；本机使用 `python3`。重画现有曲线可直接读取四份 CSV。
 
-```console
-maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi_electronic.py
-k=24^3 nks=13824 EF=8.39793432 eV crossing bands=[2, 3]; all grid cells assigned once
- sigma=0.10 eV J(0)=0.61975726 J(X)=0.09968022 eV^-2; direct-sum check passed
- sigma=0.20 eV J(0)=0.31708865 J(X)=0.06123457 eV^-2; direct-sum check passed
-k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned once
- sigma=0.10 eV J(0)=0.53305558 J(X)=0.04490039 eV^-2; direct-sum check passed
- sigma=0.20 eV J(0)=0.28204495 J(X)=0.03678119 eV^-2; direct-sum check passed
-```
-脚本先验收 XML 点阵，再针对 σ=0.10、0.20 eV 两个窗口计算。此处的 σ 与 SCF 输入中的 `degauss=0.02 Ry` 属于不同阶段，单位也不同；修改后处理窗口不会改变已经计算好的电子电荷密度。
+脚本先检查 XML 点阵，再针对 σ=0.10、0.20 eV 两个窗口计算。此处的 σ 与 SCF 输入中的 `degauss=0.02 Ry` 属于不同阶段，单位也不同；修改后处理窗口不会改变已经计算好的电子电荷密度。
 
-缩小 σ 后，贡献更集中在费米能附近，有限网格可能只剩少量点承担较大权重，结果通常更依赖 k 点采样。增大 σ 会平滑这种离散性，也会把费米能上下更宽范围的态一起计入。因此下面同时比较网格与窗口，不能只挑峰最尖的一组来判断嵌套。
+缩小 σ 后，贡献更集中在费米能附近，有限网格可能只剩少量点承担较大权重，结果通常更依赖 k 点采样。增大 σ 会平滑这种离散性，也会把费米能上下更宽范围的态一起计入。因此下面同时比较网格与窗口，判断嵌套时应保留四组对照。
 
 ## 同一份定义，用 FFT 与直接求和互相核对
 
@@ -137,10 +128,9 @@ Chen 等在 CoTe₂ 层间耦合研究中，先用 PBE DFT/DFPT 分析单层的�
 
 Al 表格给出 J(q) 对网格和 σ 的敏感性。进一步分析材料响应时，可从同一材料的能带与占据计算 Lindhard χ，再与 DFPT 声子、线宽及 EPC 对照。
 
+## 把后处理要求写成提示词
 
-## 可复制的 AI 编码提示词
-
-将下面的需求和本页示例文件交给代码助手：
+上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
 
 ```text
 编写 Al 几何联合权重 J(q) 分析程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -154,6 +144,79 @@ Al 表格给出 J(q) 对网格和 σ 的敏感性。进一步分析材料响应�
 
 完整源码：[extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) · [plot_nesting.py](/Atlas/examples/al-electronic/plot_nesting.py) · [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
 
+<details>
+<summary>extract_fermi_electronic.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import numpy as np,xml.etree.ElementTree as E,json,hashlib,re
+HARTREE_EV=27.211386245988
+root=Path(__file__).resolve().parent
+summary=[]
+for n in [24,32]:
+ d=root/f'k{n}-cg';out=(d/'al.nscf.out').read_text();err=(d/'al.nscf.err').read_text()
+ assert out.count('JOB DONE.')==1 and not err and 'Error in routine' not in out
+ assert 'not converged' not in out.lower()
+ xml=d/'data-file-schema.xml';doc=E.parse(xml).getroot();o=doc.find('output');band=o.find('band_structure');nk=int(band.findtext('nks'));nb=int(band.findtext('nbnd'))
+ assert nk==n**3
+ b=np.array([np.fromstring(o.findtext('basis_set/reciprocal_lattice/'+tag),sep=' ') for tag in ['b1','b2','b3']])
+ cell=np.array([np.fromstring(o.findtext('atomic_structure/cell/'+tag),sep=' ') for tag in ['a1','a2','a3']])*0.529177210903
+ ef=float(band.findtext('fermi_energy'))*HARTREE_EV
+ energies=np.empty((n,n,n,nb));seen=np.zeros((n,n,n),dtype=int)
+ for point in band.findall('ks_energies'):
+  cart=np.fromstring(point.findtext('k_point'),sep=' ');frac=cart@np.linalg.inv(b)
+  scaled=frac*n;assert np.max(np.abs(scaled-np.rint(scaled)))<1e-7
+  i=tuple(np.rint(scaled).astype(int)%n);seen[i]+=1
+  energies[i]=np.fromstring(point.findtext('eigenvalues'),sep=' ')*HARTREE_EV-ef
+ assert np.all(seen==1)
+ np.savez_compressed(d/'fermi-grid.npz',energy_eV=energies,fermi_eV=ef,cell_angstrom=cell,grid=n)
+ ranges=[{'band':j+1,'min_eV':float(energies[:,:,:,j].min()),'max_eV':float(energies[:,:,:,j].max())} for j in range(nb)]
+ crossing=[r['band'] for r in ranges if r['min_eV']<0<r['max_eV']]
+ record={'kmesh':n,'nks':nk,'fermi_eV':ef,'crossing_bands':crossing,'band_ranges':ranges,'source_xml_sha256':hashlib.sha256(xml.read_bytes()).hexdigest(),'nscf_out_sha256':hashlib.sha256((d/'al.nscf.out').read_bytes()).hexdigest(),'definition':'Energy grid includes all k, no interpolation, E-EF in eV.'}
+ (d/'grid-info.json').write_text(json.dumps(record,indent=2));summary.append(record)
+ print(f'k={n}^3 nks={nk} EF={ef:.8f} eV crossing bands={crossing}; all grid cells assigned once')
+ for sigma in [.10,.20]:
+  weight=np.exp(-0.5*(energies/sigma)**2).sum(axis=3)/(sigma*np.sqrt(2*np.pi))
+  spectrum=np.fft.fftn(weight);J=np.fft.ifftn(spectrum.conj()*spectrum).real/nk
+  assert np.min(J)>-1e-10
+  assert abs(J[0,0,0]-np.mean(weight*weight))<1e-8
+  # one nontrivial point cross-check against direct Brillouin-zone sum
+  idx=(n//4,0,n//4);direct=np.mean(weight*np.roll(weight,tuple(-x for x in idx),axis=(0,1,2)))
+  assert abs(J[idx]-direct)<1e-8
+  np.savez_compressed(d/f'nesting-s{sigma:.2f}.npz',nesting_eV_minus2=J,sigma_eV=sigma,grid=n)
+  cut=np.array([[i/n,J[i,0,i],J[i,0,i]/J[0,0,0]] for i in range(n//2+1)])
+  np.savetxt(d/f'nesting-GX-s{sigma:.2f}.csv',cut,delimiter=',',header='q_fraction_along_b1_plus_b3,J_eV_minus2,J_over_J0',comments='')
+  print(f' sigma={sigma:.2f} eV J(0)={J[0,0,0]:.8f} J(X)={J[n//2,0,n//2]:.8f} eV^-2; direct-sum check passed')
+(root/'summary.json').write_text(json.dumps(summary,indent=2))
+```
+
+</details>
+
+<details>
+<summary>plot_nesting.py 的完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent
+fig,axes=plt.subplots(1,2,figsize=(10.5,4.2),layout="constrained")
+for n in [24,32]:
+    for sigma in [.10,.20]:
+        x=np.loadtxt(r/f"fermi/k{n}-cg/nesting-GX-s{sigma:.2f}.csv",delimiter=",",skiprows=1)
+        label=f"{n}³, σ={sigma:.2f} eV"
+        for ax,col in zip(axes,[1,2]):ax.plot(x[:,0],x[:,col],"o-",ms=3,lw=1.3,label=label)
+for ax in axes:ax.set(xlabel="q = t(b₁+b₃), Γ → X",xlim=(0,.5));ax.grid(alpha=.2)
+axes[0].set_ylabel("J(q) (eV⁻²)");axes[1].set_ylabel("J(q) / J(0)");axes[1].legend(frameon=False,fontsize=8)
+(r/"figures").mkdir(exist_ok=True)
+fig.savefig(r/"figures/fermi-nesting.png",dpi=220);fig.savefig(r/"figures/fermi-nesting.pdf")
+```
+
+</details>
+
 解压本页示例包后，在 `al` 根目录执行：
 
 ```bash
@@ -162,14 +225,19 @@ python3 fermi/extract_fermi_electronic.py
 python3 plot_nesting.py
 ```
 
+本例保存的提取运行记录如下：
 
-
-[plot_nesting.py](/Atlas/examples/al-electronic/plot_nesting.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al-electronic/atlas_plot_style.py)） 读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。在下载的 Al 示例根目录运行：
-重画需要 Python 3、NumPy 和 Matplotlib；命令如下。
-
-```bash
-python3 plot_nesting.py
+```console
+maxwell@maxwell:~/al/fermi/..$ .venv/bin/python fermi/extract_fermi_electronic.py
+k=24^3 nks=13824 EF=8.39793432 eV crossing bands=[2, 3]; all grid cells assigned once
+ sigma=0.10 eV J(0)=0.61975726 J(X)=0.09968022 eV^-2; direct-sum check passed
+ sigma=0.20 eV J(0)=0.31708865 J(X)=0.06123457 eV^-2; direct-sum check passed
+k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned once
+ sigma=0.10 eV J(0)=0.53305558 J(X)=0.04490039 eV^-2; direct-sum check passed
+ sigma=0.20 eV J(0)=0.28204495 J(X)=0.03678119 eV^-2; direct-sum check passed
 ```
+
+绘图程序读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。
 <figure><img src="/Atlas/examples/al-electronic/figures/fermi-nesting.png" alt="Al Γ到X方向的费米面几何嵌套网格与窗口比较" loading="lazy"/><figcaption>左：原始 J(q)；右：J(q)/J(0)。四条曲线来自两个真实网格与两个后处理窗口。</figcaption></figure>
 
 Γ 点对应 J(0)=mean[W²]，即权重场与自身重合的自相关。有限 q 的机制分析接电子响应与声子，超导分析接 [EPC](/Atlas/m/epc/qe/) 和谱函数链条。

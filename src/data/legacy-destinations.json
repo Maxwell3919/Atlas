@@ -1,0 +1,184 @@
+{
+  "allen-dynes/qe": {
+    "文件与算术核对完成后，再决定能否用于材料结论": "从文件核对到网格比较"
+  },
+  "anharmonic-sscha/mace": {
+    "从 Si 热运动轨迹拟合有限温度有效二阶力常数": "@intro"
+  },
+  "band-3d/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "band-alignment/vasp": {
+    "文献方法与适用范围": "从孤立层参考到接触后的界面"
+  },
+  "band-gap/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "band-unfolding/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "berry-chern/qe": {
+    "下载并运行占据态后处理": "运行后处理，读取保存的核对输出",
+    "编写同类后处理的提示词": "把矩阵处理逻辑写成程序"
+  },
+  "carrier-mobility/qe": {
+    "用下载数据重建结果": "把应变、真空与曲率连成后处理"
+  },
+  "dft-plus-u/vasp": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "effective-mass/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "electrostatic-potential/vasp": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "epc/qe": {
+    "完整逐 q 文件之后，后处理分两条路": "后处理输入与两条输出路线",
+    "声子开始输出频率后，继续看 EPC 是否仍在运行": {
+      "route": "/cases/epc-al-verification/",
+      "heading": "声子开始输出频率后，继续看 EPC 是否仍在运行"
+    },
+    "八个 q 点结束后，把每一段输出接起来": {
+      "route": "/cases/epc-al-verification/",
+      "heading": "八个 q 点结束后，把每一段输出接起来"
+    },
+    "另一份材料的实际启动记录": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "另一份材料的实际启动记录"
+    },
+    "从 SnSe₂/Sr₂N 的计算目录接着做": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "从 SnSe₂/Sr₂N 的计算目录接着做"
+    },
+    "先复制输入，再用 vi 改": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "先复制输入，再用 vi 改"
+    },
+    "声子输入里，质量与 q 网格一起核对": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "声子输入里，质量与 q 网格一起核对"
+    },
+    "脚本里的进程数要和申请资源一致": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "脚本里的进程数要和申请资源一致"
+    },
+    "把 ph96 只改成另一套致密网格": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "把 ph96 只改成另一套致密网格"
+    },
+    "后处理先把文件关系接好": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "后处理先把文件关系接好"
+    },
+    "提交 pwxall，先确认程序确实读对了文件": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "提交 pwxall，先确认程序确实读对了文件"
+    },
+    "运行中看队列，也看电子迭代": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "运行中看队列，也看电子迭代"
+    },
+    "pwxall 结束后，怎样决定能否接 pwx": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "pwxall 结束后，怎样决定能否接 pwx"
+    },
+    "密网格这一轮实际怎样结束": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "密网格这一轮实际怎样结束"
+    },
+    "先保留密网格数据，再让粗网格写入": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "先保留密网格数据，再让粗网格写入"
+    },
+    "在同一窗口串行提交 pwx": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "在同一窗口串行提交 pwx"
+    },
+    "粗网格结束后，再核对数据有没有接错": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "粗网格结束后，再核对数据有没有接错"
+    },
+    "接着提交 ph.x": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "接着提交 ph.x"
+    },
+    "先看 q 点，再看原子质量和位移模式": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "先看 q 点，再看原子质量和位移模式"
+    },
+    "运行时有哪些文件，怎样继续看进度": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "运行时有哪些文件，怎样继续看进度"
+    },
+    "ph.x 结束后，怎样决定能否进入后处理": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "ph.x 结束后，怎样决定能否进入后处理"
+    },
+    "质量修正后的高频声子范围、逐 q 快照与当前任务状态": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "质量修正后的高频声子范围、逐 q 快照与当前任务状态"
+    },
+    "二维异质结 ZrCl₂/Sc₂C 的保存双网格结果与谱积分上限核对": {
+      "route": "/cases/epc-research-notes/",
+      "heading": "二维异质结 ZrCl₂/Sc₂C 的保存双网格结果与谱积分上限核对"
+    },
+    "文献中的电声耦合与超导后处理图例（附 DOI 溯源）": {
+      "route": "/cases/epc-al-verification/",
+      "heading": "文献中的电声耦合与超导后处理图例（附 DOI 溯源）"
+    }
+  },
+  "exchange-j/vasp": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "fatband/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "fermi-nesting/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "fermi-surface/qe": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "heterostructure-modeling/vasp": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "imaginary-phonon/qe": {
+    "Γ 点出现 −5.59 cm⁻¹，先不要把负号删掉": "@intro"
+  },
+  "mae/vasp": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "magnetic-gs/vasp": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "mlip-md/mace": {
+    "给 64 个 Si 原子加上温度，再检查能量能否守住": "@intro"
+  },
+  "relax/mace": {
+    "把一个 Si 原子挪开，再看它如何回到平衡位置": "@intro"
+  },
+  "spin-texture/vasp": {
+    "可复制的 AI 编码提示词": "把后处理要求写成提示词"
+  },
+  "strain-doping-scan/qe": {
+    "文献方法与本例读数": "对照文献中的分析方法",
+    "可复制的代码生成提示与复现": "从原始文件重建结果"
+  },
+  "vc-relax/mace": {
+    "让偏大的 Si 晶胞自己收缩": "@intro"
+  },
+  "vc-relax/qe": {
+    "vc-relax（变胞结构优化）": "HfCl₂/PbO₂ 记录：读取未收敛的停止原因",
+    "保存候选结构时，把未收敛状态一起记住": "HfCl₂/PbO₂ 记录：读取未收敛的停止原因"
+  },
+  "workfunction/vasp": {
+    "参考文献中的方法与图形设计": "真空参考与界面分析",
+    "可复制的代码生成提示": "从原始文件重建结果"
+  }
+}

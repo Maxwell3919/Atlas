@@ -1,5 +1,3 @@
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
-
 晶胞拉长一点，总能量和应力会怎样变？这页从一个已经优化的 fcc Al 原胞出发，沿笛卡尔 x 方向压缩或拉伸，逐点计算固定结构的 SCF。六个纵向应变点都实际运行过，输入、输出和作图数据可以[一起下载](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)。
 
 这里保持每个原胞的电子数不变，计算的是应变响应。电子掺杂会改变电子数和静电边界，需要另行建立并检查带电体系；下面的曲线没有包含掺杂结果。
@@ -168,11 +166,11 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 | +0.5 | -4.19087715 | +0.817757 | +0.203888 |
 | +0.8 | -4.190856 | +1.281874 | +0.329074 |
 
-这里一个原胞只有一个原子，因此每原胞和每原子的能量数值相同。绘图时减去这六个采样点中最低的 F，单位换成 meV/atom；该零点只是绘图参考，并非无应变母体能量。没有在图中加入未计算的零应变数据点，也没有用一条平滑拟合线代替采样证据。
+这里一个原胞只有一个原子，因此每原胞和每原子的能量数值相同。绘图时减去这六个采样点中最低的 F，单位换成 meV/atom；该零点只是绘图参考，并非无应变母体能量。图中的连线连接实际采样点。
 
 ![Al 的六点纵向应变扫描：能量与应力](/Atlas/examples/interface-magnet-strain-doping-scan/figures/strain-scan.png)
 
-右图的纵向应力随应变近似线性，横向应力也发生变化。它可以用来理解 C₁₁、C₁₂ 从哪里来；直接从这张 16³ 网格图报告最终弹性常数还不够。后续将 k 网格加密到 24³、32³、40³、48³ 后，应力斜率仍在变化，具体对照见 [弹性计算中的 k 网格检查](/Atlas/m/elastic-born/qe/)。
+右图的纵向应力随应变近似线性，横向应力也发生变化。它可以用来理解 C₁₁、C₁₂ 从哪里来；弹性常数的精度取决于应力斜率对取样的敏感性。后续将 k 网格加密到 24³、32³、40³、48³ 后，应力斜率仍在变化，具体对照见 [弹性计算中的 k 网格检查](/Atlas/m/elastic-born/qe/)。
 
 要重新画图，解包后进入 `example-pack`，在有 NumPy 和 Matplotlib 的环境运行：
 
@@ -182,19 +180,98 @@ python3 plot_strain.py
 
 [完整绘图脚本](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
 
-## 文献方法与本例读数
+## 对照文献中的分析方法
 
 Alqurashi 等，*The effect of uniaxial compressive and tensile strains on the structural, dynamical, electronic, and optical properties of ZrCl₂ monolayer: Ab-initio calculations*，[DOI: 10.1016/j.chphi.2025.100828](https://doi.org/10.1016/j.chphi.2025.100828)，Table 1 给出实际应变样本的结构与带隙，Fig. 4 绘制带隙随应变变化。该文分析的是 ZrCl₂ 电子响应；本例读取三维 Al 的 F 与应力，纵轴物理量不同。可借鉴的是把实际采样值与明确应变定义对应起来。本页曲线只连接六个 xx 样本，能量零点取最低采样 F，应力保留拉伸为正的单位约定。
 
-后续应力斜率的 k 网格比较见 [弹性计算](/Atlas/m/elastic-born/qe/)。
+## 从原始文件重建结果
 
-## 可复制的代码生成提示与复现
+逐点读取同一 F 定义和笛卡尔应力，将 QE 压缩为正的应力转换为拉伸为正，再从 CSV 筛选六个 xx 点作图。能量以最低采样 F 为零点。可以把这些读取规则写成下面的请求：
 
 ```text
 请编写 Python 3 独立后处理程序。读取 elastic/cases.json 所列六个 mode=xx 的 al.scf.in/out/err。检查电子收敛、唯一 JOB DONE 和 stderr；统一读取 QE 感叹号行 F（Ry），应力取左侧 Ry/bohr^3 张量，乘 -14710.5076 转成拉伸为正的 GPa。排序实际应变，输出六行 CSV 与输入 SHA256；图只使用这些样本，F 减最低采样值后乘 13.605693122994*1000 得 meV/atom，不加入零应变或掺杂/DOS/EPC 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [analyse_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/analyse_strain.py) · [plot_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py) · [atlas_plot_style.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)
+
+<details>
+<summary>analyse_strain.py 的完整源码</summary>
+
+```python
+from pathlib import Path
+import csv, re, json, hashlib, math
+r=Path(__file__).resolve().parent
+rows=[]; hashes={}
+def cell(text):
+    rows=re.findall(r'CELL_PARAMETERS\s+angstrom\s*\n([^\n]+)\n([^\n]+)\n([^\n]+)',text)
+    if len(rows)!=1:raise ValueError('Expected one angstrom cell')
+    return [[float(v) for v in line.split()] for line in rows[0]]
+reference=cell((r/'elastic/al.reference.in').read_text())
+
+for case in json.loads((r/'elastic/cases.json').read_text()):
+    if case['mode']!='xx':continue
+    p=r/'elastic'/case['label'];s=(p/'al.scf.out').read_text();err=(p/'al.scf.err').read_text()
+    if s.count('JOB DONE.')!=1 or 'convergence has been achieved' not in s or err.strip() or 'convergence NOT achieved' in s or 'Error in routine' in s:
+        raise ValueError('Incomplete SCF: '+case['label'])
+    inp=(p/'al.scf.in').read_text(); current=cell(inp)
+    strain=float(case['engineering_strain'])
+    for i in range(3):
+        for j in range(3):
+            expected=reference[i][j]*(1+strain if j==0 else 1)
+            if abs(current[i][j]-expected)>1e-10:raise ValueError('Cell/strain mismatch: '+case['label'])
+    energy=float(re.findall(r'!\s+total energy\s+=\s+([-0-9.]+)',s)[-1])
+    block=re.findall(r'total\s+stress[^\n]*\n([^\n]+)\n([^\n]+)\n([^\n]+)',s)[-1]
+    stress=[[-14710.5076*float(x) for x in line.split()[:3]] for line in block]
+    if not math.isfinite(energy) or not all(math.isfinite(v) for row in stress for v in row):raise ValueError('Non-finite result')
+    rows.append({**case,'energy_Ry':energy,'sigma_xx_GPa':stress[0][0],'sigma_yy_GPa':stress[1][1],'sigma_zz_GPa':stress[2][2],'sigma_xy_GPa':stress[0][1]})
+    for n in ['al.scf.in','al.scf.out','al.scf.err']:
+        hashes[str((p/n).relative_to(r))]=hashlib.sha256((p/n).read_bytes()).hexdigest()
+rows.sort(key=lambda x:x['engineering_strain'])
+if len(rows)!=6:raise ValueError('Expected six xx samples')
+with (r/'elastic/strain-stress.csv').open('w') as f:
+    w=csv.DictWriter(f,fieldnames=rows[0]);w.writeheader();w.writerows(rows)
+(r/'strain-summary.json').write_text(json.dumps({'rows':rows,'source_sha256':hashes,'energy':'QE printed F in Ry/one-atom cell','stress':'Tensile-positive; minus QE Ry/bohr^3 * 14710.5076 GPa','scope':'Six xx fixed-cell SCFs, 16^3 k mesh; no doping/DOS/EPC.'},indent=2)+'\n')
+print('Six xx SCFs: electronic convergence, one JOB DONE, empty stderr.')
+for x in rows:print(f"{x['engineering_strain']:+.3f} F={x['energy_Ry']:.8f} Ry sigma_xx={x['sigma_xx_GPa']:+.6f} sigma_yy={x['sigma_yy_GPa']:+.6f} GPa")
+```
+
+</details>
+
+<details>
+<summary>plot_strain.py 的完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import csv
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent
+rows=sorted((x for x in csv.DictReader((r/'elastic/strain-stress.csv').open()) if x['mode']=='xx'),key=lambda x:float(x['engineering_strain']))
+e=np.array([float(x['engineering_strain']) for x in rows])*100
+energy=np.array([float(x['energy_Ry']) for x in rows])
+sxx=[float(x['sigma_xx_GPa']) for x in rows]
+syy=[float(x['sigma_yy_GPa']) for x in rows]
+fig,axes=plt.subplots(1,2,figsize=(9,3.8),layout='constrained')
+axes[0].plot(e,(energy-energy.min())*13.605693122994*1000,'o-',color='#0072b2')
+axes[0].set(xlabel='Applied x strain (%)',ylabel='F - lowest sampled F (meV/atom)')
+axes[1].plot(e,sxx,'o-',label='Tensile-positive stress xx',color='#0072b2')
+axes[1].plot(e,syy,'s-',label='Tensile-positive stress yy',color='#d55e00')
+axes[1].set(xlabel='Applied x strain (%)',ylabel='Stress (GPa)')
+axes[1].legend(frameon=False,fontsize=8)
+for ax in axes:
+    ax.axvline(0,color='.6',lw=.7);ax.grid(alpha=.18)
+fig.suptitle('fcc Al | fixed electron number, 16³ k mesh, MV width 0.02 Ry',fontsize=11)
+(r/'figures').mkdir(exist_ok=True)
+fig.savefig(r/'figures/strain-scan.png',dpi=220)
+fig.savefig(r/'figures/strain-scan.svg')
+```
+
+</details>
 
 [输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
 
@@ -203,4 +280,8 @@ python3 analyse_strain.py
 python3 plot_strain.py
 ```
 
-实际读取结果见正文表及 [elastic/strain-stress.csv](/Atlas/examples/interface-magnet-strain-doping-scan/elastic/strain-stress.csv) · [strain-summary.json](/Atlas/examples/interface-magnet-strain-doping-scan/strain-summary.json)。这些命令只读取现有输出进行后处理。
+实际读取结果见正文表及 [elastic/strain-stress.csv](/Atlas/examples/interface-magnet-strain-doping-scan/elastic/strain-stress.csv) · [strain-summary.json](/Atlas/examples/interface-magnet-strain-doping-scan/strain-summary.json)。
+
+相关输入说明：[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
+
+下一步沿用相同的应变定义检查 k 网格对应力斜率的影响，见 [弹性计算](/Atlas/m/elastic-born/qe/)。

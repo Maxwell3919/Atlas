@@ -1,8 +1,6 @@
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Born 稳定性条件原始论文](https://doi.org/10.1103/PhysRevB.90.224104)
-
 对晶体施加一个很小的形变，再让电子重新达到自洽，应力会怎样改变？弹性常数就是这个变化的斜率。Born 判据进一步检查：任意足够小的均匀应变，是让能量升高，还是存在一个能量下降的方向？
 
-这里继续使用新计算的 **fcc Al 单原子原胞**。它是三维立方体系，只有三个独立弹性常数 C₁₁、C₁₂、C₄₄；下面的判据不能直接移植到二维薄层或低对称性晶体。原始结构来自 QE 官方金属示例，经 [晶胞优化](/Atlas/m/vc-relax/qe/) 后，立方晶格常数为 3.95606780 Å。优化最后压力约 0.02 kbar，接近这里采用的零外压条件。
+这里继续使用 **fcc Al 单原子原胞**，从成对应变的 SCF 应力输出提取 C₁₁、C₁₂ 和 C₄₄。它是三维立方体系，只有三个独立弹性常数 C₁₁、C₁₂、C₄₄；下面的判据不能直接移植到二维薄层或低对称性晶体。原始结构来自 QE 官方金属示例，经 [晶胞优化](/Atlas/m/vc-relax/qe/) 后，立方晶格常数为 3.95606780 Å。优化最后压力约 0.02 kbar，接近这里采用的零外压条件。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
@@ -176,6 +174,56 @@ maxwell@maxwell:~/al/elastic$ tail -9 xx_+0.005/al.scf.out
 
 实际脚本把 yy 和 zz 两个等价分量取平均；剪切对用相同的中心差分求 C₄₄。
 
+
+后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+
+```text
+编写 analyse.py，在 elastic 目录读取 cases.json 中的成对应变 SCF。检查每份输出唯一 JOB DONE、电子收敛且 stderr 为空；取最后一份 total stress 的左侧 Ry/bohr³ 张量，乘 -14710.5076 转为拉伸为正的 GPa。按 ±ε 中心差分得到 C11，C12 取 yy、zz 平均；剪切输入工程应变 γ 对应变形矩阵 xy=yx=γ/2，用 σxy 对 γ 的差分求 C44。对 0.003、0.005、0.008 分别保存应力与弹性常数，依立方 Voigt–Reuss–Hill 公式计算 B、Gv、Gr、GH、E、nu 和各向异性比；写 strain-stress.csv 与 elastic-results.csv。保持原始应力符号与原文件。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>analyse.py 完整源码</summary>
+
+```python
+from pathlib import Path
+import json,re,hashlib,csv
+import numpy as np
+RY_BOHR3_GPA=14710.5076
+rows=[]
+for case in json.loads(Path('cases.json').read_text()):
+ p=Path(case['label']);s=(p/'al.scf.out').read_text();err=(p/'al.scf.err').read_text()
+ assert s.count('JOB DONE.')==1 and 'convergence has been achieved' in s and not err
+ assert 'convergence NOT achieved' not in s and 'Error in routine' not in s
+ energy=float(re.findall(r'!\s+total energy\s+=\s+([-0-9.]+)',s)[-1])
+ block=re.findall(r'total\s+stress[^\n]*\n([^\n]+)\n([^\n]+)\n([^\n]+)',s)[-1]
+ stress=-RY_BOHR3_GPA*np.array([[float(x) for x in line.split()[:3]] for line in block])
+ row={**case,'energy_Ry':energy,'sigma_xx_GPa':stress[0,0],'sigma_yy_GPa':stress[1,1],'sigma_zz_GPa':stress[2,2],'sigma_xy_GPa':stress[0,1]}
+ rows.append(row)
+with open('strain-stress.csv','w') as f:
+ writer=csv.DictWriter(f,fieldnames=list(rows[0]));writer.writeheader();writer.writerows(rows)
+results=[]
+for mag in [.003,.005,.008]:
+ def pair(mode):
+  a=[r for r in rows if r['mode']==mode and r['engineering_strain']==mag][0]
+  b=[r for r in rows if r['mode']==mode and r['engineering_strain']==-mag][0]
+  return a,b
+ a,b=pair('xx');c11=(a['sigma_xx_GPa']-b['sigma_xx_GPa'])/(2*mag)
+ c12=sum(a[f'sigma_{i}_GPa']-b[f'sigma_{i}_GPa'] for i in ['yy','zz'])/(4*mag)
+ a,b=pair('xy');c44=(a['sigma_xy_GPa']-b['sigma_xy_GPa'])/(2*mag)
+ B=(c11+2*c12)/3;Gv=(c11-c12+3*c44)/5;Gr=5*(c11-c12)*c44/(4*c44+3*(c11-c12));G=(Gv+Gr)/2
+ r={'strain':mag,'C11_GPa':c11,'C12_GPa':c12,'C44_GPa':c44,'C11-C12_GPa':c11-c12,'C11+2C12_GPa':c11+2*c12,'B_GPa':B,'Gv_GPa':Gv,'Gr_GPa':Gr,'GH_GPa':G,'E_GPa':9*B*G/(3*B+G),'nu':(3*B-2*G)/(2*(3*B+G)),'anisotropy':2*c44/(c11-c12)}
+ results.append(r)
+with open('elastic-results.csv','w') as f:
+ w=csv.DictWriter(f,fieldnames=list(results[0]));w.writeheader();w.writerows(results)
+print('All 12 SCFs: one JOB DONE., electronic convergence, empty stderr.')
+print('strain     C11       C12       C44       B         GH        E        nu')
+for r in results:print(f"{r['strain']:.3f} {r['C11_GPa']:10.4f} {r['C12_GPa']:9.4f} {r['C44_GPa']:9.4f} {r['B_GPa']:9.4f} {r['GH_GPa']:9.4f} {r['E_GPa']:9.4f} {r['nu']:8.4f}")
+```
+
+</details>
+
 ```console
 maxwell@maxwell:~/al/elastic$ ../.venv/bin/python analyse.py
 All 12 SCFs: one JOB DONE., electronic convergence, empty stderr.
@@ -198,11 +246,47 @@ strain     C11       C12       C44       B         GH        E        nu
 | 40³ | 129.364 | 60.504 | 42.690 | 83.458 |
 | 48³ | 125.995 | 62.122 | 39.277 | 83.413 |
 
-16³ 的三个幅度几乎给出相同斜率，可是换到 24³，C₁₁ 和 C₄₄ 明显改变。与此同时体模量 B 的变化很小。这说明检查一个稳定的能量或一个稳定的 B，不能替其他弹性分量作数值收敛证明。后面的网格系列继续按同一组形变比较；没有给这些数字贴上已收敛的材料常数标签。
+16³ 的三个幅度几乎给出相同斜率，可是换到 24³，C₁₁ 和 C₄₄ 明显改变。与此同时体模量 B 的变化很小。这说明检查一个稳定的能量或一个稳定的 B，不能替其他弹性分量作数值收敛证明。因此，后面的网格系列继续比较每个弹性分量。
 
 <figure><img src="/Atlas/examples/al/figures/elastic-kmesh.png" alt="Al 三个弹性分量和体模量随k网格变化" loading="lazy"/><figcaption>同一组 ±0.5% 应变的电子网格检查。不同分量对网格的敏感程度明显不同。</figcaption></figure>
 
+
+画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+
+```text
+编写 plot_elastic.py，在 Al 根目录按列名读取 elastic/kmesh-comparison.csv。横轴 kmesh，单位为 n×n×n 电子网格；一图比较 C11_GPa、C12_GPa、C44_GPa、B_GPa，另一图比较 B_GPa、GH_GPa、E_GPa。纵轴 GPa，使用全部已保存的网格行，分别输出 figures/elastic-kmesh 与 figures/elastic-moduli 的 PNG/PDF，复用 atlas_plot_style.py。
+```
+
+下面是算例实际使用的完整源码。
+
+<details>
+<summary>plot_elastic.py 完整源码</summary>
+
+```python
+
+from atlas_plot_style import install as install_atlas_style
+install_atlas_style()
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+r=Path(__file__).resolve().parent
+p=np.genfromtxt(r/"elastic/kmesh-comparison.csv",delimiter=",",names=True)
+(r/"figures").mkdir(exist_ok=True)
+for file,cols in [("elastic-kmesh",["C11_GPa","C12_GPa","C44_GPa","B_GPa"]),("elastic-moduli",["B_GPa","GH_GPa","E_GPa"])]:
+    fig,ax=plt.subplots(figsize=(6.8,4.4),layout="constrained")
+    for name in cols:ax.plot(p["kmesh"],p[name],"o-",lw=1.6,label=name.replace("_GPa",""))
+    ax.set(xlabel="n in the n × n × n electronic mesh",ylabel="Elastic response (GPa)")
+    ax.set_xticks(p["kmesh"]);ax.legend(frameon=False);ax.grid(alpha=.2)
+    fig.savefig(r/f"figures/{file}.png",dpi=220);fig.savefig(r/f"figures/{file}.pdf")
+```
+
+</details>
+
 [绘图脚本](/Atlas/examples/al/plot_elastic.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 读取 `elastic/kmesh-comparison.csv` 与原始应力表，在本地运行 `python3 plot_elastic.py`；图上的点由这些计算逐项得到。
+
+```bash
+python3 plot_elastic.py
+```
 
 ## 最后才把常数代入 Born 条件
 
@@ -231,3 +315,7 @@ Born 条件检验均匀应变的局部响应，不能代替 [完整声子网格]
                                                    ├→ Born 条件
                                                    └→ 弹性模量
 ```
+
+## 参考资料
+
+[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Born 稳定性条件原始论文](https://doi.org/10.1103/PhysRevB.90.224104)

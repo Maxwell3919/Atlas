@@ -1,22 +1,18 @@
 ---
-// README 页 /readme/：站点说明页，正文待站点主人亲自填写。
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import Base from '../layouts/Base.astro';
+import ArticleBody from '../components/ArticleBody.astro';
+import { renderMarkdownBody } from '../lib/manual.js';
+const body = await renderMarkdownBody(readFileSync(resolve('src/content/learning/readme.md'), 'utf8'));
 ---
 <Base title="README · Atlas">
   <article class="readme">
     <h1>README</h1>
-    <p class="fill">待填充</p>
+    <ArticleBody body={body} contents={false} />
   </article>
 </Base>
-
 <style>
   .readme { padding-top: 2.6rem; }
-  h1 {
-    font-size: 2rem;
-    margin: 0 0 1.2rem;
-  }
-  .fill {
-    color: var(--muted);
-    margin: 0;
-  }
+  h1 { font-size: 2rem; margin: 0 0 1.4rem; }
 </style>

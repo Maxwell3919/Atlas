@@ -1,5 +1,5 @@
 // Atlas 手册正文集合：src/content/manual/<slug>/<engine>.md
-// 纯 markdown，无 front matter；正文按 7 个固定 H2 分节（见 src/lib/manual.js）。
+// 自由 Markdown 正文；分节随计算操作组织。
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 
