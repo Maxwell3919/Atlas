@@ -134,6 +134,12 @@ QE 7.5 的 [elphsum 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/elp
 
 下面的脚本读取每个文件，核对 8×10×3=240 条记录，并把主 OUT 的 THz、cm⁻¹ 频率与各模式 λ、GHz 线宽合并到 CSV。
 
+### AI 后处理提示词：线宽单位与逐 q 配对
+
+> 解析 Al 八个 elph.inp_lambda 文件和 lambda.in，逐 q、逐模、逐 σ 保存频率、γ、λ、DOS(EF)、星权重。以本页 QE 7.5 源码定义为准：γ 是 GHz，频率由源文件频率平方和对应换算常数得到 THz，DOS(EF) 保留 states/spin/Ry/cell。将各量统一到公式要求的单位，核对高于20 cm⁻¹源码阈值的210条记录能否还原打印 λ；低频30条另列阈值状态，不把程序置零解释为真实耦合严格为零。星权重归一化后与按 σ 的总 λ 对照。保存完整 Python 源码、逐模 CSV、误差容许范围及检查 JSON。另对异质结 q 坐标使用实际晶胞和2π/alat约定换算，并保留原生逐 q 点与 gam.lines 路径插值结果的不同来源；只做后处理。
+
+[完整单位核对源码 linewidth_units.py](/Atlas/examples/al/epc-q4/linewidth_units.py) · [完整 q 坐标换算源码 q_coordinates.py](/Atlas/examples/zrcl2-sc2c-q-coordinates/q_coordinates.py)。
+
 ```console
 maxwell@maxwell:~/al/epc-q4$ ../.venv/bin/python analyse_epc.py > analysis.out
 maxwell@maxwell:~/al/epc-q4$ cat analysis.out
@@ -221,9 +227,3 @@ q 坐标换算使用 `fᵢ=q_cart·aᵢ/alat`，其中 aᵢ 是实际晶胞矢�
 ph.x 完整 q 网格 → 每个 q 的频率 / λ / γ → 模式与星权重核对
                                       └─ α²F → λ / ω_log → 公式 Tc
 ```
-
-## AI 后处理提示词：线宽单位与逐 q 配对
-
-> 解析 Al 八个 elph.inp_lambda 文件和 lambda.in，逐 q、逐模、逐 σ 保存频率、γ、λ、DOS(EF)、星权重。以本页 QE 7.5 源码定义为准：γ 是 GHz，频率由源文件频率平方和对应换算常数得到 THz，DOS(EF) 保留 states/spin/Ry/cell。将各量统一到公式要求的单位，核对高于20 cm⁻¹源码阈值的210条记录能否还原打印 λ；低频30条另列阈值状态，不把程序置零解释为真实耦合严格为零。星权重归一化后与按 σ 的总 λ 对照。保存完整 Python 源码、逐模 CSV、误差容许范围及检查 JSON。另对异质结 q 坐标使用实际晶胞和2π/alat约定换算，并保留原生逐 q 点与 gam.lines 路径插值结果的不同来源；只做后处理。
-
-[完整单位核对源码 linewidth_units.py](/Atlas/examples/al/epc-q4/linewidth_units.py) · [完整 q 坐标换算源码 q_coordinates.py](/Atlas/examples/zrcl2-sc2c-q-coordinates/q_coordinates.py)。

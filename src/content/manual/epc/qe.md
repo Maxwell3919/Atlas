@@ -424,6 +424,12 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 
 `q2r.x → matdyn.x` 将动力学矩阵和 EPC 数据变到实空间，再插值。`lambda.x` 则直接读取 `elph.inp_lambda.*` 与 q 权重；它不读取 matdyn 的谱文件，所以两个谱不是同一个数组先后换了名字。
 
+### AI 后处理提示词：装配两条 EPC 输出链
+
+> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、CSV、JSON 和输入哈希，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
+
+[完整逐模解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [完整双分支重建源码 rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对源码 compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)。
+
 ```text
 32³ 致密 SCF ── al.a2Fsave ─┐
                             ├→ 16³ 响应 SCF → 4³ q 网格 ph.x
@@ -2283,9 +2289,3 @@ Tc 表核查结果以机器可读文件保存为 [tc-intersections.json](/Atlas/
 - **数据组织要点**：当从 Allen–Dynes 公式进一步走向[各向异性 EPW–Eliashberg 求解](/Atlas/m/epw-eliashberg/qe/)时，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
 
 下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。
-
-## AI 后处理提示词：装配两条 EPC 输出链
-
-> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、CSV、JSON 和输入哈希，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
-
-[完整逐模解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [完整双分支重建源码 rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对源码 compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)。

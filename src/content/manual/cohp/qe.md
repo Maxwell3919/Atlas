@@ -607,17 +607,11 @@ k10 同样建立独立目录，改成 `10 10 10 0 0 0`；最后一组仍用 k10�
 
 ![相同几何、PAW、基组与积分设置下的 ICOHP 对照](/Atlas/figures/cohp-diamond/cohp-comparison.png)
 
-三个变化都小于本次比较线，支持“在已测试的 k 网格与 60→80 Ry 波函数截断范围内，最近邻 ICOHP 对这些设置不敏感”。这个结论只覆盖已测试范围：密度截断未单独收敛，展宽固定，几何未重新优化，空态总 spilling 仍约 9.26%。这些限制不会因一个比较表通过而消失。
+三个变化都小于本次比较线，支持“在已测试的 k 网格与 60→80 Ry 波函数截断范围内，最近邻 ICOHP 对这些设置不敏感”。这个结论只覆盖已测试范围：密度截断未单独收敛，展宽固定，几何未重新优化，空态总 spilling 仍约 9.26%。
 
 ## 从原始文件重画并导出论文用图
 
-最后在本机重画。公开包解压后进入 `diamond-cohp`，在 **NumPy ≥ 2.0、Matplotlib** 的 Python 环境执行：
-
-```bash
-python3 plot_cohp.py
-```
-
-本次在 Mac 的 NumPy 2.3.4、Matplotlib 3.10.7 环境重画并核对了三张图。脚本直接读取各目录的 COHPCAR、ICOHPLIST、lobsterout、输入和 QE XML，不调用 LOBSTER，也不需要波函数。它检查真实列数和能量点数、四条键、已经平移的能量轴、XML 几何与距离，同时独立检查 0 eV 谱积分与原生 ICOHP 的差。输出在 `figures/`：三张网页用 PNG、对应矢量 PDF，以及 `plot-checks.json`。PDF 按 183 mm 宽单独排版，正文标注 5–7 pt、面板字母 8 pt；PNG 使用较大的阅读字号。字体使用本机 Arial，PDF 已检查为嵌入的 TrueType；有数学符号的部分同时嵌入 DejaVu Sans。其他机器若没有 Arial 或 Helvetica，脚本明确回退到 DejaVu Sans。
+脚本直接读取各目录的 COHPCAR、ICOHPLIST、lobsterout、输入和 QE XML，不调用 LOBSTER，也不需要波函数。它检查真实列数和能量点数、四条键、已经平移的能量轴、XML 几何与距离，同时独立检查 0 eV 谱积分与原生 ICOHP 的差。
 
 图中只保留零能量线、正负号分界和数值比较线。参数对照的右图使用对数纵轴，便于同时读出 0.00368、0.00094 和 0.00011 eV/bond 三个变化；它没有改变原始积分。邻近键图由 XML 坐标和周期平移计算，球的大小仅帮助辨认原子，不表示原子半径。
 
@@ -628,6 +622,14 @@ python3 plot_cohp.py
 ```
 
 完整脚本可单独下载：[plot_cohp.py](/Atlas/examples/diamond-cohp/plot_cohp.py)。一般的轴标、图例、配色与矢量导出操作见[科研图的后处理与导出](/Atlas/plotting/)。
+
+最后在本机重画。公开包解压后进入 `diamond-cohp`，在 **NumPy ≥ 2.0、Matplotlib** 的 Python 环境执行：
+
+```bash
+python3 plot_cohp.py
+```
+
+本次在 Mac 的 NumPy 2.3.4、Matplotlib 3.10.7 环境重画并核对了三张图。输出在 `figures/`：三张网页用 PNG、对应矢量 PDF，以及 `plot-checks.json`。PDF 按 183 mm 宽单独排版，正文标注 5–7 pt、面板字母 8 pt；PNG 使用较大的阅读字号。字体使用本机 Arial，PDF 已检查为嵌入的 TrueType；有数学符号的部分同时嵌入 DejaVu Sans。其他机器若没有 Arial 或 Helvetica，脚本明确回退到 DejaVu Sans。
 
 读图时先定位 0 eV 与正负号，再核对画的是单键、四键平均还是总和。引用数字时回到相应目录的原生 ICOHPLIST 和参数对照，便能把成键图连回具体波函数、局域基组和周期原子对。
 

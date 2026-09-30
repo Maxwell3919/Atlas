@@ -145,7 +145,7 @@ index,element,layer,x_A,y_A,z_A,normal_A
 
 ## 文献方法与本例读数
 
-Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；没有堆垛能量或距离优化数据。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。当前交付以数值几何检查为准，尚无本模型的已完成 GUI 导出记录。
+Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；没有堆垛能量或距离优化数据。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。
 
 下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化；相关路线见 [结构优化方法目录](/Atlas/m/relax/)。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
 
@@ -162,7 +162,7 @@ Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures 
 ## 可复制的代码生成提示与复现
 
 ```text
-请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；按缩放系数和 Direct/Cartesian 格式得到笛卡尔坐标，a×b 定义法向。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。不要自动解释成键或最低能结构，不生成冒充 GUI 的坐标图。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；按缩放系数和 Direct/Cartesian 格式得到笛卡尔坐标，a×b 定义法向。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。不要自动解释成键或最低能结构， 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [check_model.py 完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)

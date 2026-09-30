@@ -58,6 +58,16 @@ L1λ = ∫₀¹⁴ 2|α²F₃₂(ω)−α²F₄₈(ω)|/ω dω；
 
 ## 在解包目录把两份输出配起来
 
+前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。QE 7.5 `lambda.x` 源码中的 q 坐标检查被注释掉了；本页的重建脚本逐文件检查坐标和输入顺序，允许六位小数输出带来的舍入差。
+
+两个求和都使用星权重 `1, 8, 4, 6, 24, 12, 3, 6`，总和 64。程序以总权重归一化，每一档展宽独立求出 λ 和谱函数。计算 Tc 时使用输出括号外的逐 q 加权 λ；括号内的谱积分 λ 用来核对谱积分，不能换掉这一列后继续引用原来的 Tc。
+
+### 交给代码助手的 Tc 配对、求交与绘图任务
+
+> 读取 k32/、k48/ 各自的 lambda.in、lambda.out 和八个 elph.inp_lambda 文件，只做保存数据的后处理。核对 q 坐标、顺序、权重、展宽与 μ*，按 QE 7.5 lambda.x 的公式分别重建两条 Tc(σ)，并检查原生打印精度。按相同 σ 配对，保存 Tc、λ、ωlog 和逐点 ΔTc。用相邻点的线性差值找出采样范围内所有孤立交点、端点交点和重合区间；若没有交点，明确输出零个，不外推。绘制上方两条 Tc 曲线、下方 ΔTc 与零线，保留十个采样点，用颜色、线型和标记区分分支。保存配对 CSV、求交 JSON、PNG/SVG/PDF 及可独立运行的完整 Python 源码，写明依赖和输入路径；不启动 QE 程序。
+
+已有完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。
+
 下载包内已经保留计算结果。在解包目录用完整的 [重建脚本 `rebuild_tc.py`](/Atlas/examples/supercon-al-tc/rebuild_tc.py) 与[配对求交脚本 `compare_tc.py`](/Atlas/examples/supercon-al-tc/compare_tc.py) 复算表格；这里运行的是读取与求交程序，前面的两次 DFT 计算已在 Maxwell 完成。
 
 ```console
@@ -83,17 +93,7 @@ Native 0.001 K print check: 0 isolated points, 0 overlap intervals.
 Saved paired-tc.csv, crossings.csv, crossings.json.
 ```
 
-前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。QE 7.5 `lambda.x` 源码中的 q 坐标检查被注释掉了；本页的重建脚本逐文件检查坐标和输入顺序，允许六位小数输出带来的舍入差。
-
-两个求和都使用星权重 `1, 8, 4, 6, 24, 12, 3, 6`，总和 64。程序以总权重归一化，每一档展宽独立求出 λ 和谱函数。计算 Tc 时使用输出括号外的逐 q 加权 λ；括号内的谱积分 λ 用来核对谱积分，不能换掉这一列后继续引用原来的 Tc。
-
 [重建脚本](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对与求交脚本](/Atlas/examples/supercon-al-tc/compare_tc.py) · [完整配对核验](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json)
-
-### 交给代码助手的 Tc 配对、求交与绘图任务
-
-> 读取 k32/、k48/ 各自的 lambda.in、lambda.out 和八个 elph.inp_lambda 文件，只做保存数据的后处理。核对 q 坐标、顺序、权重、展宽与 μ*，按 QE 7.5 lambda.x 的公式分别重建两条 Tc(σ)，并检查原生打印精度。按相同 σ 配对，保存 Tc、λ、ωlog 和逐点 ΔTc。用相邻点的线性差值找出采样范围内所有孤立交点、端点交点和重合区间；若没有交点，明确输出零个，不外推。绘制上方两条 Tc 曲线、下方 ΔTc 与零线，保留十个采样点，用颜色、线型和标记区分分支。保存配对 CSV、求交 JSON、PNG/SVG/PDF 及可独立运行的完整 Python 源码，写明依赖和输入路径；不启动 QE 程序。
-
-已有完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。
 
 ### 交给代码助手的谱差补充任务
 

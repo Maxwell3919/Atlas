@@ -125,7 +125,7 @@ grep -n -E 'End of band structure calculation|JOB DONE' nscf.out
 grep -ni -E 'not converged|Error in routine|convergence NOT achieved' nscf.out
 cat nscf.err
 ```
-本次最终输出没有未收敛本征值行。对应的 [nscf.err](/Atlas/examples/si-pbe/gap24-cg/nscf.err) 为 1300 字节，保留了重复的 `Authorization required, but no authorization protocol specified` 环境提示；这是 X11 图形环境授权提示；本次输出没有未收敛本征值行。本次末尾为：
+本次最终输出没有未收敛本征值行。对应的 [nscf.err](/Atlas/examples/si-pbe/gap24-cg/nscf.err) 为 1300 字节，保留重复的 X11 授权提示。输出末尾如下：
 
 ```text
      Parallel routines

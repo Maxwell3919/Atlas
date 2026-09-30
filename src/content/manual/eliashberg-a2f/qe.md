@@ -204,6 +204,12 @@ maxwell@maxwell:~/al/epc-q4$ head -5 alpha2F.dat
 
 第一列后的十列依次对应文件头十组电子展宽。不要取第二列画图，却拿 0.020 Ry 那一行的 λ 做标题。下面的提取脚本检查 q 坐标、模式数、权重和十组展宽，然后用谱函数独立计算 `2∫α²F(ν)/ν dν`。零频点不参加除法，也没有对负数取绝对值。
 
+### AI 后处理提示词：解析谱与累计耦合
+
+> 从保存的 lambda.in、alpha2F.dat、lambda.out 和逐 q elph 文件编写独立谱分析程序。按文件实际表头读取频率轴与十档电子展宽，保留 THz；验证轴单调、点数、有限数值和谱上限。计算累计 λ(ω)=2∫α²F(ω′)/ω′dω′、最终谱积分 λ 和对数频率矩；ω=0 且谱为零时明确处理该点，记录积分规则和打印精度。将谱积分 λ 与输出括号内值核对，逐 q 加权 λ 与括号外值核对；使用对应版本源码常数把 ωlog 换为 K。分别保留 lambda.x 谱和 matdyn 谱的来源、频率网格与展宽，不把两个谱文件强行当成同一数据。输出逐频率累计积分 CSV、各 σ 摘要 JSON 和完整源码。只做后处理，不补生成缺失的18 THz计算记录或新 DFT。
+
+[完整谱与公式核对源码 verify_tc_chain.py](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [谱解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [双网格谱差源码 compare_spectral_grids.py](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py)。
+
 ```console
 maxwell@maxwell:~/al/epc-q4$ ../.venv/bin/python analyse_epc.py > analysis.out
 maxwell@maxwell:~/al/epc-q4$ cat analysis.out
@@ -360,9 +366,3 @@ pwxall / dense-k → pwx / response-k → 完整逐 q EPC
                                              ├─ q2r → matdyn → a2F.dos*（Ry）
                                              └─ lambda.x → alpha2F.dat（THz）→ λ / ω_log
 ```
-
-## AI 后处理提示词：解析谱与累计耦合
-
-> 从保存的 lambda.in、alpha2F.dat、lambda.out 和逐 q elph 文件编写独立谱分析程序。按文件实际表头读取频率轴与十档电子展宽，保留 THz；验证轴单调、点数、有限数值和谱上限。计算累计 λ(ω)=2∫α²F(ω′)/ω′dω′、最终谱积分 λ 和对数频率矩；ω=0 且谱为零时明确处理该点，记录积分规则和打印精度。将谱积分 λ 与输出括号内值核对，逐 q 加权 λ 与括号外值核对；使用对应版本源码常数把 ωlog 换为 K。分别保留 lambda.x 谱和 matdyn 谱的来源、频率网格与展宽，不把两个谱文件强行当成同一数据。输出逐频率累计积分 CSV、各 σ 摘要 JSON 和完整源码。只做后处理，不补生成缺失的18 THz计算记录或新 DFT。
-
-[完整谱与公式核对源码 verify_tc_chain.py](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [谱解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [双网格谱差源码 compare_spectral_grids.py](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py)。

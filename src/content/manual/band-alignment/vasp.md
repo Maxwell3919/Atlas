@@ -347,13 +347,21 @@ Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnS
 
 因此，把这两份孤立层的面向表面按真空能级对齐，会得到 `CBM(SnSe₂) − E_F(Sr₂N) = −2.282607 eV`。这个数表达指定参考模型的能级相对位置。接触以后，电荷转移、界面偶极、杂化与结构响应都会改变势和能带，不能把这里的差值当作已经计算出的实际界面势垒，也不能用它直接定量推算转移电子数。Sr₂N 在本次模型中是金属，半导体—半导体的 type I / II 分类也不适用于这张图。
 
-这次结果还保留了四项具体范围：共同晶胞下的冻结几何、非磁性约束、没有 SOC、单个 21×21×1 网格。PBE 带隙也不是经过准粒子修正的带隙。文章中的数值是可复核的计算示例；若要用它们讨论真实接触性质，应先补相应的结构、磁性与数值收敛检查，再直接分析界面体系。
+本例采用共同晶胞下的冻结几何、非磁 PBE+D3、无 SOC 和 21×21×1 网格。PBE 带隙未作准粒子修正；接触性质的分析继续使用实际界面的结构、磁性、密度与能带。
 
 ## 导出可复核的表格
 
-这组结果用表格呈现更直接：主要问题是每个表面的真空参考是否平坦、SnSe₂ 带边相对相向 Sr₂N 费米能的位置。现有绘图脚本保存在证据归档中；本文不把原先的复合图作为结果图。
+下面导出每个表面的真空窗口与相向表面偏移，逐项核对平台范围和能级参考。
 
 下载包新增的 `export_alignment_tables.py` 只依赖 Python 标准库，读取 `alignment-summary.json`，输出四个表面窗口的真空参考值和两项相向表面偏移：
+
+### 可复用的代码生成提示
+
+```text
+请编写一个 Python 3 标准库脚本，读取同目录的 alignment-summary.json。文件内含 SnSe2 与 Sr2N 两层的 sampled-mesh 分类、能带边、E_F、两侧 LOCPOT 真空窗口，以及已指定的 interface_facing_isolated_reference。输出 band-edges-vacuum-referenced.csv，每种材料和表面各一行，至少含材料、表面、窗口范围、真空势均值、窗口势差、E_F−Vvac、VBM−Vvac、CBM−Vvac、采样带隙和金属/半导体分类；金属的 VBM/CBM 与带隙字段留空，不要伪造带边。另输出 facing-surface-offsets.csv，逐行写出 SnSe2 lower-z 与 Sr2N upper-z 的 CBM−EF、EF−VBM 值及“冻结孤立层参考，不是界面势垒”的范围说明。数值保持 eV，CSV 用 UTF-8，写入脚本所在目录，固定列序，确保重跑可复现。若缺少任一预期字段或 JSON 无法解析，应以清楚错误退出；不要画图、填补缺失数据或推断接触后的性质。
+```
+
+完整源码：[export_alignment_tables.py](/Atlas/examples/interface-magnet-band-alignment/export_alignment_tables.py) · [analyze_alignment.py](/Atlas/examples/interface-magnet-band-alignment/analyze_alignment.py) · [check_vacuum_density.py](/Atlas/examples/interface-magnet-band-alignment/check_vacuum_density.py) · [plane_average.py](/Atlas/examples/interface-magnet-band-alignment/plane_average.py)。按下方命令读取原始输出后，导出四行表面值与两行相向偏移，具体值见两份 CSV。
 
 ```bash
 python3 analyze_alignment.py
@@ -362,14 +370,6 @@ python3 export_alignment_tables.py
 ```
 
 脚本的本次实际输出为 4 行表面值、2 行相向偏移。SnSe₂ lower-z 表面的真空势为 1.738360141 eV，VBM−Vvac = −5.992725141 eV，CBM−Vvac = −5.714622141 eV；Sr₂N upper-z 表面的真空势为 1.273814882 eV，EF−Vvac = −3.432014882 eV。按各自真空参考组合后，CBM(SnSe₂)−EF(Sr₂N) = −2.282607260 eV。CSV 保留两侧所有平台均值与窗口内势差，可[查看真空参考表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)和[相向表面偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
-
-## 可复用的代码生成提示
-
-```text
-请编写一个 Python 3 标准库脚本，读取同目录的 alignment-summary.json。文件内含 SnSe2 与 Sr2N 两层的 sampled-mesh 分类、能带边、E_F、两侧 LOCPOT 真空窗口，以及已指定的 interface_facing_isolated_reference。输出 band-edges-vacuum-referenced.csv，每种材料和表面各一行，至少含材料、表面、窗口范围、真空势均值、窗口势差、E_F−Vvac、VBM−Vvac、CBM−Vvac、采样带隙和金属/半导体分类；金属的 VBM/CBM 与带隙字段留空，不要伪造带边。另输出 facing-surface-offsets.csv，逐行写出 SnSe2 lower-z 与 Sr2N upper-z 的 CBM−EF、EF−VBM 值及“冻结孤立层参考，不是界面势垒”的范围说明。数值保持 eV，CSV 用 UTF-8，写入脚本所在目录，固定列序，确保重跑可复现。若缺少任一预期字段或 JSON 无法解析，应以清楚错误退出；不要画图、填补缺失数据或推断接触后的性质。
-```
-
-完整源码：[export_alignment_tables.py](/Atlas/examples/interface-magnet-band-alignment/export_alignment_tables.py) · [analyze_alignment.py](/Atlas/examples/interface-magnet-band-alignment/analyze_alignment.py) · [check_vacuum_density.py](/Atlas/examples/interface-magnet-band-alignment/check_vacuum_density.py) · [plane_average.py](/Atlas/examples/interface-magnet-band-alignment/plane_average.py)。按上方命令读取原始输出后，导出四行表面值与两行相向偏移，具体值见两份 CSV。
 
 ## 文献方法与适用范围
 

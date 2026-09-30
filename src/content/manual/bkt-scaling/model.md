@@ -107,6 +107,12 @@ MONTE_CARLO_FINISHED 8 cases wall=15.59s
 
 ## 有限尺寸曲线与 2T/π 相遇在哪里
 
+### AI 后处理提示词：分析已有 XY 轨迹
+
+> 读取保存的 base/、extended/ 轨迹参数与抽样序列，按 L、temperature_J、随机种子和初态分组。J=kB=1，温度按无量纲 kBT/J 解释；sweep 是抽样次数。按原 analyse.py 的公式计算能量、涡旋密度和 helicity modulus，保留逐链热化/样本长度、分块误差与两种子差异。汇总误差使用既有 display_error_J 定义，不能再除以样本数。用各 L 的 Y−2T/π 在相邻温度点的符号变化输出 crossing_brackets；本数据只给出0.92–1.00交叉温区，不拟合热力学极限温度。保存链级和温度级 CSV、诊断 JSON 及完整源码，报告缺失/非有限记录；只分析已有44条轨迹，不运行 Monte Carlo 或材料计算，不把无量纲温区改标为 K。
+
+[完整分析源码 analyse.py](/Atlas/examples/xy-bkt/analyse.py) · [保存数据核对源码 verify.py](/Atlas/examples/xy-bkt/verify.py) · [原抽样源码 mc.py](/Atlas/examples/xy-bkt/mc.py)。
+
 ```console
 talos@talos-MS-7D54:~/xy-bkt$ python3 -B analyse.py > analyse.out 2> analyse.err; echo "exit=$?"
 exit=0
@@ -184,9 +190,3 @@ H、J=kB=1、周期边界
   → 有限尺寸曲线与2T/π对照
   → 更大尺寸与标度检查后，才讨论热力学极限
 ```
-
-## AI 后处理提示词：分析已有 XY 轨迹
-
-> 读取保存的 base/、extended/ 轨迹参数与抽样序列，按 L、temperature_J、随机种子和初态分组。J=kB=1，温度按无量纲 kBT/J 解释；sweep 是抽样次数。按原 analyse.py 的公式计算能量、涡旋密度和 helicity modulus，保留逐链热化/样本长度、分块误差与两种子差异。汇总误差使用既有 display_error_J 定义，不能再除以样本数。用各 L 的 Y−2T/π 在相邻温度点的符号变化输出 crossing_brackets；本数据只给出0.92–1.00交叉温区，不拟合热力学极限温度。保存链级和温度级 CSV、诊断 JSON 及完整源码，报告缺失/非有限记录；只分析已有44条轨迹，不运行 Monte Carlo 或材料计算，不把无量纲温区改标为 K。
-
-[完整分析源码 analyse.py](/Atlas/examples/xy-bkt/analyse.py) · [保存数据核对源码 verify.py](/Atlas/examples/xy-bkt/verify.py) · [原抽样源码 mc.py](/Atlas/examples/xy-bkt/mc.py)。
