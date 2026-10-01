@@ -1,10 +1,10 @@
-拉伸晶格以后，界面电荷怎样重新分配，费米能附近的电子态来自哪一层，哪些振动变软，最后又怎样影响 λ、ωlog 和 Tc？应变扫描要把这些量放在同一组结构上比较。能量和应力先帮助核对施加的形变；真正的研究判断来自后面的电子与振动响应。
+拉伸晶格以后，界面电荷怎样重新分配，费米能附近的电子态来自哪一层，哪些振动变软，最后又怎样影响 $\lambda$、$\omega_{\log}$ 和 $T_c$？应变扫描要把这些量放在同一组结构上比较。能量和应力先帮助核对施加的形变；真正的研究判断来自后面的电子与振动响应。
 
 这里先用六个真实 fcc Al SCF 点说明怎样修改晶胞、保留独立密度并读出应力，再接 ZrCl₂/Sc₂C 的既有冻结电子对照。Al 是一原子操作样本，采用 LDA-PZ；异质结是六原子界面，采用另一套结构和电子协议。两组结果各自解释，不能将 Al 曲线当作异质结的应变响应。[Al 输入、输出与后处理包](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)保留完整计算文件。
 
 ## 百分比表示应变，应力从输出读取
 
-面内双轴应变定义为 ε=(a−a₀)/a₀。+1.5% 对应 ε=0.015，即两条面内基矢的面内分量同时乘 1.015，晶格角保持不变；纯面内应变不放大真空方向。单轴 x 应变则只将所有基矢的 x 分量乘 1+ε。本例 Al 使用后一种定义，y、z 均固定。
+面内双轴应变定义为 $\varepsilon=\frac{a-a_0}{a_0}$。+1.5% 对应 $\varepsilon=0.015$，即两条面内基矢的面内分量同时乘 1.015，晶格角保持不变；纯面内应变不放大真空方向。单轴 x 应变则只将所有基矢的 x 分量乘 $1+\varepsilon$。本例 Al 使用后一种定义，y、z 均固定。
 
 应变是无量纲的几何变化，常以百分比给出；应力是响应张量，单位为 kbar、GPa 或明确厚度定义下的二维量。“+1.5% 双轴应变”不能写成“+1.5% 应力”。如果研究控制的是外加压力，需另说明压力单位和放松条件。对有真空的二维超胞，程序的三维应力还含超胞体积归一化，比较时固定真空高度；它不是单层厚度无关的二维应力。
 
@@ -12,7 +12,7 @@
 
 ## 先确定哪些量可以动
 
-母体结构来自 [Al 晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 的完成分支，立方晶格常数为 3.95606780081 Å，采用 LDA-PZ 与 `Al.pz-vbc.UPF`。原胞的三条基矢并不沿三个直角坐标轴。要施加 x 方向应变 ε，应把**每一条基矢的 x 分量**乘以 1+ε；y、z 分量保持不变。
+母体结构来自 [Al 晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 的完成分支，立方晶格常数为 3.95606780081 Å，采用 LDA-PZ 与 `Al.pz-vbc.UPF`。原胞的三条基矢并不沿三个直角坐标轴。要施加 x 方向应变 ε，应把**每一条基矢的 x 分量**乘以 $1+\varepsilon$；y、z 分量保持不变。
 
 例如 +0.5% 应变使 −1.97803390040536 Å 变为 −1.98792406990739 Å。两个含非零 x 分量的基矢都要改。若只把第一条基矢整体放大，得到的是另一种形变。
 
@@ -165,7 +165,7 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 
 提取脚本 [analyse_strain.py](/Atlas/examples/interface-magnet-strain-doping-scan/analyse_strain.py) 从各点 OUT 读取能量和应力，写成 [strain-stress.csv](/Atlas/examples/interface-magnet-strain-doping-scan/elastic/strain-stress.csv)。其中纵向应变的六行为：
 
-| x 应变（%） | F（Ry/原胞） | 拉伸为正的 σxx（GPa） | σyy（GPa） |
+| x 应变（%） | F（Ry/原胞） | 拉伸为正的 $\sigma_{xx}$（GPa） | $\sigma_{yy}$（GPa） |
 |---:|---:|---:|---:|
 | -0.8 | -4.19084711 | -1.395292 | -0.343932 |
 | -0.5 | -4.19087241 | -0.863654 | -0.212861 |
@@ -205,6 +205,61 @@ ZrCl₂/Sc₂C 的供受层共同形成新的电子态。应变改变键长和�
 
 异质结的近 EF Sc₂C 层投影从 2.564971 降至 2.080865，而匹配几何的孤立 Sc₂C 从 4.232280 升至 4.477110。界面中的层谱变化与中性孤立层的形变响应不同，值得沿完整能窗检查杂化。这里列的是最近能量点的投影态密度，不能把它称为自由载流子数、Bader 电荷或精确 N(EF)。原始父快照的最大残余力为 2.40×10⁻⁴ 与 1.20×10⁻⁴ Ry/Bohr，未达到原力阈值，所以这个对照解释冻结几何的电子响应。
 
+这份冻结对照还保存了完整谱形，见下图。实线是异质结内 Sc₂C、ZrCl₂ 层的原子投影，蓝色虚线是同应变几何中的中性孤立 Sc₂C；两面板共用纵轴，各态用自己的 $E_{\mathrm F}$ 作零点。这样可以同时看界面杂化和单层形变响应，而不把某个最近网格点的高低当作整个能窗的变化。图中投影按 simulation cell 计数，没有各曲线除以自身峰值，也没有归一化成同一条曲线。
+
+![四态冻结几何的层 PDOS 与孤立层对照](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos.png)
+
+图的原 CSV 和原图均来自上述四态存档。要用 gnuplot 复现相同叠图，下载[完整绘图源码](/Atlas/examples/research-strain-literature/plot_frozen_pdos.gnu)，与 frozen_pdos_long.csv 放在同一目录，执行 gnuplot plot_frozen_pdos.gnu。脚本直接使用第 4 列 E−EF、第 5/6 列层 PDOS，按第 1 列状态筛选；固定线色与实/虚线区分层和环境，并按所有可见曲线确定共享纵轴。默认能窗为 ±2 eV，缩到 ±0.5 eV 的命令如下。缩窗只改变显示范围，既不重算展宽，也不平滑或插值。
+
+```bash
+gnuplot plot_frozen_pdos.gnu
+gnuplot -e "energy_window=0.5" plot_frozen_pdos.gnu
+```
+
+<details>
+<summary>plot_frozen_pdos.gnu 完整源码</summary>
+
+```gnuplot
+# Read the published CSV directly; all energies are already relative to each EF.
+# Run: gnuplot plot_frozen_pdos.gnu
+# Optional: gnuplot -e "energy_window=0.5" plot_frozen_pdos.gnu
+if (!exists("datafile")) datafile="frozen_pdos_long.csv"
+if (!exists("output_path")) output_path="frozen-pdos-gnuplot.png"
+if (!exists("energy_window")) energy_window=2.0
+set encoding utf8
+set datafile separator comma
+# Shared y range from every plotted Sc2C/ZrCl2 trace within the chosen window.
+stats datafile using (abs($4)<=energy_window ? $5 : 1/0) nooutput
+shared_max=STATS_max
+stats datafile using (abs($4)<=energy_window ? $6 : 1/0) nooutput
+shared_max=1.08*(shared_max>STATS_max ? shared_max : STATS_max)
+set terminal pngcairo enhanced font "DejaVu Sans,12" size 1500,620
+set output output_path
+set multiplot layout 1,2 margins 0.075,0.97,0.18,0.78 spacing 0.06
+set xrange [-energy_window:energy_window]
+set yrange [0:shared_max]
+set xlabel "Energy relative to each Fermi level (eV)"
+set ylabel "Projected DOS (states / eV / simulation cell)"
+set grid ytics lc rgb "#dddddd"
+set border 3
+set tics nomirror
+set key top right font ",10"
+set arrow 1 from 0,graph 0 to 0,graph 1 nohead dt 2 lc rgb "#777777"
+set title "(a) 0% strain | frozen geometry"
+plot datafile using 4:(stringcolumn(1) eq "Heterostructure 0%" ? $5 : 1/0) with lines lw 2 lc rgb "#0072b2" title "Sc2C layer", \
+ datafile using 4:(stringcolumn(1) eq "Isolated Sc2C 0%" ? $5 : 1/0) with lines lw 2 dt 2 lc rgb "#0072b2" title "matched isolated Sc2C", \
+ datafile using 4:(stringcolumn(1) eq "Heterostructure 0%" ? $6 : 1/0) with lines lw 2 lc rgb "#d55e00" title "ZrCl2 layer"
+set title "(b) +1.5% strain | frozen geometry"
+unset ylabel
+plot datafile using 4:(stringcolumn(1) eq "Heterostructure +1.5%" ? $5 : 1/0) with lines lw 2 lc rgb "#0072b2" title "Sc2C layer", \
+ datafile using 4:(stringcolumn(1) eq "Isolated Sc2C +1.5%" ? $5 : 1/0) with lines lw 2 dt 2 lc rgb "#0072b2" title "matched isolated Sc2C", \
+ datafile using 4:(stringcolumn(1) eq "Heterostructure +1.5%" ? $6 : 1/0) with lines lw 2 lc rgb "#d55e00" title "ZrCl2 layer"
+unset multiplot
+print sprintf("Read column4 and layer columns5/6 without resampling; |E-EF|<=%.2f eV; shared_ymax=%.8f", energy_window,shared_max)
+```
+
+</details>
+
 应变扫描与改变电子数是两个独立控制变量。中性异质结中的层间重排发生在固定总电子数下；带电单层则还需说明电子数、面积与带电边界，不能将 Bader 分区转移量直接设为带电单层的等效自由载流子数。
 
 要判断应变是否改变层间净转移量，需在每个 ε 下使用同一几何、网格和密度约定的完整界面与两份孤立层密度，接[三密度差分](/Atlas/m/delta-charge/vasp/)和[Bader 分区](/Atlas/m/bader/vasp/)。现有密度操作示例使用 VASP 文件；QE 密度仍需保留自身导出、网格和单位来源。单看某层 PDOS 下降，不能确定该层失去了多少电子。若讨论间隙电子的空间重分布，再接[ELF](/Atlas/m/elf/vasp/)与明确能窗的部分电荷密度；裸 Sc₂C 单层的身份也要由自己的空间证据判断。
@@ -213,9 +268,13 @@ ZrCl₂/Sc₂C 的供受层共同形成新的电子态。应变改变键长和�
 
 ## 把电子变化接到声子、EPC 和 Tc
 
-[Qiu 等，Phys. Rev. B 105, 165101](https://doi.org/10.1103/PhysRevB.105.165101)提供了直接相关的 Ba₂N 双轴应变分析。原文 PDF 第 4 页的 Fig. 4 将 DOS/PDOS 与 [−0.1,0] eV 部分电荷密度并列，等值面为 0.0005 e/Å³；空间图用来检验近 EF 电子由表面向层内重新分布。这个能窗电荷不同于完整价电子密度，也不同于异质结的三密度差分。
+[Qiu 等，Phys. Rev. B 105, 165101](https://doi.org/10.1103/PhysRevB.105.165101)的原文 PDF 第 4 页，Fig. 4(a)画总 DOS，(b)、(c)分别画 Ba 5d、N 2p 投影；横轴都是相对费米能的能量，黑至红的线色对应 0% 到 4% 双轴应变。三个面板的纵轴范围不同，读它们时应比较同一投影内的谱形与近零点变化，而不是凭线条高度直接比较两种轨道的总贡献。本页的层 PDOS 与这两种原子轨道投影也有不同定义；可以借用“同能量基准、分开投影、保留原始幅值”的画法，不能把总原子投影换名为完整 DOS。
 
-同页 Fig. 5 同时比较 N(0)、ωlog、λ 和 Tc。把 ωlog 与 λ 一起看，才能解释声子软化的两种作用：低频权重在 λ=2∫α²F(ω)/ω dω 中被放大，同时 ωlog 可能降低。Fig. 3（PDF 第 3 页）是无应变参照，Fig. 6（第 5 页）是 +4% 的声子、PHDOS、α²F 和振型；作者把 K 点软支与约 24 cm⁻¹ 的谱峰联系起来，并用振型说明哪些原子在运动。应变正文借鉴的是这条量与量之间的核对方式。Ba₂N 的转变温标属于原论文，不移作 ZrCl₂/Sc₂C 的结果。
+Fig. 4(d)把各应变下 [−0.1,0] eV 的部分电荷密度放在同一视向，等值面固定为 0.0005 e/Å³。表面和层内的等值面连通形状，结合 (a–c) 的 PDOS，才支持作者关于近费米能电子空间重分布的解释。复现这类图应使用每个结构自己的费米能窗导出三维部分密度，在 VESTA 或 XCrySDen 中保留共同等值面、晶胞边界、观察方向和色表，并显示晶轴；不能让软件对每张图自动选择不同阈值。本页目前可复现的是冻结层谱图；态选择与场的判读另见[能窗密度与 ELF](/Atlas/m/elf/vasp/)和[三密度对照](/Atlas/m/delta-charge/vasp/)，不能从 PDOS 表重建 Fig. 4(d) 那样的空间密度。
+
+同页 Fig. 5(a)以应变百分比为横轴，把红色 $N(0)$〔states/eV〕和蓝色 $\omega_{\log}$〔K〕放在各自标明单位的纵轴；(b)同样比较红色 $T_c$〔K〕与蓝色无量纲 $\lambda$。它的分析来自电子态增加、频率下降与耦合增强的共同变化，而不是只按软化程度排序。低频权重在 $\lambda=2\int \frac{\alpha^2F(\omega)}{\omega}\,d\omega$ 中被放大，同时 $\omega_{\log}$ 可能降低。要复现应变对照，可以用 gnuplot 的共享横轴分面或明确标注的双纵轴，使用同一组已验收结构、$\mu^*$、展宽和积分谱窗；本页的冻结 PDOS 表没有提供这一整组 EPC 数据，因此不另画 $T_c$ 增益曲线。
+
+再对照 PDF 第 3 页 Fig. 3(a–d) 的无应变结果与第 5 页 Fig. 6(a–e) 的 +4% 结果：色散 (a) 中红点大小按声子线宽 $\gamma_{\mathbf q\nu}$ 编码，(b) 的总/分原子 PHDOS 和 (c) 的 $\alpha^2F$ 共用频率坐标，(c) 还用另一纵轴画累计 $\lambda(\omega)$。这样能把 K 点约 24 cm⁻¹ 的软支、谱峰和 Fig. 6(e) 的位移联系起来，而非将 PHDOS 峰直接叫作强 EPC。复现时在 gnuplot 中对齐频率轴并保存点大小的量与尺度；振型在 XCrySDen 等模式显示工具中保留相位、原子和晶轴。Fig. 6(d) 是 Γ 附近约 49 cm⁻¹ 的光学模式，(e) 才是 K 软模；原文用 $\sqrt{3}\times\sqrt{3}$ 超胞把 K 折叠到 Γ 来展示，不能用原胞 Γ 振型替代它。本站的[声子与振型](/Atlas/m/phonon-dfpt/qe/)、[线宽](/Atlas/m/phonon-linewidth/qe/)及[谱函数](/Atlas/m/eliashberg-a2f/qe/)分别提供这些输入和读法；Ba₂N 的数值与振型仍属于原论文。
 
 对于异质结，应先在统一结构与协议下对照[声子色散及模式](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)与[α²F、累计 λ](/Atlas/m/eliashberg-a2f/qe/)，再按同一 μ*、积分谱窗和展宽比较[Tc](/Atlas/m/allen-dynes/qe/)。模式编号可能随应变交换，追踪软化应结合位移或简并子空间，不能只相减“第几支”。
 

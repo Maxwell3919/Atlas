@@ -4,7 +4,7 @@
 
 这里先用两个原子的金刚石 Si 原胞练习最容易复核的量——固定晶胞总能量。QE 7.5 使用 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`，常规立方晶格参数为 10.20 bohr（5.397607551 Å），所有扫描保持晶胞和原子位置不变。分别改变波函数截断、电荷密度截断和均匀网格，再用每组最高已测点作有限参照。完成一份输入的方法见 [SCF](/Atlas/m/scf/qe/)。
 
-[Prandini 等的 SSSP 方法论文](https://doi.org/10.1038/s41524-018-0127-2) Fig. 2 分别检查声子、内聚能、压力与能带随截断能的变化。这里采用它按物理量检查的思路，只计算表中 Si 的总能量差；论文中的 Pd 曲线和筛选阈值不转移给本例。[QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节则解释超软赝势为何需要波函数与增广密度的两套网格。
+[Prandini 等的 SSSP 方法论文 Fig. 2](https://arxiv.org/pdf/1806.05609v2#page=12)（原文第 12 页）用同一截断能横轴比较 Pd 的不同赝势，每一行分别跟踪声子、内聚能、压力和能带误差，再与各自的水平虚线阈值比较；圈出的点才是满足所选判据的赝势与截断组合。各误差相对论文的 200 Ry 参照计算，压力还转换为等效体积偏差，不能把它们都读成总能量误差。本页只借用“参照值、采样点、比较线并列”的图法：下面 Si 表的纵量是固定晶胞总能量差，不是论文的内聚能，因为这里没有计算孤立 Si 原子。[QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节解释超软赝势为何需要波函数与增广密度的两套网格。
 
 [完整算例包](/Atlas/examples/basics-si-convergence-files.tar.gz)解包为 `basics-si-convergence`，含 `si-pbe/` 下实际输入、OUT、错误流、提交脚本、数值表和完整提取源码。读取和换算只需 Python 3 标准库；复算时另建目录，按[官方来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)准备赝势，并修改脚本中的 `<qe_bin>`。
 
@@ -321,9 +321,13 @@ k8/scf.out:!    total energy              =     -22.83859230 Ry
 
 把原胞能量差换成每原子能量差。本例有两个 Si 原子，使用 NIST 2022 CODATA 的 `1 Ry = 13.6056931229905 eV`：
 
-```text
-ΔE (meV/atom) = |E_i − E_ref| (Ry/cell) × 13.6056931229905 × 1000 / 2
-```
+$$
+\begin{aligned}
+\Delta E\;(\mathrm{meV/atom})
+&= \lvert E_i-E_{\mathrm{ref}}\rvert\;(\mathrm{Ry/cell}) \\
+&\quad\times 13.6056931229905\times\frac{1000}{2}
+\end{aligned}
+$$
 
 每组以最高已测设置为参照：80 Ry、640 Ry 或 14³。相邻变化则比较同一组中连续两个已测点。
 
@@ -347,6 +351,57 @@ k8/scf.out:!    total energy              =     -22.83859230 Ry
 用 **1 meV/atom** 作为本例的比较线，从低到高选择第一个点：它与本组参照的差值不超过比较线，而且它之后的每次相邻变化也不超过比较线。这样得到 40 Ry、320 Ry 和 10³。三个最低设置来自各自的独立扫描，尚未组合为同一次计算。
 
 k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1.952757 meV/atom，8³→10³ 还改变 1.602206 meV/atom；10³→12³ 和 12³→14³ 分别改变 0.291842、0.058709 meV/atom。因此 10³ 是本表中第一个满足规则的网格。截断组中，40→80 Ry 的总变化为 0.900561 meV/atom，320→640 Ry 的总变化为 0.025034 meV/atom；更低截断没有在这组文件中采样。
+
+### 把本表画成可复核的误差图
+
+![Si 三组独立扫描的总能量残差，由现有 CSV 经 gnuplot 绘制](/Atlas/examples/basics-literature/si-convergence/convergence.svg)
+
+三个面板分别改变波函数截断、电荷密度截断和网格边长，纵轴统一为 meV/atom，红虚线是本例的 1 meV/atom 比较线，绿圈标出表中选点。纵轴使用对数尺度，因此零残差的参照点 80 Ry、640 Ry 和 14³ 不画在曲线上；这些点仍保留在 CSV 中，未人为加上正数。蓝点是实际已测设置，连线只帮助按顺序读点。尤其看右图：8³ 仍在比较线上方，10³ 才落到下方；是否满足后续相邻变化条件，还要回到上表核对。
+
+这幅图从本页的 [convergence.csv](/Atlas/examples/basics-si-convergence/results/convergence.csv) 直接读取，没有增加计算或拟合。下载 [同一 CSV 副本](/Atlas/examples/basics-literature/si-convergence/convergence.csv) 和 [plot.gp](/Atlas/examples/basics-literature/si-convergence/plot.gp)，放在同一目录运行 `gnuplot plot.gp`，同时生成 SVG、PNG 和 PDF（[SVG](/Atlas/examples/basics-literature/si-convergence/convergence.svg)、[PDF](/Atlas/examples/basics-literature/si-convergence/convergence.pdf)）。脚本不使用 SSSP 的 Pd 数值或筛选阈值。
+
+<details>
+<summary>生成上图的完整 gnuplot 源码</summary>
+
+```gnuplot
+# Exact existing CSV; no smoothing, fitting, interpolation or new DFT.
+set datafile separator ','
+set encoding utf8
+set border linewidth 1
+set tics out nomirror
+set style line 1 lc rgb '#205493' lw 1.6 pt 7 ps 1.0
+set style line 2 lc rgb '#ae3b2d' lw 1.5 dt 2
+set style line 3 lc rgb '#237747' lw 1.6 pt 6 ps 1.6
+unset key
+set logscale y
+set yrange [0.001:120]
+set ylabel '|E-E(ref)| (meV/atom)'
+parameters='ecutwfc ecutrho kmesh'
+labels='ecutwfc ecutrho k-mesh'
+do for [fmt in 'svg png pdf'] {
+ if (fmt eq 'svg') { set terminal svg size 1140,430 enhanced font 'Arial,13' }
+ if (fmt eq 'png') { set terminal pngcairo size 1140,430 enhanced font 'DejaVu Sans,13' }
+ if (fmt eq 'pdf') { set terminal pdfcairo size 11.4in,4.3in enhanced font 'DejaVu Sans,13' }
+ set output 'convergence.'.fmt
+ set multiplot layout 1,3 margins 0.08,0.985,0.16,0.82 spacing 0.095,0.04 title 'Si: independent scans; highest measured point in each scan is its reference'
+ do for [i=1:3] {
+  par=word(parameters,i)
+  set xlabel (i<3 ? word(labels,i).' (Ry)' : 'Uniform mesh edge N (N x N x N)')
+  set title sprintf('(%s) %s',word('a b c',i),word(labels,i))
+  if (i==1) { set xrange [40:80]; set xtics 40,10,80; set ylabel "|E-E(ref)| (meV/atom)" }
+  if (i==2) { set xrange [320:640]; set xtics 320,160,640; unset ylabel }
+  if (i==3) { set xrange [4:14]; set xtics 4,2,14; unset ylabel }
+  set key top right font ',10'
+  plot 'convergence.csv' using (strcol(1) eq par && $6>0 ? $3 : 1/0):6 with linespoints ls 1 title 'Sampled residual', \
+       1 with lines ls 2 title '1 meV/atom', \
+       'convergence.csv' using (strcol(1) eq par && strcol(8) eq 'True' && $6>0 ? $3 : 1/0):6 with points ls 3 title 'Selected'
+ }
+ unset multiplot
+ unset output
+}
+```
+
+</details>
 
 后续 Si 教案继续使用 60/640 Ry，并把带边计算的父 SCF 加密到 12³。用于力、应力或声子时，应直接比较那个目标量：`conv_thr` 负责一次 SCF 的电子误差，目标量对截断和网格的变化由相应扫描决定。最高已测点是这张表的有限参照；1 meV/atom 是本例选定的总能量比较线。
 

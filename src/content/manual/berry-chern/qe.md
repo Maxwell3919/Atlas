@@ -58,7 +58,7 @@ delta = N * (k[j] + G - k[i])
 
 当 <code>delta</code> 是 (1,0,0) 或 (0,1,0)，分别选作 +e₁、+e₂ 链接。跨边界时目标点折回第一周期，G 恢复它的真实邻接位置。4³ 网格选出 128 条有向链接，其中 32 条跨界；6³ 网格为 432 条，其中 72 条跨界。相邻点编号本身不表示方向。
 
-倒格基矢来自 .nnkp。程序核对 aᵢ·bⱼ=2πδᵢⱼ，实际最大残差为 2.15×10⁻⁷，并由 b₁、b₂ 求小格面积。
+倒格基矢来自 .nnkp。程序核对 $a_i\cdot b_j=2\pi\delta_{ij}$，实际最大残差为 2.15×10⁻⁷，并由 b₁、b₂ 求小格面积。
 
 ## FHS 回路与单位
 
@@ -82,6 +82,10 @@ C_raw = sum(phi_on_fixed_k3_slice) / (2*pi)
 | 奇异值、行列式模长 | 无量纲；逐链接 CSV 和摘要 |
 
 <code>phase_per_area_A2</code> 是有限小格的面积平均量。解释连续 Berry 曲率分布还需检查局部量随网格加密的变化；两个网格得到相同整数本身不证明局部曲率收敛。
+
+[FHS 原文 Fig. 1(a–c)](https://arxiv.org/pdf/cond-mat/0503172#page=3)（PDF 第 3 页）给出了这种区别：a、b 是同一磁通晶格模型中间带在 3×9、9×27 网格上的逐小格场强，c 是连续场的有限差分近似。两种离散网格得到相同陈数，但纵轴尺度不同，小格相位会随网格加密而缩小；比较连续曲率前必须处理面积因子。横轴是该模型 Landau 规范下的磁布里渊区 kx、ky，长方形取值范围也不能被直接解释为材料的面内各向异性。
+
+本站复现这种比较可直接使用[4³ 逐小格 CSV](/Atlas/examples/topo_berry_si/k4-plaquettes.csv)：选择相同的 <code>k3_fraction</code> 切片，以 <code>k1_fraction</code>、<code>k2_fraction</code> 定位小格，分别读 <code>phase_rad</code> 或 <code>phase_per_area_A2</code>；[6³ 表](/Atlas/examples/topo_berry_si/k6-plaquettes.csv)使用相同字段。用 gnuplot 将相位作为逐格色值时保留实际网格，并统一对应物理量的色标；面积归一化前后的量各用自己的单位，避免平滑插值掩盖网格差异。这复用本页真实 Si 数据，不引入原文磁通模型的曲率分布。
 
 ## 十个实际采样切片
 
@@ -414,7 +418,7 @@ head -n 7 source/k4/silicon.mmn
 
 前面每条链接取 `det(M)/abs(det(M))`，用于一个闭合二维面的总陈数。Z₂ 要研究自旋子占据子空间内本征相位的流动，取完行列式就丢失了这些单独的相位。可以先用同一份真实 Si 矩阵看看这个区别。
 
-下面沿 +b₁ 穿过整个倒空间周期。在每个固定 `(k₂,k₃)` 上，把重叠矩阵作 SVD：`M=UΣV†`，取幺正部分 `Q=UV†`，按点序构造 `W=Q₀Q₁…Qₙ₋₁`，最后一项包含跨边界的 G。对 W 的四个本征值取 `−Arg(λ)/(2π)` 并折回 `[0,1)`，得到本约定下四个无量纲混合 WCC。[Soluyanov–Vanderbilt 原文 Sec. II.2](https://doi.org/10.1103/PhysRevB.83.235401)的 SVD 平行输运解释了矩阵回路与一维局域电荷中心的关系；Sec. III 与 Fig. 1 再讨论横向演化及周期分支。
+下面沿 +b₁ 穿过整个倒空间周期。在每个固定 $(k_2,k_3)$ 上，把重叠矩阵作 SVD：$M=U\Sigma V^\dagger$，取幺正部分 $Q=UV^\dagger$，按点序构造 $W=Q_0Q_1\cdots Q_{n-1}$，最后一项包含跨边界的 G。对 W 的四个本征值取 $-\frac{\operatorname{Arg}(\lambda)}{2\pi}$ 并折回 $[0,1)$，得到本约定下四个无量纲混合 WCC。[Soluyanov–Vanderbilt 原文 Sec. II.2](https://doi.org/10.1103/PhysRevB.83.235401)的 SVD 平行输运解释了矩阵回路与一维局域电荷中心的关系；Sec. III 与 Fig. 1 再讨论横向演化及周期分支。
 
 实际计算包括 4³ 网格上的 16 个矩阵回路和 6³ 上的 36 个回路。取 k₃=0 的两处读数如下；四个相位只在每个回路内部排序，列号没有跨 k₂ 的分支追踪含义。
 
@@ -426,6 +430,10 @@ head -n 7 source/k4/silicon.mmn
 | 6³ | 0.5 | 0.375000228 | 0.812206405 | 0.874999841 | 0.937793627 |
 
 这四个相位不全相同，而相位和 modulo 1 接近周期端点。`0.9999998` 与 `0.0000001` 在这个圆周坐标上很接近，不能把跨过 0/1 的数值直接相减或按排序连成物理分支。矩阵回路保留了行列式总相位中看不见的内部结构。
+
+[Soluyanov–Vanderbilt Fig. 1(a,b)](https://arxiv.org/pdf/1102.5600#page=4)（PDF 第 4 页）把同一 WCC 周期坐标画成左侧圆周和右侧展开的圆柱：纵坐标是模 1 的电荷中心，横坐标 t 从 0 到半个绝热泵浦周期。蓝、绿曲线表示两个中心，红菱形标出每个位置的最大间隙中心；a 示意奇数绕行及伙伴交换，b 示意偶数情形。b 中穿过 0/1 的分支在展开图上看似跳跃，正好说明为什么逐列排序再连线会产生错误。这里 t 表示参数演化，并非本页计算的实际时间。
+
+本页 Si CSV 保存的是四条无 SOC 空间带的逐回路相位，因此画图时先用原始横向分数坐标与 WCC mod 1 作散点，保留 0/1 的圆周等价；没有完成分支追踪就不连成伙伴交换图。后面的 BHZ 自检才有两个占据自旋子带、半布里渊区和相应奇偶判定，可用同一种圆周读法检查其输出；原文的示意分类不赋给 Si。
 
 完整源码：[wilson_loop.py](/Atlas/examples/soc-topology-si-wilson/wilson_loop.py)。[52 个回路的 CSV](/Atlas/examples/soc-topology-si-wilson/si-wilson-loops.csv)保存每个回路的四个相位及残差，[摘要](/Atlas/examples/soc-topology-si-wilson/si-wilson-summary.json)记录子空间与相位约定。程序只需 Python 3 和 NumPy；先解压前面的 `topo_berry_si_files.tar.gz`，将脚本放在解压目录旁，运行：
 
@@ -443,7 +451,7 @@ python3 wilson_loop.py --data topo_berry_si --output si-wilson-results
 WILSON_MATRIX_CHECKS_PASSED; no Z2 or material topology assigned
 ```
 
-`unitarity` 检查 W†W 与单位阵的差；`determinant phase` 比较矩阵乘积的行列式与逐链接行列式乘积；`gauge spectrum` 在各点随机 U(4) 换基后，以圆周距离匹配四个相位。它们检验回路代数。本例没有自旋子 Kramers 对，没有导带能隙验证，也没有执行横向相位连接或 Z₂ 奇偶判定。
+`unitarity` 检查 $W^\dagger W$ 与单位阵的差；`determinant phase` 比较矩阵乘积的行列式与逐链接行列式乘积；`gauge spectrum` 在各点随机 U(4) 换基后，以圆周距离匹配四个相位。它们检验回路代数。本例没有自旋子 Kramers 对，没有导带能隙验证，也没有执行横向相位连接或 Z₂ 奇偶判定。
 
 ### 将同一处理逻辑写成代码
 
@@ -930,6 +938,8 @@ unset multiplot
 
 [WannierTools 的 WCC 接口](https://wannier-tools.readthedocs.io/en/latest/features.html#wannier-charge-center-wilson-loop-calculation)中，`WannierCenter_calc` 指定矩阵回路，`KPLANE_BULK` 的第一向量定义完整周期、第二向量定义横向半周期。`NumOccupied` 是所选模型中占据带的数量，不能填入总电子数。`wcc.dat` 第一列为横向位置，第二列为最大 WCC 间隙的中心，第三列为相位和，第四列起为各条 WCC；相位和与单条谱流的用途不同。
 
-[Li 等 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)在同一异质双层模型中同时展示 WCC 和半无限边缘谱。非平庸构型的 WCC 奇偶与贯穿 SOC 能隙的边缘态对应；另一构型虽有能隙内的边缘谱线，但没有连接价带、导带的无隙谱支。因此边界图应标出体能带投影、边界权重、切边和终止方式，并与同一正常态模型的 WCC 对照。该图是分析关系的文献例子，不是本页 Si 的边界计算。
+[Li 等 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)（原文 PDF 第 4 页）在同一异质双层模型中并列 WCC 与半无限边缘谱。a、d 的横轴 k₂ 从 0 到 π，是横向半个倒空间周期；纵轴 WCC(θ/2π) 从 0 到 1，表示相位模 1。b、e 的横轴为边缘守恒动量 X̄–Γ̄–X̄，纵轴为能量 / eV；正文说明边缘谱由 MLWF 哈密顿量经迭代半无限格林函数得到。两幅谱的能量窗口不同，原图也未给数值色条，不能从同样的红色直接比较两构型的谱权重。
+
+对照的重点是 WCC 奇偶与谱支连接：非平庸构型的 b 中有贯穿 SOC 能隙、连接体价带和导带的边缘支；另一构型的 e 虽有能隙内亮线，却没有这种连接。本站 BHZ 图对应的是同一 HR 的 WCC 与 y 开放边界，横轴改用明确的分数 kᵧ、kₓ，并按实际 WT 输出标出自然对数 LDOS 和展宽。复现材料图时，应保存切边与终止方式，用同一 HR 叠查体投影、边界谱和 WCC；完整的 gnuplot 代码已经展示坐标映射与原始列读取。这个分析关系可用于材料验收，文献的构型分类不赋给本页 Si 或 BHZ 参数。
 
 正常态 Z₂、自旋锁定和超导配对各需要自己的输入。前两者分别接到占据子空间和 [费米面自旋投影](/Atlas/m/spin-texture/vasp/)；讨论拓扑超导则还需配对矩阵与 BdG 能隙及不变量。本页材料数据止于 Si 的离散陈数和矩阵回路相位；BHZ 配套只核对正常态拓扑程序接口。

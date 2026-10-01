@@ -262,13 +262,37 @@ python3 plot_bands.py
 
 ## 从孤立层能带到界面重构
 
-[SnSe₂/PtTe₂ 原文 Fig. 1(c,f,i)](https://arxiv.org/pdf/2502.13690v1)把两个孤立层与界面放在相同分析链中，Fig. 1(i) 用分层权重识别穿过费米能的分支。本文 Si 只练习路径、单位与本征值；ZrCl₂/Sc₂C 图展示另一套历史金属界面的电子态，两者没有共用密度或能量零点。
+[SnSe₂/PtTe₂ 原文 PDF 第3页 Fig. 1(c,f,i)](https://arxiv.org/pdf/2502.13690v1#page=3)按三行排列孤立SnSe₂、孤立PtTe₂和界面。左侧为 Γ–M–K–Γ 路径能带，右侧为共用 E−E_F 纵轴的总DOS与轨道PDOS；虚线标零能，DOS横轴标states/eV。先在(c)、(f)找各层带边，再在(i)沿红/蓝层权重辨认越过零能的分支，比只数新增线条更有意义。图注没有给出可移用的线宽归一化常数，DOS峰高也不是每原子电子数。
+
+本站三联图保留这一联读结构：a用151个路径点的原始能级与逐态投影，b取均匀网格PDOS，c取完整BXSF。复现时按真实倒空间距离连接能带，将投影按同一(k,band)配对，DOS作为另一个积分分支保持同一能量读法；Si零点仍是路径VBM，历史界面各分支使用前文各自参考，不借用论文零点或数据。
 
 比较界面和单层时，先把单层放进匹配的面内晶胞与几何，保持泛函、赝势和 SOC 约定一致。冻结单层与界面内的同一层可以隔离接触效应，独立弛豫单层则同时包含几何改变。各自减去 E_F 能比较近费米谱形；若要讨论某条能带的绝对移动，应接[静电势](/Atlas/m/electrostatic-potential/)建立共同参考。
 
 沿同一条带看层权重的变化，能辨认两层共同参与的电子态；再在交叉附近检查反交叉、轨道权重交换以及对应态的空间分布，才把这种共同参与进一步解释为层间杂化。界面图比孤立层多了几条线，还可能来自超胞折叠，须先确认倒空间映射。电荷转移量另由[差分电荷](/Atlas/m/delta-charge/)与空间积分确定。
 
 带隙作为能带的带边分析保留在[Si 带边搜索实例](/Atlas/m/band-gap/qe/)；有穿越 E_F 的分支时，转到[胖带](/Atlas/m/fatband/qe/)追踪态来源，再由[费米面](/Atlas/m/fermi-surface/qe/)查看全区等能轮廓。
+
+<details>
+<summary>用 gnuplot 核对已有 Si 路径数据</summary>
+
+在完整下载包根目录保存以下 `si-path.gp`，运行 `gnuplot si-path.gp`。它直接读8条带各121点的距离/eV列，减相同6.3970eV路径VBM，不平滑或拟合。已在Talos的gnuplot 6.0上用原包968行数据运行；网页继续展示既有图，不重复增加图片。
+
+```gnuplot
+set terminal svg size 880,560 enhanced font 'sans,14'
+set output 'si-path-gnuplot.svg'
+set xlabel 'Cumulative path distance (2pi/a)'
+set ylabel 'Energy - path VBM (eV)'
+set xrange [0:4.646264]
+set yrange [-6:7]
+set xtics ('Gamma' 0,'X' 1,'W' 1.5,'K' 1.853553,'Gamma' 2.914214,'L' 3.780239,'X' 4.646264)
+set grid xtics ytics
+unset key
+plot 'bands-cg/si.bands.dat.gnu' using 1:($2-6.3970) with lines linewidth 1.2 linecolor rgb '#222222'
+```
+
+gnuplot呈现已经计算的数据；论文分层线仍需对应投影，不能从普通能带猜出。原始提取与全部绘图源码保留。
+
+</details>
 
 ```text
 同一 SCF 密度 → 路径 bands → bands.x → 原始 eV 数据 → 统一能量零点

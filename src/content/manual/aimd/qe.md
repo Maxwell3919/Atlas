@@ -201,7 +201,9 @@ NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失
 
 
 
-[Bussi、Donadio 与 Parrinello，*Canonical sampling through velocity-rescaling*](https://arxiv.org/html/0803.4060)式 (7)给出 SVR 动能与目标分布交换的时间尺度；Fig. 1 区分热浴引起的能量变化与积分误差，Fig. 2 直接比较两种时间步长下的 NVE 总能量和 NVT 有效守恒量。本例采用相同初态的 NVE 步长对照，没有提取论文的 NVT 有效守恒量，故不能用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动作为对应的积分误差。
+[Bussi、Donadio 与 Parrinello，DOI: 10.1063/1.2408420](https://doi.org/10.1063/1.2408420)的作者版 PDF 第 4 页 [Fig. 1](https://arxiv.org/html/0803.4060v1#S2.F1)把物理能量 H 与有效守恒量 $\tilde H$ 分成上下两幅：横轴以积分步长计时，纵轴用 H 的均方根涨落归一化；实线段表示 Verlet 推进，虚线段表示速度重标度。这张示意图说明热浴能改变 H，而评估积分误差要跟踪相应守恒量，不能仅凭恒温轨迹的能量线“看着平”作判断。
+
+第 5 页 [Fig. 2 的上、下两幅](https://arxiv.org/html/0803.4060v1#S3.F2)使用相同的时间轴（ps），分别展示较小与较大的积分步长。每幅左轴是 NVE 总能量，右轴是 SVR–NVT 的有效能量，单位均为 kJ/mol；作者比较的是随时间的漂移，而不是把两种纵轴的绝对值相减。小步长没有明显漂移，大步长出现漂移，即使热浴仍让结构轨迹保持有界，也不能据此接受积分精度。本例只对应其中的 NVE 步长检查：已有的两条 Al 轨迹使用相同初态，作图按各自首个能量样本归零、换算为 meV/atom，并对齐真实能量采样时间。没有提取 $\tilde H$，所以不另造 NVT 守恒量曲线，也不用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动替代它。
 
 ## 提取能量、温度与坐标
 
@@ -296,7 +298,7 @@ print('NVE total-energy conservation tested only over ~48 fs; no thermodynamic c
 
 </details>
 
-提取程序使用 Python 3 与 NumPy；绘图另需 Matplotlib。保留数据包的目录层级，在 `al/aimd` 目录运行：
+提取程序使用 Python 3 与 NumPy。原图生成记录使用 Matplotlib；下面的 gnuplot 重画路线直接读取提取好的 CSV。保留数据包的目录层级，在 `al/aimd` 目录运行：
 
 ```bash
 python3 analyse_aimd.py
@@ -326,7 +328,65 @@ NVT 的 51.897811 meV/atom 范围包含热浴交换，不能与 NVE 的守恒误
 
 ## 用实际数据重画积分对照
 
-温度图使用 CSV 的真实采样时间；NVE 总能量以各自第一行作差，再转成 meV/atom。势能和动能交换图也取同一基准。坐标的短时 RMS 位移可保留为轨迹核对，不能将其斜率直接换成扩散系数。
+温度图使用 CSV 的真实采样时间；NVE 总能量以各自第一行作差，再转成 meV/atom。势能和动能交换图也取同一基准。Bussi Fig. 2 的比较方法在这里落实为共同时间轴和独立的能量零点，单位使用本例的每原子能量，不借用论文模型的 kJ/mol 数值。
+
+把 [gnuplot 完整脚本](/Atlas/examples/interface-literature/plot_aimd.gp)保存到 `al` 根目录，目录中应保留 `aimd/nve-dt20-nosym/thermo.csv` 和 `aimd/nve-dt10-nosym/thermo.csv`。运行：
+
+```bash
+gnuplot plot_aimd.gp
+```
+
+输出的 `al-nve-gnuplot.svg/png/pdf` 分两幅：左幅用 CSV 的第 2 列 `energy_sample_time_fs` 和第 11 列 `total_change_meV_atom`；细步长每隔一个样本取一点，与粗步长对齐到 50 个共同时间，终点 47.4101327994 fs。右幅用细步长的势能、动能列分别减去首行，再乘 Ry→eV→meV/atom 的系数，显示两者怎样交换。左幅相同窗口内的峰峰变化分别为 0.019405 与 0.004218 meV/atom；正文原图和上表的细步长 0.004269 使用全部 100 行，末个能量时刻为 47.8939096647 fs。两个窗口保留各自定义，不通过插值制造共同点。坐标的短时 RMS 位移仍只用于轨迹核对，不能将其斜率直接换成扩散系数。
+
+<details>
+<summary>plot_aimd.gp 完整源码</summary>
+
+```gnuplot
+# Use energy_sample_time_fs, not position_time_fs.
+if (!exists("data_root")) data_root = "."
+if (!exists("out_root")) out_root = "."
+coarse = data_root."/aimd/nve-dt20-nosym/thermo.csv"
+fine = data_root."/aimd/nve-dt10-nosym/thermo.csv"
+set encoding utf8
+set datafile separator ","
+set datafile columnheaders
+stats fine using ($1==1 ? $5 : 1/0) nooutput
+p0 = STATS_mean
+stats fine using ($1==1 ? $6 : 1/0) nooutput
+k0 = STATS_mean
+conv = 13.605693122994*1000/8
+set border 3
+set tics out nomirror
+set key top left
+do for [ext in "svg png pdf"] {
+    if (ext eq "svg") { set terminal svg size 1000,400 enhanced font "DejaVu Sans,11" }
+    if (ext eq "png") { set terminal pngcairo size 1000,400 enhanced font "DejaVu Sans,11" }
+    if (ext eq "pdf") { set terminal pdfcairo size 10,4 enhanced font "DejaVu Sans,11" }
+    set output out_root."/al-nve-gnuplot.".ext
+    set size 1,1
+    set origin 0,0
+    unset title
+    set multiplot layout 1,2 margins 0.11,0.98,0.18,0.82 spacing 0.14,0.05 title "8-atom Al | existing short NVE records"
+    set title "(a) 50 matched energy times"
+    set xlabel "Energy sample time (fs)"
+    set ylabel "Change of total energy (meV/atom)"
+    set xrange [0:47.4101328]
+    set yrange [-0.002:0.022]
+    plot coarse using 2:11 with linespoints pt 7 ps 0.3 lw 1 lc rgb "#D55E00" title "dt = 0.967554 fs", fine every 2 using 2:11 with linespoints pt 5 ps 0.3 lw 1 lc rgb "#CC79A7" title "dt = 0.483777 fs"
+    set title "(b) Energy exchange, fine step"
+    set ylabel "Change from first sample (meV/atom)"
+    set xrange [0:47.8939097]
+    set yrange [*:*]
+    plot fine using 2:(($5-p0)*conv) with lines lw 1 lc rgb "#009E73" title "Potential", fine using 2:(($6-k0)*conv) with lines lw 1 lc rgb "#D55E00" title "Kinetic"
+    unset multiplot
+    unset output
+}
+print "Wrote al-nve-gnuplot.svg/.png/.pdf; panel (a) uses 50 shared energy times"
+```
+
+</details>
+
+下面保留原图的处理需求和完整 Python 生成记录，便于追溯已展示的温度、能量与位移图。重画上面的共同时间对照使用刚给出的 gnuplot 脚本。
 
 ```text
 从 Al 根目录读取三条 aimd/<case>/thermo.csv。温度用真实时间，NVE 能量按
@@ -391,7 +451,58 @@ print('Wrote aimd-temperature, aimd-energy, aimd-displacement as PNG and PDF')
 
 界面 AIMD 的判读需要回到构型：在同一共同晶胞下追踪层间距的分布、两层相对滑移、层内键长和配位变化，并对相邻时间段与末帧查看是否发生持续重构。若原子跨过周期边界，应先按层和键的连续性展开坐标，再求距离，不能把分数 z 的跳变直接解释成层脱离。
 
-Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 为 AIMD 构造 4×4×1 超胞，§3.1 使用 300 K、1 fs 步长、6 ps 轨迹；Fig. 6(a–c)给出声子，Fig. 6(d–f)展示对应 AIMD 的能量时间序列。这里借鉴的是“先给出超胞、温度与窗口，再结合轨迹和振动结果读结构”的分析方法。其 6 ps 是该研究的设置，不能作为任意材料的充分采样标准；Al 例子更短，也没有界面层间距统计。
+Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 说明 AIMD 使用 4×4×1 超胞，§3.1 给出 300 K、1 fs 步长和 6 ps 窗口。[原文 PDF 第 5 页，Fig. 6(d–f)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=5)分别对应未修饰、H 修饰和 F 修饰的界面：横轴是 0–6000 fs，纵轴是各体系的能量（图上写为 Free energy，eV），同时把初态、末态的侧视结构放进同一面板。各面板含不同组成，不能比较其绝对纵坐标高低来排列稳定性；作者依据各自时间序列与结构保持情况作分析，并将它们与上排 Fig. 6(a–c) 的沿高对称路径声子频率（THz）并列。
+
+这类图应同时给出“何时采样”和“结构怎样变”。用现有 Al 数据复现时间序列时，读 `thermo.csv` 的温度与能量采样时间；查看初末结构时，先从扩展 XYZ 保留晶胞导出 POSCAR，再在 VESTA 中打开。已有 [共同初态](/Atlas/examples/interface-literature/al-nve-frames/initial.POSCAR)、[粗步长末帧](/Atlas/examples/interface-literature/al-nve-frames/nve-dt20-end.POSCAR)和[细步长末帧](/Atlas/examples/interface-literature/al-nve-frames/nve-dt10-end.POSCAR)；两份末帧都对应坐标时刻 48.37768653 fs。保持相同的视角、原子大小和放大比例比较，不能因为逐图缩放而把小位移看成明显重构。能量终点使用上面独立的采样时间，不把结构帧时刻直接贴到能量样本上。对真正的异质层，还应在对应结构图旁给出已有轨迹算出的层间距、侧向滑移或键长变化，而不只摆两张截图；本例 Al 记录没有层间统计，因此这些量接回 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/)的层归属与法向定义。文献的 6 ps 是所用窗口，不能替代本例更短轨迹的实际范围。
+
+这三份结构可在 `al` 根目录用 [完整导出脚本](/Atlas/examples/interface-literature/export_aimd_frames.py)复现：
+
+```bash
+python3 export_aimd_frames.py
+```
+
+脚本使用 ASE 读取扩展 XYZ 的 `Lattice`、周期边界和坐标时刻，输出到 `nve-frames`。它核对共同初态、八个 Al 原子、固定晶胞与末帧时刻，并读回 POSCAR 检查坐标未变；仅转换已有帧，不重新推进动力学。
+
+导出环境需要 ASE 和 NumPy。要让编程助手写这一步，可以先给出下面的文件和核对要求：
+
+> 用 ASE 读取两条 Al NVE 轨迹的扩展 XYZ，保存粗步长初帧和两条轨迹的末帧为 VASP5 POSCAR。保留八个 Al 的原子顺序、完整 Lattice、周期边界和坐标。核对两条初态一致、晶胞固定、末帧坐标时刻为 48.37768653 fs；写出后重新读入 POSCAR，比较晶胞与笛卡尔坐标。打印每帧原有的坐标时刻，让它和热力学表的能量采样时间分开记录。
+
+<details>
+<summary>export_aimd_frames.py 完整源码</summary>
+
+```python
+"""Export existing Al NVE frames with their full periodic cells."""
+from pathlib import Path
+import sys
+import numpy as np
+from ase.io import read, write
+
+root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
+out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("nve-frames")
+out.mkdir(parents=True, exist_ok=True)
+coarse = root / "aimd/nve-dt20-nosym/trajectory.xyz"
+fine = root / "aimd/nve-dt10-nosym/trajectory.xyz"
+initial = read(coarse, index=0, format="extxyz")
+initial_fine = read(fine, index=0, format="extxyz")
+assert np.allclose(initial.positions, initial_fine.positions, atol=1e-10, rtol=0)
+assert np.allclose(initial.cell, initial_fine.cell, atol=1e-10, rtol=0)
+frames = [("initial.POSCAR", initial),
+          ("nve-dt20-end.POSCAR", read(coarse, index=-1, format="extxyz")),
+          ("nve-dt10-end.POSCAR", read(fine, index=-1, format="extxyz"))]
+for name, atoms in frames:
+    assert len(atoms) == 8 and atoms.get_chemical_symbols() == ["Al"] * 8
+    assert atoms.pbc.all() and np.allclose(atoms.cell, initial.cell, atol=1e-10, rtol=0)
+    if name != "initial.POSCAR":
+        assert abs(float(atoms.info["time_fs"]) - 48.37768653) < 1e-8
+    path = out / name
+    write(path, atoms, format="vasp", direct=True, vasp5=True, sort=False)
+    restored = read(path, format="vasp")
+    assert np.allclose(restored.cell, atoms.cell, atol=1e-10, rtol=0)
+    assert np.allclose(restored.positions, atoms.positions, atol=1e-10, rtol=0)
+    print(name, "coordinate_time_fs =", atoms.info["time_fs"])
+```
+
+</details>
 
 原文把该 AIMD 图描述为自由能涨落；本例 QE 数据明确是程序打印的电子能量、离子动能与温度，不把单条轨迹的能量序列重新命名为材料自由能。要讨论温度下的界面稳定性，需用该材料实际轨迹说明采样期间观察到的结构变化，并把未出现的事件限制在所用超胞、温度和观察窗口内。
 

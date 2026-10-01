@@ -572,4 +572,6 @@ Exported figures/fatband.png, .svg and .pdf
 
 <figure><img src="/Atlas/examples/vasp/snse2-electronic/figures/bands-dos.png" alt="同一 SnSe2 模型的路径能带与18乘18乘1均匀SCF态密度" loading="lazy"/><figcaption>左：150 个路径点的20条能带；右：父 SCF 的总 DOS、Sn-s 与两原子合计的 Se-p。两侧共用父 SCF 费米能零点。DOS 保留实际采样，不额外平滑。</figcaption></figure>
 
-[相关论文 Sec. II、Fig. 1(c) 与 Table I](https://arxiv.org/pdf/2502.13690v1)也先分析孤立 SnSe₂ 的能带与 PDOS，再研究其界面模型。论文的主结果采用 LDA、另一晶格和更密网格，本页采用固定 PBE 晶胞，因此其带隙数值不是这里的复现标准。下一步若问带边由谁贡献，应接[本次胖带](/Atlas/m/fatband/vasp/)逐态比较 Sn-s、Se-p，而不是从曲线形状猜轨道。
+[相关论文 PDF 第3页 Fig. 1(c)](https://arxiv.org/pdf/2502.13690v1#page=3)左侧为孤立SnSe₂的 Γ–M–K–Γ 能带，右侧为共用 E−E_F 纵轴的总DOS、Sn-s/p和Se-p，DOS轴标states/eV。先读带边，再沿相同高度看轨道谱重：价带边以Se-p为主，导带边同时有Sn-s与Se-p。Fig. 1(i)才增加界面红/蓝层来源，不能从(c)推出与第二层的杂化。
+
+本页既有共轴图按这一方式组织真实数据：`path.csv`给累计倒格距离，均匀SCF的 `dos.csv`给右栏，两栏减同一个父SCF费米能，DOS按本次三原子胞展示。复现时保留整包，运行共用提取器后由 `plot.py`读CSV，不重新平滑锯齿或把各投影峰归一到一。论文Sec. II主模型为LDA，本页为固定PBE晶胞，参考的是图法与分析，带隙仍用本页路径表；同态来源接[本次胖带](/Atlas/m/fatband/vasp/)。

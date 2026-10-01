@@ -1,6 +1,6 @@
-功函数把材料的电子化学势放到可比较的真空参照上：Φ=Vvac−EF。它依赖表面朝向、终止、几何和占据条件，接触层选择不能只看两个孤立OUTCAR的EF。本例从同一次SnSe₂单层SCF提取势、费米能和带边，以真实输出演示这一取差。
+功函数把材料的电子化学势放到可比较的真空参照上：$\Phi=V_{\mathrm{vac}}-E_{\mathrm F}$。它依赖表面朝向、终止、几何和占据条件，接触层选择不能只看两个孤立OUTCAR的EF。本例从同一次SnSe₂单层SCF提取势、费米能和带边，以真实输出演示这一取差。
 
-Ca₂N的原文 [Lee等，Nature 494, 336 (2013), Fig. 4](https://doi.org/10.1038/nature11812)用UPS显示低功函数具有表面方向性；[H-ZrCl₂原文Fig. 2后面的功函数讨论](https://doi.org/10.1039/D2TC00564F)把低功函数与其间隙态性质结合。前者说明表面需要写清，后者说明低功函数必须与态身份一起分析。本例的SnSe₂数字来自自己的指定结构。
+Ca₂N原文 [Lee等，Nature 494, 336 (2013), Fig. 4(b,c)](https://doi.org/10.1038/nature11812)分别显示单晶和多晶的UPS二次电子发射：横轴为动能/eV，纵轴为任意强度，不是DFT静电势。(c)内嵌图将截断能对样品偏置作比较，并外推至零偏置；单晶还区分光子产额，(b)内嵌图检查费米边和价带谱。作者借这些对照辨别表面与光致电压的影响，说明测量条件和表面朝向必须随功函数一起报告。本站则从指定SnSe₂结构的同次SCF求真空势与EF，不用UPS谱线强度或Ca₂N读数替代自己的计算。间隙态的联合图法见 [ELF与选中态密度](/Atlas/m/elf/vasp/)。
 
 前置 [SCF](/Atlas/m/scf/vasp/)。[下载输入输出、LOCPOT、EIGENVAL和脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)，进入 `example-pack`。POTCAR仅附身份信息，重跑用自己的授权文件。
 
@@ -166,7 +166,7 @@ planar = field.mean(axis=(1, 2))
 z = np.arange(nz) * normal_height / nz
 ```
 
-网格60×60×280，共1,008,000个值。每层平均消去面内起伏，保留法向变化；zₖ=kH/280，H=Vcell/|a×b|。对于本例H=c，不重复周期末端。格式细节见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
+网格60×60×280，共1,008,000个值。每层平均消去面内起伏，保留法向变化；$z_k=kH/280$，$H=V_{\mathrm{cell}}/\lVert\mathbf a\times\mathbf b\rVert$。对于本例$H=c$，不重复周期末端。格式细节见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
 ```text
 [bcgong@localhost snse2_workfunction]$ python plane_average.py LOCPOT 1:3 15:17
@@ -187,13 +187,13 @@ z = 1.00:3.00 A; V_vac = 3.306283412 eV; Phi(E_F) = 5.784583412 eV; V_vac-VBM = 
 z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM = 5.996987353 eV; V_vac-CBM = 5.229714353 eV
 ```
 
-EF=−2.478300 eV，程序给两侧Φ约5.78458、5.78457 eV。SnSe₂采样PBE隙0.767273 eV，带隙内的EF随占据处理、掺杂与实验条件变化；它不等于由带边定义的电离能IP=Vvac−VBM或电子亲和能EA=Vvac−CBM。这里IP约5.9970 eV、EA约5.2297 eV。
+EF=−2.478300 eV，程序给两侧Φ约5.78458、5.78457 eV。SnSe₂采样PBE隙0.767273 eV，带隙内的EF随占据处理、掺杂与实验条件变化；它不等于由带边定义的电离能$\mathrm{IP}=V_{\mathrm{vac}}-\mathrm{VBM}$或电子亲和能$\mathrm{EA}=V_{\mathrm{vac}}-\mathrm{CBM}$。这里IP约5.9970 eV、EA约5.2297 eV。
 
 本例非自旋极化、26电子，第13带最高值与第14带最低值用于采样带边。程序先核对均匀k点权重和占据，再做取差；金属或SOC/自旋模型需要按实际占据处理。[EIGENVAL](https://vasp.at/wiki/EIGENVAL)。
 
 ![SnSe₂真空参照的整胞势与费米能](/Atlas/examples/interface-magnet-workfunction/interface-magnet-workfunction-profile.svg)
 
-图的整条势与EF同时减去下侧Vvac，箭头才表示Φ；两侧真空窗口及原子范围保留。把曲线各自减最大值会毁掉能级关系。图中的输出反映指定结构和PBE，不作为未经精度检查的材料常数。
+对计算图，可参照 [ZrI₂/graphene 原文 Fig. 4(d)](https://doi.org/10.1039/D5CP02349A)的双参照线与差值箭头，而不是UPS横轴：用gnuplot读已有两列法向势，把真空区间均值和同次EF画成水平参考，再标两者之差。本图的整条势与EF同时减去下侧Vvac，箭头才表示Φ；两侧真空窗口及原子范围保留。把曲线各自减最大值会毁掉能级关系。图中的输出反映指定结构和PBE，不作为未经精度检查的材料常数。
 
 ## 接触前参照怎样进入界面分析
 

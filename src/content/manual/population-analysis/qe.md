@@ -284,7 +284,9 @@ python3 -B extract_lowdin.py projwfc.out --output new-lowdin.csv
 
 本页的投影来自 QE 赝势原子轨道。使用 ADF 等原子中心局域基组得到的轨道占据有不同基组定义；间隙空球投影、Bader与Born有效电荷也各自定义不同，不能直接放进同一个“原子失电子”表。
 
-[Ba₂N 原文 Fig. 2(a–d)](https://doi.org/10.1103/PhysRevB.105.165101)用间隙空球补充原子 PDOS，并结合 ELF 确认其空间位置；本文只有赝势原子投影，没有加入这样的间隙投影。若研究无核电子区域，应把[能窗密度与 ELF](/Atlas/m/elf/)放到同一空间位置核对，而不是由 0.0366 e 的投影缺口判断电子化合物身份。
+[Ba₂N 原文 PDF 第3页 Fig. 2(b,d)](https://doi.org/10.1103/PhysRevB.105.165101)从能量与空间两个角度展示电子态：(b)是能量分辨的总DOS、Ba-d、N-p和空球X的PDOS，纵轴states/eV；(d)是无量纲ELF=0.5的俯视/侧视等值面，虚线圆标出四个半径1.1Å空球。作者用空间位置解释无核投影，同时指出空球不能覆盖全部电子气，不能由投影缺口直接作身份判定。
+
+这里的 Si 布居表记录原子轨道占据与 spilling，0.0366 e 的差额用于检查投影覆盖。相应能量分析接[本站DOS的谱重与空间读法](/Atlas/m/dos/qe/#h-把近费米谱重连回空间中的电子态)，空间部分接[ELF例程](/Atlas/m/elf/)：已有ELF体数据时在VESTA叠加结构，固定同一等值及俯视/侧视方向，核对无核区域，空间图读取实际 ELF 网格。这是本项目复现图法的工具选择，原文没有明确声明其图件使用的软件。
 
 下一步：看逐 k 点的轨道组成接[胖带](/Atlas/m/fatband/qe/)；看实空间分区可参照[Bader 电荷的 VASP 例程](/Atlas/m/bader/vasp/)，看成键前后的空间变化可参照[差分电荷的 VASP 例程](/Atlas/m/delta-charge/vasp/)。后两页说明另一种分析方法，读取的是 CHGCAR 等 VASP 文件，不能直接接用这里的 QE `save` 目录。
 

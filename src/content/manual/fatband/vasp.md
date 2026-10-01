@@ -395,4 +395,6 @@ Exported figures/fatband.png, .svg and .pdf
 
 <figure><img src="/Atlas/examples/vasp/snse2-electronic/figures/fatband.png" alt="SnSe2沿Gamma M K Gamma的Sn-s与Se-p两栏逐态胖带" loading="lazy"/><figcaption>左：Sn-s；右：两个Se原子的p投影之和。灰线是相同的20条本征值，散点面积使用同一个原始权重比例，未按每个态重新归一。</figcaption></figure>
 
-[相关论文 Sec. II、Fig. 1(c) 与 Table I](https://arxiv.org/pdf/2502.13690v1)对孤立 SnSe₂ 也通过能带与 PDOS 将价带边归于 Se-p，并将导带边描述为 Se-p/Sn-s 的共同贡献。本次逐态表提供同类物理分析，PBE晶胞与该论文的LDA主模型不同，数值不作为逐项复现。若进一步比较异质结，应重新绑定两层的原子编号、密度与能量对齐，不能由这里的孤立层投影推断界面转移量。
+[相关论文 PDF 第3页 Fig. 1(c,i)](https://arxiv.org/pdf/2502.13690v1#page=3)有两个层级：(c)借共轴PDOS把孤立SnSe₂价带边归于Se-p、导带边归于Se-p/Sn-s；(i)将SnSe₂/PtTe₂红/蓝层权重放到界面路径带上。前者是能量积分后的来源，后者保留同一k与带的层来源，不应混用。
+
+本页两栏胖带把Sn-s和两个Se合计的p权重叠在相同20条灰色本征值上，散点面积为20乘原始权重，两栏同一比例，不补齐投影和。先定位带边再读表：导带Sn-s/Se-p共同参与，价带边以Se-p为主。复现用已配对的 `fatband.csv`、真实 `path.csv` 与同一父费米能，由完整 `plot.py`读取已提取表，不分别放大点径。PBE孤立层提供轨道基础，界面着色图还需界面自身两层原子映射与同态投影。

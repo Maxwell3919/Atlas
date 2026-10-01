@@ -1,5 +1,6 @@
 import { getCollection } from 'astro:content';
 import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
+import { createMathPlugin, protectHtmlCode } from './math.js';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import publishedIds from '../data/published-manuals.json';
@@ -16,7 +17,7 @@ export async function availableManualIds() {
 
 let processorPromise;
 function getProcessor() {
-  return processorPromise ??= createSatteriMarkdownProcessor({ syntaxHighlight: false, smartypants: false, gfm: true });
+  return processorPromise ??= createSatteriMarkdownProcessor({ syntaxHighlight: false, smartypants: false, gfm: true, features: { math: true }, mdastPlugins: [createMathPlugin()] });
 }
 function plainText(html) {
   return html.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
@@ -30,7 +31,7 @@ export function bodySections(body) {
 
 export async function renderMarkdownBody(raw, { id } = {}) {
   const processor = await getProcessor();
-  const { code } = await processor.render(raw);
+  const { code } = await processor.render(protectHtmlCode(raw));
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   function downloads(src) {
     if (!src.startsWith(base + '/') || !/\.(png|svg)$/.test(src)) return null;

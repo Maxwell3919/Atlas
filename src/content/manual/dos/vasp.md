@@ -388,7 +388,9 @@ Exported figures/fatband.png, .svg and .pdf
 
 <figure><img src="/Atlas/examples/vasp/snse2-electronic/figures/bands-dos.png" alt="SnSe2的路径色散与实际均匀网格总态密度和轨道态密度" loading="lazy"/><figcaption>共轴图在 −7 至4 eV能窗显示总DOS及Sn-s、Se-p投影；表格与CSV保留完整能窗和全部s/p/d组。右侧的细节来自301个能量点，未平滑或重新展宽。</figcaption></figure>
 
-价带附近的 Se-p 贡献与最低导带中的 Sn-s/Se-p 共同出现，可以和[逐态胖带](/Atlas/m/fatband/vasp/)核对。[相关论文 Sec. II、Fig. 1(c) 与 Table I](https://arxiv.org/pdf/2502.13690v1)采用这种能带与 PDOS 的联读来辨认孤立单层的带边成分；本页只对应孤立固定 PBE 模型，没有据此判断界面电荷转移。
+[相关论文 PDF 第3页 Fig. 1(c)](https://arxiv.org/pdf/2502.13690v1#page=3)右栏将总DOS与Sn-s、Sn-p、Se-p画成水平曲线，纵轴与左侧能带共用E−E_F，DOS轴标states/eV。先定位价带/导带能区，再沿同一高度读轨道贡献：价带边以Se-p为主，导带边同时有Sn-s与Se-p。PDOS重叠不证明同一个态内杂化，仍要回到波函数逐态投影。
+
+本站共轴图保留灰色总DOS、Sn-s与两个Se合计的Se-p，完整s/p/d在CSV。复现这种面板时，DOS取均匀SCF的301点，能量轴与路径用同一父费米能，按三原子胞states/eV/cell展示，既不把各峰归一到一，也不额外乘自旋2。共用提取器按前文保留两分支，只重画运行 `plot.py`；同链[胖带](/Atlas/m/fatband/vasp/)核对带边权重。论文LDA与本页PBE模型不同，分析方法可以对应，数值不替换。
 
 这份 DOS 的步长比展宽还大，曲线有明显采样锯齿。因此它回答态数和轨道来源，不能精确定位窄峰或从展宽尾部读取带隙；更细峰形需要在同一模型下对电子网格、能量点与展宽作独立对照。
 

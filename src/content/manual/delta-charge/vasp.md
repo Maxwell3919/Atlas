@@ -1,6 +1,6 @@
-要看接触改变了哪里，先明确与什么状态相比。对冻结的异质结几何，差分电子数密度定义为 Δn(r)=n_AB(r)−n_A(r)−n_B(r)：AB 是完整体系，A、B 是删去另一层后保持原位的独立自洽片段。正值表示相对于这组参考的电子积累，负值表示耗尽；电荷密度变化则是 −eΔn。
+要看接触改变了哪里，先明确与什么状态相比。对冻结的异质结几何，差分电子数密度定义为 $\Delta n(\mathbf r)=n_{AB}(\mathbf r)-n_A(\mathbf r)-n_B(\mathbf r)$：AB 是完整体系，A、B 是删去另一层后保持原位的独立自洽片段。正值表示相对于这组参考的电子积累，负值表示耗尽；电荷密度变化则是 $-e\Delta n$。
 
-本例提供完整 H₂ 与两个原位、自旋极化 H 原子的真实存档，演示相减、VESTA 和积分。两颗 H 等价，适合检验“密度重排”与“净转移”的区别。界面图的读法可参照 [ZrI₂/Dirac 半金属原文 Fig. 5](https://doi.org/10.1039/D5CP02349A)：三维正负区域和平面平均共用 z 坐标，显示积累与耗尽发生在哪里。图中的接触结论属于该文的 ZrI₂ 模型。
+本例提供完整 H₂ 与两个原位、自旋极化 H 原子的真实存档，演示相减、VESTA 和积分。两颗 H 等价，适合检验“密度重排”与“净转移”的区别。界面图的读法可参照 [ZrI₂/Dirac 半金属原文 Fig. 5(d)](https://doi.org/10.1039/D5CP02349A)，即 ZrI₂/graphene 面板：横轴为 z/Å，纵轴标为 e/Å，因此对应面积积分 $S\overline{\Delta n}(z)$；黄色正区与青色负区分别表示积累和耗尽，插图把同一差分密度放回原子结构。它借助三维位置和法向正负峰确定重排发生在哪一侧，没有只看等值面大小来报告转移量。原文使用 QuantumATK 可视化；本站的 H₂ 用 VESTA 保存同样可核对的结构、正负号与阈值，接触结论仍属于原文的 ZrI₂ 模型。
 
 前置计算见 [SCF](/Atlas/m/scf/vasp/)。[下载 H₂ 输入输出、分析源码](/Atlas/examples/h2-delta-charge-files.tar.gz)，解包为 `h2-delta-charge`；三份完整密度分别为 [AB](/Atlas/examples/h2-delta-charge/AB/CHGCAR.gz)、[A](/Atlas/examples/h2-delta-charge/A/CHGCAR.gz)、[B](/Atlas/examples/h2-delta-charge/B/CHGCAR.gz)，放回同名子目录。程序可直接读 gzip，POTCAR 使用自己的授权文件。
 
@@ -171,7 +171,7 @@ NELECT = Σ_i D_i / Ngrid
 ∫ Δn(r) dr ≈ Σ_i (D_AB,i − D_A,i − D_B,i) / Ngrid
 ```
 
-x索引最快、z最慢；首块有144³个总密度值，第二块是磁化密度，中间的PAW一中心数字不拼入网格。ΣD/Ngrid给价电子数，D/V给 e/Å³；相减后仍遵循同一约定。[CHGCAR 文件定义](https://vasp.at/wiki/CHGCAR)。
+x索引最快、z最慢；首块有144³个总密度值，第二块是磁化密度，中间的PAW一中心数字不拼入网格。$\sum D/N_{\mathrm{grid}}$给价电子数，$D/V$给 e/Å³；相减后仍遵循同一约定。[CHGCAR 文件定义](https://vasp.at/wiki/CHGCAR)。
 
 下面的程序需求包含原位、协议、总数与自旋参考检查；完整 [analyze_charge.py](/Atlas/examples/h2-delta-charge/analyze_charge.py) 在文末，可在解包目录直接运行。
 
@@ -196,9 +196,9 @@ Wrote CHGDIFF.vasp, delta-charge.cube, delta-planar.csv, delta-y5.csv, charge-di
 
 ## 平面平均、累计积分与层电子数
 
-对于面内面积 S=|a×b|、法向高度 H=V/S，在第k层对nx×ny个值平均：Δn̄ₖ=ΣᵢⱼΔDᵢⱼₖ/(nx ny V)，单位 e/Å³。乘S得到线密度 λ(z)=SΔn̄(z)，单位 e/Å。累计量 T(z)=∫₀ᶻλ(z′)dz′，单位e；某层由z₁、z₂划定时，净增电子数 ΔN_layer=T(z₂)−T(z₁)。如果文献把“平面平均”写成未除面积的平面积分，纵轴已经是 e/Å，此时不能再乘S。
+对于面内面积 $S=\lVert\mathbf a\times\mathbf b\rVert$、法向高度 $H=V/S$，在第k层对nx×ny个值平均：$\overline{\Delta n}_k=\frac{\sum_{ij}\Delta D_{ijk}}{n_x n_y V}$，单位 e/Å³。乘S得到线密度 $\lambda(z)=S\overline{\Delta n}(z)$，单位 e/Å。累计量 $T(z)=\int_0^z\lambda(z')\,dz'$，单位e；某层由z₁、z₂划定时，净增电子数 $\Delta N_{\mathrm{layer}}=T(z_2)-T(z_1)$。如果文献把“平面平均”写成未除面积的平面积分，纵轴已经是 e/Å，此时不能再乘S。
 
-积分下限0是所选周期胞的原点；它应放在远离原子的真空区。层边界通常在界面间隙内选择，并检查移动边界时数值是否稳定。只有电子守恒而T(H)接近零，不能据此断言中间所有区域都没有转移。对强重叠界面，层归属可能随边界明显变化，需同时给边界和Bader分区。
+积分下限0是所选周期胞的原点；它应放在远离原子的真空区。层边界通常在界面间隙内选择，并检查移动边界时数值是否稳定。只有电子守恒而$T(H)$接近零，不能据此断言中间所有区域都没有转移。对强重叠界面，层归属可能随边界明显变化，需同时给边界和Bader分区。
 
 这里进一步用三份原始H₂密度复算，以0、5、10 Å把晶胞分为两半。S=100 Å²，H=10 Å；周期端点补回首平面，平面值之间用线性插值，梯形积分并对落在网格间的边界积分部分线段。没有按期望值归一化。
 
@@ -222,13 +222,25 @@ positive 3D redistribution=0.2578313944 e
 
 两个半空间净增电子数都在10⁻⁹ e量级，与这个对称参考的零转移一致；把极小残差乘10¹⁶换算后看起来较大，它仍是数值残差，不能解释成可用掺杂密度。0.2578 e的三维正区积分与近零的半空间净数并存，正好体现成键重排和定向层转移回答不同问题。可下载 [平面值与累计量](/Atlas/examples/charge-planar/h2-half-spaces/planar.csv)、[区间积分](/Atlas/examples/charge-planar/h2-half-spaces/regions.csv)、[来源与积分摘要](/Atlas/examples/charge-planar/h2-half-spaces/summary.json)。
 
+下面以文献 Fig. 5(d) 的“同一法向坐标、正负区域分开”画法重画已有数值，并把累计量放在第二幅以检查层净数。gnuplot 读取现有 `planar.csv`：第一列 z/Å、第三列 $S\overline{\Delta n}$/e·Å⁻¹、第四列 $T(z)$/e，直接保留 CSV 样本。两条点线是实际 H 位置4.63、5.37 Å，虚线是分区边界5 Å。
+
+![H₂真实面积积分差分密度与累计积分，沿同一z坐标比较](/Atlas/examples/charge-literature/h2-planar-and-cumulative.svg)
+
+上图在 H–H 之间出现积累峰，沿轴向两端出现耗尽；下图先下降再上升，在5 Å边界附近返回零。局部正负峰清楚可见，半胞净数却仍接近零，这正是本例成键重排与层净转移的区别。三维等值面保留在下一节，空间位置和这条曲线共用同一原点。
+
+下载 [原CSV](/Atlas/examples/charge-planar/h2-half-spaces/planar.csv) 与 [gnuplot完整脚本](/Atlas/examples/charge-literature/h2-planar-and-cumulative.gnuplot)，放在同一目录，可重建 SVG、PDF和PNG：
+
+```bash
+gnuplot -e "datafile='planar.csv'" h2-planar-and-cumulative.gnuplot
+```
+
 需要处理自己的匹配密度时，可把以下需求交给编程助手；NELECT与边界由真实输出和结构给出：
 
 ```text
 编写Python 3+NumPy命令行程序integrate_planar.py，使用随包的read_chgcar读取AB/A/B首个总密度块。核对有限值、相同晶格和FFT网格、片段原子原位，并用ΣD/N检查用户提供的三项NELECT；要求三项电子数满足NELECT_AB=NELECT_A+NELECT_B；这不自动证明A/B中性，片段电荷态须依据各自输入、OUTCAR和价电子协议确定。计算S=|a×b|、H=V/S和法向z=kH/nz；写Δn̄(e/Å³)、SΔn̄(e/Å)和周期线性插值积分T(e)。用户明确提供法向边界，积分各区间，给ΔN、ΔN/S及乘10^16后的e/cm²；检查全胞残差，禁止修正密度或自动把正区积分称为层转移。保留未舍入JSON、输入身份、单位和积分方法，新目录拒绝覆盖。仅作后处理，不运行DFT或画装饰图。
 ```
 
-异质结中，ΔN_layer/S才是所选空间分区下的转移面积密度。自由载流子还需确认哪些能带改变占据以及费米面体积/面积；满占据成键态的极化也会进入CDD。带电单层的NELECT调控与界面分区数不能直接互换。
+异质结中，$\Delta N_{\mathrm{layer}}/S$才是所选空间分区下的转移面积密度。自由载流子还需确认哪些能带改变占据以及费米面体积/面积；满占据成键态的极化也会进入CDD。带电单层的NELECT调控与界面分区数不能直接互换。
 
 ## 等值面看位置，数值从完整网格读
 
@@ -238,7 +250,7 @@ positive 3D redistribution=0.2578313944 e
 
 图的阈值只决定展示哪些区域；减小阈值出现更大体积不表示净转移增加。原平面轮廓截图没有可复核的切面坐标与连续色标，定量讨论改用上面的真实网格表。
 
-原文 Fig. 5 的三维/一维联合分析适合寻找界面重排位置。若要给层转移数，则继续积分并说明边界；[Bader](/Atlas/m/bader/vasp/)提供另一种盆地加总，[ELF](/Atlas/m/elf/vasp/)则接局域化与能窗态的区别。
+原文 Fig. 5(d) 把法向曲线与三维插图并列，六个(a–f)面板的纵轴范围各自不同，比较时先读单位和刻度，不能凭黄色面积大小跨构型排序。本例 VESTA 等值面仍是±0.03 e/Å³，曲线则是 e/Å，两种单位的差别正是是否做过面积积分。若要给层转移数，则继续积分并说明边界；[Bader](/Atlas/m/bader/vasp/)提供另一种盆地加总，[ELF](/Atlas/m/elf/vasp/)则接局域化与能窗态的区别。
 
 
 ## 完整源码与执行记录
@@ -1202,6 +1214,57 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+```
+
+</details>
+
+<details>
+<summary>法向差分密度与累计积分的完整gnuplot源码</summary>
+
+```gnuplot
+# Native gnuplot replay of the existing H2 plane-average/integration table.
+# CSV: z_A,delta_n_e_A3,linear_e_A,cumulative_e. No smoothing or fitting.
+# Put this script in public/examples/charge-literature and run gnuplot.
+if (!exists("datafile")) datafile = "../charge-planar/h2-half-spaces/planar.csv"
+if (!exists("prefix")) prefix = "h2-planar-and-cumulative"
+set datafile separator comma
+set encoding utf8
+set border 3 back lc rgb "#555555" lw 1
+set tics nomirror out scale 0.55
+set style fill solid 0.35 noborder
+set xrange [0:10]
+set key at graph 0.98,0.95 right top horizontal font ",10"
+set grid ytics lc rgb "#dddddd" lw 0.5
+set format y "%.2f"
+set arrow 1 from 4.63, graph 0 to 4.63, graph 1 nohead dt 3 lw 1 lc rgb "#777777" back
+set arrow 2 from 5.37, graph 0 to 5.37, graph 1 nohead dt 3 lw 1 lc rgb "#777777" back
+set arrow 3 from 5.0, graph 0 to 5.0, graph 1 nohead dt 2 lw 1 lc rgb "#444444" back
+set arrow 4 from graph 0, first 0 to graph 1, first 0 nohead lw 0.8 lc rgb "#333333" back
+# Three exports use the same measured table and plotting settings.
+do for [export_index=1:3] {
+ if (export_index==1) { set terminal svg size 1000,700 font "Liberation Sans,15"; set output prefix.".svg" }
+ if (export_index==2) { set terminal pdfcairo enhanced color size 7.0in,4.9in font "Liberation Sans,10.5"; set output prefix.".pdf" }
+ if (export_index==3) { set terminal pngcairo size 1000,700 font "Liberation Sans,15"; set output prefix.".png" }
+ set multiplot layout 2,1 margins 0.13,0.97,0.12,0.86 spacing 0.10 title "Frozen H₂: planar redistribution and cumulative integral" font ",17"
+ set ylabel "Area-integrated Δn (e/Å)" offset 0.4,0
+ set format x ""
+ set xlabel ""
+ set label 1 "(a) S × plane-average Δn" at graph 0.02,0.90 front font ",11"
+ plot datafile every ::1 using 1:3 with filledcurves above y1=0 lc rgb "#d8a126" title "electron gain", \
+      datafile every ::1 using 1:3 with filledcurves below y1=0 lc rgb "#31a9bd" title "electron depletion", \
+      datafile every ::1 using 1:3 with lines lw 1.8 lc rgb "#333333" notitle
+ unset label 1
+ set key off
+ set format x "%g"
+ set xlabel "z (Å); dotted: H at 4.63 / 5.37 Å, dashed: half-cell boundary at 5 Å"
+ set ylabel "T(z) (e)" offset 0.4,0
+ set label 2 "(b) Integral from cell origin to z" at graph 0.02,0.90 front font ",11"
+ plot datafile every ::1 using 1:4 with lines lw 2 lc rgb "#205a83" notitle
+ unset label 2
+ unset multiplot
+ unset output
+ set key at graph 0.98,0.95 right top horizontal font ",10"
+}
 ```
 
 </details>

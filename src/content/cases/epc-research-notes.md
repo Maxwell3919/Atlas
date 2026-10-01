@@ -1292,6 +1292,8 @@ zrclscc.dyn10
 
 ### 电子结构与模式分析的衔接
 
+[Ba₂N Fig. 3(a–d)与Fig. 6(a–e)，PDF第3/5页](https://doi.org/10.1103/PhysRevB.105.165101)展示完整的对应顺序：以q和频率对齐色散/线宽，借原子PHDOS确定频段成分，再读α²F与累计λ，最后以同链本征矢显示真实运动。旧ZrCl₂/Sc₂C附件能复核前几项数值和高频C投影，却没有同链模式向量，故不能照文献箭头指定其逐支面内/面外运动；SnSe₂/Sr₂N错误质量旧链则只用于诊断。原文Fig. 6(c)右轴累计λ与谱共用频率横轴，但有独立量纲；本档案的10 THz截断文件必须按自己的网格保留，不借原文高频谱补齐。具体谱积分和图法见[α²F页](/Atlas/m/eliashberg-a2f/qe/#spectral-window)，模式表与单量线宽编码见[线宽页](/Atlas/m/phonon-linewidth/qe/#heterostructure-modes)。
+
 电子投影与费米面分别从[投影能带](/Atlas/m/fatband/qe/)、[态密度](/Atlas/m/dos/qe/)及[费米面](/Atlas/m/fermi-surface/qe/)进入。旧电子三联图的部分投影来源尚未闭合，因此这里不重复展示，也不据它给q7指定某个电子口袋或认定层间成键。声子本征位移说明哪个原子在动，电子轨道投影说明哪些电子态参与，两者要靠分辨耦合连接。
 
 ### 第二步后处理：从 `lambda` 与 `int alpha2F` 的偏差定位 `emax = 10 THz` 截断

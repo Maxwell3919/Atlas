@@ -2,7 +2,7 @@
 
 这个计算用于寻找值得进一步检查的散射波矢，并观察候选峰是否随采样与能量窗口移动。[Johannes 与 Mazin 的 Sec. II、Fig. 4（arXiv PDF 第 6 页）](https://arxiv.org/pdf/0708.1744)比较 TaSe₂ 的几何嵌套与电子响应：费米面的几何重叠峰不能代替完整的电荷响应峰。本页保留 Al 的几何联合权重定义，若要研究某个软模，还需把相同 q 处的声子与 EPC 数据接上。
 
-这里从 [费米面](/Atlas/m/fermi-surface/qe/) 已完成本征值检查的 Al 24³/32³ NSCF 继续。SCF 和 NSCF 不再重复；需要的是该页保存的 `fermi-grid.npz`，其中每个格点、每条能带的 Eₙ(k)−E_F 都能追到同一份 QE XML。
+这里从 [费米面](/Atlas/m/fermi-surface/qe/) 已完成本征值检查的 Al 24³/32³ NSCF 继续。SCF 和 NSCF 不再重复；需要的是该页保存的 `fermi-grid.npz`，其中每个格点、每条能带的 $E_n(\mathbf{k})-E_{\mathrm F}$ 都能追到同一份 QE XML。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE 后处理手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [Johannes 与 Mazin：费米面嵌套与 CDW](https://doi.org/10.1103/PhysRevB.77.165135)
 
@@ -10,13 +10,15 @@
 
 ## 先把所计算的量说清楚
 
-我们定义一个归一化高斯窗口 δσ(E)，宽度 σ 用 eV 表示。把同一 k 点所有带的费米能附近权重相加，记作 W(k)。实际计算的是
+我们定义一个归一化高斯窗口 $\delta_\sigma(E)$，宽度 σ 用 eV 表示。把同一 k 点所有带的费米能附近权重相加，记作 W(k)。实际计算的是
 
-```text
-δσ(E) = exp[−E²/(2σ²)] / (sqrt(2π) σ)
-W(k)  = Σn δσ[Eₙ(k) − E_F]
-J(q)  = (1/Nk) Σk W(k) W(k+q)
-```
+$$
+\begin{aligned}
+\delta_\sigma(E) &= \frac{\exp[-E^2/(2\sigma^2)]}{\sqrt{2\pi}\,\sigma},\\
+W(\mathbf{k}) &= \sum_n \delta_\sigma[E_n(\mathbf{k})-E_{\mathrm F}],\\
+J(\mathbf{q}) &= \frac{1}{N_k}\sum_{\mathbf{k}}W(\mathbf{k})\,W(\mathbf{k}+\mathbf{q}).
+\end{aligned}
+$$
 
 所以 J 的单位是 eV⁻²，布里渊区平均采用等权完整网格。本例没有另外乘一个自旋简并因子；这条定义与所有数表保持一致。不同文献的归一化可能不同，比较数值前要先对齐定义。
 
@@ -87,7 +89,7 @@ python3 fermi/extract_fermi_electronic.py
 
 ## 同一份定义，用 FFT 与直接求和互相核对
 
-完整网格具有周期性。把 W 的离散 Fourier 变换乘以它的复共轭，再逆变换，就得到周期自相关；最后除以 Nk：
+完整网格具有周期性。把 W 的离散 Fourier 变换乘以它的复共轭，再逆变换，就得到周期自相关；最后除以 $N_k$：
 
 ```python
 weight = np.exp(-0.5*(energies/sigma)**2).sum(axis=3)
@@ -234,6 +236,49 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 绘图程序读取四份 `nesting-GX-*.csv`，同时画绝对量和归一化曲线。
 <figure><img src="/Atlas/examples/al-electronic/figures/fermi-nesting.png" alt="Al Γ到X方向的费米面几何嵌套网格与窗口比较" loading="lazy"/><figcaption>左：原始 J(q)；右：J(q)/J(0)。四条曲线来自两个真实网格与两个后处理窗口。</figcaption></figure>
 
+现有图左侧保留 J(q) 的 eV⁻² 幅值，右侧才除以同组 J(0)；四组在同一 q=t(b₁+b₃) 横轴上比较。右图曲线接近，不代表左图幅值已收敛。要用 gnuplot 复现，下载[完整绘图源码](/Atlas/examples/research-strain-literature/plot_nesting.gnu)，在上面解包得到的 al 根目录执行以下命令。脚本直接读取四份 CSV 的第 1/2/3 列，保留离散点和网格/窗口标签，不插值、不平滑，也不对每组峰值再次归一化。
+
+```bash
+gnuplot plot_nesting.gnu
+```
+
+<details>
+<summary>plot_nesting.gnu 完整源码</summary>
+
+```gnuplot
+# Run from the extracted al/ directory: gnuplot plot_nesting.gnu
+if (!exists("data_root")) data_root="."
+if (!exists("output_path")) output_path="fermi-nesting-gnuplot.png"
+set encoding utf8
+set datafile separator comma
+file(n,s)=sprintf("%s/fermi/k%d-cg/nesting-GX-s%.2f.csv",data_root,n,s)
+set terminal pngcairo enhanced font "DejaVu Sans,12" size 1500,600
+set output output_path
+set multiplot layout 1,2 margins 0.075,0.98,0.17,0.83 spacing 0.10
+set xrange [0:0.5]
+set yrange [0:*]
+set xlabel "q = t(b_1+b_3), Gamma to X"
+set grid ytics lc rgb "#dddddd"
+set tics nomirror
+set key top right font ",10"
+set title "(a) Absolute joint weight"
+set ylabel "J(q) (eV^{-2})"
+plot file(24,0.10) using 1:2 with linespoints lw 1.5 pt 7 ps 0.55 lc rgb "#0072b2" title "24^3, sigma=0.10 eV", \
+ file(24,0.20) using 1:2 with linespoints lw 1.5 pt 5 ps 0.55 lc rgb "#d55e00" title "24^3, sigma=0.20 eV", \
+ file(32,0.10) using 1:2 with linespoints lw 1.5 pt 9 ps 0.55 lc rgb "#009e73" title "32^3, sigma=0.10 eV", \
+ file(32,0.20) using 1:2 with linespoints lw 1.5 pt 11 ps 0.55 lc rgb "#cc79a7" title "32^3, sigma=0.20 eV"
+set title "(b) Shape normalized to q=0"
+set ylabel "J(q) / J(0)"
+plot file(24,0.10) using 1:3 with linespoints lw 1.5 pt 7 ps 0.55 lc rgb "#0072b2" title "24^3, sigma=0.10 eV", \
+ file(24,0.20) using 1:3 with linespoints lw 1.5 pt 5 ps 0.55 lc rgb "#d55e00" title "24^3, sigma=0.20 eV", \
+ file(32,0.10) using 1:3 with linespoints lw 1.5 pt 9 ps 0.55 lc rgb "#009e73" title "32^3, sigma=0.10 eV", \
+ file(32,0.20) using 1:3 with linespoints lw 1.5 pt 11 ps 0.55 lc rgb "#cc79a7" title "32^3, sigma=0.20 eV"
+unset multiplot
+print "Read the four original CSVs; no interpolation, smoothing or peak normalization beyond stored column3 J/J(0)."
+```
+
+</details>
+
 Γ 点对应 J(0)=mean[W²]，即权重场与自身重合的自相关。有限 q 的机制分析接电子响应与声子，超导分析接 [EPC](/Atlas/m/epc/qe/) 和谱函数链条。
 
 ## 软化波矢怎样与二维异质结比较
@@ -242,12 +287,20 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 二维计算采用完整面内均匀 k 网格，z 方向的处理与实际模型一致。若启用 SOC 或自旋极化，应保留相应能带和权重约定，不能额外随手乘二。不同应变使用相同窗口 σ 和相当的网格精度，并同时报告原始 J 与 J/J(0)，这样才能判断峰位和幅值怎样变化。Γ 的自相关通常很大，它衡量权重与自身重合，不能作为有限 q 失稳的机制证据。
 
-[Chen、Zhang 与 Zheng，Phys. Rev. B 114, 055413](https://doi.org/10.1103/l89c-t2s4)的 CoTe₂ 原文 Fig. 2(c–f) 给出一个具体对照：费米口袋与选定波矢放在二维 BZ 中，随后比较声子、含 EPC 矩阵元的广义响应以及常矩阵元响应。借鉴到异质结时，可以先由 J(q) 找候选波矢，再在同 q 上比较 γqν、λqν 与模式位移。几何权重与模式散射是不同量，不能只画两口袋间的箭头就认定它们负责软化。
+[Chen、Zhang 与 Zheng，Phys. Rev. B 114, 055413](https://doi.org/10.1103/l89c-t2s4)原文 PDF 第 4 页的 Fig. 2 把同一单层 CoTe₂ 的电子、声子和响应放在一组面板中。(b)的纵轴是 E−EF，蓝/橙投影分别对应 Co-d、Te-p；(c)将同样的轨道权重画到费米线上，色条为 0–1，虚线六角形标出 BZ，双向箭头标的是 (e) 中增强的 q。因此它先用轨道投影识别两个口袋的成分，再检查箭头所连散射是否也出现在响应图中，没有把画出的箭头本身当作矩阵元证据。
+
+(a)在 Γ–M–K–Γ 上画声子，红点大小表示 $\lambda_{\mathbf q\nu}$，不是 Ba₂N Fig. 6(a) 所用的线宽；(d)在扩展二维 BZ 中画最低支 $\omega_{\mathbf q,\nu=1}$，色条单位 meV。(e)是带 EPC 矩阵元的广义静态响应，(f)是去掉矩阵元后的常矩阵元响应，仍含占据差和能量分母，因而都不是本页 J(q)。作者比较的是 (f) 的较宽增强区如何在 (e) 中变成 M–K 附近热点，并与 (d) 的软化位置对应。(e)、(f)各自只标 high/low，不能按颜色相近断言数值相等。该组机制图还明确采用 0.018 Ry 的较大电子展宽来取得正频率；它不是把原正常展宽下的虚频系统验收为稳定。
+
+把这种图法用于异质结，需要在同一倒空间坐标系中准备轨道投影费米线、二维 q 网格和对应模式数据；gnuplot 的二维 pm3d map 可画原网格，叠加 BZ 边界和可核对的 q，而不从曲线截图补造热图。先从本页真实 Al CSV 复现一维 J，再与[费米面](/Atlas/m/fermi-surface/qe/)和[模式线宽](/Atlas/m/phonon-linewidth/qe/)的数据接续，才有条件比较二维峰位。几何权重与模式散射是不同量，不能只画两口袋间的箭头就认定它们负责软化。
+
 
 现有 ZrCl₂/Sc₂C 费米面展示可以帮助提出候选口袋，但本例没有提取该体系的完整二维 J(q)，也没有闭合口袋到模式的矩阵元归属。本文因此保留 Al 的真实 J(q) 数据与实现，材料讨论接[费米面](/Atlas/m/fermi-surface/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)及[应变比较](/Atlas/m/strain-doping-scan/qe/)。只有这些同结构、同 q 的证据成立以后，才能判断软化主要来自几何相空间、矩阵元还是两者共同变化。
 
 ## 原文中怎样区分几何权重与响应
 
-[Johannes 与 Mazin，Phys. Rev. B 77, 165135](https://doi.org/10.1103/PhysRevB.77.165135)在 Sec. II 定义响应与嵌套的关系；Fig. 4 分别展示 TaSe₂ 相应定义下的虚部相关嵌套量与实部响应，峰的位置不同。作者用它说明费米面几何本身不能决定 CDW 波矢。本文的高斯 J(q) 是前述离散双窗口联合权重，没有占据数差、跃迁能量分母或 EPC 矩阵元，不能重命名为静态 Imχ(q,0)。
+[Johannes 与 Mazin，Phys. Rev. B 77, 165135，原作者稿 PDF 第 6 页 Fig. 4](https://arxiv.org/pdf/0708.1744#page=6)的 (a) 左图显示 TaSe₂ 与几何嵌套相关的虚部量，(b) 右图显示实部静态响应。同一倒空间中的强嵌套峰与实部弱峰不在同一位置，图注指出后者才对应观察到的 CDW 波矢。读图要比较峰的坐标，而不是把两图的高度或颜色当作共同归一化。本页左侧 J 与右侧 J/J(0) 则是同一几何量的绝对幅值和形状对照，并没有增加一份实部响应。若以后有完整二维数据，可用相同 q 网格、BZ 边界和各自有定义的纵轴或色标并排绘图；仅凭现有 Al Γ—X 切线不能复现原图的二维响应面。
+
+原文式 (2) 用低频极限 $\lim_{\omega\to0}\chi''(\mathbf q,\omega)/\omega$ 定义双 δ 函数几何权重，式 (1) 的静态实部还包含占据数差与能量差。本文的高斯 J(q) 是前述离散双窗口联合权重，保持本例的等权平均和自旋约定；不能重命名为静态 $\operatorname{Im}\chi(\mathbf q,0)$，也不能由它补出 (b) 的响应峰。
+
 
 想把这项分析用于应变软模，下一步应先取得对应结构的完整均匀电子网格，再按同一定义比较候选 q；Al 的四组数表和曲线仍作为网格与窗口敏感性的操作参照。

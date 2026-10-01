@@ -77,10 +77,16 @@ area=10.848221494426 A^2 c=82.187316728572 A
 前面的几何与输出确定了能量差的参考：18 原子的冻结六层 slab，以 11、12、18 号原子的共同位移打开一个界面。判断大距离结果时，还要同时查看能量变化和外侧周期镜像间距。
 
 所以本页能报告的是一个冻结六层模型中打开一个界面的有限距离分离功：
+
 $$
-W(d)=\frac{E_{\rm without\ entropy}(d)-E_{\rm without\ entropy}(0)}{A},\qquad
-1\;\mathrm{eV/\mathring A^2}=16.02176634\;\mathrm{J/m^2}.
+\begin{aligned}
+W(d)&=\frac{E(d)-E(0)}{A},\\
+1\;\mathrm{eV/\mathring A^2}&=16.02176634\;\mathrm{J/m^2}.
+\end{aligned}
 $$
+
+这里 $E(d)$ 和 $E(0)$ 均取对应 OUTCAR 的 `energy without entropy`，$A$ 是面内面积 10.8482214944 Å²。
+
 该量定义为一次界面分离操作的功，不含表面能定义中的二倍面积因子；只有在生成两个等价表面、参照态和厚度极限都适当时，才能用分离功的一半讨论相应表面能；本例的有限多层冻结几何分离曲线不能仅除以 2 就改称单面表面能。d=20 Å 时 ΔE=0.24809474 eV/cell，W=0.36641176 J/m²。由于 d=0 仍是六层 slab，本值不能直接叫作由体相参考得到的 HfI₂ 材料剥离能。
 
 ### 接受点与末段起伏
@@ -99,11 +105,67 @@ $$
 
 d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降低 0.42288 meV/cell。这个有限样本显示末段存在起伏，不能据此给出统计误差，也不足以确认能量已经达到解理曲线的平台。与此同时，c 保持固定时，外侧周期镜像间距从 43.993 Å 缩到 23.993 Å。增加顶层位移并没有保持周期镜像间距不变；还需在更大 c 下成对重算 d=0 与分离点，才可量化这一误差来源。
 
+![HfI₂ 冻结六层模型的分离功与大位移段能量变化](/Atlas/examples/hfi2-frozen20/hfi2-exfoliation.png)
+
+图 (a) 使用 CSV 的 `d_A` 与 `W_meV_A2`，将同一冻结路径的能量差除以 10.8482214944 Å²；图 (b) 保留 d≥12 Å 的 `delta_E_meV`，放大总图里不易看出的末段起伏。两图横轴都是顶层相对零点的位移，不是实际层间隙。标记对应接受的原始点，连线只用于引导视线，d=1 Å 的缺点没有补出。应同时看图 (a) 的整体分离代价和图 (b) 的微小变化，再对照表中的周期像间距；总图看起来平坦并不能消除后者的变化。
+
+可用 gnuplot 直接重画这组已提取的数据。把 [完整脚本](/Atlas/examples/interface-literature/plot_exfoliation.gp)保存为 `plot_exfoliation.gp`，放在解压后的 `hfi2-frozen20` 目录，与 `exfoliation.csv` 同级，运行：
+
+```bash
+gnuplot plot_exfoliation.gp
+```
+
+脚本逐列读取原 CSV，输出 `hfi2-separation-gnuplot.svg/png/pdf`；没有拟合、平滑或补点。原图与原有生成记录保留，下面给出这条 gnuplot 路线的完整源码。
+
+<details>
+<summary>plot_exfoliation.gp 完整源码</summary>
+
+```gnuplot
+# Read the accepted CSV; no fit, interpolation, or new energy points.
+if (!exists("data_root")) data_root = "."
+if (!exists("out_root")) out_root = "."
+data = data_root."/exfoliation.csv"
+set encoding utf8
+set datafile separator ","
+set datafile columnheaders
+set border 3
+set tics out nomirror
+set key off
+do for [ext in "svg png pdf"] {
+    if (ext eq "svg") { set terminal svg size 900,360 enhanced font "DejaVu Sans,11" }
+    if (ext eq "png") { set terminal pngcairo size 900,360 enhanced font "DejaVu Sans,11" }
+    if (ext eq "pdf") { set terminal pdfcairo size 9,3.6 enhanced font "DejaVu Sans,11" }
+    set output out_root."/hfi2-separation-gnuplot.".ext
+    set size 1,1
+    set origin 0,0
+    unset title
+    set multiplot layout 1,2 margins 0.08,0.98,0.18,0.83 spacing 0.12,0.05 title "HfI2 | frozen six-layer separation"
+    set title "(a) Accepted separation points"
+    set xlabel "Top-layer displacement d (Å)"
+    set ylabel "[E(d)-E(0)]/A (meV Å^{-2})"
+    set xrange [-0.4:20.4]
+    set yrange [-0.5:25]
+    plot data using 2:6 with linespoints pt 7 ps 0.55 lw 1 lc rgb "#0072B2"
+    set title "(b) Large-distance detail"
+    set ylabel "E(d)-E(0) (meV/cell)"
+    set xrange [11.6:20.4]
+    set yrange [*:*]
+    plot data using 2:($2>=12 ? $5 : 1/0) with linespoints pt 5 ps 0.55 lw 1 dt 2 lc rgb "#D55E00"
+    unset multiplot
+    unset output
+}
+print "Read 20 accepted points; wrote hfi2-separation-gnuplot.svg/.png/.pdf"
+```
+
+</details>
+
 
 
 ## 为什么有限分离功还需要参照厚度与弛豫
 
-[Jung、Park 与 Ihm，*A Rigorous Method of Calculating Exfoliation Energies from First Principles*](https://arxiv.org/html/1805.04527v1)，Fig. 1 给出传统厚 slab 的顶层分离，Fig. 2 把刚性移层、剩余 slab 弛豫与分离层弛豫分开；式 (1)–(7)在厚度极限下联系剥离能与体相每层—自由单层能量差。这里采用 Fig. 2 中刚性移层那一步的能量差作为明确的有限模型量。文献后续的弛豫和厚度极限并未在这份数据中完成。
+[Jung、Park 与 Ihm，DOI: 10.1021/acs.nanolett.7b04201](https://doi.org/10.1021/acs.nanolett.7b04201)的作者版 PDF 第 2 页 [Fig. 1(a,b)](https://arxiv.org/html/1805.04527v1#S0.F1)对照分离前的厚 slab 与取走顶层后的结构；图注还要求分离层和剩余 slab 都弛豫。第 3 页 [Fig. 2(a–e)](https://arxiv.org/html/1805.04527v1#S0.F2)将这个过程拆开：a→b 是整层刚性移走，b→c 允许剩余 slab 重排，c→d 允许分离层改变层内坐标和面内晶格，e 才比较初态 I 与终态 IV。虚线划分表面区和体相区，不是原子层或新的界面。
+
+本例抬高顶层三个原子、其余坐标固定，对应 Fig. 2(a→b) 的有限距离路径；后两步在现有数据中没有能量记录。读者可以在 VESTA 中并排打开 `raw/scf_eq/POSCAR` 与 `raw/scf_d20/POSCAR`，用相同侧视、颜色和比例标出移动层、剩余五层以及外侧周期像间距。这样的结构对照说明能量差对应哪一次操作；两份有限结构本身并不完成 Fig. 2(e) 的体相厚度极限。文献式 (1)–(7)先按体相面内晶胞定义每层能量，再取厚度极限；本页则按实际六层模型的面积报告 meV/Å² 与 J/m²，比较时必须保留这一参照差别。
 
 对异质双层，若定义 $\Delta E_{\mathrm{int}}=E_{AB}-E_A-E_B$，负值代表相对于所选单层参考降低了能量；从该构型把两层分开的冻结功在充分分离极限下与它符号相反。这个比较还要求相同的共同晶胞、电荷、自旋和几何参照。HfI₂ 本例的 B 是剩余五层，不能把它的数值转写为两种材料的异质结结合能。
 

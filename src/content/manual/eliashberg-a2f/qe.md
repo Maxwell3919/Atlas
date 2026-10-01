@@ -134,19 +134,27 @@ maxwell@maxwell:~/al/epc-q4$ head -5 alpha2F.dat
 
 表头后十列对应σ=0.005–0.050 Ry的电子双δ积分展宽，0.020 Ry位于整个数值表第5列。它们是十种电子积分设置，频率轴都相同。先选定同一σ，再计算：
 
-**λ(Ω)=2∫₀^Ω α²F(ν)/ν dν**
+$$
+\lambda(\Omega)=2\int_0^{\Omega}\frac{\alpha^2F(\nu)}{\nu}\,\mathrm{d}\nu
+$$
 
 累计曲线在谱峰所在频段抬升，到最高频率后趋于总λ。某频段[a,b]的贡献为λ(b)−λ(a)，所以按同一频率范围比较两个体系的Δλ，比单看峰高更直接。1/ν使低频谱权重对λ更敏感；尖但很窄的高频峰不一定贡献最大的台阶。区间边界应来自实际模式和PHDOS归属，不能任意按元素质量替所有模式分类。
 
 ![Al实际α²F与累计λ](/Atlas/examples/al/figures/eliashberg-a2f.png)
 
+[Ba₂N Fig. 6(b,c)，PDF第5页](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.105.165101)的两块图用同一频率轴：PHDOS标出Ba/N的模态组成，蓝色α²F衡量配对权重，(c)右侧红线给累计λ。约24 cm⁻¹的α²F峰与累计曲线的陡升，要回到Fig. 6(a,e)的K软模核对；同一频段的PHDOS峰只能补充原子组成。复现时对每个真实频率点累计积分2α²F/ν，不把每条累计曲线归一化到1，也不按峰高缩放谱线。Ba₂N图注未给出PHDOS数值积分规范，不能从印刷峰高反推各元素的精确模式数；本页使用自己的Al文件与QE定义。现有Al图分别画σ=0.005、0.020、0.050 Ry的谱与累计λ，频率单位为THz，颜色贯穿上下两幅。若并排放PHDOS，先统一频率单位并相应换算谱密度，保留每原胞积分；读谱时保留α²F与PHDOS各自纵轴。
+
 这张图来自Al32³/16³/q4³原件。读峰位时先对照[逐模频率与线宽](/Atlas/m/phonon-linewidth/qe/)，再由累计曲线判断该频段占总λ的多少。PHDOS仅作振动成分参照，不能替代电子配对权重。
 
 ## 从同一谱得到 ωlog 和二阶矩
 
-**νlog=exp{(2/λspec)∫[α²F(ν)/ν]ln(ν)dν}**
+$$
+\nu_{\mathrm{log}}=\exp\!\left[\frac{2}{\lambda_{\mathrm{spec}}}\int\frac{\alpha^2F(\nu)}{\nu}\ln(\nu)\,\mathrm{d}\nu\right]
+$$
 
-**ν̄₂={(2/λspec)∫α²F(ν)νdν}¹ᐟ²**
+$$
+\bar{\nu}_2=\left[\frac{2}{\lambda_{\mathrm{spec}}}\int\alpha^2F(\nu)\nu\,\mathrm{d}\nu\right]^{1/2}
+$$
 
 λspec、νlog和ν̄₂都由同一非负谱积分。对数可理解为ln[ν/(1 THz)]，最后恢复THz；ωlog是νlog换成K后的表示。低频权重增加通常同时提高λ、拉低对数频率尺度，这两种变化进入Tc公式后会竞争。二阶矩还保留对高频权重的敏感性，用于完整Allen–Dynes的谱形修正。
 

@@ -1,6 +1,6 @@
 SnSe₂带边和Sr₂N费米能能否比较，取决于能量零点。两份孤立SCF的EF不能直接相减；先把每个能级减去它自己的表面真空势，再比较共同参照下的位置。本例从六原子SnSe₂/Sr₂N结构拆层，保留共同面内晶胞与内部几何，只平移至居中位置；结果是接触前的冻结层参照。
 
-[Choudhary等，arXiv:2004.03025v2, Figs. 2、5](https://arxiv.org/abs/2004.03025v2)用真空参照单层带边预测对齐，并用显式异质结DOS检验。本例Sr₂N有费米能交叉，比较的是半导体带边与金属EF，不能套半导体—半导体type-I/II/III分类。[金属/Ca₂N/MoS₂原文Fig. 3](https://doi.org/10.1039/D4CP04577G)还表明接触几何会改变半导体谱，接触前的对齐必须再由实际界面电子结构检验。
+[Choudhary等，arXiv:2004.03025v2, Fig. 2(a–d)](https://arxiv.org/abs/2004.03025v2)给出一个完整比较：(a,b)是孤立MoS₂、WSe₂的DOS，(c)是显式双层的投影DOS，前三幅各自以所在体系的EF归零，主要检查层投影的形状、带隙和杂化是否变化；(d)另以各自真空为共同能量参考画带边。Fig. 5(b)将MoS₂/WSe₂的两个VBM/CBM放在同一真空轴上，才显示它们的相对错位。各自EF归零的DOS和真空参照图回答不同问题，不能把前两幅DOS横轴直接叠在一起读带边偏移。本例Sr₂N有费米能交叉，比较的是半导体带边与金属EF，不能套半导体—半导体type-I/II/III分类。[金属/Ca₂N/MoS₂原文Fig. 3](https://doi.org/10.1039/D4CP04577G)比较Ca₂N/MoS₂的Geometry A、B：横轴为 $E-E_{\mathrm F}$，MoS₂投影DOS按整个异质双层的总原子数归一，插图标出B中Mo骨架的畸变。原文§2.1采用Löwdin投影与相同0.1 eV高斯展宽，再把谱变化和结构畸变一起讨论；不能将两种超胞的DOS峰高直接当作载流子多少。
 
 [下载两层输入、完整原始输出与源码](/Atlas/examples/interface-magnet-band-alignment/example-pack.tar.gz)，进入 `example-pack`。准备结构见 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/)，固定结构自洽见 [SCF](/Atlas/m/scf/vasp/)，势参考见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
@@ -250,12 +250,12 @@ sr2n: NELECT=25; weighted electrons=24.99999595; NKPTS=48; NBANDS=16; elapsed=16
 Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnSe2)=2.560710 eV
 ```
 
-| 冻结孤立层表面 | Vvac / eV | E−Vvac / eV |
+| 冻结孤立层表面 | $V_{\mathrm{vac}}$ / eV | $E-V_{\mathrm{vac}}$ / eV |
 | --- | ---: | --- |
 | SnSe₂ lower-z | 1.738360141 | VBM −5.992725141；CBM −5.714622141 |
 | Sr₂N upper-z | 1.273814882 | EF −3.432014882 |
 
-CBM(SnSe₂)−EF(Sr₂N)=−2.282607260 eV，是这组冻结孤立层真空参照下的偏移。接触后共用EF、电荷重排、界面偶极和杂化会重构这些位置；这个负偏移不能直接作为已算出的接触势垒或转移电子数。它也不能和各自以EF归零的DOS横轴混用。
+$\mathrm{CBM}(\mathrm{SnSe}_2)-E_{\mathrm F}(\mathrm{Sr}_2\mathrm N)=-2.282607260\,\mathrm{eV}$，是这组冻结孤立层真空参照下的偏移。接触后共用EF、电荷重排、界面偶极和杂化会重构这些位置；这个负偏移不能直接作为已算出的接触势垒或转移电子数。它也不能和各自以EF归零的DOS横轴混用。
 
 要读实际界面的电子/空穴势垒，应在完整接触体系中找到仍可识别的SnSe₂层带边与共同EF，检查杂化/隙内态；平面势峰相对EF给的隧穿势垒属于另一种量。参考 [金属/Ca₂N/MoS₂论文Sec. 2.2、Fig. 3](https://doi.org/10.1039/D4CP04577G)，把层投影谱、电荷与几何一起检查。
 
@@ -275,9 +275,11 @@ python3 check_vacuum_density.py
 python3 export_alignment_tables.py
 ```
 
+复现真空对齐图时，直接读取下面的 `band-edges-vacuum-referenced.csv`，以真空为0，用gnuplot画SnSe₂的VBM/CBM短线与Sr₂N的EF短线，并标明所选表面；本例金属层保持EF标记，不给它补一对不存在的半导体带边。若进一步比较接触前后PDOS，按原文Fig. 2(a–c)先统一投影、展宽与归一化，再将完整接触的层谱和冻结层谱并列；这一步连接 [DOS](/Atlas/m/dos/vasp/)，当前孤立层能级表仍只作接触前参考。
+
 输出四个表面读数和两个相向偏移：[真空参照表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv) · [偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
 
-继续 [CDD](/Atlas/m/delta-charge/vasp/) 时，完整AB与冻结A/B必须留在同一坐标，不能把这里居中过的层直接逐点相减。平面平均Δn̄乘真实面积再累计，给指定边界的层净增电子数；[Bader](/Atlas/m/bader/vasp/)给盆地加总，两者各有分区。转移面积密度反映静态重排，导带/费米面占据才说明自由载流子。将它们与接触后的层投影电子结构对应，才能讨论界面给哪组能态增减电子。
+继续 [CDD](/Atlas/m/delta-charge/vasp/) 时，完整AB与冻结A/B必须留在同一坐标，不能把这里居中过的层直接逐点相减。平面平均$\overline{\Delta n}$乘真实面积再累计，给指定边界的层净增电子数；[Bader](/Atlas/m/bader/vasp/)给盆地加总，两者各有分区。转移面积密度反映静态重排，导带/费米面占据才说明自由载流子。将它们与接触后的层投影电子结构对应，才能讨论界面给哪组能态增减电子。
 
 
 ## 完整源码与执行记录

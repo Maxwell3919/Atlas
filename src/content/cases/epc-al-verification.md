@@ -867,6 +867,9 @@ epc-q4-k48/al.dense.in 48³ → 本目录 16³ SCF → 本目录 q4³ ph.x → �
 
 ## 用原文图理解这些文件支持的分析
 
+[Ba₂N Fig. 3(a–d)，PDF第3页](https://doi.org/10.1103/PhysRevB.105.165101)按色散上的γ红点、原子PHDOS、α²F和实际位移逐面板核对；它解释本档案中的逐q频率/γ/λ最终要接到什么分析量。这里的Al三支都是声学支，模式向量、频率和星权重使用自己的逐q文件。谱形比较另参考[Poncé等Fig. 12(a,b)，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)：先在同一频率轴叠画谱，再比较加权积分，不能只看Tc线是否相交。本项目已将32³/48³在0.010 Ry的保存谱按这一读法用gnuplot作[谱与累计λ对照](/Atlas/m/allen-dynes/qe/#spectral-grid-comparison)，附真实CSV、完整处理源码和未归一化积分；其他展宽仍使用本档案自己的十档列。
+
+
 [Ba₂N，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图3、6把线宽编码色散、投影PHDOS、α²F及振动模式接起来；图3(a)/6(a)红点大小编码γ，原图不是连续宽度色带。图7显示未应变材料的各向异性能隙分布随温度闭合，它与Al等方外部谱求解是不同数据路线。
 
 [EPC页](/Atlas/m/epc/qe/#ba2n-mode-analysis)解释图3/6模式追踪，[线宽页](/Atlas/m/phonon-linewidth/qe/#ba2n-linewidth-analysis)区分γ和λ，[EPW页](/Atlas/m/epw-eliashberg/qe/#material-anisotropic-route)解释图7所需的逐带逐k数据。这里保留原图号和文献链接，不以文献材料数值填入Al输出。

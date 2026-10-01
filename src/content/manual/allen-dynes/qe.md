@@ -10,7 +10,9 @@
 
 这次 QE 7.5 的 `lambda.x` 使用的是包含 ω_log 的简化 Allen–Dynes 表达式：
 
-**T<sub>c</sub> = (ω<sub>log</sub> / 1.2) × exp{−1.04(1 + λ) / [λ − μ∗(1 + 0.62λ)]}**
+$$
+T_c=\frac{\omega_{\mathrm{log}}}{1.2}\exp\!\left[-\frac{1.04(1+\lambda)}{\lambda-\mu^{\ast}(1+0.62\lambda)}\right]
+$$
 
 这里 ω_log 以 K 表示，算出的 Tc 也是 K。该式相当于将强耦合与谱形修正因子 f₁、f₂ 设为 1；没有求解各向异性的 Eliashberg 方程。不要把输出里的 K 再当作 THz 乘一次换算系数，也不要把论文中包含 f₁、f₂ 的结果与这行代码当成同一个计算。
 
@@ -36,17 +38,23 @@ Tc = 0.969046 K
 
 | 公式版本 | 前因子 | 本例用途 |
 |---|---|---|
-| 原始 McMillan | ΘD/1.45 | 本例没有计算 ΘD，不拿它代替 ωlog |
-| QE 7.5 的 ωlog 修正式 | ωlog/1.2，f₁=f₂=1 | 与原生 `lambda.x` 逐行复算 |
-| 含 f₁、f₂ 的 Allen–Dynes | f₁f₂ωlog/1.2 | 从同一非负谱计算完整矩后单列 |
+| 原始 McMillan | $\Theta_D/1.45$ | 本例没有计算 $\Theta_D$，不拿它代替 $\omega_{\mathrm{log}}$ |
+| QE 7.5 的 $\omega_{\mathrm{log}}$ 修正式 | $\omega_{\mathrm{log}}/1.2$，$f_1=f_2=1$ | 与原生 `lambda.x` 逐行复算 |
+| 含 $f_1$、$f_2$ 的 Allen–Dynes | $f_1f_2\omega_{\mathrm{log}}/1.2$ | 从同一非负谱计算完整矩后单列 |
 
 以普通频率 ν 写，同一份谱的三个积分是：
 
-**λspec = 2∫ α²F(ν)/ν dν**
+$$
+\lambda_{\mathrm{spec}}=2\int\frac{\alpha^2F(\nu)}{\nu}\,\mathrm{d}\nu
+$$
 
-**νlog = exp{(2/λspec)∫ [α²F(ν)/ν] ln(ν) dν}**
+$$
+\nu_{\mathrm{log}}=\exp\!\left[\frac{2}{\lambda_{\mathrm{spec}}}\int\frac{\alpha^2F(\nu)}{\nu}\ln(\nu)\,\mathrm{d}\nu\right]
+$$
 
-**ν̄₂ = {(2/λspec)∫ α²F(ν)ν dν}<sup>1/2</sup>**
+$$
+\bar{\nu}_2=\left[\frac{2}{\lambda_{\mathrm{spec}}}\int\alpha^2F(\nu)\nu\,\mathrm{d}\nu\right]^{1/2}
+$$
 
 这里的归一化 λspec 必须来自这份谱。对数使用同一固定单位，可以理解为对 `ν/(1 THz)` 取对数，最后恢复 THz。νlog、ν̄₂ 随后乘 h×10¹²/kB 得到 K；若写成角频率则使用 ħω/kB，不能多乘 2π。复现 QE 7.5 时沿用源码的 47.9924 K/THz，已经是 K 的打印 ωlog 不再换算。
 
@@ -58,13 +66,25 @@ Tc = 0.969046 K
 
 [谱分析程序](/Atlas/m/eliashberg-a2f/qe/#spectral-reproduction)从32³链0.020 Ry的非负打印谱得到下面的矩。逐q加权λ与谱积分λ分列，不以matdyn负谱替换。完整Allen–Dynes的强耦合、谱形因子是原论文式(34)–(38)给出的拟合关系，仍是公式近似。
 
-设 r=ν̄₂/νlog，完整形式为：
+设 $r=\bar{\nu}_2/\nu_{\mathrm{log}}$，完整形式为：
 
-**Tc,AD = f₁f₂ (ωlog/1.2) exp{−1.04(1+λspec)/[λspec−μ∗(1+0.62λspec)]}**
+$$
+T_{c,\mathrm{AD}}=f_1f_2\frac{\omega_{\mathrm{log}}}{1.2}\exp\!\left[-\frac{1.04(1+\lambda_{\mathrm{spec}})}{\lambda_{\mathrm{spec}}-\mu^{\ast}(1+0.62\lambda_{\mathrm{spec}})}\right]
+$$
 
-**f₁ = [1+(λspec/Λ₁)<sup>3/2</sup>]<sup>1/3</sup>，Λ₁ = 2.46(1+3.8μ*)**
+$$
+\begin{aligned}
+f_1&=\left[1+\left(\frac{\lambda_{\mathrm{spec}}}{\Lambda_1}\right)^{3/2}\right]^{1/3},\\
+\Lambda_1&=2.46(1+3.8\mu^{\ast}).
+\end{aligned}
+$$
 
-**f₂ = 1+(r−1)λspec²/(λspec²+Λ₂²)，Λ₂ = 1.82(1+6.3μ*)r**
+$$
+\begin{aligned}
+f_2&=1+\frac{(r-1)\lambda_{\mathrm{spec}}^2}{\lambda_{\mathrm{spec}}^2+\Lambda_2^2},\\
+\Lambda_2&=1.82(1+6.3\mu^{\ast})r.
+\end{aligned}
+$$
 
 两种频率都换成 K 后，r 仍无量纲。f₁ 是强耦合修正，f₂ 随谱形改变；它们仍属于拟合公式，补上以后并不等于数值求解了 Eliashberg 方程。
 
@@ -72,12 +92,12 @@ Tc = 0.969046 K
 
 | 量 | 数值 |
 |---|---:|
-| λspec | 0.37454456 |
-| ωlog | 343.74087 K |
-| ν̄₂ 对应温度 | 363.33106 K |
-| μ* | 0.10 |
-| f₁ | 1.01206929 |
-| f₂ | 1.00080168 |
+| $\lambda_{\mathrm{spec}}$ | 0.37454456 |
+| $\omega_{\mathrm{log}}$ | 343.74087 K |
+| $\bar{\nu}_2$ 对应温度 | 363.33106 K |
+| $\mu^{\ast}$ | 0.10 |
+| $f_1$ | 1.01206929 |
+| $f_2$ | 1.00080168 |
 
 三行温度必须分开读：
 
@@ -217,7 +237,11 @@ Tc* = Tc₃₂(σᵢ) + [Tc₃₂(σᵢ₊₁) − Tc₃₂(σᵢ)] × (σ* − 
 两条 Tc 曲线来自同一公式，差异可以沿 α²F(ω)、耦合积分 λ 和频率矩 ωlog 向上追溯。Poncé 等人的 EPW 论文第 10.3 节、图 12 分别比较 Pb 的采样网格、谱形与 λ，并在充分采样后检查展宽依赖；这里沿用这种分开查看谱与积分的方式，补充解释上面的 Al 双曲线结果。[EPW 论文](https://doi.org/10.1016/j.cpc.2016.07.028)。
 
 本例在相同的十个 σ=0.005–0.050 Ry 上配对 32³ 和 48³ 致密 k 网格的原生 alpha2F.dat。逐频率谱差使用 λ 加权的 L1 距离：
-L1λ = ∫₀¹⁴ 2|α²F₃₂(ω)−α²F₄₈(ω)|/ω dω；
+
+$$
+L_{1,\lambda}=\int_0^{14}\frac{2\left|\alpha^2F_{32}(\omega)-\alpha^2F_{48}(\omega)\right|}{\omega}\,\mathrm{d}\omega
+$$
+
 表中百分比为 L1λ 除以两条 λspec 的平均值。ω=0 点两谱均为零，积分从原生 2000 个频率点（0–14 THz）计算，不平滑、不外推。Δ 列统一为 32³−48³。
 
 | σ (Ry) | 谱差 L1 / 平均 λspec (%) | Δλq | Δωlog (K) | ΔTc (K) |
@@ -252,7 +276,137 @@ python3 compare_spectral_grids.py --root . --outdir comparison-k32-k48
 
 程序逐档打印 λ、谱 L1、Δωlog 和 ΔTc，并保存 CSV/JSON。十档结果及积分误差见上表和摘要文件。
 
+[Poncé等，Fig. 12(a,b,d)，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)将三个检查分开：(a)在相同meV频率轴上叠画Pb的α²F，比较均匀与Sobol采样；(b)横轴是电子采样点数，λ按不同q采样分组；(d)在较密采样上改变电子展宽，并分别保留有/无SOC分支。正文第11–12页给出固定0.15 meV声子谱宽，说明不能把电子展宽和谱展宽当同一参数。本页采用(a)先看谱形、再看积分的读法，但横向比较的是Al的32³/48³致密网格，响应16³/q4³固定，原生频率轴为THz。两条链没有Pb的Sobol或SOC比较，图例用本页真实分支身份。
+
+<figure><img src="/Atlas/examples/supercon-literature/al-sigma010-spectrum.svg" alt="Al在同一0.010 Ry电子展宽下的32与48致密网格谱和累计耦合" loading="lazy"/><figcaption>真实Al的σ=0.010 Ry谱形对照：上幅直接画各自保存的α²F，下幅按同一2000点频率网格累计2α²F/ν。两条累计λ末值分别为0.37111797、0.37104865，频段台阶却不同；颜色在两幅保持一致，谱与累计量分别用自己的纵轴，没有平滑或归一化。gnuplot从公开CSV作图，源码见下方。</figcaption></figure>
+
+[同文Fig. 13，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)还把普通配对谱与累计λ对读，并在图例中分别标普通配对量和输运谱/输运耦合。本图采用普通α²F与其累计积分，使用两个面板保持各自纵轴，所有数值来自本页Al谱文件。
+
+新图可直接看出6–8 THz附近的累计权重差在更高频段得到补偿。按打印谱本身的积分作分母，L1百分比为17.5248%；上表17.5246%沿用原内部重建λspec作分母，差别来自打印精度与离散口径。两者都说明接近的总λ并没有消除频段差异。与[Ba₂N Fig. 5(a,b)，PDF第4页](https://doi.org/10.1103/PhysRevB.105.165101)对读时，注意该图(a)以红/蓝双纵轴分别画N(0)与ωlog，(b)画Tc与λ，横轴是应变；相反的ωlog与λ趋势要通过同一公式解释，而不能按两条线在纸面上的斜率大小比较。本页横轴σ是积分参数，保留上述四个物理量分别核查，不把它称为材料应变趋势。
+
+### 用保存谱复现这张对照
+
+处理读取双分支包中的 `k32/alpha2F.dat` 和 `k48/alpha2F.dat`：首列是 THz 频率，后十列对应电子展宽，第 3 列对应 0.010 Ry。先核对两份表的行列和频率点，再逐点累计 λ，保存原谱与累计值；gnuplot 从这张 CSV 画上下两幅。把两个脚本下载到解包后的 `supercon-al-tc` 目录，在该目录运行：
+
+```bash
+python3 prepare_al_spectrum.py --data-dir . --out .
+gnuplot plot_al_spectrum.gnuplot
+gnuplot -e "export_format='png'" plot_al_spectrum.gnuplot
+```
+
+[完整数据CSV](/Atlas/examples/supercon-literature/al-sigma010-spectrum.csv) · [积分与来源记录](/Atlas/examples/supercon-literature/al-sigma010-summary.json) · [PNG](/Atlas/examples/supercon-literature/al-sigma010-spectrum.png) · [SVG](/Atlas/examples/supercon-literature/al-sigma010-spectrum.svg)
+
 σ=0.010 Ry的总λ几乎相同，谱差却为17.52%，ωlog差6.072 K。这说明对总λ的积分会隐藏频段间的补偿；保留谱差和频率矩能解释为何仅检查一个总数不够。0.050 Ry的两条曲线很近，但当前q4³和响应16³固定，无交点与近似重合都没有指定一个收敛材料Tc。
+
+
+这一步的处理需求可以这样交给编程助手；积分定义和数据列先由我们确定：
+
+> 读取 k32/alpha2F.dat 与 k48/alpha2F.dat。两份表各有 2000 行频率样本，首列为 THz，表头给出十档电子展宽；提取 0.010 Ry 对应的第 3 列。检查频率严格递增、两表频率逐项一致、谱非负且数值有限。按原频率点用梯形法累计 2α²F(ν)/ν；ν=0 且谱为零时，被积函数取零。输出含频率、两套原谱和两套累计 λ 的 CSV，并另存积分末值和加权谱差。Python 只负责读取、核对和积分，图交给 gnuplot；保留原始采样、幅值与单位。
+
+<details>
+<summary>prepare_al_spectrum.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Prepare a saved Al k32/k48 spectrum comparison; no response calculation.
+
+python3 prepare_al_spectrum.py --data-dir . --out .
+Reads the original 2000-row alpha2F.dat of both independent Al chains.
+Column 3 (1-based) is sigma=0.010 Ry. No smoothing or spectral normalization.
+"""
+from pathlib import Path
+import argparse, csv, json, math
+
+def load(path):
+    lines=path.read_text().splitlines()
+    assert lines[0].split()[3]=='0.010', lines[0]
+    rows=[[float(x) for x in l.split()] for l in lines[1:] if l.strip()]
+    assert len(rows)==2000 and all(len(r)==11 for r in rows)
+    assert all(math.isfinite(x) for r in rows for x in r)
+    frequency=[r[0] for r in rows]; spectrum=[r[2] for r in rows]
+    assert frequency[0]==0 and spectrum[0]==0 and abs(frequency[-1]-14)<1e-8
+    assert all(b>a for a,b in zip(frequency,frequency[1:]))
+    assert min(spectrum)>=0
+    integrand=[0 if f==0 else 2*a/f for f,a in zip(frequency,spectrum)]
+    cumulative=[0.0]
+    for i in range(1,len(rows)):
+        cumulative.append(cumulative[-1]+(frequency[i]-frequency[i-1])*(integrand[i]+integrand[i-1])/2)
+    return frequency,spectrum,cumulative
+
+def main():
+    parser=argparse.ArgumentParser()
+    sources=parser.add_mutually_exclusive_group(required=True)
+    sources.add_argument('--data-dir',type=Path,help='Directory containing k32/ and k48/')
+    sources.add_argument('--public-root',type=Path,help='Atlas public directory')
+    parser.add_argument('--out',type=Path,default=Path('.'))
+    args=parser.parse_args();args.out.mkdir(parents=True,exist_ok=True)
+    folder=args.data_dir if args.data_dir is not None else args.public_root/'examples/supercon-al-tc'
+    x,a,c=load(folder/'k32/alpha2F.dat');y,b,d=load(folder/'k48/alpha2F.dat')
+    assert x==y
+    with (args.out/'al-sigma010-spectrum.csv').open('w',newline='') as f:
+        writer=csv.writer(f)
+        writer.writerow(['frequency_THz','alpha2F_k32','alpha2F_k48','lambda_cumulative_k32','lambda_cumulative_k48'])
+        writer.writerows(zip(x,a,b,c,d))
+    difference=[0 if f==0 else 2*abs(aa-bb)/f for f,aa,bb in zip(x,a,b)]
+    l1=sum((x[i]-x[i-1])*(difference[i]+difference[i-1])/2 for i in range(1,len(x)))
+    summary={'source_files':['examples/supercon-al-tc/k32/alpha2F.dat','examples/supercon-al-tc/k48/alpha2F.dat'],
+             'sigma_Ry':.010,'frequency_unit':'THz','alpha2F':'native lambda.x output convention, no rescaling',
+             'lambda_integral':'2 integral alpha2F(f)/f df; trapezoid on original printed frequencies',
+             'rows':len(x),'lambda_k32_printed_spectrum':c[-1],'lambda_k48_printed_spectrum':d[-1],
+             'L1_lambda':l1,'L1_percent_of_mean_printed_spectrum':l1/((c[-1]+d[-1])/2)*100,
+             'normalization':'none; cumulative lambda is dimensionless, separate panel',
+             'notes':'This integrates five-decimal printed spectra. Native internal qsum/spec tables retain their own precision.'}
+    (args.out/'al-sigma010-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+    print(json.dumps(summary,indent=2))
+
+if __name__=='__main__':main()
+```
+
+</details>
+
+
+<details>
+<summary>plot_al_spectrum.gnuplot 完整源码</summary>
+
+```gnuplot
+# Run beside al-sigma010-spectrum.csv: gnuplot plot_al_spectrum.gnuplot
+# Actual run: gnuplot 6.0 patchlevel 0; input is prepared by prepare_al_spectrum.py from saved raw spectra.
+set datafile separator comma
+set encoding utf8
+if (!exists("export_format")) export_format="svg"
+if (export_format eq "png") {
+    set terminal pngcairo size 1200,866 font "Liberation Sans,17" enhanced
+    set output "al-sigma010-spectrum.png"
+} else {
+    set terminal svg size 900,650 font "Liberation Sans,14" enhanced
+    set output "al-sigma010-spectrum.svg"
+}
+set multiplot layout 2,1 margins 0.12,0.96,0.11,0.92 spacing 0.0,0.075
+set xrange [0:14]
+set grid ytics lc rgb '#dddddd'
+set border 3
+set tics nomirror
+set key top left opaque
+unset xlabel
+set format x ''
+set ylabel 'α²F (native QE convention)'
+set yrange [0:*]
+set label 1 '(a) Saved Al spectra, σ = 0.010 Ry' at graph 0.50,1.08 center
+plot 'al-sigma010-spectrum.csv' every ::1 using 1:2 with lines lw 2 lc rgb '#1a1a1a' title 'dense k 32³', \
+     '' every ::1 using 1:3 with lines lw 2 lc rgb '#0072b2' title 'dense k 48³'
+unset label 1
+set format x '%g'
+set xlabel 'Frequency (THz)'
+set ylabel 'Cumulative λ'
+set label 1 '(b) Cumulative coupling on the same frequency axis' at graph 0.50,1.08 center
+plot 'al-sigma010-spectrum.csv' every ::1 using 1:4 with lines lw 2 lc rgb '#1a1a1a' title 'dense k 32³', \
+     '' every ::1 using 1:5 with lines lw 2 lc rgb '#0072b2' title 'dense k 48³'
+unset label 1
+unset multiplot
+unset output
+```
+
+</details>
 
 ## 完整源码与重画命令
 

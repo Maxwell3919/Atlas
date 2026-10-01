@@ -211,16 +211,18 @@ python3 plot_phdos.py
 
 ## 原子 PHDOS 用的是什么向量
 
-用归一化动力学矩阵本征矢 e 定义某原子 I 的模态权重 `W_I(qν)=Σ_α|e_Iα(qν)|²`，原子谱可写成
+用归一化动力学矩阵本征矢 e 定义某原子 I 的模态权重 $W_I(\mathbf q\nu)=\sum_\alpha|e_{I\alpha}(\mathbf q\nu)|^2$，原子谱可写成
 
 $$
-g_I(\omega)=\sum_{\mathbf q\nu}w_{\mathbf q}W_I(\mathbf q\nu)\,\delta(\omega-\omega_{\mathbf q\nu}),\qquad
-\sum_I g_I(\omega)=g(\omega).
+\begin{aligned}
+g_I(\omega)&=\sum_{\mathbf q\nu}w_{\mathbf q}W_I(\mathbf q\nu)\,\delta(\omega-\omega_{\mathbf q\nu}),\\
+\sum_I g_I(\omega)&=g(\omega).
+\end{aligned}
 $$
 
-w_q 是布里渊区积分权重。总谱在完整频段的积分对应 `3N_at` 个自由度。[QE 7.2 matdyn 源码](https://github.com/QEF/q-e/blob/qe-7.2/PHonon/PH/matdyn.f90#L689-L695)的 `dynq` 由对角化得到的位移乘回质量因子，形成本征矢平方投影；7.5 使用相同定义。因此 `.phdos` 的原子峰是质量加权模态组成，不是原子的实际振幅平方。若要画归一化位移的方向权重，应另读 `.modes`，并在图例注明向量定义。
+$w_{\mathbf q}$ 是布里渊区积分权重。总谱在完整频段的积分对应 $3N_{\mathrm{at}}$ 个自由度。[QE 7.2 matdyn 源码](https://github.com/QEF/q-e/blob/qe-7.2/PHonon/PH/matdyn.f90#L689-L695)的 `dynq` 由对角化得到的位移乘回质量因子，形成本征矢平方投影；7.5 使用相同定义。因此 `.phdos` 的原子峰是质量加权模态组成，不是原子的实际振幅平方。若要画归一化位移的方向权重，应另读 `.modes`，并在图例注明向量定义。
 
-多原子文件每行依次给出频率、总 DOS 和按输入原子顺序排列的 N_at 个投影列。把频率从 cm⁻¹ 换为 THz 时，横轴除以 `33.3564095198152`，谱密度乘以同一个因子，积分保持不变。只改横轴单位会把模式数也改掉。
+多原子文件每行依次给出频率、总 DOS 和按输入原子顺序排列的 $N_{\mathrm{at}}$ 个投影列。把频率从 cm⁻¹ 换为 THz 时，横轴除以 `33.3564095198152`，谱密度乘以同一个因子，积分保持不变。只改横轴单位会把模式数也改掉。
 
 ## 按真实原子顺序合成元素与层投影
 
@@ -359,7 +361,105 @@ snse2-sr2n: rows=400 modes=18.74245521 / 18 sum_error/peak=4.769e-06
 
 ZrCl₂/Sc₂C 的现存路径色散在 0–10.11 THz 有 15 条中低频支，12.49–17.11 THz 有三条高频支。对照原子谱可见高频段以 C 的本征矢权重为主。它回答高频振动主要落在哪种元素上，尚不区分 C 的面内和面外运动。频段之间的间隔也不能只用轻重原子质量解释，恢复力与模式混合共同决定频率。
 
-[Ba₂N Fig. 3(b)](https://doi.org/10.1103/PhysRevB.105.165101)中，低于约 130 cm⁻¹ 的谱主要来自 Ba，160–220 cm⁻¹ 主要来自 N；到 4% 拉伸的 Fig. 6(b)，N 频段降到约 120–172 cm⁻¹，部分 Ba 与 N 贡献发生混合。Fig. 6(a) 的 K 软模、Fig. 6(c) 的低频 α²F 峰和 Fig. 6(e) 的位移图进一步说明，谱峰移动发生在怎样的原子运动中。这个论证包含频率、投影、运动与耦合四项信息，不能只按 PHDOS 峰高排序“哪种元素贡献最大”。
+[Ba₂N Fig. 3(b) 与 Fig. 6(b)](https://doi.org/10.1103/PhysRevB.105.165101)分别位于 165101-3、165101-5 页。横轴是 cm⁻¹ 频率，纵轴是 states/cm⁻¹；总谱、Ba 和 N 投影使用同一坐标，没有各自缩放到相同峰高。无应变时低于约 130 cm⁻¹ 主要来自 Ba，160–220 cm⁻¹ 主要来自 N；4% 拉伸后 N 频段降到约 120–172 cm⁻¹，72、92、105 cm⁻¹ 附近出现 Ba/N 混合。这个频段组成还要与 Fig. 6(a) 的色散及 (e) 的位移对读。(c) 的蓝线是 α²F、红线是累计 λ，二者读各自坐标；不能用 PHDOS 峰高替代耦合积分。
+
+[AlH₂ Fig. 3(c)](https://doi.org/10.1088/0256-307X/40/10/107401)（107401-3 页）采用另一种布局：色散与 Al/H 投影共用频率纵轴，PHDOS 在右侧沿水平方向展开。沿同一高度看过去，可将分支所在频段与元素组成直接对应；右侧只标 PHDOS，不能从图形自行补出未说明的绝对归一化。复现时应读原始列和单位，本页已有的谱密度保留 states/THz，层权重由真实原子列合成，不对每条曲线作峰高归一化。
+
+下面用已保存的 ZrCl₂/Sc₂C ph64 路径与本页分组 CSV，按 AlH₂ 的共享频率轴方法重画。左侧保留全部 18 支，节点由原文件第 0、50、100、150 行的累计距离取出；右侧读总谱、两层谱和 Sc₂C 内部的 C 原子分量。C 曲线包含在 Sc₂C 中，不与两层再相加。色散来自 crystal ASR、PHDOS 来自 simple ASR 的历史存档，图只用于频段和组成对照，不把 Γ 细节当成同一处理结果；总积分仍为 18.52393348，图中没有归一化成 18。
+
+<figure><img src="/Atlas/examples/phonons-literature/zrcl2-sc2c-shared-frequency.svg" alt="历史ZrCl₂/Sc₂C色散与总、层及C原子PHDOS共享THz频率轴" loading="lazy"/><figcaption>gnuplot 6 从真实 ph64 色散和分组谱直接生成。路径是 Γ–M–K–Γ，频率共用 THz 纵轴，右侧密度单位为 states/THz。C 是 Sc₂C 内部的原子投影，不是第三层。原谱积分偏差及两种 ASR 的区别保留；没有加入缺少同源模式矩阵的位移箭头或耦合圆点。</figcaption></figure>
+
+[完整数据与 gnuplot 复算包](/Atlas/examples/phonons-literature-files.tar.gz)包含原路径、路径输入、分组 CSV、源码和生成的 SVG/PDF。解压后进入 phonons-literature；gnuplot 需要 svg 与 pdfcairo 输出终端。脚本默认读取包内 public，直接运行：
+
+```bash
+tar -xzf phonons-literature-files.tar.gz
+cd phonons-literature
+gnuplot plot_shared_frequency.gnuplot
+```
+
+<details>
+<summary>plot_shared_frequency.gnuplot 完整源码</summary>
+
+```gnuplot
+# Run from the extracted phonons-literature directory with gnuplot 6.
+# Only saved data are read; no frequency smoothing or DOS normalization.
+if (!exists("public_root")) public_root = "./public"
+if (!exists("output_base")) output_base = "./zrcl2-sc2c-shared-frequency"
+bands = public_root . "/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp"
+dos = public_root . "/examples/phonons-interface-projections/zrcl2-sc2c-grouped.csv"
+cm_per_thz = 33.3564095198152
+set datafile separator whitespace
+stats bands using 1 every ::0::0 nooutput
+xg = STATS_min
+stats bands using 1 every ::50::50 nooutput
+xm = STATS_min
+stats bands using 1 every ::100::100 nooutput
+xk = STATS_min
+stats bands using 1 every ::150::150 nooutput
+xend = STATS_min
+set datafile separator ","
+stats dos using 2 skip 1 nooutput
+dosmax = STATS_max
+set encoding utf8
+set border linewidth 1
+set tics out nomirror
+set style line 1 linecolor rgb "#202020" linewidth 1.1
+set style line 2 linecolor rgb "#0072b2" linewidth 1.8
+set style line 3 linecolor rgb "#009e73" linewidth 1.8
+set style line 4 linecolor rgb "#d55e00" linewidth 1.5 dashtype 2
+do for [fmt in "svg pdf"] {
+    if (fmt eq "svg") { set terminal svg size 1000,550 enhanced font "DejaVu Sans,14" }
+    if (fmt eq "pdf") { set terminal pdfcairo size 10in,5.5in enhanced font "DejaVu Sans,12" }
+    set output output_base . "." . fmt
+    set multiplot
+    set size 0.64,1
+    set origin 0,0
+    set lmargin at screen 0.08
+    set rmargin at screen 0.61
+    set bmargin at screen 0.16
+    set tmargin at screen 0.90
+    set title "Archived ph64: dispersion"
+    set ylabel "Frequency (THz)"
+    set xlabel "q path"
+    set yrange [-0.25:18]
+    set xrange [xg:xend]
+    set format y "%g"
+    set ytics 0,3,18
+    set xtics ("Γ" xg, "M" xm, "K" xk, "Γ" xend)
+    set key off
+    set arrow 1 from xm,-0.25 to xm,18 nohead linecolor rgb "#cccccc"
+    set arrow 2 from xk,-0.25 to xk,18 nohead linecolor rgb "#cccccc"
+    set arrow 3 from xg,0 to xend,0 nohead linecolor rgb "#999999" dashtype 2
+    set datafile separator whitespace
+    plot for [mode=2:19] bands using 1:(column(mode)/cm_per_thz) with lines linestyle 1
+    unset arrow
+    set size 0.36,1
+    set origin 0.64,0
+    set lmargin at screen 0.66
+    set rmargin at screen 0.98
+    set bmargin at screen 0.16
+    set tmargin at screen 0.90
+    set title "Saved PHDOS projections"
+    unset ylabel
+    set xlabel "PHDOS (states/THz)"
+    set xrange [0:1.08*dosmax]
+    set yrange [-0.25:18]
+    set xtics autofreq
+    set format y ""
+    set key top right font ",10"
+    set datafile separator ","
+    plot dos using 2:1 skip 1 with lines linestyle 1 title "Total", \
+         dos using 7:1 skip 1 with lines linestyle 2 title "ZrCl_{2}", \
+         dos using 8:1 skip 1 with lines linestyle 3 title "Sc_{2}C", \
+         dos using 4:1 skip 1 with lines linestyle 4 title "C inside Sc_{2}C"
+    unset multiplot
+    unset output
+}
+print sprintf("q nodes from original rows 0/50/100/150: %.6f %.6f %.6f %.6f", xg,xm,xk,xend)
+print "Saved PHDOS integral is 18.52393348 (target 18); data kept unnormalized."
+```
+
+</details>
 
 界面或应变前后比较时，先统一原胞模式数、频率单位、ASR 与积分约定，再按同一原子/层分组读谱。若要解释超导变化，则接到[α²F](/Atlas/m/eliashberg-a2f/qe/)：PHDOS 统计声子模态，α²F 另含电子散射和耦合矩阵元。相同频率处两者都有峰，不意味着每个声子对耦合的权重相同。
 

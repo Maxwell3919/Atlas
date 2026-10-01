@@ -1,0 +1,17 @@
+{
+  "source_files": [
+    "examples/supercon-al-tc/k32/alpha2F.dat",
+    "examples/supercon-al-tc/k48/alpha2F.dat"
+  ],
+  "sigma_Ry": 0.01,
+  "frequency_unit": "THz",
+  "alpha2F": "native lambda.x output convention, no rescaling",
+  "lambda_integral": "2 integral alpha2F(f)/f df; trapezoid on original printed frequencies",
+  "rows": 2000,
+  "lambda_k32_printed_spectrum": 0.37111796544250786,
+  "lambda_k48_printed_spectrum": 0.3710486501105741,
+  "L1_lambda": 0.06503158600520108,
+  "L1_percent_of_mean_printed_spectrum": 17.524794201835082,
+  "normalization": "none; cumulative lambda is dimensionless, separate panel",
+  "notes": "This integrates five-decimal printed spectra. Native internal qsum/spec tables retain their own precision."
+}

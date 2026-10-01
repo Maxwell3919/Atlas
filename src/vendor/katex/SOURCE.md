@@ -1,0 +1,1 @@
+KaTeX 0.18.10, MIT. Official npm package from https://registry.npmjs.org/katex/-/katex-0.18.10.tgz; upstream https://github.com/KaTeX/KaTeX/releases/tag/v0.18.10. npm SHA512 verified before extracting the unchanged ESM renderer/CSS/fonts. Renderer is used only by the static build; fonts and CSS are served by Atlas.
