@@ -1,0 +1,29 @@
+{
+  "hidden_methods": [
+    "formation-energy",
+    "convex-hull",
+    "elastic-born",
+    "elastic-moduli",
+    "mlip-md",
+    "band-3d",
+    "mae",
+    "exchange-j",
+    "bkt-scaling",
+    "carrier-mobility",
+    "adsorption-energy"
+  ],
+  "hidden_manual_ids": [
+    "adsorption-energy/qe",
+    "band-unfolding/qe",
+    "cohp/qe",
+    "dft-plus-u/vasp",
+    "effective-mass/qe",
+    "magnetic-gs/vasp",
+    "relax/mace",
+    "temperature-effective-fc/mace",
+    "vc-relax/mace"
+  ],
+  "directory_merged_methods": [
+    "band-gap"
+  ]
+}

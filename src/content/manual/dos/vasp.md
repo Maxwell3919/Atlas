@@ -11,7 +11,12 @@ SnSe₂ 的带边附近由哪些轨道贡献，DOS 的积分又应数到多少�
 | 结构固定 | `IBRION=-1`、`NSW=0`；输出中还记录 `IVDW=11` |
 | 路径 | Γ–M–K–Γ，三段各 50 点，共 150 点、20 条带 |
 
+<details>
+<summary>历史输入与父密度的核对</summary>
+
 在原位归档核对时，`bands/CHGCAR` 是直接指向 `../scf/CHGCAR` 的软链接；解析目标与父 SCF 文件相同，哈希也相同。两分支的结构、赝势哈希一致，结构又与各自 XML 中的运行晶胞及原子位置相符。归档中的 SCF INCAR 后来改成了 520 eV，因此下载包提供 `incar-run.xml` 和从实际 XML/OUTCAR 导出的 `parameters-from-output.txt`，并明确标为运行参数重建，未把后来的文件冒充原输入。旧 `SYSTEM=SnS2` 是标签残留，实际 POSCAR 的元素及 PAW 标识均为 Sn、Se。
+
+</details>
 
 各图统一减去父 SCF 的费米能 `−2.39071823 eV`，取自 `scf/vasprun.xml`，也与 `scf/DOSCAR` 的表头一致。路径输出自己的费米能为 `−2.38897901 eV`；在半导体中它不是可跨材料直接比较的绝对能量标尺。
 
@@ -46,9 +51,9 @@ Gamma
 
 投影逐原子归并：Sn 是第一原子，第二、第三原子都是 Se；将三个 p 分量相加，再把两个 Se 相加。总 DOS 的单位是 states/eV/cell，原子投影按选定原子求和后也按这个晶胞展示。积分 DOS 是从低能端累积的态数，不是能窗内每条曲线的最大高度。
 
-这三页使用同一个 `snse2-electronic` 下载包。运行参数和父密度来源见[能带页的回读记录](/Atlas/m/bands/vasp/#h-从输出回读运行参数)；本页直接从包根目录读取 均匀 SCF 的 `scf/DOSCAR`，不需要先计算路径能带。
+这三页使用同一个 `snse2-electronic` 下载包。运行参数和父密度来源见[能带页的回读记录](/Atlas/m/bands/vasp/#h-从输出回读运行参数)；本页DOS来自均匀 SCF 的 `scf/DOSCAR`，物理上的DOS计算不需要先求路径能带。包内共用 `analyse.py` 同时提取能带、轨道投影与DOS，因此运行该脚本仍须保留整包 `scf` 和 `bands` 文件，具体依赖见下文。
 
-## 后处理的逻辑与 coding prompt
+## 数据配对与提取要求
 
 先核对总 DOS 与每个原子块的行数、能量网格、列数，再做轨道求和。读取文件中已经给出的积分 DOS，而不是用一条粗采样曲线重新定义电子数。图与能带共用能量纵轴，能够同时看出“哪里有态”和“这些态怎样色散”。
 
@@ -64,7 +69,7 @@ Gamma
 
 ## 从文件到表格，再到图
 
-先保存数据表，再画图。`analyse.py` 固定使用 `scf` 和 `bands` 两个数据分支，检查模型、状态数、路径节点、PROCAR 配对和 DOS 列数；输出独立 CSV，`plot.py` 只读取 CSV 与 `summary.json`。下面的源码已用本次下载包的数据实际运行。
+先保存数据表，再画图。现有 `analyse.py` 没有DOS独立模式：它固定读取 `scf/vasprun.xml`、`scf/EIGENVAL`、`scf/DOSCAR` 以及 `bands/vasprun.xml`、`bands/POSCAR`、`bands/EIGENVAL`、`bands/PROCAR`，并从包内路径设置核对节点，检查模型、状态数、PROCAR 配对和DOS列数。读取本下载包时保留整包两支数据，再输出各CSV与 `summary.json`；只重画已经保存的结果时直接运行 `python3 plot.py`，该脚本只读CSV与摘要。若仅重新计算均匀DOS分支，须采用DOS专用提取器，或将共用脚本改成独立DOS模式，不能只留 `scf` 目录仍直接执行本版 `analyse.py`。共轴图中的路径曲线来自独立 `bands` 分支，不参与DOS的布里渊区积分。下面的完整源码已用本次整包数据实际运行。
 
 <details>
 <summary>完整源码：analyse.py</summary>
@@ -386,3 +391,5 @@ Exported figures/fatband.png, .svg and .pdf
 价带附近的 Se-p 贡献与最低导带中的 Sn-s/Se-p 共同出现，可以和[逐态胖带](/Atlas/m/fatband/vasp/)核对。[相关论文 Sec. II、Fig. 1(c) 与 Table I](https://arxiv.org/pdf/2502.13690v1)采用这种能带与 PDOS 的联读来辨认孤立单层的带边成分；本页只对应孤立固定 PBE 模型，没有据此判断界面电荷转移。
 
 这份 DOS 的步长比展宽还大，曲线有明显采样锯齿。因此它回答态数和轨道来源，不能精确定位窄峰或从展宽尾部读取带隙；更细峰形需要在同一模型下对电子网格、能量点与展宽作独立对照。
+
+用于接触前后比较时，先固定相同的每化学式归一化与投影定义，再在匹配的面内晶胞下检查带边附近是否新增部分占据谱重。当前图只来自孤立层；Se-p 与 Sn-s 的共现可与同链 PROCAR 交叉读取，但与另一层的杂化必须在界面本身的逐态投影中判断。

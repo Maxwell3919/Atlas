@@ -1,6 +1,8 @@
-同一结构在不同初始磁排列下可能收敛到不同电子态；比较它们的能量，才能判断哪些候选态更有利。本例在固定 a=2.8 Å 的两原子 bcc Fe 晶胞中比较 FM、AFM 和非自旋极化候选，先从 OUTCAR 核对最终局域磁矩，再按统一的 E0 定义排序。总磁矩为零既可能是局域矩抵消，也可能是无自旋极化的解，候选态身份需要逐原子检查。
+界面或载流子变化会不会使原来采用的非自旋极化参考失效？如果能带出现自旋分裂，或同协议自旋极化计算形成稳定磁矩，就需要比较候选磁态的能量和最终磁化密度。[He 等关于空穴掺杂 H‑ZrCl₂ 的原文](https://doi.org/10.1039/D2TC00564F) Fig. 3 把总磁矩与自旋极化能并列，Fig. 4(a–c) 再用自旋分辨 PDOS 和自旋密度识别磁矩来源。这是判断载流子诱导磁性的一条材料证据链。
 
-[Torelli 等](https://doi.org/10.1038/s41524-020-00428-x)的 Fig. 1 将磁性候选筛选放在交换与各向异性参数之前，Heisenberg models 节的 Eq. (1) 则定义后续磁模型。其二维材料筛选使用 GPAW/PBE；这里的 VASP 体相 bcc Fe 三态比较给出固定晶胞中已比较候选的排序。非自旋极化态没有采样有限温度无序局域矩，不能据此称为顺磁相。
+文献研究的是空穴掺杂单层。它不能证明电子供给型 ZrCl₂/Sc₂C 界面有同样的磁态，也不能把空穴浓度阈值移作界面 Bader 电荷的阈值。当前存档只有下面的 bcc Fe 操作样本，没有主体系同协议磁构型比较。Fe 用来说明 MAGMOM 初值、局域矩与统一能量定义之间的关系；它不提供异质结磁基态结果。
+
+同一结构在不同初始磁排列下可能收敛到不同电子态。本例在固定 a=2.8 Å 的两原子 bcc Fe 晶胞中比较 FM、AFM 和非自旋极化候选，先从 OUTCAR 核对最终局域磁矩，再按统一 E0 排序。总磁矩为零既可能是局域矩抵消，也可能是无自旋极化的解，需要逐原子检查。
 
 采用 MAGMOM 官方示例中的两原子 bcc 常规胞，元素选 Fe，固定晶格常数 2.8 Å。分别从平行、反平行和非自旋极化三个初始条件计算；三份结构、POTCAR、截断能、k 网格和展宽保持相同。这里只比较这个固定晶胞内的三个候选态。
 
@@ -191,7 +193,7 @@ fm  F=-16.47365594 eV  E0=-16.47377314 eV  dE0=   0.0000 meV/atom  M= 4.2127 muB
 afm F=-15.60736142 eV  E0=-15.60782301 eV  dE0= 432.9751 meV/atom  M=-0.0000 muB/cell
 nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB/cell
 ```
-脚本先用 SHA-256 核对三份 POSCAR、KPOINTS、POTCAR 完全一致，再检查电子收敛与程序统计段。表格同时保留有限展宽自由能 F 和 `energy(sigma->0)`；最后一列能量差统一选零展宽外推量，并除以每胞两个 Fe，换算成 meV/atom。
+原始运行使用相同的 PAW 数据；公开包不含 POTCAR，脚本核对记录哈希与各 OUTCAR 的 TITEL，不能据此重新验证三份 POTCAR 的字节。POSCAR、KPOINTS 则逐文件比较 SHA-256；随后检查电子收敛、程序统计段和实际 ISPIN。表格同时保留有限展宽自由能 F 和 `energy(sigma->0)`；最后一列能量差统一选零展宽外推量，并除以每胞两个 Fe，换算成 meV/atom。
 
 在这组固定设置下，FM 比所算 AFM 低约 432.98 meV/atom，比非自旋极化解低约 491.52 meV/atom。这个排序回答的是三份候选解之间的比较。要形成材料磁基态结论，还需检查更多可能的磁超胞、各磁态的几何优化、k 网格及展宽对相对能量的影响。
 
@@ -203,24 +205,18 @@ nm  F=-15.49070763 eV  E0=-15.49074150 eV  dE0= 491.5158 meV/atom  M= 0.0000 muB
 | afm | -15.60782301 | -15.60736142 | 432.975065 | -0.000000 |
 | nm | -15.49074150 | -15.49070763 | 491.515820 | 0.000000 |
 
-## 对照文献中的分析方法
+## 比较的能量怎样回答磁性问题
 
-Torelli 等，*High-throughput computational screening for two-dimensional magnetic materials based on experimental databases of three-dimensional compounds*，[DOI: 10.1038/s41524-020-00428-x](https://doi.org/10.1038/s41524-020-00428-x)，Fig. 1 展示磁性筛选流程，Fig. 3 比较交换参数和自旋波隙。正文通过候选磁构型能量判断排序，再建立磁模型。本例采用相同的候选态比较逻辑，表格回答固定 a=2.8 Å 晶胞中的 FM/AFM/NM 相对能量。
+He 等，*Formation of magnetic anionic electrons by hole doping*，[DOI: 10.1039/D2TC00564F](https://doi.org/10.1039/D2TC00564F)，Fig. 3（期刊第 7676 页）把 E_NM−E_FM 与总磁矩放在同一空穴浓度轴上；正的极化能表示所比 FM 解比非磁解低。Fig. 4（第 7677 页）用自旋分辨 PDOS 和空间自旋密度核对磁矩来源。本文的 Fe 能量差则定义为 (E_state−E_FM)/2，两种参考方向要读清。
 
-```text
-同一固定晶胞与同一组数值参数
-  ├─ ISPIN=2，MAGMOM 平行 → FM 自洽解
-  ├─ ISPIN=2，MAGMOM 反平行 → AFM 自洽解
-  └─ ISPIN=1 → 非自旋极化解
-             └─ 核对最终局域磁矩与收敛 → 统一能量定义比较
-```
+如果需要检查界面磁性，应同时核对总磁矩、原子投影之外的磁化贡献以及自旋密度。在间隙态参与的材料里，原子局域投影不能覆盖全部磁矩。Fe 的 MAGMOM 初值只设置原子初始矩；它没有构造或验收间隙中心的磁化初态。随后仍要检验相关候选态是否在同一几何与协议下稳定存在。
 
 ## 从原始文件重建结果
 
-前面的 OUTCAR 投影表用来辨认最终磁态；下面的脚本汇总 F、E0 和 OSZICAR 总磁矩，不提取局域投影。它核对结构、网格和 PAW 记录，以 FM 为参考计算能量差，每胞两个 Fe，除以 2 后换算为 meV/atom。三份 INCAR 的物理参数仍需按前面展示的输入逐项比较。对应的编程请求是：
+前面的 OUTCAR 投影表用来辨认最终磁态；下面的脚本汇总 F、E0 和 OSZICAR 总磁矩，不提取局域投影。它核对结构、网格和 PAW 记录，以 FM 为参考计算能量差，每胞两个 Fe，除以 2 后换算为 meV/atom。脚本核对三态输入与实际输出的 ISPIN，并要求 FM/AFM 的最后摘要含有限磁矩；其他物理参数仍需按前面展示的输入逐项比较。对应的编程请求是：
 
 ```text
-请编写 Python 3 后处理程序，在含 fm、afm、nm 的 example-pack 目录中运行。用 SHA256 比较三份 POSCAR、KPOINTS；公开包不含 POTCAR，用包根目录 POTCAR.identity.txt 的原始哈希及各 OUTCAR 的 TITEL 记录核对 PAW。要求 OUTCAR 有 EDIFF 收敛标记和最终计时段，读取最后的 F 和 energy(sigma->0)，从 OSZICAR 取最终总磁矩；nm 为非自旋极化计算，缺少 mag 字段时按零记录。以 fm 的 E0 为参考，差值除以两个 Fe，再乘 1000，输出 magnetic-energies.json；另写脚本导出三态 CSV。局域磁矩由正文中的 OUTCAR 投影表检查，不在这个汇总脚本中提取。
+请编写 Python 3 后处理程序，在含 fm、afm、nm 的 example-pack 目录中运行。用 SHA256 比较三份 POSCAR、KPOINTS；公开包不含 POTCAR，用包根目录 POTCAR.identity.txt 的原始哈希及各 OUTCAR 的 TITEL 记录核对 PAW。要求 OUTCAR 有 EDIFF 收敛标记和最终计时段，读取最后的 F 和 energy(sigma->0)，核对各 INCAR 与 OUTCAR 的 ISPIN：fm/afm 必须为 2，nm 必须为 1。从 OSZICAR 最后一条 F 摘要取总磁矩；fm/afm 缺少 mag、字段无效或非有限值时必须失败，不能回退到早先摘要或零。只有 nm 已确认 ISPIN=1 时，才允许缺少 mag 并按零记录。以 fm 的 E0 为参考，差值除以两个 Fe，再乘 1000，输出 magnetic-energies.json；另写脚本导出三态 CSV。局域磁矩由正文中的 OUTCAR 投影表检查，不在这个汇总脚本中提取。
 ```
 
 [magnetic_energies.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/magnetic_energies.py) · [export_magnetic_table.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/export_magnetic_table.py)
@@ -230,7 +226,7 @@ Torelli 等，*High-throughput computational screening for two-dimensional magne
 
 ```python
 from __future__ import print_function
-import re,json,hashlib,os
+import re,json,hashlib,os,math
 
 def sha(p):
     if os.path.basename(p)=='POTCAR' and not os.path.exists(p):
@@ -250,8 +246,22 @@ for state in ['fm','afm','nm']:
     if 'aborting loop because EDIFF is reached' not in text or 'General timing and accounting' not in text: raise ValueError('Incomplete '+state)
     f=float(re.findall(r'free  energy\s+TOTEN\s*=\s*([-0-9.]+)',text)[-1])
     e0=float(re.findall(r'energy\(sigma->0\)\s*=\s*([-0-9.]+)',text)[-1])
-    mag=re.findall(r'mag=\s*([-0-9.]+)',open(state+'/OSZICAR').read())
-    rows.append({'state':state,'F_eV_cell':f,'E0_eV_cell':e0,'mag_cell_muB':float(mag[-1]) if mag else 0.0})
+    expected_spin=1 if state=='nm' else 2
+    incar='\n'.join(re.split(r'[!#]',line,1)[0] for line in open(state+'/INCAR'))
+    input_spin=re.findall(r'\bISPIN\s*=\s*(\d+)\b',incar,re.I)
+    output_spin=re.findall(r'\bISPIN\s*=\s*(\d+)\b',text)
+    if not input_spin or int(input_spin[-1])!=expected_spin or not output_spin or int(output_spin[-1])!=expected_spin:
+        raise ValueError('Expected ISPIN='+str(expected_spin)+' in INCAR and OUTCAR for '+state)
+    summaries=[line for line in open(state+'/OSZICAR') if re.search(r'\bF\s*=',line)]
+    if not summaries:raise ValueError('Missing final OSZICAR summary for '+state)
+    mag=re.search(r'\bmag\s*=\s*(\S+)',summaries[-1])
+    if mag is None:
+        if state!='nm':raise ValueError('Missing final mag for '+state)
+        moment=0.0
+    else:
+        moment=float(mag[1])
+        if not math.isfinite(moment):raise ValueError('Non-finite final mag for '+state)
+    rows.append({'state':state,'F_eV_cell':f,'E0_eV_cell':e0,'mag_cell_muB':moment})
 for row in rows:
     row['dE0_meV_atom']=(row['E0_eV_cell']-rows[0]['E0_eV_cell'])*1000/2
     print('%-3s F=% .8f eV  E0=% .8f eV  dE0=%9.4f meV/atom  M=%7.4f muB/cell'%(row['state'],row['F_eV_cell'],row['E0_eV_cell'],row['dE0_meV_atom'],row['mag_cell_muB']))
@@ -299,4 +309,4 @@ python3 export_magnetic_table.py
 
 相关输入说明：[VASP：MAGMOM](https://vasp.at/wiki/MAGMOM) · [ISPIN](https://vasp.at/wiki/ISPIN) · [磁构型能量比较教程](https://vasp.at/tutorials/latest/magnetism/part2/) · [OUTCAR](https://vasp.at/wiki/OUTCAR)
 
-下一步接 [磁各向异性能](/Atlas/m/mae/vasp/)，在需要比较的磁态上引入 SOC 并旋转磁化方向；或者接 [交换参数](/Atlas/m/exchange-j/vasp/)，为选定自旋模型准备足够多的磁构型能量。
+若主体系出现需要解释的磁性证据，先结合[自旋分辨电子态](/Atlas/m/fatband/qe/)组织具体的磁化密度和候选态比较。是否进一步建立交换模型或比较磁化方向，由实际磁态和研究问题决定。

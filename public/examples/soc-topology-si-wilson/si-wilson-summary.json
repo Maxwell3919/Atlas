@@ -1,0 +1,35 @@
+{
+  "quantity": "-Arg(eigenvalue of product of polar MMN links)/(2*pi), modulo one",
+  "subspace": "Four occupied spatial bands of eight-electron nonmagnetic scalar Si, no SOC",
+  "connection": "Closed +b1 loops at each sampled fractional k2,k3",
+  "interpretation": "Matrix phase extraction only; no spinful Kramers partner tracking, Z2, edge spectrum or gap validation",
+  "numpy_version": "2.4.6",
+  "cases": [
+    {
+      "grid": 4,
+      "loop_direction": "+b1 including periodic G",
+      "loops": 16,
+      "loop_points": 4,
+      "spatial_bands": 4,
+      "min_link_singular_value": 0.6668967225520925,
+      "reverse_overlap_error": 0.0,
+      "max_unitarity_error": 3.1086244689504383e-15,
+      "max_determinant_phase_error_rad": 4.4408688050905515e-16,
+      "max_random_gauge_spectrum_error_mod1": 2.220446049250313e-16,
+      "random_seed": 2026100204
+    },
+    {
+      "grid": 6,
+      "loop_direction": "+b1 including periodic G",
+      "loops": 36,
+      "loop_points": 6,
+      "spatial_bands": 4,
+      "min_link_singular_value": 0.7327458767942244,
+      "reverse_overlap_error": 1.0000333894311098e-12,
+      "max_unitarity_error": 6.439293542825908e-15,
+      "max_determinant_phase_error_rad": 6.661388969678199e-16,
+      "max_random_gauge_spectrum_error_mod1": 2.220446049250313e-16,
+      "random_seed": 2026100206
+    }
+  ]
+}

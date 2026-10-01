@@ -1,14 +1,10 @@
-给平衡态 Al 原子初速度后，势能与动能会随运动相互转换。这里先读热浴如何改变温度，再从同一初态比较两种步长的 NVE 轨迹，检查积分误差。每个离子步都重新求电子基态并计算原子力，因此输出要按“离子步里包含电子自洽”的层次读取。
+层间距会随热运动改变，界面也可能滑移或出现局部重构。研究这些过程时，AIMD 需要同时跟踪原子坐标、温度和电子能量；一条能量曲线有起伏，本身不能说明界面已经保持稳定，也不能说明结构发生了破坏。先确认力与积分能可靠推进轨迹，再读结构随时间的变化。
 
-这里用实际运行的 8 原子周期 fcc Al 演示。它由 [晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 中的单原子原胞沿三个原胞基矢各重复两次得到，原始立方晶格常数为 3.95606780081 Å。保持晶胞不变，使用 QE 7.5、LDA-PZ、`Al.pz-vbc.UPF`、40/160 Ry 截断能和 4³ 超胞 k 网格。后者是本例的短轨迹设置，尚未证明力和统计量对电子采样收敛。
+这里用实际运行的 8 原子周期 fcc Al 学习这一步。它来自 [Al 晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 的单原子原胞，沿三个原胞基矢各重复两次。使用 QE 7.5、LDA-PZ、`Al.pz-vbc.UPF`、40/160 Ry 截断和 4³ 超胞 k 网格，固定晶胞。已有 100 步 SVR 轨迹和两条相同初态、等时长的 NVE 轨迹；它们检验热浴响应与时间步长误差，时长分别约 97 和 48 fs。
 
-本次有三个完成的分支：100 步 SVR 恒温轨迹，以及两种步长覆盖相同时间的 NVE 轨迹。从这些输出提取逐步温度、总能量与坐标，比较同一初态下的时间步长误差；这段采样未覆盖长期热稳定、熔点或扩散过程。
+[下载完整 Al 计算包](/Atlas/examples/al-lesson-files.tar.gz)，解压后进入 `al/aimd`。普通电子自洽和弛豫见 [SCF](/Atlas/m/scf/qe/) 与 [固定晶胞优化](/Atlas/m/relax/qe/)。研究 ZrCl₂/Sc₂C 或 SnSe₂/Sr₂N 时，初态应来自自身的已接受界面，并重新确定合适的超胞、电子采样、步长和采样窗口；本例的 Al 轨迹不能代表它们的热稳定性。
 
-完整输入、输出、逐步数据和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。在解包后的 `al` 目录运行文末的作图命令；重新进行 MD 时，按实际位置填写赝势库与 QE 可执行文件路径。
-
-本例 SVR 热浴的依据是 [Bussi、Donadio 与 Parrinello 的随机速度缩放方法式 (7)](https://arxiv.org/html/0803.4060)，其中热浴时间尺度控制动能向目标分布的调整。该文第 II.3 节及 Fig. 1 区分热浴交换的能量和积分误差；下面用关闭温控器的 NVE 分支比较步长，对应其中的 Hamiltonian 运动部分。
-
-## 先准备同一份位置和初速度
+## 同一初态使步长比较有意义
 
 8 个原子的初速度来自固定种子 20260922 的正态分布，先减去质心速度，再按 21 个自由度归一化到 300 K。初速度和坐标都写进输入，因此两条 NVE 可以从同一个初态比较步长。最初的输入准备过程保存在 `prepare_aimd.py`，具体初速度记录在 `initial-velocities.json`。
 
@@ -86,76 +82,20 @@ Al -4.08148511364416e-05 -2.22406828442608e-05 -1.56107778486724e-04
 
 `ion_temperature='svr'` 是随机速度缩放温控，`tempw=300` 设置目标温度，`nraise=20` 对应约 19.35 fs 的温控特征时间。它不意味着每一步都等于 300 K。这里固定了初速度，没有固定 QE 内部温控的随机数；重新运行这条 SVR 轨迹，逐点温度不会与下面完全重合。
 
-## 热运动为什么会触发对称性错误
-
-第一次输入没有 `nosym`。完美初始晶体具有很多对称操作，原子按不同初速度移动后却不再满足它们，因此第一次离子移动之后程序停止：
-
-```console
-maxwell@maxwell:~/al/aimd$ tail -10 nve-dt20/al.md.out
 
 
-     Linear momentum :   -0.0000000000    0.0000000000   -0.0000000000
+## 原子运动后不再保持初始空间群
 
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     Error in routine checkallsym (1):
-     some of the original symmetry operations not satisfied
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+原输入未设置 `nosym`，原子按不同初速度移动后，第二个几何不满足起始空间群，输出出现：
 
-     stopping ...
+```text
+Error in routine checkallsym (1):
+some of the original symmetry operations not satisfied
 ```
 
-这是输入设置与运动后的结构不相容，不是“材料在第一步就不稳定”。原目录保留，另建目录复制并用 `vi` 加入 `nosym=.true.`：
+随后使用 `nosym=.true.` 的独立目录完成计算。这是运动几何与对称性设置不相容；根据此报错不能判断材料已经发生热破坏。均匀网格的不可约点数随对称性设置改变，电子计算耗时也会变化。数据包保存了初次失败目录与最终输入，重跑时使用下方列出的最终分支。
 
-```console
-maxwell@maxwell:~/al/aimd$ mkdir nve-dt20-nosym
-maxwell@maxwell:~/al/aimd$ cp nve-dt20/al.md.in nve-dt20-nosym/al.md.in
-maxwell@maxwell:~/al/aimd$ cp nve-dt20/run.slurm nve-dt20-nosym/run.slurm
-maxwell@maxwell:~/al/aimd$ cd nve-dt20-nosym
-maxwell@maxwell:~/al/aimd/nve-dt20-nosym$ mkdir tmp
-maxwell@maxwell:~/al/aimd/nve-dt20-nosym$ vi al.md.in
-
-```
-
-这次保留时间反演配对，但不再要求运动中的晶体保持初始空间群。均匀 k 网格覆盖范围会相应变化，因此后面的计算比完美晶体的初始 SCF 更费时。
-
-## 提交脚本与正在运行时的读法
-
-恒温分支最终使用 16 个 MPI 进程、8 个 k 点池，每个进程一个 OpenMP 线程。下面是实际提交的完整脚本。两个 NVE 分支各使用 8 个 MPI 进程，自己的脚本随数据一起保存。
-
-```console
-maxwell@maxwell:~/al/aimd/nvt-dt20-cg$ cat run.slurm
-#!/bin/bash
-#SBATCH --job-name=atlas-al-nvt-cg
-#SBATCH --nodes=1
-#SBATCH --ntasks=16
-#SBATCH --cpus-per-task=1
-#SBATCH --time=01:00:00
-#SBATCH --output=_out.%j.log
-#SBATCH --error=_err.%j.log
-ulimit -s unlimited
-ulimit -l unlimited
-source /opt/intel/oneapi/setvars.sh
-export OMP_NUM_THREADS=1
-cd "$SLURM_SUBMIT_DIR"
-set -e
-mpirun -np 16 <qe_bin>/pw.x -nk 8 -in al.md.in > al.md.out 2> al.md.err
-```
-
-```console
-maxwell@maxwell:~/al/aimd/nvt-dt20-cg$ sbatch run.slurm
-Submitted batch job 1977
-```
-
-运行中可以在同一个目录查看队列，再持续看 OUT 文件末尾：
-
-```bash
-squeue -j 1977
-tail -f al.md.out
-```
-
-`tail -f` 中按 Ctrl+C 只结束查看，不会停止 Slurm 作业。看见新的 `Entering Dynamics` 行，说明程序又推进了一个离子步；它前面的一段 `iteration #` 则是该几何下的电子 SCF 迭代。两种 iteration 不要混在一起。
-
-## OUT 中的一步包含哪些内容
+## 一次离子推进前，先读电子求解
 
 先取 NVE 大步长分支的第一个离子步。最初的 SCF 已经收敛，紧接着打印能量分解、力与应力。以下是连续输出节选：
 
@@ -236,38 +176,49 @@ Al               0.4998755303        0.4997068395        0.5002336603
 
 QE 7.5 这段位置 Verlet 输出有一个细节：打印出的新坐标已前进到 n·dt，但同一块里的 Etot 和中心差分速度属于前一个坐标时刻 (n−1)·dt。提取脚本因此分别保存 `position_time_fs` 与 `energy_sample_time_fs`；画能量曲线使用后者，导出的坐标轨迹使用前者。这样才能把不同步长的同一物理时刻对齐。
 
-## 结束后，逐步核对电子部分
-
-```console
-maxwell@maxwell:~/al/aimd/nvt-dt20-cg$ tail -12 al.md.out
-     fftw         :    306.57s CPU    311.40s WALL (  645522 calls)
- 
-     Parallel routines
- 
-     PWSCF        :  10m 1.45s CPU  10m14.91s WALL
-
- 
-   This run was terminated on:  22:48:37  22Sep2026            
-
-=------------------------------------------------------------------------------=
-   JOB DONE.
-=------------------------------------------------------------------------------=
-```
-
-对于指定步数的 MD，输出 `The maximum number of steps has been reached.` 是走完所设步数的正常停止条件。仍需核对实际步数、每步 SCF 是否收敛，以及每步最后一次对角化是否有未解决的警告。
-
-这个例子的第一个 `nvt-dt20-nosym` 分支虽打印了 `JOB DONE.`，第 44 步最后一次 Davidson 对角化却留下 `1 eigenvalues not converged`，因此没有用于本页主图。它保留在原目录，另建 `nvt-dt20-cg`，用 `cp`、`vi` 改为 CG 并收紧本征态精度设置后重新运行。两条 NVT 的随机热浴不同，不能把它们逐点相减当作算法误差。
-
-NVE 大步长分支也有一次对角化警告，但发生在最后一个离子步的中间 SCF 迭代，随后的最终迭代已经消失。提取脚本区分中途警告与最终未解决的警告，不用简单的关键字计数代替这项检查。
 
 
-提取轨迹时，应让能量、温度、坐标与同一个 MD 步号对应。下面的程序需求也保留电子求解和时间步长的检查。
+## 先区分温控交换与积分误差
+
+![恒温和NVE轨迹的瞬时温度](/Atlas/examples/al/figures/aimd-temperature.png)
+
+SVR 的输入目标为 300 K，但这段不足 0.1 ps 的实际平均温度只有 196.418 K，瞬时范围为 90.061–348.887 K。它显然还不能作为充分平衡的 300 K 系综。初始位置接近零温极小值，最初输入的动能会转移为位移的势能；8 原子体系也会有很大的瞬时温度起伏。延长平衡与采样、增大体系，并检查统计量才可能回答热平衡性质。
+
+NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失能量。下面右图把势能变化与动能变化一起画出，两个方向相反；是否守恒，应看左图里的总和。
+
+![等时长NVE的能量变化与动势能交换](/Atlas/examples/al/figures/aimd-energy.png)
+
+两条 NVE 具有相同初始位置、初速度、电子协议和固定晶胞。大步长设置为 `nstep=50, dt=20`，小步长设置为 `nstep=100, dt=10`；两者坐标都推进到 48.377687 fs。
+
+| NVE 步长 | 步数 | 总能量峰峰变化 / meV·atom⁻¹ |
+|---:|---:|---:|
+| 0.967554 fs | 50 | 0.019405 |
+| 0.483777 fs | 100 | 0.004269 |
+
+表中峰峰值取各自完整的能量记录：大步长共 50 个能量时刻，范围为 0–47.410133 fs；小步长共 100 个，范围为 0–47.893910 fs。若只比较共同的 50 个能量时刻 0–47.410133 fs，小步长取 CSV 数据第 1、3、…、99 行，两条记录的峰峰值分别为 **0.019405 和 0.004218 meV/atom**。这一等时刻对照仍显示减半步长后短程能量波动减小。
+
+坐标检查单独使用两条轨迹的完整末帧：它们都位于 48.377687 fs，原子位置 RMS 差为 2.27×10⁻⁵ Å。这个共同坐标终点与上面的能量采样终点不同。两项结果检验的是本例短时间内的积分步长误差；不能把短时波动外推成长期能量稳定，也不能拿 SVR 中随热浴交换而变化的总能量套用 NVE 的守恒要求。
+
+
+
+[Bussi、Donadio 与 Parrinello，*Canonical sampling through velocity-rescaling*](https://arxiv.org/html/0803.4060)式 (7)给出 SVR 动能与目标分布交换的时间尺度；Fig. 1 区分热浴引起的能量变化与积分误差，Fig. 2 直接比较两种时间步长下的 NVE 总能量和 NVT 有效守恒量。本例采用相同初态的 NVE 步长对照，没有提取论文的 NVT 有效守恒量，故不能用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动作为对应的积分误差。
+
+## 提取能量、温度与坐标
+
+每个完成目录都有 `al.md.in/out/err`。脚本按 MD 步号拆开电子 SCF 与离子输出，读取能量、温度和坐标；保留两个时间字段。坐标属于 $n\Delta t$，此处 QE 7.5 的位置 Verlet 输出中能量与中心差分速度属于 $(n-1)\Delta t$。跨步长比较能量时对齐 `energy_sample_time_fs`，看坐标则使用 `position_time_fs`。
+
+三条分支共 250 个 SCF 循环均达到了 `conv_thr=1e-10 Ry`，每步最后一次迭代没有遗留对角化警告。大步长 NVE 的一次中途警告在后续迭代消失；另一个早期 NVT 分支在第 44 步末次迭代仍有警告，保存在包内但没有进入上述结果。程序最后的 `JOB DONE.` 说明程序正常结束，逐步电子记录才说明这些力由达到当前电子条件的计算给出。
 
 ```text
-编写 analyse_aimd.py，读取 nvt-dt20-cg、nve-dt20-nosym、nve-dt10-nosym 的最终 al.md.in/out/err。分别要求 100、50、100 个离子步、正常步数停止和 JOB DONE、空 stderr、每段电子收敛；区分中间 SCF 对角化警告与每步末次迭代仍存在的警告。Ry 转 eV，dt 的时间单位乘 0.04837768653 转 fs；记录 QE Verlet 坐标时间 n*dt 与能量采样时间 (n-1)*dt 两列。总能量取程序 Etot 加离子动能，再除以 8 个原子。保留晶胞与连续坐标以计算短时 RMS 位移；写 thermo.csv、轨迹与 JSON 摘要，报告 NVE 总能量峰峰变化和共同末时刻位置差。不由短时位移拟合扩散系数。
+编写 analyse_aimd.py，读取 nvt-dt20-cg、nve-dt20-nosym、nve-dt10-nosym 的最终
+al.md.in/out/err；要求分别 100、50、100 个 MD 步、正常步数停止、JOB DONE 和空 stderr。
+每步核对电子收敛，区分中途与末次迭代的对角化警告。dt 乘 0.04837768653 得到 fs，
+分别保存能量时间 (n-1)*dt 和坐标时间 n*dt；Ry 转 eV，能量差除以 8 个原子。
+保存 thermo.csv、连续坐标轨迹和 JSON 摘要；比较 NVE 的等时长能量变化与共同末帧。
+保留原始文件，不从不足 0.1 ps 的位移拟合扩散系数或判断长期热稳定性。
 ```
 
-下面是算例实际使用的完整源码。
+[analyse_aimd.py 完整源码](/Atlas/examples/al/aimd/analyse_aimd.py)
 
 <details>
 <summary>analyse_aimd.py 完整源码</summary>
@@ -345,64 +296,46 @@ print('NVE total-energy conservation tested only over ~48 fs; no thermodynamic c
 
 </details>
 
-```console
-maxwell@maxwell:~/al/aimd$ ../.venv/bin/python analyse_aimd.py > analysis.out
-maxwell@maxwell:~/al/aimd$ cat analysis.out
+提取程序使用 Python 3 与 NumPy；绘图另需 Matplotlib。保留数据包的目录层级，在 `al/aimd` 目录运行：
+
+```bash
+python3 analyse_aimd.py
+```
+
+实际输出为：
+
+```text
 case                steps  dt_fs    coord_end_fs  energy_range_meV_atom  mean_T_K
 nvt-dt20-cg          100  0.967554  96.755373      51.897811       196.418
 nve-dt20-nosym        50  0.967554  48.377687       0.019405       142.856
 nve-dt10-nosym       100  0.483777  48.377687       0.004269       142.226
 All 250 SCF cycles converged; no final-iteration diagonalization warning; 3 native JOB DONE endings.
-Early SCF diagonalization warnings: {'nvt-dt20-cg': 0, 'nve-dt20-nosym': 1, 'nve-dt10-nosym': 0}
-NVE position difference at the common final time: 2.272203084249565e-05 angstrom RMS
-NVE total-energy conservation tested only over ~48 fs; no thermodynamic convergence claim.
 ```
 
-最终使用的三条轨迹共有 250 段电子 SCF，均达到设置的残差要求，最终对角化无未解决的警告。这证明它们完成了本例规定的数值流程，还没有证明电子网格、超胞尺寸和轨迹长度对物性收敛。
+NVT 的 51.897811 meV/atom 范围包含热浴交换，不能与 NVE 的守恒误差放在同一标准下排名。结果还保存在各分支的 `thermo.csv` 与 `summary.json`。坐标 XYZ 含初始帧及所有推进帧，三条分支分别有 101、51、101 帧；连续未回卷坐标被保留，避免周期边界跳转被当成突然运动。
 
-## 温度下降是否说明轨迹坏了
-
-![恒温和NVE轨迹的瞬时温度](/Atlas/examples/al/figures/aimd-temperature.png)
-
-SVR 的输入目标为 300 K，但这段不足 0.1 ps 的实际平均温度只有 196.418 K，瞬时范围为 90.061–348.887 K。它显然还不能作为充分平衡的 300 K 系综。初始位置接近零温极小值，最初输入的动能会转移为位移的势能；8 原子体系也会有很大的瞬时温度起伏。延长平衡与采样、增大体系，并检查统计量才可能回答热平衡性质。
-
-NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失能量。下面右图把势能变化与动能变化一起画出，两个方向相反；是否守恒，应看左图里的总和。
-
-![等时长NVE的能量变化与动势能交换](/Atlas/examples/al/figures/aimd-energy.png)
-
-两条 NVE 具有相同初始位置、初速度、电子协议和固定晶胞。大步长设置为 `nstep=50, dt=20`，小步长设置为 `nstep=100, dt=10`；两者坐标都推进到 48.377687 fs。
-
-| NVE 步长 | 步数 | 总能量峰峰变化 / meV·atom⁻¹ |
-|---:|---:|---:|
-| 0.967554 fs | 50 | 0.019405 |
-| 0.483777 fs | 100 | 0.004269 |
-
-步长减半后，本段轨迹的能量波动明显减小。两条轨迹在共同终点的原子位置 RMS 差为 2.27×10⁻⁵ Å。这是本例短时间内的积分步长检查；不能把一个小的短时波动范围外推成长期能量稳定，也不能拿 SVR 中随热浴交换而变化的总能量套用 NVE 的守恒要求。
-
-## 提取坐标并重新画图
-
-每个完成目录下的 `thermo.csv` 按离子步保存能量、温度、SCF 迭代数和残差；`trajectory.xyz` 含初始帧及全部推进后的帧，写有晶格与周期边界，长度分别为 101、51、101 帧。原始未回卷坐标被保留，没有用绝对值或人工平滑修饰运动。
-
-```console
-maxwell@maxwell:~/al/aimd$ head -4 nve-dt20-nosym/thermo.csv
-step,energy_sample_time_fs,position_time_fs,temperature_K,potential_Ry,kinetic_Ry,total_Ry,scf_iterations,early_diagonalization_warning_count,scf_estimated_accuracy_Ry,total_change_meV_atom
-1,0.0,0.9675537305999999,299.99999998,-33.52087979,0.01995091,-33.50092887,8,0,2.3e-11,0.0
-2,0.9675537305999999,1.9351074611999999,299.25269602,-33.52083006,0.01990121,-33.50092885,7,0,3.4e-11,3.401423562183524e-05
-3,1.9351074611999999,2.9026611918,297.01880642,-33.52068143,0.01975265,-33.50092877,7,0,5.3e-11,0.0001700711660248932
-```
-
-![短时间原子位移](/Atlas/examples/al/figures/aimd-displacement.png)
-
-图中 RMS 位移是相对初始原子位置的短时变化，没有据此拟合扩散系数。要重新出图，把 `aimd` 子目录和 [plot_aimd.py](/Atlas/examples/al/plot_aimd.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 放在同一 Al 数据目录，运行：
+| 分支 | 输入与脚本 | 完整 OUT | 数值与坐标 |
+|---|---|---|---|
+| nvt-dt20-cg | [输入](/Atlas/examples/al/aimd/nvt-dt20-cg/al.md.in) / [脚本](/Atlas/examples/al/aimd/nvt-dt20-cg/run.slurm) | [OUT](/Atlas/examples/al/aimd/nvt-dt20-cg/al.md.out) | [CSV](/Atlas/examples/al/aimd/nvt-dt20-cg/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nvt-dt20-cg/trajectory.xyz) |
+| nve-dt20-nosym | [输入](/Atlas/examples/al/aimd/nve-dt20-nosym/al.md.in) / [脚本](/Atlas/examples/al/aimd/nve-dt20-nosym/run.slurm) | [OUT](/Atlas/examples/al/aimd/nve-dt20-nosym/al.md.out) | [CSV](/Atlas/examples/al/aimd/nve-dt20-nosym/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nve-dt20-nosym/trajectory.xyz) |
+| nve-dt10-nosym | [输入](/Atlas/examples/al/aimd/nve-dt10-nosym/al.md.in) / [脚本](/Atlas/examples/al/aimd/nve-dt10-nosym/run.slurm) | [OUT](/Atlas/examples/al/aimd/nve-dt10-nosym/al.md.out) | [CSV](/Atlas/examples/al/aimd/nve-dt10-nosym/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nve-dt10-nosym/trajectory.xyz) |
 
 
-图中分别保留恒温与 NVE 时段，以及两种时间步长的实际采样点；下面列出出图时使用的数据列。
+
+完整 MPI 和环境设置见每条分支自己的 `run.slurm`。恒温分支原记录使用 16 个 MPI 进程、8 个 k 点池，两个 NVE 使用 8 个 MPI 进程；所有分支每进程一个 OpenMP 线程。重新计算前应修改实际程序与赝势路径。已有数据的提取和重画不需要提交这些作业。
+
+## 用实际数据重画积分对照
+
+温度图使用 CSV 的真实采样时间；NVE 总能量以各自第一行作差，再转成 meV/atom。势能和动能交换图也取同一基准。坐标的短时 RMS 位移可保留为轨迹核对，不能将其斜率直接换成扩散系数。
 
 ```text
-编写 plot_aimd.py，从 Al 根目录读取三条轨迹各自的 aimd/<case>/thermo.csv。温度按真实时间绘制；NVE 总能量用 energy_sample_time_fs 对齐，以各自第一行作能量变化基准，换成 meV/atom；同时画势能与动能交换。位移从各目录 trajectory.npz 的 positions_A 计算相对初帧的 RMS，横轴使用其中 time_fs，保留坐标与能量两套时间约定。输出现有温度、能量和位移三组 PNG/PDF，复用 atlas_plot_style.py。
+从 Al 根目录读取三条 aimd/<case>/thermo.csv。温度用真实时间，NVE 能量按
+energy_sample_time_fs 对齐并以首行作差；换算为 meV/atom，分开势能和动能交换。
+坐标若需作图，从 trajectory.npz 的 positions_A 与 time_fs 读取并保留独立时间约定。
+用现有 plot_aimd.py 和 atlas_plot_style.py 重建图，不平滑、插值或补出新的采样点。
 ```
 
-下面是算例实际使用的完整源码。
+[绘图源码](/Atlas/examples/al/plot_aimd.py) · [实际使用的绘图样式](/Atlas/examples/al/atlas_plot_style.py)
 
 <details>
 <summary>plot_aimd.py 完整源码</summary>
@@ -452,63 +385,16 @@ print('Wrote aimd-temperature, aimd-energy, aimd-displacement as PNG and PDF')
 
 </details>
 
-```bash
-python plot_aimd.py
-```
+从 `al` 根目录运行 `python3 plot_aimd.py` 可重建原有 PNG/PDF。正文使用温度响应和能量交换图，因为它们直接解释上述两类结果；原位移图与生成代码保留在数据包中。`prepare_aimd.py` 记录最初的超胞和速度生成过程，可从 [原源码](/Atlas/examples/al/prepare_aimd.py) 查看；它生成的起始输入没有包含所有后续修复，重跑应采用表中最终输入。
 
-这会生成温度、能量与位移三组 PNG/PDF。原始提取代码为 [analyse_aimd.py](/Atlas/examples/al/aimd/analyse_aimd.py)，初态记录为 [initial-velocities.json](/Atlas/examples/al/aimd/initial-velocities.json)；最初的输入准备记录为 [prepare_aimd.py](/Atlas/examples/al/prepare_aimd.py)。它保留初态的生成过程；本页实际完成的三条路线使用后续调整过的 `nosym` 与 CG 设置，重跑时应使用上表各目录中的最终输入和 `run.slurm`，不能把最初的生成脚本当成最终三条路线的一键入口。
+## 怎样接到界面热运动
 
-<details>
-<summary>prepare_aimd.py 的完整源码</summary>
+界面 AIMD 的判读需要回到构型：在同一共同晶胞下追踪层间距的分布、两层相对滑移、层内键长和配位变化，并对相邻时间段与末帧查看是否发生持续重构。若原子跨过周期边界，应先按层和键的连续性展开坐标，再求距离，不能把分数 z 的跳变直接解释成层脱离。
 
-```python
-from pathlib import Path
-import numpy as np,json
-from phonopy import Phonopy
-from phonopy.structure.atoms import PhonopyAtoms
-r=Path(__file__).resolve().parent;d=r/'aimd';d.mkdir()
-cell=np.array(json.loads((r/'structure.json').read_text())['cell_angstrom'])
-p=Phonopy(PhonopyAtoms(symbols=['Al'],cell=cell,scaled_positions=[[0,0,0]],masses=[26.9815385]),np.eye(3,dtype=int)*2,primitive_matrix='P')
-sc=p.supercell;N=len(sc);rng=np.random.default_rng(20260922)
-v=rng.normal(size=(N,3));v-=v.mean(axis=0)
-kb=1.380649e-23;mass=26.9815385*1.66053906660e-27;dof=3*N-3
-v*=np.sqrt(dof*kb*300/(mass*np.sum(v*v)))
-va=v/(0.529177210903e-10/4.837768653e-17)
-base=(r/'finite-disp/n2-d0.01/disp-001/al.scf.in').read_text()
-base=base[:base.index('ATOMIC_POSITIONS crystal')]+'ATOMIC_POSITIONS crystal\n'+''.join('Al '+' '.join(f'{x:.14f}' for x in row)+'\n' for row in sc.scaled_positions)+'CELL_PARAMETERS angstrom\n'+''.join(' '.join(f'{x:.14f}' for x in row)+'\n' for row in sc.cell)+'K_POINTS automatic\n4 4 4 0 0 0\nATOMIC_VELOCITIES\n'+''.join('Al '+' '.join(f'{x:.14e}' for x in row)+'\n' for row in va)
-for name,dt,nstep,thermostat in [('nvt-dt20',20,100,'svr'),('nve-dt20',20,50,'not_controlled'),('nve-dt10',10,100,'not_controlled')]:
- sub=d/name;sub.mkdir();(sub/'tmp').mkdir()
- inp=base.replace(" calculation = 'scf'",f" calculation = 'md'\n nstep = {nstep}\n dt = {dt}\n iprint = 1").replace(" verbosity = 'high'"," verbosity = 'low'").replace(' conv_thr = 1.0d-12',' conv_thr = 1.0d-10')
- ions=f"&IONS\n ion_dynamics = 'verlet'\n ion_velocities = 'from_input'\n ion_temperature = '{thermostat}'\n tempw = 300\n nraise = 20\n/\n"
- inp=inp.replace('ATOMIC_SPECIES',ions+'ATOMIC_SPECIES');(sub/'al.md.in').write_text(inp)
- head=(r/'dfpt/run.slurm').read_text().split('set -e\n')[0].replace('atlas-al-ph4',f'atlas-al-{name}')
- (sub/'run.slurm').write_text(head+'set -e\nmpirun -np 8 <qe_bin>/pw.x -in al.md.in > al.md.out 2> al.md.err\n')
-(d/'initial-velocities.json').write_text(json.dumps({'seed':20260922,'temperature_K_from_21_dof':mass*np.sum(v*v)/(dof*kb),'center_of_mass_velocity_m_s':v.mean(axis=0).tolist(),'velocity_unit':'bohr/Rydberg atomic time','velocities':va.tolist(),'physical_time_fs':{'nvt-dt20':96.75537306,'nve-dt20':48.37768653,'nve-dt10':48.37768653},'scope':'short integration and thermostat demonstration; 8-atom box and 4^3 mesh are not a production thermal-stability protocol'},indent=2))
-print('Prepared 8-atom Al: SVR 100xdt20, matched-duration NVE 50xdt20 and 100xdt10; explicit identical initial velocities, 300K/21 DOF.')
-```
+Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 为 AIMD 构造 4×4×1 超胞，§3.1 使用 300 K、1 fs 步长、6 ps 轨迹；Fig. 6(a–c)给出声子，Fig. 6(d–f)展示对应 AIMD 的能量时间序列。这里借鉴的是“先给出超胞、温度与窗口，再结合轨迹和振动结果读结构”的分析方法。其 6 ps 是该研究的设置，不能作为任意材料的充分采样标准；Al 例子更短，也没有界面层间距统计。
 
-</details>
+原文把该 AIMD 图描述为自由能涨落；本例 QE 数据明确是程序打印的电子能量、离子动能与温度，不把单条轨迹的能量序列重新命名为材料自由能。要讨论温度下的界面稳定性，需用该材料实际轨迹说明采样期间观察到的结构变化，并把未出现的事件限制在所用超胞、温度和观察窗口内。
 
-| 分支 | 输入与脚本 | 完整 OUT | 数值与坐标 |
-|---|---|---|---|
-| nvt-dt20-cg | [输入](/Atlas/examples/al/aimd/nvt-dt20-cg/al.md.in) / [脚本](/Atlas/examples/al/aimd/nvt-dt20-cg/run.slurm) | [OUT](/Atlas/examples/al/aimd/nvt-dt20-cg/al.md.out) | [CSV](/Atlas/examples/al/aimd/nvt-dt20-cg/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nvt-dt20-cg/trajectory.xyz) |
-| nve-dt20-nosym | [输入](/Atlas/examples/al/aimd/nve-dt20-nosym/al.md.in) / [脚本](/Atlas/examples/al/aimd/nve-dt20-nosym/run.slurm) | [OUT](/Atlas/examples/al/aimd/nve-dt20-nosym/al.md.out) | [CSV](/Atlas/examples/al/aimd/nve-dt20-nosym/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nve-dt20-nosym/trajectory.xyz) |
-| nve-dt10-nosym | [输入](/Atlas/examples/al/aimd/nve-dt10-nosym/al.md.in) / [脚本](/Atlas/examples/al/aimd/nve-dt10-nosym/run.slurm) | [OUT](/Atlas/examples/al/aimd/nve-dt10-nosym/al.md.out) | [CSV](/Atlas/examples/al/aimd/nve-dt10-nosym/thermo.csv) / [XYZ](/Atlas/examples/al/aimd/nve-dt10-nosym/trajectory.xyz) |
+零温附近的集体模式见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 或 [有限位移声子](/Atlas/m/phonon-finite-disp/qe/)。它们与有限温度、有限时长的 AIMD 各自补充一部分结构证据。
 
-## 文献中的 AIMD 热稳定性图件表达
-
-恒温 AIMD 可同时展示温度、能量和结构在采样窗口内的变化。轨迹长度应由所研究的过程、相关时间与统计误差决定；结构快照用于检查键长、配位和界面变化。能量守恒则用独立 NVE 对照检验，恒温轨迹中的能量涨落还受到温控器影响。下图文献采用 300 K、10 ps 的轨迹，这是该研究的实际设置。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M8_AIMD_ThermalStability_ZrI2_Fig2.jpg" alt="六种 ZrI2 基异质结在 300 K 下运行 10 ps 的 AIMD 温度与总能量演化及结构快照" loading="lazy"/><figcaption>六种 ZrI<sub>2</sub> 基异质结在 300 K、10 ps 恒温 AIMD 模拟中的温度 <em>T</em>(<em>t</em>) 与总能量 <em>E</em>(<em>t</em>) 双轴时间序列（a–f），同时给出初始构型与 10 ps 末帧的结构快照以检验热稳定性。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 2a–f，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
-
-下一步：若要看零温附近的振动模式，转到 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 或 [有限位移声子](/Atlas/m/phonon-finite-disp/qe/)。短 AIMD 与这些计算回答的时间尺度和近似不同，应分别检查后再合起来讨论。
-
-```text
-明确结构 + 初速度 → 每步电子 SCF → 力 → Verlet 移动 → 温度 / 能量 / 坐标
-                                    ├─ NVE：相同步长时间对照与能量守恒
-                                    └─ SVR：温控响应与平衡、采样长度检查
-```
-
-## 参考资料
-
-[pw.x 的 MD、时间步与温控输入](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Verlet 实现](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/dynamics_module.f90)
+[pw.x MD 与时间单位](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [QE 7.5 Verlet 实现](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/dynamics_module.f90)

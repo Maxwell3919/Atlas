@@ -3,6 +3,7 @@ import { createSatteriMarkdownProcessor } from '@astrojs/markdown-satteri';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import publishedIds from '../data/published-manuals.json';
+import { isManualVisible } from '../data/methods.js';
 import legacyHeadings from '../data/legacy-headings.json';
 import legacyDestinations from '../data/legacy-destinations.json';
 
@@ -10,7 +11,7 @@ import legacyDestinations from '../data/legacy-destinations.json';
 const published = new Set(publishedIds);
 export async function availableManualIds() {
   const entries = await getCollection('manual');
-  return new Set(entries.filter((entry) => published.has(entry.id) && entry.body?.trim()).map((entry) => entry.id));
+  return new Set(entries.filter((entry) => published.has(entry.id) && isManualVisible(entry.id) && entry.body?.trim()).map((entry) => entry.id));
 }
 
 let processorPromise;

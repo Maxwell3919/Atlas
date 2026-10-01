@@ -1,6 +1,12 @@
-# EPC 研究记录：SnSe₂/Sr₂N 与 ZrCl₂/Sc₂C
+# EPC 研究记录：材料分支与历史输出
 
-这里保存材料目录的历史启动、排错、质量修正及谱积分上限检查。终端文本保留原有顺序，运行状态以每段记录对应的时间为准。Al 的双网格教学路线见 [EPC 主教程](/Atlas/m/epc/qe/)，不把不同材料的参数或结果合并。
+SnSe₂/Sr₂N和ZrCl₂/Sc₂C各有独立结构、赝势、质量、k/q网格与运行记录。这些记录用于理解输入错误、保存数据和谱窗怎样影响解释；当前计算安排继续由材料自己的唯一README维护。下方提交和队列片段是历史证据，不意味着作业仍在运行或允许恢复。
+
+SnSe₂/Sr₂N旧config3的BFGS没有收敛，历史N质量被Sn质量覆盖，旧0.713–2.944 K不作为有效预测。修正质量后的链完成两步固定结构SCF，Γ响应在表示9途中中止，dyn1空、无完整q点EPC，ph96没有完整输出。旧q1/q2快照不代表这轮完成，也不能作为restart依据。
+
+ZrCl₂/Sc₂C历史ph64/ph96分别采用64²/96²致密电子网格、16²响应网格和同一q8²。+1.5%原始10 THz输出链保存完整，谱窗漏掉高频模式；18 THz保存表未绑定生成输入/命令/可执行文件。ph64.1/ph96.1加密链没有完整Tc输出对，已停止。材料后来核验的Γ对照仍属于声子阶段，不据此宣称完整各向异性EPW或材料Tc验收。
+
+方法与分析读[EPC正文](/Atlas/m/epc/qe/)、[高频谱窗](/Atlas/m/eliashberg-a2f/qe/#spectral-window)、[逐模线宽](/Atlas/m/phonon-linewidth/qe/#heterostructure-modes)及[Tc表诊断](/Atlas/m/allen-dynes/qe/#material-tc-record)。[Ba₂N原文](https://doi.org/10.1103/PhysRevB.105.165101)图3/6的模式–PHDOS–谱峰对应，是这里采用的分析顺序；文献结论与本存档接受范围分开。
 
 <span id="double-grid-research-record"></span>
 
@@ -169,7 +175,7 @@ K_POINTS automatic
 
 此处四个 `amass` 与元素表逐一对应。`el_ph_sigma=0.002`、`el_ph_nsigma=20` 也只是当前准备使用的设置，后面要结合实际逐 q 输出检查展宽依赖。Sc₂C 的不可约 q 点数量和分段不能直接照搬过来。
 
-上方官方输入手册目前为 QE 7.5；本机使用 QE 7.1，尚未找到与它匹配的官方输入手册来核实全部精确行为。这套 PAW、泛函与 EPC 的兼容性仍需在本地版本上验证，文件准备完成不等于这些检查已经通过。
+该记录使用QE7.1；精确参数含义可查[QE7.1 INPUT_PH定义](https://github.com/QEF/q-e/blob/qe-7.1/PHonon/Doc/INPUT_PH.def)，不以新版默认值替代原输入。这套 PAW、泛函与 EPC 的兼容性仍需在本地版本上验证，文件准备完成不等于这些检查已经通过。
 
 ## 脚本里的进程数要和申请资源一致
 
@@ -631,9 +637,8 @@ JobId=18178 JobName=srnsnse-k64
 
 把实际 23 轮的误差画在一起，可以看到前几轮上升、后期小幅反弹，以及最后跨过输入阈值的过程：
 
-![SnSe₂/Sr₂N 64×64×1 网格 SCF 的电子迭代误差](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.svg)
 
-这张图可用[本机绘图脚本](/Atlas/examples/snse2-sr2n/ph64/plot_scf_accuracy.py)重新生成，数据来自[完整 pwxall.out](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)，配套[绘图样式脚本](/Atlas/examples/snse2-sr2n/ph64/atlas_plot_style.py)放在同一目录。读取时保留原始迭代行，不把图中的下降趋势代替最终电子收敛与参数收敛验收。
+逐次电子迭代保存在[完整 pwxall.out](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)中；[原绘图脚本](/Atlas/examples/snse2-sr2n/ph64/plot_scf_accuracy.py)和[样式脚本](/Atlas/examples/snse2-sr2n/ph64/atlas_plot_style.py)仍可下载。最终电子收敛看输出末尾误差与所设阈值；迭代误差下降不能代替参数收敛。
 
 
 纵轴是输出打印的 `estimated scf accuracy` 上界，采用对数刻度，虚线为本次输入阈值。[下载这张图的数据](/Atlas/figures/snse2-sr2n-k64-scf-accuracy.csv)，或直接阅读[完整 pwxall.out（路径已简写）](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)。这张图对应一次固定输入的电子迭代，k 网格的物理量收敛仍需另外比较。
@@ -1105,7 +1110,6 @@ grep -E 'Calculation of q|Representation|iter #|Convergence|convergence|freq' ph
      PHONON       :   2m42.11s CPU   2m44.00s WALL
 
 
-
      Representation #   1 mode #   1
 
      Self-consistent Calculation
@@ -1224,9 +1228,8 @@ phx3.in:  recover=.true.
      18361    lambdax.slurm  PENDING       0:00      1 (Dependency)
 ```
 
-图中左面板为 2026-09-29 已完成的两步 SCF；中、右面板仍是错误质量诊断和质量修正前 q=1、2 记录的历史快照，不表示当前 PH/EPC 已完成。
+上述两步 SCF 在 2026-09-29 完成；错误质量诊断和质量修正前 q=1、2 的文件是历史快照，不能接入质量修正后的 PH/EPC 链。
 
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 的两步 SCF 收敛，错误质量与修正质量声子快照，以及质量修正前 q=1、2 的 EPC 记录" loading="lazy"/><figcaption>SnSe₂/Sr₂N 阶段性记录：（左）2026-09-29 的 64×64×1 与 16×16×1 SCF 均收敛；（中）旧质量错误与修正后质量的声子/PHDOS 对照快照；（右）旧质量 q=1（Γ）和 q=2 的逐模耦合快照。当前 Γ 点 ph.x 在 2026-09-29 中止，尚无完整声子与 EPC 结果。</figcaption></figure>
 
 配套输入、历史输出和绘图脚本见 snse2-sr2n/ph64 与 snse2-sr2n/ph96。2026-09-29 仅确认两步 SCF 收敛及 Γ 点 PH 中止；后续是否重提由材料计算协调决定，此处不把旧快照写成当前完整 Tc(σ) 结果。
 
@@ -1236,7 +1239,7 @@ phx3.in:  recover=.true.
 
 ## 二维异质结 ZrCl₂/Sc₂C 的保存双网格结果与谱积分上限核对
 
-本节记录 ZrCl₂/Sc₂C 的 64×64×1（ph64）与 96×96×1（ph96）原始计算链，以及对应保存输出表的核查。原始结构相对 a₀=3.308845 Å 拉伸至 a=3.358477221 Å，即 +1.499986%（约 +1.5%）。两条原始 10 THz 分支完成 10 个不可约 q 点；另外存有 18 THz 的 lambdax 输出表，但它们没有与已执行输入、命令和 QE 可执行文件对应起来。ph64.1/ph96.1 目前仅有准备输入，没有完整的加密 Tc 输出对。
+本节记录 ZrCl₂/Sc₂C 的 64×64×1（ph64）与 96×96×1（ph96）原始计算链，以及对应保存输出表的核查。原始结构相对 a₀=3.308845 Å 拉伸至 a=3.358477221 Å，即 +1.499986%（约 +1.5%）。两条原始 10 THz 分支完成 10 个不可约 q 点；另外存有 18 THz 的 lambdax 输出表，但它们没有与已执行输入、命令和 QE 可执行文件对应起来。ph64.1/ph96.1是另一轮准备并启动过的加密链，部分SCF/PH输出存在，随后因资源停止；没有完整加密Tc输出对。
 
 本节依次保留电子结构诊断、原始 10 THz 谱表和保存 Tc 表的算术核对。18 THz 来源未闭合，故交点仅用于描述现有表格。
 
@@ -1287,16 +1290,9 @@ zrclscc.dyn10
 >   96 96 1 0 0 0
 ```
 
-### 第一步后处理：电子结构三联图（Fatbands + PDOS + 二维费米面）
+### 电子结构与模式分析的衔接
 
-在分析声子线宽之前，先从 [`zrcl2-sc2c/scf/fatbands.projwfc_up`](/Atlas/examples/zrcl2-sc2c/scf/fatbands.projwfc_up) 与 [`zrcl2-sc2c/FS/zrclscc_fs.bxsf`](/Atlas/examples/zrcl2-sc2c/FS/zrclscc_fs.bxsf) 提取费米能级（SCF 中 `EF = 0.3133 eV`，`64×64×1` BXSF 网格中 `EF = 0.3154 eV`，`ph64` 粗网格 `pwx.out` 中 `EF = 0.3130 eV`）附近的轨道组成与费米面拓扑。单看总 DOS 曲线无法分辨层间杂化，将**高对称路径轨道权重能带（Fatbands）**、**共享能量纵轴的水平分波态密度（PDOS）**与**第一布里渊区二维费米面等能线**组合为三联图后，各轨道的角色一目了然：
-
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面拓扑" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构三联图：（左）沿 Γ–M–K–Γ 路径的轨道分辨 Fatbands，散点面积正比于 Zr-4d（深蓝）、Sc-3d（青绿）、C-2p（锈红）与 Cl-3p（琥珀）的 Löwdin 投影权重；（中）共享 E − E<sub>F</sub> 纵轴的水平轨道分辨 PDOS；（右）由 64×64×1 BXSF 网格提取的 Band 26（深蓝，围绕 Γ 的空穴口袋与围绕 K 的口袋）和 Band 27（锈红，围绕 Γ 的内圈口袋）二维费米面等能线。</figcaption></figure>
-
-这组图先用于辨认能带、轨道权重和口袋位置。下面将观察与需要进一步检验的解释分开：
-- 穿过费米能级的第 26、27 条能带由 **`Zr-4d`（深蓝）与 `Sc-3d`（青绿）巡游 d 电子**共同主导，在 `E − EF ∈ [−1.8, 0.2] eV` 区间也可见 **`C-2p`（锈红）** 投影。不同轨道在同一态上的权重可提示混合成分，但不能仅凭重叠的投影曲线判定共价键强度；
-- Γ–M 路径上接近费米能的色散较平缓，可与附近的 PDOS 峰比较。确定二维鞍点还需要另一独立方向的曲率；一条路径不能证明鞍点，也不能完整确定 DOS 峰的来源；
-- 右侧六角布里渊区中，Band 26 与 Band 27 在 Γ 点周围形成同心双口袋，Band 26 还在 K 点周围形成三角形口袋。这些口袋给出了可能的散射几何。要将下方线宽峰或 `q = 7` 的耦合归属到具体口袋，还需检查对应电子态及矩阵元；当前等能线图不能单独完成这一归属。
+电子投影与费米面分别从[投影能带](/Atlas/m/fatband/qe/)、[态密度](/Atlas/m/dos/qe/)及[费米面](/Atlas/m/fermi-surface/qe/)进入。旧电子三联图的部分投影来源尚未闭合，因此这里不重复展示，也不据它给q7指定某个电子口袋或认定层间成键。声子本征位移说明哪个原子在动，电子轨道投影说明哪些电子态参与，两者要靠分辨耦合连接。
 
 ### 第二步后处理：从 `lambda` 与 `int alpha2F` 的偏差定位 `emax = 10 THz` 截断
 
@@ -1339,8 +1335,8 @@ zrclscc.dyn10
 ```
 
 `ZrCl₂/Sc₂C` 的声子谱明显分成两个频段：
-- `0–10.11 THz`（直接 DFPT q 网格上为 `0–10.02 THz`）：以 Zr、Sc、Cl 位移为主的声学与中低频光学分支，共 15 条，其中 Γ 点 `ν = 7, 8`（`5.15 THz`）给出 `λ = 0.0580 / 0.0584`，而在有限波矢 `q = 7`（`(0.125000, 0.360844, 0)`）处最低声学支 `ν = 1`（`1.42 THz`）给出 `γ = 280.36 GHz`、单模耦合高达 **`λ = 4.7525`**（`ph96` 为 `4.7043`）；
-- `12.49–17.11 THz`（`416.6–570.7 cm⁻¹`，原始 DFPT 网格为 `12.38–17.11 THz`）：由轻原子 C 主导的三条高频光学支（`ν = 16, 17, 18`），其中 Γ 点面外模 `ν = 16`（`12.38 THz`）与双重简并面内模 `ν = 17, 18`（`15.42 THz`）的声子线宽高达 **`γ = 260.01、315.55、318.58 GHz`**（`ph96` 中为 `297.74、318.99、322.13 GHz`），单模耦合分别为 `λ = 0.0581、0.0454、0.0458`（`ph96` 中为 `0.0662、0.0456、0.0461`）。
+- `0–10.11 THz`（直接 DFPT q 网格上为 `0–10.02 THz`）：PHDOS中以Zr、Sc、Cl投影为主的声学与中低频光学频段，共 15 条，其中 Γ 点 `ν = 7, 8`（`5.15 THz`）给出 `λ = 0.0580 / 0.0584`，而在有限波矢 `q = 7`（`(0.125000, 0.360844, 0)`）处最低声学支 `ν = 1`（`1.42 THz`）给出 `γ = 280.36 GHz`、单模耦合高达 **`λ = 4.7525`**（`ph96` 为 `4.7043`）；
+- `12.49–17.11 THz`（`416.6–570.7 cm⁻¹`，原始 DFPT 网格为 `12.38–17.11 THz`）：逐原子PHDOS中C投影占优的高频段，含三条光学支（`ν = 16, 17, 18`），其中Γ点高频光学模 `ν = 16`（`12.38 THz`）与高频双重简并组 `ν = 17, 18`（`15.42 THz`）的声子线宽高达 **`γ = 260.01、315.55、318.58 GHz`**（`ph96` 中为 `297.74、318.99、322.13 GHz`），单模耦合分别为 `λ = 0.0581、0.0454、0.0458`（`ph96` 中为 `0.0662、0.0456、0.0461`）。
 
 QE 7.1 的 lambda.f90 说明，lambdax.in 第一列是 emax，第三列 ngaussq 控制频率展宽核：0 为普通 Gaussian，1 为 Methfessel–Paxton。实际 ph64/ph96 输入首行为 10 0.12 1，因此原始输入不是 Gaussian。源码中的直接 λ 求和遍历逐 q EPC 数据；α²F 与 ωlog 则由 emax 限定的频率网格计算，高于上限的模式仍可能通过展宽尾部贡献低于上限的频率。18 THz 文件没有可核验的执行输入、命令或可执行文件身份，故不能断言该组输出只改变了 emax。参见 QE 7.1 的 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/PH/lambda.f90">lambda.f90 源码</a>。
 
@@ -1354,9 +1350,9 @@ QE 7.1 的 lambda.f90 说明，lambdax.in 第一列是 emax，第三列 ngaussq 
      lambda = 1.883891 (   1.883828 )  <log w>=   87.678 K  N(Ef)= 27.843494 at degauss= 0.006
 ```
 
-已保存的 18 THz 表中，σ=0.003 Ry 的 ph64 行直接 λ 为 2.459034、谱积分为 2.458955；全表最大绝对差为 0.000102，因此不能写成严格小于 1×10⁻⁴。该比较是输出表算术，因生成来源未闭合，不代表已验证的 emax-only 修正。配套图为保持可追溯性，展示有匹配 10 THz 输入的 alpha2F.dat，并在图上标出 10 THz 截止与 18 THz 来源未闭合。
+已保存的 18 THz 表中，σ=0.003 Ry 的 ph64 行直接 λ 为 2.459034、谱积分为 2.458955；全表最大绝对差为 0.000102，因此不能写成严格小于 1×10⁻⁴。该比较是输出表算术，因生成来源未闭合，不代表已验证的 emax-only 修正。原始10 THz谱与逐模式量在各自文件中核对；旧图只作为下载资料，不能以混合散点面积读单独γ或λ。
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨 PHDOS 与有匹配 10 THz 输入的 α²F 表" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 三联图：（左）声子色散与模式耦合，红虚线标出 10 THz 频率网格上限；（中）原子分辨 PHDOS，C 的高频光学模由原子位移识别；（右）来自匹配 10 THz 输入的保存 α²F 表。18 THz 输出表的生成来源尚未闭合。</figcaption></figure>
+[原三联图下载](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png)保留历史版式：左侧面积按clip(26λ+0.14γ,4,95)混合编码，颜色为γ；右侧累计λ乘0.36共用横轴。频段归属按原子PHDOS，逐支位移方向仍需同一父链本征矢，不能用另一组Γ动画替代。独立数据与方法见[模式表](/Atlas/m/phonon-linewidth/qe/#heterostructure-modes)和[谱积分页](/Atlas/m/eliashberg-a2f/qe/#spectral-window)。
 
 ### 保存 Tc 表的插值核查与来源边界
 
@@ -1406,4 +1402,3 @@ ph64.1 与 ph96.1 的准备输入首行均为 18 0.12 1，el_ph_sigma 设为 0.0
 ```
 
 Tc 表核查结果以机器可读文件保存为 [tc-intersections.json](/Atlas/examples/zrcl2-sc2c/tc-intersections.json)。绘图脚本可从保存表重绘；该脚本不补造 18 THz 的输入或运行来源。
-

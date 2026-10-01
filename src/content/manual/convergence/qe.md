@@ -1,16 +1,12 @@
-## 跑过一次 SCF，再比较截断能和 k 网格
+## 先量出数值误差，再比较材料性质
 
-[Si 的固定结构 SCF](/Atlas/m/scf/qe/)介绍了一份输入怎样完成电子自洽。接下来保持结构和计算模型不变，分别改变截断能与 k 网格，比较总能量的变化。这样可以区分一次电子迭代是否收敛，以及有限基组和有限采样是否足以满足计算目的。
+界面结合能是几份总能量的差，电荷转移是几份密度的差，声子又来自能量对位移的响应。一次电子自洽通过之后，还要知道这些量会怎样随截断能、k 网格和占据展宽改变。比较的对象决定所需精度：能量差稳定，不自动保证层间距、力、应力或费米能附近的态密度已经稳定。
 
-这里比较总能量，是为了在继续优化和比较能量之前，量出有限基组与 k 点采样带来的变化。Si 使用超软赝势，波函数与含增广项的密度需要分别表示；[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节解释了两套截断能的来源。三组扫描分别改变参数，后面的选择对应这个固定晶胞模型与总能量容差。
+这里先用两个原子的金刚石 Si 原胞练习最容易复核的量——固定晶胞总能量。QE 7.5 使用 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`，常规立方晶格参数为 10.20 bohr（5.397607551 Å），所有扫描保持晶胞和原子位置不变。分别改变波函数截断、电荷密度截断和均匀网格，再用每组最高已测点作有限参照。完成一份输入的方法见 [SCF](/Atlas/m/scf/qe/)。
 
-算例仍采用两个原子的金刚石 Si 原胞，常规立方晶格参数为 10.20 bohr（5.397607551 Å），使用 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。晶胞在所有对照中固定；本页比较的是这一模型的总能量，不涉及平衡晶格的搜索。
+[Prandini 等的 SSSP 方法论文](https://doi.org/10.1038/s41524-018-0127-2) Fig. 2 分别检查声子、内聚能、压力与能带随截断能的变化。这里采用它按物理量检查的思路，只计算表中 Si 的总能量差；论文中的 Pd 曲线和筛选阈值不转移给本例。[QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节则解释超软赝势为何需要波函数与增广密度的两套网格。
 
-[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
-
-本例的输入、输出、能量表和 Python 提取脚本可[一起下载](/Atlas/examples/basics-si-convergence-files.tar.gz)。解包得到 `basics-si-convergence`。原始计算文件在其 `si-pbe/` 子目录；在包的根目录运行后面的提取命令。
-
-下载包保留实际输入、OUT、错误流、提交脚本和数值表。读取与换算能量只需 Python 3 标准库；重跑 QE 时，按官方链接准备赝势并将 `run.sh` 中的 `<qe_bin>` 改为本机安装路径。
+[完整算例包](/Atlas/examples/basics-si-convergence-files.tar.gz)解包为 `basics-si-convergence`，含 `si-pbe/` 下实际输入、OUT、错误流、提交脚本、数值表和完整提取源码。读取和换算只需 Python 3 标准库；复算时另建目录，按[官方来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)准备赝势，并修改脚本中的 `<qe_bin>`。
 
 ## 为每个参数点保留独立输入与输出
 
@@ -100,7 +96,13 @@ Submitted batch job 783
 [preston@preston-System-Product-Name rho320]$ cd ..
 ```
 
-## 核对每份 SCF 实际计算了什么
+## 每份能量都要对应一次完整电子计算
+
+提取时先核对 OUT 头部的结构、原子数、截断能和实际版本，再把末轮 `! total energy`、`estimated scf accuracy`、`convergence has been achieved` 与文件结束段连起来读。[SCF 页](/Atlas/m/scf/qe/)已逐段解释这份基线 OUT；这里重点比较不同参数点，不重复展开同一电子迭代。
+
+<details>
+<summary>本组基线 OUT：头部、电子迭代、最终能量与收尾原记录</summary>
+
 
 先看一份完成的 SCF 输出的开头。这里能确认版本、4 个 MPI 进程、读到的输入文件，以及实际使用的晶格、原子数和截断。
 
@@ -277,6 +279,8 @@ Submitted batch job 783
 [preston@preston-System-Product-Name si-pbe]$
 ```
 
+
+</details>
 
 ## 在同一组内比较能量差
 
@@ -599,6 +603,12 @@ Results: results
 
 可分别下载 [能量表](/Atlas/examples/basics-si-convergence/results/convergence.csv)、[运行清单](/Atlas/examples/basics-si-convergence/results/run-inventory.csv)、[设置摘要](/Atlas/examples/basics-si-convergence/results/summary.json)、[文件哈希](/Atlas/examples/basics-si-convergence/results/source-files.json)、[数值报告](/Atlas/examples/basics-si-convergence/results/energy-report.md)及[实际命令输出](/Atlas/examples/basics-si-convergence/run.log)。将源码与原始文件目录一起保存，便可重算所有差值。
 
-Lee 等的 Fig. 1 检查 c-BN 声子限制迁移率，式 (3)–(5) 将输运积分与迁移率相连。Si 总能量扫描使用不同目标量，不能由它接受迁移率、声子或 EPC 的数值参数。EPW 的方法论文同样按目标物理量组织网格检查，Fig. 1 分开比较粗网格、细积分网格和展宽，并展示网格与展宽的共同影响。本例采用同样的控制变量思路，目标量为固定晶胞 Si 总能量。参见 Lee 等，*npj Computational Materials* **9**, 156 (2023)，[DOI: 10.1038/s41524-023-01107-3](https://doi.org/10.1038/s41524-023-01107-3)。单位换算见 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
+## 将总能量比较接到界面与声子分析
+
+这张表支持的是同一固定 Si 晶胞下的总能量误差。计算界面结合能时，异质结与两个组分应采用同一能量定义和对应的结构约束，直接比较结合能差随数值设置的变化；层间距和内部坐标则从各次优化的末态检查。电荷转移要继续检查密度网格、Bader 积分或平面平均积分的变化。声子和 EPC 分别比较频率、谱函数、λ 等目标量，不能由 Si 的 1 meV/atom 选点接替这些检查。
+
+二维体系的面内 k 点密度与真空长度也应分开考虑。kz=1 表示薄层的采样方式，不能证明周期镜像已经隔离；真空厚度应对功函数、密度分布或所关心的响应另做比较。金属还要把 k 网格与展宽放在同一轮目标量检验中。[Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101)第 II 节为结构/电子性质与 EPC 使用不同采样，便是按问题分配计算精度的实例；这些材料参数属于论文中的 Ba₂N。
+
+本表的 40 Ry、320 Ry、10³ 分别来自独立扫描，没有把三者组合运行。后续 Si 算例保留其实际采用的 60/640 Ry 设置；若建立新的研究协议，选点后仍需以组合参数检查目标量。单位换算使用 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
 
 接下来可用[离子弛豫](/Atlas/m/relax/qe/)观察原子位置的调整，或继续固定结构的[均匀 NSCF](/Atlas/m/nscf/qe/)与[路径能带](/Atlas/m/bands/qe/)；需要优化晶胞时，另读[Al 的变胞算例](/Atlas/m/vc-relax/qe/#al-vc-relax)。

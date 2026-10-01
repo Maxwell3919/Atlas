@@ -1,0 +1,49 @@
+&TB_FILE
+ Hrfile = 'BHZ_hr.dat'
+/
+&CONTROL
+ BulkBand_calc = T
+ WannierCenter_calc = T
+ SlabSS_calc = T
+/
+&SYSTEM
+ SOC = 1
+ NumOccupied = 2
+ E_FERMI = 0.0
+/
+&PARAMETERS
+ Np = 2
+ Nk1 = 41
+ Nk2 = 41
+ Nk3 = 1
+ OmegaMin = -2.5
+ OmegaMax = 2.5
+ OmegaNum = 401
+/
+LATTICE
+Angstrom
+3 0 0
+0 3 0
+0 0 10
+ATOM_POSITIONS
+1
+Direct
+C 0 0 0
+PROJECTORS
+2
+C s pz
+SURFACE
+0 0 1
+1 0 0
+0 1 0
+KPATH_SLAB
+1
+-X 0 -0.5 X 0 0.5
+KPATH_BULK
+2
+X 0.5 0 0 G 0 0 0
+G 0 0 0 Y 0 0.5 0
+KPLANE_BULK
+0 0 0
+1 0 0
+0 0.5 0

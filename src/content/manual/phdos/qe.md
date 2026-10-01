@@ -1,10 +1,8 @@
-声子色散告诉我们一条指定路径上的频率怎样变化。声子态密度换了一个问法：在整个布里渊区里，有多少振动模式落在这一小段频率内？路径上的点再密，也不能代替布里渊区积分。
+色散定位哪一支在什么 q 变软，声子态密度则统计整个布里渊区中某一频段的模式数。给每个模式加上原子或层权重，就能继续回答这个频段主要由哪一层、哪种元素参与。界面和应变分析需要把这两种读法对应起来：色散上的高频支与 PHDOS 中的元素峰属于同一套力常数，但高对称路径上的点数不能当作布里渊区积分权重。
 
-这里接着 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的结果做。例子是单原子 fcc Al 原胞，使用 QE 7.5 和官方示例中的 `Al.pz-vbc.UPF`。这次完整计算了 4×4×4 q 网格；需要准备 `al.dyn0` 和八份编号动力学矩阵，它们对应同一个 Al 结构和父 SCF；下面从声子计算结束的目录开始。
+先接着 [Al DFPT](/Atlas/m/phonon-dfpt/qe/)完成从力常数到 DOS 的操作。单原子 fcc Al 用 QE 7.5、LDA-PZ `Al.pz-vbc.UPF` 和完整 4³ 原始 q 网格，下面比较 24³ 与 32³ 后处理网格。它的原胞总共三个振动自由度，适合直接核对积分与列含义；多元素界面分析放在后半段。
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-本例从同一组力常数比较 24³ 与 32³ 后处理网格，读取谱形及总积分是否接近单原子原胞的三个振动自由度。这也为振动热力学准备了谱：例如 [Hellman 等的 TDEP 方法论文式 (18)](https://arxiv.org/html/1303.1145)用全布里渊区的声子态密度积分振动自由能。本页只计算态密度，还没有执行这一步自由能计算。
+输入、输出、数据与完整脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al` 运行绘图命令。[Ba₂N 论文 Fig. 3(b) 与 Fig. 6(b)](https://doi.org/10.1103/PhysRevB.105.165101)展示原子 PHDOS 如何与应变色散及 α²F 配对；下面采用的是这种按频段与原子组成对读的分析。
 
 ## 先看手上的动力学矩阵
 
@@ -176,8 +174,6 @@ cat matdyn-dos32.err
 编写 plot_phdos.py，从 Al 根目录读取 dfpt/al.phdos.dat 与 dfpt/al.phdos32.dat，比较 24³ 和 32³ 后处理积分网格。第一列频率单位 cm⁻¹，第二列总 DOS 单位 states/(cm⁻¹)；用梯形积分打印原始积分，与单原子原胞的 3 个模式比较，不强制归一化。以真实频率列画 DOS 曲线、标单位和网格，输出 figures/phdos.png 与 PDF，复用 atlas_plot_style.py。
 ```
 
-下面是算例实际使用的完整源码。
-
 <details>
 <summary>plot_phdos.py 完整源码</summary>
 
@@ -211,50 +207,162 @@ python3 plot_phdos.py
 
 <figure><img src="/Atlas/examples/al/figures/phdos.png" alt="Al 声子态密度，24与32网格积分比较" loading="lazy"/><figcaption>同一份 4×4×4 DFPT 力常数上的两种积分网格。曲线是实际输出的 DOS，没有手工平滑或补点。</figcaption></figure>
 
-比较时要分开两个问题：积分网格变密后峰形和积分是否稳定；原始 DFPT q 网格变密后力常数是否稳定。这里已完成前一项检查的两组计算，后一项仍需独立 q 网格系列。当前这张图可以用于理解声子 DOS 和检查数据链条，不能直接作为 Al 声子谱已数值收敛的证明。
+两种积分网格的总模式数都接近 3，且图中的主要峰形相近。这个对照检验同一组力常数上的布里渊区积分；要看力常数本身怎样随原始 DFPT q 网格变化，需要另一组响应计算。
 
-## 二维异质结 ZrCl₂/Sc₂C 与 SnSe₂/Sr₂N：多元素原子投影 PHDOS 与声子色散共享频率轴对齐
+## 原子 PHDOS 用的是什么向量
 
-单质 Al 的 `.phdos` 文件只有一列原子投影，而在含 `N_at` 个原子的化合物或异质结中，`matdyn.x`（开启 `dos = .true.`）输出的 `.phdos` 文件格式为：
+用归一化动力学矩阵本征矢 e 定义某原子 I 的模态权重 `W_I(qν)=Σ_α|e_Iα(qν)|²`，原子谱可写成
 
-```text
-# Frequency[cm^-1] DOS PDOS_1 PDOS_2 ... PDOS_nat
-```
+$$
+g_I(\omega)=\sum_{\mathbf q\nu}w_{\mathbf q}W_I(\mathbf q\nu)\,\delta(\omega-\omega_{\mathbf q\nu}),\qquad
+\sum_I g_I(\omega)=g(\omega).
+$$
 
-其中第 1 列为波数频率（`cm⁻¹`），第 2 列为原胞总声子态密度，第 `3` 至 `N_at + 2` 列依次对应原胞内第 `1` 至 `N_at` 个原子的分波声子态密度（满足 `∑_I PDOS_I(ω) = DOS(ω)`）。将其转换到 `THz` 单位时，横轴频率除以 `33.3564095`，纵轴态密度同步乘以 `33.3564095`，从而保持全频段积分等于总自由度数 `3 N_at`（对 6 原子原胞即为 `18`）。
+w_q 是布里渊区积分权重。总谱在完整频段的积分对应 `3N_at` 个自由度。[QE 7.2 matdyn 源码](https://github.com/QEF/q-e/blob/qe-7.2/PHonon/PH/matdyn.f90#L689-L695)的 `dynq` 由对角化得到的位移乘回质量因子，形成本征矢平方投影；7.5 使用相同定义。因此 `.phdos` 的原子峰是质量加权模态组成，不是原子的实际振幅平方。若要画归一化位移的方向权重，应另读 `.modes`，并在图例注明向量定义。
 
-在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)，使用 `nk1=48, nk2=48, nk3=1` 插值网格生成 [`zrclscc.phdos`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)）与 **`SnSe₂/Sr₂N`**（[`srnsnse.phdos`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos)）中，将同种元素的原子列相加（如 `Cl = site 3 + site 4`，`Sc = site 5 + site 6`），并将 PHDOS 旋转为**水平图（X 轴为 PHDOS，Y 轴为频率 ω）**与左侧声子色散共享纵轴：
+多原子文件每行依次给出频率、总 DOS 和按输入原子顺序排列的 N_at 个投影列。把频率从 cm⁻¹ 换为 THz 时，横轴除以 `33.3564095198152`，谱密度乘以同一个因子，积分保持不变。只改横轴单位会把模式数也改掉。
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨水平 PHDOS 与 Eliashberg 谱函数联立图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的原子分辨 PHDOS（中面板）与声子色散（左面板）、Eliashberg α<sup>2</sup>F(ω)（右面板）共享频率纵轴（0–18 THz）。中面板显示 Zr、Sc、Cl 振动分布在 0–10.11 THz，12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz）的高频光学带以 C 原子位移为主。</figcaption></figure>
+## 按真实原子顺序合成元素与层投影
 
-这种“左色散 + 中水平 PHDOS”的共享纵轴排版比单独画一张横置 PHDOS 图多传递两层关键信息：
-1. **比较色散与态密度的频段**：共享频率轴便于判断 PHDOS 峰附近有哪些近乎平坦的分支及原子贡献。PHDOS 对整个布里渊区积分，高对称路径只取部分 q 点；要确定峰来自哪个鞍点，还需检查该频段的完整 q 网格或等频分布。
-2. **轻重元素频段分离与积分上限核验**：在 `ZrCl₂/Sc₂C` 中，`Zr/Sc/Cl` 分支位于 `0–10.11 THz`（直接 DFPT 网格为 `0–10.02 THz`），经 `10.11–12.49 THz` 的声子带隙后，以 `C` 原子位移为主的高频分支位于 `12.49–17.11 THz`（直接 DFPT 网格为 `12.38–17.11 THz`）；在 `SnSe₂/Sr₂N` 中，恢复 `M_N = 14.007` 后的 `N` 原子（锈红）高频光学支从错误质量下的 `4.49–6.70 THz` 移至 `7.99–11.94 THz`（已绘路径范围 `7.42–11.94 THz`）。这为设定 `lambda.x` 的频率积分上限 `emax` 提供了直接依据。
+ZrCl₂/Sc₂C 的[结构输入](/Atlas/examples/zrcl2-sc2c/ph64/pwx.in)中，顺序为 `1 Zr、2 C、3 Cl、4 Cl、5 Sc、6 Sc`。Cl 合并第 3、4 个原子列，Sc 合并第 5、6 个原子列；ZrCl₂ 层合并第 1、3、4 个原子列，Sc₂C 层合并第 2、5、6 个原子列。这里的层分组由结构中的原子归属决定，与元素类型编号不同。
 
-## 文献中的声子态密度（PHDOS）与色散对照图例（附 DOI 溯源）
+SnSe₂/Sr₂N 的[结构输入](/Atlas/examples/snse2-sr2n/ph64/pwxall.in)顺序为 `Sr、Sr、Sn、Se、Se、N`。Sr₂N 层对应第 1、2、6 个原子，SnSe₂ 层对应第 3、4、5 个原子。两份文件都是六原子体系，但不能共用同一套列号。
 
-在晶格动力学与超导文献中，声子态密度常与高对称路径声子色散或 Eliashberg 谱函数共享同一频率纵轴并列展示。下面结合两幅文献原图说明其常见布局：
+当前界面 DOS 的[ZrCl₂/Sc₂C 运行输出](/Atlas/examples/zrcl2-sc2c/ph64/matdyn_dos.out)和[SnSe₂/Sr₂N 输出](/Atlas/examples/snse2-sr2n/ph64/matdyn_dos.out)记录的是 QE 7.2，区别于上面的 Al 7.5。两份存档输入均采用 `asr='simple'`、`nk1=nk2=48`、`nk3=1`、`ndos=400`，并从已有 `.fc` 读取质量；这次复核只读取现存 `.phdos` 和结构，没有重新计算力常数。
 
-### 1. 声子色散与元素分辨 PHDOS 的多体系并列对比（含 SOC 与 CDW 软模）
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="四种二维过渡金属碳氮化物在有无自旋轨道耦合及应变调控下的声子色散与元素分辨 PHDOS 对比图" loading="lazy"/><figcaption>四个子面板 (a)–(d) 依次展示 Mo<sub>2</sub>C、Mo<sub>2</sub>N、W<sub>2</sub>C 及 4% 双轴应变 W<sub>2</sub>N 在不含自旋轨道耦合（红虚线）与含自旋轨道耦合（蓝实线）下的声子色散及右侧共享频率轴的元素分辨 PHDOS；子面板 (d) 同时以绿色点线（标有 <code>CDW &lt;-</code>）叠绘未应变 W<sub>2</sub>N 在 M 点的电荷密度波软模虚频支。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-色散与右侧元素投影 PHDOS 使用同一频率轴，先读取每种材料的振动组成，再比较 SOC 与应变。碳化物具有较清楚的频段间隔；Mo₂N 的相应间隔闭合，氮化物中的金属与 N 振动不能按同一条频率线分开。W₂N 的未应变软模与 4% 应变结果另作对照。
-
-### 2. 声子色散、模式耦合强度、元素分辨 PHDOS 与 Eliashberg α²F(ω) 多面板并列
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维 h-AlH₂ 的振动方向投影色散、模式电声耦合常数、元素分辨 PHDOS、Eliashberg 谱函数与布里渊区耦合分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板组合图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) Al 与 H 的分波声子态密度 PHDOS，(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与累计 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
-
-把 PHDOS 与 α²F 放在共同频率轴上，可以比较声子态数与耦合加权谱的差别。不过 α²F 还包含电子态的散射相空间和矩阵元权重；仅凭两条曲线的峰值对应，不能唯一分解各项贡献。解释具体频段时应继续检查逐 q、逐模的耦合与原子位移。
-
-下一步可以回到 [声子色散](/Atlas/m/phonon-dfpt/qe/) 对照峰主要来自哪些近乎平坦的声子支，也可以到 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查低频端的残差。
+[完整投影脚本](/Atlas/examples/phonons-interface-projections/analyse_phdos.py)读结构确定原子顺序，再从真实数据合成元素和层谱。它不平滑、不强制归一化，也不由色散图反推谱线。数据格式、单位变换与编程需求如下：
 
 ```text
-固定结构 SCF → 完整 q 网格 DFPT → q2r 力常数
-                                  ├→ matdyn 高对称路径 → 声子色散
-                                  └→ matdyn 均匀网格 → 声子 DOS → 积分与网格检查
+编写 analyse_phdos.py，参数 --public-root 指向解包后的 public 数据根目录，--output 指定结果目录。读取 examples/zrcl2-sc2c/ph64/zrclscc.phdos 与 pwx.in，及 examples/snse2-sr2n/ph64/srnsnse.phdos 与 pwxall.in。每份数据应有频率、总DOS和六列原子投影；从 ATOMIC_POSITIONS 核对原子顺序。频率除以 33.3564095198152，所有谱密度乘以同一因子。按正文的真实原子号合成元素与层谱，保存 CSV；打印原始总积分与18的比较，记录逐原子、逐层积分及投影和相对峰值的偏差。负频符号保留，不修改原始文件、不自动归一化、不画示意数据。
 ```
+
+<details>
+<summary>analyse_phdos.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Group existing QE 7.2 atomic PHDOS; do not recompute force constants."""
+from pathlib import Path
+import argparse, csv, json, re
+import numpy as np
+
+CM_PER_THZ = 33.3564095198152
+CASES = {
+    "zrcl2-sc2c": {
+        "dos": "zrclscc.phdos", "input": "pwx.in",
+        "symbols": ["Zr", "C", "Cl", "Cl", "Sc", "Sc"],
+        "layers": {"ZrCl2": [0, 2, 3], "Sc2C": [1, 4, 5]},
+    },
+    "snse2-sr2n": {
+        "dos": "srnsnse.phdos", "input": "pwxall.in",
+        "symbols": ["Sr", "Sr", "Sn", "Se", "Se", "N"],
+        "layers": {"Sr2N": [0, 1, 5], "SnSe2": [2, 3, 4]},
+    },
+}
+
+def analyse(public_root, output):
+    output.mkdir(parents=True, exist_ok=True)
+    report = {"numpy_version": np.__version__,
+              "projection": "QE 7.2 matdyn dynq: squared dynamical-matrix eigenvector",
+              "density_unit": "states/THz", "frequency_unit": "THz", "cases": {}}
+    for name, case in CASES.items():
+        directory = public_root / "examples" / name / "ph64"
+        text = (directory / case["input"]).read_text()
+        tail = re.split(r"ATOMIC_POSITIONS[^\n]*\n", text, flags=re.I)[1]
+        symbols = [line.split()[0] for line in tail.splitlines()[:6]]
+        assert symbols == case["symbols"], (name, symbols)
+        data = np.loadtxt(directory / case["dos"])
+        assert data.shape[1] == len(symbols) + 2
+        assert np.all(np.isfinite(data)) and np.all(np.diff(data[:, 0]) > 0)
+        frequency = data[:, 0] / CM_PER_THZ
+        total = data[:, 1] * CM_PER_THZ
+        atoms = data[:, 2:] * CM_PER_THZ
+        elements = {s: np.flatnonzero(np.array(symbols) == s).tolist()
+                    for s in dict.fromkeys(symbols)}
+        groups = {**elements, **case["layers"]}
+        grouped = {g: atoms[:, ids].sum(axis=1) for g, ids in groups.items()}
+        with (output / (name + "-grouped.csv")).open("w") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["frequency_THz", "total_states_per_THz", *groups])
+            writer.writerows(zip(frequency, total, *grouped.values()))
+        integral = lambda y: float(np.trapezoid(y, frequency))
+        peak = float(np.max(np.abs(total)))
+        result = {"sources": ["examples/" + name + "/ph64/" + case[k]
+                              for k in ["dos", "input"]],
+                  "atom_order": symbols, "layer_site_indices_1based": {
+                      g: [i + 1 for i in ids] for g, ids in case["layers"].items()},
+                  "rows": len(data), "frequency_range_THz": [float(frequency[0]), float(frequency[-1])],
+                  "total_integral": integral(total), "expected_modes": 3 * len(symbols),
+                  "atom_integrals": [integral(atoms[:, i]) for i in range(len(symbols))],
+                  "group_integrals": {g: integral(y) for g, y in grouped.items()},
+                  "max_projection_sum_error_relative_to_peak":
+                      float(np.max(np.abs(atoms.sum(axis=1) - total)) / peak)}
+        report["cases"][name] = result
+        print(f"{name}: rows={len(data)} modes={result['total_integral']:.8f} / 18 "
+              f"sum_error/peak={result['max_projection_sum_error_relative_to_peak']:.3e}")
+        print("  atom order:", ", ".join(f"{i+1}:{s}" for i, s in enumerate(symbols)))
+        print("  layer integrals:", ", ".join(f"{g}={result['group_integrals'][g]:.8f}"
+                                               for g in case["layers"]))
+    (output / "projection-checks.json").write_text(json.dumps(report, indent=2) + "\n")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--public-root", type=Path, required=True)
+    parser.add_argument("--output", type=Path, default=Path("projection-results"))
+    arguments = parser.parse_args()
+    analyse(arguments.public_root, arguments.output)
+```
+
+</details>
+
+[界面 PHDOS 轻量复算包](/Atlas/examples/phonons-interface-projections-files.tar.gz)包含完整脚本和下面四份原始输入；需要 Python 3 与 NumPy 2.0 或更新版本。也可分别下载 [ZrCl₂/Sc₂C 原始 PHDOS](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)、[对应结构输入 pwx.in](/Atlas/examples/zrcl2-sc2c/ph64/pwx.in)、[SnSe₂/Sr₂N 原始 PHDOS](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos)和[对应结构输入 pwxall.in](/Atlas/examples/snse2-sr2n/ph64/pwxall.in)，按以下目录放置。这里的 public 是这四份文件的数据根目录，不需要另下载整站或页首的 Al 包。
+
+```text
+phonons-interface-projections/
+├── analyse_phdos.py
+└── public/
+    └── examples/
+        ├── zrcl2-sc2c/
+        │   └── ph64/
+        │       ├── zrclscc.phdos
+        │       └── pwx.in
+        └── snse2-sr2n/
+            └── ph64/
+                ├── srnsnse.phdos
+                └── pwxall.in
+```
+
+下载轻量包后，在保存它的目录解压，进入上面的顶层目录，再运行同一条分组命令：
+
+```bash
+tar -xzf phonons-interface-projections-files.tar.gz
+cd phonons-interface-projections
+python3 analyse_phdos.py --public-root ./public --output ./projection-results
+```
+
+这次在 Talos 的 NumPy 2.4.6 中实际得到：
+
+```text
+zrcl2-sc2c: rows=400 modes=18.52393348 / 18 sum_error/peak=9.400e-06
+  atom order: 1:Zr, 2:C, 3:Cl, 4:Cl, 5:Sc, 6:Sc
+  layer integrals: ZrCl2=9.55101188, Sc2C=8.97291708
+snse2-sr2n: rows=400 modes=18.74245521 / 18 sum_error/peak=4.769e-06
+  atom order: 1:Sr, 2:Sr, 3:Sn, 4:Se, 5:Se, 6:N
+  layer integrals: Sr2N=9.34211754, SnSe2=9.40032494
+```
+
+两份谱在每个频率处的原子投影和与总 DOS 相符到打印精度，但对当前 400 行数据作梯形积分分别得到 18.52393348 和 18.74245521，比六原子的 18 个模式多约 2.91% 和 4.12%。这说明“投影列加起来等于总列”与“频率积分正确”是两项不同的数值关系。当前分组可复现存档中的元素谱形，但这组积分不适合用于定量比较层间振动自由度或计算精细热力学量。QE 的该 DOS 实现还注明四面体法在非立方材料中可能不适用；要查清偏差，需要从同一力常数比较频率轴密度和适合二维积分的处理，而不是把输出统一缩放到 18。
+
+可直接下载[ZrCl₂/Sc₂C 分组谱](/Atlas/examples/phonons-interface-projections/zrcl2-sc2c-grouped.csv)、[SnSe₂/Sr₂N 分组谱](/Atlas/examples/phonons-interface-projections/snse2-sr2n-grouped.csv)和[积分记录](/Atlas/examples/phonons-interface-projections/projection-checks.json)。这些层谱由原子权重求和得到，并不保留两层之间运动的相位；剪切或呼吸模仍需回到[本征位移](/Atlas/m/phonon-dfpt/qe/#h-将频率-本征矢和原子位移连起来)。
+
+## 将频段组成与应变机制对应起来
+
+ZrCl₂/Sc₂C 的现存路径色散在 0–10.11 THz 有 15 条中低频支，12.49–17.11 THz 有三条高频支。对照原子谱可见高频段以 C 的本征矢权重为主。它回答高频振动主要落在哪种元素上，尚不区分 C 的面内和面外运动。频段之间的间隔也不能只用轻重原子质量解释，恢复力与模式混合共同决定频率。
+
+[Ba₂N Fig. 3(b)](https://doi.org/10.1103/PhysRevB.105.165101)中，低于约 130 cm⁻¹ 的谱主要来自 Ba，160–220 cm⁻¹ 主要来自 N；到 4% 拉伸的 Fig. 6(b)，N 频段降到约 120–172 cm⁻¹，部分 Ba 与 N 贡献发生混合。Fig. 6(a) 的 K 软模、Fig. 6(c) 的低频 α²F 峰和 Fig. 6(e) 的位移图进一步说明，谱峰移动发生在怎样的原子运动中。这个论证包含频率、投影、运动与耦合四项信息，不能只按 PHDOS 峰高排序“哪种元素贡献最大”。
+
+界面或应变前后比较时，先统一原胞模式数、频率单位、ASR 与积分约定，再按同一原子/层分组读谱。若要解释超导变化，则接到[α²F](/Atlas/m/eliashberg-a2f/qe/)：PHDOS 统计声子模态，α²F 另含电子散射和耦合矩阵元。相同频率处两者都有峰，不意味着每个声子对耦合的权重相同。
 
 ## 参考资料
 
-[matdyn.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/)
+[matdyn 输入与单位](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [QE 7.2 原子投影源码](https://github.com/QEF/q-e/blob/qe-7.2/PHonon/PH/matdyn.f90#L689-L695) · [Ba₂N Fig. 3、6](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.105.165101)

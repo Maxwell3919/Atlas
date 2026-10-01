@@ -1,12 +1,14 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import { engines, methods, methodList, normalizeBase, methodRouteAliases } from '../../../data/methods.js';
+import { engines, methods, routeMethodList, normalizeBase, methodRouteAliases } from '../../../data/methods.js';
 import { methodTeaching, manualTeaching } from '../../../data/teaching.js';
 import { availableManualIds } from '../../../lib/manual.js';
-export function getStaticPaths() {
+export async function getStaticPaths() {
+  const available = await availableManualIds();
+  const ready = slug => methods[slug].engines.some(engine => available.has(`${slug}/${engine}`));
   return [
-    ...methodList().map(({ slug, zh }) => ({ params: { method: slug }, props: { zh, canonical: slug } })),
-    ...Object.entries(methodRouteAliases).map(([oldSlug, canonical]) => ({ params: { method: oldSlug }, props: { zh: methods[canonical].zh, canonical } })),
+    ...routeMethodList().filter(({slug}) => ready(slug)).map(({slug, zh}) => ({params:{method:slug}, props:{zh, canonical:slug}})),
+    ...Object.entries(methodRouteAliases).filter(([,canonical]) => ready(canonical)).map(([oldSlug, canonical]) => ({params:{method:oldSlug}, props:{zh:methods[canonical].zh, canonical}})),
   ];
 }
 const { zh } = Astro.props;
@@ -19,7 +21,7 @@ const otherEngines = engines.filter((engine) => method.engines.includes(engine.i
 ---
 <Base title={`${zh} · Atlas`}>
   <article class="hub">
-    <p class="crumb"><a href={`${base}/?open=1`}>← 计算目录</a></p>
+    <p class="crumb"><a href={`${base}/?open=1`}>← 性质目录</a></p>
     <h1>{zh}</h1>
     <p class="overview">{methodTeaching[slug]?.overview}</p>
     <div class="cases">

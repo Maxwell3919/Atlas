@@ -1,3 +1,5 @@
+界面前后近费米能级的态数和层来源怎样改变？先用 Si 的均匀网格结果认识 DOS 的单位、积分和投影缺口，再读 ZrCl₂/Sc₂C 的四态冻结对照。窄窗口积分在具体输出后给出，电子态归属与电荷转移采用不同定义。
+
 ## 在能量轴上数状态，先用均匀 k 网格
 
 Si 的哪些能量区间聚集了较多电子态，积分后的状态数是否与占据带相符？总 DOS 把整个布里渊区的能级按权重汇到能量轴上，适合回答这两个问题；路径能带上的线密不代表相应能量区间的态数。
@@ -327,7 +329,7 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 <figcaption>QE 7.1 ZrCl2/Sc2C site mapping. Layer labels and fractional z values follow the scf/pwx.in crystal coordinates; horizontal spacing is schematic.</figcaption>
 </figure>
 
-通过共享能量纵轴，便于将子图 b 中费米能级附近的态密度峰与子图 a 中平缓的 `Zr-4d` / `Sc-3d` 能带色散对应起来。在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)的 `lambdax.emax18.out` 中，`σ = 0.003 Ry` 处采用该电子展宽求得的费米能处态密度 `N_σ(E_F)` 在 `ph64`（`64²`）与 `ph96`（`96²`）网格下分别为 `30.598` 与 `30.772 states/spin/Ry/cell`（完整 `N_σ(E_F)` 随展宽 `σ` 的变化曲线见 [`zrcl2-sc2c-k64-k96-moments.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png) 的子图 a）。
+这张历史 QE 7.1 图先把能带和 PDOS 的相同能量位置联系起来；平缓路径段只是寻找 DOS 峰来源的线索。具体峰重来自均匀网格积分，且四条选定轨道曲线没有覆盖全部原子轨道。下面的四态冻结对照来自独立的 QE 7.2 链，分别在该链内比较，不将其与历史图拼成一次定量应变扫描。
 
 ### 冻结几何对照：异质结与孤立 Sc₂C 的 PDOS
 
@@ -337,7 +339,175 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 <figcaption>冻结坐标下的投影态密度，能量窗为各自费米能级附近 −2 至 +2 eV。左、右面板分别为 0% 与 +1.5%；实线为异质结中的 Sc₂C 层，虚线为孤立 Sc₂C 对照，另示异质结中的 ZrCl₂ 层。图例按输入原子编号归并：异质结中 Sc₂C = C#2 + Sc#5-6、ZrCl₂ = Zr#1 + Cl#3-4；孤立 Sc₂C = Sc#1-2 + C#3。
 纵轴单位为 states/eV/simulation cell。</figcaption></figure>
 
-各计算的费米能级与网格信息如下；异质结在 +1.5% 下的 E_F = 0.3133 eV，与上文电子结构图所用值一致。
+从同一长表在 E−E_F=0 做线性插值，并在 −0.1～0 eV 上补入两个窗口端点后用梯形法积分，得到以下具体读数。两种模型各含一份 Sc₂C 化学式，层投影的归并规则与图一致。
+
+| 冻结状态 | Sc₂C 层 D(E_F) / states·eV⁻¹·cell⁻¹ | Sc₂C 层窗口谱重 / states·cell⁻¹ |
+|---|---:|---:|
+| 异质结 0% | 2.580959 | 0.150760 |
+| 孤立 Sc₂C 0% | 4.239773 | 0.364999 |
+| 异质结 +1.5% | 2.036121 | 0.158319 |
+| 孤立 Sc₂C +1.5% | 4.429229 | 0.463278 |
+
+在这四个冻结快照内，界面 Sc₂C 层的 D(E_F) 都低于同应变孤立层，说明接触后该层在费米点的投影谱形发生改变。异质结从 0% 到 +1.5% 的费米点读数降低，而占据侧窄窗口谱重略升；一个点的峰高与一段窗口的面积描述不同变化，不能互相替代。下一步要沿具体能带寻找这些变化对应的态，再读取它们的空间分布。
+
+窗口积分来自已有 Gaussian 展宽谱，尚未乘逐态占据函数。它是这组投影在选定能窗内的谱重，不能当成 Sc₂C 失去的电子数，也不能直接除以面积叫载流子浓度。各图独立减去各自 E_F，绝对带偏移另需共同势参考；该四态快照也不能单凭 D(E_F) 判断 EPC 或 Tc。
+
+## 从长表提取费米点与窗口谱重
+
+数据格式为一行一个状态/能量点，`energy_minus_fermi_eV` 已减去该状态的 E_F；`sc2c_pdos`、`zrcl2_pdos` 与 `total_projected_pdos` 的单位均为 states/eV/simulation cell。读取时保留各态各自的原始网格，以插值补窗口边界，不能把两个层的独立能量轴直接相减。
+
+可使用下面的独立编码需求：
+
+```text
+读取 frozen_pdos_long.csv，按 state 分组；核对能量严格递增和有限数值。
+以线性插值读取 E−EF=0 的各层 PDOS，并在 [-0.1,0] eV 补入端点后梯形积分。
+保留每态原始网格、EF与层定义，报告 D(EF) 的 states/eV/cell 和窗口谱重的 states/cell。
+同时逐态检查历史路径投影，输出原始权重；两条计算链分开。
+输出完整源码、CSV、JSON与运行记录；不归一化为电子数，不生成装饰性图。
+```
+
+[完整提取源码 near_fermi.py](/Atlas/examples/research-scope-electronic/near_fermi.py) · [窗口结果 CSV](/Atlas/examples/research-scope-electronic/results/frozen-window.csv) · [全部结果与定义 JSON](/Atlas/examples/research-scope-electronic/results/near-fermi.json)。Python 3 标准库即可运行；让 `DATA_ROOT` 指向包含 `scf/` 和 `frozen-controls-pdos_20260929/` 的既有 `zrcl2-sc2c` 数据目录：
+
+```bash
+python3 near_fermi.py DATA_ROOT --output near-fermi-results
+```
+
+实际运行输出：
+
+```text
+Frozen cases: 4 Path crossings: 6
+Heterostructure 0% Sc2C D(EF)= 2.580959 W[-0.1,0]= 0.150760
+Isolated Sc2C 0% Sc2C D(EF)= 4.239773 W[-0.1,0]= 0.364999
+Heterostructure +1.5% Sc2C D(EF)= 2.036121 W[-0.1,0]= 0.158319
+Isolated Sc2C +1.5% Sc2C D(EF)= 4.429229 W[-0.1,0]= 0.463278
+```
+
+<details>
+<summary>near_fermi.py 的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Read existing ZrCl2/Sc2C tables. No DFT jobs or source writes."""
+from pathlib import Path
+import argparse, csv, json, math, re
+
+
+def interp(rows, key, x):
+    for a, b in zip(rows, rows[1:]):
+        xa, xb = float(a['energy_minus_fermi_eV']), float(b['energy_minus_fermi_eV'])
+        if xa <= x <= xb:
+            f = (x-xa)/(xb-xa)
+            return float(a[key])*(1-f)+float(b[key])*f
+    raise ValueError('Energy outside recorded grid')
+
+
+def integrate(rows, key, lo=-0.1, hi=0.0):
+    pts = [(lo, interp(rows,key,lo))]
+    pts += [(float(r['energy_minus_fermi_eV']),float(r[key])) for r in rows
+            if lo < float(r['energy_minus_fermi_eV']) < hi]
+    pts += [(hi, interp(rows,key,hi))]
+    return sum((b[0]-a[0])*(a[1]+b[1])/2 for a,b in zip(pts,pts[1:]))
+
+
+def read_frozen(root):
+    groups = {}
+    with (root/'frozen-controls-pdos_20260929/frozen_pdos_long.csv').open() as f:
+        for r in csv.DictReader(f):
+            if not all(math.isfinite(float(r[k])) for k in
+                       ['energy_minus_fermi_eV','sc2c_pdos','zrcl2_pdos','total_projected_pdos']):
+                raise ValueError('Nonfinite PDOS')
+            groups.setdefault(r['state'],[]).append(r)
+    out=[]
+    for state, rows in groups.items():
+        xs=[float(r['energy_minus_fermi_eV']) for r in rows]
+        if any(b <= a for a,b in zip(xs,xs[1:])): raise ValueError('Nonmonotonic grid')
+        row={'state':state,'rows':len(rows)}
+        for key in ['sc2c_pdos','zrcl2_pdos','total_projected_pdos']:
+            row[key+'_at_EF_states_per_eV_cell']=interp(rows,key,0.0)
+            row[key+'_window_weight_states_per_cell']=integrate(rows,key)
+        out.append(row)
+    return out
+
+
+def read_crossings(root):
+    # The .gnu energies are eV; use the parent SCF Fermi energy of this historical chain.
+    text=(root/'scf/pwx.out').read_text()
+    ef=float(re.findall(r'the Fermi energy is\s+([-+0-9.]+)',text)[-1])
+    raw=[tuple(map(float,l.split())) for l in (root/'scf/bands.dat.gnu').read_text().splitlines() if l.strip()]
+    lines=[l for l in (root/'scf/fatbands.projwfc_up').read_text().splitlines() if l.strip()]
+    heads=[i for i,l in enumerate(lines[:30]) if len(l.split())==3 and all(x.isdigit() for x in l.split())]
+    if len(heads)!=1: raise ValueError('Projection header not unique')
+    idx=heads[0];nw,nk,nb=map(int,lines[idx].split())
+    if (nw,nk,nb)!=(45,151,31) or lines[idx+1].split()!=['F','F']: raise ValueError('Wrong model/spin shape')
+    if len(raw)!=nk*nb: raise ValueError('Band shape mismatch')
+    bands=[raw[b*nk:(b+1)*nk] for b in range(nb)]
+    if any([x for x,e in b] != [x for x,e in bands[0]] for b in bands): raise ValueError('Path mismatch')
+    elements={1:'Zr',2:'C',3:'Cl',4:'Cl',5:'Sc',6:'Sc'}
+    channels={'Zr_d':(1,'D'),'Sc_d':(5,'D'),'C_p':(2,'P'),'Cl_p':(3,'P')}
+    w={k:[[0.0]*nk for _ in range(nb)] for k in [*channels,'all_projectors']}
+    ptr=idx+2
+    for expected in range(1,nw+1):
+        h=lines[ptr].split();ptr+=1
+        sid,atom=int(h[0]),int(h[1]);el=h[2];orb=h[3].upper()
+        if sid!=expected or elements.get(atom)!=el: raise ValueError('State identity mismatch')
+        angular=[c for c in orb if c in 'SPDF']
+        if len(angular)!=1: raise ValueError('Invalid orbital label')
+        c={'Zr':'Zr_d','Sc':'Sc_d','C':'C_p','Cl':'Cl_p'}[el]
+        selected=angular[0]==('D' if el in ['Zr','Sc'] else 'P')
+        for ik in range(nk):
+            for ib in range(nb):
+                a,b,v=lines[ptr].split();ptr+=1;v=float(v)
+                if (int(a),int(b))!=(ik+1,ib+1) or not math.isfinite(v) or v < -1e-6:
+                    raise ValueError('Projection row mismatch')
+                w['all_projectors'][ib][ik]+=v
+                if selected:w[c][ib][ik]+=v
+    if ptr!=len(lines):raise ValueError('Trailing projection data')
+    # Sum is diagnostic only. No complement is identified as an interstitial orbital.
+    crossings=[]
+    for ib,band in enumerate(bands):
+        for ik,((xa,ea),(xb,eb)) in enumerate(zip(band,band[1:])):
+            a,b=ea-ef,eb-ef
+            if a*b < 0:
+                f=-a/(b-a)
+                row={'band':ib+1,'left_k_index':ik+1,'right_k_index':ik+2,
+                     'path_distance_tpiba':xa+(xb-xa)*f,'EF_eV':ef}
+                for c,arr in w.items():row[c]=arr[ib][ik]*(1-f)+arr[ib][ik+1]*f
+                crossings.append(row)
+    diagnostic={'shape':[nw,nk,nb],'EF_eV':ef,'all_projector_sum_min':min(v for b in w['all_projectors'] for v in b),
+                'all_projector_sum_max':max(v for b in w['all_projectors'] for v in b),
+                'crossing_method':'Linear interpolation of adjacent path energy and weights; not a uniform BZ integral.'}
+    return crossings,diagnostic
+
+
+def write_csv(p, rows):
+    if not rows: raise ValueError('No result rows')
+    with p.open('w',newline='') as f:
+        w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+
+
+def main():
+    a=argparse.ArgumentParser();a.add_argument('data_root',type=Path);a.add_argument('--output',type=Path,default=Path('near-fermi-results'))
+    args=a.parse_args();frozen=read_frozen(args.data_root);cross,checks=read_crossings(args.data_root)
+    args.output.mkdir(parents=True,exist_ok=True)
+    write_csv(args.output/'frozen-window.csv',frozen);write_csv(args.output/'path-crossings.csv',cross)
+    report={'frozen_window_eV':[-0.1,0.0],'frozen':frozen,'historical_path':checks,'crossings':cross,
+            'definitions':'Window integral is broadened projected spectral weight. It is not charge transfer or carrier density. Frozen QE7.2 and historical QE7.1 path chains are analyzed separately.'}
+    (args.output/'near-fermi.json').write_text(json.dumps(report,indent=2)+'\n')
+    print('Frozen cases:',len(frozen),'Path crossings:',len(cross))
+    for r in frozen:
+        print(r['state'], 'Sc2C D(EF)=',format(r['sc2c_pdos_at_EF_states_per_eV_cell'],'.6f'),
+              'W[-0.1,0]=',format(r['sc2c_pdos_window_weight_states_per_cell'],'.6f'))
+    for r in cross:print('Band',r['band'],'k bracket',r['left_k_index'],r['right_k_index'],
+                         'Zr_d=',format(r['Zr_d'],'.6f'),'Sc_d=',format(r['Sc_d'],'.6f'))
+
+
+if __name__=='__main__':main()
+```
+
+</details>
+
+
+四态冻结对照使用 QE 7.2、vdW-DF3-opt1、100/800 Ry、32×32×1 电子网格；SCF Gaussian 展宽为 0.0037 Ry，投影谱展宽为 0.0022 Ry（约 0.0299 eV）。数值 0.3133 eV 与历史图恰好相同，不代表两条链的波函数、版本和几何已经配对。各态费米能与能量网格信息如下：
 
 | 状态 | E_F (eV) | 能量点数（步长 0.005 eV） | 投影文件数 |
 |---|---:|---:|---:|
@@ -497,25 +667,13 @@ for s in states:
 
 </details>
 
-## 文献中的相关图件与表达方式
+## 把近费米谱重连回空间中的电子态
 
-在文献中，态密度（DOS / PDOS）常横置拼接在能带图右侧，或与二维费米面、晶体轨道哈密顿布居（COHP）并排对照，避免单独成图造成能量标尺脱节：
+[Ba₂N 原文 Fig. 2(a–d)](https://doi.org/10.1103/PhysRevB.105.165101)在原子投影之外加入间隙空球 X，并用 ELF 的俯视和侧视位置说明 X 放在哪里。原文特别指出，原子轨道和有限空球都不能覆盖全部离域电子。因此本文保留总 DOS 与投影和之间的差，不把差额直接命名为间隙电子。
 
-### 1. 1T-Ta₂N 与金属性 1T-Sc₂C 的能带、水平总 DOS 及费米面对比
+同文 Fig. 4(a–d) 把应变下的总 DOS、Ba-d/N-p PDOS 与 E_F 下方 −0.1～0 eV 的部分电荷密度一起读：能量轴上的谱重变化需要在空间中寻找对应态。本文冻结窗口表采用相同的窄能窗读法，但使用展宽后的原子层 PDOS，尚未从该窗口生成空间密度；其积分单位是 states/cell，与原文密度等值面的 e/Å³ 不同。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_Ta2N_Sc2C_Bekaert2020_Fig5.jpg" alt="1T-Ta₂N 与金属性 1T-Sc₂C 在不含 SOC 与含 SOC 下的能带、水平总 DOS 及费米速度着色二维费米面对比" loading="lazy"/><figcaption><code>1T-Ta₂N</code> 与金属性 <code>1T-Sc₂C</code> 的电子能带及共享能量轴的水平总 DOS 对比（红色虚线为不含 SOC，蓝色实线与浅蓝阴影填充为含 SOC），右侧并列展示按费米速度 <code>v_F(k)</code> 着色的二维六角费米面。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 5，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-将水平总 DOS 紧贴在能带图右侧，并用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）区分自旋轨道耦合前后的态密度变化，同时配合右侧按 `v_F(k)` 着色的二维六角费米面，便于比较 `1T-Ta₂N` 与 `1T-Sc₂C` 在费米能级处的态密度峰位置。
-
-### 2. 二维费米面、能带、水平元素分辨 PDOS 与总 COHP 四子图横排对齐
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="Mo₂ScN₂O₂ 的二维六角费米面、电子能带、元素分辨 PDOS 与总 COHP 曲线四子图横排联立" loading="lazy"/><figcaption>将二维六角布里渊区费米面、高对称路径能带、水平元素分辨 PDOS（Mo、Sc、N、O 与 Total）与总 COHP 成键/反键曲线沿同一能量纵轴 <code>E − E_F</code> 横向并排展示。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> <strong>12</strong>, 46 (2026), Fig. 3，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
-
-当费米能级附近存在显著的元素分波态密度峰时，在水平 PDOS 右侧继续并排放置共享能量轴的总 [COHP](/Atlas/m/cohp/qe/) 曲线，可以同时读出各元素对 `N(E_F)` 的贡献以及对应能量区间的总体成键或反键特征。
-
-## 下一步
-
-需要 s/p 总贡献时进入 [投影与布居](/Atlas/m/population-analysis/qe/)；需要知道每个 k、每条带的 s/p 权重时进入 [胖带](/Atlas/m/fatband/qe/)。后者保留 k 分辨信息，与沿整个布里渊区积分的 PDOS 用途不同。
+界面或掺杂前后，先问同一个近费米峰属于哪一层，再问它对应哪条带、在哪个 k 区域出现。两个层的 PDOS 在同一能量都非零，可能来自不同 k 或不同带；[逐态胖带](/Atlas/m/fatband/qe/)才能检查它们是否共同出现在同一个态中。若要确定空间转移，再接[差分电荷](/Atlas/m/delta-charge/)；若要讨论阴离子电子位置，再联读[ELF](/Atlas/m/elf/)与选带/选能窗密度。
 
 ```text
 SCF → 均匀 NSCF → dos.x → 总 DOS 与累计态数

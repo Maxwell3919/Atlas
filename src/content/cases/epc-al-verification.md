@@ -1,8 +1,11 @@
-# Al 双网格 EPC：完整执行与核验记录
+# Al 双网格 EPC：两条独立链的执行证据
 
-这里保存 Al 32³、48³ 两条计算的完整终端会话、输入与检查，以及原文的文献图例。按教学顺序跟做见 [Al EPC 主教程](/Atlas/m/epc/qe/)，两条 Tc 曲线的配对与求交见 [Tc 对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。运行中的快照保留其当时状态；最终结果在对应会话末尾。
+Al32³与48³各自执行致密SCF、16³响应SCF、q4³的8个不可约点与后处理。两条链共享比较协议，使用各自的outdir与致密电子数据；q2r/matdyn插值谱和lambda.x直接逐q谱分别保存。下文是历史终端记录，提交号和RUNNING快照对应当次执行，不作为新的运行指令。
 
-[QE 双网格 EPC 流程](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html) · [ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [q2r.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [QE 电子声子系数及谱函数定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)
+完整结果在0.005–0.050 Ry十档电子σ上无孤立交点、无重合区间。最近的0.050 Ry处，Tc32=0.984588 K、Tc48=0.975366 K，差0.009222 K；固定q4³与响应16³的比较不认证材料Tc收敛。普通跟做与物理解释读[EPC正文](/Atlas/m/epc/qe/)、[谱积分](/Atlas/m/eliashberg-a2f/qe/)和[Tc比较](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两套原件及复算源码在[双分支包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
+
+<details>
+<summary>展开两套Al原始输入、终端操作和结束检查</summary>
 
 <span id="double-grid-pwxall"></span>
 
@@ -858,34 +861,12 @@ epc-q4-k48/al.dense.in 48³ → 本目录 16³ SCF → 本目录 q4³ ph.x → �
 ```
 
 
+</details>
+
 <span id="epc-literature-aesthetics"></span>
 
-## 文献中的电声耦合与超导后处理图例（附 DOI 溯源）
+## 用原文图理解这些文件支持的分析
 
-在电声耦合与超导计算的后处理中，文献通常通过共享频率轴或动量轴，将微观声子振动模式、动量分辨线宽、能量积分谱函数以及费米面各向异性超导能隙组合展示。下面结合四幅代表性文献原图（均标注原始出处与 DOI 号）说明其构图方式与适用场景：
+[Ba₂N，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图3、6把线宽编码色散、投影PHDOS、α²F及振动模式接起来；图3(a)/6(a)红点大小编码γ，原图不是连续宽度色带。图7显示未应变材料的各向异性能隙分布随温度闭合，它与Al等方外部谱求解是不同数据路线。
 
-### 1. 五面板电声耦合组合图：声子色散投影、模式 λ_qν、原子 PHDOS、Eliashberg α²F(ω)/λ(ω) 与布里渊区分布
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散投影、模式耦合 λ_qν、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与二维布里渊区 λ(q) 分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板电声后处理图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) 对齐频率轴的 Al 与 H 分波声子态密度（PHDOS），(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与阶梯上升的累计耦合强度 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
-
-子图 (a)–(d) 共享同一频率纵轴 `ω`，横向比较可以找到路径声子支（a、b）、态密度峰（c）与累计 `λ(ω)` 台阶（d）所处的频段；不过路径只覆盖部分 q 点，具体峰的来源仍需完整网格和模式权重分析；右上角子图 (e) 进一步给出全布里渊区积分前的动量空间耦合分布 `λ(q)`。
-
-### 2. Eliashberg 谱函数特征峰与实空间声子振动本征矢的对应展示
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="四种二维过渡金属碳氮化物的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及底部关键声子振动模式实空间箭头图" loading="lazy"/><figcaption>子面板 (a)–(d) 绘制四种二维过渡金属碳氮化物的 α<sup>2</sup>F(ω)（蓝色左轴）与累计 λ(ω)（红色右轴）并标出特征峰 I、II、III，底部子面板 (e) 展示特征峰 I、II、III 对应的三维实空间原子位移本征矢（振动箭头）。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-单独的 `α²F(ω)` 曲线只能显示峰值频率，而将 `matdyn.modes`（或 `dynmat.x`）提取出的特征峰原子位移矢量在底部子面板 (e) 中列出，能够直观区分低频过渡金属振动峰（I、II）与高频轻原子光学振动峰（III）对累计配对强度 `λ(ω)` 的不同贡献。
-
-### 3. 声子色散上的连续变宽度线宽色带（Fat-Phonon Ribbon）
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 变宽度红色色带叠加图" loading="lazy"/><figcaption>二维电子化合物 Ba<sub>2</sub>N 的声子色散与声子线宽 γ<sub>qν</sub> 叠加表示：黑色实线给出声子本征色散骨架，沿声子支填充的实心红色色带宽度编码对应 (q, ν) 处的电声线宽大小。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
-
-在声子支较少或重点突出特定光学支/声学支时，沿色散曲线绘制变宽度实心色带（`fill_between`）能直观标出 Γ 点附近或科恩反常（Kohn anomaly）波矢处的强线宽区；而在声子支密集交叉的多原子异质结中，也可改用半透明散点编码以避免分支遮挡。
-
-### 4. 各向异性超导能隙 Δ_nk(T) 的小提琴统计分布图与费米面三维着色
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="超导能隙随温度演化的小提琴统计分布图与费米面能隙热力投影" loading="lazy"/><figcaption>各向异性 Migdal–Eliashberg 方程求解得到的超导能隙 Δ(T) 随温度演化的小提琴统计分布（Violin Plot）及低温费米面能隙分布内嵌图。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
-
-与本站[各向同性 EPW 求解](/Atlas/m/epw-eliashberg/qe/)相比，文献中的各向异性计算还保留逐态能隙；在这类计算中，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
-
-下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。
+[EPC页](/Atlas/m/epc/qe/#ba2n-mode-analysis)解释图3/6模式追踪，[线宽页](/Atlas/m/phonon-linewidth/qe/#ba2n-linewidth-analysis)区分γ和λ，[EPW页](/Atlas/m/epw-eliashberg/qe/#material-anisotropic-route)解释图7所需的逐带逐k数据。这里保留原图号和文献链接，不以文献材料数值填入Al输出。

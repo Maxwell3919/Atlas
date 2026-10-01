@@ -2,7 +2,7 @@
 
 在 [Si SCF](/Atlas/m/scf/qe/) 中，原子力接近零，晶胞压力却仍为 38.45 kbar。原子处于对称位置，并不保证体积已经合适。要寻找给定外压下的结构，需要开放相应的晶胞自由度。本页用单原子 fcc Al 展示 `vc-relax` 的输入、晶胞更新和末态检查；后半页保留一份未收敛记录，用于比较不同的停止原因。
 
-Al 的末态将成为本站声子、弹性和费米面的共同几何起点，因此先寻找所选 LDA-PZ 模型在零外压、fcc 约束下的体积。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节说明晶胞自由度可参与优化；本例的 QE 7.5 [cell_dofree 定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)进一步决定哪些自由度开放。
+声子和 EPC 的几何起点需要与所选电子模型匹配；Al 的末态在本站的声子与 EPC 演示中沿用，因此先寻找 LDA-PZ 模型在零外压、fcc 约束下的体积。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节说明晶胞自由度可参与优化；本例的 QE 7.5 [cell_dofree 定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)进一步决定哪些自由度开放。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Al 例子的官方赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)
 
@@ -12,7 +12,7 @@ Al 算例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/e
 
 ## 一份完整走到最后坐标的 Al 晶胞优化
 
-先用完整输入跟随一个独立算例：Maxwell 上的 QE 7.5、单原子 fcc Al 原胞，使用 QE 官方库的 `Al.pz-vbc.UPF`。这里是 LDA-PZ 金属设置。它的最后结构将用于本站的 Al 声子、弹性与费米面算例。
+先用完整输入跟随一个独立算例：Maxwell 上的 QE 7.5、单原子 fcc Al 原胞，使用 QE 官方库的 `Al.pz-vbc.UPF`。这里是 LDA-PZ 金属设置。它的最后结构用于后续 Al 声子与 EPC 演示。Al 用来练习完整变胞记录，后面的二维失败记录用来读取受限晶胞的停止原因。
 
 完整输入如下。一个原子位于原点，晶胞保留 fcc 对称性；`cell_dofree='ibrav'` 让优化遵守所选 Bravais 晶格约束。在这份 `ibrav=2` 输入里，直接照搬另一种晶格使用的 `volume` 选项会报错，因此保留实际可运行的设置。
 
@@ -62,7 +62,7 @@ K_POINTS automatic
 ```
 `press=0.0` 是目标外压，`press_conv_thr=0.05` 的单位为 kbar，相当于 0.005 GPa。因为本例保持立方对称性，主要观察体积变化与各向同性压力；这个限制没有搜索改变原型后的其他结构。`forc_conv_thr=1.0d-5 Ry/Bohr` 和 `etot_conv_thr=1.0d-8 Ry` 仍然同时参与优化停止判断，`nstep=50` 是步数上限。单原子高对称原胞的力可以恒为零，所以应力和最后晶胞尤其重要。
 
-`celldm(1)=7.50` 用 bohr 给出初始常规立方晶格参数。这里保持电子网格 16×16×16、40/160 Ry 截断和 0.02 Ry 的 Marzari–Vanderbilt 冷展宽，并求 6 条带以容纳金属的部分占据。改变这些设置会影响能量与压力，尤其不能拿很紧的电子 `conv_thr=1.0d-12` 替代截断能对应力的检查。后面若需要定量弹性常数，还要针对应力及其导数继续比较参数。
+`celldm(1)=7.50` 用 bohr 给出初始常规立方晶格参数。这里保持电子网格 16×16×16、40/160 Ry 截断和 0.02 Ry 的 Marzari–Vanderbilt 冷展宽，并求 6 条带以容纳金属的部分占据。改变这些设置会影响能量与压力，尤其不能拿很紧的电子 `conv_thr=1.0d-12` 替代截断能对应力的检查。平衡体积是否稳定，要继续比较截断和采样变化引起的压力与晶格变化；若关心声子，再检查相应频率。
 
 真实提交脚本同时写出程序输出与标准错误：
 
@@ -136,9 +136,12 @@ End final coordinates
 
 这次先让原子位置和允许的晶胞自由度一起调整，观察力怎样变化。二维模型的真空方向不能随意跟着收缩，所以这里使用 `cell_dofree='fixc'`。下面保留这次没有达到 BFGS 收敛的过程：它适合用来学习检查输出，不能当成已接受结构的范例。
 
+<details>
+<summary>原输入设置与运行监控记录</summary>
+
 ### 建目录、写输入文件
 
-输入文件建议先在本地编辑好，再用 cat 指令在服务器中输入（heredoc）。目录用数字编号，在 Linux 里输入数字后 Tab 补全很方便，这是日常使用的小技巧。另外 `outdir = './out_rx/'` 指向的文件夹会在运行时自动创建，不需要手动建：
+以下是旧记录中的建目录和输入操作。结构块在公开版本中隐去，文件用于核对设置和失败原因；复现完整可运行输入可使用上面的 Al 算例。`outdir = './out_rx/'` 由程序写入本次保存数据：
 
 ```bash
 [hzw@localhost QE]$ cd <工作目录>/QE
@@ -248,7 +251,7 @@ watch -n 5 "grep -E 'iteration #|convergence has been achieved|Total force|total
 watch -n 10 "squeue -j <jobid>; echo; grep 'Total force' rx.out | tail -n 80"
 ```
 
-实际输出中，每个 BFGS 步内部又有电子 SCF 迭代；这里截取其中相邻片段，整体力趋势在后面的完整图中查看：
+实际输出中，每个 BFGS 步内部又有电子 SCF 迭代；这里截取其中相邻片段，后面结合最终力和停止原因读取：
 
 ```text
 Every 5.0s: grep -E 'iteration #|convergence has been achieved|...'  Fri Sep  4 18:44:04 2026
@@ -265,7 +268,9 @@ ATOMIC_POSITIONS (crystal)
      Total force =     0.001389     Total SCF correction =     0.000278
 ```
 
-### 结束后验收：JOB DONE 不等于收敛
+</details>
+
+### 连停止原因一起读取结束段
 
 任务结束后：
 
@@ -328,14 +333,12 @@ O             0.3333333333        0.6666666667        0.5147767817
 
 面内晶格从约 3.37559 Å 变为 3.35651 Å，第三晶格矢量仍为 30 Å，与 `cell_dofree='fixc'` 的受限自由度相符。文件记录了这次计算走到的候选结构；继续做正式声子前，需要先解决优化未收敛的问题，并重新核对最后的力和应力。
 
-## 下一步
+## 二维界面与应变需要哪些晶胞自由度
 
-固定优化后结构，进入 [SCF](/Atlas/m/scf/qe/)；需要检查晶胞形变后的应力，再进入 [弹性常数](/Atlas/m/elastic-born/qe/)。两个示例的元素、赝势与保存目录分别保留，不交叉复制。
+Al 的零外压立方体积优化与薄层面内优化有不同自由度。二维体系的第三矢量包含真空，不能把三维平均压力直接当成片层受到的面内负载，也不应通过缩短真空去消除它。上面的 `fixc` 固定整条第三晶格矢量；更具体的面内对称约束须按实际晶胞与 [QE 7.5 的 cell_dofree 定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)选择。
 
-```text
-vc-relax → 每轮 SCF + 力 / 应力 → BFGS 收敛
-                                  ↓
-                         最终晶胞与位置 + 最后电子计算
-                                  ↓
-                             新 SCF → 后续性质
-```
+规定某一应变后，面内矢量本身就是输入条件。此时通常在该条件下做[固定晶胞弛豫](/Atlas/m/relax/qe/)；若同时开放应变方向让它回到零压，最后结构就不再代表原先指定的应变。比较界面构型也应先决定是共同晶格下的比较，还是各自平衡晶格的比较，并把相应的单层参照带到后续能量和电荷分析中。
+
+[Prandini 等](https://doi.org/10.1038/s41524-018-0127-2) Fig. 2 将压力收敛与能量、声子分开检查：它提示有限平面波基组的应力误差需要直接验证。[Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101)第 II 节与 Fig. 1(a)给出二维真空模型和优化几何；那里报告的面内晶格常数属于 Ba₂N，不能从本例 Al 或失败的 HfCl₂/PbO₂ 记录得到。
+
+Al 输出的 `bfgs converged`、最后完整晶胞和电子重算支持该轮受限优化的停止状态；HfCl₂/PbO₂ 的 `bfgs failed` 保留为候选结构记录。把已经接受的几何写入新的 [SCF](/Atlas/m/scf/qe/)，再接[声子与 EPC](/Atlas/m/phonon-dfpt/qe/)；旧失败记录在这里解释停止条件，不作为本轮材料结果。

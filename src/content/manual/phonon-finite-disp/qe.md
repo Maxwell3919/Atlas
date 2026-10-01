@@ -1,10 +1,8 @@
-同一份 fcc Al 结构也可以通过实际受力求声子：把原子沿指定方向作正负小位移，保持位置做 SCF，再用力差重建二阶力常数。这里比较位移幅度和超胞大小，并与 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 对照，检查频率差来自哪些数值设置。
+有限位移声子从一个可以直接检查的量出发：原子移动一点，整套结构上的力怎样改变？界面中，移动一层的原子也会让另一层受力；这些跨层力常数与层内力常数一起决定层间剪切、呼吸和混合振动。应变改变键长后，也需要在新的受约束平衡结构上重新求这组恢复力。
 
-这里沿用 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 中的 fcc Al 原胞，改用超胞和 QE 力计算。两条路线的电子结构程序都是 QE 7.5，赝势都是 LDA-PZ 的 `Al.pz-vbc.UPF`。差别在于如何求恢复力，不是换成一个已有势函数来预测它。
+这里用真实 fcc Al 正负位移计算讲清位移、受力与力常数的对应关系，并比较位移幅度和超胞范围。Al 的单原子原胞没有层间模式，但它能展示有限位移法的核心操作。结构、QE 7.5 和 LDA-PZ `Al.pz-vbc.UPF` 与[DFPT 算例](/Atlas/m/phonon-dfpt/qe/)相同，差别是恢复力由实际位移后的 SCF 受力求得。
 
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-[Baroni 等综述](https://doi.org/10.1103/RevModPhys.73.515)第 IV.B 节说明冻结声子如何用能量或力的数值导数求振动频率，以及超胞对力常数范围的限制。[Phonopy 4.5.0 的力常数与动力学矩阵定义](https://github.com/phonopy/phonopy/blob/v4.5.0/doc/formulation.md)对应下面从 QE 力到频率的转换；本例用正负成对位移取中心差分。
+输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的后处理；赝势按官方来源准备。[Baroni 综述第 IV.B 节](https://doi.org/10.1103/RevModPhys.73.515)解释冻结声子与超胞方法，[Phonopy 4.5.0 定义](https://github.com/phonopy/phonopy/blob/v4.5.0/doc/formulation.md)给出力常数到动力学矩阵的转换。
 
 ## 从一个原胞变成带位移的超胞
 
@@ -128,7 +126,7 @@ mpirun -np 8 <qe_bin>/pw.x -in al.scf.in > al.scf.out 2> al.scf.err
 maxwell@maxwell:~/al/finite-disp/n2-d0.01$ sbatch --dependency=afterok:1956 run.slurm
 Submitted batch job 1959
 ```
-这次依赖前面的弹性短作业释放资源后启动。单独复现实例时，使用 `sbatch run.slurm` 即可；不要把文章中的旧作业号提交为自己机器上的依赖。
+1956 是存档中另一短作业的编号。复现实例时使用 `sbatch run.slurm`，或者换成自己确实需要等待的作业号。
 
 ```bash
 squeue -j 1959 -o "%.10i %.16j %.2t %.10M %.5C"
@@ -168,7 +166,7 @@ maxwell@maxwell:~/al/finite-disp/n2-d0.01$ tail -9 disp-001/al.scf.out
 
 ## 由力重建频率，并记录声学和规则
 
-[analyse.py](/Atlas/examples/al/finite-disp/analyse.py) 从 `phonopy_disp.yaml` 读取位移顺序，从相同编号的 `.out` 读取力，先生成未额外对称化的力常数，再保存平移和规则处理后的力常数与声子路径数据。
+[analyse.py](/Atlas/examples/al/finite-disp/analyse.py) 从 `phonopy_disp.yaml` 读取位移顺序，从相同编号的 `.out` 读取力，先生成未额外对称化的力常数，保留处理前的 drift 与原始频率；再通过 `symmetrize_force_constants()` 施加置换对称性与平移和规则，保存处理后的力常数与声子路径数据。
 
 
 后处理先匹配位移超胞与原子力，再构造力常数。下面的任务保留正负位移、单位和 ASR 设置，使不同结果能够按同一约定比较。
@@ -176,8 +174,6 @@ maxwell@maxwell:~/al/finite-disp/n2-d0.01$ tail -9 disp-001/al.scf.out
 ```text
 编写有限位移后处理 analyse.py。读取四个目录 n2-d0.01、n2-d0.02、n2-d0.01-k9、n3-d0.01，各自将 phonopy_disp.yaml 与 disp-001/002 的 QE 力输出按编号配对。未完成的目录打印 still running 并不填数；已完成输出检查唯一 JOB DONE、电子收敛和空 stderr。用 ASE 读取 eV/Å 的原子力，Phonopy 使用 primitive_matrix=P，先记录未经对称化的平移残差，再对称化力常数并保存 phonopy_params.yaml。保存 Γ、X、W、L 的原始和处理后频率（THz）；路径 bands.csv 的列为 segment,distance_A_minus1,q1,q2,q3,f1_cm_minus1,f2_cm_minus1,f3_cm_minus1，频率在写表时乘 33.3564095198152 换为 cm⁻¹。保留负频，并保存每份力输出的哈希和净力。
 ```
-
-下面是算例实际使用的完整源码。
 
 <details>
 <summary>analyse.py 完整源码</summary>
@@ -239,7 +235,7 @@ n2-d0.02 raw FC drift= 1.8180444808058027e-05 ; Gamma THz= [-5.10637868e-08 -3.7
 n2-d0.01-k9 raw FC drift= 1.818044481011194e-05 ; Gamma THz= [-3.61776110e-08 -1.57964203e-08  7.30035453e-08] ; X THz= [6.28098398 6.28098398 9.87013437]
 n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.19769200e-08 -1.74046920e-08] ; X THz= [5.63646925 5.63646925 7.82783897]
 ```
-输出中的 drift 是力常数平移和规则残差，单位 eV/Å²。Γ 点处理后的约 10⁻⁷ THz 是浮点计算残差，应与有限波矢处真正的负频支分开讨论。`phonopy_params.yaml` 留下了用于后续频率计算的力常数；原始 QE 受力输出没有被覆盖。
+输出中的 drift 是处理前的力常数平移和规则残差，单位 eV/Å²。Γ 点经置换对称性与平移和规则处理后的约 10⁻⁷ THz 是浮点计算残差，应与有限波矢处真正的负频支分开讨论。`phonopy_params.yaml` 留下了用于后续频率计算的力常数；原始 QE 受力输出没有被覆盖。
 
 ## 位移幅度和超胞大小是两项不同的检查
 
@@ -264,8 +260,6 @@ n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.1
 ```text
 编写 plot_finite.py，在 Al 根目录读取 finite-disp 下四个目录的 bands.csv。第二列为累计倒空间距离，最后三列已经是 cm⁻¹，不再换算。左面板对比 n2-d0.01 与 n2-d0.02；右面板对比 n2-d0.01-k9 与 n3-d0.01。用行 0、40、81、122、163 的路径距离标 Γ—X—W—L—Γ，保留频率零线，输出 figures/finite-displacement.png 和 PDF。复用同目录 atlas_plot_style.py。
 ```
-
-下面是算例实际使用的完整源码。
 
 <details>
 <summary>plot_finite.py 完整源码</summary>
@@ -301,30 +295,26 @@ fig.savefig(r/"figures/finite-displacement.png",dpi=220);fig.savefig(r/"figures/
 python3 plot_finite.py
 ```
 
-这条路线已经从明确结构、真实正负位移输入、SCF 受力走到可复算的声子图；图同时揭示了当前超胞系列还不足以作完整数值收敛声明。
+X 点频率对 0.01 与 0.02 Å 位移的差别很小，而对超胞范围的差别明显。当前下一项有信息量的比较是扩大超胞并保留相近的电子采样密度，再将共同 q 点与 DFPT 对应起来。
 
-## 文献中的声子本征矢与振动方向投影图件
+## 把这条受力路线用于界面与应变结构
 
-由力常数矩阵对角化得到频率与本征位移矢量后，研究论文通常在晶体原胞上直接画出 Γ 点各光学支的原子振动箭头，并标注对应的点群不可约表示及红外（IR）或拉曼（Raman）活性，便于与振动光谱实验对比。
+力常数含有原子 I、J 和方向 α、β 两套索引：`C_Iα,Jβ = −∂F_Iα/∂u_Jβ`。正负位移时，可沿实际位移方向取中心差分 `−[F_Iα(+δ)−F_Iα(−δ)]/(2δ)`，再由对称性恢复独立分量。本例位移沿原胞基矢方向而非单一笛卡尔轴，因此应由 Phonopy 读取完整位移向量与力，不能将力表中的 x 分量直接除以 0.01 Å 当成全部力常数。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_Irreps_AlH2_Yang2023_Fig3a.jpg" alt="单层 AlH2 在 Γ 点的声子本征位移模式与点群不可约表示标注" loading="lazy"/><figcaption>单层 AlH<sub>2</sub> 在 Γ 点的声子本征位移模式示意图，标注 <em>D</em><sub>3h</sub> 点群不可约表示（<em>E</em>′、<em>A</em><sub>2</sub>′′、<em>E</em>′′、<em>A</em><sub>1</sub>′）以及对应的红外（IR）与拉曼（Raman）活性。引自 Yang、Jiang 与 Zhao，<em>Chin. Phys. Lett.</em> <strong>40</strong>, 107401 (2023)，Fig. 3a，<a href="https://doi.org/10.1088/0256-307X/40/10/107401" target="_blank" rel="noopener noreferrer">DOI: 10.1088/0256-307X/40/10/107401</a>。</figcaption></figure>
+在异质结里，I 与 J 位于不同层时对应跨层恢复力。将两层分开，只保留各自原子列的受力，会丢掉这组耦合。输入超胞、位移 YAML 和每份输出的原子顺序必须一致；受力表保留全部原子，后面的层投影则在完整动力学矩阵对角化以后进行。
 
-对于整个布里渊区路径上的声子色散，还可将本征位移按原子种类及面内（xy）、面外（z）振动方向投影，叠加在色散曲线上，清楚区分不同频段和软模分支是由哪类原子的哪个方向运动主导。
+二维超胞沿面内扩大，真空方向通常保留一次周期；这与上面 Al 的 2³、3³ 三维超胞不同。超胞大小约束的是能够解析的实空间力常数范围，电子 k 网格决定每份受力的采样。上表中 2³/9³ 与 3³/6³ 对应相近电子采样密度，仍有明显频率差，正说明只比较位移幅度不足以确定跨胞恢复力。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="单层 NbSi2As4 按原子与面内面外振动方向投影的声子色散谱" loading="lazy"/><figcaption>单层 NbSi<sub>2</sub>As<sub>4</sub> 的声子色散按面内 <em>xy</em> 与面外 <em>z</em> 原子本征位移的投影分布，展示各声子支的振动方向组成。引自 <em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3b，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+对[应变结构](/Atlas/m/strain-doping-scan/qe/)，先固定所定义的受应变晶格，再弛豫允许变化的内部位置，随后生成正负位移。若直接把未弛豫结构当平衡点，其残余力与局域曲率会混在一起；若在位移 SCF 中继续弛豫，施加的扰动又会被消去。层间约束也会改变振动问题，例如固定衬底原子与让所有层自由移动得到的模式不能放在同一张图中按编号直接比较。
 
-下一步增大超胞并维持相当的电子采样密度，再与 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 的直接 q 点核对。若出现可见负频支，按 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查本征矢和数值来源，不要先把负值改成零。
+## 从力常数到可辨认的原子运动
 
-```text
-优化后的原胞 → 超胞和正负位移 → 固定结构 QE SCF
-                                     ↓
-                               力与位移编号配对
-                                     ↓
-                       力常数 → 声学和规则记录 → 声子图
-                                     ↓
-                          位移幅度 / 超胞 / k网格检查
-```
+Phonopy 将 Fourier 力常数除以 √(M_I M_J) 后对角化，得到 ω² 和正交本征矢 e；结构显示的相对位移由 `u∝e/√M` 得到。因此投影本征矢与显示原子振幅是相邻的两步，下载的力常数、频率和向量应该属于同一次处理。Al 的质量全部相同，这个差别在相对运动上不明显；到了含 C 或 N 的多元素界面就不能省略质量因子。
+
+[Yang、Jiang 与 Zhao 的 1H-AlH₂ 论文](https://doi.org/10.1088/0256-307X/40/10/107401) Fig. 3(a)（原文第 3 页）给出真实 Γ 模式与对称性标签；Fig. 3(c) 把这些振动、色散和 PHDOS 接在一起。H 的面内同相与反相振动具有不同模式对称性，即使原子投影接近，也会产生不同的耦合。这个例子说明为什么模式分析需要位移方向和相位。当前 Al 数据只展示受力与频率比较，光学模式图属于该论文的 AlH₂。
+
+若要沿有限 q 模式构造畸变，超胞还必须容纳该模式的相位周期。Ba₂N 论文 [Fig. 6(e)](https://doi.org/10.1103/PhysRevB.105.165101)用 √3×√3 超胞显示 K 软模，而本例 Al 的超胞用来求有限范围力常数；两种超胞选择服务于不同的量。有限 q 的相容条件和畸变能量判读见[虚频与软模](/Atlas/m/imaginary-phonon/qe/#h-有限-q-软模对应什么结构变化)。
 
 ## 参考资料
 
-[Phonopy 的 QE 接口](https://phonopy.github.io/phonopy/qe.html) · [Phonopy Python API](https://phonopy.github.io/phonopy/phonopy-module.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
+[Phonopy QE 接口](https://phonopy.github.io/phonopy/qe.html) · [Phonopy 4.5.0 公式](https://github.com/phonopy/phonopy/blob/v4.5.0/doc/formulation.md) · [AlH₂ 原文 Fig. 3](https://cpl.iphy.ac.cn/article/doi/10.1088/0256-307X/40/10/107401)

@@ -1,6 +1,6 @@
 SnSe₂/Sr₂N 的 SOC 能带中，费米能附近各态的投影磁化主要沿哪个方向，符号如何随路径改变？把 PROCAR 的三个分量与同一态的能量配对，才能在色散中辨认这些变化。这里沿 SnSe₂/Sr₂N 已计算的 Γ–M–K–Γ 路径读取 PROCAR，保留它的原始投影数值。
 
-[Shi 等 LaH₂ 论文的 Fig. 3b 与 Sec. 3.3](https://doi.org/10.1088/1361-648X/ac96bb)用逐态自旋投影给 SOC 能带着色，Fig. 2 则用于实空间磁化构型与交换作用。它可用于对照图所回答的问题，但不是 SnSe₂/Sr₂N 的材料验证；本页具体读数遵循 [VASP 的 PROCAR 非共线投影定义](https://vasp.at/wiki/PROCAR)。
+[Lu 等对门控 MoS₂ 的研究](https://doi.org/10.1126/science.aab2277)在 Fig. 1A、1C 把相反能谷的面外自旋取向与 SOC 劈裂联系起来，在 Fig. 3C、3D 再用面内上临界场检验超导态的磁场响应。沿不同方向读取费米能附近的自旋分量，是理解这条路线的电子结构起点。下面先把真实 PROCAR 中的投影量读准，再讨论二维自旋纹理需要增加什么数据。
 
 这是一条高对称线上的自旋投影路线。要画二维 k 平面的箭头图，需要额外计算平面网格；不能把下面的线数据摊成一张二维纹理图。[SCF](/Atlas/m/scf/vasp/) 页可用于对照静态输入与输出的读法，[能带方法目录](/Atlas/m/bands/)说明相应的数据需求。本页直接从这份已经结束的 SOC 能带输出开始。
 
@@ -64,6 +64,10 @@ Reciprocal
      0.0000000 m_x     1.0000000 m_y     0.0000000 m_z
      0.0000000 m_x     0.0000000 m_y     1.0000000 m_z
 ```
+日志记录 VASP 5.4.4 的 complex 版本；父 SOC SCF 与路径计算都采用非共线自旋。父 SCF 的 `NELECT=51`，最后总磁化约为 `(0.0015435, 0.0161994, 0.0000018)`；路径输出的末值见下文。这里按实际运行记录解释投影，不能预设这份密度严格满足时间反演对称性。
+
+在当前晶胞、粒子数守恒的自旋子带描述下，51 个电子不能填满时间反演对称绝缘体的 Kramers 成对占据带；奇数填充允许时间反演对称金属，不能单凭它断言时间反演破缺。若讨论分离的低能带子空间，应另说明子空间与实际费米占据的关系。[Soluyanov 与 Vanderbilt 的 Sec. II.1、式 (3)](https://arxiv.org/html/1102.5600v2)给出成对占据态的时间反演关系。
+
 本例自旋基底到 Cartesian 坐标的变换是单位矩阵，三个磁化分量可以依次记作 mx、my、mz。下方 `spin_path.py` 按本例的默认 `SAXIS=(0,0,1)` 直接保存这三个分量；使用其他 SAXIS 时，需在读取投影后加入对应的笛卡尔坐标变换。
 
 ## 逐态读取四组投影
@@ -153,7 +157,7 @@ OUTCAR: E-fermi :  -1.5887     XC(G=0):  -3.0424     alpha+bet : -2.9160
 编写 SnSe₂/Sr₂N SOC 路径投影的两步后处理程序，使用 Python 3、NumPy 和 Matplotlib。
 第一步提取：输入 PROCAR、POSCAR、SCF_OUTCAR。PROCAR 有 150 点×72 带，每态依次读取 charge、mx、my、mz 四块 tot；按本例默认 SAXIS=(0,0,1) 直接保存磁化分量。由 POSCAR 倒格矢计算累计路径距离（Å⁻¹），从 SCF_OUTCAR 读取 EF=−1.4881 eV，生成十三列 spin-path.dat 与 spin-summary.json。检查每态四块 tot、末态完整和 10800 条记录；保留残余总磁矩 (0.0017,0.0167,0.0001) 的计算条件。
 第二步绘图：输入 spin-path.dat、spin-summary.json，并使用同目录 atlas_plot_style.py；三个磁化面板共享 −1…1 色标及 EF±2 eV 窗口，横轴和节点取提取结果。
-输出：两步完整源码、依赖、命令、表格与 PNG/SVG/PDF。颜色表示未经归一化的原子投影磁化；当前源码按默认 SAXIS 工作，二维纹理需另取平面网格。
+输出：两步完整源码、依赖、命令、表格与 PNG/PDF。颜色表示未经归一化的原子投影磁化；当前源码按默认 SAXIS 工作，二维纹理需另取平面网格。
 ```
 
 ## 后处理源码与运行
@@ -259,27 +263,28 @@ columns charge,mx,my,mz; output spin-path.dat
 
 下一步若需更密的 k 平面数据，可到 [Wannier90 方法目录](/Atlas/m/wannier90/)查看插值所需的波函数与接口数据，再验证插值能带和自旋矩阵元。拓扑量的数据需求另见 [Berry 曲率与 Chern 数方法目录](/Atlas/m/berry-chern/)；目录中已有例程使用各自的材料和程序，不能仅凭当前 PROCAR 接续得到这些量。
 
+
+
+## 从沿线投影读到费米面自旋取向
+
 ![SnSe₂/Sr₂N 路径上的三个自旋投影](/Atlas/examples/vasp/snse2_sr2n_spin/spin-path.png)
 
-## 文献中的相关图件与表达方式
+颜色是 PROCAR 原子投影空间中的磁化，横轴是 Γ–M–K–Γ。具体看 K 点（第 100 个记录）附近的一对输出态：
 
-在含自旋轨道耦合（SOC）的非中心对称二维材料与二维磁性体系中，文献常将能谷自旋劈裂示意、费米环自旋取向以及实空间自旋密度结合展示：
+| 带号 | E−EF / eV | 投影权重 | mx | my | mz |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 51 | +0.120867010 | 0.644 | −0.021 | −0.016 | −0.641 |
+| 52 | +0.124833500 | 0.643 | +0.021 | +0.016 | +0.641 |
 
-### 1. K 能谷三维自旋劈裂能带锥与同心费米环 Ising 自旋取向
+两条记录相差 3.96649 meV，投影磁化主要沿 z，符号相反。它们位于 SCF 费米能上方约 0.12 eV，PROCAR 占据数均为零；这两行不能代替费米面上的配对电子。Γ 点的近简并态也可出现相反投影，简并子空间内的基底选择会改变单态颜色。沿线路径、投影权重和父密度的残余磁化共同限定了这张图的读法。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinValleyLocking_MoS2_Lu2015_Fig4a.jpg" alt="K 能谷处的三维自旋劈裂能带锥、内外同心费米环及相反的面外 Ising 自旋箭头示意图" loading="lazy"/><figcaption>K 能谷处的三维自旋劈裂能带锥（3D spin-split band cone）与内外同心费米环示意，红/蓝曲面与上下箭头标出内外分支相反的面外 Ising 自旋极化方向 <code>S_z</code>。图片来源：Saito et al., <em>Nat. Phys.</em> <strong>12</strong>, 144 (2016), Fig. 1a，<a href="https://doi.org/10.1038/nphys3580" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nphys3580</a>。</figcaption></figure>
+若研究异质结的面外自旋锁定，接着要在同一 SOC 密度上覆盖二维布里渊区，提取实际 EF 等能线附近的态；把 mx、my、mz 转到一致的笛卡尔基底，与各能谷及其 −k 伙伴逐一对照。保留层分辨投影，才能判断自旋来自哪一层，以及层间杂化是否带入面内分量。用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
 
-该图聚焦单个 K 能谷的三维自旋劈裂能带锥，在费米能级截面上形成内、外两个同心费米环，并用红/蓝颜色和朝上/朝下的竖直箭头标出两支自旋子带相反的面外 Ising 自旋极化方向 `S_z`，直观表达非中心对称单层中的面外自旋劈裂特征。
-
-### 2. 实空间自旋密度等值面与近邻磁交换路径标定
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinDensity_Exchange_LaH2_Fig2ab.jpg" alt="实空间自旋极化密度 ρ↑ − ρ↓ 等值面与近邻磁交换耦合路径 J₁, J₂, J₃ 示意图" loading="lazy"/><figcaption>实空间自旋极化电荷密度等值面（<code>ρ↑ − ρ↓</code>）与第一、第二、第三近邻磁交换作用路径（<code>J₁, J₂, J₃</code>）的晶体结构标注。图片来源：Shi et al., <em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022), Fig. 2(a,b)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>。</figcaption></figure>
-
-当体系存在本征磁序时，将倒空间的自旋能带投影与实空间自旋密度等值面（`ρ↑ − ρ↓`）及晶体中的近邻磁交换路径 `J₁, J₂, J₃` 对照展示，有助于确认巡游或局域磁矩的空间分布来源。
+[Lu 等 Fig. 1A、1C](https://doi.org/10.1126/science.aab2277)给出的是 MoS₂ 相反能谷与 SOC 有效场的关系；Fig. 3 的面内上临界场则来自超导态磁输运。这两类证据回答不同的问题。对异质结，面外自旋取向可以支持讨论 Ising 配对的电子结构条件，EPC 与超导转变温度另接 [超导路线](/Atlas/m/epc/)；确认 Ising 超导还需要相应配对模型及磁场响应。正常态 Z₂ 与边界态从占据波函数或经验证的 SOC 哈密顿量出发，不能从这份逐态 PROCAR 的颜色推出，见 [Wilson loop 与拓扑判读](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)。
 
 ```text
-SOC SCF 的电荷密度与费米能
-  └─ Γ–M–K–Γ 固定电荷能带 → PROCAR 的四组投影
-                                └─ 沿线路径长度 + 相对 SCF 能量 → 三分量着色能带
+SOC SCF 密度与 EF → 二维 k 网格/费米线 → 三分量自旋与层投影
+                               └─ −k 伙伴、能谷、面内/面外分量的比较
+SOC 波函数 → 经验证的自旋子 Wannier 模型 → WCC / Z₂ / 边界谱
+EPC 与配对模型 → 超导态及磁场响应
 ```
-

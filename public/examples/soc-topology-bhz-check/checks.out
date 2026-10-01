@@ -1,0 +1,73 @@
+{
+  "scope": "Official lattice BHZ software check, not a material DFT/Wannier result",
+  "parameters_model_eV": {
+    "M": 2,
+    "B": 1,
+    "A": 1,
+    "Delta0": 0
+  },
+  "occupied_spinor_bands": 2,
+  "full_grid_gap_min_eV": 2.000725444994408,
+  "gap_grid": "101x101, not a material convergence test",
+  "hermiticity_max": 3.1401849173675503e-16,
+  "time_reversal_max": 0.0,
+  "inversion_max": 3.1401849173675503e-16,
+  "occupied_pair_TRIM_parities": [
+    -1,
+    1,
+    1,
+    1
+  ],
+  "z2_inversion_parity": 1,
+  "surface_eta_eV": 0.03740648379052369,
+  "weight_comparison_scope": "exp(log-left minus log-bulk) only; projections have different trace dimensions, no equal absolute normalization",
+  "surface_columns": "ln LDOS as written by surfstat.f90; no absolute DOS normalization inferred",
+  "runs": [
+    {
+      "mesh": 41,
+      "input_Nk1": 41,
+      "input_Nk2": 41,
+      "wcc_algorithm": "dense adaptive integration; initial transverse Nk2 sampling",
+      "loop_points_final_counts": {
+        "64": 39,
+        "128": 2
+      },
+      "loop_max_recorded_change": 0.05032076410389408,
+      "wcc_calc_tol": 0.08,
+      "wcc_neighbour_tol": 0.3,
+      "z2": 1,
+      "wcc_rows": 41,
+      "kramers_endpoint_circular_difference": [
+        0.0,
+        0.0
+      ],
+      "near_zero_energy_eV": -0.006234414,
+      "ln_left_ldos": 7.1384096,
+      "ln_bulk_ldos": 1.4032173,
+      "left_over_bulk_ldos": 309.5724958266361
+    },
+    {
+      "mesh": 81,
+      "input_Nk1": 81,
+      "input_Nk2": 81,
+      "wcc_algorithm": "dense adaptive integration; initial transverse Nk2 sampling",
+      "loop_points_final_counts": {
+        "64": 79,
+        "128": 2
+      },
+      "loop_max_recorded_change": 0.02577633494895437,
+      "wcc_calc_tol": 0.08,
+      "wcc_neighbour_tol": 0.3,
+      "z2": 1,
+      "wcc_rows": 81,
+      "kramers_endpoint_circular_difference": [
+        0.0,
+        0.0
+      ],
+      "near_zero_energy_eV": -0.006234414,
+      "ln_left_ldos": 7.1384096,
+      "ln_bulk_ldos": 1.4032173,
+      "left_over_bulk_ldos": 309.5724958266361
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-能带图给出电子的能量，却没有直接告诉我们占据态沿布里渊区变化时积累了怎样的几何相位。陈数把一个闭合二维周期面上的 Berry 曲率通量汇总成整数，用来刻画该面上占据子空间的整体拓扑性质；要理解非零陈数与霍尔响应的联系，还要结合相应体系的能隙和占据。这里先用金刚石 Si 建立可逐项核对的零整数算例：相邻 k 点的原生重叠矩阵经过周期闭合、回路求和之后，是否给出一致的切片陈数，并且不随占据态的换基改变？
+异质结的 SOC 能带若出现开隙或轨道次序改变，下一步需要用占据波函数检验正常态拓扑。能带图给出电子的能量，却没有直接告诉我们占据态沿布里渊区变化时积累了怎样的几何相位。陈数把一个闭合二维周期面上的 Berry 曲率通量汇总成整数，用来刻画该面上占据子空间的整体拓扑性质；要理解非零陈数与霍尔响应的联系，还要结合相应体系的能隙和占据。这里先用金刚石 Si 建立可逐项核对的零整数算例：相邻 k 点的原生重叠矩阵经过周期闭合、回路求和之后，是否给出一致的切片陈数，并且不随占据态的换基改变？
 
-本例读取 QE 7.5 导出的完整 4×4×4 与 6×6×6 网格，在固定分数坐标 k₃ 的平面内沿倒格方向 b₁、b₂ 构造 FHS 回路。十个实际采样切片均得到离散整数 C=0。下面的链接、跨界处理和规范检查共同说明这个整数怎样从文件中算出；这些 Si 数据回答的是周期切片的计算问题。
+这条进阶路线的几何相位基础可以用现存 Si 数据练习。本例读取 QE 7.5 导出的完整 4×4×4 与 6×6×6 网格，在固定分数坐标 k₃ 的平面内沿倒格方向 b₁、b₂ 构造 FHS 回路。十个实际采样切片均得到离散整数 C=0。下面的链接、跨界处理和规范检查共同说明这个整数怎样从文件中算出；这些 Si 数据回答的是周期切片的计算问题。
 
 准备这类文件的前置步骤见 [QE–Wannier90 接口](/Atlas/m/wannier90/qe/)。重叠矩阵格式见 [Wannier90 的后处理文件说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/postproc/)，接口参数见 [pw2wannier90.x 文档](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html)。
 
@@ -408,10 +408,528 @@ INDEPENDENT_CHECKS_PASSED
 head -n 7 source/k4/silicon.mmn
 ~~~
 
-## 从切片整数到材料解释
+<span id="从矩阵回路到-wcc-和-z₂" class="legacy-anchor" aria-hidden="true"></span>
+<span id="从矩阵回路到-wcc-和-z2" class="legacy-anchor" aria-hidden="true"></span>
+## 从矩阵回路到 WCC 和 Z₂
 
-局部曲率与全周期面的陈数回答不同的问题。[Shi et al. 对 LaH₂ 单层的研究](https://doi.org/10.1088/1361-648X/ac96bb)在 §3.4 的式 (16)、(17) 给出占据加权的 Ωz 及其 Kubo 表达式，Fig. 4(a) 显示两个谷附近符号相反的曲率峰，再通过式 (18) 的反常速度讨论掺空穴后的谷霍尔响应。论文采用磁性单层和 Wannier 函数得到曲率分布；本页的 Si 切片积分为零，并不要求每个小格相位都为零，也没有计算谷分辨输运。
+前面每条链接取 `det(M)/abs(det(M))`，用于一个闭合二维面的总陈数。Z₂ 要研究自旋子占据子空间内本征相位的流动，取完行列式就丢失了这些单独的相位。可以先用同一份真实 Si 矩阵看看这个区别。
 
-[Zhong et al. 对 TbCl 的研究](https://doi.org/10.1038/s41524-025-01732-0)在 Fig. 2(b) 用 Wannier 电荷中心流得到体材料 k_z=0、π 两个平面的 C=−1，并在 Fig. 4 将单层的含 SOC 能隙、占据带曲率积分、量子化反常霍尔电导平台和手性边缘谱联系起来。这给出了把陈数用于材料判断的具体例子：整数需要与同一模型的能隙、占据及响应相互对应。论文研究铁磁 TbCl，采用 DFT+U 或 HSE06、SOC 和 Wannier 后处理；这里计算的是无 SOC、非磁 Si 的倒格分数坐标切片，模型、曲面和方法实现均有区别。
+下面沿 +b₁ 穿过整个倒空间周期。在每个固定 `(k₂,k₃)` 上，把重叠矩阵作 SVD：`M=UΣV†`，取幺正部分 `Q=UV†`，按点序构造 `W=Q₀Q₁…Qₙ₋₁`，最后一项包含跨边界的 G。对 W 的四个本征值取 `−Arg(λ)/(2π)` 并折回 `[0,1)`，得到本约定下四个无量纲混合 WCC。[Soluyanov–Vanderbilt 原文 Sec. II.2](https://doi.org/10.1103/PhysRevB.83.235401)的 SVD 平行输运解释了矩阵回路与一维局域电荷中心的关系；Sec. III 与 Fig. 1 再讨论横向演化及周期分支。
 
-这里的 C=0 来自四条占据空间带在十个周期切片上的离散计算。它检验了这些数据的链接与回路处理，并不单独证明整个材料拓扑平庸，也没有给出 ℤ₂ 不变量。作材料判断前，应先确认目标占据子空间与其余能带分离，再针对所研究的不变量检查完整布里渊区和网格收敛。
+实际计算包括 4³ 网格上的 16 个矩阵回路和 6³ 上的 36 个回路。取 k₃=0 的两处读数如下；四个相位只在每个回路内部排序，列号没有跨 k₂ 的分支追踪含义。
+
+| 网格 | 分数 k₂ | WCC₁ mod 1 | WCC₂ mod 1 | WCC₃ mod 1 | WCC₄ mod 1 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 4³ | 0 | 0.375000126 | 0.874999416 | 0.875000620 | 0.875000992 |
+| 4³ | 0.5 | 0.374999476 | 0.810104862 | 0.874999891 | 0.939894585 |
+| 6³ | 0 | 0.374999955 | 0.874999426 | 0.875000151 | 0.875000309 |
+| 6³ | 0.5 | 0.375000228 | 0.812206405 | 0.874999841 | 0.937793627 |
+
+这四个相位不全相同，而相位和 modulo 1 接近周期端点。`0.9999998` 与 `0.0000001` 在这个圆周坐标上很接近，不能把跨过 0/1 的数值直接相减或按排序连成物理分支。矩阵回路保留了行列式总相位中看不见的内部结构。
+
+完整源码：[wilson_loop.py](/Atlas/examples/soc-topology-si-wilson/wilson_loop.py)。[52 个回路的 CSV](/Atlas/examples/soc-topology-si-wilson/si-wilson-loops.csv)保存每个回路的四个相位及残差，[摘要](/Atlas/examples/soc-topology-si-wilson/si-wilson-summary.json)记录子空间与相位约定。程序只需 Python 3 和 NumPy；先解压前面的 `topo_berry_si_files.tar.gz`，将脚本放在解压目录旁，运行：
+
+```bash
+python3 wilson_loop.py --data topo_berry_si --output si-wilson-results
+```
+
+实际运行输出：
+
+```text
+4^3: 16 closed matrix loops; 4 links/loop; four spatial-band phases
+  unitarity=3.109e-15; determinant phase=4.441e-16 rad; gauge spectrum=2.220e-16
+6^3: 36 closed matrix loops; 6 links/loop; four spatial-band phases
+  unitarity=6.439e-15; determinant phase=6.661e-16 rad; gauge spectrum=2.220e-16
+WILSON_MATRIX_CHECKS_PASSED; no Z2 or material topology assigned
+```
+
+`unitarity` 检查 W†W 与单位阵的差；`determinant phase` 比较矩阵乘积的行列式与逐链接行列式乘积；`gauge spectrum` 在各点随机 U(4) 换基后，以圆周距离匹配四个相位。它们检验回路代数。本例没有自旋子 Kramers 对，没有导带能隙验证，也没有执行横向相位连接或 Z₂ 奇偶判定。
+
+### 将同一处理逻辑写成代码
+
+```text
+使用 Python 3 和 NumPy，从原包 source/k4、source/k6 的 win、nnkp、mmn 和 NSCF XML 读取数据。固定四条占据空间带、八个电子、无 SOC。逐项核对网格点序、矩阵头、占据及自旋设置；MMN 用列优先顺序读取。按 k[j]+G−k[i] 识别 +b1 链接，检查反向共轭和最小奇异值。
+对每个固定 k2、k3，SVD 取幺正链接并按 +b1 顺序闭合相乘。四个本征值以 −Arg(λ)/(2π) modulo 1 输出，仅逐回路排序，不跨横向位置连接。保存原始分数坐标和各回路幺正残差；核对行列式相位及随机局域 U(4) 换基后的圆周本征相位谱。输出 CSV、JSON、运行记录和完整源码，不输出 Z2 或材料分类。
+```
+
+<details>
+<summary>wilson_loop.py 的完整源码</summary>
+
+```python
+"""Matrix Wilson loops of the archived scalar Si occupied subspace; no Z2 inference."""
+from pathlib import Path
+import argparse, csv, itertools, json, re
+import xml.etree.ElementTree as ET
+import numpy as np
+
+def block(text, name):
+    found = re.search(r"begin\s+" + name + r"\s*\n(.*?)end\s+" + name, text, re.S | re.I)
+    if found is None:
+        raise ValueError("Missing block: " + name)
+    return found.group(1).strip().splitlines()
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+def circle_error(a, b):
+    return min(max(abs(((a[i]-b[j]+0.5) % 1)-0.5) for i,j in enumerate(p))
+               for p in itertools.permutations(range(len(a))))
+
+def load(data, n):
+    folder = data / "source" / f"k{n}"
+    points = np.array([list(map(float, x.split())) for x in block((folder/"silicon.win").read_text(), "kpoints")])
+    index = np.rint(points*n).astype(int)
+    require(points.shape == (n**3, 3) and np.max(abs(points*n-index)) < 1e-8, "Grid mismatch")
+    lookup = {tuple(k):i for i,k in enumerate(index)}
+    require(len(lookup) == n**3, "Duplicate grid points")
+    nnkp = (folder/"silicon.nnkp").read_text()
+    nnpoints = block(nnkp, "kpoints")
+    require(int(nnpoints[0]) == n**3 and np.allclose(points, np.array([list(map(float,x.split())) for x in nnpoints[1:]]), atol=1e-8, rtol=0), "NNKP order mismatch")
+    declared = {tuple(map(int,x.split())) for x in block(nnkp, "nnkpts")[1:]}
+    xml = ET.parse(folder/"nscf.data-file-schema.xml").getroot()
+    vals = lambda tag: [e.text.strip() for e in xml.iter() if e.tag.split("}")[-1] == tag]
+    require(set(vals("nbnd")) == {"4"} and set(vals("nks")) == {str(n**3)}, "XML dimension mismatch")
+    require(all(float(x)==8 for x in vals("nelec")), "Not the eight-electron Si case")
+    for tag in ["lsda", "noncolin", "spinorbit"]:
+        require(set(vals(tag)) == {"false"}, "Not the archived scalar case")
+    occupied = [x for x in vals("occupations") if x != "fixed"]
+    require(len(occupied)==n**3 and all(np.array_equal(np.fromstring(x, sep=" "), np.ones(4)) for x in occupied), "Occupation mismatch")
+    matrices = {}
+    with (folder/"silicon.mmn").open() as f:
+        f.readline()
+        nb,nk,nn = map(int,f.readline().split())
+        require((nb,nk,nn)==(4,n**3,8), "MMN dimension mismatch")
+        for _ in range(nk*nn):
+            h=tuple(map(int,f.readline().split()))
+            require(len(h)==5 and h not in matrices, "Duplicate or invalid MMN header")
+            matrices[h]=np.array([complex(*map(float,f.readline().split())) for _ in range(nb*nb)]).reshape(nb,nb,order="F")
+        require(not f.read().strip(), "Extra MMN records")
+    require(set(matrices)==declared, "MMN/NNKP headers mismatch")
+    links={}; minsv=1.; reverse=0.
+    for h,m in matrices.items():
+        i,j,*g=h; step=(points[j-1]+g-points[i-1])*n
+        if np.allclose(step,[1,0,0],atol=1e-8,rtol=0):
+            require(i-1 not in links and j-1==lookup[tuple((index[i-1]+[1,0,0]) % n)], "Bad periodic link")
+            back=(j,i,*[-x for x in g]); require(back in matrices, "Missing reverse link")
+            reverse=max(reverse,float(np.max(abs(m-matrices[back].conj().T))))
+            u,s,vh=np.linalg.svd(m); minsv=min(minsv,float(s[-1]))
+            links[i-1]=(j-1,u@vh)
+    require(len(links)==n**3 and minsv>1e-8 and reverse<1e-9, "Singular or inconsistent links")
+    return index, lookup, links, minsv, reverse
+
+def run(data,n):
+    index,lookup,links,minsv,reverse=load(data,n)
+    rng=np.random.default_rng(2026100200+n)
+    gauges=[]
+    for _ in range(n**3):
+        q,r=np.linalg.qr(rng.normal(size=(4,4))+1j*rng.normal(size=(4,4)))
+        gauges.append(q)
+    rows=[]; maxunit=0.; maxdet=0.; maxgauge=0.
+    for k3 in range(n):
+        for k2 in range(n):
+            w=np.eye(4,dtype=complex); rotated=np.eye(4,dtype=complex); detprod=1.+0j
+            for k1 in range(n):
+                i=lookup[(k1,k2,k3)]; j,q=links[i]
+                w=w@q; rotated=rotated@(gauges[i].conj().T@q@gauges[j]); detprod*=np.linalg.det(q)
+            centres=np.sort((-np.angle(np.linalg.eigvals(w))/(2*np.pi)) % 1)
+            changed=np.sort((-np.angle(np.linalg.eigvals(rotated))/(2*np.pi)) % 1)
+            unit=float(np.max(abs(w.conj().T@w-np.eye(4))))
+            deterror=float(abs(np.angle(np.linalg.det(w)/detprod)))
+            gauge=circle_error(centres,changed)
+            maxunit=max(maxunit,unit); maxdet=max(maxdet,deterror); maxgauge=max(maxgauge,gauge)
+            rows.append(dict(grid=n,k2_fraction=k2/n,k3_fraction=k3/n,**{f"wcc{i+1}_mod1":float(x) for i,x in enumerate(centres)},sum_wcc_mod1=float(sum(centres)%1),unitarity_error=unit,det_phase_error_rad=deterror,gauge_spectrum_error_mod1=gauge))
+    require(maxunit<1e-12 and maxdet<1e-12 and maxgauge<1e-12, "Wilson loop check failed")
+    summary=dict(grid=n,loop_direction="+b1 including periodic G",loops=n*n,loop_points=n,spatial_bands=4,min_link_singular_value=minsv,reverse_overlap_error=reverse,max_unitarity_error=maxunit,max_determinant_phase_error_rad=maxdet,max_random_gauge_spectrum_error_mod1=maxgauge,random_seed=2026100200+n)
+    print(f"{n}^3: {n*n} closed matrix loops; {n} links/loop; four spatial-band phases")
+    print(f"  unitarity={maxunit:.3e}; determinant phase={maxdet:.3e} rad; gauge spectrum={maxgauge:.3e}")
+    return rows,summary
+
+if __name__ == "__main__":
+    parser=argparse.ArgumentParser(); parser.add_argument("--data",type=Path,required=True); parser.add_argument("--output",type=Path,required=True)
+    args=parser.parse_args(); args.output.mkdir(parents=True,exist_ok=True)
+    rows=[]; summaries=[]
+    for n in [4,6]:
+        r,s=run(args.data,n); rows.extend(r); summaries.append(s)
+    with (args.output/"si-wilson-loops.csv").open("w") as f:
+        writer=csv.DictWriter(f,fieldnames=rows[0].keys());writer.writeheader();writer.writerows(rows)
+    record=dict(quantity="-Arg(eigenvalue of product of polar MMN links)/(2*pi), modulo one",subspace="Four occupied spatial bands of eight-electron nonmagnetic scalar Si, no SOC",connection="Closed +b1 loops at each sampled fractional k2,k3",interpretation="Matrix phase extraction only; no spinful Kramers partner tracking, Z2, edge spectrum or gap validation",numpy_version=np.__version__,cases=summaries)
+    (args.output/"si-wilson-summary.json").write_text(json.dumps(record,indent=2)+"\n")
+    print("WILSON_MATRIX_CHECKS_PASSED; no Z2 or material topology assigned")
+```
+
+</details>
+
+### 用 BHZ 原例自检 WCC 与边界谱接口
+
+在接入 DFT 的 SOC 自旋子 Wannier 模型前，可以先用已知的四带模型核对程序接口。[BHZ 原论文](https://doi.org/10.1126/science.1133734)式 (2)–(3) 将模型写成两个时间反演相关的块，并讨论量子自旋 Hall 边界态。这里实际运行的是 [WannierTools 官方 BHZ case1](https://github.com/quanshengwu/wannier_tools/tree/v2.7.2/examples/BHZ-model)：M=2、B=1、A=1、Δ₀=0，单位为模型 eV，四条自旋子带取两条占据带。它没有来自 HgTe 或本研究异质结的 DFT 拟合，输入中的 C、s、pz 是形式上的模型标签。[原件、输入和真实输出包](/Atlas/examples/soc-topology-bhz-check-files.tar.gz)保留原生成器与 `wt.in-normal`；本次使用无 Zeeman 的模型，没有采用磁场示例。
+
+运行程序取源码 tag v2.6.2（日志内置版本标签仍为 2.6.1），GNU 构建只给未使用的 MKL 稀疏分支加显式保护，完整 [差异和构建命令](/Atlas/examples/soc-topology-bhz-check/README.txt)随包保存。所用 dense WCC 自适应积分与边界格林函数代码未改。输入让回路沿完整 b₁ 积分，横向扫描半个 b₂；边界保留 x 周期、沿 y 切开，同一 HR 不增加边界势。
+
+<details>
+<summary>完整的 wt.in、原模型生成器和读取核验源码</summary>
+
+输入 `Nk1=Nk2=81` 如下；另一组只把这两个参数改成 41，两个实际输入都在下载包中。WCC 实际回路积分点数由内部自适应算法确定。
+
+```text
+&TB_FILE
+ Hrfile = 'BHZ_hr.dat'
+/
+&CONTROL
+ BulkBand_calc = T
+ WannierCenter_calc = T
+ SlabSS_calc = T
+/
+&SYSTEM
+ SOC = 1
+ NumOccupied = 2
+ E_FERMI = 0.0
+/
+&PARAMETERS
+ Np = 2
+ Nk1 = 81
+ Nk2 = 81
+ Nk3 = 1
+ OmegaMin = -2.5
+ OmegaMax = 2.5
+ OmegaNum = 401
+/
+LATTICE
+Angstrom
+3 0 0
+0 3 0
+0 0 10
+ATOM_POSITIONS
+1
+Direct
+C 0 0 0
+PROJECTORS
+2
+C s pz
+SURFACE
+0 0 1
+1 0 0
+0 1 0
+KPATH_SLAB
+1
+-X 0 -0.5 X 0 0.5
+KPATH_BULK
+2
+X 0.5 0 0 G 0 0 0
+G 0 0 0 Y 0 0.5 0
+KPLANE_BULK
+0 0 0
+1 0 0
+0 0.5 0
+```
+
+官方生成器原文：
+
+```python
+#!/bin/python3
+import numpy as np
+import cmath
+
+# The Hamiltonian is 
+#     ( M-Bk^2    Delta_0+A*k+  ) 
+#     ( Delta_0+A*k_    -M+Bk^2 )
+# where k^2=kx^2+ky^2
+
+# Case I, QSHE with band inversion and no trivial hybridization
+# Delta_0=0, M*B>0, |A|>0
+
+# Case I, QSHE with band inversion and with trivial and nontrivial hybridization
+# Delta_0=0.5, M*B>0, |A|>0
+
+
+# from the kp to TB we use sustitution
+# k->sin(k)
+# k^2->2(1-cos(k))
+
+# Constants
+dp = np.float64
+pi = np.arctan(1) * 4
+zi = 1j
+
+# Lattice constants
+M = 2.0
+B = 1.0
+A = 1.0
+Delta_0=  0.0
+             
+
+# Number of Wannier functions and R points
+num_wann = 4
+nrpts = 7
+
+# R coordinates
+Irvec = np.zeros((3, nrpts), dtype=int)
+
+# Hamiltonian m,n are band indexes
+HmnR = np.zeros((num_wann, num_wann, nrpts), dtype=complex)
+
+# No of degeneracy of R point
+ndegen = np.ones(nrpts, dtype=int)
+
+# Initialization of matrices
+Irvec[:, :] = 0
+HmnR[:, :, :] = 0.0
+
+# 0 0 0
+ir = 0
+Irvec[:, ir] = [0, 0, 0]
+HmnR[0, 0, ir] = M - 4 * B
+HmnR[1, 1, ir] = -M + 4 * B
+HmnR[2, 2, ir] = M - 4 * B
+HmnR[3, 3, ir] = -M + 4 * B
+HmnR[0, 1, ir] = Delta_0
+HmnR[1, 0, ir] = Delta_0
+HmnR[2, 3, ir] = Delta_0
+HmnR[3, 2, ir] = Delta_0
+
+# 1 0
+ir = 1
+Irvec[:, ir] = [1, 0, 0]
+HmnR[0, 0, ir] = B
+HmnR[1, 1, ir] = -B
+HmnR[2, 2, ir] = B
+HmnR[3, 3, ir] = -B
+HmnR[0, 1, ir] =-0.5*zi*A
+HmnR[1, 0, ir] =-0.5*zi*A
+HmnR[2, 3, ir] = 0.5*zi*A
+HmnR[3, 2, ir] = 0.5*zi*A
+
+# 0 1
+ir = 2
+Irvec[:, ir] = [0, 1, 0]
+HmnR[0, 0, ir] = B
+HmnR[1, 1, ir] = -B
+HmnR[2, 2, ir] = B
+HmnR[3, 3, ir] = -B
+HmnR[0, 1, ir]=  -A/2
+HmnR[1, 0, ir]=   A/2
+HmnR[2, 3, ir]=  -A/2
+HmnR[3, 2, ir]=   A/2
+
+
+# -1 0
+ir = 3
+Irvec[:, ir] = [-1, 0, 0]
+HmnR[0, 0, ir] = B
+HmnR[1, 1, ir] = -B
+HmnR[2, 2, ir] = B
+HmnR[3, 3, ir] = -B
+HmnR[0, 1, ir]= 0.5*zi*A
+HmnR[1, 0, ir]= 0.5*zi*A
+HmnR[2, 3, ir]=-0.5*zi*A
+HmnR[3, 2, ir]=-0.5*zi*A
+
+
+# 0 -1
+ir = 4
+Irvec[:, ir] = [0, -1, 0]
+HmnR[0, 0, ir] = B
+HmnR[1, 1, ir] = -B
+HmnR[2, 2, ir] = B
+HmnR[3, 3, ir] = -B
+HmnR[0, 1, ir]=   A/2
+HmnR[1, 0, ir]=  -A/2
+HmnR[2, 3, ir]=   A/2
+HmnR[3, 2, ir]=  -A/2
+
+nrpts= ir+1
+# Writing to a file
+with open('BHZ_hr.dat', 'w') as file:
+    file.write('4-band of BHZ model\n')
+    file.write('4 !num_wann \n')
+    file.write(f'{nrpts} ! nrpts\n')
+    file.write(' '.join(f'{x:5d}' for x in ndegen) + '\n')
+    for ir in range(nrpts):
+        for i in range(4):
+            for j in range(4):
+                file.write(f"{Irvec[0, ir]:5d}{Irvec[1, ir]:5d}{Irvec[2, ir]:5d}{i+1:5d}{j+1:5d} {HmnR[i, j, ir].real:16.8f} {HmnR[i, j, ir].imag:16.8f}\n")
+```
+
+核验程序读 HR、WCC、左边界和体谱保存列，并读取日志中的自适应积分记录。它检查 Hermiticity、时间反演、反演和有限网格直接隙，再读占据 Kramers 对的四个 TRIM 宇称，按 [Fu–Kane 式 (1.1)–(1.2)](https://doi.org/10.1103/PhysRevB.76.045302)计算奇偶，与两个 WCC 判定比较。这个宇称核对依赖模型的反演对称性；不要求异质结也具有该对称性。
+
+```python
+#!/usr/bin/env python3
+"""Read the official BHZ HR and WT outputs; NumPy only; no DFT."""
+from pathlib import Path
+import itertools, json, re
+import numpy as np
+root = Path(__file__).resolve().parent
+lines = (root / "BHZ_hr.dat").read_text().splitlines()
+nw, nr = int(lines[1].split()[0]), int(lines[2].split()[0])
+assert (nw, nr) == (4, 5)
+# Official generator prints seven unit degeneracies; WT reads five from this line.
+deg = np.array([float(x) for x in lines[3].split()][:nr])
+raw = np.array([[float(x) for x in s.split()] for s in lines[4:]])
+assert raw.shape == (nr*nw*nw, 7) and np.all(deg == 1)
+rvec, hr = [], []
+for block in raw.reshape(nr, nw*nw, 7):
+    assert np.all(block[:, :3] == block[0, :3])
+    h = np.zeros((nw,nw), complex)
+    for row in block:
+        h[int(row[3])-1,int(row[4])-1] = row[5] + 1j*row[6]
+    rvec.append(block[0,:3]); hr.append(h)
+rvec, hr = np.array(rvec), np.array(hr)
+def H(k):
+    return np.einsum("r,rij->ij", np.exp(2j*np.pi*(rvec@k))/deg, hr)
+T = np.block([[np.zeros((2,2)),np.eye(2)],[-np.eye(2),np.zeros((2,2))]])
+P = np.diag([1,-1,1,-1])
+gap, herm, tr, inv = float("inf"), 0.0, 0.0, 0.0
+for x,y in itertools.product(np.linspace(0,1,101,endpoint=False), repeat=2):
+    k = np.array([x,y,0]); h = H(k)
+    herm = max(herm, float(np.max(abs(h-h.conj().T))))
+    tr = max(tr, float(np.max(abs(T@h.conj()@T.conj().T-H(-k)))))
+    inv = max(inv, float(np.max(abs(P@h@P-H(-k)))))
+    e = np.linalg.eigvalsh(h); gap = min(gap, float(e[2]-e[1]))
+assert herm < 1e-12 and tr < 1e-12 and inv < 1e-12 and gap > 0
+parities = []
+for k in [[0,0,0],[.5,0,0],[0,.5,0],[.5,.5,0]]:
+    e,v = np.linalg.eigh(H(k)); occ = v[:,:2]
+    p = np.linalg.eigvalsh(occ.conj().T@P@occ)
+    assert np.max(abs(abs(p)-1)) < 1e-12 and abs(p[0]-p[1]) < 1e-12
+    parities.append(int(round(p[0])))
+z2_parity = int((1-np.prod(parities))//2)
+checks = []
+for n in [41,81]:
+    run = root/f"n{n}-final"; out = (run/"WT.out").read_text()
+    assert "ERROR" not in out+(run/"run.out").read_text()
+    z2 = int(re.findall(r"Z2 for the plane you choose:\s*(\d+)", out)[-1])
+    w = np.loadtxt(run/"wcc.dat")
+    assert w.shape == (n,5) and np.isfinite(w).all()
+    assert abs(w[0,0]) < 1e-8 and abs(w[-1,0]-.5) < 1e-8
+    ends = [float(abs((a[3]-a[4]+.5)%1-.5)) for a in w[[0,-1]]]
+    assert max(ends) < 1e-8 and z2 == z2_parity == 1
+    l = np.loadtxt(run/"dos.dat_l"); bulk = np.loadtxt(run/"dos.dat_bulk")
+    assert l.shape == (n*401,4) and bulk.shape == (n*401,3)
+    assert np.isfinite(l).all() and np.isfinite(bulk).all()
+    assert np.max(abs(l[:,:2]-bulk[:,:2])) < 1e-10
+    # k is an accumulated path length. Middle record corresponds to kx=0.
+    center = l.reshape(n,401,4)[n//2]
+    j = int(np.argmin(abs(center[:,1])))
+    log_l = float(center[j,2]); log_bulk = float(bulk.reshape(n,401,3)[n//2,j,2])
+    records = re.findall(r"Wcc integration max_diff, Nk_adaptive\s+([-+0-9.Ee]+)\s+(\d+)", out)
+    assert len(records) == n and set(int(x[1]) for x in records) == {64,128}
+    counts = {str(k): sum(int(x[1]) == k for x in records) for k in [64,128]}
+    tol = float(re.findall(r"wcc_calc_tol\s+([-+0-9.Ee]+)", out)[-1])
+    neighbour = float(re.findall(r"wcc_neighbour_tol\s+([-+0-9.Ee]+)", out)[-1])
+    max_change = max(float(x[0]) for x in records)
+    assert max_change <= tol and tol == .08 and neighbour == .30
+    checks.append(dict(mesh=n,input_Nk1=n,input_Nk2=n,
+                       wcc_algorithm="dense adaptive integration; initial transverse Nk2 sampling",
+                       loop_points_final_counts=counts,loop_max_recorded_change=max_change,
+                       wcc_calc_tol=tol,wcc_neighbour_tol=neighbour,
+                       z2=z2,wcc_rows=len(w),kramers_endpoint_circular_difference=ends,
+                       near_zero_energy_eV=float(center[j,1]),ln_left_ldos=log_l,
+                       ln_bulk_ldos=log_bulk,left_over_bulk_ldos=float(np.exp(log_l-log_bulk))))
+summary = dict(scope="Official lattice BHZ software check, not a material DFT/Wannier result",
+               parameters_model_eV=dict(M=2,B=1,A=1,Delta0=0),occupied_spinor_bands=2,
+               full_grid_gap_min_eV=gap,gap_grid="101x101, not a material convergence test",
+               hermiticity_max=herm,time_reversal_max=tr,inversion_max=inv,occupied_pair_TRIM_parities=parities,
+               z2_inversion_parity=z2_parity,surface_eta_eV=15/401,
+               weight_comparison_scope="exp(log-left minus log-bulk) only; projections have different trace dimensions, no equal absolute normalization",
+               surface_columns="ln LDOS as written by surfstat.f90; no absolute DOS normalization inferred",
+               runs=checks)
+(root/"checks.json").write_text(json.dumps(summary,indent=2)+"\n")
+print(json.dumps(summary,indent=2))
+```
+
+</details>
+
+解包后在 `soc-topology-bhz-check` 根目录执行；`WT` 填入按包内说明构建的可执行文件绝对路径。两套目录已经保存对应 HR。
+
+```bash
+WT=/absolute/path/to/wt262/bin/wt.x
+(cd n41-final && OPENBLAS_NUM_THREADS=1 "$WT" > run.out)
+(cd n81-final && OPENBLAS_NUM_THREADS=1 "$WT" > run.out)
+python3 verify_bhz.py
+gnuplot plot_bhz.gnu
+```
+
+两套实际 `WT.out` 均打印：
+
+```text
+Z2 for the plane you choose:            1
+```
+
+读回结果为：
+
+| 核对量 | 实际结果 |
+|---|---:|
+| 输入 Nk1=Nk2=41 / 81 的 Z₂ | 1 / 1 |
+| 占据 Kramers 对在 Γ、X、Y、M 的宇称 | −1、+1、+1、+1 |
+| 101×101 模型采样的最小直接隙 | 2.000725445 eV |
+| 时间反演 / 反演矩阵最大差 | 0 / 3.14×10⁻¹⁶ |
+| 41 / 81 条 WCC 的两端配对圆周差 | 0 / 0 |
+
+本版本 `WannierCenter_calc` 实际调用 `wannier_center3D_plane_adaptive`。横向以 Nk2 开始采样，本次没有追加横向点，最终为 41、81 行；每条回路从 32 点开始倍增，实际结束于 64 或 128 点。两次日志分别记录 39/79 条 64 点回路及各 2 条 128 点回路。默认 `wcc_calc_tol=0.08`、`wcc_neighbour_tol=0.30`，最大记录变化分别为 0.0503207641、0.0257763349。输入 Nk1=41/81 不能解释成固定回路链接数；当前相位与宇称相符用于接口自检，没有完成高精度积分容差的收敛研究。
+
+最小隙是该模型有限采样的检查值。WCC 数值和反演宇称都给出同一个奇偶；这检查了所选占据子空间与接口。[完整 JSON](/Atlas/examples/soc-topology-bhz-check/checks.json)及[读取输出](/Atlas/examples/soc-topology-bhz-check/checks.out)保存具体误差。
+
+![官方 BHZ 模型的 WCC 网格对照与半无限边界谱](/Atlas/examples/soc-topology-bhz-check/bhz-wcc-edge.png)
+
+左图用散点叠加 Nk2=41、81 两套横向输出；图例标的是横向采样点数，回路内部均采用上述自适应积分。横向是分数 kᵧ，纵向是 WCC mod 1。两个端点成对，0 与 1 的圆周等价需要保持；本图没有人为连接逐点排序的分支。右图是同一模型半无限 y 边界的真实谱，横向为守恒的分数 kₓ。能隙内谱支在 kₓ=0 附近交叉并接向体带，因而与正常态 Z₂ 对应；[体谱原始输出](/Atlas/examples/soc-topology-bhz-check/n81-final/dos.dat_bulk)也保留在包中。
+
+颜色读自此版本 `dos.dat_l` 第三列的 **自然对数 LDOS**，不是未经处理的 DOS；源代码在写文件前取 log。`SlabSS_calc` 实际展宽由能窗与能量点数确定，为 3×5/401=0.0374065 eV，图中保留这一值；最靠近零的能量点为 −0.006234414 eV。边界增强不能单靠亮线判读，还要结合体投影和同一模型的 WCC。
+
+<details>
+<summary>完整 gnuplot 源码</summary>
+
+gnuplot 直接读取实际 WCC 与边界输出；把单段累计路径长度线性映射回输入的 kₓ=−0.5…0.5，保存物理坐标而不依赖原文件的长度单位表题。
+
+```gnuplot
+# Nk2 labels transverse outputs; dense loop integration is adaptive (64/128 final points).
+# WT output columns and periodic path; no recomputation or smoothing.
+set encoding utf8
+set terminal pngcairo enhanced font "DejaVu Sans,12" size 1400,480
+set output 'bhz-wcc-edge.png'
+set multiplot layout 1,2 margins 0.08,0.88,0.14,0.91 spacing 0.12
+set title 'BHZ model | two occupied spinor bands'
+set xlabel 'Transverse k_y (fractional)'
+set ylabel 'WCC (mod 1)'
+set xrange [0:0.5]
+set yrange [0:1]
+set xtics 0.1
+set ytics 0.25
+set key top right
+plot 'n81-final/wcc.dat' using 1:4 with points pt 7 ps 0.45 lc rgb '#0072b2' title 'Nk2=81', \
+ 'n81-final/wcc.dat' using 1:5 with points pt 7 ps 0.45 lc rgb '#0072b2' notitle, \
+ 'n41-final/wcc.dat' using 1:4 with points pt 6 ps 0.7 lc rgb '#d55e00' title 'Nk2=41', \
+ 'n41-final/wcc.dat' using 1:5 with points pt 6 ps 0.7 lc rgb '#d55e00' notitle
+set title 'Semi-infinite y boundary | eta = 0.0374 eV'
+unset key
+set xlabel 'Conserved k_x (fractional)'
+set ylabel 'Energy (eV)'
+set xrange [-0.5:0.5]
+set yrange [-2.5:2.5]
+set xtics 0.25
+set ytics 1
+set view map
+set palette defined (-5 '#194eff', 0 'white', 5 '#d73027')
+set cbrange [-5:5]
+set cblabel 'ln LDOS (WT output)'
+set pm3d map
+stats 'n81-final/dos.dat_l' using 1 nooutput
+pathmax = STATS_max
+splot 'n81-final/dos.dat_l' using ($1/pathmax-0.5):2:3 with pm3d
+unset multiplot
+```
+
+</details>
+
+该自检说明“同一 HR → 占据子空间 WCC → 正常态 Z₂ → 同一切边谱”能够实际运行。进入材料计算时，仍须先完成下面的 SOC DFT/Wannier 模型验收；模型自检不能代替目标能区、能隙、自旋算符和结构的材料检查。
+
+### 异质结的 Z₂ 与边界态如何接续
+
+对于时间反演对称的二维 SOC 体系，先确认准备分类的占据子空间在整个区域上保持固定维数、与其他能带分离。费米能穿带时，不宜把随 k 改变的瞬时占据数直接放进绝缘体 Z₂ 程序。若存在可分离的低能带子空间，应明确它的定义、直接隙及实际费米占据，分别解释能带子空间拓扑与材料是否绝缘。
+
+从 [经验证的 SOC Wannier 模型](/Atlas/m/wannier90/qe/#把模型扩展到-soc-自旋子与边界态)或原始自旋子重叠出发，沿一个完整倒格周期积分，在横向的半布里渊区追踪 WCC。时间反演端点的 Kramers 配对与途中跨越周期边界的连接需要保持一致；加密积分和横向网格，核对判定的奇偶是否稳定。Si 的 C=0 没有保存这样的配对信息，不能用 `C mod 2` 替代 Z₂。
+
+[WannierTools 的 WCC 接口](https://wannier-tools.readthedocs.io/en/latest/features.html#wannier-charge-center-wilson-loop-calculation)中，`WannierCenter_calc` 指定矩阵回路，`KPLANE_BULK` 的第一向量定义完整周期、第二向量定义横向半周期。`NumOccupied` 是所选模型中占据带的数量，不能填入总电子数。`wcc.dat` 第一列为横向位置，第二列为最大 WCC 间隙的中心，第三列为相位和，第四列起为各条 WCC；相位和与单条谱流的用途不同。
+
+[Li 等 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)在同一异质双层模型中同时展示 WCC 和半无限边缘谱。非平庸构型的 WCC 奇偶与贯穿 SOC 能隙的边缘态对应；另一构型虽有能隙内的边缘谱线，但没有连接价带、导带的无隙谱支。因此边界图应标出体能带投影、边界权重、切边和终止方式，并与同一正常态模型的 WCC 对照。该图是分析关系的文献例子，不是本页 Si 的边界计算。
+
+正常态 Z₂、自旋锁定和超导配对各需要自己的输入。前两者分别接到占据子空间和 [费米面自旋投影](/Atlas/m/spin-texture/vasp/)；讨论拓扑超导则还需配对矩阵与 BdG 能隙及不变量。本页材料数据止于 Si 的离散陈数和矩阵回路相位；BHZ 配套只核对正常态拓扑程序接口。

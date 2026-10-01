@@ -1,3 +1,7 @@
+## Si 势能优化记录：可变晶胞
+
+这份存档展示 MACE-MP-0 small 与 ASE 的可变晶胞优化。它输出模型势能、原子力和应力，没有 SCF 密度、Kohn–Sham 本征态或 EPC 数据，也没有本研究界面上的 DFT 对照。下面保留可追溯的 Si 操作与结果。
+
 固定晶胞优化只能移动原子。这里把金刚石 Si 的立方胞边长设成 5.60 Å，同时给一个原子加上小位移，让原子坐标和六个晶胞应变自由度一起调整。问题变成了：能量降低之后，原子力和晶胞应力是否同时足够小？
 
 让晶胞参与优化，是为了给后续 Si 分子动力学提供在该模型下残余力和应力都小的起点，减少从偏大晶胞开始的机械扰动。[Batatia 等的 MACE 方法论文](https://arxiv.org/abs/2206.07697)第 4 节式 (13)定义能量读出；这里由 MACECalculator 返回应力，FrechetCellFilter 将晶胞变形交给优化器。下面分别检查原子力、应力与晶胞。
@@ -23,7 +27,7 @@
 
 [完整输入源码 vc-relax.py](/Atlas/examples/mace-si/si-vc-relax/vc-relax.py)。保存后读回内容：
 
-```python
+```text
 (venv) talos@talos-MS-7D54:<工作目录>$ vi si-vc-relax/vc-relax.py
 (venv) talos@talos-MS-7D54:<工作目录>$ cd si-vc-relax
 (venv) talos@talos-MS-7D54:<工作目录>/si-vc-relax$ cat vc-relax.py
@@ -157,7 +161,13 @@ ASE 的应力数组按 `xx, yy, zz, yz, xz, xy` 排列，原始值单位是 eV/�
 
 本次得到的是 MACE-MP-0 small 预测的在零外压下优化后的结构。没有做 DFT 对照，也没有测定有限温度晶格常数；后续 MD 沿用这份模型和结构，结论需要保持相同范围。
 
-## 画出体积收缩与力的收敛
+## 轨迹、数据表与原绘图源码
+
+原轨迹和数值表用于复核每一步；可选的原绘图源码与数据一起保留。正文的日志和末态数值已给出停止条件，不再重复展示同一组趋势图。
+
+<details>
+<summary>从真实轨迹提取 CSV 与原绘图程序</summary>
+
 
 [optimization.csv](/Atlas/examples/mace-si/si-vc-relax/optimization.csv) 是从 `vc-relax.traj` 逐帧提取的 8 原子晶胞总能量、最大原子力和晶胞体积。提取方法和 [export_series.py 完整源码](/Atlas/m/relax/mace/)见固定晶胞页；运行原脚本时，从 `si-relax`、`si-vc-relax` 的共同上级读取两份轨迹。只处理本页时，将循环列表改为 `[("si-vc-relax", "vc-relax.traj")]`。可把以下绘图需求交给 AI 编程助手：
 
@@ -203,23 +213,17 @@ print("cell-relaxation.svg", "cell-relaxation.png")
 python3 plot.py
 ```
 
-![Si 可变晶胞优化的能量、体积与原子力](/Atlas/examples/mace-si/si-vc-relax/cell-relaxation.svg)
 
 图中体积在前几步迅速接近末态，原子力还要继续优化才能降到阈值以下。保留完整轨迹，可以分清“晶胞基本不变了”和“所有接受条件都已满足”。
+
+
+</details>
 
 完整材料：[输入](/Atlas/examples/mace-si/si-vc-relax/vc-relax.py)、[原始输出](/Atlas/examples/mace-si/si-vc-relax/vc-relax.out.txt)、[轨迹](/Atlas/examples/mace-si/si-vc-relax/vc-relax.traj)、[末态结构](/Atlas/examples/mace-si/si-vc-relax/relaxed.extxyz)、[CIF](/Atlas/examples/mace-si/si-vc-relax/relaxed.cif)。
 
 <span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 <span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-## 从优化末态继续计算
+## 模型末态与 DFT 分析的关系
 
-这份末态同时检查了原子力、应力和晶胞，可以作为下方短轨迹的初始结构。扩大超胞时保留相同模型与周期条件，再记录热化和关掉热浴后的能量变化。
-
-下一步：用这份末态扩成 64 原子超胞，进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)，检查有限时间轨迹和积分步长。
-
-```text
-明确结构与模型 → 可变晶胞优化 → 原子力、应力、晶胞检查
-                                              ↓
-                                64 原子超胞 → 热化 → NVE 对照
-```
+这里的停止条件仅检验指定 MACE 模型上的力和应力。要把机器学习势用于本研究的界面预优化或有限温度采样，先需要针对相应元素、堆叠和应变范围做 DFT 能量/力/应力对照，再将选定构型带回同一电子模型的自洽与响应计算。这份纯 Si 记录没有完成那种对照；本轮界面电子密度、声子与 EPC 从 [DFT 结构优化](/Atlas/m/relax/qe/)及其真实输入输出接续。

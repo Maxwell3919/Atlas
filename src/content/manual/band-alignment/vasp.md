@@ -1,14 +1,10 @@
-要比较 SnSe₂ 带边与金属 Sr₂N 的费米能，首先需要把两层的能量放到共同参考上；两份 OUTCAR 的 E-fermi 各有自己的零点。本例从六原子 SnSe₂/Sr₂N 参考结构中拆出两层，保留共同面内晶胞与层内几何，分别做固定结构 SCF，再用相向表面的真空势对齐能级。得到的偏移回答指定冻结几何下两层能级如何排列，为后续接触体系的比较提供基线。
+SnSe₂带边和Sr₂N费米能能否比较，取决于能量零点。两份孤立SCF的EF不能直接相减；先把每个能级减去它自己的表面真空势，再比较共同参照下的位置。本例从六原子SnSe₂/Sr₂N结构拆层，保留共同面内晶胞与内部几何，只平移至居中位置；结果是接触前的冻结层参照。
 
-[Choudhary 等](https://arxiv.org/abs/2004.03025v2)在 Results and discussion 中先将各层 VBM、CBM 减去各自真空能级，Fig. 2 再用显式异质结构 DOS 检验单层参考，Fig. 5 展示半导体对齐类型。本例的 Sr₂N 有费米面交叉，所以比较量是 SnSe₂ 带边与金属费米能的偏移；半导体—半导体的 type-I/II/III 分类不适用于这组结果。
+[Choudhary等，arXiv:2004.03025v2, Figs. 2、5](https://arxiv.org/abs/2004.03025v2)用真空参照单层带边预测对齐，并用显式异质结DOS检验。本例Sr₂N有费米能交叉，比较的是半导体带边与金属EF，不能套半导体—半导体type-I/II/III分类。[金属/Ca₂N/MoS₂原文Fig. 3](https://doi.org/10.1039/D4CP04577G)还表明接触几何会改变半导体谱，接触前的对齐必须再由实际界面电子结构检验。
 
-[下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-band-alignment/example-pack.tar.gz)。包内保留两份完整 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL`，以及产生本文数字的脚本。POTCAR 仅提供标题、价电子数与哈希，需要使用自己的授权文件。平面平均与能级提取脚本可在安装 NumPy 的 Python 环境中运行；表格导出脚本只依赖 Python 标准库。
+[下载两层输入、完整原始输出与源码](/Atlas/examples/interface-magnet-band-alignment/example-pack.tar.gz)，进入 `example-pack`。准备结构见 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/)，固定结构自洽见 [SCF](/Atlas/m/scf/vasp/)，势参考见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
 
-这组结构沿用 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/) 中的原始参考结构，各层的内部形变也保留。它回答的是共同晶胞下、指定冻结几何的孤立层参考能级。自由单层的平衡几何、接触后电荷转移和界面势垒，需要另外的计算来回答。固定结构 SCF 的文件和步骤见 [SCF](/Atlas/m/scf/vasp/)，势文件的格式见 [静电势](/Atlas/m/electrostatic-potential/vasp/)。
-
-## 保留共同晶胞与原来的表面朝向
-
-先复制已有六原子结构。在以下命令中，`<工作目录>` 是原异质结构 SCF 的目录；新目录与原计算分开。
+## 原位几何与相向表面
 
 ```text
 [bcgong@localhost vasp]$ mkdir -p band_alignment/snse2 band_alignment/sr2n
@@ -20,8 +16,6 @@
 [bcgong@localhost band_alignment]$ cp POSCAR.reference sr2n/POSCAR
 [bcgong@localhost band_alignment]$ vi sr2n/POSCAR
 ```
-
-原文件元素顺序是 `Sn Se N Sr`，计数为 `1 2 1 2`。SnSe₂ 取前三个原子，Sr₂N 取后三个原子；后者继续按 `N Sr`、`1 2` 的顺序书写。不要只删坐标而忘记更新元素名与计数。每一层仅整体沿 z 平移，使最上、最下原子的中点落在晶胞中央：
 
 ```text
 [bcgong@localhost band_alignment]$ cat snse2/POSCAR
@@ -50,12 +44,6 @@ Direct
  0.3333333329999988 0.6666666670000012 0.4656905019441875
 ```
 
-两个晶胞的面内边长都是 3.9501156207 Å，法向长度都是 39.4021877938 Å。本站 [SnSe₂ 功函数例子](/Atlas/m/workfunction/vasp/) 的面内边长是 3.8464052688 Å，不能把那个目录的带边直接搬来与这里的 Sr₂N 比较。相对于那份结构文件，这里的面内伸长为 2.6963%；这个百分比本身不代表相对于已验证平衡晶格的应变。
-
-上下表面也没有被人为对称化。SnSe₂ 中 Sn 到两侧 Se 平面的距离不相等，Sr₂N 中 N 到两侧 Sr 平面的距离也不相等。原异质结构中，SnSe₂ 位于上方，朝向另一层的是它的 **lower z** 表面；Sr₂N 位于下方，朝向另一层的是它的 **upper z** 表面。把每层居中以后，这个方向关系仍然保留。
-
-下载包中的 `analyze_alignment.py` 会逐项比较新旧结构：晶格、元素、原子数和面内坐标必须匹配，同一层三个原子的 z 平移量必须一致。先在提交前运行几何检查：
-
 ```text
 [bcgong@localhost band_alignment]$ python analyze_alignment.py --geometry-only
 snse2: 3 atoms; rigid dz=-0.090381737230 fractional; thickness=3.324900015 A; empty height=36.077287778 A
@@ -63,32 +51,13 @@ sr2n: 3 atoms; rigid dz=0.040884040820 fractional; thickness=2.703738571 A; empt
 Common cell, INCAR and KPOINTS: identical
 ```
 
-这里的 `empty height` 是相邻周期层之间的法向空白高度，不是层厚。两层都超过 36 Å；这给后面选择远离原子的真空区间留出了空间，但仍然要看实际势和电荷密度。
+原结构元素Sn Se N Sr、计数1 2 1 2；SnSe₂前三个原子，Sr₂N后三个。两份面内边长3.9501156207 Å，法向39.4021877938 Å。只沿z作整体平移，各层厚度与面内坐标保持；它们不是独立弛豫的自由单层。
 
-POTCAR 的元素顺序要跟着 POSCAR 一起改变。本次使用同一份原异质结构 POTCAR 中的四个完整数据集，脚本先核对标题和 `End of Dataset` 边界，再把前两个、后两个分别写入两个新目录。它不会覆盖已有 POTCAR，也不会把许可正文写入公开数据包。
+SnSe₂原来在上，面向界面的是lower-z；Sr₂N在下，面向界面的是upper-z。居中没有翻转表面，也没有人为恢复上下对称。本站另一 [SnSe₂功函数算例](/Atlas/m/workfunction/vasp/) 的面内边长3.8464052688 Å，读数不能直接混入本例。
 
-```text
-[bcgong@localhost band_alignment]$ python split_paw.py
-snse2 SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
-sr2n SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
-[bcgong@localhost band_alignment]$ cat snse2/POTCAR.identity.txt sr2n/POTCAR.identity.txt
-SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
-TITEL  = PAW_PBE Sn_d 06Sep2000
-POMASS =  118.710; ZVAL   =   14.000    mass and valenz
-TITEL  = PAW_PBE Se 06Sep2000
-POMASS =   78.960; ZVAL   =    6.000    mass and valenz
-SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
-TITEL  = PAW_PBE N 08Apr2002
-POMASS =   14.001; ZVAL   =    5.000    mass and valenz
-TITEL  = PAW_PBE Sr_sv 07Sep2000
-POMASS =   87.620; ZVAL   =   10.000    mass and valenz
-```
+POTCAR按POSCAR元素顺序拆分完整数据集，不公开许可正文。SnSe₂总价电子26，Sr₂N25；原拆分输出保留在执行记录。
 
-SnSe₂ 的价电子数为 `14 + 2 × 6 = 26`，Sr₂N 为 `5 + 2 × 10 = 25`。这一步既核对顺序，也为后面检查 OUTCAR 和电荷积分提供整数参考。若从各元素的授权库重新组合文件，仍须先核对版本、标题和价电子数。
-
-## 用同一套设置完成两份 SCF
-
-两份 INCAR 与 KPOINTS 完全相同：
+## 同一协议求两份孤立SCF
 
 ```text
 [bcgong@localhost band_alignment]$ vi snse2/INCAR
@@ -128,14 +97,6 @@ Gamma
 0 0 0
 ```
 
-这里明确使用 `ISPIN = 1`，沿用标量非磁性的 PBE 与色散设置，没有开启 SOC。输入中的 `IVDW = 11` 对应 DFT-D3 零阻尼修正，因此本例协议是 PBE+D3（零阻尼）。[IVDW 的方法对应关系](https://vasp.at/wiki/IVDW) `NSW = 0` 固定所有离子；`ISTART = 0` 和 `ICHARG = 2` 从原子电荷开始，两份目录均没有复用另一层的 CHGCAR。
-
-两层统一使用 `ISMEAR = 0` 的高斯展宽、`SIGMA = 0.05 eV`，使同一套设置能用于后面分别呈现带隙和金属交叉的两份结果。展宽与 21×21×1 网格会影响占据、费米能及采样到的带边；继续做精度检查时，应比较各能级减去本次真空势后的变化，而不只看 OUTCAR 的总能量是否稳定。[VASP 的展宽说明](https://vasp.at/wiki/Smearing_technique)
-
-`LVHAR = .TRUE.` 写出离子势加 Hartree 势。`LDIPOL = .TRUE.`、`IDIPOL = 3` 在法向加入偶极修正，`DIPOL` 放在居中后的层附近。非对称层的电荷分布可以产生法向净偶极，使孤立薄膜两侧的真空势不同。在三维周期晶胞中，势还必须满足周期边界，重复镜像会引入额外的真空势斜率。偶极修正抵消这一周期误差，让两侧各自出现平坦区，并保留由薄膜电荷分布产生的势差。[LDIPOL 官方说明](https://vasp.at/wiki/LDIPOL) 也指出，这类修正可能让电子收敛变慢，所以是否达到 EDIFF 必须从输出中确认。
-
-两个单层分别提交；前一个任务结束后，再运行另一个目录的任务。下面以 SnSe₂ 为例，每次使用 8 个 MPI 进程。
-
 ```text
 [bcgong@localhost band_alignment]$ cat snse2/run.slurm
 #!/bin/bash
@@ -156,8 +117,6 @@ cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
 
-脚本中的 16–23 是这次现场核验过的空闲 CPU 编号，用来避开已有任务。更换机器时，需要依据当时的分配重新设置，不能照搬编号。这里取消的是子进程环境中的 `SLURM_CPUS_PER_TASK`，Slurm 申请仍是 `8 × 1`；该版本 Intel MPI 否则会优先采用由它推断的绑定域。`OMP_NUM_THREADS=1` 则避免每个 MPI 进程再展开额外的 OpenMP 线程。
-
 ```text
 [bcgong@localhost band_alignment]$ cd snse2
 [bcgong@localhost snse2]$ squeue -o "%.18i %.14j %.10u %.2t %.6C %.10M"
@@ -166,15 +125,6 @@ mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 [bcgong@localhost snse2]$ sbatch run.slurm
 Submitted batch job 18198
 ```
-
-运行中可以在另一终端查看队列与电子迭代：
-
-```bash
-watch -n 5 'squeue -o "%.18i %.14j %.10u %.2t %.6C %.10M"'
-tail -f out
-```
-
-`Ctrl+C` 只结束这两个观察命令。队列中的 `R` 表示正在运行；它不能说明 SCF 已经收敛。结束后，把 OSZICAR 的最后几步与 OUTCAR 的收敛标记、最终计时一起看：
 
 ```text
 [bcgong@localhost snse2]$ tail -n 7 OSZICAR
@@ -190,21 +140,6 @@ E-fermi :  -4.1160     XC(G=0):  -1.7219     alpha+bet : -1.4843
 ------------------------ aborting loop because EDIFF is reached ----------------------------------------
                          Elapsed time (sec):      160.816
 ```
-
-`DAV` 行中的 `dE` 是相邻电子迭代的能量变化，`d eps` 是本征值相关变化。第 25 步后出现 `EDIFF is reached`，而文件末尾有完整计时；这说明本次固定几何的电子自洽结束了。它不是离子优化通过的证据。OSZICAR 中最后的 `F=`、`E0=` 与 OUTCAR 的总能段对应：
-
-```text
-[bcgong@localhost band_alignment]$ grep -A 5 "FREE ENERGIE" snse2/OUTCAR
-FREE ENERGIE OF THE ION-ELECTRON SYSTEM (eV)
-  ---------------------------------------------------
-  free  energy   TOTEN  =       -12.02561657 eV
-
-  energy  without entropy=      -12.02561626  energy(sigma->0) =      -12.02561641
-```
-
-这段同时给出 F 与 E0；后面的能级参考则由同一次计算的 E-fermi、EIGENVAL 和 LOCPOT 组合。
-
-第一个任务结束后，再进入另一个目录提交。Sr₂N 的脚本仅把作业名改成 `align-sr2n`。
 
 ```text
 [bcgong@localhost band_alignment]$ cd sr2n
@@ -224,26 +159,11 @@ E-fermi :  -2.1582     XC(G=0):  -1.8451     alpha+bet : -1.4302
                          Elapsed time (sec):      160.448
 ```
 
-Sr₂N 用了 29 次电子迭代，实际运行时间同样约 161 秒；两个任务的错误日志均为 0 字节。`LWAVE=.FALSE.` 使 WAVECAR 为 0 字节，这次分析也不需要它；`LCHARG=.TRUE.` 生成 CHGCAR，`LVHAR=.TRUE.` 生成 LOCPOT。文件作用与大小可以一起核对：
+固定结构、非磁标量PBE+D3零阻尼、无SOC、21×21×1、Gaussian0.05 eV，两项电子参数相同。LDIPOL/IDIPOL=3去除周期偶极误差，真实非对称层两侧仍可以有不同平台。8个MPI进程的脚本中核号来自原现场分配；重跑需遵循新分配。
 
-```text
-[bcgong@localhost band_alignment]$ ls -lh snse2/{INCAR,POSCAR,KPOINTS,OUTCAR,OSZICAR,EIGENVAL,LOCPOT,CHGCAR,WAVECAR}
--rw-rw-r-- 1 bcgong bcgong  37M Sep 22 23:33 snse2/CHGCAR
--rw-rw-r-- 1 bcgong bcgong  35K Sep 22 23:33 snse2/EIGENVAL
--rw-rw-r-- 1 bcgong bcgong  369 Sep 22 23:30 snse2/INCAR
--rw-rw-r-- 1 bcgong bcgong   57 Sep 22 23:30 snse2/KPOINTS
--rw-rw-r-- 1 bcgong bcgong  37M Sep 22 23:33 snse2/LOCPOT
--rw-rw-r-- 1 bcgong bcgong 2.4K Sep 22 23:33 snse2/OSZICAR
--rw-rw-r-- 1 bcgong bcgong 135K Sep 22 23:33 snse2/OUTCAR
--rw-rw-r-- 1 bcgong bcgong  464 Sep 22 23:30 snse2/POSCAR
--rw-rw-r-- 1 bcgong bcgong    0 Sep 22 23:31 snse2/WAVECAR
-```
+SnSe₂25次、Sr₂N29次电子迭代达EDIFF，正常结束，均约161秒。LWAVE=.FALSE.的零字节WAVECAR不参与本例分析。LOCPOT、CHGCAR、EIGENVAL与EF来自各自同一次SCF，分别用于势参考、真空密度和能级。
 
-`OUTCAR` 保存参数回显、电子过程、能量和最终计时；`OSZICAR` 是便于监控的短记录；`EIGENVAL` 给出每个 k 点的能带与占据；`LOCPOT` 给出三维势网格。CHGCAR 在这里用于检查真空窗口内是否还有明显的电子密度。文件存在只是第一步，后面分别核对其内部数据。
-
-## 从 EIGENVAL 分别读取带边和金属交叉
-
-先看 SnSe₂ 的 EIGENVAL 开头：
+## 采样带边与金属交叉
 
 ```text
 [bcgong@localhost band_alignment]$ head -n 25 snse2/EIGENVAL
@@ -274,15 +194,11 @@ Sr₂N 用了 29 次电子迭代，实际运行时间同样约 161 秒；两个�
    17       -0.240462   0.000000
 ```
 
-第六行 `26 48 20` 依次是电子数、不可约 k 点数和能带数。随后每个 k 点用一行写三个倒空间坐标和权重，再跟 20 行能带数据。这里能带行的三列是序号、能量和占据。本版本非磁性输出中，占据数按单自旋归一化，满占据写成 1；脚本用 `2 × Σ(k 权重 × 占据)` 复核总电子数。
+SnSe₂第六行26 48 20给电子数、不可约k点数与带数。这个VASP5.4.4非磁输出满占据为1，乘2与k权重求和应恢复26电子。Γ点第13/14带间隔不是全网格带隙；遍历48点后导带最低点约(0.4761905,0,0)，间接隙为0.278103 eV。
 
-Γ 点的第 13 带为 −4.254365 eV，第 14 带为 −3.484356 eV。只减这两个数会得到 Γ 点的直接间隔。遍历整个 21×21×1 网格后，最低导带出现在采样坐标约 `(0.4761905, 0, 0)`，得到的间接隙只有 0.278103 eV。因此这页的带边来自全体采样 k 点，不是从一张路径图上目测的。
+Sr₂N是25电子、第13和14带的能量范围跨EF=−2.1582 eV，按这组采样的金属处理。单个Γ点占据不能代表全BZ电子数；它也没有供type-I/II分类使用的一对VBM/CBM。
 
-Sr₂N 的开头写着 `25 48 16`。在 Γ 点，前 14 条带都处于费米能以下，这并不意味着每个 k 点都填满 14 条带；其他 k 点的占据会变化。解析全部 48 个 k 点后，第 13、14 带的能量范围都跨过了 `E_F=-2.1582 eV`，所以这一指定非磁模型按金属处理，不为它安排一对人为的 VBM/CBM。
-
-## 为每一侧表面找到真空参考
-
-接着读取真空势。平面平均脚本按 VASP 的网格顺序读取首个标量场，要求数值个数等于 `NGXF × NGYF × NGZF`，并检查截断与非有限值。LOCPOT 中的量已经是 eV；求平面平均时不再除以晶胞体积。
+## 每个表面使用自己的真空平台
 
 ```text
 [bcgong@localhost band_alignment]$ cd snse2
@@ -299,10 +215,6 @@ window 6.00:10.00 A  N=60  mean=0.872342013 eV  std=5.30532e-06 eV  range=2.4683
 window 29.00:33.00 A  N=60  mean=1.273814882 eV  std=4.78083e-06 eV  range=2.37907e-05 eV
 ```
 
-两个窗口分别取 6–10 Å 和 29–33 Å，避开原子层及偶极修正的势跳变。层已居中，跳变落在远离原子的真空中；这个人为跳变用于维持晶胞势的周期性，不能当成接触后的界面势阶。`range` 是所选窗口内势的最大值减最小值，这里均小于 0.00007 eV。SnSe₂ 两侧平台却相差约 0.5440 eV，Sr₂N 两侧相差约 0.4015 eV：平台本身很平坦，并不意味着两侧平台必须相等。
-
-同一组窗口再用 CHGCAR 核对。CHGCAR 首个电荷网格采用与 LOCPOT 不同的归一化；全网格平均给出总价电子数，而平面平均再除以晶胞体积才得到电子密度，单位为 e/Å³。
-
 ```text
 [bcgong@localhost band_alignment]$ python check_vacuum_density.py
 snse2: integrated valence electrons=26.000001016; volume=532.439868220 A^3
@@ -313,11 +225,11 @@ sr2n: integrated valence electrons=25.000000037; volume=532.439868220 A^3
   z=29.0:33.0 A: mean density=3.38004e-08; max abs density=3.2739e-07 e/A^3
 ```
 
-26 与 25 的总价电子数得到了恢复，真空窗口中的平面平均密度最大绝对值低于 `3.9×10⁻⁷ e/Å³`。结合平坦的势，这些窗口可以用于本次参考能级读取。平台平坦与真空窗口电荷小是本次读数检查；真空高度的敏感性需要增加晶胞高度再比较。
+两侧窗口6–10与29–33 Å远离原子和修正跳变，range均小于0.00007 eV，真空平面密度最大绝对值低于3.9×10⁻⁷ e/Å³。CHGCAR平均先除体积，LOCPOT直接平均eV，这两种数组不能套同一单位换算。
 
-## 相向表面的能级如何对齐
+SnSe₂两侧平台相差约0.5440 eV，Sr₂N约0.4015 eV；平台平坦和两侧相等是不同条件。本例明确选相向表面。真空高度敏感性需要增加高度后重比较，不能由一个窗口的平坦程度替代。
 
-最后从同一次 SCF 的 OUTCAR、EIGENVAL、LOCPOT 汇总结果。脚本会拒绝没有电子收敛标记或最终计时的 OUTCAR，检查 EIGENVAL 电子数、k 点权重、带序号和占据，并核对势摘要的源文件哈希。
+## 真空参照偏移的实际含义
 
 ```text
 [bcgong@localhost band_alignment]$ python analyze_alignment.py
@@ -338,30 +250,37 @@ sr2n: NELECT=25; weighted electrons=24.99999595; NKPTS=48; NBANDS=16; elapsed=16
 Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnSe2)=2.560710 eV
 ```
 
-把所选表面的真空能级设为零，使用的是 `E′ = E − V_vac`。原来面向界面的两侧给出：
-
-| 孤立层及表面 | 真空势 / eV | 相对于该侧真空的能级 / eV |
+| 冻结孤立层表面 | Vvac / eV | E−Vvac / eV |
 | --- | ---: | --- |
-| SnSe₂，lower z | 1.738360 | VBM = −5.992725；CBM = −5.714622 |
-| Sr₂N，upper z | 1.273815 | E_F = −3.432015 |
+| SnSe₂ lower-z | 1.738360141 | VBM −5.992725141；CBM −5.714622141 |
+| Sr₂N upper-z | 1.273814882 | EF −3.432014882 |
 
-因此，把这两份孤立层的面向表面按真空能级对齐，会得到 `CBM(SnSe₂) − E_F(Sr₂N) = −2.282607 eV`。这个数表达指定参考模型的能级相对位置。接触以后，电荷转移、界面偶极、杂化与结构响应都会改变势和能带，不能把这里的差值当作已经计算出的实际界面势垒，也不能用它直接定量推算转移电子数。Sr₂N 在本次模型中是金属，半导体—半导体的 type I / II 分类也不适用于这组能级。
+CBM(SnSe₂)−EF(Sr₂N)=−2.282607260 eV，是这组冻结孤立层真空参照下的偏移。接触后共用EF、电荷重排、界面偶极和杂化会重构这些位置；这个负偏移不能直接作为已算出的接触势垒或转移电子数。它也不能和各自以EF归零的DOS横轴混用。
 
-本例采用共同晶胞下的冻结几何、非磁 PBE+D3、无 SOC 和 21×21×1 网格。PBE 带隙未作准粒子修正；接触性质的分析继续使用实际界面的结构、磁性、密度与能带。
+要读实际界面的电子/空穴势垒，应在完整接触体系中找到仍可识别的SnSe₂层带边与共同EF，检查杂化/隙内态；平面势峰相对EF给的隧穿势垒属于另一种量。参考 [金属/Ca₂N/MoS₂论文Sec. 2.2、Fig. 3](https://doi.org/10.1039/D4CP04577G)，把层投影谱、电荷与几何一起检查。
 
-## 导出可复核的表格
+## 结果表与接触后的转移分析
 
-下面导出每个表面的真空窗口与相向表面偏移，逐项核对平台范围和能级参考。
-
-`export_alignment_tables.py` 只依赖 Python 标准库，读取 `alignment-summary.json`，输出四个表面窗口的真空参考值和两项相向表面偏移：
-
-### 按这些读取规则编写脚本
+表格导出只读已验证摘要，按表面保留平台范围、带边和EF。这个写码需求可复现所列两张表：
 
 ```text
 请编写一个 Python 3 标准库脚本，读取同目录的 alignment-summary.json。文件内含 SnSe2 与 Sr2N 两层的 sampled-mesh 分类、能带边、E_F、两侧 LOCPOT 真空窗口，以及已指定的 interface_facing_isolated_reference。输出 band-edges-vacuum-referenced.csv，每种材料和表面各一行，至少含材料、表面、窗口范围、真空势均值、窗口势差、E_F−Vvac、VBM−Vvac、CBM−Vvac、采样带隙和金属/半导体分类；金属的 VBM/CBM 与带隙字段留空，不要伪造带边。另输出 facing-surface-offsets.csv，逐行写出 SnSe2 lower-z 与 Sr2N upper-z 的 CBM−EF、EF−VBM 值及“冻结孤立层参考，不是界面势垒”的范围说明。数值保持 eV，CSV 用 UTF-8，写入脚本所在目录，固定列序，确保重跑可复现。若缺少任一预期字段或 JSON 无法解析，应以清楚错误退出；不要画图、填补缺失数据或推断接触后的性质。
 ```
 
-完整源码：[export_alignment_tables.py](/Atlas/examples/interface-magnet-band-alignment/export_alignment_tables.py) · [analyze_alignment.py](/Atlas/examples/interface-magnet-band-alignment/analyze_alignment.py) · [check_vacuum_density.py](/Atlas/examples/interface-magnet-band-alignment/check_vacuum_density.py) · [plane_average.py](/Atlas/examples/interface-magnet-band-alignment/plane_average.py)。按下方命令读取原始输出后，导出四行表面值与两行相向偏移，具体值见两份 CSV。
+[analyze_alignment.py](/Atlas/examples/interface-magnet-band-alignment/analyze_alignment.py)、[check_vacuum_density.py](/Atlas/examples/interface-magnet-band-alignment/check_vacuum_density.py)、[plane_average.py](/Atlas/examples/interface-magnet-band-alignment/plane_average.py)以及[export_alignment_tables.py](/Atlas/examples/interface-magnet-band-alignment/export_alignment_tables.py)在文末给完整源码。它们使用Python标准库；从原始LOCPOT开始时，先分别在snse2、sr2n中执行前面平台命令，再回根目录运行：
+
+```bash
+python3 analyze_alignment.py
+python3 check_vacuum_density.py
+python3 export_alignment_tables.py
+```
+
+输出四个表面读数和两个相向偏移：[真空参照表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv) · [偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
+
+继续 [CDD](/Atlas/m/delta-charge/vasp/) 时，完整AB与冻结A/B必须留在同一坐标，不能把这里居中过的层直接逐点相减。平面平均Δn̄乘真实面积再累计，给指定边界的层净增电子数；[Bader](/Atlas/m/bader/vasp/)给盆地加总，两者各有分区。转移面积密度反映静态重排，导带/费米面占据才说明自由载流子。将它们与接触后的层投影电子结构对应，才能讨论界面给哪组能态增减电子。
+
+
+## 完整源码与执行记录
 
 <details>
 <summary>export_alignment_tables.py 的完整源码</summary>
@@ -668,19 +587,52 @@ if __name__=='__main__':
 
 </details>
 
-```bash
-python3 analyze_alignment.py
-python3 check_vacuum_density.py
-python3 export_alignment_tables.py
+<details>
+<summary>同一算例的其余输入、检查命令与保存输出</summary>
+
+```text
+[bcgong@localhost band_alignment]$ python split_paw.py
+snse2 SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
+sr2n SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
+[bcgong@localhost band_alignment]$ cat snse2/POTCAR.identity.txt sr2n/POTCAR.identity.txt
+SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
+TITEL  = PAW_PBE Sn_d 06Sep2000
+POMASS =  118.710; ZVAL   =   14.000    mass and valenz
+TITEL  = PAW_PBE Se 06Sep2000
+POMASS =   78.960; ZVAL   =    6.000    mass and valenz
+SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
+TITEL  = PAW_PBE N 08Apr2002
+POMASS =   14.001; ZVAL   =    5.000    mass and valenz
+TITEL  = PAW_PBE Sr_sv 07Sep2000
+POMASS =   87.620; ZVAL   =   10.000    mass and valenz
 ```
 
-从包内保存的摘要重建这两张表时，上面的三个命令即可使用。若从 LOCPOT 重新开始，先分别在 `snse2` 与 `sr2n` 中执行前面展示的 `python ../plane_average.py LOCPOT 6:10 29:33`，生成各自的 `potential-summary.json`，再回到 `example-pack` 运行汇总和导出命令。
+```bash
+watch -n 5 'squeue -o "%.18i %.14j %.10u %.2t %.6C %.10M"'
+tail -f out
+```
 
-脚本的本次实际输出为 4 行表面值、2 行相向偏移。SnSe₂ lower-z 表面的真空势为 1.738360141 eV，VBM−Vvac = −5.992725141 eV，CBM−Vvac = −5.714622141 eV；Sr₂N upper-z 表面的真空势为 1.273814882 eV，EF−Vvac = −3.432014882 eV。按各自真空参考组合后，CBM(SnSe₂)−EF(Sr₂N) = −2.282607260 eV。CSV 保留两侧所有平台均值与窗口内势差，可[查看真空参考表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)和[相向表面偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
+```text
+[bcgong@localhost band_alignment]$ grep -A 5 "FREE ENERGIE" snse2/OUTCAR
+FREE ENERGIE OF THE ION-ELECTRON SYSTEM (eV)
+  ---------------------------------------------------
+  free  energy   TOTEN  =       -12.02561657 eV
 
-## 从孤立层参考到接触后的界面
+  energy  without entropy=      -12.02561626  energy(sigma->0) =      -12.02561641
+```
 
-Choudhary 等，*Efficient Computational Design of 2D van der Waals Heterostructures: Band-Alignment, Lattice-Mismatch, Web-app Generation and Machine-learning*，[arXiv:2004.03025v2](https://arxiv.org/abs/2004.03025v2)，Figs. 2、5。Fig. 2 用选定显式异质结构的电子结构检验单层参考预测；Fig. 5 展示相对真空能级的三类半导体对齐。分析逻辑是各层带边先减自己的真空势，再比较能级。这里 Sr₂N 为金属，结果以其 E_F 作参考，呈现冻结孤立层的带边—金属费米能偏移；接触后界面重排需要完整界面的密度、势与能带。
+```text
+[bcgong@localhost band_alignment]$ ls -lh snse2/{INCAR,POSCAR,KPOINTS,OUTCAR,OSZICAR,EIGENVAL,LOCPOT,CHGCAR,WAVECAR}
+-rw-rw-r-- 1 bcgong bcgong  37M Sep 22 23:33 snse2/CHGCAR
+-rw-rw-r-- 1 bcgong bcgong  35K Sep 22 23:33 snse2/EIGENVAL
+-rw-rw-r-- 1 bcgong bcgong  369 Sep 22 23:30 snse2/INCAR
+-rw-rw-r-- 1 bcgong bcgong   57 Sep 22 23:30 snse2/KPOINTS
+-rw-rw-r-- 1 bcgong bcgong  37M Sep 22 23:33 snse2/LOCPOT
+-rw-rw-r-- 1 bcgong bcgong 2.4K Sep 22 23:33 snse2/OSZICAR
+-rw-rw-r-- 1 bcgong bcgong 135K Sep 22 23:33 snse2/OUTCAR
+-rw-rw-r-- 1 bcgong bcgong  464 Sep 22 23:30 snse2/POSCAR
+-rw-rw-r-- 1 bcgong bcgong    0 Sep 22 23:31 snse2/WAVECAR
+```
 
 ```text
 明确的共同晶胞与六原子结构
@@ -693,6 +645,4 @@ Choudhary 等，*Efficient Computational Design of 2D van der Waals Heterostruct
                       └─ 孤立层参考表 → 后续直接检查界面体系
 ```
 
-相关输入说明：[VASP：功函数](https://vasp.at/wiki/Computing_the_work_function) · [LVHAR](https://vasp.at/wiki/LVHAR) · [LDIPOL](https://vasp.at/wiki/LDIPOL) · [EIGENVAL](https://vasp.at/wiki/EIGENVAL)
-
-下一步若要看接触后的变化，转到 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，在同一异质结构晶胞与冻结几何下比较 AB、A、B 的电荷；若要读整个异质结构的势变化，转到 [静电势](/Atlas/m/electrostatic-potential/vasp/)。这两类结果再与实际界面能带结合，才能继续讨论接触后的能级重排。
+</details>

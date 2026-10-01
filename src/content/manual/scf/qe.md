@@ -1,21 +1,12 @@
-## 把结构固定下来，先求一份电子密度
+## 固定结构，求后续分析使用的电子密度
 
-SCF 在给定晶胞和原子位置下求自洽的电子密度与有效势。本例在 Preston 上使用 QE 7.5，计算两个原子的金刚石 Si 原胞；常规立方晶格参数取 QE 示例的 10.20 bohr，使用公开库中的 PBE 超软赝势。后面的 NSCF、路径能带和 Γ 点声子分别以这份计算为起点。
+研究界面电荷转移、电子态与声子，先要给每个结构建立一份匹配的自洽密度和有效势。SCF 固定晶胞与原子位置，反复求本征态、更新密度，直到输入的电子停止条件满足。[Giannozzi 等](https://doi.org/10.1088/0953-8984/21/39/395502)附录 A.1 式 (A.1)把这一步写成密度或有效势的固定点问题；下面 OUT 中的估计误差与停止行对应这个求解过程。
 
-先求这份密度，是为了让后续能带和声子使用同一个给定结构的电子基态。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)附录 A.1 式 (A.1) 将自洽写成密度或有效势的固定点问题；下面的电子迭代检查对应这个条件，晶胞压力则回答结构是否适合零外压。
+本例用 Preston 上的 QE 7.5 计算两个原子的金刚石 Si 原胞，常规立方晶格参数为 10.20 bohr，采用公开的 PBE 超软赝势。这个小体系让输入、电子数、迭代、力、压力和保存目录都能逐项读清。它提供固定结构 Si 的电子计算记录，后续 [NSCF](/Atlas/m/nscf/qe/)和 [Γ 点声子](/Atlas/m/imaginary-phonon/qe/)沿用相应父数据。
 
-如果结构来自自己的优化，先到[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对最后结构，再把它带进 SCF。先用这份给定输入认识 SCF 的提交、迭代与保存文件，再到[收敛测试](/Atlas/m/convergence/qe/)比较截断能和电子网格。
+自己的结构若来自优化，先在[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对末态。以下输入的截断和网格是这份 Si 记录的设置；[收敛测试](/Atlas/m/convergence/qe/)给出它们对总能量的实际影响。[QE 7.5 输入定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)用于查本版本参数。
 
-参考：
-
-- [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
-- [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
-- [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
-- [本例使用的 Si PBE 赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
-
-本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。
-
-下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算时，从本页的 SCF 输入开始生成自己的保存目录。
+[完整算例包](/Atlas/examples/si-pbe-lesson-files.tar.gz)含输入、OUT、XML 与已生成的数据，未打包 `tmp/si.save` 中的密度和波函数。可直接阅读输出与 XML；重新计算须按[官方来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)准备赝势，从这份输入生成自己的保存目录。
 
 ## 读完这份小输入，再提交
 
@@ -176,7 +167,7 @@ tail -f scf.out
 
      convergence has been achieved in   9 iterations
 ```
-`4.3E-11 Ry` 小于输入的 `conv_thr=1.0d-10`，并有明确的 9 轮收敛行。这个阈值对应整胞的估计自洽能量误差，不能解释为每个原子的误差，更不包含基组、k 网格和泛函的误差。这里的最高占据态是 6.3971 eV；它不是我们已经求出的带隙，也不是金属计算中的费米能行。后续作图要说明选择的能量零点，不能随手拿另一目录的数来平移。
+`4.3E-11 Ry` 小于输入的 `conv_thr=1.0d-10`，并有明确的 9 轮收敛行。这个阈值对应整胞的估计自洽能量误差，不能解释为每个原子的误差，更不包含基组、k 网格和泛函的误差。这里的最高占据态是 6.3971 eV；求带隙还需要导带底以及它所在的 k 点。比较异质结和孤立层的能级时，也要先选共同的能量参照，例如真空平台；分别把每幅图的费米能设为零，不能直接读出绝对带边的移动。具体能级对齐见[带边对齐](/Atlas/m/band-alignment/)。
 
 ## 力为零、压力不为零，两件事可以同时发生
 
@@ -217,7 +208,7 @@ tail -f scf.out
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-把这两处和前面的 SCF 收敛行一起读，才知道电子计算结束、保存步骤也已经执行。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；本次电子循环和程序结束记录完整。
+保存行说明程序执行了写盘，后续还要检查对应文件确实完整。把它与电子收敛行和结束段一起读，才能把结果与这轮计算对应起来。完整的 [scf.out](/Atlas/examples/si-pbe/scf/scf.out.txt) 和 [scf.err](/Atlas/examples/si-pbe/scf/scf.err.txt)可以下载；运行日志不能只保留 `JOB DONE.` 一行。这里的 `scf.err` 有 780 字节，包含重复的 `Authorization required, but no authorization protocol specified` 环境提示；本次电子循环和程序结束记录完整。
 
 ## 下一步要带走保存目录，不只是一份 OUT
 
@@ -238,9 +229,9 @@ vi nscf.in
 
 下一步按所需结果选择：[均匀网格 NSCF](/Atlas/m/nscf/qe/)通向 DOS 与布里渊区采样；[路径能带](/Atlas/m/bands/qe/)沿指定高对称线求本征值；[Γ 点声子及虚频对照](/Atlas/m/imaginary-phonon/qe/)读取本例的密度与波函数求响应。
 
-```text
-明确结构与赝势 → SCF 输入 → 电子迭代、力和应力 → si.save
-                                                   ├─ 均匀 NSCF → DOS
-                                                   ├─ 路径 bands → 能带 / 投影
-                                                   └─ ph.x → 动力学矩阵
-```
+
+## 密度差必须来自匹配的父计算
+
+界面差分密度要把异质结和两个冻结组分放在相同晶胞、相同原子位置参照和兼容 FFT 网格上，再按[差分电荷](/Atlas/m/delta-charge/)的定义相减。单独把两个自由层优化到不同晶格，所得密度不能直接逐格相减。若要分辨界面杂化与形变的作用，可以另外计算各自由层；那是另一个参照问题。
+
+自洽密度也为 [ELF](/Atlas/m/elf/)与[静电势](/Atlas/m/electrostatic-potential/)提供起点。SCF 的总能量和电子数说明这轮模型求解了什么，空间分布仍需对应的密度后处理。[Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101) Fig. 2 将能带、DOS、费米面与 ELF 联合分析间隙电子；本例 Si 不承担该材料判据。进入 [DFPT](/Atlas/m/phonon-dfpt/qe/)时，电子密度和波函数也必须对应待求响应的最终结构。

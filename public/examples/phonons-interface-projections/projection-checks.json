@@ -1,0 +1,108 @@
+{
+  "numpy_version": "2.4.6",
+  "projection": "QE 7.2 matdyn dynq: squared dynamical-matrix eigenvector",
+  "density_unit": "states/THz",
+  "frequency_unit": "THz",
+  "cases": {
+    "zrcl2-sc2c": {
+      "sources": [
+        "examples/zrcl2-sc2c/ph64/zrclscc.phdos",
+        "examples/zrcl2-sc2c/ph64/pwx.in"
+      ],
+      "atom_order": [
+        "Zr",
+        "C",
+        "Cl",
+        "Cl",
+        "Sc",
+        "Sc"
+      ],
+      "layer_site_indices_1based": {
+        "ZrCl2": [
+          1,
+          3,
+          4
+        ],
+        "Sc2C": [
+          2,
+          5,
+          6
+        ]
+      },
+      "rows": 400,
+      "frequency_range_THz": [
+        -1.3852042376309087e-07,
+        16.934604345064102
+      ],
+      "total_integral": 18.523933483603958,
+      "expected_modes": 18,
+      "atom_integrals": [
+        3.081039150430741,
+        2.801280420745771,
+        3.219428084097357,
+        3.2505446474573314,
+        3.0227560279504364,
+        3.1488806293122154
+      ],
+      "group_integrals": {
+        "Zr": 3.081039150430741,
+        "C": 2.801280420745771,
+        "Cl": 6.469972731554689,
+        "Sc": 6.171636657262651,
+        "ZrCl2": 9.55101188198543,
+        "Sc2C": 8.972917078008422
+      },
+      "max_projection_sum_error_relative_to_peak": 9.400481123275893e-06
+    },
+    "snse2-sr2n": {
+      "sources": [
+        "examples/snse2-sr2n/ph64/srnsnse.phdos",
+        "examples/snse2-sr2n/ph64/pwxall.in"
+      ],
+      "atom_order": [
+        "Sr",
+        "Sr",
+        "Sn",
+        "Se",
+        "Se",
+        "N"
+      ],
+      "layer_site_indices_1based": {
+        "Sr2N": [
+          1,
+          2,
+          6
+        ],
+        "SnSe2": [
+          3,
+          4,
+          5
+        ]
+      },
+      "rows": 400,
+      "frequency_range_THz": [
+        0.0,
+        11.954624695835944
+      ],
+      "total_integral": 18.74245521468358,
+      "expected_modes": 18,
+      "atom_integrals": [
+        3.2803878746014727,
+        3.1045900634204204,
+        3.1316750724248354,
+        3.179592291196991,
+        3.089057580064385,
+        2.957139602581225
+      ],
+      "group_integrals": {
+        "Sr": 6.384977938021893,
+        "Sn": 3.1316750724248354,
+        "Se": 6.268649871261375,
+        "N": 2.957139602581225,
+        "Sr2N": 9.34211754060312,
+        "SnSe2": 9.400324943686211
+      },
+      "max_projection_sum_error_relative_to_peak": 4.769051001970793e-06
+    }
+  }
+}

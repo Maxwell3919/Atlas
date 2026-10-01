@@ -1,0 +1,134 @@
+{
+  "frozen_window_eV": [
+    -0.1,
+    0.0
+  ],
+  "frozen": [
+    {
+      "state": "Heterostructure 0%",
+      "rows": 10533,
+      "sc2c_pdos_at_EF_states_per_eV_cell": 2.580958999999999,
+      "sc2c_pdos_window_weight_states_per_cell": 0.15076007184800003,
+      "zrcl2_pdos_at_EF_states_per_eV_cell": 2.2355353599999996,
+      "zrcl2_pdos_window_weight_states_per_cell": 0.16427674380880003,
+      "total_projected_pdos_at_EF_states_per_eV_cell": 4.8104,
+      "total_projected_pdos_window_weight_states_per_cell": 0.31503460000000005
+    },
+    {
+      "state": "Isolated Sc2C 0%",
+      "rows": 10387,
+      "sc2c_pdos_at_EF_states_per_eV_cell": 4.239772799999999,
+      "sc2c_pdos_window_weight_states_per_cell": 0.3649990949200001,
+      "zrcl2_pdos_at_EF_states_per_eV_cell": 0.0,
+      "zrcl2_pdos_window_weight_states_per_cell": 0.0,
+      "total_projected_pdos_at_EF_states_per_eV_cell": 4.2379999999999995,
+      "total_projected_pdos_window_weight_states_per_cell": 0.3650169200000001
+    },
+    {
+      "state": "Heterostructure +1.5%",
+      "rows": 10527,
+      "sc2c_pdos_at_EF_states_per_eV_cell": 2.03612126,
+      "sc2c_pdos_window_weight_states_per_cell": 0.15831904244400002,
+      "zrcl2_pdos_at_EF_states_per_eV_cell": 2.4379371,
+      "zrcl2_pdos_window_weight_states_per_cell": 0.16832779985210003,
+      "total_projected_pdos_at_EF_states_per_eV_cell": 4.4756,
+      "total_projected_pdos_window_weight_states_per_cell": 0.32657497
+    },
+    {
+      "state": "Isolated Sc2C +1.5%",
+      "rows": 10378,
+      "sc2c_pdos_at_EF_states_per_eV_cell": 4.429229199999995,
+      "sc2c_pdos_window_weight_states_per_cell": 0.46327825284,
+      "zrcl2_pdos_at_EF_states_per_eV_cell": 0.0,
+      "zrcl2_pdos_window_weight_states_per_cell": 0.0,
+      "total_projected_pdos_at_EF_states_per_eV_cell": 4.431599999999994,
+      "total_projected_pdos_window_weight_states_per_cell": 0.46347652
+    }
+  ],
+  "historical_path": {
+    "shape": [
+      45,
+      151,
+      31
+    ],
+    "EF_eV": 0.3133,
+    "all_projector_sum_min": 0.8012606644000001,
+    "all_projector_sum_max": 0.9999846704999998,
+    "crossing_method": "Linear interpolation of adjacent path energy and weights; not a uniform BZ integral."
+  },
+  "crossings": [
+    {
+      "band": 26,
+      "left_k_index": 84,
+      "right_k_index": 85,
+      "path_distance_tpiba": 0.8039528571428572,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.1708798652842857,
+      "Sc_d": 0.7107665968085715,
+      "C_p": 0.008510361035,
+      "Cl_p": 0.030393770887142863,
+      "all_projectors": 0.9458193640150001
+    },
+    {
+      "band": 26,
+      "left_k_index": 115,
+      "right_k_index": 116,
+      "path_distance_tpiba": 1.1102608490566037,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.21917952363301885,
+      "Sc_d": 0.6259026149127359,
+      "C_p": 0.009573467704716976,
+      "Cl_p": 0.034386930789150935,
+      "all_projectors": 0.9521753608570755
+    },
+    {
+      "band": 27,
+      "left_k_index": 17,
+      "right_k_index": 18,
+      "path_distance_tpiba": 0.18830847457627112,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.6878485238169493,
+      "Sc_d": 0.09631895234067787,
+      "C_p": 0.011280664496610159,
+      "Cl_p": 0.09572971369830509,
+      "all_projectors": 0.9611765301050849
+    },
+    {
+      "band": 27,
+      "left_k_index": 20,
+      "right_k_index": 21,
+      "path_distance_tpiba": 0.2259431034482759,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.5748022293465516,
+      "Sc_d": 0.174685699024138,
+      "C_p": 0.018681614867241382,
+      "Cl_p": 0.08004617545172413,
+      "all_projectors": 0.960226409710345
+    },
+    {
+      "band": 27,
+      "left_k_index": 130,
+      "right_k_index": 131,
+      "path_distance_tpiba": 1.3014616766467066,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.2517359125766467,
+      "Sc_d": 0.2873124064233533,
+      "C_p": 0.057589794022155694,
+      "Cl_p": 0.0415124634269461,
+      "all_projectors": 0.9421373709922155
+    },
+    {
+      "band": 27,
+      "left_k_index": 138,
+      "right_k_index": 139,
+      "path_distance_tpiba": 1.4147715384615385,
+      "EF_eV": 0.3133,
+      "Zr_d": 0.7493825446280769,
+      "Sc_d": 0.06568598503846153,
+      "C_p": 0.006354812989615384,
+      "Cl_p": 0.10200471080923076,
+      "all_projectors": 0.9640383832465382
+    }
+  ],
+  "definitions": "Window integral is broadened projected spectral weight. It is not charge transfer or carrier density. Frozen QE7.2 and historical QE7.1 path chains are analyzed separately."
+}

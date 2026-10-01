@@ -1,0 +1,760 @@
+{
+  "branches": {
+    "k32": {
+      "native_reconstruction": [
+        {
+          "sigma_Ry": 0.005,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.430378125,
+          "lambda_spectrum": 0.4304415098931551,
+          "omega_log_K": 355.87674820264516,
+          "N_EF": 2.518161,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 2.2121048547475515,
+          "native_printed_Tc_K": 2.212,
+          "native_lambda_6dp": 0.430378,
+          "native_lambda_spectrum_6dp": 0.430442,
+          "native_omega_log_K_3dp": 355.877,
+          "EF_eV": 8.37364
+        },
+        {
+          "sigma_Ry": 0.01,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.3710609375,
+          "lambda_spectrum": 0.37112120998566794,
+          "omega_log_K": 344.60641242725575,
+          "N_EF": 2.624685,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9155315239786773,
+          "native_printed_Tc_K": 0.916,
+          "native_lambda_6dp": 0.371061,
+          "native_lambda_spectrum_6dp": 0.371121,
+          "native_omega_log_K_3dp": 344.606,
+          "EF_eV": 8.377216
+        },
+        {
+          "sigma_Ry": 0.015,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.3702953124999999,
+          "lambda_spectrum": 0.37035597042772617,
+          "omega_log_K": 343.4197567901003,
+          "N_EF": 2.647439,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.900170371150573,
+          "native_printed_Tc_K": 0.9,
+          "native_lambda_6dp": 0.370295,
+          "native_lambda_spectrum_6dp": 0.370356,
+          "native_omega_log_K_3dp": 343.42,
+          "EF_eV": 8.379158
+        },
+        {
+          "sigma_Ry": 0.02,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37448593750000003,
+          "lambda_spectrum": 0.37454723597987555,
+          "omega_log_K": 343.7405850459475,
+          "N_EF": 2.646097,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9690437966359435,
+          "native_printed_Tc_K": 0.969,
+          "native_lambda_6dp": 0.374486,
+          "native_lambda_spectrum_6dp": 0.374547,
+          "native_omega_log_K_3dp": 343.741,
+          "EF_eV": 8.379914
+        },
+        {
+          "sigma_Ry": 0.025,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37461250000000007,
+          "lambda_spectrum": 0.3746739717621056,
+          "omega_log_K": 343.5372249264546,
+          "N_EF": 2.643523,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.970567571980822,
+          "native_printed_Tc_K": 0.971,
+          "native_lambda_6dp": 0.374613,
+          "native_lambda_spectrum_6dp": 0.374674,
+          "native_omega_log_K_3dp": 343.537,
+          "EF_eV": 8.379582
+        },
+        {
+          "sigma_Ry": 0.03,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37377343749999997,
+          "lambda_spectrum": 0.3738351079852376,
+          "omega_log_K": 342.83106003425945,
+          "N_EF": 2.643829,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9547458658913996,
+          "native_printed_Tc_K": 0.955,
+          "native_lambda_6dp": 0.373773,
+          "native_lambda_spectrum_6dp": 0.373835,
+          "native_omega_log_K_3dp": 342.831,
+          "EF_eV": 8.37839
+        },
+        {
+          "sigma_Ry": 0.035,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37358125000000003,
+          "lambda_spectrum": 0.3736432603608637,
+          "omega_log_K": 342.00589559580726,
+          "N_EF": 2.645823,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.949304245163308,
+          "native_printed_Tc_K": 0.949,
+          "native_lambda_6dp": 0.373581,
+          "native_lambda_spectrum_6dp": 0.373643,
+          "native_omega_log_K_3dp": 342.006,
+          "EF_eV": 8.376691
+        },
+        {
+          "sigma_Ry": 0.04,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37408593749999997,
+          "lambda_spectrum": 0.3741483684143978,
+          "omega_log_K": 341.2433935079562,
+          "N_EF": 2.648339,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9554370920252211,
+          "native_printed_Tc_K": 0.955,
+          "native_lambda_6dp": 0.374086,
+          "native_lambda_spectrum_6dp": 0.374148,
+          "native_omega_log_K_3dp": 341.243,
+          "EF_eV": 8.374776
+        },
+        {
+          "sigma_Ry": 0.045,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37502187499999995,
+          "lambda_spectrum": 0.37508473583089413,
+          "omega_log_K": 340.6309156463961,
+          "N_EF": 2.650827,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9690996938467834,
+          "native_printed_Tc_K": 0.969,
+          "native_lambda_6dp": 0.375022,
+          "native_lambda_spectrum_6dp": 0.375085,
+          "native_omega_log_K_3dp": 340.631,
+          "EF_eV": 8.372817
+        },
+        {
+          "sigma_Ry": 0.05,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.376040625,
+          "lambda_spectrum": 0.37610387574411847,
+          "omega_log_K": 340.1448118464218,
+          "N_EF": 2.653067,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9845880840026243,
+          "native_printed_Tc_K": 0.985,
+          "native_lambda_6dp": 0.376041,
+          "native_lambda_spectrum_6dp": 0.376104,
+          "native_omega_log_K_3dp": 340.145,
+          "EF_eV": 8.370889
+        }
+      ],
+      "printed_spectrum": [
+        {
+          "sigma_Ry": 0.005,
+          "lambda_spectrum_printed_trapezoid": 0.43043737810342925,
+          "omega_log_printed_K": 355.877014020472,
+          "omega2_printed_K": 370.566572569237
+        },
+        {
+          "sigma_Ry": 0.01,
+          "lambda_spectrum_printed_trapezoid": 0.371117965442508,
+          "omega_log_printed_K": 344.6067780638366,
+          "omega2_printed_K": 363.11887683576896
+        },
+        {
+          "sigma_Ry": 0.015,
+          "lambda_spectrum_printed_trapezoid": 0.37035354996364694,
+          "omega_log_printed_K": 343.41976200890326,
+          "omega2_printed_K": 362.6010142845157
+        },
+        {
+          "sigma_Ry": 0.02,
+          "lambda_spectrum_printed_trapezoid": 0.3745445563188833,
+          "omega_log_printed_K": 343.7408705171925,
+          "omega2_printed_K": 363.3310637012733
+        },
+        {
+          "sigma_Ry": 0.025,
+          "lambda_spectrum_printed_trapezoid": 0.374671493578776,
+          "omega_log_printed_K": 343.5373694607975,
+          "omega2_printed_K": 363.4435446943783
+        },
+        {
+          "sigma_Ry": 0.03,
+          "lambda_spectrum_printed_trapezoid": 0.3738326908794721,
+          "omega_log_printed_K": 342.83124005856666,
+          "omega2_printed_K": 363.00639172274657
+        },
+        {
+          "sigma_Ry": 0.035,
+          "lambda_spectrum_printed_trapezoid": 0.37364097715182293,
+          "omega_log_printed_K": 342.0060360475905,
+          "omega2_printed_K": 362.39377917238403
+        },
+        {
+          "sigma_Ry": 0.04,
+          "lambda_spectrum_printed_trapezoid": 0.3741460366399078,
+          "omega_log_printed_K": 341.2436115952176,
+          "omega2_printed_K": 361.7907549036064
+        },
+        {
+          "sigma_Ry": 0.045,
+          "lambda_spectrum_printed_trapezoid": 0.3750825658290412,
+          "omega_log_printed_K": 340.63107496749257,
+          "omega2_printed_K": 361.29675969087697
+        },
+        {
+          "sigma_Ry": 0.05,
+          "lambda_spectrum_printed_trapezoid": 0.37610137631024937,
+          "omega_log_printed_K": 340.145052348616,
+          "omega2_printed_K": 360.89644449249766
+        }
+      ],
+      "q_points": 8,
+      "q_weight_sum": 64.0
+    },
+    "k48": {
+      "native_reconstruction": [
+        {
+          "sigma_Ry": 0.005,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.41224374999999996,
+          "lambda_spectrum": 0.4123118974907036,
+          "omega_log_K": 339.81624743456604,
+          "N_EF": 2.777246,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 1.6869390581823693,
+          "native_printed_Tc_K": 1.687,
+          "native_lambda_6dp": 0.412244,
+          "native_lambda_spectrum_6dp": 0.412312,
+          "native_omega_log_K_3dp": 339.816,
+          "EF_eV": 8.391315
+        },
+        {
+          "sigma_Ry": 0.01,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.3709890625,
+          "lambda_spectrum": 0.37105171212902066,
+          "omega_log_K": 338.5344661994304,
+          "N_EF": 2.728336,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.8982661799099061,
+          "native_printed_Tc_K": 0.898,
+          "native_lambda_6dp": 0.370989,
+          "native_lambda_spectrum_6dp": 0.371052,
+          "native_omega_log_K_3dp": 338.534,
+          "EF_eV": 8.38792
+        },
+        {
+          "sigma_Ry": 0.015,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.36952031250000006,
+          "lambda_spectrum": 0.3695817403585174,
+          "omega_log_K": 341.4706002819467,
+          "N_EF": 2.702967,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.8828682594564312,
+          "native_printed_Tc_K": 0.883,
+          "native_lambda_6dp": 0.36952,
+          "native_lambda_spectrum_6dp": 0.369582,
+          "native_omega_log_K_3dp": 341.471,
+          "EF_eV": 8.38562
+        },
+        {
+          "sigma_Ry": 0.02,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.36750468750000004,
+          "lambda_spectrum": 0.36756535942041996,
+          "omega_log_K": 342.6221244971399,
+          "N_EF": 2.674883,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.8544755780075988,
+          "native_printed_Tc_K": 0.854,
+          "native_lambda_6dp": 0.367505,
+          "native_lambda_spectrum_6dp": 0.367565,
+          "native_omega_log_K_3dp": 342.622,
+          "EF_eV": 8.383534
+        },
+        {
+          "sigma_Ry": 0.025,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.367121875,
+          "lambda_spectrum": 0.3671825172631722,
+          "omega_log_K": 342.59816752379805,
+          "N_EF": 2.658974,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.8485316333365439,
+          "native_printed_Tc_K": 0.849,
+          "native_lambda_6dp": 0.367122,
+          "native_lambda_spectrum_6dp": 0.367183,
+          "native_omega_log_K_3dp": 342.598,
+          "EF_eV": 8.381407
+        },
+        {
+          "sigma_Ry": 0.03,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.36844999999999994,
+          "lambda_spectrum": 0.3685110850475227,
+          "omega_log_K": 342.10936645906486,
+          "N_EF": 2.652038,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.867806445344264,
+          "native_printed_Tc_K": 0.868,
+          "native_lambda_6dp": 0.36845,
+          "native_lambda_spectrum_6dp": 0.368511,
+          "native_omega_log_K_3dp": 342.109,
+          "EF_eV": 8.379201
+        },
+        {
+          "sigma_Ry": 0.035,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.3703328125000001,
+          "lambda_spectrum": 0.37039447854903373,
+          "omega_log_K": 341.5137924665273,
+          "N_EF": 2.649843,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.8957669453356775,
+          "native_printed_Tc_K": 0.896,
+          "native_lambda_6dp": 0.370333,
+          "native_lambda_spectrum_6dp": 0.370394,
+          "native_omega_log_K_3dp": 341.514,
+          "EF_eV": 8.376997
+        },
+        {
+          "sigma_Ry": 0.04,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37227968749999996,
+          "lambda_spectrum": 0.37234194106750884,
+          "omega_log_K": 340.93123133023505,
+          "N_EF": 2.650081,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.925252421155772,
+          "native_printed_Tc_K": 0.925,
+          "native_lambda_6dp": 0.37228,
+          "native_lambda_spectrum_6dp": 0.372342,
+          "native_omega_log_K_3dp": 340.931,
+          "EF_eV": 8.374864
+        },
+        {
+          "sigma_Ry": 0.045,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.3739999999999999,
+          "lambda_spectrum": 0.3740627708590021,
+          "omega_log_K": 340.4270418090821,
+          "N_EF": 2.651487,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9517472456421662,
+          "native_printed_Tc_K": 0.952,
+          "native_lambda_6dp": 0.374,
+          "native_lambda_spectrum_6dp": 0.374063,
+          "native_omega_log_K_3dp": 340.427,
+          "EF_eV": 8.372824
+        },
+        {
+          "sigma_Ry": 0.05,
+          "mu_star": 0.1,
+          "lambda_qsum": 0.37550468750000005,
+          "lambda_spectrum": 0.37556789368635374,
+          "omega_log_K": 340.0312306046614,
+          "N_EF": 2.653286,
+          "N_EF_unit": "states/spin/Ry/cell",
+          "Tc_K": 0.9753662856042158,
+          "native_printed_Tc_K": 0.975,
+          "native_lambda_6dp": 0.375505,
+          "native_lambda_spectrum_6dp": 0.375568,
+          "native_omega_log_K_3dp": 340.031,
+          "EF_eV": 8.370869
+        }
+      ],
+      "printed_spectrum": [
+        {
+          "sigma_Ry": 0.005,
+          "lambda_spectrum_printed_trapezoid": 0.4123086327385403,
+          "omega_log_printed_K": 339.81629524701833,
+          "omega2_printed_K": 358.67746976613256
+        },
+        {
+          "sigma_Ry": 0.01,
+          "lambda_spectrum_printed_trapezoid": 0.37104865011057436,
+          "omega_log_printed_K": 338.5348765908201,
+          "omega2_printed_K": 358.54914368204635
+        },
+        {
+          "sigma_Ry": 0.015,
+          "lambda_spectrum_printed_trapezoid": 0.36957895051127443,
+          "omega_log_printed_K": 341.47079344539105,
+          "omega2_printed_K": 361.57413625153805
+        },
+        {
+          "sigma_Ry": 0.02,
+          "lambda_spectrum_printed_trapezoid": 0.3675629500006175,
+          "omega_log_printed_K": 342.6222254055975,
+          "omega2_printed_K": 362.72187701966755
+        },
+        {
+          "sigma_Ry": 0.025,
+          "lambda_spectrum_printed_trapezoid": 0.3671802344696896,
+          "omega_log_printed_K": 342.59819099047616,
+          "omega2_printed_K": 362.79530766432936
+        },
+        {
+          "sigma_Ry": 0.03,
+          "lambda_spectrum_printed_trapezoid": 0.36850882546791836,
+          "omega_log_printed_K": 342.10940300507394,
+          "omega2_printed_K": 362.44960492939975
+        },
+        {
+          "sigma_Ry": 0.035,
+          "lambda_spectrum_printed_trapezoid": 0.37039225532017694,
+          "omega_log_printed_K": 341.51387414288297,
+          "omega2_printed_K": 361.9933091526781
+        },
+        {
+          "sigma_Ry": 0.04,
+          "lambda_spectrum_printed_trapezoid": 0.37233918300221924,
+          "omega_log_printed_K": 340.9315306822356,
+          "omega2_printed_K": 361.5316909173808
+        },
+        {
+          "sigma_Ry": 0.045,
+          "lambda_spectrum_printed_trapezoid": 0.3740603190421469,
+          "omega_log_printed_K": 340.42719642879246,
+          "omega2_printed_K": 361.1241015873082
+        },
+        {
+          "sigma_Ry": 0.05,
+          "lambda_spectrum_printed_trapezoid": 0.37556550448885295,
+          "omega_log_printed_K": 340.03136957360067,
+          "omega2_printed_K": 360.79889977523203
+        }
+      ],
+      "q_points": 8,
+      "q_weight_sum": 64.0
+    }
+  },
+  "paired_Tc": [
+    {
+      "sigma_Ry": 0.005,
+      "Tc32_K": 2.2121048547475515,
+      "Tc48_K": 1.6869390581823693,
+      "delta_Tc_K": 0.5251657965651821
+    },
+    {
+      "sigma_Ry": 0.01,
+      "Tc32_K": 0.9155315239786773,
+      "Tc48_K": 0.8982661799099061,
+      "delta_Tc_K": 0.017265344068771227
+    },
+    {
+      "sigma_Ry": 0.015,
+      "Tc32_K": 0.900170371150573,
+      "Tc48_K": 0.8828682594564312,
+      "delta_Tc_K": 0.017302111694141753
+    },
+    {
+      "sigma_Ry": 0.02,
+      "Tc32_K": 0.9690437966359435,
+      "Tc48_K": 0.8544755780075988,
+      "delta_Tc_K": 0.11456821862834476
+    },
+    {
+      "sigma_Ry": 0.025,
+      "Tc32_K": 0.970567571980822,
+      "Tc48_K": 0.8485316333365439,
+      "delta_Tc_K": 0.12203593864427809
+    },
+    {
+      "sigma_Ry": 0.03,
+      "Tc32_K": 0.9547458658913996,
+      "Tc48_K": 0.867806445344264,
+      "delta_Tc_K": 0.08693942054713566
+    },
+    {
+      "sigma_Ry": 0.035,
+      "Tc32_K": 0.949304245163308,
+      "Tc48_K": 0.8957669453356775,
+      "delta_Tc_K": 0.05353729982763056
+    },
+    {
+      "sigma_Ry": 0.04,
+      "Tc32_K": 0.9554370920252211,
+      "Tc48_K": 0.925252421155772,
+      "delta_Tc_K": 0.030184670869449093
+    },
+    {
+      "sigma_Ry": 0.045,
+      "Tc32_K": 0.9690996938467834,
+      "Tc48_K": 0.9517472456421662,
+      "delta_Tc_K": 0.017352448204617232
+    },
+    {
+      "sigma_Ry": 0.05,
+      "Tc32_K": 0.9845880840026243,
+      "Tc48_K": 0.9753662856042158,
+      "delta_Tc_K": 0.009221798398408532
+    }
+  ],
+  "isolated_crossings": 0,
+  "overlap_intervals": 0,
+  "linewidth_above_threshold_rows": 210,
+  "linewidth_threshold_rows": 30,
+  "ME": {
+    "linear-w010-refine": {
+      "rows": [
+        {
+          "T_K": 1.43,
+          "eta": 1.0060504,
+          "nsiw": 129,
+          "actual_wscut_eV": 0.1003,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.44,
+          "eta": 1.0041981,
+          "nsiw": 128,
+          "actual_wscut_eV": 0.1002,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.45,
+          "eta": 1.0023633,
+          "nsiw": 127,
+          "actual_wscut_eV": 0.1001,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.46,
+          "eta": 1.0002425,
+          "nsiw": 127,
+          "actual_wscut_eV": 0.1008,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.47,
+          "eta": 0.9984385,
+          "nsiw": 126,
+          "actual_wscut_eV": 0.1007,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.48,
+          "eta": 0.9966515,
+          "nsiw": 125,
+          "actual_wscut_eV": 0.1006,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.49,
+          "eta": 0.9948812,
+          "nsiw": 124,
+          "actual_wscut_eV": 0.1004,
+          "iterations": 11
+        },
+        {
+          "T_K": 1.5,
+          "eta": 0.9931277,
+          "nsiw": 123,
+          "actual_wscut_eV": 0.1003,
+          "iterations": 11
+        }
+      ],
+      "brackets": [
+        {
+          "T_low_K": 1.46,
+          "T_high_K": 1.47,
+          "eta_low": 1.0002425,
+          "eta_high": 0.9984385
+        }
+      ]
+    },
+    "linear-w020-refine": {
+      "rows": [
+        {
+          "T_K": 1.43,
+          "eta": 1.0045412,
+          "nsiw": 258,
+          "actual_wscut_eV": 0.2001,
+          "iterations": 12
+        },
+        {
+          "T_K": 1.44,
+          "eta": 1.002734,
+          "nsiw": 257,
+          "actual_wscut_eV": 0.2008,
+          "iterations": 12
+        },
+        {
+          "T_K": 1.45,
+          "eta": 1.0008521,
+          "nsiw": 255,
+          "actual_wscut_eV": 0.2006,
+          "iterations": 12
+        },
+        {
+          "T_K": 1.46,
+          "eta": 0.9989809,
+          "nsiw": 253,
+          "actual_wscut_eV": 0.2004,
+          "iterations": 13
+        },
+        {
+          "T_K": 1.47,
+          "eta": 0.9971198,
+          "nsiw": 251,
+          "actual_wscut_eV": 0.2002,
+          "iterations": 13
+        },
+        {
+          "T_K": 1.48,
+          "eta": 0.9953575,
+          "nsiw": 250,
+          "actual_wscut_eV": 0.2007,
+          "iterations": 13
+        }
+      ],
+      "brackets": [
+        {
+          "T_low_K": 1.45,
+          "T_high_K": 1.46,
+          "eta_low": 1.0008521,
+          "eta_high": 0.9989809
+        }
+      ]
+    },
+    "linear-w040-refine": {
+      "rows": [
+        {
+          "T_K": 1.55,
+          "eta": 1.0041608,
+          "nsiw": 477,
+          "actual_wscut_eV": 0.4007,
+          "iterations": 15
+        },
+        {
+          "T_K": 1.56,
+          "eta": 1.0024426,
+          "nsiw": 474,
+          "actual_wscut_eV": 0.4008,
+          "iterations": 15
+        },
+        {
+          "T_K": 1.57,
+          "eta": 1.0007327,
+          "nsiw": 471,
+          "actual_wscut_eV": 0.4008,
+          "iterations": 15
+        },
+        {
+          "T_K": 1.58,
+          "eta": 0.999031,
+          "nsiw": 468,
+          "actual_wscut_eV": 0.4008,
+          "iterations": 15
+        },
+        {
+          "T_K": 1.59,
+          "eta": 0.9973372,
+          "nsiw": 465,
+          "actual_wscut_eV": 0.4007,
+          "iterations": 15
+        },
+        {
+          "T_K": 1.6,
+          "eta": 0.9956513,
+          "nsiw": 462,
+          "actual_wscut_eV": 0.4007,
+          "iterations": 15
+        }
+      ],
+      "brackets": [
+        {
+          "T_low_K": 1.57,
+          "T_high_K": 1.58,
+          "eta_low": 1.0007327,
+          "eta_high": 0.999031
+        }
+      ]
+    },
+    "native-spectrum": {
+      "rows": [
+        {
+          "T_K": 0.82,
+          "eta": 1.0077843,
+          "nsiw": 225,
+          "actual_wscut_eV": 0.1001,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.83,
+          "eta": 1.0047199,
+          "nsiw": 223,
+          "actual_wscut_eV": 0.1004,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.84,
+          "eta": 1.0017989,
+          "nsiw": 220,
+          "actual_wscut_eV": 0.1003,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.85,
+          "eta": 0.9989208,
+          "nsiw": 217,
+          "actual_wscut_eV": 0.1001,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.86,
+          "eta": 0.9959791,
+          "nsiw": 215,
+          "actual_wscut_eV": 0.1003,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.87,
+          "eta": 0.9931824,
+          "nsiw": 212,
+          "actual_wscut_eV": 0.1001,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.88,
+          "eta": 0.990318,
+          "nsiw": 210,
+          "actual_wscut_eV": 0.1003,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.89,
+          "eta": 0.9874912,
+          "nsiw": 208,
+          "actual_wscut_eV": 0.1005,
+          "iterations": 11
+        },
+        {
+          "T_K": 0.9,
+          "eta": 0.9848099,
+          "nsiw": 205,
+          "actual_wscut_eV": 0.1001,
+          "iterations": 11
+        }
+      ],
+      "brackets": [
+        {
+          "T_low_K": 0.84,
+          "T_high_K": 0.85,
+          "eta_low": 1.0017989,
+          "eta_high": 0.9989208
+        }
+      ]
+    }
+  },
+  "scope": "Saved finite-grid Al inputs/outputs; no material convergence acceptance; no solver run"
+}

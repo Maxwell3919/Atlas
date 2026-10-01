@@ -1,6 +1,6 @@
 [Wannier90 官方 Si 教程](https://wannier90.readthedocs.io/en/latest/tutorials/tutorial_11/) · [Wannier90 参数说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/) · [QE 的 pw2wannier90 接口](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 
-能否用均匀网格上的四条 Si 价带，在网格以外可靠地重建色散？这次构造四个 Wannier 函数，比较两套网格得到的插值，并在另算的路径点上直接核对误差。这样可以判断稀疏采样得到的哈密顿量是否保留了所选价带的色散。
+Wannier 模型把均匀网格上的波函数变成可在任意 k 点求解的哈密顿量。界面费米面、自旋纹理和边界谱都可能用到它，但第一步是检查模型是否重建了准备分析的能带。这里用真实 Si 四价带算例学习 QE 接口、初始投影和插值检验：两套网格的哈密顿量，在网格以外与直接 DFT 相差多少？随后再把这些检查接到 SOC 自旋子模型。
 
 [Marzari 等 Eq. (18)](https://arxiv.org/pdf/1112.5411)定义轨道的总展布，Eqs. (98)–(99)说明如何把实空间哈密顿量变换回任意 k 点并对角化。展布决定本页局域化步骤所优化的量，直接 DFT 对照则检查插值能量；两张结果图分别回答这两个问题。
 
@@ -57,6 +57,9 @@ K_POINTS automatic
 ```
 
 接着看 NSCF 输入。这里列出完整 4³ 网格的 64 个 k 点，并显式设置 `nosym` 与 `noinv`，使这些点按所列的完整网格参与计算。不能用一张高对称路径代替这张均匀网格，也不能把只含不可约点的列表交给下文这份 Wannier 输入。
+
+<details>
+<summary>4³ NSCF 完整输入：含 64 个 k 点</summary>
 
 ```console
 maxwell@maxwell:~/si-wannier/k4$ cat si.nscf.in
@@ -160,9 +163,14 @@ K_POINTS crystal
 0.750000000000 0.750000000000 0.750000000000 0.015625000000
 ```
 
+</details>
+
 4³ 与后面的 `mp_grid=4 4 4`、`begin kpoints` 必须相互对应。本次两个文件的列表由同一个准备脚本生成，顺序也一致；这件事不只检查点数，还检查每一个坐标及其排序。完整准备代码保存在 [prepare_si_wannier.py](/Atlas/examples/si-wannier/prepare_si_wannier.py)，6³ 对照则有 216 个 k 点。
 
 ## 用四个键中心投影开始
+
+<details>
+<summary>silicon.win 完整输入：投影、晶格和同序网格</summary>
 
 ```console
 maxwell@maxwell:~/si-wannier/k4$ cat silicon.win
@@ -267,6 +275,8 @@ begin kpoints
 0.750000000000 0.750000000000 0.750000000000
 end kpoints
 ```
+
+</details>
 
 四个 `f=...:s` 指定四个 Si–Si 键中心的 s 型初始投影。它们只是局域化迭代的起点，最后的中心与展布要从输出读。`num_iter=200` 是上限；`conv_tol=1e-10` 与连续五次迭代的窗口规定本次展布收敛条件。
 
@@ -422,6 +432,8 @@ Wannier 的详细优化日志在 `silicon.wout`，不是根据标准输出文件
 四个中心位于 Si–Si 键中间。每个轨道的 spread 约 5.6916 bohr²，四个之和是 22.766427441 bohr²。Omega I 为给定离散子空间的规范不变部分，Omega D 和 Omega OD 属于局域化迭代要减小的部分；本次已经满足输入指定的连续迭代条件。
 
 ![Wannier展布随迭代的变化](/Atlas/examples/si-wannier/figures/wannier-spread.png)
+
+变化量和总展布都沿用日志中的 bohr²。图上的容差线将输入的 `1e-10 Å²` 换算为 `3.571×10⁻¹⁰ bohr²`；[Wannier90 3.1.0 的输出与收敛源码](https://github.com/wannier-developers/wannier90/blob/v3.1.0/src/wannierise.F90#L534-L537)分别在显示时乘长度换算因子、在内部以 Å² 比较变化量。
 
 6³ 的最终总展布为 26.905582236 bohr²，比 4³ 更大。不能据此说较密网格得到的轨道更差：这两个离散 k 网格对 spread 的表示并不相同，Omega I 也改变了。网格内部的迭代收敛，与网格之间的插值精度应分开检查。
 
@@ -764,9 +776,9 @@ for mesh in [4,6]:
  x=load(f'k{mesh}/spread-history.csv');ax[0].plot(x[:,0],x[:,3],'o-',color=cols[mesh],label=f'{mesh}³')
  ax[1].semilogy(x[:,0],np.maximum(abs(x[:,1]),1e-16),'o-',color=cols[mesh],label=f'{mesh}³')
 ax[0].set(xlabel='Wannier iteration',ylabel='Total spread (bohr²)');ax[0].legend(frameon=False)
-ax[1].axhline(1e-10,color='#777',ls='--',lw=1,label='Tolerance');ax[1].set(xlabel='Wannier iteration',ylabel='Absolute spread change (bohr²)');ax[1].legend(frameon=False)
+ax[1].axhline(1e-10 / 0.529177210903**2,color='#777',ls='--',lw=1,label='1e-10 Å² = 3.571e-10 bohr²');ax[1].set(xlabel='Wannier iteration',ylabel='Absolute spread change (bohr²)');ax[1].legend(frameon=False)
 fig.suptitle('Spread convergence within a mesh does not establish interpolation accuracy',fontsize=11)
-fig.tight_layout();fig.savefig(out/'wannier-spread.png',bbox_inches='tight');fig.savefig(out/'wannier-spread.pdf',bbox_inches='tight');plt.close(fig)
+fig.tight_layout();fig.savefig(out/'wannier-spread.png',bbox_inches='tight');fig.savefig(out/'wannier-spread.pdf',bbox_inches='tight');fig.savefig(out/'wannier-spread.svg',bbox_inches='tight');plt.close(fig)
 print('Wrote wannier-bands and wannier-spread as PNG/PDF')
 ```
 
@@ -794,21 +806,28 @@ python plot_wannier.py
 
 直接验证的 [输入](/Atlas/examples/si-wannier/k4/validation/si.bands.in)、[输出](/Atlas/examples/si-wannier/k4/validation/si.bands.out)、[逐带误差](/Atlas/examples/si-wannier/validation-errors.csv) 和 [核对脚本](/Atlas/examples/si-wannier/analyse_wannier.py) 也随数据保存。
 
-## 文献中基于 Wannier 紧束缚模型的表面态与谱函数应用
+## 把模型扩展到 SOC 自旋子与边界态
 
-下面的 ZrAs₂ 研究从投影 Wannier 哈密顿量出发，用半无限表面的格林函数求谱函数，再与 ARPES 对照。该文没有执行最大局域化步骤；本页 Si 的局域化和插值检查是另一份算例，转向表面谱时还需选择表面方向、截断和相应的后处理。
+Si 的四个轨道重建的是无 SOC 的四条价带，沿 13 个位置的验证仍有 0.083 eV 的最大误差。异质结若要判断一个更小的 SOC 开隙，必须把该能区的模型误差压到足以分辨这个能隙的程度，并扩大直接 DFT 验证点；不能把这份 Si 误差表当成另一材料的精度依据。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="由投影 Wannier 紧束缚哈密顿量计算的 ZrAs2 (001) 半无限表面谱函数与三维鞍点色散" loading="lazy"/><figcaption>由投影 Wannier 紧束缚哈密顿量通过半无限表面格林函数 计算得到的 ZrAs<sub>2</sub> (001) 半无限表面谱函数与三维鞍点色散，并与高分辨 ARPES 实验谱进行对比。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+对含 SOC 的 QE 波函数，Wannier 输入与投影需采用相应的 `spinors` 设置；`nbnd`、`num_bands` 和 `num_wann` 按实际自旋子带与基底计数，不能照搬这里按自旋简并空间带得到的 4。先从轨道和层贡献选择覆盖目标占据子空间及相邻导带的基底。若能带纠缠，再记录外窗口与冻结窗口覆盖的能区，并检查窗口内直接 DFT 色散、SOC 劈裂及层/轨道成分。`write_hr` 得到的能量模型与用于自旋纹理的算符矩阵元是两种数据，均需与原始自旋子波函数对应。具体接口选项见 [pw2wannier90](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) 和 [Wannier90 的 spinors、解缠及矩阵输出参数](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/)。
 
-另一项重要应用是在 EPW 等程序中利用 Wannier 表象对电子本征态与电子—声子耦合矩阵元同时做精细动量网格插值，进而计算有限温度下的电子谱函数 A(k, ω)，将多体自能重整化后的能带色散、声子伴峰与未重整化的白色 DFT 裸能带曲线叠加展示。
+对正常态 Z₂，先确定全区域上固定维数、与其余能带分离的占据子空间及时间反演对称性。经验证的自旋子哈密顿量可以在二维布里渊区构造 Wilson loop，保留每条本征相位随横向坐标的流动。它们是混合 Wannier 电荷中心（WCC），与本页 `.wout` 中三维局域化轨道的中心表用途不同。[Si 重叠矩阵的真实回路后处理](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)说明矩阵乘积、本征相位与周期闭合如何衔接。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M9_SpectralFunction_Akw_EPW2016_Fig6.jpg" alt="硼掺杂金刚石中通过 Wannier 插值计算的电子声子耦合谱函数与白色裸 DFT 能带对比" loading="lazy"/><figcaption>硼掺杂金刚石在 1 K 与 300 K 下通过 Wannier 插值计算的电子—声子相互作用谱函数 <em>A</em>(<strong>k</strong>, ω) 热力图，图中叠加白色实线表示未计入电声自能修正的 DFT 裸能带色散。引自 Poncé 等人，<em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016)，Fig. 6，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>。</figcaption></figure>
+接口的真实运行可先参考 [BHZ 配套自检](/Atlas/m/berry-chern/qe/#h-用-bhz-原例自检-wcc-与边界谱接口)：它核对两个占据自旋子带的 WCC 和同一 HR 的半无限边界谱。该 HR 来自官方模型生成器，不能替代本材料的 DFT/Wannier 验证。
 
-下一步：回到 [能带](/Atlas/m/bands/qe/) 对照直接 DFT 的路径与能量零点。如果需要 [费米面](/Atlas/m/fermi-surface/qe/)，应先构建覆盖费米能附近的模型；本页只含 Si 价带的四轨道模型不具备该用途。
+WCC 之后，用同一哈密顿量计算所选切边的半无限边界谱，标出体能带投影与边界权重，判断谱支是否穿过体能隙并连接价带、导带。切边方向、终止方式和格林函数的展宽要随图保存；谱中的亮线只有在这些条件下才能被解释为边界态。[WannierTools 文档](https://wannier-tools.readthedocs.io/en/latest/features.html)给出 WCC 与边界谱接口。
+
+[Li 等研究的 Fig. 3 与 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)提供了可对照的完整逻辑：先比较含 SOC 的体能带，再用 WCC 判定两种极化构型的 Z₂，并将非平庸构型的 WCC 与贯穿能隙的半无限边缘谱对应。Fig. 4(e) 中另一构型虽有能隙内谱线，却没有连接价带和导带的无隙边缘态。这里采用的是论文的“体能带—WCC—边界谱”分析关系，不引入该文的材料数值或高阶拓扑结论。
+
+正常态的 Z₂ 与边界态说明能带拓扑；若继续研究拓扑超导，需在该正常态模型上指定配对矩阵，构造 Bogoliubov–de Gennes 哈密顿量，并检查超导能隙、相应对称类和边界模。仅将正常态拓扑结果与一个 EPC 的 Tc 并列，还没有完成这一步。
+
+同样的 Wannier 表象也用于 [EPW](/Atlas/m/epw-eliashberg/qe/) 的电子与电声矩阵元插值。它与 WCC 的数据用途不同，沿线色散相合不能替代电声矩阵元的检验。
 
 ```text
-SCF电荷密度 → 均匀网格NSCF波函数 → nnkp需求 + pw2wannier90 → amn/mmn/eig
-                                                              ↓
-                                                       Wannier局域化 → 插值能带
-SCF副本 → 独立路径点DFT ────────────────────────────────────────────┘ 比较误差
+SCF → 完整均匀 NSCF → nnkp + 波函数接口 → amn / mmn / eig
+                                          └─ 所选子空间 → Wannier 哈密顿量
+独立 DFT 点 ─────────────────────────────────────────────┘ 比较目标能区
+含 SOC 且已验证的模型 → 占据子空间 WCC → Z₂ → 同一模型的边界谱
+配对矩阵 + 正常态模型 → BdG 超导态 → 超导拓扑与边界模
 ```

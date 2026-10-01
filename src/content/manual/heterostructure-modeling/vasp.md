@@ -1,10 +1,8 @@
-层间距、侧向配准和周期像空白共同决定送入界面计算的结构。本例从六原子 SnSe₂/Sr₂N 共同晶胞出发，保持两层内部几何与配准，把法向层间距设为 3 Å 并居中，再检查层厚和跨周期空白。原结构的法向面间距为 2.1578 Å，跨层最近原子距离却为 3.1397 Å；侧向错位使它们不同，因此移动坐标前要先明确采用哪一种距离。
+界面能带、电荷转移和层间振动，都对应一份具体的界面结构。两层用了什么面内晶格、怎样配准、层间距从哪里量起，先在模型里说清楚，后面的数值才有共同的参照。这里沿用一份六原子 SnSe₂/Sr₂N 共同晶胞，保持层内几何和侧向配准，把法向间隙设为 3.000 Å，再核对层厚、最近距离和周期空白。这个例子用于学习构型处理；ZrCl₂/Sc₂C 应使用自己的已接受结构和单层参照。
 
-[Bu 与 Sun 的 WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 Fig. 2 比较六种堆垛，随后用 E_b=E_hetero−E_layer1−E_layer2 的能量定义和 Fig. 3 的距离扫描选择构型。本页完成的是指定配准与距离的 Python 几何构造；选择 SnSe₂/Sr₂N 的平衡堆垛和距离，需要相应的能量计算。
+前置操作见 [POSCAR 与电子自洽](/Atlas/m/scf/vasp/) 和 [离子弛豫](/Atlas/m/relax/)。[下载三份结构与完整检查程序](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)，解压后进入 `example-pack`。这些文件保留了一次真实的几何操作，没有为 3.000 Å 模型附加能量或优化结果。
 
-[下载原结构、3.0 Å 模型和核对脚本](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)。本例从已存在的异质结 POSCAR 出发，保留其面内晶胞和层内几何，构造一个法向层间距为 3.0 Å、整体居中的新模型。这里完成的是几何构造；新模型尚未做离子松弛或能量比较。
-
-## 读清层归属、法向距离和周期空白
+## 从共同晶胞辨认两层
 
 先保留源文件，读取元素顺序和所有坐标。
 
@@ -138,39 +136,62 @@ index,element,layer,x_A,y_A,z_A,normal_A
 -rw-r--r-- 1 bcgong bcgong 691 Sep 22 21:43 POSCAR.reference
 ```
 
-## 数值几何比较
+## 将几何结果接到构型选择
 
-| 量（Å） | 原结构 | 3.0 Å 模型 |
-| --- | ---: | ---: |
-| 晶胞法向高度 | 39.4021877938 | 39.4021877938 |
-| 法向层间距 | 2.1578395444 | 3.0000000000 |
-| 跨层最近距离 | 3.1396511419 | 3.7684397028 |
-| 周期镜像空白区间 | 31.2157096630 | 30.3735492074 |
-| SnSe₂ 层厚 | 3.3249000154 | 3.3249000154 |
-| Sr₂N 层厚 | 2.7037385710 | 2.7037385710 |
+上面的核对给出两项直接结果：法向间隙由 2.15784 Å 改为 3.00000 Å，两层内部厚度分别保持 3.32490 与 2.70374 Å。共同晶胞相对于所附独立 SnSe₂ 参考有约 2.69629% 的面内伸长。最近跨层距离、法向间隙和晶胞高度是三个不同的量，能量扫描必须始终用同一个距离定义。
 
-## 对照文献中的分析方法
+要选择一个供后续电子结构和声子计算使用的界面，需要比较有明确侧向位移、相对转角和层间距的候选。若候选使用相同的面内晶胞，可在相同约束下优化原子，再用同一静态协议比较总能量。若候选的共同晶胞也变化，单层应变能随之变化，不能把所有总能量差都解释成层间作用。
 
-Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures via surface functionalization: a first-principles study*，[DOI: 10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)，Fig. 2 展示六种堆垛配准，Fig. 3 用形成能随层间距的变化选择最低能构型及距离。本例保留一个已有配准并刚性设定 3.000 Å 法向间隙，表格支持几何构造；层间距与堆垛的能量选择则需要后续计算。结构查看可用 VESTA 打开真实 POSCAR，从俯视、侧视及相邻周期像检查原子位置。
+Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在正文 §3.1、Fig. 2 给出六种配准，Fig. 3 比较它们随层间距变化的能量；Fig. 5(a)进一步检查所选 F-I 配准的面内晶格。这里采用的是“先说明配准，再比较距离，最后核对共同晶胞”的分析顺序。文献的最低能构型和晶格属于 WS₂/Sc₂C，不能替代本例的 SnSe₂/Sr₂N 数值，也不能决定 ZrCl₂/Sc₂C 的堆垛。
+
+## 单层参照决定结合能的含义
+
+把选定界面记为 AB，上层为 A，下层为 B。在同一个晶胞中保留 AB 的 A 原子、移去 B，就得到冻结 A 参考；B 参考按相反操作得到。两份单层保留各自在 AB 中的原子位置、面内应变和周期高度，独立完成电子自洽。删除原子时同时修改元素数量和对应 PAW 顺序；不能只删坐标而沿用 AB 的计数和 POTCAR。
+
+三份计算的泛函、相同元素的 PAW、截断能、k 网格、展宽、色散模型和电荷/自旋约定要配套。AB 含两层的全部电子，A 与 B 各自取所定义的电子数和自旋态；电子数加和应与 AB 一致。密度差还需要 [相同的 FFT 网格](/Atlas/m/delta-charge/vasp/)。相同网格便于能量比较，但它本身不能消除单层电荷、自旋或色散设置不相容的问题。
+
+这时可定义冻结几何相互作用能：
+
+$$
+\Delta E_{\mathrm{int}}^{\mathrm{frozen}}
+=E_{AB}(R_A,R_B;C)-E_A(R_A;C)-E_B(R_B;C),
+\qquad
+e_{\mathrm{int}}=\frac{\Delta E_{\mathrm{int}}^{\mathrm{frozen}}}{|\mathbf a\times\mathbf b|}.
+$$
+
+$C$ 表示共同晶胞，$R_A,R_B$ 是界面中的坐标。三份能量都用同一输出字段，例如 VASP 的 `energy without entropy`；有有限展宽时还应成组检查展宽依赖。单位可以报告 eV/界面胞或 meV/Å²，并注明周期胞包含的界面数。对这里的真空隔开的双层，一胞包含一个目标 A–B 接触，不套用表面能的二倍面积因子。
+
+按这个符号约定，负值说明该固定构型相对于所选冻结单层参照降低了电子能量。若把分离代价定义为 $E_A+E_B-E_{AB}$，符号相反；两种写法都可以，正文和图注必须一致。
+
+若改用分别优化的自由单层作参照，得到的量还包括单层从自由状态变到界面状态的形变代价：
+
+$$
+\Delta E_{\mathrm{assemble}}
+=\Delta E_{\mathrm{int}}^{\mathrm{frozen}}
++[E_A(R_A;C)-E_A^{\mathrm{free}}]
++[E_B(R_B;C)-E_B^{\mathrm{free}}].
+$$
+
+中括号内包含相应的面内应变与层内结构改变。所附 `POSCAR.SnSe2.reference` 有不同的晶胞高度和面内长度，它适合说明几何伸长，不能直接顶替冻结 A 的能量。选择哪一种参照，取决于是在量化既定界面的层间作用，还是研究两张自由单层组装的代价。
+
+文献 §3.1 的 $E_b=E_{\mathrm{hetero}}-E_{\mathrm{layer1}}-E_{\mathrm{layer2}}$ 给出了三能差的符号约定。本教程进一步把冻结参照与自由单层参照写开，便于读者判断各自包括哪些几何变化。式中的同胞冻结要求是这里的比较协议，不声称原文已经逐项报告这些细节。
+
+本例随包提供的是结构与几何表。没有与该界面匹配的 AB/A/B 能量组，因此这里结束在“模型已构造并核对”，不报告界面结合能数值。已有 [H₂ 差分电荷例子](/Atlas/m/delta-charge/vasp/)可帮助理解保留原位的 A/B 构造，但分子的三能差不能作为层状界面的结合能。
+
+## 重建几何表
+
+`check_model.py` 读取正缩放、Direct 坐标的三份 POSCAR，按 $\mathbf a\times\mathbf b$ 定义法向，把分数坐标转为 Å，再检查每层共同位移、面内坐标、最近跨层距离和周期空白。程序输出 JSON 和逐原子 CSV，不改写原结构。可以把处理需求写成：
 
 ```text
-已有异质结 POSCAR + 明确的单层几何参考
-  └─ 共同晶胞、元素顺序、层归属
-       └─ 复制原文件 → 刚性平移两层 → 整体居中
-             ├─ 原子数 / 层厚 / 最短距离 / 周期空白核对
-             ├─ 面内伸长与取向核对 → 俯视和侧视图
-             └─ 新 POSCAR → 后续结构优化或层间距扫描
+用 Python 3 标准库读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference。
+此例限定正缩放系数、Direct 坐标及六原子的 SnSe2/Sr2N 顺序。以 a×b 为法向，
+核对晶胞和分数 x/y 不变、每层刚性移动、3.000 Å 间隙与整体居中；
+枚举相邻周期像求跨层最近距离，报告层厚、空白区间和相对 SnSe2 参考的伸长。
+写 model-check.json、reference-atoms.csv、gap3p0-atoms.csv。
+不支持的输入或核对失败应退出；不由几何距离自动判断成键或最低能构型。
 ```
 
-## 从原始文件重建结果
-
-把三份 POSCAR 转到同一笛卡尔参考后，分别检查层内刚性位移、跨层最近距离和周期镜像空白，再按单层参考计算面内伸长。可以把这些读取规则写成下面的请求：
-
-```text
-请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；此例只支持正缩放系数的 Direct 坐标，按晶格矢量转成笛卡尔坐标，用 a×b 定义法向。保持所示元素和坐标顺序，前三个原子为 SnSe2，后三个为 Sr2N。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。遇到不支持的坐标格式、原子数不符、层发生交叠或目标间距未达到时，报错退出。几何表不自动判断成键或最低能结构。脚本写入分析结果，保留原始计算文件。
-```
-
-[check_model.py 完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)
+[完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)
 
 <details>
 <summary>check_model.py 的完整源码</summary>
@@ -242,14 +263,8 @@ if __name__=='__main__':
 
 </details>
 
-[输入、原始输出与完整后处理包](/Atlas/examples/interface-magnet-heterostructure-modeling/example-pack.tar.gz)解压后，在 `example-pack` 目录执行：
+在解包后的 `example-pack` 中运行 `python3 check_model.py`。实际结果见上面的终端输出和 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json)。用 VESTA 打开两份真实 POSCAR，从俯视比较侧向配准，从侧视检查层厚与周期像；自动绘制的键仅用于显示。
 
-```bash
-python3 check_model.py
-```
+同胞冻结 A/B 参照准备好后，可继续 [差分电荷](/Atlas/m/delta-charge/vasp/)；需要研究从多层表面取走一层的代价，则进入 [层间分离](/Atlas/m/exfoliation-energy/vasp/)。后者改变的是多层参考中的一个界面，与两张自由单层组装的参照不同。
 
-实际读取结果见正文表及 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json) · [reference-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/reference-atoms.csv) · [gap3p0-atoms.csv](/Atlas/examples/interface-magnet-heterostructure-modeling/gap3p0-atoms.csv)。
-
-相关输入说明：[VASP：POSCAR](https://vasp.at/wiki/POSCAR) · [ISIF](https://vasp.at/wiki/ISIF) · [VESTA 使用手册](https://jp-minerals.org/vesta/en/doc.html)
-
-下一步在 `model_d3p0` 中准备适合该材料的 VASP INCAR、KPOINTS、POTCAR 和提交脚本，再进行离子优化。若选择固定共同晶胞，原子可以移动，面内晶格和真空高度仍保持这里的模型条件。若要比较层间距上的能量变化，接 [剥离能与层间作用](/Atlas/m/exfoliation-energy/vasp/)，每个间距保留单独目录并使用相同协议。
+[VASP POSCAR](https://vasp.at/wiki/POSCAR) · [ISIF](https://vasp.at/wiki/ISIF) · [展宽能量字段](https://vasp.at/wiki/Smearing_technique) · [VESTA 手册](https://jp-minerals.org/vesta/en/doc.html)

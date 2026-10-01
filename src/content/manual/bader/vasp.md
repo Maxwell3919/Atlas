@@ -1,14 +1,12 @@
-连续电子密度怎样分配给原子，分出来的电子数是否保持晶体中原子的等价性？本页用两个等价 Fe 原子的铁磁 bcc 原胞，先以全电子参考密度确定 Bader 盆地，再积分盆地内的价电子密度。对照两套粗、细网格设置，检查每个 Fe 的盆地电子数和整胞总数；两个等价原子之间的小差异用于判断分区采样的影响。
+界面形成后，一层材料得到多少电子？Bader 分析先把整个密度场按零通量边界划成盆地，再给每个盆地积分；把属于同一层的原子相加，就得到这一分区定义下的层电子数。本例先用两个等价 Fe 原子检验这条操作链：文件读法、参考密度、电子守恒和网格变化都能直接从真实输出复核。Fe 的结果用于学习分区，不承担电子化合物或异质结转移的材料结论。
 
-Bader 盆地边界满足密度梯度沿法向为零。[Henkelman、Arnaldsson 和 Jónsson](https://doi.org/10.1016/j.commatsci.2005.04.010)的 Sec. 1–2 说明如何沿网格密度的上升路径把点分配到同一极大值，并讨论赝势核附近的密度问题。本例的 AECCAR0+AECCAR2 用于确定边界，ACF.dat 的电子数来自 CHGCAR；这两份密度承担不同作用。
+在金属/Ca₂N/MoS₂ 接触的原文中，作者把 MoS₂ 原子电荷加总并按化学式单元报告，借此比较不同接触；Fig. 2(c) 将转移量和接触距离放在一起读。[The role of the metal in metal–MoS₂ and metal–Ca₂N–MoS₂ interfaces, PCCP 27, 6438 (2025)](https://doi.org/10.1039/D4CP04577G)。它采用 Yu–Trinkle/critic2；下文采用 Henkelman Bader 1.05，分区实现与参考密度应跟着数值一起记录。
 
-[Henkelman 组：Bader 程序](https://www.henkelmanlab.org/code/bader/) · [VASP：LAECHG](https://vasp.at/wiki/LAECHG) · [CHGCAR](https://vasp.at/wiki/CHGCAR)
+先完成固定几何的 [SCF](/Atlas/m/scf/vasp/)。[下载本例真实输入、OUTCAR 和两套网格资料](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz)，进入 `fe-bcc/charge_elf`。POTCAR 仅附身份信息，重跑时使用自己的授权文件。本次Fe结构与自旋设置的出处是该包内的 `charge_elf/POSCAR`、`charge_elf/INCAR` 和 `charge_elf/OUTCAR`；加密网格的对应记录在 `charge_elf_192`。
 
-结构和磁态来自 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的 FM 解。下载 [真实输入、OUTCAR、96³ 电荷网格及后处理脚本](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz) 后，解包进入 `fe-bcc/charge_elf`。包中保留两套网格的输出与检查结果，POTCAR 仅提供 TITEL、ZVAL 和哈希标识。
+## 价电子积分与全电子分区参考
 
-## 准备固定结构与密度输出
-
-在新的 `charge_elf` 目录中复制 POSCAR、KPOINTS、POTCAR 和提交脚本，用 `vi INCAR` 打开全电子密度输出。保存后读回输入。
+CHGCAR 是实际积分目标；AECCAR0+AECCAR2 提供核附近的全电子参考密度，用来寻找盆地边界。LAECHG 同时写出的 AECCAR1 是原子叠加价电子密度，不能代替自洽的 AECCAR2。在原目录用 `vi INCAR` 编辑后读回：
 
 ```text
 [bcgong@localhost charge_elf]$ cat INCAR
@@ -39,13 +37,8 @@ NGXF = 96
 NGYF = 96
 NGZF = 96
 ```
-`LAECHG` 写出 AECCAR0、AECCAR1、AECCAR2：分别对应芯电子、原子叠加的价电子密度和最终自洽价电子密度。用来找分区边界的参考是 AECCAR0 + AECCAR2；实际积分的目标仍是 CHGCAR 中的总价电子密度。AECCAR1 不代替已经收敛的 AECCAR2。
 
-本次同时写了 ELFCAR，供 [ELF](/Atlas/m/elf/vasp/) 使用，因此显式设了 `NPAR = 1`。96³ 是 AECCAR 与 CHGCAR 的细网格；ELFCAR 的采样网格要另外从它自己的文件头读取。
-
-`NGXF/NGYF/NGZF` 决定沿三条晶格矢量保存多少个细网格点。它们加密的是密度的空间表示，ENCUT 控制的则是波函数平面波基组，两者不能互相替代。这里 Fe 的核区密度变化很快，先用 96³、再用 192³，是为了直接观察参考密度积分与盆地电荷对网格的敏感性；每个方向翻倍会使三维点数增加到八倍，也相应增加文件和后处理开销。
-
-## 运行 SCF，检查密度对应的电子收敛
+细网格 96³ 表示密度的空间采样；ENCUT 决定波函数基组。此次一并打开 LELF，所以保留 `NPAR=1`，后面仍使用 8 个 MPI 进程。ELFCAR 的网格另看它自己的文件头。
 
 ```text
 [bcgong@localhost charge_elf]$ cat run.slurm
@@ -66,7 +59,6 @@ export I_MPI_PIN_PROCESSOR_LIST=16,17,18,19,20,21,22,23
 cd $SLURM_SUBMIT_DIR
 mpirun -np 8 /data/software/vasp.5.4.4/bin/vasp_std > out
 ```
-该脚本使用 8 个 MPI 进程；任务 18187 用时 26 秒。命令 `tail -f out` 可在运行时查看电子步；结束后仍需读停止行与统计尾段。
 
 ```text
 [bcgong@localhost charge_elf]$ tail -4 OSZICAR
@@ -75,18 +67,13 @@ DAV:  17    -0.164736467728E+02   -0.13183E-07   -0.30314E-10  2702   0.201E-04 
 DAV:  18    -0.164736467769E+02   -0.41130E-08   -0.60443E-11  2639   0.102E-04
    1 F= -.16473647E+02 E0= -.16473764E+02  d E =0.351572E-03  mag=     4.2127
 ```
+
 ```text
 [bcgong@localhost charge_elf]$ grep 'aborting loop because EDIFF is reached' OUTCAR
 ------------------------ aborting loop because EDIFF is reached ----------------------------------------
 ```
-```text
-[bcgong@localhost charge_elf]$ ls -lh AECCAR0 AECCAR2 CHGCAR ELFCAR
--rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR0
--rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR2
--rw-rw-r-- 1 bcgong bcgong  31M Sep 22 21:42 CHGCAR
--rw-rw-r-- 1 bcgong bcgong 139K Sep 22 21:42 ELFCAR
-```
-文件出现只是开始。AECCAR0 很早就会写出，AECCAR2 才对应自洽完成后的密度；要先确认 SCF 完整结束，再进行相加。
+
+最后电子步达到 EDIFF，程序已完整结束，才可以使用 AECCAR2。一次静态自洽没有改变结构，也没有替目标层电荷完成网格收敛检查。
 
 ```text
 [bcgong@localhost charge_elf]$ head -14 AECCAR0
@@ -105,19 +92,18 @@ Direct
  0.22196122414E+07 0.11375194526E+06 0.25172471731E+05 0.14564894925E+05 0.78478711560E+04
  0.37607831076E+04 0.17456520963E+04 0.88918058069E+03 0.56326744509E+03 0.44347649245E+03
 ```
-结构块之后的 `96 96 96` 表示 884,736 个点。CHGCAR 第一块的存储值记为 gᵢ，晶胞体积为 V，网格点数为 N，则电子数是 Σgᵢ/N，空间数密度是 gᵢ/V。这里 V=2.8³=21.952 Å³：前一种运算给电子数，后一种才给每 Å³ 的电子数，不能把两个除数互换。[CHGCAR 的归一化约定](https://vasp.at/wiki/CHGCAR)
 
-## 相加参考密度，再运行 Bader
+结构后的 96 96 96 给出 884,736 个点。若原始值是 D，体积 V=21.952 Å³，则数密度 n=D/V，价电子总数 N=ΣD/Ngrid；磁化块与 PAW 一中心数据不进入这一积分。[VASP CHGCAR 格式与归一化](https://vasp.at/wiki/CHGCAR)。
 
-相加时，两份文件的晶胞、元素顺序、坐标和网格都必须一致；只按行号相加，或者对不同长度的数据直接 zip，会把错误静默带入参考密度。
+## 相加参考，再看 ACF.dat
 
-相加程序先核对这四项，再读取两份文件的第一块标量数据，生成找盆地边界用的 `CHGCAR_sum`。可将下面的需求交给 AI 编程助手：
+相加程序核对晶胞、元素、坐标和网格后，只处理第一标量块。需要编写同样的程序时可使用这一需求：
 
 ```text
 用 Python 3 标准库编写 sum_charge.py。读取同目录 AECCAR0、AECCAR2、CHGCAR，解析结构头，核对晶胞、元素顺序、坐标和网格一致。每份只读取第一块 nx*ny*nz 个总密度值，排除磁化密度和 augmentation occupancies；用 Σg/N 打印各自电子数积分。逐点相加 AECCAR0+AECCAR2，保留结构头写入 CHGCAR_sum，用写出前的相加数组计算 reference_integral=Σg/N；再读回检查网格尺寸和数组长度。回读检查不重新计算参考积分。源文件只读，不修正或归一化原始数值。
 ```
 
-[完整源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。将脚本放入 `charge_elf`，用 Python 3 运行。原始执行记录为：
+[sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py) 的完整源码在文末。实际运行得到：
 
 ```text
 [bcgong@localhost charge_elf]$ python sum_charge.py
@@ -129,15 +115,12 @@ points = 884736
 reference_integral = 55.5212962264
 scope = first total-charge block only; no spin-density or augmentation blocks copied
 ```
-CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯电子密度很尖锐，96³ 对其积分仍不够好：AECCAR0 的积分为 39.5201，而这套 Fe 赝势每胞的芯电子数应为 2 × (26 − 8) = 36。后面通过加密网格检查这个芯电子积分差异，并单独观察价电子盆地数的变化。
 
-运行 Bader 时，把 CHGCAR 作为积分目标，把刚得到的 CHGCAR_sum 作为找边界的参考：
+CHGCAR 积分恢复 16 个价电子；AECCAR0 的 39.5201 e 偏离此赝势应有的 36 个芯电子，提示粗网格采样核区的误差。这个参考积分与稍后的价电子盆地数各有含义。
 
 ```text
 [bcgong@localhost charge_elf]$ <bader_bin>/bader CHGCAR -ref CHGCAR_sum
 ```
-
-本例执行的是服务器上 Bader 1.05 的可执行文件。输出依次读取目标与参考网格、寻找盆地、细化边界，最后写出 ACF.dat；已有记录显示两个 Bader maxima，真空电荷为 0，总价电子数为 16。继续看每个原子分到了多少电子。
 
 ```text
 [bcgong@localhost charge_elf]$ cat ACF.dat
@@ -150,15 +133,12 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
     VACUUM VOLUME:               0.0000
     NUMBER OF ELECTRONS:        16.0000
 ```
-先把两行 `ATOMIC VOL` 相加：10.977166 + 10.974834 = 21.952 Å³，正好覆盖本例晶胞。再看 `VACUUM VOLUME=0` 与 `NUMBER OF ELECTRONS=16`，可以把空间覆盖与电子数守恒分别核对。这两个检查成立，也不能单独证明每条盆地边界已经达到所需精度。
 
-`CHARGE` 是盆地内积分得到的价电子数。若把净电荷定义为 Q = ZVAL − N_Bader，那么这里两个 Fe 的 Q 约为 −0.000303 与 +0.000303 e。等价原子出现的这点差异首先反映离散网格和边界划分误差，不能解释成 Fe 原子之间发生了有方向的电荷转移。
+`CHARGE` 是价电子盆地数。取净电荷 Qᵢ=ZVALᵢ−Nᵢ，两个 Fe 分别为 −0.000303 和 +0.000303 e；取净增电子数 Nᵢ−ZVALᵢ，符号相反。两个等价原子的微小差异用于检查离散分区。两个 `ATOMIC VOL` 相加为21.952 Å³，盆地数相加为16 e，分别核对空间覆盖和电子数。`MIN DIST` 是原子到盆地边界的最短距离，不能拿来读键长。
 
-`MIN DIST` 是原子到盆地边界的最短距离，并不是最近邻键长。这里 MIN DIST 为 1.161917 Å，而 bcc Fe 的最近邻距离约为 2.424871 Å；前者小于后者是几何上很自然的结果，不能作为分区失败的依据。
+## 加密后的变化有多大
 
-## 加密网格，比较等价原子的盆地数
-
-在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和其余电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。因此这是两套实空间网格设置的比较，并非只改变细网格一个参数的对照。后处理仍执行同一个相加脚本和 Bader 命令。
+另一份 `charge_elf_192` 保持几何、赝势、k 网格和电子协议，并将细网格改为192³；同次 ELF 粗网格也从18³改为36³。它是两套实空间设置的比较。
 
 ```text
 [bcgong@localhost charge_elf_192]$ cat ACF.dat
@@ -171,24 +151,33 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
     VACUUM VOLUME:               0.0000
     NUMBER OF ELECTRONS:        16.0000
 ```
-两原子现在分别得到 7.999923 和 8.000077 个价电子，在所列精度下相加为 16。96³ 到 192³，每个原子的变化约为 0.000380 e，等价原子之间的不对称减小了。与此同时，AECCAR0 积分从 39.5201 靠近到 36.2910：参考密度核区的积分还没有完全闭合，不能把它与价电子盆地积分的稳定程度混为一个指标。
 
-这份小例子可以核对文件、网格、守恒和等价原子。真正比较异质结构的电荷转移时，应逐步加密网格，观察关心的原子或层电荷是否达到所需精度，并在所有对照计算中使用相同分区定义。
+| 细网格 | Fe1 盆地数 / e | Fe2 盆地数 / e | 芯密度全胞积分 / e |
+| --- | ---: | ---: | ---: |
+| 96³ | 8.000303 | 7.999697 | 39.5201 |
+| 192³ | 7.999923 | 8.000077 | 36.2910 |
 
-## 用原始输出表检查网格变化
+每个 Fe 的盆地数改变约0.000380 e，等价原子之间的差异减小；芯密度积分也更接近36 e。研究界面时，加密后应比较关心的层加总，精度由这个量的变化判断。
 
-| 网格 | N(Fe1) / e | N(Fe2) / e | AECCAR0 全胞积分 / e | 芯电子参考 / e |
-| --- | ---: | ---: | ---: | ---: |
-| 96³ | 8.000303 | 7.999697 | 39.5201 | 36 |
-| 192³ | 7.999923 | 8.000077 | 36.2910 | 36 |
+[下载两份 ACF.dat 和积分记录](/Atlas/examples/charge-vesta-files.tar.gz)，进入 `charge-vesta/bader`，用 [extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py) 复现表格。源码与写码需求保留在文末。
 
-[下载两套 ACF.dat、密度积分记录与提取源码](/Atlas/examples/charge-vesta-files.tar.gz)，解包后进入 `charge-vesta/bader`。以下需求说明可交给 AI 编程助手，复现本例表格：
-
-```text
-用 Python 3 标准库写 extract_bader_grid.py，只解析已经完成的96³和192³ bcc Fe Bader输出，不运行VASP/Bader。读取每目录ACF.dat原子行的编号、X/Y/Z、CHARGE、MIN DIST、ATOMIC VOL，以及底部VACUUM CHARGE、VACUUM VOLUME、NUMBER OF ELECTRONS。CHARGE是价电子盆地数，坐标/距离单位Å，体积Å³；本例ZVAL=8，两Fe，总价电子16，晶胞体积21.952Å³。输出N_Bader、N_Bader-ZVAL、Q=ZVAL-N_Bader，保留两种符号定义；核对原子数和总量到原文件打印精度，打印残差而非宣称严格为零。另读取sum_charge.py记录的AECCAR0/2、CHGCAR与reference_integral，不把芯电子积分与盆地稳定性混成同一指标。输出CSV，拒绝覆盖输入。不画柱图或另加无来源材料数据；若要查看空间形貌，交给专业GUI读取真实密度。完整脚本应附命令行运行说明。
+```bash
+python3 -B ../scripts/extract_bader_grid.py --output new-bader-grid.csv
+cat new-bader-grid.csv
 ```
 
-[完整源码：extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py)；[密度相加源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。需要 Python 3；上述两个脚本均使用标准库。
+## 从原子加总到层转移与面积密度
+
+先按结构确定每层的原子编号，再求 Nᴮ_AB,A=Σᵢ∈A Nᵢ。对于中性层，Nᴮ_AB,A−Σᵢ∈A ZVALᵢ 是以中性价电子数为参考的层净增电子数；若使用冻结孤立层的 Bader 对照，则 ΔNᴮ_A=Nᴮ_AB,A−Nᴮ_A,A。后者包含接触前后盆地边界的变化，必须说明参考结构和算法。分子/晶胞有净电荷，或算法把间隙极大值另列为盆地时，需把相应电子数一同核对，不能遗漏后再把每层强制凑成整数。
+
+层得到电子时 ΔNᴮ_A>0，它的电荷变化 ΔQ_A=−eΔNᴮ_A。若报告每原胞转移量，面积 S=|a×b| 用该异质结的真实面内晶胞；面积密度为 ΔNᴮ_A/S，单位 e/Å²，乘10¹⁶得到 e/cm²。论文按化学式单元报告时，要先确认该胞含几个单元，不能将每单元数和超胞面积直接混用。这里的面积密度描述分区电荷，金属/半导体自由载流子数还需能带占据或费米面分析。
+
+空间分区也决定数字的含义。[差分电荷密度](/Atlas/m/delta-charge/vasp/) 在固定几何上直接积分 Δn，按法向区间分层；它的层积分与 Bader 加总可以并列比较，各自保留边界。两者相近支持趋势一致，差异则需要查看界面重叠区域。ELF 给局域化函数，能窗密度给选中态的空间权重，都不替代这些积分。
+
+Bader 原算法的网格上升路径见 [Henkelman 等, Comput. Mater. Sci. 36, 354 (2006), Secs. 1–2](https://doi.org/10.1016/j.commatsci.2005.04.010)；VASP 输出对应 [LAECHG](https://vasp.at/wiki/LAECHG)。
+
+
+## 完整源码与执行记录
 
 <details>
 <summary>sum_charge.py 的完整源码</summary>
@@ -287,20 +276,20 @@ print(f'wrote: {a.output}; zero printed residual does not establish an exact int
 
 </details>
 
-在解包后的 `charge-vesta/bader` 目录运行：
+<details>
+<summary>同一算例的其余输入、检查命令与保存输出</summary>
 
-```bash
-python3 -B ../scripts/extract_bader_grid.py --output new-bader-grid.csv
-cat new-bader-grid.csv
+```text
+[bcgong@localhost charge_elf]$ ls -lh AECCAR0 AECCAR2 CHGCAR ELFCAR
+-rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR0
+-rw-rw-r-- 1 bcgong bcgong  16M Sep 22 21:42 AECCAR2
+-rw-rw-r-- 1 bcgong bcgong  31M Sep 22 21:42 CHGCAR
+-rw-rw-r-- 1 bcgong bcgong 139K Sep 22 21:42 ELFCAR
 ```
 
-ACF.dat 将总数打印为16.0000 e，两个盆地数在所列六位小数下相加为16 e；这只核对当前输出精度，不证明连续密度的积分严格无误。`VACUUM CHARGE=0.0000` 和 `VACUUM VOLUME=0.0000` 表示本次分区算法没有列出真空盆地，不能据此断言真空中密度处处为零。
-
-## 文献如何比较界面电荷
-
-在金属/MoS₂ 与金属/Ca₂N/MoS₂ 的研究中，Fig. 2(c) 将 MoS₂ 的 Bader 转移量与接触距离联系起来，并区分不同接触强度。[Phys. Chem. Chem. Phys. 27, 6438 (2025)](https://doi.org/10.1039/D4CP04577G)。该文使用 Yu–Trinkle/critic2 分区。本例用 Henkelman Bader 程序验证同质 Fe 的等价性和网格变化；界面比较需要在自己的密度、片段参考与分区定义下重新求值。
-
-下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
+```text
+用 Python 3 标准库写 extract_bader_grid.py，只解析已经完成的96³和192³ bcc Fe Bader输出，不运行VASP/Bader。读取每目录ACF.dat原子行的编号、X/Y/Z、CHARGE、MIN DIST、ATOMIC VOL，以及底部VACUUM CHARGE、VACUUM VOLUME、NUMBER OF ELECTRONS。CHARGE是价电子盆地数，坐标/距离单位Å，体积Å³；本例ZVAL=8，两Fe，总价电子16，晶胞体积21.952Å³。输出N_Bader、N_Bader-ZVAL、Q=ZVAL-N_Bader，保留两种符号定义；核对原子数和总量到原文件打印精度，打印残差而非宣称严格为零。另读取sum_charge.py记录的AECCAR0/2、CHGCAR与reference_integral，不把芯电子积分与盆地稳定性混成同一指标。输出CSV，拒绝覆盖输入。不画柱图或另加无来源材料数据；若要查看空间形貌，交给专业GUI读取真实密度。完整脚本应附命令行运行说明。
+```
 
 ```text
 收敛的固定几何 SCF
@@ -309,3 +298,5 @@ ACF.dat 将总数打印为16.0000 e，两个盆地数在所列六位小数下相
                  └─ 相同结构与完整网格检查 → Bader → ACF.dat
                                                    └─ 总数、等价性与网格加密检查
 ```
+
+</details>

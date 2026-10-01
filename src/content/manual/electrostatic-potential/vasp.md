@@ -1,27 +1,10 @@
-非对称薄层两侧能否使用同一个真空能量参考？本页读取一份已经结束的 HfCl₂/PbO₂ 固定几何静态计算，将 LOCPOT 的离子势加 Hartree 势沿 xy 平面平均，再分别统计两侧真空平台。两侧平台差和平台内的起伏回答真空参考是否相同、所选窗口是否平坦，为后续逐侧计算功函数和能带对齐提供参考。该结构有六个原子，z 向晶胞为 30 Å，采用 PBE、D3(BJ) 和 z 方向偶极修正。
+界面两侧的能量参考与势变化，要从整条法向势曲线读。先区分LOCPOT里存的是离子+Hartree势还是包含交换关联的总局域势，再沿层面平均；真空平台、原子区域与偶极修正跳变各有位置。本例用已有六原子HfCl₂/PbO₂固定几何存档演示这一读取方法，z晶胞30 Å。它提供势后处理的数据链，材料电子态与稳定性另按相应计算判断。
 
-这里的平均量是 V̄(z)=A⁻¹∫A V(x,y,z)dxdy，V 按本例 [LVHAR](https://vasp.at/wiki/LVHAR) 的定义取离子势加 Hartree 势。[Zhang 等](https://doi.org/10.1039/D5CP02349A)在 Sec. II–III 和 Fig. 4 用法向电势与结构位置研究 ZrI₂/半金属界面；本例使用这一坐标对照思路，实际平台和偶极修正区域仍由自己的 LOCPOT 决定。
+[金属/Ca₂N/MoS₂原文 Sec. 2.2和Fig. 6(b)](https://doi.org/10.1039/D4CP04577G)采用离子+Hartree势的xy平均，描述相对于EF的势峰与隧穿区域；[ZrI₂/Dirac半金属原文 Fig. 4](https://doi.org/10.1039/D5CP02349A)则把法向势与层位置共同呈现。这些例子告诉我们曲线需要什么参考和坐标，不把其接触结论移到本例。
 
-结构和静态自洽的准备接 [SCF](/Atlas/m/scf/vasp/)。
+前置 [SCF](/Atlas/m/scf/vasp/)。[下载原始LOCPOT、输入输出与源码](/Atlas/examples/vasp/hfcl2-pbo2-potential-electronic-files.tar.gz)，进入 `hfcl2-pbo2-potential`。
 
-[VASP：LOCPOT 文件](https://vasp.at/wiki/LOCPOT) · [LVHAR](https://vasp.at/wiki/LVHAR) · [偶极修正](https://vasp.at/wiki/LDIPOL)
-
-[下载原始 LOCPOT、输入输出和平面平均脚本](/Atlas/examples/vasp/hfcl2-pbo2-potential-electronic-files.tar.gz)。解包后可从 56×56×480 的完整势网格重新生成本文的两列表格与平台统计；无需从图中反读数值。
-
-## 确认势的组成与静态计算输出
-
-进入保存输入与输出的目录，先看文件是否齐全。
-
-```text
-[bcgong@localhost hfcl2_pbo2_potential]$ ls -lh INCAR POSCAR KPOINTS OUTCAR OSZICAR LOCPOT
--rw-r--r-- 1 bcgong bcgong  324 Sep  4 05:07 INCAR
--rw-r--r-- 1 bcgong bcgong   60 Sep  4 05:07 KPOINTS
--rw-r--r-- 1 bcgong bcgong  27M Sep  4 05:14 LOCPOT
--rw-r--r-- 1 bcgong bcgong 3.8K Sep  4 05:14 OSZICAR
--rw-r--r-- 1 bcgong bcgong 223K Sep  4 05:14 OUTCAR
--rw-r--r-- 1 bcgong bcgong  512 Sep  4 05:07 POSCAR
-```
-INCAR 决定了 LOCPOT 里到底写了什么。这里用的是 `LVHAR = .TRUE.`，因此读取的是离子势与 Hartree 势之和，单位为 eV。
+## 同一次静态计算的势与电子态
 
 ```text
 [bcgong@localhost hfcl2_pbo2_potential]$ cat INCAR
@@ -47,7 +30,6 @@ LWAVE = .FALSE.
 LCHARG = .FALSE.
 LVHAR = .TRUE.
 ```
-`NSW = 0` 表示这一份输出是在固定几何上求电子态。`LDIPOL` 与 `IDIPOL = 3` 对应 z 方向的偶极修正；`DIPOL` 指定修正的参考中心。不要因为文件名同为 LOCPOT，就把另一份 `LVTOT = .TRUE.` 的总局域势混在一起相减：后者还含交换关联势。
 
 ```text
 [bcgong@localhost hfcl2_pbo2_potential]$ cat KPOINTS
@@ -57,7 +39,6 @@ Gamma
 15 15 1
 0 0 0
 ```
-先确认这份势来自收敛的静态计算。OSZICAR 最后的电子步和 OUTCAR 中的停止行需要对得上。
 
 ```text
 [bcgong@localhost hfcl2_pbo2_potential]$ tail -6 OSZICAR
@@ -68,31 +49,13 @@ DAV:  39    -0.337630500763E+02   -0.23397E-06   -0.12784E-07  3544   0.219E-03 
 DAV:  40    -0.337630501427E+02   -0.66348E-07   -0.47007E-08  3416   0.147E-03
    1 F= -.35058823E+02 E0= -.35057116E+02  d E =-.341425E-02
 ```
+
 ```text
 [bcgong@localhost hfcl2_pbo2_potential]$ grep 'aborting loop because EDIFF is reached' OUTCAR
 ------------------------ aborting loop because EDIFF is reached ----------------------------------------
 ```
-第 40 步电子能量变化已经小于输入的 `1E-7 eV`，OUTCAR 也明确给出电子收敛行。最后的 `F` 包含本例启用的色散能项，所以不应只拿它与上一行 DAV 的能量列相减。继续看文件末尾，确认程序正常走到了统计部分。
 
-```text
-[bcgong@localhost hfcl2_pbo2_potential]$ tail -15 OUTCAR
-  
- General timing and accounting informations for this job:
- ========================================================
-  
-                  Total CPU time used (sec):      237.308
-                            User time (sec):      227.779
-                          System time (sec):        9.529
-                         Elapsed time (sec):      237.381
-  
-                   Maximum memory used (kb):      422788.
-                   Average memory used (kb):           0.
-  
-                          Minor page faults:       319693
-                          Major page faults:            0
-                 Voluntary context switches:          952
-```
-这两处确认了静态电子计算达到停止条件并正常结束；几何、真空厚度和 k 网格的精度分别由相应收敛检查确定。
+LVHAR=.TRUE.写离子势+Hartree势，单位eV；LVTOT还含交换关联势。LDIPOL修正局域势与力，IDIPOL=3选择第三晶格矢量方向；本例c沿z且垂直a、b平面，因此修正方向与层法向一致，DIPOL给参考中心。NSW=0表示固定几何，最后电子步达1E−7 eV，程序有完整计时。参数与输出的组合确认这份势的来源。[LVHAR](https://vasp.at/wiki/LVHAR) · [LOCPOT](https://vasp.at/wiki/LOCPOT) · [IDIPOL](https://vasp.at/wiki/IDIPOL) · [LDIPOL](https://vasp.at/wiki/LDIPOL)。
 
 ```text
 [bcgong@localhost hfcl2_pbo2_potential]$ head -19 LOCPOT
@@ -116,39 +79,14 @@ Direct
  0.37848140587E+01 0.37842008761E+01 0.37828714743E+01 0.37824564018E+01 0.37835774956E+01
  0.37847571294E+01 0.37834151924E+01 0.37829010998E+01 0.37846014957E+01 0.37832251633E+01
 ```
-前半段是 POSCAR 风格的晶胞和六个原子的位置；空行后的 `56 56 480` 是三维网格。后面一共应有 1,505,280 个标量势值，x 方向索引变化最快，z 最慢。它们已经是 eV，不能照搬 CHGCAR 的电子数归一化，把势再除一次晶胞体积。
 
-沿 z 的 480 个点决定这一个 30 Å 晶胞内势的取样密度；增加网格点数并不会增加薄层之间的真空距离。检查平台有没有被取样清楚，与增大晶胞后平台值是否稳定，是两项不同的检查。
+56×56×480共1,505,280个势值，x最快。每个固定z平面平均56×56个值，不像CHGCAR再除体积。法向间隔为30/480 Å；增加采样点数与增加真空厚度解决不同问题。
 
-## 沿法向平均并选择真空平台
+## 平面平均后，平台按左右分别读取
 
-平面平均就是在每个固定 z 层上，对 56 × 56 个点求算术平均。随例子提供的 `plane_average.py` 会先读结构和网格，检查标量块是否完整，再写出 `PLANAR_AVERAGE.dat`。它只读取本例的第一个标量势块；磁性或非共线输出要先确认各块代表的物理量。
+V̄(z)=S⁻¹∫S V(x,y,z)dxdy。对一般a、b平面，S=|a×b|，法向高度H=Vcell/S，zₖ=kH/nz。这里c正好垂直层面，脚本使用的|c|=30 Å与H一致；若c倾斜，不能用|c|替代H，也不能直接照搬这里的IDIPOL方向。平面平均保留法向变化，没有把原子区势谷滑动抹平。
 
-两侧平台分别约为 2.538191 和 5.029000 eV。每个窗口覆盖 49 个 z 网格点，窗口内最大起伏都不到 0.0003 eV；这比只取曲线最高的一个点更容易复核。两侧平台相差约 2.490809 eV，说明这份非对称薄层两侧的真空参考不同。
-
-这里的 2–5 Å 与 25–28 Å 是针对这个晶胞选择的窗口：原子集中在约 11–19 Å，周期边界附近又存在偶极修正带来的势跃变，因此取样窗口避开了这两处。换材料或重新居中后，要跟着图上的原子区域和平台重新选窗口，不能固定照抄这四个数。
-
-```text
-[bcgong@localhost hfcl2_pbo2_potential]$ head -5 PLANAR_AVERAGE.dat
-# z_A  planar_potential_eV
-0.0000000000 3.783714602193
-0.0625000000 3.303792300942
-0.1250000000 2.899977063405
-0.1875000000 2.631753663237
-```
-第一列是沿层法向的距离，第二列是平面平均势。z = 0 附近的数值不同于两侧平台；把这一行直接当作真空能级会读错参考。
-
-```text
-[bcgong@localhost hfcl2_pbo2_potential]$ grep 'E-fermi' OUTCAR
- E-fermi :  -1.2958     XC(G=0):  -3.9262     alpha+bet : -3.9672
-```
-这份输出的费米能为 −1.2958 eV。若要继续计算两个表面的功函数，需要各自使用同一份计算中的真空平台与这个费米能相减；下一步接 [功函数](/Atlas/m/workfunction/vasp/)。电荷转移方向和接触后的带型还需结合差分电荷与带边对齐。
-
-<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
-<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
-## 电势平均与平台统计
-
-下面的读取规则用于从 LOCPOT 重建平面平均势，并分别统计两侧平台。电子势已用 eV 表示，不再按密度文件除以体积。
+源格式、单位、平台窗口和处理步骤明确后，可以使用以下写码需求：
 
 ```text
 按本例现有程序拆成两步，用 Python 3 处理 HfCl₂/PbO₂ 平面平均势。
@@ -158,9 +96,54 @@ INCAR/OUTCAR 由读者核对，两个脚本不解析它们：本例 LVHAR 对应
 若延伸计算功函数，由读者从同一 OUTCAR 读取 EF=−1.2958 eV，再与各侧平台配对相减。提供完整源码、依赖与运行命令。
 ```
 
-## 后处理源码与运行
+完整 [plane_average.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plane_average.py)读取标量势；[plot_potential.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plot_potential.py)与[样式模块](/Atlas/examples/vasp/hfcl2_pbo2_potential/atlas_plot_style.py)读派生结果画整胞曲线。数值分析使用Python标准库，绘图需要NumPy/Matplotlib。
 
-完整源码：[plane_average.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plane_average.py) · [plot_potential.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/plot_potential.py) · [atlas_plot_style.py](/Atlas/examples/vasp/hfcl2_pbo2_potential/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+```bash
+python3 -m pip install numpy matplotlib
+python3 plane_average.py LOCPOT 2:5 25:28
+python3 plot_potential.py
+```
+
+```text
+[bcgong@localhost hfcl2_pbo2_potential]$ python plane_average.py LOCPOT 2:5 25:28
+grid = 56 56 480; scalar values = 1505280
+normal height = 30.0000000000 A; output = PLANAR_AVERAGE.dat
+window 2.00:5.00 A  N=49  mean=2.538190946 eV  std=7.76333e-05 eV  range=0.000294251 eV
+window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000291275 eV
+```
+
+两侧窗口2–5 Å与25–28 Å各有49个平面，平均势分别约2.538191、5.029000 eV，窗口内起伏不到0.0003 eV。两侧平台差约2.490809 eV，表示这份非对称薄层两侧真空参考不同。原子约在11–19 Å，窗口避开原子和周期边界的偶极修正跳变；另一结构需要重选区间。
+
+![本例完整法向势及两侧真空窗口](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-z.png)
+
+图中的原子区势阱、平台和边界必须在同一个坐标轴上读。平台内的range/std是空间起伏，不能作为多次计算的统计误差或真空高度收敛证明。
+
+```text
+[bcgong@localhost hfcl2_pbo2_potential]$ head -5 PLANAR_AVERAGE.dat
+# z_A  planar_potential_eV
+0.0000000000 3.783714602193
+0.0625000000 3.303792300942
+0.1250000000 2.899977063405
+0.1875000000 2.631753663237
+```
+
+```text
+[bcgong@localhost hfcl2_pbo2_potential]$ grep 'E-fermi' OUTCAR
+ E-fermi :  -1.2958     XC(G=0):  -3.9262     alpha+bet : -3.9672
+```
+
+EF=−1.2958 eV应与同次计算的平台组合，进入 [功函数](/Atlas/m/workfunction/vasp/) 的逐侧取差。直接取z=0一行会误读修正区域；绝对势零点本身可变，有意义的是同一参照下的差。
+
+## 与差分电荷共同看界面偶极
+
+[ZrI₂原文 Fig. 4、5](https://doi.org/10.1039/D5CP02349A)分别给势与差分密度。对自己的匹配AB/A/B数据，先按 [CDD](/Atlas/m/delta-charge/vasp/) 得Δn̄(z)、SΔn̄(z)和累计层电子数，再把势曲线与它们共用原子位置及z原点。图上积累与耗尽的分离能提示偶极形成在哪里；势谷位置、单个势峰或两侧真空差，都不能直接换算成层转移电子数。
+
+若求界面诱导的势差，三份LOCPOT必须采用相同的势组成（例如都为离子+Hartree势），并先处理各自的势零点和边界条件；不同计算的任意常数需先按物理参考对齐，不能简单逐点相减三份未经对齐的LOCPOT。电子数密度差带正号表示积累，实际电荷为−eΔn；LOCPOT的eV势是电子势能参照，不能未经符号和单位转换就把曲线斜率叫作电场。定量偶极/电场需要另明确电荷密度、边界条件和规范。
+
+金属/Ca₂N/MoS₂论文把势峰相对EF定义为隧穿高度、交点距离定义为宽度；它与半导体CBM/VBM形成的Schottky势垒不同。这里已有输出支持两侧真空读数，尚未给本例划出经能带验证的界面势垒。需要接触能级时继续 [能级对齐](/Atlas/m/band-alignment/vasp/)。
+
+
+## 完整源码与执行记录
 
 <details>
 <summary>plane_average.py 的完整源码</summary>
@@ -256,41 +239,37 @@ fig.savefig('potential-z.pdf')
 
 </details>
 
-解压本页示例包后，在 `hfcl2-pbo2-potential` 根目录执行：
-
-```bash
-python3 -m pip install numpy matplotlib
-python3 plane_average.py LOCPOT 2:5 25:28
-python3 plot_potential.py
-```
-
-本例保存的提取运行记录如下：
+<details>
+<summary>同一算例的其余输入、检查命令与保存输出</summary>
 
 ```text
-[bcgong@localhost hfcl2_pbo2_potential]$ python plane_average.py LOCPOT 2:5 25:28
-grid = 56 56 480; scalar values = 1505280
-normal height = 30.0000000000 A; output = PLANAR_AVERAGE.dat
-window 2.00:5.00 A  N=49  mean=2.538190946 eV  std=7.76333e-05 eV  range=0.000294251 eV
-window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000291275 eV
+[bcgong@localhost hfcl2_pbo2_potential]$ ls -lh INCAR POSCAR KPOINTS OUTCAR OSZICAR LOCPOT
+-rw-r--r-- 1 bcgong bcgong  324 Sep  4 05:07 INCAR
+-rw-r--r-- 1 bcgong bcgong   60 Sep  4 05:07 KPOINTS
+-rw-r--r-- 1 bcgong bcgong  27M Sep  4 05:14 LOCPOT
+-rw-r--r-- 1 bcgong bcgong 3.8K Sep  4 05:14 OSZICAR
+-rw-r--r-- 1 bcgong bcgong 223K Sep  4 05:14 OUTCAR
+-rw-r--r-- 1 bcgong bcgong  512 Sep  4 05:07 POSCAR
 ```
 
-已有 [PLANAR_AVERAGE.dat](/Atlas/examples/vasp/hfcl2_pbo2_potential/PLANAR_AVERAGE.dat) 和 [potential-summary.json](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-summary.json) 时，直接执行 `python3 plot_potential.py`；第一条命令用于从原始 LOCPOT 重提取平台统计。
-
-只重画已有结果时，把 `PLANAR_AVERAGE.dat`、`potential-summary.json`、`plot_potential.py` 和 `atlas_plot_style.py` 放在本机同一目录。脚本读第一列作横轴、第二列作纵轴，把两个统计窗口涂成浅色，并同时输出 PNG 与 PDF。图上保留整个晶胞，才能同时检查原子区、两侧平台和周期边界。
-
-![非对称薄层两侧的平面平均势](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-z.png)
-
-## 文献中平面平均静电势与界面电荷的对齐画法
-
-平面平均电势与侧视结构可以共用法向坐标，便于比较势的变化和原子层位置。两者必须使用同一坐标原点与长度单位，不能为了让势谷与原子重合而挪动曲线。势谷也不必严格落在原子平面上：平均后的势由离子与电子分布共同决定。图中另标两侧真空平台及所取窗口，功函数还需同一次计算的电子化学势。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg" alt="平面平均静电势直接叠加在异质结侧视原子结构模型上的对齐图件" loading="lazy"/><figcaption>六种 ZrI<sub>2</sub> 基异质结沿法向 <em>z</em> 的平面平均静电势 <em>V</em><sub>eff</sub>(<em>z</em>) 曲线直接叠加在侧视原子结构模型上，清楚标示各原子层势阱位置及两侧真空能级差。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 4，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
-
-另一类常见表达是将平面平均静电势 V<sub>eff</sub>(Z) 与平面平均差分电荷密度 Δρ(Z) 左右并排放置，共用垂直方向的法向坐标轴 Z，以便在同一位置对照电荷积累、耗尽区域与电势变化。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="共用垂直 Z 轴的平面平均静电势与平面平均差分电荷密度并排对照图" loading="lazy"/><figcaption>ZrI<sub>2</sub>/NbS<sub>2</sub> 异质结的平面平均静电势 <em>V</em><sub>eff</sub>(<em>Z</em>) 与平面平均差分电荷密度 Δρ(<em>Z</em>) 共用垂直 <em>Z</em> 轴并排对齐展示，并叠加三维差分电荷密度等值面与侧视原子结构。引自 Huang 等人，<em>J. Phys. Chem. C</em> <strong>129</strong>, 13776 (2025)，Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
-
-下一步也可接 [能带对齐](/Atlas/m/band-alignment/vasp/)。比较两种材料前，还要准备各自一致的能带边与势参考。
+```text
+[bcgong@localhost hfcl2_pbo2_potential]$ tail -15 OUTCAR
+  
+ General timing and accounting informations for this job:
+ ========================================================
+  
+                  Total CPU time used (sec):      237.308
+                            User time (sec):      227.779
+                          System time (sec):        9.529
+                         Elapsed time (sec):      237.381
+  
+                   Maximum memory used (kb):      422788.
+                   Average memory used (kb):           0.
+  
+                          Minor page faults:       319693
+                          Major page faults:            0
+                 Voluntary context switches:          952
+```
 
 ```text
 固定几何的 SCF
@@ -298,3 +277,5 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
                          ├─ 两侧真空平台 → 功函数
                          └─ 一致的能量参考 → 能带对齐
 ```
+
+</details>

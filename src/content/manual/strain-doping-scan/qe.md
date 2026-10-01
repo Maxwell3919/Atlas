@@ -1,8 +1,14 @@
-本页从优化后的 fcc Al 原胞出发，沿笛卡尔 x 方向施加六个压缩或拉伸应变，分别进行固定结构 SCF，比较能量和应力。扫描保持电子数不变，没有进行掺杂计算；每个点开放哪些几何自由度，将决定这条曲线描述什么响应。[输入、输出与作图数据](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)可一并下载。
+拉伸晶格以后，界面电荷怎样重新分配，费米能附近的电子态来自哪一层，哪些振动变软，最后又怎样影响 λ、ωlog 和 Tc？应变扫描要把这些量放在同一组结构上比较。能量和应力先帮助核对施加的形变；真正的研究判断来自后面的电子与振动响应。
 
-这里量能量和应力随应变的变化，为后续弹性斜率拟合提供实际样本。xx 形变固定 y、z 分量，横向应力也会出现；它与允许横向自由收缩的拉伸采用不同边界条件。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节给出电子结构与晶胞优化框架；本页则在规定形变下固定晶胞，用相同电子参数逐点计算响应。
+这里先用六个真实 fcc Al SCF 点说明怎样修改晶胞、保留独立密度并读出应力，再接 ZrCl₂/Sc₂C 的既有冻结电子对照。Al 是一原子操作样本，采用 LDA-PZ；异质结是六原子界面，采用另一套结构和电子协议。两组结果各自解释，不能将 Al 曲线当作异质结的应变响应。[Al 输入、输出与后处理包](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)保留完整计算文件。
 
-电子掺杂需要另行设置电子数并检查带电体系的静电处理；本页先沿同一电子数比较应变响应。
+## 百分比表示应变，应力从输出读取
+
+面内双轴应变定义为 ε=(a−a₀)/a₀。+1.5% 对应 ε=0.015，即两条面内基矢的面内分量同时乘 1.015，晶格角保持不变；纯面内应变不放大真空方向。单轴 x 应变则只将所有基矢的 x 分量乘 1+ε。本例 Al 使用后一种定义，y、z 均固定。
+
+应变是无量纲的几何变化，常以百分比给出；应力是响应张量，单位为 kbar、GPa 或明确厚度定义下的二维量。“+1.5% 双轴应变”不能写成“+1.5% 应力”。如果研究控制的是外加压力，需另说明压力单位和放松条件。对有真空的二维超胞，程序的三维应力还含超胞体积归一化，比较时固定真空高度；它不是单层厚度无关的二维应力。
+
+多原子界面要先规定哪些内部坐标可以放松。在固定 ε 下进行[离子弛豫](/Atlas/m/relax/qe/)，再用验收结构做 SCF；开放自由面内晶胞的 vc-relax 会释放施加的形变。若采用冻结坐标做机制对照，就明确称冻结快照，并保留它的残余力。这两种结果回答的结构问题不同。
 
 ## 先确定哪些量可以动
 
@@ -63,7 +69,7 @@ K_POINTS automatic
 
 ## 把短 SCF 串起来，逐点读取输出
 
-本次作业还同时计算了六个剪切应变点，供 [弹性常数与 Born 条件](/Atlas/m/elastic-born/qe/) 使用。下面保留当时完整的提交脚本，十二次 SCF 在同一份 8 进程作业内串行执行。公开文件中的 `<工作目录>` 和 `<qe_bin>` 需要换成自己的位置。
+存档作业另外包含六个剪切点，所以下面完整脚本有十二次 SCF。它们在同一份 8 进程作业内串行执行；本文只读取六个 xx 点。脚本与提交回执是这次 Al 计算的记录。公开文件中的 `<工作目录>` 和 `<qe_bin>` 需要换成自己的位置。
 
 ```console
 maxwell@maxwell:~/al/elastic$ cat run.slurm
@@ -172,7 +178,7 @@ SCF 在七次电子迭代后收敛，估计误差小于 1.5×10⁻¹⁵ Ry。金
 
 ![Al 的六点纵向应变扫描：能量与应力](/Atlas/examples/interface-magnet-strain-doping-scan/figures/strain-scan.png)
 
-右图的纵向应力随应变近似线性，横向应力也发生变化。它可以用来理解 C₁₁、C₁₂ 从哪里来；弹性常数的精度取决于应力斜率对取样的敏感性。后续将 k 网格加密到 24³、32³、40³、48³ 后，应力斜率仍在变化，具体对照见 [弹性计算中的 k 网格检查](/Atlas/m/elastic-born/qe/)。
+右图的纵向应力随应变近似线性，横向应力也发生变化。这说明形变约束确实产生了相应响应。当前采样没有零应变点，也未给出应变下的电子谱或声子，因此不能从能量谷底读出超导的最优应变。切换到异质结时，每个 ε 的内部结构与电子密度都要有独立来源。
 
 要重新画图，解包后进入 `example-pack`，在有 NumPy 和 Matplotlib 的环境运行：
 
@@ -182,11 +188,142 @@ python3 plot_strain.py
 
 [完整绘图脚本](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
 
-## 对照文献中的分析方法
+## 从应变结构比较电荷与电子态
 
-该材料案例的结构与能量步骤使用 VASP，电子和光学步骤使用 WIEN2k，见原文 Computational details。它通过应变改变半导体带隙；本页 Al 读取力学响应，应按所求物理量分别组织。
+ZrCl₂/Sc₂C 的供受层共同形成新的电子态。应变改变键长和层间距离，既可能改变电荷平衡，也可能改变轨道杂化。比较两应变的 PDOS 前，先保留每态的结构、电子数、赝势、k 网格、SCF 展宽和 projwfc 展宽。各态以自己的 EF 对齐可以比较近 EF 谱形，绝对带偏移则要接[静电势参考](/Atlas/m/electrostatic-potential/vasp/)；这两种能量基准不能混用。
 
-Alqurashi 等，*The effect of uniaxial compressive and tensile strains on the structural, dynamical, electronic, and optical properties of ZrCl₂ monolayer: Ab-initio calculations*，[DOI: 10.1016/j.chphi.2025.100828](https://doi.org/10.1016/j.chphi.2025.100828)，Table 1 给出实际应变样本的结构与带隙，Fig. 4 绘制带隙随应变变化。该文分析的是 ZrCl₂ 电子响应；本例读取三维 Al 的 F 与应力，纵轴物理量不同。可借鉴的是把实际采样值与明确应变定义对应起来。本页曲线只连接六个 xx 样本，能量零点取最低采样 F，应力保留拉伸为正的单位约定。
+已有四态对照在 0% 和 +1.5% 下，分别计算完整异质结与冻结在对应几何的中性 Sc₂C 层。它使用 QE 7.2、100/800 Ry、32×32×1 k 网格，SCF Gaussian 展宽 0.0037 Ry；projwfc 展宽 0.0022 Ry，能量步长 0.005 eV。异质结原子 #2 C 与 #5–6 Sc 合成 Sc₂C 层，#1 Zr 与 #3–4 Cl 合成 ZrCl₂ 层。完整协议与原子映射见[四态说明](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/README.txt)，操作接[投影与布居](/Atlas/m/population-analysis/qe/)。
+
+下表直接读取已经公开的[能量分辨 PDOS](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos_long.csv)，选择离各自 EF 最近的网格点；没有对 EF 处插值。层投影与总投影的单位均为 states/(eV·cell)。
+
+| 冻结体系 | 应变 | 最近 E−EF / eV | Sc₂C 层投影 | ZrCl₂ 层投影 | 总投影 |
+|---|---:|---:|---:|---:|---:|
+| 异质结 | 0% | +0.0008 | 2.564971 | 2.222928 | 4.78 |
+| 中性孤立 Sc₂C | 0% | +0.0008 | 4.232280 | — | 4.23 |
+| 异质结 | +1.5% | −0.0023 | 2.080865 | 2.459610 | 4.54 |
+| 中性孤立 Sc₂C | +1.5% | +0.0022 | 4.477110 | — | 4.48 |
+
+异质结的近 EF Sc₂C 层投影从 2.564971 降至 2.080865，而匹配几何的孤立 Sc₂C 从 4.232280 升至 4.477110。界面中的层谱变化与中性孤立层的形变响应不同，值得沿完整能窗检查杂化。这里列的是最近能量点的投影态密度，不能把它称为自由载流子数、Bader 电荷或精确 N(EF)。原始父快照的最大残余力为 2.40×10⁻⁴ 与 1.20×10⁻⁴ Ry/Bohr，未达到原力阈值，所以这个对照解释冻结几何的电子响应。
+
+应变扫描与改变电子数是两个独立控制变量。中性异质结中的层间重排发生在固定总电子数下；带电单层则还需说明电子数、面积与带电边界，不能将 Bader 分区转移量直接设为带电单层的等效自由载流子数。
+
+要判断应变是否改变层间净转移量，需在每个 ε 下使用同一几何、网格和密度约定的完整界面与两份孤立层密度，接[三密度差分](/Atlas/m/delta-charge/vasp/)和[Bader 分区](/Atlas/m/bader/vasp/)。现有密度操作示例使用 VASP 文件；QE 密度仍需保留自身导出、网格和单位来源。单看某层 PDOS 下降，不能确定该层失去了多少电子。若讨论间隙电子的空间重分布，再接[ELF](/Atlas/m/elf/vasp/)与明确能窗的部分电荷密度；裸 Sc₂C 单层的身份也要由自己的空间证据判断。
+
+这张表可在纯 Python 环境重新提取，不调用 DFT 或绘图程序。下载[inspect_frozen_pdos.py](/Atlas/examples/research-strain/inspect_frozen_pdos.py)，把上面的能量分辨 CSV 放在同一目录，执行 python3 inspect_frozen_pdos.py。脚本逐态检查能量轴、有限数值与层投影闭合，输出[近 EF 表](/Atlas/examples/research-strain/nearest-fermi-pdos.csv)和[核对摘要](/Atlas/examples/research-strain/nearest-fermi-pdos.json)。完整源码和真实运行结果见下文。
+
+## 把电子变化接到声子、EPC 和 Tc
+
+[Qiu 等，Phys. Rev. B 105, 165101](https://doi.org/10.1103/PhysRevB.105.165101)提供了直接相关的 Ba₂N 双轴应变分析。原文 PDF 第 4 页的 Fig. 4 将 DOS/PDOS 与 [−0.1,0] eV 部分电荷密度并列，等值面为 0.0005 e/Å³；空间图用来检验近 EF 电子由表面向层内重新分布。这个能窗电荷不同于完整价电子密度，也不同于异质结的三密度差分。
+
+同页 Fig. 5 同时比较 N(0)、ωlog、λ 和 Tc。把 ωlog 与 λ 一起看，才能解释声子软化的两种作用：低频权重在 λ=2∫α²F(ω)/ω dω 中被放大，同时 ωlog 可能降低。Fig. 3（PDF 第 3 页）是无应变参照，Fig. 6（第 5 页）是 +4% 的声子、PHDOS、α²F 和振型；作者把 K 点软支与约 24 cm⁻¹ 的谱峰联系起来，并用振型说明哪些原子在运动。应变正文借鉴的是这条量与量之间的核对方式。Ba₂N 的转变温标属于原论文，不移作 ZrCl₂/Sc₂C 的结果。
+
+对于异质结，应先在统一结构与协议下对照[声子色散及模式](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)与[α²F、累计 λ](/Atlas/m/eliashberg-a2f/qe/)，再按同一 μ*、积分谱窗和展宽比较[Tc](/Atlas/m/allen-dynes/qe/)。模式编号可能随应变交换，追踪软化应结合位移或简并子空间，不能只相减“第几支”。
+
+现有 +2/+3% 的 K 点负频提示需要检查稳定范围；不能删除负频以后补一个 Tc。0/+1/+1.5% 历史代表 Tc 又分别取自不同展宽，旧谱窗也有截断问题，因此本文不把它们连成已收敛的应变增益曲线。Γ 点复核只能约束 Γ，完整布里渊区的软模与 EPC 仍要保留各自的验收范围。若研究物理上的非谐稳定化，先读[虚频诊断](/Atlas/m/imaginary-phonon/qe/)，确认数值与结构原因，再决定是否需要有限温度方法。
+
+## 重提冻结 PDOS 表的源码与结果
+
+输入 CSV 一行对应一个状态的一个能量点，包含各自 EF、E−EF、两层投影与总投影。程序选择绝对 E−EF 最小的一行，不插值、不平滑，不将 PDOS 积分叫作转移电荷。近 EF ±0.1 eV 的层投影闭合误差以绝对差之和除以总投影绝对值之和定义。
+
+可以据此提出明确的写码需求：
+
+```text
+编写纯 Python 3 程序，读取 frozen_pdos_long.csv。每态独立检查 0.005 eV 的递增能量网格、单一 strain_percent 与 fermi_eV、有限值和投影差列；选择最近 EF 的实际网格点，保留其 E-EF 偏移和两层/总投影，单位 states/(eV cell)。计算 ±0.1 eV 内的投影闭合 L1 相对误差。输出四态 CSV、JSON 与实际读取摘要，不补精确 EF 值，不调用 DFT，不作图。
+```
+
+<details>
+<summary>inspect_frozen_pdos.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Inspect accepted frozen-control PDOS tables; no DFT or plotting."""
+from pathlib import Path
+import csv, json, math, sys
+root = Path(__file__).resolve().parent
+source = Path(sys.argv[1]) if len(sys.argv) > 1 else root / "frozen_pdos_long.csv"
+expected = ["Heterostructure 0%", "Isolated Sc2C 0%",
+            "Heterostructure +1.5%", "Isolated Sc2C +1.5%"]
+groups = {name: [] for name in expected}
+with source.open(newline="") as handle:
+    reader = csv.DictReader(handle)
+    names = ["strain_percent", "fermi_eV", "energy_minus_fermi_eV",
+             "sc2c_pdos", "zrcl2_pdos", "total_projected_pdos",
+             "projected_sum_error"]
+    if not set(["state"] + names).issubset(reader.fieldnames or []):
+        raise ValueError("Missing PDOS fields")
+    for item in reader:
+        state = item["state"]
+        if state not in groups:
+            raise ValueError("Unknown state: " + state)
+        values = {k: float(item[k]) for k in names}
+        if not all(math.isfinite(v) for v in values.values()):
+            raise ValueError("Non-finite PDOS row")
+        discrepancy = values["sc2c_pdos"] + values["zrcl2_pdos"] - values["total_projected_pdos"]
+        if abs(discrepancy - values["projected_sum_error"]) > 1e-10:
+            raise ValueError("Saved projection mismatch differs")
+        groups[state].append(values)
+rows, checks = [], []
+for state in expected:
+    data = groups[state]
+    if not data:
+        raise ValueError("Empty state: " + state)
+    if len({x["strain_percent"] for x in data}) != 1 or len({x["fermi_eV"] for x in data}) != 1:
+        raise ValueError("Mixed strain or Fermi reference")
+    energy = [x["energy_minus_fermi_eV"] for x in data]
+    steps = [b-a for a,b in zip(energy[:-1],energy[1:])]
+    if not steps or min(steps) <= 0 or max(abs(x-0.005) for x in steps) > 1e-8:
+        raise ValueError("Unexpected energy grid")
+    if not min(energy) < 0 < max(energy):
+        raise ValueError("Grid does not bracket EF")
+    near = min(data, key=lambda x: abs(x["energy_minus_fermi_eV"]))
+    if abs(near["energy_minus_fermi_eV"]) > 0.0025 + 1e-8:
+        raise ValueError("No near-Fermi grid point")
+    window = [x for x in data if abs(x["energy_minus_fermi_eV"]) <= 0.1]
+    denominator = sum(abs(x["total_projected_pdos"]) for x in window)
+    if not window or denominator <= 0:
+        raise ValueError("Invalid closure window")
+    closure = 100 * sum(abs(x["projected_sum_error"]) for x in window) / denominator
+    row = {"state": state, "strain_percent": near["strain_percent"],
+           "nearest_E_minus_EF_eV": near["energy_minus_fermi_eV"],
+           "sc2c_pdos": near["sc2c_pdos"], "zrcl2_pdos": near["zrcl2_pdos"],
+           "total_projected_pdos": near["total_projected_pdos"]}
+    rows.append(row)
+    checks.append({"state":state, "rows":len(data), "grid_step_eV":steps[0],
+                   "L1_projection_error_percent_EF_pm_0p1":closure})
+    print(f'{state}: E-EF={row["nearest_E_minus_EF_eV"]:+.4f} eV; '
+          f'Sc2C={row["sc2c_pdos"]:.6f}; ZrCl2={row["zrcl2_pdos"]:.6f}; '
+          f'total={row["total_projected_pdos"]:.2f} states/(eV cell)')
+with (root/"nearest-fermi-pdos.csv").open("w", newline="") as handle:
+    writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+    writer.writeheader(); writer.writerows(rows)
+result = {"source":source.name, "method":"Nearest grid point; no interpolation at EF",
+          "units":"PDOS: states/(eV cell); E-EF: eV",
+          "reference":"Each state has its own Fermi energy",
+          "scope":"Frozen geometry; projected DOS is not transferred charge",
+          "rows":rows, "checks":checks}
+(root/"nearest-fermi-pdos.json").write_text(json.dumps(result,indent=2)+"\n")
+print("Four frozen-control PDOS states checked; no DFT invoked.")
+```
+
+</details>
+
+在下载数据与脚本的目录执行：
+
+```bash
+python3 inspect_frozen_pdos.py
+```
+
+实际读取输出：
+
+```text
+Heterostructure 0%: E-EF=+0.0008 eV; Sc2C=2.564971; ZrCl2=2.222928; total=4.78 states/(eV cell)
+Isolated Sc2C 0%: E-EF=+0.0008 eV; Sc2C=4.232280; ZrCl2=0.000000; total=4.23 states/(eV cell)
+Heterostructure +1.5%: E-EF=-0.0023 eV; Sc2C=2.080865; ZrCl2=2.459610; total=4.54 states/(eV cell)
+Isolated Sc2C +1.5%: E-EF=+0.0022 eV; Sc2C=4.477110; ZrCl2=0.000000; total=4.48 states/(eV cell)
+Four frozen-control PDOS states checked; no DFT invoked.
+```
+
+这里四态的列值与前表一致。总投影取文件原列，层投影相加可能因原始打印精度有微小差别；脚本记录该差，没有强迫每行完全相等。[完整运行输出](/Atlas/examples/research-strain/postprocess.out.txt) · [源码、源 CSV 和核对结果包](/Atlas/examples/research-strain/frozen-pdos-table-pack.tar.gz)。
 
 ## 从原始文件重建结果
 
@@ -288,4 +425,4 @@ python3 plot_strain.py
 
 相关输入说明：[pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
-下一步沿用相同的应变定义检查 k 网格对应力斜率的影响，见 [弹性计算](/Atlas/m/elastic-born/qe/)。
+接下来沿同一组应变结构比较[电子态投影](/Atlas/m/population-analysis/qe/)和[电荷转移](/Atlas/m/delta-charge/vasp/)，再用[声子与 EPC](/Atlas/m/epc/qe/)检验这些电子变化怎样影响振动耦合。

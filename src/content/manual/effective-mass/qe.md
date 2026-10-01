@@ -1,3 +1,5 @@
+接触或掺杂若改变了明确的半导体带边，局部曲率可以描述该能谷的方向响应。下面 Si 的纵横曲率用于这一条件下的基础操作；当前多带金属界面的态来源分析优先读能带、轨道权重和费米面。
+
 有效质量取决于带边附近的局部曲率。Si 的导带谷位于 Γ–X 之间，先由[带隙计算](/Atlas/m/band-gap/qe/)定位其附近区域，再沿谷的纵向和两个横向加密采样。拟合范围应围绕同一个极值点，不能用整条 Γ–X 能带的一条抛物线代替局部曲率。
 
 [Yates 等 Eq. (24) 与 Fig. 2](https://arxiv.org/pdf/cond-mat/0702554)给出逆质量张量与能带 Hessian 的关系，并以 Pb 比较不同求导方式。本页用 Si 谷底的直接 DFT 采样做局部抛物线拟合；纵横两个方向的曲率回答同一能谷的惯性响应如何随方向变化。迁移率还需要散射时间等信息。
@@ -541,17 +543,13 @@ if __name__=='__main__':
 
 左图以谷底为能量参考显示局部曲率；右图比较三个拟合窗口。残差衡量局部二次近似，窗口与父密度对照给出这组质量的数值敏感性。
 
-## 文献中对能带曲率与费米速度分布的展示方式
+## 带边曲率在界面分析中的用途
 
-二维鞍点不是局部极大值或极小值：沿两个主曲率方向，能量分别向上和向下弯曲。因此电子曲率质量的两个主值符号相反，不能用一个正的标量质量代表整个鞍点。图中可同时展示局部能量曲面和沿主方向的切线；若讨论空穴质量，还需明确相对于价带顶的符号约定。
+[Yates 等 Eq. (24)、Fig. 2](https://arxiv.org/pdf/cond-mat/0702554)将逆质量写成能量对笛卡尔波矢的 Hessian，并比较两种求导方式。本文真实 Si 谷提供纵横方向的局部曲率及窗口对照，支持带边拟合的基本操作。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="二维鞍点附近沿正交动量方向相反符号的能带曲率与有效质量切面" loading="lazy"/><figcaption>ZrAs<sub>2</sub> 表面态二维鞍点附近的三维色散（c）及沿正交动量方向 X̄→Γ̄（正有效质量，开口向上抛物线）与 X̄→S̄（负有效质量，开口向下抛物线）的相反能带曲率切面（e）。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4c,e，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+当具体材料问题是半导体带边或刚开始填充的简单口袋时，可以在已定位的同一极值附近比较接触/掺杂前后的曲率。ZrCl₂/Sc₂C 当前是多带金属，不能将这套 Si 纵向质量作为其界面电子态的替代量；近 E_F 的分支来源、费米口袋和速度更直接对应当前分析。
 
-对于金属，费米面上的局部速度由 v<sub>F</sub>(k) = (1/ℏ)∇<sub>k</sub>E(k) 给出。将速度模长映射到费米面轮廓上，可以辨认不同口袋上的快慢区域。它与带边曲率质量描述的是不同量；讨论输运还需要相应的占据和散射信息。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="二维过渡金属氮化物的低能能带色散、态密度与映射在二维费米面轮廓上的费米速度分布" loading="lazy"/><figcaption>单层二维过渡金属氮化物的低能能带色散、总态密度以及映射在二维费米面轮廓上的费米速度 <em>v</em><sub>F</sub>(<strong>k</strong>) 分布。引自 Bekaert 等人，<em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
-
-下一步：可跳到[三维能带采样](/Atlas/m/band-3d/qe/)检查谷的空间形状，或回到[带隙](/Atlas/m/band-gap/qe/)核对带边位置；[载流子迁移率](/Atlas/m/carrier-mobility/qe/)还需要散射模型或电子声子信息。
+带交叉、鞍点和非抛物线区应保留质量张量及局部拟合范围；一个正标量质量不能表示整个鞍点。有效质量也没有包含散射，不能直接换算迁移率。回到[能带](/Atlas/m/bands/qe/)与[费米面](/Atlas/m/fermi-surface/qe/)选择与具体电子态相符的量。
 
 ```text
 SCF 密度 → 找到导带谷 → 沿各方向密集 k 点

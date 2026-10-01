@@ -1,19 +1,17 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import ArticleBody from '../../../components/ArticleBody.astro';
-import { engines, methods, methodList, normalizeBase, methodRouteAliases } from '../../../data/methods.js';
+import { engines, methods, routeMethodList, normalizeBase, methodRouteAliases } from '../../../data/methods.js';
 import { manualTeaching } from '../../../data/teaching.js';
 import { availableManualIds, loadManualBody } from '../../../lib/manual.js';
-export function getStaticPaths() {
-  const routes = methodList().flatMap((method) => engines.filter((engine) => method.engines.includes(engine.id)).map((engine) => ({ params: { method: method.slug, engine: engine.id }, props: { m: method, e: engine } })));
+export async function getStaticPaths() {
+  const available = await availableManualIds();
+  const routes = routeMethodList().flatMap(method => engines.filter(engine => available.has(`${method.slug}/${engine.id}`)).map(engine => ({params:{method:method.slug, engine:engine.id}, props:{m:method, e:engine}})));
   for (const [oldSlug, canonical] of Object.entries(methodRouteAliases)) {
-    const method = { slug: canonical, ...methods[canonical] };
-    for (const engine of engines.filter(engine => method.engines.includes(engine.id)))
-      routes.push({ params: { method: oldSlug, engine: engine.id }, props: { m: method, e: engine } });
+    const method = {slug:canonical, ...methods[canonical]};
+    for (const engine of engines.filter(engine => available.has(`${canonical}/${engine.id}`)))
+      routes.push({params:{method:oldSlug, engine:engine.id}, props:{m:method, e:engine}});
   }
-  const model = engines.find(engine => engine.id === 'model');
-  for (const legacyEngine of ['qe', 'vasp'])
-    routes.push({ params: { method: 'bkt-scaling', engine: legacyEngine }, props: { m: { slug: 'bkt-scaling', ...methods['bkt-scaling'] }, e: model } });
   return routes;
 }
 const { m, e } = Astro.props;

@@ -2,8 +2,7 @@
 import Base from '../layouts/Base.astro';
 import CowCat from '../components/CowCat.astro';
 import MethodDirectory from '../components/MethodDirectory.astro';
-import { normalizeBase, methodList } from '../data/methods.js';
-import { calculationQuestions } from '../data/questions.js';
+import { normalizeBase } from '../data/methods.js';
 import '../styles/home.css';
 const base = normalizeBase(import.meta.env.BASE_URL);
 ---
@@ -16,84 +15,32 @@ const base = normalizeBase(import.meta.env.BASE_URL);
    </button>
    <div class="welcome-title" aria-hidden="true"><span class="welcome-kicker">Atlas</span><span class="welcome-caption">计算手册</span></div>
   </div>
-  <section id="dir" class="reading-desk" aria-label="计算问题与目录" aria-hidden="true" inert hidden>
+  <section id="dir" class="reading-desk" aria-label="README 与性质目录" aria-hidden="true" inert hidden>
    <div class="desk-heading">
-    <div><p class="eyebrow">ATLAS / 计算手册</p><h1>从哪个问题开始？</h1></div>
+    <div><p class="eyebrow">ATLAS / DFT</p><h1>材料性质</h1></div>
     <nav class="desk-links" aria-label="阅读入口">
      <a href={`${base}/readme/`}>README <span aria-hidden="true">↗</span></a>
      <a href={`${base}/learn/si/`}>从 Si 开始 <span aria-hidden="true">↗</span></a>
      <a href={`${base}/software/`}>软件算例 <span aria-hidden="true">↗</span></a>
     </nav>
    </div>
-   <div class="question-grid">
-    {calculationQuestions.map((q, i) => <button class="question" type="button" data-question data-methods={q.methods.join(' ')} data-title={q.title} aria-controls="method-directory" aria-expanded="false">
-     <span class="question-number">{String(i+1).padStart(2,'0')}</span>
-     <span class="question-copy"><strong>{q.title}</strong><span>{q.detail}</span></span>
-     <span class="question-arrow" aria-hidden="true">↗</span>
-    </button>)}
-   </div>
-   <details class="full-directory" id="method-directory">
-    <summary><span id="directory-title">完整计算目录</span><span class="directory-total">{methodList().length} 个方法 <span class="directory-chevron" aria-hidden="true">⌄</span></span></summary>
-    <div class="directory-toolbar"><button id="show-all" type="button" hidden>显示全部方法</button><a href={`${base}/software/`}>查看各软件的算例</a></div>
-    <MethodDirectory />
-   </details>
+   <MethodDirectory />
   </section>
-  <noscript><p class="noscript-entry"><a href={`${base}/readme/`}>README</a> · <a href={`${base}/catalog/`}>计算目录</a> · <a href={`${base}/learn/si/`}>从 Si 开始</a></p></noscript>
+  <noscript><p class="noscript-entry"><a href={`${base}/readme/`}>README</a> · <a href={`${base}/catalog/`}>性质目录</a> · <a href={`${base}/learn/si/`}>从 Si 开始</a></p></noscript>
  </div>
 </Base>
 <script>
  const home=document.getElementById('atlas-home');
  const cat=document.getElementById('cat-toggle');
  const desk=document.getElementById('dir');
- const directory=document.getElementById('method-directory') as HTMLDetailsElement|null;
- const search=document.getElementById('method-search') as HTMLInputElement|null;
- const questions=Array.from(document.querySelectorAll<HTMLButtonElement>('[data-question]'));
- const entries=Array.from(document.querySelectorAll<HTMLElement>('[data-method-entry]'));
- const groups=Array.from(document.querySelectorAll<HTMLElement>('[data-method-group]'));
- const label=document.getElementById('selection-label');
- const result=document.getElementById('search-result');
- const noResults=document.getElementById('no-results');
- const showAll=document.getElementById('show-all');
- const directoryTitle=document.getElementById('directory-title');
- let selected:Set<string>|null=null;
- const setUrl=() => {
-  const u=new URL(location.href);
-  const open=cat?.getAttribute('aria-expanded')==='true';
-  if(open){u.searchParams.set('open','1');u.searchParams.set('view',directory?.open?'directory':'questions');}
-  else{u.searchParams.delete('open');u.searchParams.delete('view');}
-  history.replaceState(null,'',u);
- };
  const setOpen=(open:boolean,update=true) => {
   if(!cat||!desk||!home)return;
   cat.setAttribute('aria-expanded',String(open));
-  cat.setAttribute('aria-label',open?'收起计算问题与目录':'点击小猫，打开计算手册');
+  cat.setAttribute('aria-label',open?'收起性质目录':'点击小猫，打开计算手册');
   desk.hidden=!open;desk.inert=!open;desk.setAttribute('aria-hidden',String(!open));
   home.classList.toggle('is-open',open);
-  if(update)setUrl();
+  if(update){const url=new URL(location.href);url.searchParams.delete('view');if(open)url.searchParams.set('open','1');else url.searchParams.delete('open');history.replaceState(null,'',url);}
  };
- const filter=() => {
-  const terms=(search?.value??'').normalize('NFKC').toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
-  let n=0;
-  for(const e of entries){const match=(!selected||selected.has(e.dataset.slug??''))&&terms.every(t=>(e.dataset.search??'').includes(t));e.hidden=!match;if(match)n++;}
-  for(const g of groups)g.hidden=!Array.from(g.querySelectorAll<HTMLElement>('[data-method-entry]')).some(e=>!e.hidden);
-  if(result)result.textContent=terms.length?`${n} 个方法`:'';
-  if(noResults)noResults.hidden=n>0;
- };
- cat?.addEventListener('click',()=>{const opening=cat.getAttribute('aria-expanded')!=='true';if(opening&&directory)directory.open=false;setOpen(opening);});
- for(const q of questions)q.addEventListener('click',()=>{
-  selected=new Set((q.dataset.methods??'').split(' '));
-  for(const b of questions){b.classList.toggle('selected',b===q);b.setAttribute('aria-expanded',String(b===q));}
-  if(label){label.textContent=q.dataset.title??'';label.hidden=false;}
-  if(showAll)showAll.hidden=false;
-  if(directoryTitle)directoryTitle.textContent='这个问题的相关方法';
-  if(search)search.value='';
-  if(directory)directory.open=true;
-  filter();setUrl();
-  directory?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
- });
- showAll?.addEventListener('click',()=>{selected=null;if(directoryTitle)directoryTitle.textContent='完整计算目录';if(label)label.hidden=true;showAll.hidden=true;for(const q of questions){q.classList.remove('selected');q.setAttribute('aria-expanded','false');}filter();});
- search?.addEventListener('input',filter);
- directory?.addEventListener('toggle',setUrl);
- const u=new URL(location.href);
- if(u.searchParams.get('open')==='1'){setOpen(true,false);if(directory)directory.open=u.searchParams.get('view')!=='questions';}
+ cat?.addEventListener('click',()=>setOpen(cat.getAttribute('aria-expanded')!=='true'));
+ if(new URL(location.href).searchParams.get('open')==='1')setOpen(true,false);
 </script>

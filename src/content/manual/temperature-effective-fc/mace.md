@@ -1,8 +1,8 @@
-热运动会采样平衡位置周围的一片势能面。这里要判断的是：从 [64 原子 Si 的 MACE 轨迹](/Atlas/m/mlip-md/mace/)取出的位移 `u` 和力 `F`，能否用二阶关系 `F ≈ −Φu` 描述？我们拟合 `Φ`，再用 phonopy 输出同一路径的频率，并通过样本数与独立轨迹的力误差检查这份有效模型。
+应变下的声子负频先要从结构、电子采样和二维长波处理诊断；确认它反映真实势能面之后，才有理由研究热涨落或量子涨落是否改变软模。[Ba₂N 原文](https://doi.org/10.1103/PhysRevB.105.165101) Fig. 8 展示 +5% 下 K 点虚频，这是简谐稳定性约束；该文没有用有限温度重整化来消除它。
 
-这条路线叫有限温度有效二阶力常数拟合。这里实际运行的是 MACE、symfc 和 phonopy，没有执行 SSCHA 的变分自由能最小化。需要准备每帧的位移—力数组、原子顺序映射和独立初速度轨迹。拟合后保存完整力常数、色散 CSV 和预测力误差；后面会看到，样本数由 40 增至 60 时，色散仍有可见变化，因此这份结果还不能称为已经收敛的温度重整化声子。
+本文保留一个 MACE–Si 方法存档：从 64 原子轨迹的位移 u 和力 F 拟合 F≈−Φu，再由 phonopy 求同一路径的频率。它回答二阶模型能否描述这批热运动样本。数据来自 MACE-MP-0 small，计算使用 MACE、symfc 和 phonopy；没有 ZrCl₂/Sc₂C 的 DFT 力校准、温度采样或 EPC。
 
-这一拟合思路与 [Hellman 等 TDEP 论文式 (3)–(4)](https://arxiv.org/html/1303.1145)中的位移—力最小二乘关系相近，但本例使用 symfc 和 MACE 数据，没有运行 TDEP 程序，也没有计算该文式 (21)–(22) 的自由能。真正的 [SSCHA](https://doi.org/10.1088/1361-648X/ac066b)按式 (2)–(5)优化试探核密度矩阵的变分自由能；其自由能 Hessian、辅助频率和谱函数需要各自的后处理。本页的有效二阶色散回答的是上述拟合问题。
+[Hellman 等 TDEP 原文](https://arxiv.org/html/1303.1145) Sec. II 的式 (3)–(4) 将 MD 位移—力关系写成最小二乘问题，Sec. III 的 Fig. 1 比较对称性约束下的采样收敛。本文借鉴的是力拟合和样本敏感性检查，没有运行 TDEP 软件或计算其自由能。SSCHA 则优化变分自由能；它的辅助谐频率、自由能 Hessian 频率和动力学谱峰各有定义，不能由本例的 Φ 一次代替。后面的 40/60 帧频率差会具体说明为何力拟合误差较平稳仍不足以接受温度重整化声子。
 
 ## 把参考结构写清楚，再取位移
 
@@ -628,10 +628,6 @@ python3 plot.py
 
 误差随样本数的曲线直接读取 `learning-curve.csv`，三列分别对应训练段、同轨迹后段与独立速度种子，不能合并成一条“测试误差”。力散点使用 `independent-dataset.npz` 中的 MACE 力，以及 `effective-60-independent-prediction.npy` 中二阶模型的预测力；两者按同一帧、原子和分量排列。它比较的是二阶模型与 MACE，图轴不能改写成 DFT 力。
 
-论文排版时，可以把两张复合图分别导出成 `effective-phonons.pdf` 与 `fit-validation.pdf`。在创建画布前设置 Arial/Helvetica、`pdf.fonttype=42`、`svg.fonttype='none'`，并在各次 `plt.close(fig)` 之前保存 PDF；网页 SVG 保持原本可读尺寸。频率轴写成 `Frequency (THz)`，差值轴写成 `Frequency difference (GHz)`，图注说明差的顺序。独立力散点较密，可以只将散点图层栅格化，保留轴线、刻度和文字为矢量。
-
-按照 [Nature 图稿规格](https://research-figure-guide.nature.com/figures/preparing-figures-our-specifications/)移除背景网格时，仍应保留表示高对称点边界的竖线与零频参考线。采样区间的浅色区域表达实际训练和验证时段，也应有明确图例。颜色同时配合实线、虚线或标记；移动图例、精简图内标题可以腾出空间，但不要删掉样本敏感性面板或放大后的 GHz 差值。
-
 ## 把导出的文件重新读回来
 
 [verify.py](/Atlas/examples/mace-si/si-effective-fc/verify.py)单独读取轨迹、位移—力数组和保存的力常数，用普通矩阵乘法重新计算独立误差，再从 YAML 重建 phonopy 对象。读取时明确指定 `is_compact_fc=False`，获得完整的 `(64, 64, 3, 3)` 力常数；默认压缩布局只保留原胞代表原子的行，形状会是 `(2, 64, 3, 3)`，两种布局不能直接按相同数组比较。
@@ -730,36 +726,13 @@ DATA_AND_EXPORT_CHECKS_FINISHED
 
 接下来若继续研究温度效应，应在同一明确晶胞协议下延长平衡与生产段、增加独立种子，检查分块误差和频率是否随数据量稳定，再比较多个温度。固定这一个体积的计算没有包含热膨胀；经典 MD 也没有包含核量子统计。本次 0.5 ps 轨迹和 64 原子超胞尚不足以完成这些检查。
 
-下一步可以回到[机器学习势 MD](/Atlas/m/mlip-md/mace/)延长采样，或沿[有限位移声子](/Atlas/m/phonon-finite-disp/qe/)另做势模型与 DFT 的力和谐性频率对照。若要计算 SSCHA 自由能及其 Hessian，需要另接[SSCHA 官方流程](https://sscha.eu/Tutorials/tutorial_06_the_SSCHA_with_MLP/)，这里的二阶拟合结果不能直接代替那一步。
+## 温度稳定化需要什么材料证据
 
-## 文献中的相关图件与表达方式
+[Chen、Zhang 与 Zheng 的 CoTe₂ 原文](https://doi.org/10.1103/l89c-t2s4) Fig. 1(d) 先展示沿不稳定本征位移的势能面，Fig. 1(e) 再比较简谐与 100、200、300 K 的 SSCHA 自由能 Hessian 频率。原文 Computational details 使用为该材料构型训练并核对 DFT 能量、力和压力的深度势，辅助 SSCHA 采样与自由能优化。这个例子说明“有一个势模型”和“温度下接受了稳定性结论”之间需要实际的材料数据。
 
-在强非谐晶格动力学、量子核效应（SSCHA）与软模相变研究中，文献常通过对比简谐虚频与非谐重整化声子谱，或叠加多个温度下的有限温度声子色散，来展示热涨落与量子核涨落对晶格稳定性的影响：
+本例 Si 的 60 帧二阶模型在独立轨迹上的力 RMSE 约为 76.90 meV/Å，40→60 帧仍有 0.214015 THz 的最大频率变化。它适合练习位移—力数组、参考结构映射、独立轨迹与色散敏感性，尚不能确定温度稳定化。更不能将它用作异质结 K 点软模的修正，或将拟合频率直接与旧 EPC 矩阵元拼接计算 Tc。
 
-### 1. 简谐虚频、SSCHA 辅助频率与含线宽展宽的非谐动力学频率对比
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg" alt="H₃S 简谐虚频声子谱与 SSCHA 辅助频率、非谐动力学频率及线宽展宽的上下叠排对比，以及 LaH₁₀ 畸变 C2 与高对称 Fm-3m 笼状结构对比" loading="lazy"/><figcaption>超导氢化物的量子非谐晶格动力学表征：(a) 下方为 H₃S 的非稳定简谐声子色散（灰色阴影标出 <code>ω &lt; 0</code> 虚频区），上方叠绘 SSCHA 辅助频率（绿色虚线）、非谐动力学频率 <code>Ω_ν(q)</code>（红色实线）及非谐线宽展宽 <code>2Γ_ν(q)</code>（粉色阴影带）；(b) 畸变 <code>C2</code> 相与高对称 <code>Fm-3m</code> 相 LaH₁₀ 氢笼结构的对比。图片来源：Monacelli et al., <em>J. Phys.: Condens. Matter</em> <strong>33</strong>, 363001 (2021), Fig. 8，<a href="https://doi.org/10.1088/1361-648X/ac066b" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac066b</a>。</figcaption></figure>
-
-子图 (a) 下方是 H₃S 的简谐声子谱，灰色区域标出虚频；上方绿色虚线是 SSCHA 优化所得的辅助谐频率。红色实线和粉色阴影则来自动力学谱函数在 Lorentzian 近似下的峰位与线宽，见 Monacelli 等人的 Fig. 8。这三种频率来自不同定义；辅助谐频率本身不是自由能 Hessian 的本征频率。
-
-### 2. 单层 1L-CoTe₂ 的简谐虚频与多温度非谐声子色散叠绘
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_TempEvolution_CoTe2_Chen2026_Fig1e.jpg" alt="单层 1L-CoTe₂ 的简谐声子谱（黑色，含浅黄色背景虚频区）与 100 K、200 K、300 K 有限温度非谐声子色散对比" loading="lazy"/><figcaption>单层 1L-CoTe₂ 的声子色散随温度演化：黑色曲线为简谐近似声子谱（浅黄色背景标示虚频软模区），绿色、蓝色与红色曲线分别为 100 K、200 K 与 300 K 下的有限温度非谐声子谱。图片来源：Chen, Zhang, and Zheng (2026), Fig. 1(e)。</figcaption></figure>
-
-Chen、Zhang 与 Zheng 的《Interlayer-coupling-driven stabilization and superconductivity in bilayer CoTe₂》中，Fig. 1(e) 将简谐结果与 100、200、300 K 的 SSCHA 自由能 Hessian 频率放在同一路径上比较，显示软模随温度升高硬化。论文的计算使用深度势辅助 SSCHA 构型采样与自由能优化；与本页从短经典 MD 轨迹拟合二阶力常数相比，它计算的是不同的量。
-
-```text
-已核验模型与结构
-    ↓
-明确立方参考 ─→ ±0.01 / ±0.005 Å 小位移谐性基线
-    ↓
-旧轨迹位移映射 → 在新构型上重算 MACE 力
-    ↓
-20 / 40 / 60 帧有效二阶力常数
-    ├→ 同轨迹后段验证
-    ├→ 独立速度种子轨迹验证
-    └→ phonopy 色散 → 样本数与频率变化检查
-```
+对研究体系，首先沿[虚频诊断](/Atlas/m/imaginary-phonon/qe/)核查稳定性，保留相同结构、完整动力学矩阵与本征位移。需要有限温度路线时，再决定采用经典热采样的有效力常数，还是包含核量子统计的 SSCHA；对应的力模型必须覆盖本体系和所研究应变、温度附近的构型，并以 DFT 力和目标软模核对。固定体积计算不含热膨胀，经典 MD 不含核量子统计，结论应依其实际采样和频率定义表述。
 
 ## 参考资料
 

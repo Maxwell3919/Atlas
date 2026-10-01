@@ -1,0 +1,16 @@
+diff --git a/src/wanniercenter_adaptive.f90 b/src/wanniercenter_adaptive.f90
+index 801e5ae..ce6f0ca 100644
+--- a/src/wanniercenter_adaptive.f90
++++ b/src/wanniercenter_adaptive.f90
+@@ -846,7 +846,11 @@
+                nnz= splen
+               
+                ritzvec= .true.
++#if defined (INTELMKL)
+                call arpack_sparse_coo_eigs(Num_wann,nnzmax,nnz,acoo,jcoo,icoo,neval,nvecs,eigenvalue,shiftsigma, zeigv, ritzvec)
++#else
++               stop "Adaptive sparse Wilson loops require an INTELMKL build"
++#endif
+                kline_integrate(ik1)%eig_vec(1:Num_wann, 1:NumberofSelectedOccupiedBands)= &
+                   zeigv(1:Num_wann, Selected_Occupiedband_index(1):Selected_Occupiedband_index(NumberofSelectedOccupiedBands))
+ 

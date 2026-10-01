@@ -1,6 +1,8 @@
+DFT+U 的使用取决于具体材料的局域关联与参数依据。下面 VGe₂P₄ 的一份真实 SCF 用于读懂作用轨道和 Ueff 回显；它没有为当前研究材料提供可转移的 U 值。
+
 局域 d 轨道的占据会影响带隙、磁矩和电子态；DFT+U 通过对这些轨道的占据矩阵加入能量修正来改变自洽解。本例读取 VGe₂P₄ 的一份静态结果，用 Dudarev 形式把 Ueff=U−J=3 eV 加到 V 的 d 轨道，核对元素顺序、轨道与程序读入参数，再读取电子迭代、能量和磁矩。这份记录回答指定 Ueff 下实际算出了什么；Ueff 对该材料性质的影响还需同协议的多点比较。
 
-[Hubbard U 高通量研究](https://doi.org/10.1038/s41524-024-01503-3)的 Computational methods 中 Eq. (1) 定义 Ueff=U−J，Eq. (2) 写出占据矩阵修正 Ueff Tr(ρ−ρ²)/2；它解释了为什么要核对受修正的元素和轨道。文中的 Fig. 1 比较多种材料的 U 依赖，计算采用 GPAW，广泛比较用 Ueff=4 eV；这些选择没有为本例 VGe₂P₄ 的 3 eV 提供材料专属标定。VASP 的对应实现见 [LDAUTYPE=2](https://vasp.at/wiki/LDAUTYPE)。
+[Hubbard U 高通量研究](https://doi.org/10.1038/s41524-024-01503-3)的 Computational methods 中 Eq. (1) 定义 Ueff=U−J，Eq. (2) 写出占据矩阵修正 Ueff Tr(ρ−ρ²)/2；它解释了为什么要核对受修正的元素和轨道。计算采用 GPAW，并对指定 3d 元素使用 Ueff=4 eV；这些选择没有为本例 VGe₂P₄ 的 3 eV 提供材料专属标定。VASP 的对应实现见 [LDAUTYPE=2](https://vasp.at/wiki/LDAUTYPE)。
 
 [下载本例的输入与原始输出](/Atlas/examples/interface-magnet-dft-plus-u/example-pack.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
 
@@ -159,7 +161,7 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
 
 ## 对照文献中的分析方法
 
-*Effect of Hubbard U-corrections on the electronic and magnetic properties of 2D materials: a high-throughput study*，[DOI: 10.1038/s41524-024-01503-3](https://doi.org/10.1038/s41524-024-01503-3)，Fig. 1 用代表性体系比较性质随 U 的变化，Fig. 5 比较 PBE/PBE+U 各向异性；正文先分析七个代表体系的 U 依赖，再为广泛比较选 U=4 eV。本例是一份 Ueff=3 eV 的 SCF，适合核对元素—轨道—参数及实际输出。评估 U 对性质的影响需要相同协议下的多个 U 点。LASPH 与 LMAXMIX 的设置依据分别见 [LASPH](https://vasp.at/wiki/LASPH) 和 [LMAXMIX](https://vasp.at/wiki/LMAXMIX) 官方说明。
+*Effect of Hubbard U-corrections on the electronic and magnetic properties of 2D materials: a high-throughput study*，[DOI: 10.1038/s41524-024-01503-3](https://doi.org/10.1038/s41524-024-01503-3)，Methods 的 Eq. (1) 定义 Ueff，Eq. (2) 写出占据矩阵的修正项；原文选取的元素和 U=4 eV 属于自己的计算协议。本例是一份 Ueff=3 eV 的 SCF，适合核对元素—轨道—参数及实际输出。评估 U 对性质的影响需要相同协议下的多个 U 点。LASPH 与 LMAXMIX 的设置依据分别见 [LASPH](https://vasp.at/wiki/LASPH) 和 [LMAXMIX](https://vasp.at/wiki/LMAXMIX) 官方说明。
 
 ```text
 确定结构、元素顺序与 U 的来源
@@ -224,4 +226,4 @@ python3 summarize_dftu.py
 
 相关输入说明：[VASP：DFT+U](https://vasp.at/wiki/DFT%2BU) · [LDAUTYPE](https://vasp.at/wiki/LDAUTYPE) · [LMAXMIX](https://vasp.at/wiki/LMAXMIX) · [MAGMOM](https://vasp.at/wiki/MAGMOM)
 
-下一步接 [磁基态比较](/Atlas/m/magnetic-gs/vasp/)，在同一 U 下比较不同初始磁构型最终收敛到的状态。若继续做 VASP 能带或 DOS，应先按上一段重新生成含所需局域占据矩阵的 CHGCAR，并沿用相同的结构、PAW 与 U 设置。
+这份 VGe₂P₄ 存档只验证 Ueff=3 eV 的一次静态计算，不提供当前 ZrCl₂/Sc₂C 或 SnSe₂/Sr₂N 的 U 标定。仅当具体材料的局域关联证据、采用协议或独立响应计算要求修正时，才把 DFT+U 纳入近费米态比较；不能因为有过渡金属 d 轨道就套用 3 eV。随后能带、DOS 和界面对照都要沿用同一 U、几何和投影定义，且先重新生成可保存 d 占据矩阵的父密度。

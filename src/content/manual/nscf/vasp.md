@@ -2,9 +2,9 @@
 
 六原子 SnSe₂/Sr₂N 异质薄层先在均匀网格上做 SCF 并保存密度，再用 `ICHARG=11` 求固定密度的本征态与 DOS。问题是给定构型在这一模型下的态密度分布，取样与能量轴均从真实输出读取。
 
-父子记录都使用 18×18×1 网格；本例展示固定密度文件接续，没有做加密网格实验。记录由 bcgong 上 VASP 5.4.4 于 2025 年 6 月 3 日执行，下面按存档文件读取结果。固定背景下仍需解本征值问题，见 [QE 方法论文附录 A.2 式 (A.8)](https://doi.org/10.1088/0953-8984/21/39/395502)；VASP 密度读取和 PAW 一中心信息规则见 [ICHARG](https://vasp.at/wiki/ICHARG)。
+父子记录都使用 18×18×1 网格；本例展示固定密度文件接续，没有做加密网格实验。记录由 bcgong 上 VASP 5.4.4 于 2025 年 6 月 3 日执行，下面按存档文件读取结果。固定密度下仍需把本征态求解到停止条件；VASP 如何读取密度及 PAW 一中心信息，见 [ICHARG](https://vasp.at/wiki/ICHARG)。[Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101) Fig. 2(a)–(c)并列能带、DOS 与费米面，说明均匀态密度与路径能带回答不同问题。本例沿用其中对 DOS 的读取思路，分析的是存档中的 SnSe₂/Sr₂N。
 
-[下载父 SCF、固定密度分支与后处理](/Atlas/examples/vasp/snse2-sr2n-nscf-files.tar.gz)。解包得到 `snse2-sr2n-nscf`，含 `scf`、`dos` 和脚本。父 CHGCAR 只保存一份；POTCAR 正文未包含。OUTCAR 开头 PAW 细节回显已移除，计算参数与迭代、数值、结束段保留；运行运行脚本保留原记录中的环境与程序路径。
+[下载父 SCF、固定密度分支与后处理](/Atlas/examples/vasp/snse2-sr2n-nscf-files.tar.gz)。解包得到 `snse2-sr2n-nscf`，含 `scf`、`dos` 和脚本。父 CHGCAR 只保存一份；POTCAR 正文未包含。OUTCAR 开头 PAW 细节回显已移除，计算参数与迭代、数值、结束段保留；运行脚本保留原记录中的环境与程序路径。
 
 ## 先读父结构与自洽输入
 
@@ -34,6 +34,9 @@ Direct
 
 保留全部注释。井号开头的 SOC、DFT+U、NELECT、NEDOS、NSW 等行没有生效；不能把它们当实际参数。`LREAL=A` 是自动实空间投影，原注释误写 reciprocal space，以标签值为准。
 
+
+<details>
+<summary>父 SCF 的完整 INCAR</summary>
 
 ```text
 SYSTEM = SnS2
@@ -138,6 +141,8 @@ SYSTEM = SnS2
 ########################################
 ```
 
+</details>
+
 父 `ISTART=0`，没有生效的 ICHARG 行，实际默认 ICHARG=2，从原子密度开始自洽。`LCHARG=T` 保存父密度，`LWAVE=F` 不写波函数。实际 ISPIN=1、无 SOC、NELECT=51。PAW 元数据：
 
 
@@ -228,6 +233,9 @@ cd dos-rerun
 
 实际子 INCAR 完整内容：
 
+
+<details>
+<summary>固定密度分支的完整 INCAR</summary>
 
 ```text
 SYSTEM = SnS2
@@ -332,7 +340,9 @@ SYSTEM = SnS2
 ########################################
 ```
 
-子分支设置 ICHARG=11、关闭 LCHARG；密度不更新，本征值求解仍需收敛。IBRION=-1、实际 NSW=0 固定几何。ENCUT、展宽、IVDW、LREAL、LMAXMIX 等保持一致。LMAXMIX=4 保留 d 通道的一中心密度信息，CHGCAR 存在不能替代兼容性核验。
+</details>
+
+子分支设置 ICHARG=11、关闭 LCHARG；密度不更新，本征值求解仍需收敛。父子实际均为 18×18×1，因此这里的比较用于确认接续方式，不测量加密网格带来的变化。IBRION=-1、实际 NSW=0 固定几何。ENCUT、展宽、IVDW、LREAL、LMAXMIX 等保持一致。LMAXMIX=4 保留 d 通道的一中心密度信息，CHGCAR 存在不能替代兼容性核验。
 
 子 KPOINTS 完整内容与父相同：
 
@@ -416,7 +426,7 @@ nearest_EF_sample: E-EF=0.06781474 eV; DOS=2.5730 states/eV/cell
 same_POSCAR=True same_KPOINTS=True parent_EDIFF=True child_EDIFF=True
 ```
 
-平均能量间隔约 0.14324 eV。离 EF 最近一行在 E−EF=0.06781474 eV，DOS=2.5730 states/eV/cell；它不是 EF 处的精确插值。高斯展宽与有限能量/k 网格共同影响曲线，不能从单个零值或粗采样谷底提取精确带隙。表用于读取本次态分布，更精细的带边或定量 DOS 要用实际网格对照。
+平均能量间隔约 0.14324 eV。离 EF 最近一行在 E−EF=0.06781474 eV，DOS=2.5730 states/eV/cell；它不是 EF 处的精确插值。高斯展宽与有限能量/k 网格共同影响曲线。若用费米能附近 DOS 解释界面电子态或 EPC 趋势，应直接比较该区域的积分采样和能量分辨率；这里只能报告离 EF 最近的实际样本。把 NEDOS 增大可细化绘出的能量轴，但不会增加 37 个不可约 k 点，也不会改善父密度。
 
 [总 DOS CSV](/Atlas/examples/vasp/snse2-sr2n-nscf/results/total-dos.csv)、[摘要](/Atlas/examples/vasp/snse2-sr2n-nscf/results/summary.json)、[DOSCAR](/Atlas/examples/vasp/snse2-sr2n-nscf/dos/DOSCAR)和 EIGENVAL 随包保留。沿高对称路径的能带需要另建 Line-Mode 分支；本页不可约点是均匀网格采样。
 
@@ -482,3 +492,9 @@ if __name__ == '__main__':
 ```
 
 </details>
+
+## 用同一构型接续投影和空间分析
+
+总 DOS 把六原子胞的各类态相加，2.5730 states/eV/cell 这一行没有说明电子主要位于 SnSe₂、Sr₂N 还是层间区域。[轨道投影例程](/Atlas/m/fatband/vasp/)实际读取三原子孤立 SnSe₂ 的 PROCAR，只提供逐态解析方法参照；六原子 SnSe₂/Sr₂N 的分层分析须使用异质结自身同构型的 PROCAR、EIGENVAL 和路径结果，不能接用该孤立层数据。[差分电荷页](/Atlas/m/delta-charge/vasp/)也提供方法参照：本异质结须准备自身及其匹配冻结组分的密度，再按同一晶胞、坐标与网格相减。层间电子转移量来自相应密度积分或 Bader 分区，不能把费米能附近 DOS 的变化直接当作转移电子数。
+
+沿高对称线求能带时，从本异质结自己的父 SCF 建立独立路径分支。[路径能带例程](/Atlas/m/bands/vasp/)使用的是三原子孤立 SnSe₂，只参照其中路径坐标和 EIGENVAL 的解析方式；其本征值与波函数不是这里的异质结结果。SOC 和自旋纹理也使用与其物理设置相符的父计算。本记录实际 ISPIN=1，SOC 开关没有生效，因此没有产生自旋分裂或自旋纹理结果。

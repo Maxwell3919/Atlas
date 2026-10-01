@@ -37,15 +37,17 @@
     },
     {
       "file": "examples/si-wannier/figures/wannier-spread.pdf",
-      "bytes": 35199,
-      "public_sha256": "58ac3e4199f028da87038dc4673417462f3a20ce3579ad1d7c003d16a52611c4",
-      "source_sha256": "d443f74871d0a5fdee045e8fccdae899813b49d5f85875a86c5cb10e0628441d"
+      "bytes": 21293,
+      "public_sha256": "6b416b97463c15ee91424c0844424ecf2106dbd61b5ca86db4096990347aa421",
+      "prior_source_sha256": "d443f74871d0a5fdee045e8fccdae899813b49d5f85875a86c5cb10e0628441d",
+      "change": "Convert conv_tol \u00c5^2 to plotted bohr^2; raw values unchanged"
     },
     {
       "file": "examples/si-wannier/figures/wannier-spread.png",
-      "bytes": 138147,
-      "public_sha256": "901a1e463aa01a5c6cdba7c8414e826e75bf512fda61a35c19516372a7c705d9",
-      "source_sha256": "827fe8768ddd8b9610febca36240bb0243a171c3aa7abeed8af5f6876f921cfa"
+      "bytes": 157183,
+      "public_sha256": "588184143a6b898105a60bb423124a4c827bbc2c4977038b65d01409863a1f00",
+      "prior_source_sha256": "827fe8768ddd8b9610febca36240bb0243a171c3aa7abeed8af5f6876f921cfa",
+      "change": "Convert conv_tol \u00c5^2 to plotted bohr^2; raw values unchanged"
     },
     {
       "file": "examples/si-wannier/k4/bands.csv",
@@ -451,9 +453,10 @@
     },
     {
       "file": "examples/si-wannier/plot_wannier.py",
-      "bytes": 2880,
-      "public_sha256": "4daa75a6048700472f8bef0116b1f32ff64768f2406bd6a6d692218d3e5e4e00",
-      "source_sha256": "aea729d0d71669608b4873218f5f17f7e552a1bbe1358950e605d961d91117b8"
+      "bytes": 2978,
+      "public_sha256": "fef77511e658bc8cdd85275ccd3f21400d81791726c80ac8effde954660667e7",
+      "prior_source_sha256": "aea729d0d71669608b4873218f5f17f7e552a1bbe1358950e605d961d91117b8",
+      "change": "Convert conv_tol \u00c5^2 to plotted bohr^2; raw values unchanged"
     },
     {
       "file": "examples/si-wannier/prepare_si_wannier.py",
@@ -497,5 +500,11 @@
       "public_sha256": "c1b24afc9ef74a1645afc37d9335f5a45670d2845b89235dadc4a48eb5814f0e",
       "source_sha256": "c1b24afc9ef74a1645afc37d9335f5a45670d2845b89235dadc4a48eb5814f0e"
     }
-  ]
+  ],
+  "display_correction": {
+    "conv_tol_angstrom2": 1e-10,
+    "plotted_threshold_bohr2": 3.571064826093132e-10,
+    "source": "Wannier90 v3.1.0 src/wannierise.F90 lines 534-537 and 798-813",
+    "raw_calculation_files_changed": false
+  }
 }

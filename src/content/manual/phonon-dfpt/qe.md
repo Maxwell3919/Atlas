@@ -1,10 +1,10 @@
-晶胞优化找到的是平衡结构；要知道 fcc Al 的原子偏离平衡位置后怎样振动，还需要能量对原子位移的二阶导数。这里用 DFPT 求电子与原子恢复力的线性响应，从完整 q 网格的动力学矩阵得到声子色散，读取三条声学支及其在 Γ 点附近的行为。
+界面形成后，声子谱的变化可以来自键长、层间相互作用和电子占据的共同变化。先知道哪一支变软，再看参与运动的原子与方向，才能把频率变化接回界面结构。对于六原子原胞的 ZrCl₂/Sc₂C，18 条分支既包含整个异质结的声学运动，也包含层内振动和两层之间的相对运动；一条低频支不能仅按频率命名为层间剪切或呼吸模。
 
-下面用 **fcc Al 单原子原胞**计算 SCF、q 网格动力学矩阵和路径频率。QE 7.5、LDA-PZ、官方 `Al.pz-vbc.UPF` 赝势，晶格由 [Al 的晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax) 得到，立方晶格常数为 3.95606780 Å。这是一个明确的小体系计算示例；它不能替代任意材料自己的电子参数与 q 网格收敛检查。
+下面先用单原子 fcc Al 走通 `ph.x → q2r.x → matdyn.x`。它展示完整 q 网格、原始矩阵与插值色散的文件关系；单原子原胞只有三条声学支，不包含异质结的层间光学模式。Al 采用 QE 7.5、LDA-PZ 和官方 `Al.pz-vbc.UPF`，结构来自 [Al 晶胞优化](/Atlas/m/vc-relax/qe/#al-vc-relax)，立方晶格常数为 3.95606780 Å。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
-[Baroni 等的 DFPT 综述](https://doi.org/10.1103/RevModPhys.73.515)式 (81)–(84) 将力常数、质量与频率联系起来，式 (99) 说明均匀 q 网格如何变换成实空间力常数。这正对应下面的 `ph.x → q2r.x → matdyn.x`。综述 Fig. 3 收录了 Al、Pb、Nb 的金属声子比较；本例的 Al 采用本文列出的 LDA-PZ 协议，用来走通这条计算链。
+[Baroni 等 DFPT 综述](https://doi.org/10.1103/RevModPhys.73.515)式 (81)–(84) 将力常数、质量与频率联系起来，式 (99) 给出均匀 q 网格到实空间力常数的变换。这条关系也决定了后面怎样解释不同原子参与的振动。
 
 ## SCF 目录里要留下什么
 
@@ -320,8 +320,6 @@ maxwell@maxwell:~/al/dfpt$ head -6 al.freq.gp
 编写 plot_phonon.py，从 Al 根目录读取 dfpt/al.freq.gp，要求 161 行、4 列。首列是路径累计距离，后三列为 cm⁻¹ 频率，直接绘制全部三条分支并保留负号。以行 0、40、80、120、160 的距离标 Γ—X—W—L—Γ，画零线和分段界线，输出 figures/phonon-dfpt.png 与 PDF。使用同目录 atlas_plot_style.py，读取文件而不是从示意图拟合曲线。
 ```
 
-下面是算例实际使用的完整源码。
-
 <details>
 <summary>plot_phonon.py 完整源码</summary>
 
@@ -353,54 +351,226 @@ python3 plot_phonon.py
 
 <figure><img src="/Atlas/examples/al/figures/phonon-dfpt.png" alt="Al 的 DFPT 声子色散" loading="lazy"/><figcaption>4×4×4 DFPT q 网格经 q2r 和 matdyn 得到的 Γ—X—W—L—Γ 插值色散。</figcaption></figure>
 
-图中没有明显的有限波矢负频支，这是这一次参数组合下的观察。要把它提升为数值收敛的动力学稳定性证据，需要再检查电子 k 网格、展宽、响应阈值和原始 q 网格，并用直接计算的点核对插值结果。不能靠提高画图取点数来代替这些计算。
+这条路径上三条声学支从 Γ 的零频附近展开，未出现明显的有限 q 负频支。它来自 4³ 原始响应网格；161 个绘图点只是对这组力常数插值。检查某一异常频段时，应把该 q 的直接矩阵与插值结果对应起来，路径加密本身不会增加电子响应信息。
 
-## 二维异质结 SnSe₂/Sr₂N 与 ZrCl₂/Sc₂C：原子质量索引核验与高频轻元素光学支分离
+## 将频率、本征矢和原子位移连起来
 
-在多元素二维异质结的 `ph.x` 与 `matdyn.x` 计算中，`amass(i)` 的顺序必须严格对应 `pw.x` 输入里 `ATOMIC_SPECIES` 的元素声明顺序。因为实空间力常数矩阵 `C_Iα,Jβ(R)` 本身不依赖原子质量，而动力学矩阵对角化求解本征频率时要除以质量平方根：
+动力学矩阵是力常数的质量加权形式。若 `C(q)` 是未除质量的 Fourier 力常数、`M_I` 是原子质量，则
 
-`D_Iα,Jβ(q) = C_Iα,Jβ(q) / sqrt(M_I M_J)`
+$$
+D_{I\alpha,J\beta}(\mathbf q)=\frac{C_{I\alpha,J\beta}(\mathbf q)}{\sqrt{M_I M_J}},\qquad
+D(\mathbf q)e_{\mathbf q\nu}=\omega_{\mathbf q\nu}^{2}e_{\mathbf q\nu}.
+$$
 
-质量索引写错会改变动力学矩阵。对单一元素主导的模式，近似有 `ω_wrong/ω_true ≈ sqrt(M_true/M_wrong)`；混合模式还取决于本征矢。在 **`SnSe₂/Sr₂N`**（[完整排查记录](/Atlas/m/epc/qe/#double-grid-research-record)）中，元素表顺序为 `Sr (87.620)、N (14.007)、Sn (118.71)、Se (78.971)`，而旧输入误将 `amass(2)=118.71` 写了两次，把轻原子 N 当成了重原子 Sn（质量放大 `8.475` 倍，单一 N 运动极限下估算频率降低约 `2.91` 倍）。下图中间面板将旧质量色散 [`srnsnse.wrong_mass.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)（灰虚线）与恢复真实质量后的色散 [`srnsnse.freq.gp`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)（深蓝与锈红实线）叠加在同一坐标系中：错误质量下第 `16–18` 支被压低在 **`4.49–6.70 THz`**（Γ 点为 `4.60、5.56、6.70 THz`）；恢复 `M_N = 14.007` 后，主要由 Sn/Se/Sr 贡献的中低频支（`0–6.65 THz`）几乎不变，而由 N 主导的三条高频光学支（`ν = 16–18`）跃升至 **`7.99–11.94 THz`**（Γ 点为 `7.99、7.99、10.74 THz`，已绘路径跨度 `7.42–11.94 THz`），直接越过了旧 `lambdax.in` 的 `10 THz` 积分上限。
+频率与向量是一对结果：模式编号 ν 必须对应同一个 q、同一次对角化和同一种 ASR 设置。上面的 `.freq.gp` 只有路径距离与频率，没有原子运动；模式归属要回到逐模向量文件。QE 的 `fleig` 保存正交动力学矩阵本征矢 e；`flvec` 保存 e 除以 √M 后逐模归一化的原子位移 u。多元素体系里，轻原子的位移权重会与其本征矢权重不同。[matdyn 字段说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)分别定义了这两个输出。
 
-<figure><img src="/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png" alt="SnSe₂/Sr₂N 质量恢复前后的 DFPT 声子色散、原子分辨 PHDOS 与 q=1,2 逐模耦合" loading="lazy"/><figcaption>SnSe₂/Sr₂N 的 DFPT 声子与后处理诊断：（中）错误质量（M<sub>N</sub> = 118.71，灰色虚线，第 16–18 支位于 4.49–6.70 THz）与真实质量（M<sub>N</sub> = 14.007，实线）下的 Γ–M–K–Γ 声子色散及共享频率轴的原子投影 PHDOS，锈红色高亮恢复后的三条 N 原子主导的高频光学支（7.99–11.94 THz）。</figcaption></figure>
+用 e 做原子或层投影时，某一层 L 的权重为 `W_L = Σ_{I∈L,α}|e_Iα|²`；用归一化 u 做方向分析时，`W_z = Σ_I|u_Iz|²`，面内权重为 `W_xy = Σ_I(|u_Ix|²+|u_Iy|²)`。写图例时应说明所用向量。判断两层相对运动还要看位移的相位：两层沿 z 反向移动才可能构成层间呼吸，两层沿面内反向移动才可能构成层间剪切。仅把同一层的平方权重相加，会丢掉这项信息。
 
-同样地，在 **`ZrCl₂/Sc₂C`**（[双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中，8×8×1 DFPT 网格经 `q2r.x → matdyn.x` 插值得到的色散 [`zrclscc.freq.gp`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp) 在已计算的高对称路径上无虚频：下方 15 条 `Zr/Sc/Cl` 声学与中低频光学支分布在 `0–10.11 THz`（`0–337.2 cm⁻¹`，直接 DFPT q 网格上为 `0–10.02 THz`），中间存在 `10.11–12.49 THz` 的声子带隙，上方 3 条由轻原子 `C` 主导的高频光学支（`ν = 16–18`）分布在 `12.49–17.11 THz`（原始 DFPT 网格上为 `12.38–17.11 THz`）。
+在 Γ 点，整个异质结的三个刚性平移应接近零，而两层之间有恢复力的相对移动可以是低频光学模。这也是为什么不能把 Γ 点所有低频模式都交给 ASR 消去。对于简并模式，单个本征矢的方向可以在简并子空间内变化；比较应变前后的运动时，应比较整组简并模式及其层/方向权重。
 
-## 文献中的 DFPT 声子色散与本征模式图例（附 DOI 溯源）
+## 界面存档中的质量与频段
 
-在展示 DFPT 声子色散时，除了绘制本征频率曲线外，文献常结合**振动方向与元素投影着色**、**软模频率随电子展宽的演化曲线**以及**实空间本征位移矢量与点群不可约表示标注**来分析晶格动力学与结构相变。下面结合四幅文献原图说明常见的数据组织方式：
+ZrCl₂/Sc₂C 的六个原子按 [原始结构输入](/Atlas/examples/zrcl2-sc2c/ph64/pwx.in) 排列为 `Zr, C, Cl, Cl, Sc, Sc`。其中第 1、3、4 个原子构成 ZrCl₂ 层，第 2、5、6 个原子构成 Sc₂C 层。原子序号用于位移与 PHDOS 列；`amass(i)` 的 i 则按 `ATOMIC_SPECIES` 的元素类型顺序，两个索引不能混用。
 
-### 1. 振动方向投影声子色散（面内与面外分量编码）
+已有 8×8×1 q 网格的[路径频率](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.freq.gp)显示，中低频 15 支覆盖约 0–10.11 THz，高频 3 支位于 12.49–17.11 THz。结合[原子 PHDOS](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)，高频段主要投影在 C 上。这个元素归属描述的是谱中的模态组成；若要判定 C 沿面内还是面外移动，或某一支是否改变界面间距，还要读取对应的 e 或 u。这套历史完整 q 分支的公开资源提供输入、路径频率与 PHDOS；下面独立的 +1.5% Γ 对照则提供原始矩阵与完整模式向量。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_DirectionalFatPhonon_NbSi2As4_PRB2025_Fig3b.jpg" alt="按原子振动方向（面内与面外）及元素权重着色的二维材料声子色散谱" loading="lazy"/><figcaption>在 NbSi<sub>2</sub>As<sub>4</sub> 声子色散曲线上用颜色或散点大小区分面内（in-plane）与面外（out-of-plane）振动本征矢分量。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+SnSe₂/Sr₂N 的存档提供了另一种具体问题：旧输入将 N 的类型质量写为 118.71，而真实质量为 14.007。[错误质量色散](/Atlas/examples/snse2-sr2n/ph64/srnsnse.wrong_mass.freq.gp)与[恢复质量后的色散](/Atlas/examples/snse2-sr2n/ph64/srnsnse.freq.gp)中，高频三支的 Γ 频率由 4.60、5.56、6.70 THz 变为 7.99、7.99、10.74 THz。单一 N 运动极限下，质量比会使频率缩小约 `√(118.71/14.007)=2.91` 倍；实际混合模式不要求逐支满足这个比例。这段存档说明质量如何进入动力学矩阵，不能把质量修正解释为应变软化或电子掺杂效应。对应 PHDOS 的原子列与积分复核见[声子态密度](/Atlas/m/phdos/qe/#h-按真实原子顺序合成元素与层投影)。
 
-- **数据提取与绘图方式**：先明确向量约定。QE 7.5 的 `fleig='matdyn.eig'` 保存正交的动力学矩阵本征矢 `e_Iα(q,ν)`，可用 `Σ_I |e_Iz|²` 表示面外权重。`flvec='matdyn.modes'` 则保存 `e_Iα/√M_I` 再逐模归一化的原子位移，适合计算位移方向权重。两种权重在不同质量原子之间通常不同，图例应注明采用哪一种；见[matdyn.x 官方字段说明](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)。
+## 一组真实界面 Γ 模式的矩阵与位移
 
-### 2. 软模本征频率随电子展宽 σ 的演化曲线
+ZrCl₂/Sc₂C 的 +1.5% 结构已有固定 32² 电荷密度下的 Γ16²/Γ32² 响应对照。它与上一节历史完整 q 网格分支分别保存，不能拼成一份新的全布里渊区谱。这里读取已经过独立 QA 的 [Γ16² 原始矩阵](/Atlas/examples/phonons-interface-gamma/gamma16.dyn)和[Γ32² 原始矩阵](/Atlas/examples/phonons-interface-gamma/gamma32.dyn)，采用同一实 Γ `crystal` 平移投影，重建全部 18 个频率，并保留 15 维光学子空间的向量。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_CDW_SmearingEvolution_NbSi2As4_PRB2025_Fig3a.jpg" alt="NbSi2As4 指定 q1 处最低 LA 模频率随 Fermi–Dirac 电子展宽的变化" loading="lazy"/><figcaption>NbSi<sub>2</sub>As<sub>4</sub> 指定 q₁ 处最低 LA 模频率随 Fermi–Dirac 电子占据展宽 σ 的变化，横轴为 mRy、纵轴为 meV，水平零线区分虚频与正频。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, L140508 (2025)，Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.111.L140508" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.L140508</a>。</figcaption></figure>
+矩阵头部给出原子顺序 `Zr, C, Cl, Cl, Sc, Sc`；τ 是以 alat 为单位的笛卡尔坐标，`alat=6.3466021 Bohr`。导出位置按 `r=τ×alat×0.529177210903 Å` 换算；动力学矩阵中的质量保留 QE 内部单位。后处理先在未质量加权实力常数上施加三个平移约束，再除以 √(M_I M_J) 对角化，不把层间相对运动删掉。
 
-- **数据提取与绘图方式**：固定结构、赝势、q 点与占据方案，逐项记录电子展宽和同一软模的频率，并配套检查 k 网格收敛。Fermi–Dirac σ 可参数化电子占据温度，但不是离子温度；跨零趋势需结合本征位移、电子响应或畸变能量来解释软模机制。上面的曲线来自 NbSi₂As₄ 文献，本页 Si 与 Al 算例未进行此扫描。
-
-### 3. 强耦合声子模式的俯视/侧视本征矢与 Γ 点群论不可约表示标注
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_TopSide_hAlH2_Jiang_Fig4.jpg" alt="关键高耦合声子模式在晶体结构俯视图与侧视图中的原子振动箭头可视化" loading="lazy"/><figcaption>结合俯视图（Top view）与侧视图（Side view）展示二维 h-AlH<sub>2</sub> 布里渊区中 6 个主要电声耦合声子模式（I–VI）的实空间原子位移方向。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M5_PhononEigenvectors_Irreps_AlH2_Yang2023_Fig3a.jpg" alt="按点群不可约表示分类标注的声子振动模式与红外拉曼活性对照图" loading="lazy"/><figcaption>将单层 AlH<sub>2</sub> 在 Γ 点的 9 个声子模式按 D<sub>3h</sub> 点群不可约表示（E′、A<sub>2</sub>″、E″、A<sub>1</sub>′）及红外（I）/拉曼（R）活性逐一配对展示。图片来源：Yang, Jiang, and Zhao, <em>Chin. Phys. Lett.</em> <strong>40</strong>, 107401 (2023)，<a href="https://doi.org/10.1088/0256-307X/40/10/107401" target="_blank" rel="noopener noreferrer">DOI: 10.1088/0256-307X/40/10/107401</a>。</figcaption></figure>
-
-- **数据提取与绘图方式**：`ph.x` 与 `dynmat.x` 在 Γ 点会输出点群对称性与不可约表示标签。将关键模式的俯视/侧视原子位移矢量图与点群符号、红外/拉曼活性并列标注，便于同实验光谱直接比对。
-
-下一步到 [声子态密度](/Atlas/m/phdos/qe/) 对整个布里渊区做积分；也可以到 [有限位移声子](/Atlas/m/phonon-finite-disp/qe/) 看同一材料如何从实际受力重建力常数。
+对最低的光学双态，脚本将本征矢投影到两层刚性面内相对移动的质量加权模板，并与整体平移正交。这项权重约为 0.863，说明其运动主要是层间面内相对位移，同时仍含层内变形。逐原子的 e、归一化 u、元素和层权重可从[Γ32 向量表](/Atlas/examples/phonons-interface-gamma/gamma32-vectors.csv)及[完整模式结果](/Atlas/examples/phonons-interface-gamma/gamma-mode-products.json)查看。
 
 ```text
-晶胞优化 → 固定结构 SCF → 完整 q 网格 ph.x
-                              ↓
-                    动力学矩阵逐点检查 → q2r
-                                           ├→ matdyn 路径 → 声子图
-                                           └→ matdyn 均匀网格 → 声子 DOS
+gamma16 lowest optical cm-1: 86.60094036 86.60094036 120.22328804
+  lowest E pair relative-inplane weight: 0.86281512 0.86281512
+  raw matrix reproduction max error: 1.066e-05 cm-1
+gamma32 lowest optical cm-1: 75.22373393 75.22373393 121.49161046
+  lowest E pair relative-inplane weight: 0.86283674 0.86283674
+  raw matrix reproduction max error: 7.552e-06 cm-1
 ```
+
+同身份低频双态从 Γ32² 的 75.22373 cm⁻¹ 到 Γ16² 的 86.60094 cm⁻¹，相差约 15.12%；两组相对层移动权重几乎相同，运动身份没有因频率变化而变成另一类模式。固定密度和结构仍不足以把差别完全归于网格密度：Γ16 采用严格外部 NSCF，既有 Γ32 使用自适应电子求解，电子求解路径也有差别。这组对照显示该低频运动的实际敏感性，Γ32 不是已确定的真值，也没有由此建立有限 q 或完整 EPC 收敛。
+
+[Γ32 最低光学双态的第一个成员动画](/Atlas/examples/phonons-interface-gamma/gamma32-optical-1.axsf)、[第二个成员](/Atlas/examples/phonons-interface-gamma/gamma32-optical-2.axsf)和[第三个光学模式](/Atlas/examples/phonons-interface-gamma/gamma32-optical-3.axsf)可在 XCrySDen 中打开。每个动画有 36 个相位帧，所有原子共用一个显示比例，最大原子偏移为 0.10 Å；方向与相对振幅直接来自该矩阵的 `e/√M`，没有为不同原子单独调整箭头或振幅。这个放大幅度用于看清运动，不表示热振幅。简并双态的单个方向随所选基底改变，因此应把两个成员一起读。
+
+复算这组后处理可[下载完整包](/Atlas/examples/phonons-interface-gamma-files.tar.gz)，进入 `phonons-interface-gamma` 后执行：
+
+```bash
+python3 analyse_gamma_modes.py
+```
+
+源码使用 NumPy 2.4.6、SciPy 1.18.0，实际运行只读取两份矩阵。下面的编程需求对应这组真实数据：
+
+```text
+读取 gamma16.dyn 与 gamma32.dyn 的六原子实 Γ 矩阵，核对源身份、原子顺序、晶胞、q=0 和 Hermitian 性。保留原生质量单位；用 QE 7.2 频率换算重现文件的18个原始频率。对实力常数施加三个整体平移 crystal 投影，再在质量加权光学子空间对角化。保留15个光学模式的频率、e、e/√M归一化后的u、逐原子和逐层本征矢权重，计算层间面内/面外相对运动模板的权重。为前三个光学模式导出36相位帧的周期AXSF，整模共同放大到最大原子偏移0.10 Å；注明显示比例和简并基底。不得重跑DFT或由排序直接宣称模式身份。
+```
+
+<details>
+<summary>analyse_gamma_modes.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Read accepted real-Gamma QE 7.2 matrices; export mode weights and AXSF frames.
+
+crystal ASR acts on real Cartesian force constants before mass weighting.
+Only these real Hermitian Gamma data are supported. No DFT or job submission.
+"""
+from pathlib import Path
+import csv, hashlib, json, re
+import numpy as np
+from scipy.linalg import null_space
+
+ROOT = Path(__file__).resolve().parent
+EXPECTED = {
+    "gamma16": "c692eab1e220ed8f43a9d8714755f5462d227e6ccaa4d1a331ebb8b40e13b5e6",
+    "gamma32": "833f0fbe22d8bb679acfe785b92add032223f6d48fb539ba15eafb2013e154e7",
+}
+H_PLANCK = 6.62607015e-34
+HARTREE = 4.3597447222071e-18
+C_LIGHT = 2.99792458e8
+AU_PS = H_PLANCK / (2 * np.pi * HARTREE) * 1e12
+RY_CM = 1e10 / (AU_PS * 4 * np.pi * C_LIGHT)
+BOHR_A = 0.529177210903
+LAYERS = {"ZrCl2": [0, 2, 3], "Sc2C": [1, 4, 5]}
+
+
+def load(path):
+    lines = path.read_text().splitlines()
+    ntype, nat = map(int, lines[2].split()[:2])
+    alat = float(lines[2].split()[3])
+    i = lines.index("Basis vectors")
+    cell = np.array([list(map(float, l.split())) for l in lines[i+1:i+4]]) * alat * BOHR_A
+    species = {}
+    for line in lines[i+4:i+4+ntype]:
+        match = re.fullmatch(r"\s*(\d+)\s+'([^']+)'\s+(\S+)\s*", line)
+        species[int(match[1])] = (match[2].strip(), float(match[3]))
+    atomlines = [l.split() for l in lines[i+4+ntype:i+4+ntype+nat]]
+    symbols = [species[int(l[1])][0] for l in atomlines]
+    mass = np.array([species[int(l[1])][1] for l in atomlines])
+    positions = np.array([list(map(float, l[2:5])) for l in atomlines]) * alat * BOHR_A
+    qline = next(j for j, l in enumerate(lines) if re.match(r"\s*q\s*=", l))
+    q = np.fromstring(re.search(r"\(([^)]+)\)", lines[qline])[1], sep=" ")
+    assert np.allclose(q, 0) and symbols == ["Zr", "C", "Cl", "Cl", "Sc", "Sc"]
+    force = np.zeros((3*nat, 3*nat), complex)
+    j = qline + 1
+    for _ in range(nat*nat):
+        while not lines[j].strip(): j += 1
+        a, b = map(int, lines[j].split())
+        for alpha in range(3):
+            row = np.array(list(map(float, lines[j+1+alpha].split())))
+            force[3*(a-1)+alpha, 3*(b-1):3*b] = row[::2] + 1j*row[1::2]
+        j += 4
+    printed = np.array([float(m[1]) for l in lines
+                        for m in [re.search(r"freq.*=\s*([-+\d.]+)\s*\[cm-1\]", l)] if m])
+    assert printed.size == 3*nat
+    assert np.max(np.abs(force.imag)) < 1e-12
+    assert np.linalg.norm(force-force.conj().T) < 1e-12
+    return force.real, mass, symbols, cell, positions, printed
+
+
+def frequency(v):
+    return np.sign(v) * np.sqrt(np.abs(v)) * RY_CM
+
+
+def save_axsf(path, symbols, cell, positions, normalized_u):
+    # Common scale for the entire mode; max atomic excursion = 0.10 Angstrom.
+    # 36 equally spaced phases cover one period. This is a visualization scale,
+    # not a thermal displacement or a finite-distortion energy calculation.
+    amplitude = 0.10 / np.max(np.linalg.norm(normalized_u, axis=1))
+    frames = ["ANIMSTEPS 36", "CRYSTAL", "PRIMVEC"]
+    frames += [" ".join(f"{x:.12f}" for x in row) for row in cell]
+    for step, phase in enumerate(np.linspace(0, 2*np.pi, 36, endpoint=False), 1):
+        frames += [f"PRIMCOORD {step}", f"{len(symbols)} 1"]
+        displaced = positions + amplitude * np.cos(phase) * normalized_u
+        frames += [s + " " + " ".join(f"{x:.12f}" for x in row)
+                   for s, row in zip(symbols, displaced)]
+    path.write_text("\n".join(frames) + "\n")
+    return amplitude
+
+
+def main():
+    report = {"q_fractional": [0, 0, 0], "structure": "ZrCl2/Sc2C +1.5%",
+              "ASR": "real force-constant crystal projection; three translations",
+              "frequency_unit": "cm-1", "mass_unit": "QE native amu_ry",
+              "vector_definitions": {"e": "orthonormal mass-weighted eigenvector",
+                  "u": "e/sqrt(M), then normalized over all atoms and directions"},
+              "animation": "36 phases; shared mode scale, maximum excursion 0.10 Angstrom",
+              "grids": {}}
+    for label, expected in EXPECTED.items():
+        source = ROOT / (label + ".dyn")
+        digest = hashlib.sha256(source.read_bytes()).hexdigest()
+        assert digest == expected, (label, digest)
+        force, mass, symbols, cell, positions, printed = load(source)
+        repeated = np.repeat(mass, 3)
+        massscale = np.sqrt(repeated[:, None]*repeated[None, :])
+        raw, _ = np.linalg.eigh(force/massscale)
+        reproduction = float(np.max(np.abs(frequency(raw)-printed)))
+        assert reproduction < 1e-4
+        translation = np.kron(np.sqrt(mass[:, None]/mass.sum()), np.eye(3))
+        uniform = np.kron(np.ones((len(mass), 1))/np.sqrt(len(mass)), np.eye(3))
+        projector = np.eye(len(repeated)) - uniform @ uniform.T
+        corrected = projector @ force @ projector
+        optical = null_space(translation.T)
+        value, basis = np.linalg.eigh(optical.T @ (corrected/massscale) @ optical)
+        eigenvectors = optical @ basis
+        displacements = eigenvectors/np.sqrt(repeated[:, None])
+        displacements /= np.linalg.norm(displacements, axis=0)
+        is_a = np.array([True, False, True, True, False, False])
+        ma, mb = mass[is_a].sum(), mass[~is_a].sum()
+        relative_atom = np.where(is_a, np.sqrt(mass)*np.sqrt(mb/(ma*(ma+mb))),
+                                -np.sqrt(mass)*np.sqrt(ma/(mb*(ma+mb))))
+        relative = np.kron(relative_atom[:, None], np.eye(3))
+        relative_weight = np.abs(relative.T @ eigenvectors)**2
+        modes = []
+        with (ROOT / (label + "-vectors.csv")).open("w") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["optical_mode", "frequency_cm1", "atom", "symbol",
+                             "ex", "ey", "ez", "ux", "uy", "uz", "atom_e_weight"])
+            for k, w in enumerate(frequency(value)):
+                e = eigenvectors[:, k].reshape(-1, 3)
+                u = displacements[:, k].reshape(-1, 3)
+                weights = np.sum(e**2, axis=1)
+                for atom, symbol in enumerate(symbols):
+                    writer.writerow([k+1, w, atom+1, symbol, *e[atom], *u[atom], weights[atom]])
+                mode = {"optical_mode": k+1, "full_mode_after_three_translations": k+4,
+                        "frequency_cm1": float(w), "e": e.tolist(), "u": u.tolist(),
+                        "atom_e_weights": weights.tolist(),
+                        "layer_e_weights": {g: float(weights[ids].sum()) for g, ids in LAYERS.items()},
+                        "relative_inplane_template_weight": float(relative_weight[:2, k].sum()),
+                        "relative_outofplane_template_weight": float(relative_weight[2, k])}
+                if k < 3:
+                    mode["axsf_common_scale_A"] = save_axsf(
+                        ROOT / f"{label}-optical-{k+1}.axsf", symbols, cell, positions, u)
+                modes.append(mode)
+        report["grids"][label] = {"source": source.name, "sha256": digest,
+                                 "raw_reproduction_max_error_cm1": reproduction,
+                                 "symbols": symbols, "positions_A": positions.tolist(),
+                                 "cell_A": cell.tolist(), "modes": modes}
+        print(label, "lowest optical cm-1:", " ".join(f"{m['frequency_cm1']:.8f}" for m in modes[:3]))
+        print("  lowest E pair relative-inplane weight:",
+              " ".join(f"{m['relative_inplane_template_weight']:.8f}" for m in modes[:2]))
+        print(f"  raw matrix reproduction max error: {reproduction:.3e} cm-1")
+    (ROOT / "gamma-mode-products.json").write_text(json.dumps(report, indent=2) + "\n")
+
+if __name__ == "__main__": main()
+```
+
+</details>
+
+## 用论文中的真实模式图理解应变软化
+
+[Qiu 等的 Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101) Fig. 3（原文第 3 页）把无应变声子色散、原子 PHDOS、α²F 与振动模式并列。Fig. 3(d) 展示 Γ 附近约 55 cm⁻¹ 光学模的俯视和侧视：上下两层 Ba 原子在面内反向运动。它的频率不为零，运动也不同于整个晶体的平移。
+
+同一论文 Fig. 6（原文第 5 页）给出 4% 双轴拉伸后的对照。Γ 光学模降到约 49 cm⁻¹；K 点出现约 24 cm⁻¹ 的软化声学模。作者用 √3×√3 超胞把原胞 K 点折叠到超胞 Γ，在 Fig. 6(e) 显示真实模式：Ba 同时有面内和面外分量，N 主要在面内移动。读这组图时，先按 q 和频率定位模式，再看箭头与原子投影，最后结合线宽和 α²F 讨论耦合。不能把图上的红色圆点当成原子振幅，Fig. 3(a) 与 Fig. 6(a) 的点大小表示声子线宽。
+
+比较界面或应变结构时，沿用这种配对方式：结构、同一 q 的频率、原子位移、原子/层权重一起记录。应变改变倒格矢，跨结构比较 K、M 等点应使用各自晶胞的倒格矢分数坐标；频率排序交叉时，可结合向量重叠和简并子空间追踪模式。这样才知道软化发生在哪一种运动，而不是只看到整张图向下移动。
+
+从这里继续到[有限位移声子](/Atlas/m/phonon-finite-disp/qe/)读取实际受力，或到[虚频与软模](/Atlas/m/imaginary-phonon/qe/)比较 Γ 平移残差与有限 q 结构畸变。若要讨论某一频段对超导的贡献，再接到[模式线宽](/Atlas/m/phonon-linewidth/qe/)和[谱函数](/Atlas/m/eliashberg-a2f/qe/)。
 
 ## 参考资料
 
-[ph.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [PHonon 用户手册](https://www.quantum-espresso.org/Doc/ph_user_guide/) · [q2r.x](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html)
+[ph.x](https://www.quantum-espresso.org/Doc/INPUT_PH.html) · [q2r.x](https://www.quantum-espresso.org/Doc/INPUT_Q2R.html) · [matdyn.x](https://www.quantum-espresso.org/Doc/INPUT_MATDYN.html) · [Ba₂N 原文与 Fig. 3、6](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.105.165101)

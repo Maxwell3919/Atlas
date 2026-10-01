@@ -1,17 +1,19 @@
-- [EPW 官方超导教程：谱函数、线性与非线性 Eliashberg 方程](https://docs.epw-code.org/tutorials/tutorial_04/index.html)
-- [本次 EPW 6.0 对应的 QE 7.5 源码：外部谱函数的读法](https://github.com/QEF/q-e/blob/qe-7.5/EPW/src/io/io_supercond.f90#L1281)
-- [同版本的线性 Tc 求解和收敛检查](https://github.com/QEF/q-e/blob/qe-7.5/EPW/src/supercond.f90#L1575)
-- [同版本的非线性能隙迭代](https://github.com/QEF/q-e/blob/qe-7.5/EPW/src/supercond_iso.f90)
+[α²F与频率矩](/Atlas/m/eliashberg-a2f/qe/) · [Allen–Dynes近似](/Atlas/m/allen-dynes/qe/) · [EPW超导教程](https://docs.epw-code.org/tutorials/tutorial_04/index.html) · [本例EPW6.0源码](https://github.com/QEF/q-e/tree/qe-7.5/EPW)
 
-[α²F 页](/Atlas/m/eliashberg-a2f/qe/)已经有 fcc Al 的实际谱函数。在[Allen–Dynes 页](/Atlas/m/allen-dynes/qe/)，我们把它压缩成 λ、ωlog 等少数谱矩，再代入经验公式。现在保留整条 α²F(ω)，交给 EPW 求解各向同性 Migdal–Eliashberg 方程，看看不同温度下的能隙函数，以及线性化方程的本征值如何变化。
+## 从平均谱到温度相关的能隙
 
-求解这组方程，可以进一步观察配对能隙函数的温度变化，以及线性化配对核是否达到转变条件。这里的线性本征值与电子–声子总 λ 是两个量。[EPW 方法论文](https://arxiv.org/abs/1604.03525)第 5.2.3 节式 (44)、(45) 给出重整化与能隙的 Migdal–Eliashberg 方程，第 10.5 节图 17–19 展示 MgB₂ 的谱与各向异性能隙；本页实际求解 Al 的各向同性方程，采用本次 EPW 6.0 的接口和约定。MgB₂ 的多带结果用于说明保留谱与动量信息能回答什么问题，并非本页的复现结果。
+Allen–Dynes把α²F压缩为λ、ωlog和二阶矩。Migdal–Eliashberg方程保留整个频率依赖，耦合谱与Coulomb项共同构造配对核，再求能隙函数Δ和电子重整化函数Z。在各向同性近似中，它们依赖频率和温度；各向异性求解还保留能带n与动量k，因而能比较不同费米面片上的能隙。
 
-本页有两个入口：[已有完整 α²F，直接求解](#external-spectrum-tc)；[从 DFPT 与 Wannier 插值生成谱](#wannier-epw-tc)。
+虚频轴的ωj=(2j+1)πkBT是求解器的Matsubara频率，与声子虚频不同。Δ(iω₀,T)是最低正Matsubara频率的能隙函数；只有进一步进行相应解析延拓和实轴求解，才能按该模型讨论准粒子激发能隙。线性化配对核的最大本征值η(T)穿过1定义临界温区，η不是电子–声子总λ。
 
-先走现成谱函数这条路线。这里的电子–声子数据仍来自 QE 双网格计算：32³ 密 k 网格、16³ 响应 k 网格、4³ q 网格；选取的电子展宽是 σ=0.020 Ry。这一路求解直接使用该谱；DFPT–Wannier 插值路线的输入、矩阵元与生成谱在第二部分分别给出。
+本页实际完成两条Al等方路线：[QE外部谱直接求解](#external-spectrum-tc)，以及[Wannier–EPW原生插值谱求解](#wannier-epw-tc)。它们都使用EPW6.0、μ*=0.10，但谱生成方式和网格、展宽不同。后面的[材料各向异性路线](#material-anisotropic-route)说明还须保留什么文件和分析量，不把Al等方结果写成界面各向异性结果。
 
-[下载本页的输入、原生输出和绘图程序](/Atlas/examples/al-epw-tc-files.tar.gz)。压缩包不包含 QE/EPW 可执行程序；重算需要匹配的 EPW 6.0 环境。只读输出、重画图不需要启动 EPW。本次没有做各向异性方程，也没有计算解析延拓后的实频准粒子能隙。
+| 真实路线 | 谱来源与参数 | 方程输出 |
+|---|---|---|
+| 外部QE谱 | Al32³致密/16³响应/q4³，σ=0.020 Ry | wscut=0.10 eV下η=1夹区1.46–1.47 K，9个收敛低温能隙点 |
+| 原生EPW谱 | 粗k12³/q4³，细k24³/q12³，0.10 eV电子展宽、0.5 meV谱宽 | 同截断下η=1夹区0.84–0.85 K，0.25 K收敛能隙点 |
+
+保持同一谱时才可把公式与方程差异归因到求解近似；上面两路线间的温差还包含谱、积分和插值设置的变化。当前有限网格用于学习完整数据关系。
 
 <span id="external-spectrum-tc"></span>
 
@@ -144,27 +146,7 @@ Submitted batch job 888
 
 提交后可以用 `squeue -u preston` 看队列，用 `tail -f epw.out` 跟踪当前输出。若作业很短，队列里很快就没有它；此时应读取原生输出和 Slurm 的结束状态。本次线性粗扫用了约 1 s 程序墙时。
 
-开头的 EPW 图案之后是版本和并行信息：
-
-```text
-     Program EPW v.6.0 starts on 23Sep2026 at 15:22:40 
-
-     This program is part of the open-source Quantum ESPRESSO suite
-     for quantum simulation of materials; please cite
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 21 395502 (2009);
-         "P. Giannozzi et al., J. Phys.:Condens. Matter 29 465901 (2017);
-         "P. Giannozzi et al., J. Chem. Phys. 152 154105 (2020);
-          URL http://www.quantum-espresso.org", 
-     in publications or presentations arising from this work. More details at
-     http://www.quantum-espresso.org/quote
-
-     Parallel version (MPI & OpenMP), running on       1 processor cores
-     Number of MPI processes:                 1
-     Threads/MPI process:                     1
-
-     MPI processes distributed on     1 nodes
-     3495 MiB available memory on the printing compute node when the environment starts
-```
+原生输出确认EPW6.0，1个MPI进程、1个OpenMP线程；完整版本与环境信息在下载包的epw.out。
 
 外部谱路线的前置摘要可能打印零 k 点、零 G 向量。那是本次跳过 `pw.x` 波函数读取后的摘要，不能据此描述父 SCF，更不能把它当成新的 SCF 验收。真正与本步骤有关的输出从 `Solve isotropic Eliashberg equations` 开始：
 
@@ -248,31 +230,7 @@ preston@preston-System-Product-Name:epw-tc$ cat nonlinear-w010-T1.45/epw.in
 
 单温度输入使用 `nstemp=1` 与 `temps=1.45`。这里没有启用 Padé 或其他解析延拓：`lpade=.false.`。输出的 `deltai` 是最低正 Matsubara 频率处的能隙函数，而不是解析延拓后、再由实轴能隙方程确定的准粒子激发能隙。
 
-1.45 K 的迭代末段如下，完整输出也在包中：
-
-```text
-        iter      ethr          znormi      deltai [meV]
-          1   2.174502E+00   1.341340E+00   1.491447E-01
-          2   6.997688E-02   1.341342E+00   1.467866E-01
-          3   4.813545E-02   1.341345E+00   1.431243E-01
-          4   3.291689E-02   1.341348E+00   1.387074E-01
-          5   2.732357E-01   1.341364E+00   1.090273E-01
-          6   2.793093E-01   1.341375E+00   8.525206E-02
-          7   3.121520E-01   1.341382E+00   6.498217E-02
-          8   3.200741E-01   1.341386E+00   4.923357E-02
-          9   1.332549E-01   1.341387E+00   4.344642E-02
-         10   1.199923E-01   1.341388E+00   3.879302E-02
-         11   5.761376E-02   1.341388E+00   3.668027E-02
-         12   1.127631E-01   1.341389E+00   3.296399E-02
-         13   2.501625E-02   1.341389E+00   3.215963E-02
-         14   6.937778E-03   1.341389E+00   3.193809E-02
-         15   1.458320E-03   1.341389E+00   3.189159E-02
-         16   1.602579E-04   1.341389E+00   3.188648E-02
-         17   1.451305E-05   1.341389E+00   3.188694E-02
-         18   8.954613E-06   1.341389E+00   3.188723E-02
-         19   8.607533E-07   1.341389E+00   3.188725E-02
-     Convergence was reached in nsiter =     19
-```
+1.45 K的原生迭代在第19步明确打印收敛，最终deltai=0.03188725 meV、ethr=8.607533×10⁻⁷；完整迭代保持在包内。下面从数值文件核对同一结果。
 
 `ethr` 在非线性求解器中是两次迭代能隙数组差的相对量 Σ|Δnew−Δold|/Σ|Δnew|，不是 eV。本次第 19 步降到 8.61×10⁻⁷，输出明确写出收敛。仅有 `al.imag_iso_001.45` 文件还不够：这个版本到达迭代上限时也可能写文件，必须读对应温度的收敛信息。
 
@@ -304,31 +262,7 @@ preston@preston-System-Product-Name:epw-tc$ head -n 6 nonlinear-w010-T1.45/al.im
 
 这些点表现为随温度升高而减小的有限能隙函数。到 1.45 K，它还没有变成零，与线性表在 1.46–1.47 K 之间跨越 1 相容。
 
-前面的连续扫温尝试在 1.50 K 发生了真实失败，保留在 `nonlinear-w010`：
-
-```console
-preston@preston-System-Product-Name:epw-tc$ tail -n 20 nonlinear-w010/epw.out
-        157   5.089638E+01   1.341504E+00   1.979312-142
-        158   3.242441E+01   1.341504E+00   5.900896-144
-        159   1.521331E+00   1.341504E+00  -1.137050-143
-        160   1.421569E+00   1.341504E+00  -4.693708-144
-        161   3.456376E+01   1.341504E+00   1.397568-145
-        162   2.960763E+00   1.341504E+00  -7.128842-146
-        163   4.963284E+00   1.341504E+00  -1.195026-146
-        164   4.316475E+00   1.341504E+00   3.605912-147
-        165   7.877499E+00   1.341504E+00   4.060307-148
-        166   4.974606E+00   1.341504E+00   6.795587-149
-        167   1.637161E+01   1.341504E+00   3.911668-150
-        168   2.693770E+00   1.341504E+00  -2.309885-150
-        169   4.792926E+00   1.341504E+00  -3.987562-151
-
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-     Error in routine mix_broyden (5):
-     factorization
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-     stopping ...
-```
+连续扫温在1.50 K发生未收敛失败，完整原文保留在nonlinear-w010/epw.out；该温度没有接受的能隙点。很小的失败迭代值不能写成已收敛的零能隙。
 
 它并非“成功得到零能隙”。此时 Δ 已下降到极小量，但相对误差没有满足条件，Broyden 混合器最终无法分解矩阵，程序终止。图中没有把这条失败迭代补成 Δ=0 点；Tc 的判断仍来自已经收敛的线性本征值交叉。下载包保留了该次的 `epw.err` 和 `CRASH`，也保留了早期接口检查失败的输入输出，便于区分格式错误与物理求解过程中的失败。
 
@@ -350,7 +284,7 @@ preston@preston-System-Product-Name:epw-tc$ tail -n 20 nonlinear-w010/epw.out
 
 0.10 与 0.20 eV 的交叉很接近，0.40 eV 却又上移。这份表应该叫“固定输入 `muc=0.10` 的截断敏感性”，不能据此声称截断已经收敛。μ* 的定义与能量截断有关；把相同数值的 μ* 用在不同截断下，不等于已经证明它们代表完全相同的物理 Coulomb 模型。本页没有做相应重整化。原始谱的 k/q 网格、电子展宽、低频处理及结构协议也没有在这里得到新的材料级验收。
 
-## 从原始输出重画两张图
+## 从原始输出提取温度与能隙
 
 画图从原生输出重新提取，命令保持很短：
 
@@ -531,7 +465,7 @@ EPW 的完整计算链需要波函数、声子位移模式和自洽势的一阶�
 
 需要先熟悉 [SCF](/Atlas/m/scf/qe/)、[NSCF](/Atlas/m/nscf/qe/)、[DFPT 声子](/Atlas/m/phonon-dfpt/qe/) 和 [Wannier90](/Atlas/m/wannier90/qe/) 的文件关系。已有 α²F 表、只想求解温度依赖时，可以跳到[读取外部谱的 Eliashberg 计算](#external-spectrum-tc)。[原生双网格 EPC](/Atlas/m/epc/qe/#double-grid-pwxall) 与这里共享声子父链；两种程序的积分网格、展宽和插值步骤分别记录，数值不能仅凭材料名称互相替换。
 
-实跑程序为 QE 7.5、EPW 6.0。官方的 [EPW 插值教程](https://docs.epw-code.org/tutorials/tutorial_01/index.html) 和 [超导教程](https://docs.epw-code.org/tutorials/tutorial_04/index.html) 标明这组版本。在线[输入参数页](https://docs.epw-code.org/Inputs/Inputs.html)目前标为 EPW 6.1；本例的精确输入还核对了本机 6.0 源码和原生输出。
+实跑程序为 QE 7.5、EPW 6.0。在线[输入参数页](https://docs.epw-code.org/Inputs/Inputs.html)目前标为EPW6.1，教程可用于理解流程；本例精确接口按QE7.5标签下的EPW6.0源码与原生输出解释。
 
 本节的[完整输入、原生输出、比较数据与提取脚本](/Atlas/examples/al-epw-wannier-files.tar.gz)可一起下载。它与上面的外部 QE 谱包分别保存。
 
@@ -800,7 +734,7 @@ mpirun -np 8 epw.x -nk 8 -in epw2.in > epw2.out 2> epw2.err
 
 上面的复制关系也封装在下载包的 `tools/prepare_stage.py` 中，作为可选的重跑辅助。目录已存在时应先读旧输出，不要在上面反复启动新程序。原始记录保留每次执行的独立目录、输入哈希、stdout、stderr、调度记录和失败状态。输入、父计算文件与原生结束状态分别核对。λ 和 Tc 的数值收敛及物理有效性仍需单独检查。
 
-## 把新生成的 EPW 谱接到 Tc 求解
+## 原生 EPW 谱的线性判据与低温解
 
 现在将这份完成前述能带对照的原生 EPW 谱接到求解器。这里使用粗网格 12³ k / 4³ q、精细网格 24³ k / 12³ q，电子展宽 0.10 eV、声子谱展宽 0.5 meV，`eps_acoustic=0.1 cm⁻¹`、`asr_typ='crystal'`。它与前面从 QE `lambda.x` 读取的谱分别保存；两组 λ 和 Tc 的差异不能只归因于“换了求解器”，因为谱的生成流程、网格和展宽也不同。
 
@@ -902,36 +836,28 @@ python3 plot_native_tc.py
 
 这条“QE 粗网格 → Wannier → EPW 精细网格谱 → Eliashberg 求解”给出 0.84–0.85 K 的交叉温区。0.84–0.85 K 应始终连同这组网格、展宽、μ*、截断和各向同性近似一起陈述。它没有代替上游的插值质量检查，也没有证明粗 q 网格、精细积分网格或材料 Tc 已经收敛。
 
-## 文献中的相关图件与表达方式
+<span id="material-anisotropic-route"></span>
 
-当从本页演示的各向同性（Isotropic）Eliashberg 方程进一步推进到全布里渊区各向异性（Anisotropic）Migdal–Eliashberg 方程求解时，核心输出是在每个温度 `T` 下费米面各采样点 `(n, k)` 的超导能隙分布 `Δ_nk(T)`。下面对照三幅文献图件说明常见的表达方式与读图要点：
+## Ba₂N 图7为什么需要各向异性数据
 
-### 1. 双能隙超导体 MgB₂ 的三维布里渊区费米面能隙映射
+[Qiu等，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图7（原文PDF第5页，附录说明在第6页）展示未应变Ba₂N的各向异性能隙随温度变化。每个温度有能隙分布，随升温整体向零收缩，在约6 K消失；该图不是Al最低Matsubara点的单条等方Δ(T)曲线。正文由图3谱代入简式得到3.4 K，这与各向异性ME采用的近似不同，应分别标注。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_FS_MgB2_EPW2016_Fig21.jpg" alt="EPW 计算的 MgB₂ 三维六角柱布里渊区费米面上的各向异性超导能隙 Δ_nk 色标分布" loading="lazy"/><figcaption>EPW 基准算例 MgB₂ 在三维六角柱第一布里渊区内的费米面超导能隙 <code>Δ_nk</code>（色标范围 2–8 meV）分布，清晰区分沿 Γ–A 方向的高能隙红橙色圆柱形 σ 费米面片（约 7 meV）与低能隙蓝色管状 π 费米面网络（约 2 meV）。图片来源：Poncé et al., <em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016), Fig. 21，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>。</figcaption></figure>
+图3、6回答“哪些q和模式贡献耦合”；图7进一步回答“不同电子态怎样配对、随温度怎样闭合”。α²F是电子态与散射信息的平均，平均后无法倒推出Δnk。多口袋费米面存在并不自动证明多能隙；必须让逐带逐k的方程结果、口袋归属和收敛证据共同支持判断。
 
-该图不绘制随温度变化的 `Δ(T)` 曲线，而是将低温下的动量分辨超导能隙 `Δ_nk` 直接投影为三维六角柱布里渊区内的费米面颜色分布。通过将沿 Γ–A 轴向延伸的二维圆柱状 σ 费米面片（红橙色，约 7 meV）与三维连通的管状 π 网络（深蓝色，约 2 meV）同框展示，可以直接辨认双能隙超导体中不同能带与轨道特征对配对强度的贡献。
+## 从材料 DFPT 与 Wannier 矩阵走到 Δnk(T)
 
-### 2. 不同库仑赝势下的各向异性能隙温度直方图与二维费米面插图
+材料路线仍从同一结构、赝势、SOC/自旋模型和SCF密度出发。完整均匀NSCF给出Bloch态，完整粗q DFPT给出dyn、patterns、dvscf；Wannier阶段对费米附近和所用Fermi窗口内的能带作直接对照，再检查电子与声子方向的耦合实空间衰减。这些前置关系与上面的Al原生链相同；二维材料的实际网格、能窗、投影与极化处理要由它自己的输入和质量比较确定。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="空穴掺杂 CuH₃ 的各向异性超导能隙随温度演化的竖直能量直方图及二维六角费米面插图" loading="lazy"/><figcaption>空穴掺杂 CuH₃ 的各向异性超导能隙 <code>Δ_nk(T)</code> 在 T = 10–100 K 温区内的竖直能量分布直方图，对比三种库仑赝势 <code>μ* = 0.10</code>（蓝）、<code>0.13</code>（红）与 <code>0.15</code>（绿）及各自的 BCS 拟合曲线，内插两幅分别按 <code>λ_nk</code> 与 <code>Δ_nk</code> 着色的二维六角布里渊区费米面。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026), Fig. 3a，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
+随后保留电子态和散射分辨的细网格矩阵，按匹配版本写出prefix.ephmat/中的ephmat、freq、egnv、ikmap及相应晶体/采样信息。[EPW6.0读取器](https://github.com/QEF/q-e/blob/qe-7.5/EPW/src/io/io_supercond.f90)分别读取这些量；外部fila2f的两列谱不能替代它们。官方[超导教程](https://docs.epw-code.org/tutorials/tutorial_04/index.html)的各向异性步骤用ephwrite保存矩阵，并以laniso进入方程；a2f_iso的谱生成路线本身选择各向同性，不能只在那份平均谱输入中换一个开关就恢复各向异性。
 
-当精细 k 网格采样点很多时，在每个温度刻度上沿纵轴绘制 `Δ_nk(T)` 的竖直能量分布直方图，并叠加不同库仑赝势（`μ* = 0.10, 0.13, 0.15`）对应的 BCS 趋势线，既能展示每个温度下能隙的展宽范围，又能直观比较 `μ*` 对能隙闭合温度 `T_c` 的移动。图内同时嵌入按电声耦合强度 `λ_nk` 和超导能隙 `Δ_nk` 着色的二维六角布里渊区费米面轮廓，使动量空间分布与温度演化相互印证。
+求解时记录Fermi窗口、电子/声子展宽、粗细网格、Coulomb模型、Matsubara截断与温度列表。费米面限制近似围绕EF保留配对态；全带宽方法还处理电子能量方向的信息，两者与等方/各向异性是不同选择维度。SOC分裂与自旋模型也须与实际矩阵一致；普通声子介导ME结果不能独自确立Ising保护或拓扑超导。
 
-### 3. 电荷密度波超胞反折叠费米面与动量分辨能隙分布
+先在温度范围内求得收敛解，再细化能隙趋近零的温区，必要时使用该版本支持的线性化判据。每个温度保存自己的迭代状态、Znk(iωj)、Δnk(iωj)和(n,k)映射。保持同一套k点权重，比较各费米面片的分布、平均及上下界，并在低温把Δnk投影到费米面；若画直方图，应按采样权重归一化，不能把不均匀k点个数直接当DOS。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe₂ 在 3×3 CDW 态下的超导能隙分布直方图、反折叠费米面谱权重与动量分辨能隙映射" loading="lazy"/><figcaption>单层 NbSe₂ 的各向异性超导能隙与费米面表征：(a) 四个温度（T = 2, 2.8, 3.6, 4.4 K）下 <code>Δ_k</code>（meV）的竖直分布直方图；(b) 3×3 CDW 超胞反折叠到原胞布里渊区的费米面谱权重 <code>W_k</code>，显示 K 口袋上的部分能隙打开；(c) T = 2 K 时映射在二维 Γ 与 K/K' 费米面轮廓上的动量分辨超导能隙 <code>Δ_k</code>（0.55–0.75 meV）。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019), Fig. 2，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
+需要实轴激发能隙时，另外报告解析延拓方法、实轴频率网格及检查；虚轴最低点、延拓后的实频函数和由自洽能隙边缘定义的数值应分列。材料中一次高温迭代失败不能当作能隙已经闭合。
 
-对于存在 3×3 电荷密度波（CDW）重构的单层 `NbSe₂`，将多个温度下的 `Δ_k` 分布直方图（a）、超胞能带反折叠得到的费米面谱权重 `W_k`（b）以及低温（`T = 2 K`）下投影在二维 Γ 与 K/K' 费米面等能线上的 `Δ_k` 色标分布（c，范围 `0.55–0.75 meV`）并置，能够清楚区分 CDW 引起的 K 口袋部分能隙化与各口袋内部的超导能隙各向异性。
+> 读取一个已完成的材料各向异性EPW分支，先根据版本源码确认输出格式和(n,k)映射。逐温度提取明确收敛状态、最低Matsubara点的Z与Δ及单位，按原始k权重生成各费米面片的能隙分布、均值和范围；保留对应输入、温度、Coulomb模型及截断。只对收敛点和实际采样温区报告闭合趋势，失败温度保留状态；实轴/虚轴分别出表。保存完整解析源码与输出，不用平均α²F或Al数据生成材料Δnk。
 
-下一步：把[原生双网格 EPC](/Atlas/m/epc/qe/#double-grid-pwxall)、[谱函数积分](/Atlas/m/eliashberg-a2f/qe/)和[Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/)放回同一组物理设置下比较。真正做材料 Tc 时，沿每一条分支分别检查结构、声子、粗细 k/q 网格、展宽和截断，不能从不同目录各挑一个数拼成结果。
+当前ZrCl₂/Sc₂C的已核验Γ对照属于声子阶段，完整材料各向异性Δnk(T)尚未形成；SnSe₂/Sr₂N仍按自身结构、质量和中止记录使用。这里给出文件与物理量之间的路线，材料作业继续由各自会话维护。
 
-```text
-同一结构、赝势与 SCF 势
-  → 完整均匀 NSCF + 完整 DFPT q 网格
-  → Wannier 解纠缠、局域化及直接能带对照
-  → EPW 粗矩阵 → 精细 k/q 积分 → 原生 α²F
-  → 谱积分、低频规则和采样声子检查
-  → 线性 η(T)=1 的夹区 + 独立低温非线性解
-  → 在固定协议下继续数值收敛比较
-```
+回到[逐模线宽](/Atlas/m/phonon-linewidth/qe/)定位振动，沿[α²F](/Atlas/m/eliashberg-a2f/qe/)追踪频段贡献，再在相同输入模型下比较[Tc公式](/Atlas/m/allen-dynes/qe/)与方程结果。

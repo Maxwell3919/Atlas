@@ -1,0 +1,48 @@
+{
+  "definition": "delta_n=n_AB-n_A-n_B; positive means electron gain",
+  "input_integrals_e": {
+    "AB": 2.0000000028688443,
+    "A": 1.000000001216176,
+    "B": 1.0000000012164043
+  },
+  "area_A2": 100.0,
+  "height_A": 10.000000000000007,
+  "volume_A3": 1000.0000000000007,
+  "grid": [
+    144,
+    144,
+    144
+  ],
+  "full_cell_residual_e": 4.3626381946103466e-10,
+  "cumulative_endpoint_e": 4.3626382069495327e-10,
+  "positive_3d_e": 0.2578313944388549,
+  "negative_3d_e": -0.2578313940025911,
+  "boundaries_A": [
+    0.0,
+    5.0,
+    10.0
+  ],
+  "regions": [
+    {
+      "lo_A": 0.0,
+      "hi_A": 5.0,
+      "delta_e": 1.2865148134094326e-09,
+      "delta_e_per_A2": 1.2865148134094325e-11,
+      "delta_e_per_cm2": 128651.48134094325
+    },
+    {
+      "lo_A": 5.0,
+      "hi_A": 10.0,
+      "delta_e": -8.502509927144793e-10,
+      "delta_e_per_A2": -8.502509927144792e-12,
+      "delta_e_per_cm2": -85025.09927144792
+    }
+  ],
+  "source_sha256_uncompressed": {
+    "AB": "c2f141fcb0b5c22142565426a17a794ef65c29a924a07ddb723153167c9608a1",
+    "A": "56f23e72f9e50c587ae93867681481e307b6c8023d7f024d9bc2d4857296056c",
+    "B": "543ca256886ea7ded5442e289506e96c3ebda671ce59a3e771f1624430416b52"
+  },
+  "quadrature": "periodic piecewise linear plane density; exact partial-segment integral",
+  "scope": "spatial redistribution relative to frozen fragments; not mobile carrier density"
+}

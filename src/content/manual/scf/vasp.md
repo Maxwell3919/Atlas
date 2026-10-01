@@ -1,6 +1,8 @@
-本页用两原子的 bcc Fe 常规胞演示固定结构 SCF。先准备结构、PAW 数据、电子参数和 k 网格，再从 OSZICAR 与 OUTCAR 中检查电子迭代、能量、磁矩、力和压力。电子自洽得到的是给定结构与磁性设置下的一组解；几何优化和不同磁态的比较需要另外进行。
+## 在 OUTCAR 中确认固定结构的电子解
 
-bcc Fe 的自旋极化会改变电子占据和总能量。这支固定结构的铁磁解提供能量与磁矩，供后续在相同结构、PAW 数据和采样下比较磁构型。电子自洽的固定点含义可参照 [Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)附录 A.1 式 (A.1)；本页实际使用 VASP 5.4.4，电子停止条件按 [EDIFF](https://vasp.at/wiki/EDIFF) 读取。
+界面电子结构和电荷分析需要一份与最终几何匹配的自洽密度。这里先用两原子的 bcc Fe 常规胞练习 VASP 5.4.4 的完整记录：输入如何决定电子数与磁性，OSZICAR 如何记录电子循环，OUTCAR 如何给出能量、力、应力和保存开关。a=2.8 Å 的这个固定结构得到一支共线自旋极化解；它用于认识输出格式。
+
+[Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101)第 II 节把结构/电子计算与后续 DFPT 区分，Fig. 2 又用能带、DOS、费米面和 ELF 分析电子空间归属。沿用这种分析时，SCF 应保存下一步真正需要的密度与投影数据。下面的 Fe 磁矩和密度只属于 Fe 算例，不用作二维间隙电子或界面电荷转移的证据。电子停止条件按 [EDIFF](https://vasp.at/wiki/EDIFF) 读取。
 
 [VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
 
@@ -32,7 +34,7 @@ Direct
 
 第一行是标题，第二行是缩放系数，接下来三行是晶格矢量。`Fe` 和下一行的 `2` 说明这里只有一种元素、两个原子。`Direct` 后的坐标以晶格矢量为单位，所以第二个原子在体心，即笛卡尔坐标 (1.4, 1.4, 1.4) Å。
 
-这里选 a = 2.8 Å 的 bcc 常规胞作为小算例。它同时能容纳两个 Fe 的不同初始磁矩；磁构型比较在 [磁性基态候选态](/Atlas/m/magnetic-gs/vasp/) 中继续，本页先把一份 SCF 算完。
+这里选 a=2.8 Å 的 bcc 常规胞，两个 Fe 的初始磁矩同向。结构标题、元素数目与最终输出共同确定本次模型；要分析另一种材料，使用那份材料实际接受的结构及 PAW 数据。
 
 ```text
 [bcgong@localhost fm]$ vi INCAR
@@ -64,7 +66,7 @@ LCHARG = .FALSE.
 
 INCAR 控制计算怎样进行。`ENCUT = 400` 指定平面波截断能，单位 eV；`EDIFF = 1E-8` 是电子循环停止条件，`NELM = 100` 是最多电子步数。达到 NELM 只是用完迭代次数，不能代替达到 EDIFF。
 
-`EDIFF` 同时约束相邻电子步的总自由能变化和带能变化，单位是整个晶胞的 eV；它不是原子力阈值，也不是“总能已经精确到这个数”。本例把电子迭代收紧，是为了让后续磁构型比较少受电子循环残差干扰。400 eV 与下面的 12³ 网格仍需各自做取样检查；把 EDIFF 再调小不能补回平面波或 k 点取样不足。
+`EDIFF` 同时约束相邻电子步的总自由能变化和带能变化，单位是整个晶胞的 eV；它不是原子力阈值，也不是“总能已经精确到这个数”。本例把电子迭代收紧，便于分清电子残差与其他数值设置造成的能量变化。400 eV 与下面的 12³ 网格仍需各自做取样检查；把 EDIFF 再调小不能补回平面波或 k 点取样不足。
 
 `ISPIN = 2` 开启共线自旋极化，`MAGMOM = 3 3` 给两个 Fe 同向的初始磁矩；迭代后的磁矩从输出读取。`ISMEAR = 1`、`SIGMA = 0.1` 是本例金属使用的占据展宽。`NSW = 0`、`IBRION = -1` 表示固定结构，原子位置和晶格都不会在这次运行中更新。
 
@@ -72,7 +74,7 @@ INCAR 控制计算怎样进行。`ENCUT = 400` 指定平面波截断能，单位
 
 `ISTART = 0`、`ICHARG = 2` 从新的波函数和原子电荷开始。输出开关也要在开始前确定：这里 `LWAVE` 和 `LCHARG` 均关闭，适合只比较能量和磁矩的短例子；若下一步需要重用密度或波函数，就要分别开启相应输出。
 
-`PREC = Accurate` 控制默认 FFT 网格等数值设置；这里已经显式给出 ENCUT，不能把 Accurate 读成另一个截断能。两个原子的算例采用 `LREAL = .FALSE.`，在倒空间计算投影，便于避免实空间投影近似混入小能量差。`LASPH = .TRUE.` 保留 PAW 球内密度梯度的非球形贡献，对后续 Fe 磁态比较也保持一致。`ALGO = Normal` 选择电子求解算法，`NCORE = 2` 分配每条轨道的并行工作；它们改变求解过程或资源使用，不能替代精度检查。
+`PREC = Accurate` 控制默认 FFT 网格等数值设置；这里已经显式给出 ENCUT，不能把 Accurate 读成另一个截断能。两个原子的算例采用 `LREAL = .FALSE.`，在倒空间计算投影，便于避免实空间投影近似混入小能量差。`LASPH = .TRUE.` 保留 PAW 球内密度梯度的非球形贡献，属于这次 Fe 电子模型的有效设置。`ALGO = Normal` 选择电子求解算法，`NCORE = 2` 分配每条轨道的并行工作；它们改变求解过程或资源使用，不能替代精度检查。
 
 ```text
 [bcgong@localhost fm]$ cat KPOINTS
@@ -317,16 +319,10 @@ LELF = .TRUE.
 <span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 <span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-## 从自洽结果继续计算
+## 把密度带到界面分析
 
-这次 Fe 自洽计算保留的电子密度，可以用于同结构、同磁态的密度分析。进入后续目录前，先核对需要的是 CHGCAR 还是 WAVECAR，再查看对应的参数开关。
+本次 `fm` 的 CHGCAR、WAVECAR 都是空文件；可接用的 Fe 密度来自后面确实开启 LCHARG 的 `charge_elf` 计算。这个区别也适用于异质结：先检查文件内容、结构、PAW、泛函、自旋和 SOC 设置，再建立[固定密度分支](/Atlas/m/nscf/vasp/)。不同结构或不同电子模型的密度不能靠改文件名接续。
 
-下一步若比较磁构型，接 [磁性基态候选态](/Atlas/m/magnetic-gs/vasp/)；若读真空能级，接 [功函数](/Atlas/m/workfunction/vasp/)。这些页面各自说明需要继承哪些文件，SCF 的一般读法不再重复展开。
+[差分电荷](/Atlas/m/delta-charge/vasp/)需要匹配的异质结和冻结组分密度；[Bader](/Atlas/m/bader/vasp/)需要对应密度及其参考文件；[ELF](/Atlas/m/elf/vasp/)则读其实际空间分布。希望读取薄层真空能级时，还要按[静电势](/Atlas/m/electrostatic-potential/vasp/)与[功函数](/Atlas/m/workfunction/vasp/)准备 LOCPOT。bcc Fe 的体相晶胞没有真空平台，不能用它直接求薄层功函数。
 
-```text
-POSCAR + INCAR + KPOINTS + POTCAR
-  └─ SCF 电子循环
-       ├─ OSZICAR / OUTCAR → 电子收敛、能量、力与磁矩
-       ├─ LCHARG 开启 → CHGCAR → 兼容的密度后处理
-       └─ LWAVE 开启 → WAVECAR → 兼容的波函数重启
-```
+在[SnSe₂/Sr₂N 存档](/Atlas/m/nscf/vasp/)中，可以看到非空父 CHGCAR 如何接到固定密度的均匀网格计算。该记录的元素、51 个价电子和 18×18×1 网格均来自它自己的输入；不要把这里的 Fe 参数带过去。

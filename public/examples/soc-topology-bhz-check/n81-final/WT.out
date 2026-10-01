@@ -1,0 +1,581 @@
+ -----------------------------------------------------------------------
+  W            W            W              TTTTTTTTTTTTTTTTTTTT         
+   W          W W          W                        TT                  
+    W        W   W        W                         TT                  
+     W      W     W      W                          TT                  
+      W    W       W    W                           TT                  
+       W  W         W  W                            TT                  
+        WW           WW                             TT                  
+        W             W                             TT                  
+                                                                        
+                        Welcome to WannierTools.                       
+                             Version 2.6.1     
+                   Tools for novel topological materials.               
+                          Enjoy it and good luck.                       
+                           Author : QuanSheng Wu                        
+                        Email : wuquansheng@gmail.com                   
+               Find more information on www.wanniertools.com            
+ =======================================================================
+                                                                        
+ You are using     1 CPU cores
+  
+   
+ >>>Read some paramters from wt.in
+ You are using : TB     model
+ Tight-binding Hamiltonian FROM: Hr File
+ Is_Sparse_Hr=  F
+ Tight-binding Hamiltonian filename: BHZ_hr.dat               
+ System of particle: electron                 
+ Tight-binding Hamiltonian obtained from : VASP                     
+   
+ >>>Control parameters: 
+ BulkBand_line_calc                :  T
+ BulkBand_plane_calc               :  F
+ Landaulevel_unfold_line_calc      :  F
+ BulkBand_unfold_line_calc         :  F
+ BulkBand_unfold_plane_calc        :  F
+ QPI_unfold_plane_calc             :  F
+ BulkFatBand_calc                  :  F
+ BulkBand_cube_calc                :  F
+ BulkFS_calc                       :  F
+ BulkFS_Plane_calc                 :  F
+ BulkFS_plane_stack_calc           :  F
+ BulkGap_cube_calc                 :  F
+ BulkGap_plane_calc                :  F
+ SlabBand_calc                     :  F
+ SlabBandWaveFunc_calc             :  F
+ SlabSS_calc                       :  T
+ SlabArc_calc                      :  F
+ SlabSpintexture_calc              :  F
+ wanniercenter_calc                :  T
+ BerryPhase_calc                   :  F
+ BerryCurvature_calc               :  F
+ BerryCurvature_EF_calc            :  F
+ BerryCurvature_kpath_EF_calc      :  F
+ BerryCurvature_kpath_Occupied_calc:  F
+ BerryCurvature_Cube_calc          :  F
+ BerryCurvature_slab_calc          :  F
+ Dos_calc                          :  F
+ Z2_3D_calc                        :  F
+ WeylChirality_calc                :  F
+ NLChirality_calc                  :  F
+ Chern_3D_calc                     :  F
+ MirrorChern_calc                  :  F
+ JDos_calc                         :  F
+ FindNodes_calc                    :  F
+ EffectiveMass_calc                :  F
+ AHC_calc                          :  F
+ Boltz_OHE_calc                    :  F
+ Boltz_Berry_correction            :  F
+ LOTO_correction                   :  F
+ OrbitalTexture_calc               :  F
+ OrbitalTexture_3D_calc            :  F
+ LandauLevel_k_calc                :  F
+ LandauLevel_B_calc                :  F
+ LandauLevel_wavefunction_calc     :  F
+ Fit_kp_calc                       :  F
+ DMFT_MAG_calc                     :  F
+ Translate_to_WS_calc              :  F
+ LandauLevel_kplane_calc           :  F
+ LandauLevel_k_dos_calc            :  F
+ LandauLevel_B_dos_calc            :  F
+ FermiLevel_calc                   :  F
+ Symmetry_Import_calc              :  F
+ ChargeDensity_selected_bands_calc :  F
+ ChargeDensity_selected_energies_calc :  F
+   
+ >>>System parameters: 
+ NumSlabs :    10
+ Nslab1 for ribbon  :     1
+ Nslab2 for ribbon  :     1
+ Number of Occupied bands:     2
+ Number of total electrons:    2.000000
+ With SOC or not in Hrfile:     1
+ Fermi energy (eV) :        0.000000
+ surf_onsite (eV):         0.000000
+ Add_Zeeman_Field: F
+ Zeeman_energy_in_eV (eV):         0.000000
+ Electric_field_in_eVpA (eV/Angstrom):         0.000000
+ Symmetrical_Electric_field_in_eVpA (eV/Angstrom):         0.000000
+ Inner_symmetrical_Electric_Field: F
+ ijmax :    10
+   
+ **Notes**: There are two ways to specify magnetic field.
+ 1. specify Bmagnitude, Btheta, Bphi
+ 2. specify Bx, By, Bz
+ Bmagnitude, Bx, By, Bz are real numbers in unit of Tesla. and Bx, By, Bz 
+ are in the cartesian coordinates. Btheta is the angle with z axial 
+  and Bphi is the angle with respect to x axial in the x-y plane
+  Btheta is in [0, 180], Bphi is in [0, 360).
+ If you specify both of them together, we will choose the first one.
+ If choose the first one, but not specify Btheta, Bphi, then 
+ by default we set Btheta=0, Bphi=0 which means B is along z direction.
+  
+  Warning: You didn't specify the magnitude of magnetic field.
+  
+ >>You did not specified the magnitude of magnetic field, 
+  and also didn't set Bx, By, Bz. So we will set the magnetic direction
+  from the settings of Btheta, Bphi.
+  If you even didn't set Btheta, Bphi, we will take the default value, 
+  Btheta=0, Bphi=0 which means B is along z direction
+ >>You didn't set Btheta, and we set it to 0.
+ >>You didn't set Bphi, and we set it to 0.
+ Bmagnitude (in Tesla) :        1.000000
+ Btheta, Bphi :        0.000000        0.000000
+ Bx, By, Bz (in Tesla) :        0.000000        0.000000        1.000000
+ B direction cosines :        0.000000        0.000000        1.000000
+   
+ >>>calculation parameters : 
+ E_arc :          0.00000
+ Eta_arc :          0.00100
+ Gap_threshold         0.01000
+ OmegaMin :         -2.50000
+ OmegaMax :          2.50000
+ OmegaNum :    401
+ OmegaNum_unfold :    200
+ Nk1 :     81
+ Nk2 :     81
+ Nk3 :      1
+ NP number of principle layers  :      2
+ Tmin(Kelvin)  :        100.00000
+ Tmax(Kelvin)  :        100.00000
+ NumT  :      1
+ NBTau  :      1
+ Beta  :        100.00000
+ Nslice_BTau_Max  :   5000
+ BTauMax(Tesla.ps)         0.00000
+ Relaxation_Time_Tau (ps)         1.00000
+ Rcut    999999.00000
+ Magp               1
+ Magp_min               0
+ Magp_max               1
+ wcc_calc_tol         0.08000
+ wcc_neighbour_tol         0.30000
+ NumLCZVecs   400
+ NumSelectedEigenVals     0
+ NumRandomConfs:     1
+ Projection weight mode:NORMAL              
+ The size of magnetic supercell is Magq= :      10
+  
+ We found LATTICE card
+>> lattice information (Angstrom)
+           a           b           c       alpha        beta       gamma
+    3.000000    3.000000   10.000000   47.625949   47.625949   47.625949
+ Three Lattice vectors of the unfolded cell: 
+    3.000000    0.000000    0.000000
+    0.000000    3.000000    0.000000
+    0.000000    0.000000   10.000000
+>> Reciprocal lattice information (1/Angstrom)
+           a           b           c       alpha        beta       gamma
+    2.094395    2.094395    0.628319  170.075351  170.075351  170.075351
+ Three reciprocal lattice vectors of the primitive cell: 
+    2.094395    0.000000    0.000000
+    0.000000    2.094395    0.000000
+    0.000000    0.000000    0.628319
+  
+ We found ATOM_POSITIONS card
+Origin_cell%Num_atoms    1
+  
+ Warning: You didn't specify the atom magnetic moment in the ATOMIC_POSITION card Or the format is wrong. So we set all the Atom-magnetic-moments to zero.
+ 
+>> Atom position and magnetic moment of Original lattice
+                                         Catesian                  Fractional(Direct)         Magnetic moment
+------------------------------------------------------------------------------------------------------------------
+ index  Atom Name            x           y           z           a           b           c      Mx      My      Mz
+------------------------------------------------------------------------------------------------------------------
+     1  C             0.000000    0.000000    0.000000    0.000000    0.000000    0.000000   0.000   0.000   0.000
+  
+ We found PROJECTORS card
+ >>Number of projectors per atoms:
+     2
+C       s       pz      
+  
+ >> Wannier centers by default, in unit of unit lattice vectors
+ iwann        R1        R2        R3         x         y         z
+     1  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+     2  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+     3  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+     4  0.000000  0.000000  0.000000  0.000000  0.000000  0.000000
+ We didn't found LATTICE_UNFOLD card, so it is the same as the unit cell.
+>> Folded lattice information (Angstrom)
+           a           b           c       alpha        beta       gamma
+    3.000000    3.000000   10.000000   47.625949   47.625949   47.625949
+ Three Lattice vectors of unfolded cell: 
+    3.000000    0.000000    0.000000
+    0.000000    3.000000    0.000000
+    0.000000    0.000000   10.000000
+>> Folded Reciprocal lattice information (1/Angstrom)
+           a           b           c       alpha        beta       gamma
+    2.094395    2.094395    0.628319  170.075351  170.075351  170.075351
+ Three reciprocal lattice vectors of unfolded cell: 
+    2.094395    0.000000    0.000000
+    0.000000    2.094395    0.000000
+    0.000000    0.000000    0.628319
+ 
+>> The relation between the original lattice and the unfolded lattice
+>> The cell volume ratio is:     1.000000
+>> The lattice constant a ratio is:     1.000000
+>> The lattice constant b ratio is:     1.000000
+>> The lattice constant c ratio is:     1.000000
+>> Origin_cell in unit of Folded_cell: R1      1.000000    0.000000    0.000000
+>> Origin_cell in unit of Folded_cell: R2      0.000000    1.000000    0.000000
+>> Origin_cell in unit of Folded_cell: R3      0.000000    0.000000    1.000000
+ 
+ 
+>>> Atom position and magnetic moment of Unfolded lattice
+                                    Catesian(Ang)                  Fractional(Direct)         Magnetic moment
+------------------------------------------------------------------------------------------------------------------
+ index  Atom Name            x           y           z           a           b           c      Mx      My      Mz
+------------------------------------------------------------------------------------------------------------------
+     1  C             0.000000    0.000000    0.000000    0.000000    0.000000    0.000000   0.000   0.000   0.000
+  
+ We found SURFACE card
+ 
+>> new vectors to define the surface (in unit of lattice vector)
+ The 1st vector on surface     :    0.000000    0.000000    1.000000
+ The 2nd vector on surface     :    1.000000    0.000000    0.000000
+ The 3rd vector out of surface :    0.000000    1.000000    0.000000
+  
+ The rotated new unit cell in cartesian coordinates : 
+    0.000000    0.000000   18.897261
+    5.669178    0.000000    0.000000
+    0.000000    5.669178    0.000000
+New cell's Volume is           90.00000Ang^3
+  
+ Fractional coordinates of atoms in units of new lattice vectors : 
+C       0.000000    0.000000    0.000000
+  
+ 
+ >> Top surface atom is      1 C         
+ 
+ 2D Primitive Cell_Volume:    30.000000000000000     
+ Ra2, Rb2
+   10.0000    0.0000
+    0.0000    3.0000
+ Ka2, Kb2
+    0.1759   -0.0000
+   -0.0000    0.5865
+>> lattice information of the magnetic supercell (Angstrom)
+    0.000000    0.000000   10.000000
+    3.000000    0.000000    0.000000
+    0.000000   30.000000    0.000000
+>> Reciprocal lattice information of the magnetic supercell (1/Angstrom)
+    0.000000    0.000000    0.628319
+    2.094395    0.000000    0.000000
+    0.000000    0.209440    0.000000
+  
+3D Primitive Origin_cell%CellVolume:      90.00000000 in Angstrom^3
+3D Magnetic supercell Volume:     900.00000000 in Angstrom^3
+Projected area of magnetic supercell normal to the first vector specifed in SURFACE card:     321.39583435 in Angstrom^2
+  
+ We found KPATH_BULK card
+Number of K lines :     2
+ X      0.5000   0.0000   0.0000  G       0.0000   0.0000   0.0000
+ G      0.0000   0.0000   0.0000  Y       0.0000   0.5000   0.0000
+  
+ We found KPATH_SLAB card
+ k lines for 2D system
+ No. of k lines for 2D system :            1
+  -X    0.00000 -0.50000    X       0.00000  0.50000
+ >> Kpoints plane for 2D system--> arcs  
+K2D_start: -0.5000 -0.5000
+The first vector:   1.0000  0.0000
+The second vector:   0.0000  1.0000
+  
+ We found KPLANE_BULK card
+ >> Kpoints plane for 3D system--> gapshape  
+k3D_start :   0.0000  0.0000  0.0000
+The 1st vector:   1.0000  0.0000  0.0000
+The 2nd vector:   0.0000  0.5000  0.0000
+ >> Kpoints cube for 3D system--> gapshape3D  
+k3D_start :  0.0000  0.0000  0.0000
+The 1st vector:   1.0000  0.0000  0.0000
+The 2nd vector:   0.0000  1.0000  0.0000
+The 3rd vector:   0.0000  0.0000  1.0000
+kCubeVolume:   2.7561
+ReciprocalOrigin_cell%CellVolume:   2.7561
+  
+  
+ >> Using default parameters for Kpoint_3D
+>> k points  0.0000 0.0000 0.0000 in unit of reciprocal primitive cell
+>> k points  0.0000 0.0000 0.0000 in Cartesian coordinates
+  
+ >> Using default parameters for effective mass calculation
+ >> Effective mass calculation parameters  
+>> The     2'th band
+>> k step  0.0100 in unit of 1/Angstrom
+>> k points  0.0000 0.0000 0.0000 in unit of reciprocal primitive cell
+>> k points  0.0000 0.0000 0.0000 in unit of 1/Angstrom
+  
+ >> We use the default values for k3points_pointmode_direct=[0,0,0]
+ >> and Nk3_point_mode = 1
+  
+ >> We use the default values for k3points_unfold_pointmode_direct=[0,0,0]
+ >> and Nk3_unfold_point_mode = 1
+  
+ >> We use the default values for Single_KPOINT_2D_DIRECT=[0,0]
+  
+ >> We use the default values for Single_KPOINT_3D_DIRECT=[0,0,0]
+ >> Output all atoms weight for surface state spectrum
+ > NtopAtoms            1
+> TopAtoms 
+     1
+> NbottomAtoms          1
+> BottomAtoms 
+     1
+ > NtopOrbitals            4
+> TopOrbitals 
+     1     2     3     4
+> NBottomOrbitals    4
+> BottomOrbitals 
+     1     2     3     4
+  
+ >> We do not calculate chirality for nodal lines
+  
+ >> We do not calculate chirality for weyl points
+  
+>> There are    1 groups of SelectedAtoms
+Group :   1
+>> Number of atoms selected         1
+>> Selected atoms are
+    1  C         
+  
+>> There are   1 groups of SelectedOrbitals
+ >> SelectedOrbitals
+>> Number of orbitals selected (including spin degenarcy)         4
+>> Orbitals are
+       1       2       3       4
+  
+ >> SELECTED_OCCUPIED_BANDS
+>> Number of Occupied bands selected          2
+>> OccupiedBand indices are
+     1     2
+  
+  
+ >> SELECTEDBANDS
+>> Number of bands selected          4
+>> Band indices are
+     1     2     3     4
+  
+ <<<Read wt.in file successfully
+ 
+  File BHZ_hr.dat exist, We are using HmnR from wannier90
+ >> Num_wann           4
+ >> NRPTS           5
+  >> Begin to read Hmn_R.data
+  
+ 
+  Note: This is not a 2D system or E=0, so we can't add electric field.
+ 
+  << Read Hmn_R.data successfully
+  
+ >> We finished the symmetry reducing of the kpoints in the kcube
+  Number of kpoints mesh is       6561
+  Number of symmetry reduced kpoints is          0
+  
+  
+ >> Start of calculating bulk band
+ Time cost for BulkBand is about            0.002 s
+ << End of calculating bulk band
+  
+ >> Start of calculating the Wilson loop
+ Wcc integration max_diff, Nk_adaptive   0.0000000000000000              128
+ Wcc integration max_diff, Nk_adaptive   1.5138482058196345E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.5067610897252948E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.4928144660947495E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.4724479713704497E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.4462840605803606E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.4150886926474371E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.3797263485184175E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.3411139758625623E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.3001779257201918E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.2578169412080342E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.2148730384417661E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.1721109286627396E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.7981914828956178E-004         128
+ Wcc integration max_diff, Nk_adaptive   1.0990646301271667E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.0511917659254522E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.0149651160084261E-002          64
+ Wcc integration max_diff, Nk_adaptive   9.8137127449184902E-003          64
+ Wcc integration max_diff, Nk_adaptive   9.5065061586101507E-003          64
+ Wcc integration max_diff, Nk_adaptive   9.2297894205835007E-003          64
+ Wcc integration max_diff, Nk_adaptive   8.9847576776680427E-003          64
+ Wcc integration max_diff, Nk_adaptive   8.7721124237187809E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.5776334948954371E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.5333789753318570E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4986974350575508E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4732819841734255E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4566728949729111E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4482290701543619E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4470902163079344E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4521316290272210E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4619156378133056E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4746468372812913E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4881421561756767E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4998310179022099E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.5068039979078804E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.5059282597917232E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4940418543547338E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4682244660043651E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.4261197450242022E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.3662589792799338E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.2883174752339031E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.1932351246148230E-002          64
+ Wcc integration max_diff, Nk_adaptive   2.0831575102466360E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.9611984625543144E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.8310727889067735E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.6966793313963890E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.5617179363138334E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.4294016687461664E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.3022907249862214E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.1822419550586716E-002          64
+ Wcc integration max_diff, Nk_adaptive   1.0704471699014562E-002          64
+ Wcc integration max_diff, Nk_adaptive   9.6752630750938096E-003          64
+ Wcc integration max_diff, Nk_adaptive   8.7364460724916881E-003          64
+ Wcc integration max_diff, Nk_adaptive   7.8863106956763573E-003          64
+ Wcc integration max_diff, Nk_adaptive   7.1208445171162538E-003          64
+ Wcc integration max_diff, Nk_adaptive   6.4346048283248081E-003          64
+ Wcc integration max_diff, Nk_adaptive   5.8213908011257587E-003          64
+ Wcc integration max_diff, Nk_adaptive   5.2747327715625403E-003          64
+ Wcc integration max_diff, Nk_adaptive   4.7882289114902221E-003          64
+ Wcc integration max_diff, Nk_adaptive   4.3557624670800266E-003          64
+ Wcc integration max_diff, Nk_adaptive   3.9716301220220629E-003          64
+ Wcc integration max_diff, Nk_adaptive   3.6306070608613794E-003          64
+ Wcc integration max_diff, Nk_adaptive   3.3279688348244463E-003          64
+ Wcc integration max_diff, Nk_adaptive   3.0594851177525584E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.8213962633500955E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.6103802992025749E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.4235155313991896E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.2582421436876388E-003          64
+ Wcc integration max_diff, Nk_adaptive   2.1123249088539353E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.9838182569085205E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.8710343581744837E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.7725144965652362E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.6870037680831729E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.6134289967730808E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.5508796832310878E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.4985917665200077E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.4559339746060829E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.4223965493833646E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.3975821543734668E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.3811988009795328E-003          64
+ Wcc integration max_diff, Nk_adaptive   1.3730546603323290E-003          64
+ Wcc iter:           1
+    1   0.00000   0.00000   0.00000 T T   0.30000
+    2   0.00000   0.00625   0.00000 T T   0.29092
+    3   0.00000   0.01250   0.00000 T T   0.28188
+    4   0.00000   0.01875   0.00000 T T   0.27292
+    5   0.00000   0.02500   0.00000 T T   0.26408
+    6   0.00000   0.03125   0.00000 T T   0.25541
+    7   0.00000   0.03750   0.00000 T T   0.24692
+    8   0.00000   0.04375   0.00000 T T   0.23864
+    9   0.00000   0.05000   0.00000 T T   0.23059
+   10   0.00000   0.05625   0.00000 T T   0.22279
+   11   0.00000   0.06250   0.00000 T T   0.21524
+   12   0.00000   0.06875   0.00000 T T   0.20795
+   13   0.00000   0.07500   0.00000 T T   0.20092
+   14   0.00000   0.08125   0.00000 T T   0.19420
+   15   0.00000   0.08750   0.00000 T T   0.18760
+   16   0.00000   0.09375   0.00000 T T   0.18129
+   17   0.00000   0.10000   0.00000 T T   0.17521
+   18   0.00000   0.10625   0.00000 T T   0.16932
+   19   0.00000   0.11250   0.00000 T T   0.16361
+   20   0.00000   0.11875   0.00000 T T   0.15808
+   21   0.00000   0.12500   0.00000 T T   0.15268
+   22   0.00000   0.13125   0.00000 T T   0.15258
+   23   0.00000   0.13750   0.00000 T T   0.15773
+   24   0.00000   0.14375   0.00000 T T   0.16280
+   25   0.00000   0.15000   0.00000 T T   0.16780
+   26   0.00000   0.15625   0.00000 T T   0.17275
+   27   0.00000   0.16250   0.00000 T T   0.17766
+   28   0.00000   0.16875   0.00000 T T   0.18255
+   29   0.00000   0.17500   0.00000 T T   0.18745
+   30   0.00000   0.18125   0.00000 T T   0.19235
+   31   0.00000   0.18750   0.00000 T T   0.19728
+   32   0.00000   0.19375   0.00000 T T   0.20223
+   33   0.00000   0.20000   0.00000 T T   0.20720
+   34   0.00000   0.20625   0.00000 T T   0.21220
+   35   0.00000   0.21250   0.00000 T T   0.21722
+   36   0.00000   0.21875   0.00000 T T   0.22223
+   37   0.00000   0.22500   0.00000 T T   0.22722
+   38   0.00000   0.23125   0.00000 T T   0.23215
+   39   0.00000   0.23750   0.00000 T T   0.23700
+   40   0.00000   0.24375   0.00000 T T   0.24174
+   41   0.00000   0.25000   0.00000 T T   0.24631
+   42   0.00000   0.25625   0.00000 T T   0.25070
+   43   0.00000   0.26250   0.00000 T T   0.25487
+   44   0.00000   0.26875   0.00000 T T   0.25879
+   45   0.00000   0.27500   0.00000 T T   0.26245
+   46   0.00000   0.28125   0.00000 T T   0.26584
+   47   0.00000   0.28750   0.00000 T T   0.26897
+   48   0.00000   0.29375   0.00000 T T   0.27183
+   49   0.00000   0.30000   0.00000 T T   0.27443
+   50   0.00000   0.30625   0.00000 T T   0.27680
+   51   0.00000   0.31250   0.00000 T T   0.27894
+   52   0.00000   0.31875   0.00000 T T   0.28087
+   53   0.00000   0.32500   0.00000 T T   0.28262
+   54   0.00000   0.33125   0.00000 T T   0.28420
+   55   0.00000   0.33750   0.00000 T T   0.28562
+   56   0.00000   0.34375   0.00000 T T   0.28691
+   57   0.00000   0.35000   0.00000 T T   0.28807
+   58   0.00000   0.35625   0.00000 T T   0.28913
+   59   0.00000   0.36250   0.00000 T T   0.29008
+   60   0.00000   0.36875   0.00000 T T   0.29096
+   61   0.00000   0.37500   0.00000 T T   0.29175
+   62   0.00000   0.38125   0.00000 T T   0.29248
+   63   0.00000   0.38750   0.00000 T T   0.29314
+   64   0.00000   0.39375   0.00000 T T   0.29375
+   65   0.00000   0.40000   0.00000 T T   0.29432
+   66   0.00000   0.40625   0.00000 T T   0.29484
+   67   0.00000   0.41250   0.00000 T T   0.29532
+   68   0.00000   0.41875   0.00000 T T   0.29578
+   69   0.00000   0.42500   0.00000 T T   0.29620
+   70   0.00000   0.43125   0.00000 T T   0.29660
+   71   0.00000   0.43750   0.00000 T T   0.29697
+   72   0.00000   0.44375   0.00000 T T   0.29732
+   73   0.00000   0.45000   0.00000 T T   0.29766
+   74   0.00000   0.45625   0.00000 T T   0.29798
+   75   0.00000   0.46250   0.00000 T T   0.29829
+   76   0.00000   0.46875   0.00000 T T   0.29859
+   77   0.00000   0.47500   0.00000 T T   0.29889
+   78   0.00000   0.48125   0.00000 T T   0.29917
+   79   0.00000   0.48750   0.00000 T T   0.29945
+   80   0.00000   0.49375   0.00000 T T   0.29973
+   81   0.00000   0.50000   0.00000 T T   0.30000
+ Z2 for the plane you choose:            1
+ Time cost for WannierCenter is about            0.016 s
+ << End of calculating the Wilson loop
+  
+ >> Start of calculating the surface state
+ SurfaceSS, ik          10 Nk          81 time left  0.63900000142166391       s
+ SurfaceSS, ik          20 Nk          81 time left  0.61000000056810677       s
+ SurfaceSS, ik          30 Nk          81 time left  0.51000000047497451       s
+ SurfaceSS, ik          40 Nk          81 time left  0.41000000038184226       s
+ SurfaceSS, ik          50 Nk          81 time left  0.31000000028871000       s
+ SurfaceSS, ik          60 Nk          81 time left  0.21000000019557774       s
+ SurfaceSS, ik          70 Nk          81 time left   9.8999999900115654E-002  s
+ SurfaceSS, ik          80 Nk          81 time left   8.0000000016298145E-003  s
+ ndim           8
+ knv2,omeganum,eta          81         401   3.7406483790523685E-002
+ calculate density of state successfully
+ Time cost for SlabSS_calc is about            0.978 s
+ End of calculating the surface state
+  
+ Time cost for whole program is about            0.997 s
+  
+  
+  =======================================================================
+  Congratulations! you finished the calculation.
+  I hope you could find something useful from this calculation.
+  If so, I would like to ask you to cite our this paper:
+  
+  WannierTools : An open-source software package for novel topological materials
+  QuanSheng Wu and ShengNan Zhang and Hai-Feng Song and Matthias Troyer and Alexey A. Soluyanov
+  Computer Physics Communications 224, 405 (2018)
+  https://doi.org/10.1016/j.cpc.2017.09.033
+  
+  For bugs, please report to wuquansheng@gmail.com                   
+  or wanniertools@groups.google.com.                 
+  More information could find on www.wanniertools.com            
+  See you next time :)
+  =======================================================================

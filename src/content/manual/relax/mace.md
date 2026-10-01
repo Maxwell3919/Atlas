@@ -1,3 +1,7 @@
+## Si 势能优化记录：固定晶胞
+
+这份存档展示 MACE-MP-0 small 与 ASE 的固定晶胞优化。它输出模型势能、原子力，没有 SCF 密度、Kohn–Sham 本征态或 EPC 数据，也没有本研究界面上的 DFT 对照。下面保留可追溯的 Si 操作与结果。
+
 这里从金刚石结构的 Si 出发：立方常规胞有 8 个原子，边长取 5.43 Å。先把第一个原子沿三个方向分别移动 0.10、−0.06、0.04 Å，再固定晶胞做 BFGS 优化。这样起点带着明确的原子力，可以同时看见能量下降、力收敛和晶胞保持不变。
 
 这个位移测试检查已加载的势能模型与 ASE 优化器能否共同降低原子力，得到可继续做变胞优化的内部坐标。[Batatia 等的 MACE 方法论文](https://arxiv.org/abs/2206.07697)第 2.1 节式 (4)、第 4 节式 (13)说明能量读出；本页由指定的 MACE-MP-0 small 文件提供能量与力，ASE 移动原子。与 DFT 的 Si 平衡结构是否一致，需要同结构对照。
@@ -35,7 +39,7 @@ talos@talos-MS-7D54:<工作目录>$ source <MACE环境>/bin/activate
 
 [完整输入源码 relax.py](/Atlas/examples/mace-si/si-relax/relax.py)。以下是用 `vi` 保存、再用 `cat` 读回的完整内容：
 
-```python
+```text
 (venv) talos@talos-MS-7D54:<工作目录>$ vi si-relax/relax.py
 (venv) talos@talos-MS-7D54:<工作目录>$ cd si-relax
 (venv) talos@talos-MS-7D54:<工作目录>/si-relax$ cat relax.py
@@ -144,7 +148,13 @@ BFGS:   15 21:28:05      -42.953872        0.000627
 
 这里三项相互对应：优化器返回 `converged: true`，重新计算的最大力为 6.2666×10⁻⁴ eV/Å，`cell_unchanged: true` 表明晶胞没有被改动。势能降低了约 0.06205 eV。这个结果说明这份势函数下的固定晶胞优化达到了设定阈值；它没有检验这份势对 Si 的 DFT 力误差，也没有证明结构的声子稳定性。
 
-## 把优化过程画出来
+## 轨迹、数据表与原绘图源码
+
+原轨迹和数值表用于复核每一步；可选的原绘图源码与数据一起保留。正文的日志和末态数值已给出停止条件，不再重复展示同一组趋势图。
+
+<details>
+<summary>从真实轨迹提取 CSV 与原绘图程序</summary>
+
 
 从轨迹逐帧读取能量、力和体积，导出的[数据表](/Atlas/examples/mace-si/si-relax/optimization.csv) 第一列是优化步数。绘图取相对初态的每原子能量，力使用对数坐标，最后几步是否跨过阈值就能直接看清。导出脚本也保留在[这里](/Atlas/examples/mace-si/export_series.py)。它从实际 `.traj` 读取数值，循环处理 `si-relax` 和 `si-vc-relax` 两个目录；按下面的原脚本运行时，需要先备齐两份轨迹，并从这两个目录的共同上级运行。只分析固定晶胞算例时，将循环列表改为 `[("si-relax", "relax.traj")]` 即可。
 
@@ -212,23 +222,17 @@ print("relaxation.svg", "relaxation.png")
 python3 plot.py
 ```
 
-![固定晶胞 Si 的能量下降与最大原子力](/Atlas/examples/mace-si/si-relax/relaxation.svg)
 
 能量曲线很早就趋于平缓，但最大力到第 15 步才越过虚线。这也是为什么不能只凭“最后几步能量没变多少”接受结构。
+
+
+</details>
 
 完整材料：[输入](/Atlas/examples/mace-si/si-relax/relax.py)、[原始输出](/Atlas/examples/mace-si/si-relax/relax.out.txt)、[优化轨迹](/Atlas/examples/mace-si/si-relax/relax.traj)、[末步 CIF](/Atlas/examples/mace-si/si-relax/relaxed.cif)。
 
 <span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 <span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-## 从优化末态继续计算
+## 模型末态与 DFT 分析的关系
 
-固定晶胞优化给出这份 MACE 模型上的局部极小构型。后续若开放晶胞自由度，沿用同一个模型和几何继续检查原子力与应力；做动力学时，从已检查的末态准备初始速度。
-
-下一步：想让晶格常数也由这份势决定，接着做[可变晶胞优化](/Atlas/m/vc-relax/mace/)；准备有限温度轨迹时，先使用那里已检查原子力与应力的结构，再进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)。
-
-```text
-明确结构与模型 → 固定晶胞优化 → 检查力和晶胞
-                                ↓
-                         可变晶胞优化 → MD
-```
+这里的停止条件仅检验指定 MACE 模型上的力。要把机器学习势用于本研究的界面预优化或有限温度采样，先需要针对相应元素、堆叠和应变范围做 DFT 能量/力/应力对照，再将选定构型带回同一电子模型的自洽与响应计算。这份纯 Si 记录没有完成那种对照；本轮界面电子密度、声子与 EPC 从 [DFT 结构优化](/Atlas/m/relax/qe/)及其真实输入输出接续。

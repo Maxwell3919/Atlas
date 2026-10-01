@@ -1,31 +1,48 @@
 ---
-import { categories, methods, engines, normalizeBase } from '../data/methods.js';
+import { categories, methods, normalizeBase } from '../data/methods.js';
 import { methodTeaching, manualTeaching } from '../data/teaching.js';
 import { availableManualIds } from '../lib/manual.js';
+const { expanded = false } = Astro.props;
 const base = normalizeBase(import.meta.env.BASE_URL);
 const available = await availableManualIds();
 const ready = (slug) => methods[slug].engines.some((e) => available.has(`${slug}/${e}`));
 const groups = categories.map((c) => ({...c, order: c.order.filter(ready)})).filter((c) => c.order.length);
 function searchTerms(slug) {
  const m = methods[slug];
- const cases = m.engines.map((e) => manualTeaching[`${slug}/${e}`]).filter(Boolean);
- return [slug, m.zh, ...(methodTeaching[slug]?.aliases ?? []), ...cases.flatMap((e) => [e.title, ...(e.files ?? [])])].join(' ').normalize('NFKC').toLocaleLowerCase();
+ const cases = m.engines.filter(e=>available.has(`${slug}/${e}`)).map(e=>manualTeaching[`${slug}/${e}`]).filter(Boolean);
+ return [slug, m.zh, ...(methodTeaching[slug]?.aliases ?? []), ...cases.flatMap(e=>[e.title, ...(e.files ?? [])])].join(' ').normalize('NFKC').toLocaleLowerCase();
 }
-const labels = {qe:'QE',vasp:'VASP',mace:'MACE',model:'Python 模型'};
+const labels = {qe:'QE',vasp:'VASP',mace:'MACE'};
 ---
 <div class="directory-search">
- <label class="visually-hidden" for="method-search">查找计算方法、文件名或缩写</label>
+ <label class="visually-hidden" for="method-search">查找性质、方法或文件名</label>
  <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 5 5" stroke="currentColor" stroke-width="1.6"/></svg>
- <input id="method-search" type="search" placeholder="方法、文件名或缩写，例如 LOCPOT" autocomplete="off" />
+ <input id="method-search" type="search" placeholder="查找方法或文件，例如 DOS、LOCPOT" autocomplete="off" />
  <span id="search-result" aria-live="polite"></span>
 </div>
-<p id="selection-label" class="selection-label" hidden></p>
 <div class="directory-grid">
- {groups.map((c) => <section class="directory-group" data-method-group>
-   <h3>{c.name}</h3>
-   <ul>{c.order.map((slug) => <li data-method-entry data-slug={slug} data-search={searchTerms(slug)}>
-     <a href={`${base}/m/${slug}/`}><span>{methods[slug].zh}</span><span class="engine-tags">{methods[slug].engines.filter((e) => available.has(`${slug}/${e}`)).map((e) => <span>{labels[e] ?? e}</span>)}</span></a>
+ {groups.map((c, index) => <details class:list={['directory-group', {'directory-foundations':c.id==='basics'}]} data-method-group open={expanded}>
+   <summary><span class="group-number">{String(index+1).padStart(2,'0')}</span><span class="group-name">{c.name}</span><span class="group-count">{c.order.length}</span><span class="directory-chevron" aria-hidden="true">+</span></summary>
+   <ul>{c.order.map(slug=><li data-method-entry data-slug={slug} data-search={searchTerms(slug)}>
+     <a href={`${base}/m/${slug}/`}><span>{methods[slug].zh}</span><span class="engine-tags">{methods[slug].engines.filter(e=>available.has(`${slug}/${e}`)).map(e=><span>{labels[e] ?? e}</span>)}</span></a>
    </li>)}</ul>
- </section>)}
+ </details>)}
 </div>
 <p id="no-results" class="no-results" hidden>没有找到这个方法。可以试试文件名或英文缩写。</p>
+<script>
+ const search=document.getElementById('method-search') as HTMLInputElement|null;
+ const entries=Array.from(document.querySelectorAll<HTMLElement>('[data-method-entry]'));
+ const groups=Array.from(document.querySelectorAll<HTMLDetailsElement>('[data-method-group]'));
+ const previousOpen=new Map<HTMLDetailsElement,boolean>();
+ let searching=false;
+ search?.addEventListener('input',()=>{
+  const terms=search.value.normalize('NFKC').toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+  if(terms.length&&!searching)for(const group of groups)previousOpen.set(group,group.open);
+  let count=0;
+  for(const entry of entries){entry.hidden=!terms.every(term=>(entry.dataset.search??'').includes(term));if(!entry.hidden)count++;}
+  for(const group of groups){group.hidden=!Array.from(group.querySelectorAll<HTMLElement>('[data-method-entry]')).some(entry=>!entry.hidden);if(terms.length)group.open=!group.hidden;else if(searching)group.open=previousOpen.get(group)??false;}
+  searching=terms.length>0;
+  const result=document.getElementById('search-result');if(result)result.textContent=searching?`${count} 个方法`:'';
+  const empty=document.getElementById('no-results');if(empty)empty.hidden=count>0;
+ });
+</script>

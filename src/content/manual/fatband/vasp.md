@@ -11,7 +11,12 @@ SnSe₂ 的价带边与导带边是否由同一类轨道贡献？把两个 Se �
 | 结构固定 | `IBRION=-1`、`NSW=0`；输出中还记录 `IVDW=11` |
 | 路径 | Γ–M–K–Γ，三段各 50 点，共 150 点、20 条带 |
 
+<details>
+<summary>历史输入与父密度的核对</summary>
+
 在原位归档核对时，`bands/CHGCAR` 是直接指向 `../scf/CHGCAR` 的软链接；解析目标与父 SCF 文件相同，哈希也相同。两分支的结构、赝势哈希一致，结构又与各自 XML 中的运行晶胞及原子位置相符。归档中的 SCF INCAR 后来改成了 520 eV，因此下载包提供 `incar-run.xml` 和从实际 XML/OUTCAR 导出的 `parameters-from-output.txt`，并明确标为运行参数重建，未把后来的文件冒充原输入。旧 `SYSTEM=SnS2` 是标签残留，实际 POSCAR 的元素及 PAW 标识均为 Sn、Se。
+
+</details>
 
 各图统一减去父 SCF 的费米能 `−2.39071823 eV`，取自 `scf/vasprun.xml`，也与 `scf/DOSCAR` 的表头一致。路径输出自己的费米能为 `−2.38897901 eV`；在半导体中它不是可跨材料直接比较的绝对能量标尺。
 
@@ -57,7 +62,7 @@ ion      s     py     pz     px    dxy    dyz    dz2    dxz  x2-y2    tot
 
 这三页使用同一个 `snse2-electronic` 下载包。运行参数和父密度来源见[能带页的回读记录](/Atlas/m/bands/vasp/#h-从输出回读运行参数)；本页直接从包根目录读取 路径分支的 `bands/PROCAR` 与 `bands/EIGENVAL`。
 
-## 后处理的逻辑与 coding prompt
+## 数据配对与提取要求
 
 解析时保留原子号和 orbital 表头，不能因为某条曲线很像 s 带就重新指定它的权重。先输出包含所有六组元素/角动量通道的 CSV，再从中选择带边最相关的 Sn-s、Se-p 画两栏胖带。图中同一能级的点面积正比于其原始 PAW 权重，两栏使用同一个面积系数。
 
@@ -385,6 +390,8 @@ Exported figures/fatband.png, .svg and .pdf
 | 路径内导带最低点，M | 14 / 50 | 0.243 | 0.000 | 0.292 | 0.579 |
 
 价带边在这组投影中主要来自 Se-p；最低导带同时有 Sn-s 和 Se-p，不能把它叫成纯 Sn-s 带。`tot` 小于一不被补齐，表中三位小数也包含原始投影输出的舍入。
+
+因此后续界面分析要保留至少 Sn-s 和 Se-p 两组，先看哪条分支进入近 E_F 窗口，再把 Sr₂N 的原子组映射到同一个 (k,band,spin) 上。在同一个态内出现两层权重，并沿相邻 k 点发生权重交换，才是进一步寻找层间杂化的线索；当前孤立层的混合组成还没有包含 Sr₂N。
 
 <figure><img src="/Atlas/examples/vasp/snse2-electronic/figures/fatband.png" alt="SnSe2沿Gamma M K Gamma的Sn-s与Se-p两栏逐态胖带" loading="lazy"/><figcaption>左：Sn-s；右：两个Se原子的p投影之和。灰线是相同的20条本征值，散点面积使用同一个原始权重比例，未按每个态重新归一。</figcaption></figure>
 

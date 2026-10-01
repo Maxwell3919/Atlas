@@ -1,7 +1,6 @@
-// Case scope and file ancestry, checked against the article records.
 export const methodTeaching = {
   "convergence": {
-    "overview": "改变截断能、网格等数值参数，观察目标量何时稳定。比较时保留同一结构、参考和能量定义。",
+    "overview": "比较所关心的性质随数值设置的变化，先用小体系学习总能量、力和采样的检查。",
     "aliases": [
       "收敛",
       "ecut",
@@ -9,7 +8,7 @@ export const methodTeaching = {
     ]
   },
   "relax": {
-    "overview": "固定晶胞，利用原子力调整内部坐标。末态需要同时读取优化停止信息和最终力。",
+    "overview": "规定晶胞与可动原子，连同末态力读取内部坐标的优化结果。",
     "aliases": [
       "结构优化",
       "离子优化",
@@ -17,7 +16,7 @@ export const methodTeaching = {
     ]
   },
   "vc-relax": {
-    "overview": "让晶胞与原子坐标参与优化，寻找指定外压与自由度下的结构。晶胞约束决定结果代表的几何条件。",
+    "overview": "规定晶胞自由度，在应力和原子力条件下寻找对应的结构。",
     "aliases": [
       "晶格优化",
       "晶胞优化",
@@ -25,7 +24,7 @@ export const methodTeaching = {
     ]
   },
   "scf": {
-    "overview": "在给定结构中求相互一致的电子密度与有效势，生成后续计算所需的电子状态。",
+    "overview": "在给定几何和电子模型下求自洽密度，逐段读取实际参数、迭代与保存数据。",
     "aliases": [
       "自洽",
       "电荷密度",
@@ -33,7 +32,7 @@ export const methodTeaching = {
     ]
   },
   "nscf": {
-    "overview": "固定已收敛的电子密度，在指定 k 点求本征态。均匀网格用于态密度等积分，路径采样用于色散。",
+    "overview": "沿用匹配的父密度求本征态，按 DOS、带边或费米面的需要选择采样。",
     "aliases": [
       "非自洽",
       "本征值"
@@ -56,7 +55,7 @@ export const methodTeaching = {
     ]
   },
   "exfoliation-energy": {
-    "overview": "比较层状结构分离前后的匹配能量。剥离、解理和有限距离分离功需说明各自的结构参考与分离操作。",
+    "overview": "沿指定分离路径读取能量增加，核对参考结构、界面数和面积归一化。",
     "aliases": [
       "剥离",
       "解理",
@@ -72,27 +71,32 @@ export const methodTeaching = {
     ]
   },
   "phonon-dfpt": {
-    "overview": "由原子位移扰动引起的电子线性响应和力的变化构造动力学矩阵，再求频率、位移与声子色散。",
+    "overview": "由电子线性响应求动力学矩阵，将界面和应变频率变化对应到原子位移、层与方向权重。",
     "aliases": [
       "DFPT",
       "ph.x",
-      "动力学矩阵"
+      "动力学矩阵",
+      "层间振动",
+      "本征矢"
     ]
   },
   "phonon-finite-disp": {
-    "overview": "对超胞原子施加小位移，以实际原子力重建力常数和声子频率。",
+    "overview": "将超胞正负位移与全部原子受力配对，求层内和跨层力常数，并检查位移幅度与超胞范围。",
     "aliases": [
       "有限位移",
       "Phonopy",
-      "力常数"
+      "力常数",
+      "跨层恢复力"
     ]
   },
   "imaginary-phonon": {
-    "overview": "从动力学矩阵、模式位移和数值对照诊断负本征值，判断软模或平移模式的来源。",
+    "overview": "从原始矩阵和真实位移区分Γ平移残差、层间相对运动及有限q结构软模。",
     "aliases": [
       "虚频",
       "软模",
-      "ASR"
+      "ASR",
+      "ZA",
+      "相容超胞"
     ]
   },
   "elastic-born": {
@@ -104,7 +108,7 @@ export const methodTeaching = {
     ]
   },
   "aimd": {
-    "overview": "用第一性原理原子力推进短时轨迹，读取温度和能量并检查时间步长及电子求解。",
+    "overview": "从原子轨迹读取热运动，先检查温控、步长与力，再分析层间距、滑移和结构变化。",
     "aliases": [
       "分子动力学",
       "AIMD",
@@ -112,11 +116,12 @@ export const methodTeaching = {
     ]
   },
   "phdos": {
-    "overview": "对布里渊区中的振动模式做积分，得到声子态密度；路径色散与态密度使用不同取样。",
+    "overview": "以统一单位积分原子声子谱，按真实原子顺序合成元素和层贡献，再与色散及耦合谱对读。",
     "aliases": [
       "声子DOS",
       "PHDOS",
-      "matdyn"
+      "原子投影",
+      "层投影"
     ]
   },
   "elastic-moduli": {
@@ -136,7 +141,7 @@ export const methodTeaching = {
     ]
   },
   "bands": {
-    "overview": "沿指定倒空间路径计算和绘制电子色散，读图时核对坐标、能量零点和本征值求解。",
+    "overview": "沿物理 k 路径读取色散与费米交点，再与孤立层、轨道投影和均匀网格结果配对。",
     "aliases": [
       "能带",
       "band structure",
@@ -144,7 +149,7 @@ export const methodTeaching = {
     ]
   },
   "band-gap": {
-    "overview": "在足够的倒空间采样中定位价带顶和导带底，区分直接与间接间隙及其采样误差。",
+    "overview": "在实际采样的布里渊区寻找带边，比较父密度、子网格和局部谷搜索的影响。",
     "aliases": [
       "带隙",
       "VBM",
@@ -168,7 +173,7 @@ export const methodTeaching = {
     ]
   },
   "dos": {
-    "overview": "对均匀布里渊区取样的电子态做能量分布统计，进一步可按原子或轨道投影。",
+    "overview": "按统一能量参考与归一化读取 DOS 和层投影，比较费米点及选定能窗的谱重。",
     "aliases": [
       "态密度",
       "DOS",
@@ -176,7 +181,7 @@ export const methodTeaching = {
     ]
   },
   "fatband": {
-    "overview": "把逐 k、逐带的原子轨道投影与色散对应，用权重观察能带组成。",
+    "overview": "把本征值与同一个 (k, band) 的投影配对，辨认层来源和杂化线索。",
     "aliases": [
       "胖带",
       "投影能带",
@@ -184,7 +189,7 @@ export const methodTeaching = {
     ]
   },
   "fermi-surface": {
-    "overview": "从完整倒空间取样中寻找能量等于费米能的位置，辨认电子和空穴口袋与周期边界。",
+    "overview": "从完整倒空间网格重建费米等能轮廓，再回读对应能带、投影和电子或空穴性质。",
     "aliases": [
       "费米面",
       "Fermi surface",
@@ -192,7 +197,7 @@ export const methodTeaching = {
     ]
   },
   "spin-texture": {
-    "overview": "读取含 SOC 本征态的自旋投影，并在明确的自旋基底和 k 空间采样上解释方向。",
+    "overview": "读取 SOC 本征态的自旋投影，核对坐标基底、电子数、时间反演条件与所覆盖的 k 空间。",
     "aliases": [
       "自旋纹理",
       "Rashba",
@@ -201,7 +206,7 @@ export const methodTeaching = {
     ]
   },
   "electrostatic-potential": {
-    "overview": "从势网格求法向平均，识别真空平台或界面势变化，并核对势的组成与能量单位。",
+    "overview": "说明势的组成，沿层法向平均，并将平台、势阶跃与电荷重排对应。",
     "aliases": [
       "静电势",
       "LOCPOT",
@@ -209,7 +214,7 @@ export const methodTeaching = {
     ]
   },
   "fermi-nesting": {
-    "overview": "比较费米面平移后的几何重叠；几何联合权重与包含占据差、能量分母的响应函数需分别定义。",
+    "overview": "用完整电子网格计算几何联合权重J(q)，在同q上与声子和EPC比较。",
     "aliases": [
       "嵌套",
       "J(q)",
@@ -225,7 +230,7 @@ export const methodTeaching = {
     ]
   },
   "delta-charge": {
-    "overview": "在相同晶胞和冻结位置下相减组合体系与片段密度，观察电子积累和耗尽。",
+    "overview": "在共同几何和密度网格上相减，结合三维分布、平面平均和累计积分读取密度重排。",
     "aliases": [
       "差分电荷",
       "密度差",
@@ -233,7 +238,7 @@ export const methodTeaching = {
     ]
   },
   "bader": {
-    "overview": "按实空间密度拓扑划分原子盆地，积分电子数并检查网格、参考密度和总数。",
+    "overview": "按零通量盆地积分密度，对同层原子加总，并检查冻结参照与网格变化。",
     "aliases": [
       "Bader",
       "ACF.dat",
@@ -241,7 +246,7 @@ export const methodTeaching = {
     ]
   },
   "elf": {
-    "overview": "读取电子局域化函数，在统一阈值与原始采样上观察局域化空间分布。",
+    "overview": "将局域化函数放回晶体结构中，结合选带或选能窗密度辨认间隙电子态。",
     "aliases": [
       "ELF",
       "ELFCAR",
@@ -258,7 +263,7 @@ export const methodTeaching = {
     ]
   },
   "population-analysis": {
-    "overview": "在明确的投影基底中统计原子或轨道布居，并核对未被基底覆盖的电子部分。",
+    "overview": "在固定投影定义下读取原子与轨道布居，连同投影覆盖率比较电子态变化。",
     "aliases": [
       "布居",
       "Löwdin",
@@ -266,7 +271,7 @@ export const methodTeaching = {
     ]
   },
   "wannier90": {
-    "overview": "构造局域 Wannier 表象并插值电子色散，使用直接计算检查插值精度。",
+    "overview": "建立所需电子子空间，先与直接 DFT 检验插值，再接 EPC、WCC 或边界谱。",
     "aliases": [
       "Wannier",
       "MLWF",
@@ -274,43 +279,50 @@ export const methodTeaching = {
     ]
   },
   "epc": {
-    "overview": "连接电子态与声子响应计算耦合，区分电子、声子取样和积分展宽对结果的影响。",
+    "overview": "由电子双网格和逐q矩阵追到模式线宽、耦合与配对谱，保留Al32³/48³两条完整链。",
     "aliases": [
+      "EPC",
+      "双网格",
       "电声耦合",
-      "电子声子耦合",
-      "双网格"
+      "pwxall",
+      "界面振动"
     ]
   },
   "eliashberg-a2f": {
-    "overview": "把声子频率和电子声子权重组成谱函数，再求耦合积分与对数平均频率。",
+    "overview": "从真实谱积分累计λ、对数频率和二阶矩，按模式和频段解释界面与应变变化。",
     "aliases": [
       "α²F",
-      "alpha2F",
-      "谱函数"
+      "累计λ",
+      "谱积分",
+      "频段贡献"
     ]
   },
   "allen-dynes": {
-    "overview": "把谱函数矩与指定库仑赝势代入经验公式估算 Tc，并检查数值输入的敏感性。",
+    "overview": "区分简化估计与完整f₁f₂公式，以真实两分支谱矩和展宽曲线分析Tc差异。",
     "aliases": [
-      "Allen-Dynes",
-      "McMillan",
-      "Tc"
+      "Tc",
+      "Allen–Dynes",
+      "μ*",
+      "网格比较"
     ]
   },
   "epw-eliashberg": {
-    "overview": "以完整电子声子谱求解 Eliashberg 方程，区分线性化 Tc 与非线性能隙函数的求解。",
+    "overview": "对照外部谱与Wannier原生谱的等方实算，并说明材料Δnk(T)所需的动量分辨数据。",
     "aliases": [
       "EPW",
       "Eliashberg",
-      "超导能隙"
+      "能隙",
+      "各向异性",
+      "Wannier"
     ]
   },
   "phonon-linewidth": {
-    "overview": "读取声子模式的电子声子线宽，核对频率、q 权重与采用的展宽和单位约定。",
+    "overview": "用真实q模式核对γ与λ的单位和频率权重，再结合原子位移解读低频与高频贡献。",
     "aliases": [
       "线宽",
-      "γ",
-      "linewidth"
+      "γqν",
+      "λqν",
+      "原子位移"
     ]
   },
   "bkt-scaling": {
@@ -324,7 +336,7 @@ export const methodTeaching = {
     ]
   },
   "workfunction": {
-    "overview": "把同一次计算的真空势与电子化学势相减，读取指定表面的功函数并说明占据条件。",
+    "overview": "从同一次计算的真空势和费米能求功函数，分别读取薄层两侧的表面。",
     "aliases": [
       "功函数",
       "真空能级",
@@ -332,7 +344,7 @@ export const methodTeaching = {
     ]
   },
   "band-alignment": {
-    "overview": "先将各材料的带边或费米能转换到明确参考，再比较能级位置与接触后的界面响应。",
+    "overview": "用相向表面的真空势对齐冻结单层能级，再由接触后的电子结构检查界面变化。",
     "aliases": [
       "带边对齐",
       "能级对齐",
@@ -373,7 +385,7 @@ export const methodTeaching = {
     ]
   },
   "strain-doping-scan": {
-    "overview": "在明确的形变或电子数条件下逐点比较性质，分别说明应变自由度与带电边界。",
+    "overview": "明确单/双轴几何应变，在同结构来源和协议下比较电荷、层电子态、声子与超导相关量。",
     "aliases": [
       "应变",
       "掺杂",
@@ -381,7 +393,7 @@ export const methodTeaching = {
     ]
   },
   "heterostructure-modeling": {
-    "overview": "定义共同晶胞、层内几何和配准，再检查层间距与周期边界；不同堆垛或扭角需相应建模。",
+    "overview": "在共同面内晶胞中规定堆叠、层间距与可动自由度，建立界面和单层参照。",
     "aliases": [
       "异质结",
       "层间距",
@@ -390,12 +402,11 @@ export const methodTeaching = {
     ]
   },
   "berry-chern": {
-    "overview": "从本征态的几何关系构造回路或平面不变量。当前 QE 算例计算占据子空间的周期二维切片陈数。",
+    "overview": "从占据子空间的重叠矩阵计算回路相位，区分总相位、本征相位、切片陈数和自旋子 Z₂。",
     "aliases": [
       "Berry",
       "Chern",
-      "陈数",
-      "ℤ₂"
+      "陈数"
     ]
   },
   "carrier-mobility": {
@@ -419,13 +430,14 @@ export const methodTeaching = {
 
 export const manualTeaching = {
   "adsorption-energy/qe": {
-    "title": "Al(111) 两面 H 吸附与 H₂ 参考",
+    "title": "H/Al(111) 吸附与气相参照记录",
     "kind": "DFT",
-    "summary": "比较三层洁净薄膜、两面各 1 ML 顶位 H 与气相 H₂ 的匹配能量，检查几何和数值设置对吸附能的影响。",
+    "summary": "保留H2参照、每H归一化和成对网格/力检查；与当前异质双层的结合能参照分别说明。",
     "inputs": [],
     "related": [
+      "scf",
       "relax",
-      "scf"
+      "heterostructure-modeling"
     ],
     "files": [
       "relax.in",
@@ -434,23 +446,26 @@ export const manualTeaching = {
     ]
   },
   "aimd/qe": {
-    "title": "Al 短时 AIMD 与步长比较",
+    "title": "Al AIMD 步长对照与界面轨迹判读",
     "kind": "DFT",
-    "summary": "在 8 原子 fcc Al 固定超胞中完成 SVR 恒温与两种步长的 NVE 轨迹，读取温度、能量和坐标。",
+    "summary": "从8原子Al短轨迹比较SVR响应和等时长NVE积分误差，再说明界面热运动应跟踪的层间距、滑移与配位。",
     "inputs": [
       {
         "method": "vc-relax",
-        "label": "Al 最终晶格与坐标"
+        "label": "Al算例已接受晶格；界面研究改用自身优化结构"
       }
     ],
     "related": [
       "scf",
-      "phonon-dfpt"
+      "heterostructure-modeling",
+      "phonon-dfpt",
+      "phonon-finite-disp"
     ],
     "files": [
-      "initial-velocities.json",
+      "al.md.in",
+      "al.md.out",
       "thermo.csv",
-      "trajectory.npz"
+      "trajectory.xyz"
     ]
   },
   "allen-dynes/qe": {
@@ -475,9 +490,9 @@ export const manualTeaching = {
     ]
   },
   "bader/vasp": {
-    "title": "bcc Fe 的 Bader 盆地电荷",
+    "title": "从 bcc Fe 分区到层电子数",
     "kind": "DFT",
-    "summary": "用共线 FM Fe 的 CHGCAR 和全电子参考密度划分盆地，比较包含 96³ 与 192³ 细网格的两套实空间设置及整胞积分。",
+    "summary": "读取真实密度、盆地和网格对照，再按冻结参考定义层转移。",
     "inputs": [
       {
         "method": "magnetic-gs",
@@ -512,9 +527,9 @@ export const manualTeaching = {
     ]
   },
   "band-alignment/vasp": {
-    "title": "SnSe₂/Sr₂N 冻结孤立层的能级参考",
+    "title": "SnSe₂/Sr₂N 冻结层的真空对齐",
     "kind": "DFT",
-    "summary": "保留共同面内晶胞与层内几何，用各层相向表面的真空势比较 SnSe₂ 带边和金属 Sr₂N 费米能。",
+    "summary": "对齐共同晶胞内的半导体带边与金属费米能，明确接触前参考。",
     "inputs": [
       {
         "method": "heterostructure-modeling",
@@ -569,9 +584,9 @@ export const manualTeaching = {
     ]
   },
   "bands/qe": {
-    "title": "Si 高对称路径能带",
+    "title": "Si 路径能带与界面费米分支",
     "kind": "DFT",
-    "summary": "从固定 Si 的 SCF 密度计算 121 个路径点，读取本征值并核对路径与求解状态。",
+    "summary": "从真实路径本征值读能带，再比较 ZrCl₂/Sc₂C 的分支和层来源。",
     "inputs": [
       {
         "method": "scf",
@@ -590,19 +605,22 @@ export const manualTeaching = {
     ]
   },
   "berry-chern/qe": {
-    "title": "Si 占据子空间的周期切片陈数",
+    "title": "Si 占据态的陈数与矩阵 Wilson 回路",
     "kind": "DFT",
-    "summary": "从两套完整网格的原生重叠矩阵构造 FHS 回路，十个固定 k₃ 切片得到 C=0，并检查规范与周期链接。",
+    "summary": "从无 SOC 原生重叠矩阵复算十个零陈数切片及 52 个矩阵回路，区分总相位、本征相位与自旋子 Z₂。",
     "inputs": [],
     "related": [
       "wannier90",
-      "bands"
+      "spin-texture"
     ],
     "files": [
       "silicon.mmn",
       "silicon.nnkp",
       "slices.csv",
-      "independent-check.json"
+      "independent-check.json",
+      "wilson_loop.py",
+      "si-wilson-loops.csv",
+      "si-wilson-summary.json"
     ]
   },
   "bkt-scaling/model": {
@@ -652,13 +670,14 @@ export const manualTeaching = {
     ]
   },
   "convergence/qe": {
-    "title": "固定 Si 的截断与网格比较",
+    "title": "固定 Si 总能量的截断与网格检查",
     "kind": "DFT",
-    "summary": "在同一两原子金刚石 Si 晶胞内逐项改变数值参数，比较匹配的总能量。",
+    "summary": "用真实单变量扫描读取总能量误差，区分有限参照、组合参数和界面/声子目标量的接受条件。",
     "inputs": [],
     "related": [
       "scf",
-      "relax"
+      "relax",
+      "phonon-dfpt"
     ],
     "files": [
       "scf.in",
@@ -685,9 +704,9 @@ export const manualTeaching = {
     ]
   },
   "delta-charge/vasp": {
-    "title": "固定 H₂ 的成键差分电子密度",
+    "title": "差分密度、平面平均与累计积分",
     "kind": "DFT",
-    "summary": "在同一 10 Å 晶胞和冻结原子位置下计算 H₂、H_A、H_B，逐网格相减并检查电子数与空间分布。",
+    "summary": "用 H₂ 真实三密度学习相减和积分，再说明界面层边界与面积归一化。",
     "inputs": [],
     "related": [
       "scf",
@@ -715,9 +734,9 @@ export const manualTeaching = {
     ]
   },
   "dos/qe": {
-    "title": "Si 均匀 NSCF 上的总态密度",
+    "title": "DOS 与近费米能窗的层谱重",
     "kind": "DFT",
-    "summary": "用 dos.x 读取 24³ 网格的带能和权重，比较能量步长、展宽与 DOS 的积分含义。",
+    "summary": "读取均匀网格与投影，提取四态冻结对照的费米点及窗口结果。",
     "inputs": [
       {
         "method": "nscf",
@@ -796,9 +815,9 @@ export const manualTeaching = {
     ]
   },
   "electrostatic-potential/vasp": {
-    "title": "HfCl₂/PbO₂ 的平面平均静电势",
+    "title": "薄层两侧的平面平均电势",
     "kind": "DFT",
-    "summary": "读取固定几何静态计算的 LVHAR 势，重建 56×56×480 网格的法向平均与两侧平台。",
+    "summary": "从 HfCl₂/PbO₂ 真实势读取平台，说明法向坐标与界面偶极。",
     "inputs": [],
     "related": [
       "scf",
@@ -812,9 +831,9 @@ export const manualTeaching = {
     ]
   },
   "elf/vasp": {
-    "title": "bcc Fe 两自旋通道的 ELF",
+    "title": "ELF 文件、VESTA 与间隙态分析",
     "kind": "DFT",
-    "summary": "用共线 FM Fe 计算并读取 ELFCAR，检查真实采样网格与同阈值下的三维等值面。",
+    "summary": "读取两自旋块和真实 VESTA 操作，结合 Ca₂N 与 H-ZrCl₂ 的空间电子态。",
     "inputs": [
       {
         "method": "magnetic-gs",
@@ -912,13 +931,15 @@ export const manualTeaching = {
     ]
   },
   "exfoliation-energy/vasp": {
-    "title": "HfI₂ 冻结六层薄膜的分离曲线",
+    "title": "HfI₂ 冻结层分离与单位面积能量",
     "kind": "DFT",
-    "summary": "读取零位移与 2–20 Å 的 20 个完整单点，提取有限距离分离功；七个未完成目录另列排除表。",
+    "summary": "从真实20个接受点读有限距离分离功，核对单界面面积、末段起伏和周期像；保留其作为层间分离方法示例的条件用途。",
     "inputs": [],
     "related": [
-      "scf",
-      "heterostructure-modeling"
+      "heterostructure-modeling",
+      "relax",
+      "delta-charge",
+      "phonon-finite-disp"
     ],
     "files": [
       "OUTCAR",
@@ -927,9 +948,9 @@ export const manualTeaching = {
     ]
   },
   "fatband/qe": {
-    "title": "Si 路径态的 s/p 投影胖带",
+    "title": "逐态投影与界面费米交点",
     "kind": "DFT",
-    "summary": "读取同一 121 点路径的波函数，将两原子 s、p 逐态投影与能量按索引合并。",
+    "summary": "核对能级和投影配对，读取六个真实交点的 Zr-d、Sc-d 与其他轨道权重。",
     "inputs": [
       {
         "method": "bands",
@@ -948,9 +969,9 @@ export const manualTeaching = {
     ]
   },
   "fermi-nesting/qe": {
-    "title": "Al 费米面几何联合权重 J(q)",
+    "title": "几何J(q)：Al真实网格与应变软模的对照方法",
     "kind": "DFT",
-    "summary": "从完整 24³/32³ 点阵的 Eₙ(k)−E_F 求周期联合权重，比较网格和能量窗口；采用几何权重定义。",
+    "summary": "保存24/32网格与0.10/0.20 eV窗口的联合权重；说明同结构同q对照，不声明异质结嵌套机制。",
     "inputs": [
       {
         "method": "fermi-surface",
@@ -958,6 +979,9 @@ export const manualTeaching = {
       }
     ],
     "related": [
+      "fermi-surface",
+      "strain-doping-scan",
+      "phonon-linewidth",
       "epc"
     ],
     "files": [
@@ -1002,12 +1026,14 @@ export const manualTeaching = {
     ]
   },
   "heterostructure-modeling/vasp": {
-    "title": "SnSe₂/Sr₂N 的层距几何构造",
+    "title": "SnSe₂/Sr₂N 构型与单层结合能参照",
     "kind": "几何建模",
-    "summary": "从已有共同晶胞出发，将法向层间距设为 3 Å 并居中，检查层厚、配准和周期镜像空白。",
+    "summary": "保留真实刚性层移动，说明共同晶胞、侧向配准及冻结/自由单层参照；没有匹配能量组时不报告界面结合能数值。",
     "inputs": [],
     "related": [
-      "band-alignment",
+      "scf",
+      "relax",
+      "delta-charge",
       "exfoliation-energy"
     ],
     "files": [
@@ -1054,14 +1080,13 @@ export const manualTeaching = {
     ]
   },
   "magnetic-gs/vasp": {
-    "title": "bcc Fe 的 FM、AFM 与非磁候选",
+    "title": "bcc Fe磁候选比较存档",
     "kind": "DFT",
-    "summary": "在固定 a=2.8 Å 的两原子胞比较三种自洽解，结合局域磁矩区分抵消与无自旋极化。",
+    "summary": "保留三态真实输入输出；H-ZrCl2空穴文献用于说明条件问题，当前文章建议隐藏。",
     "inputs": [],
     "related": [
       "scf",
-      "mae",
-      "exchange-j"
+      "fatband"
     ],
     "files": [
       "OUTCAR",
@@ -1094,9 +1119,9 @@ export const manualTeaching = {
     ]
   },
   "nscf/qe": {
-    "title": "Si 固定密度的 24³ 本征值",
+    "title": "Si 固定密度的 24³ 本征态",
     "kind": "DFT",
-    "summary": "从 8³ SCF 密度求 8 条能带，保留 Davidson 未收敛记录并读取 CG 完成分支。",
+    "summary": "沿用 8³ 父密度求 8 条带，读取 CG 求解、413 点 XML 与实际占据，区分父密度和子采样误差。",
     "inputs": [
       {
         "method": "scf",
@@ -1104,9 +1129,10 @@ export const manualTeaching = {
       }
     ],
     "related": [
+      "scf",
       "dos",
       "band-gap",
-      "population-analysis"
+      "bands"
     ],
     "files": [
       "nscf.in",
@@ -1232,14 +1258,15 @@ export const manualTeaching = {
     ]
   },
   "relax/qe": {
-    "title": "固定 Si 晶胞的位移恢复",
+    "title": "Si 固定胞弛豫：末态力与内部坐标",
     "kind": "DFT",
-    "summary": "固定第一个原子和晶胞，从第二个原子的 x 向位移出发进行位置优化，读取 BFGS 轨迹和末态力。",
+    "summary": "用位移恢复和紧电子阈值复核认识原子优化，接到规定面内晶格的界面与应变条件。",
     "inputs": [],
     "related": [
       "scf",
+      "vc-relax",
       "convergence",
-      "vc-relax"
+      "heterostructure-modeling"
     ],
     "files": [
       "relax.in",
@@ -1247,14 +1274,15 @@ export const manualTeaching = {
     ]
   },
   "scf/qe": {
-    "title": "两原子 Si 的固定结构 SCF",
+    "title": "Si 自洽密度与完整 OUT 判读",
     "kind": "DFT",
-    "summary": "用指定 Si 结构完成电子自洽，核对迭代、总能、力与压力以及后续保存目录。",
+    "summary": "沿版本、结构、电子迭代、力应力与保存数据读固定结构 SCF，接到密度差和响应分析。",
     "inputs": [],
     "related": [
       "convergence",
       "nscf",
-      "bands"
+      "delta-charge",
+      "phonon-dfpt"
     ],
     "files": [
       "scf.in",
@@ -1264,13 +1292,14 @@ export const manualTeaching = {
     ]
   },
   "scf/vasp": {
-    "title": "两原子 bcc Fe 的固定结构 SCF",
+    "title": "bcc Fe 的固定结构电子解与输出文件",
     "kind": "DFT",
-    "summary": "读取实际 VASP 输入、电子迭代、能量和磁矩，区分电子收敛与几何优化。",
+    "summary": "以小体系认识有效参数、OSZICAR、能量定义及密度保存，区分电子解、几何条件与材料分析。",
     "inputs": [],
     "related": [
-      "magnetic-gs",
-      "workfunction"
+      "nscf",
+      "relax",
+      "delta-charge"
     ],
     "files": [
       "INCAR",
@@ -1279,13 +1308,14 @@ export const manualTeaching = {
     ]
   },
   "spin-texture/vasp": {
-    "title": "SnSe₂/Sr₂N 路径上的 SOC 自旋投影",
+    "title": "SnSe₂/Sr₂N 的 SOC 沿线自旋投影",
     "kind": "DFT",
-    "summary": "沿 Γ–M–K–Γ 读取 150×72 组 PROCAR 数据与自旋基底，保留高对称线上的原始投影。",
+    "summary": "读取 150×72 组 PROCAR 四块投影，解释 K 点真实记录，并连接二维费米面自旋与 Ising 配对所需证据。",
     "inputs": [],
     "related": [
-      "scf",
-      "mae"
+      "bands",
+      "wannier90",
+      "epc"
     ],
     "files": [
       "PROCAR",
@@ -1294,22 +1324,36 @@ export const manualTeaching = {
     ]
   },
   "strain-doping-scan/qe": {
-    "title": "Al 六点纵向应变的能量与应力",
+    "title": "应变：从形变输入到界面电子态与声子/EPC",
     "kind": "DFT",
-    "summary": "保持电子数与横向晶胞分量，逐点读取 xx 应变的 F 和应力，并统一拉伸为正的符号。",
+    "summary": "Al六点演示形变和应力；四态冻结PDOS说明应变与界面响应，再按Ba2N原文组织电荷、声子、alpha2F、lambda、omega_log和Tc对照。",
     "inputs": [
       {
         "method": "vc-relax",
-        "label": "Al 优化晶格参数"
+        "label": "Al优化结构与独立SCF目录"
+      },
+      {
+        "method": "population-analysis",
+        "label": "四态冻结几何PDOS及能量参考"
       }
     ],
     "related": [
-      "elastic-born",
-      "scf"
+      "heterostructure-modeling",
+      "delta-charge",
+      "bader",
+      "elf",
+      "phonon-dfpt",
+      "phonon-linewidth",
+      "eliashberg-a2f",
+      "allen-dynes"
     ],
     "files": [
+      "al.scf.in",
+      "al.scf.out",
       "strain-stress.csv",
-      "strain-summary.json"
+      "frozen_pdos_long.csv",
+      "inspect_frozen_pdos.py",
+      "nearest-fermi-pdos.json"
     ]
   },
   "vc-relax/mace": {
@@ -1333,14 +1377,15 @@ export const manualTeaching = {
     ]
   },
   "vc-relax/qe": {
-    "title": "Al 晶胞优化与未收敛结构对照",
+    "title": "Al 变胞优化与二维受限自由度",
     "kind": "DFT",
-    "summary": "沿 fcc 晶格约束完成 Al 的 vc-relax，读取最后坐标与压力；另保留 HfCl₂/PbO₂ 的 BFGS 停止记录。",
+    "summary": "读取完整 Al BFGS 末态与最后电子重算，借旧失败记录分清停止原因和二维面内约束。",
     "inputs": [],
     "related": [
       "scf",
+      "relax",
       "phonon-dfpt",
-      "elastic-born"
+      "strain-doping-scan"
     ],
     "files": [
       "al.relax.in",
@@ -1348,14 +1393,16 @@ export const manualTeaching = {
     ]
   },
   "wannier90/qe": {
-    "title": "Si 四条价带的 Wannier 插值",
+    "title": "Wannier 插值检验与 SOC 子空间",
     "kind": "DFT",
-    "summary": "从本例独立 SCF、完整 NSCF 与接口矩阵构造四个 Wannier 函数，再与直接 DFT 路径点比较。",
+    "summary": "用 Si 真实接口和直接 DFT 检验四价带插值，再说明 SOC 自旋子、占据子空间和 WCC/边界谱的接续条件。",
     "inputs": [],
     "related": [
-      "scf",
+      "bands",
       "nscf",
-      "berry-chern"
+      "berry-chern",
+      "spin-texture",
+      "epw-eliashberg"
     ],
     "files": [
       "silicon.win",
@@ -1365,9 +1412,9 @@ export const manualTeaching = {
     ]
   },
   "workfunction/vasp": {
-    "title": "SnSe₂ 单层的真空参考功函数",
+    "title": "SnSe₂ 两侧功函数与半导体带边",
     "kind": "DFT",
-    "summary": "从同次 SCF 的 LVHAR 势、费米能和带边读取两侧能级差，并结合半导体占据条件解释数值。",
+    "summary": "用同次真空势、费米能与带边，分别报告功函数、IP 和 EA。",
     "inputs": [],
     "related": [
       "scf",
@@ -1382,9 +1429,9 @@ export const manualTeaching = {
     ]
   },
   "temperature-effective-fc/mace": {
-    "title": "Si 有限温度有效二阶力常数拟合",
+    "title": "MACE–Si有效二阶力常数存档",
     "kind": "机器学习势",
-    "summary": "从 MACE 轨迹中提取位移与力，用 symfc 拟合有效二阶力常数，再由 phonopy 比较不同样本数下的频率。",
+    "summary": "保存位移力拟合和独立验证；不当作SSCHA或异质结非谐稳定化结果，当前路线建议隐藏。",
     "inputs": [
       {
         "method": "vc-relax",
@@ -1399,7 +1446,10 @@ export const manualTeaching = {
         "label": "同一 MACE-MP-0 small 模型"
       }
     ],
-    "related": [],
+    "related": [
+      "imaginary-phonon",
+      "phonon-finite-disp"
+    ],
     "files": [
       "mapped-dataset.npz",
       "independent-dataset.npz",
@@ -1408,13 +1458,14 @@ export const manualTeaching = {
     ]
   },
   "relax/vasp": {
-    "title": "HfCl₂ 薄层的固定晶胞优化",
+    "title": "HfCl₂ 薄层固定胞优化与残余应力",
     "kind": "DFT",
-    "summary": "读取 24 原子薄层的完整输入、10 个离子步和最终力，核对 ISIF=2 下的内部坐标优化。",
+    "summary": "读取完整模型、10 个离子步和末力，区分固定胞内部坐标接受与晶胞平衡。",
     "inputs": [],
     "related": [
       "scf",
-      "vc-relax"
+      "vc-relax",
+      "heterostructure-modeling"
     ],
     "files": [
       "POSCAR",
@@ -1425,14 +1476,16 @@ export const manualTeaching = {
     ]
   },
   "nscf/vasp": {
-    "title": "SnSe₂/Sr₂N 固定密度的均匀网格电子态",
+    "title": "SnSe₂/Sr₂N 固定密度与 DOS 读取",
     "kind": "DFT",
-    "summary": "从包内同结构 SCF 的 CHGCAR 接续 ICHARG=11 分支，读取本征值、DOSCAR 与实际求解状态。",
+    "summary": "父子均为 18×18×1；读取 ICHARG=11 接续、能量轴与真实 DOS 样本，接到界面投影和空间密度。",
     "inputs": [],
     "related": [
       "scf",
       "dos",
-      "bands"
+      "bands",
+      "fatband",
+      "delta-charge"
     ],
     "files": [
       "CHGCAR",

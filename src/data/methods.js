@@ -1,4 +1,6 @@
-// Physical questions and actual software routes; legacy addresses remain reachable.
+// Property directory and explicit research scope. Sources of hidden cases remain in the repository.
+import researchScope from './research-scope.json';
+
 export const engines = [
   {
     "id": "qe",
@@ -20,94 +22,49 @@ export const engines = [
 
 export const categories = [
   {
-    "id": "basics",
-    "name": "计算基础与数值可靠性",
+    "id": "interface",
+    "name": "界面结构与稳定性",
     "order": [
-      "scf",
-      "convergence",
-      "relax",
-      "vc-relax"
-    ]
-  },
-  {
-    "id": "thermo",
-    "name": "形成能与相稳定性",
-    "order": [
-      "formation-energy",
-      "convex-hull"
-    ]
-  },
-  {
-    "id": "stability",
-    "name": "声子与有限温度",
-    "order": [
-      "phonon-dfpt",
-      "phonon-finite-disp",
-      "imaginary-phonon",
-      "phdos",
-      "aimd",
-      "mlip-md",
-      "temperature-effective-fc"
-    ]
-  },
-  {
-    "id": "mechanics",
-    "name": "应变与弹性",
-    "order": [
-      "strain-doping-scan",
-      "elastic-born",
-      "elastic-moduli"
+      "heterostructure-modeling",
+      "exfoliation-energy",
+      "aimd"
     ]
   },
   {
     "id": "electronic",
-    "name": "电子结构",
+    "name": "电子结构与成键",
     "order": [
-      "nscf",
       "bands",
-      "band-gap",
       "dos",
       "fatband",
-      "band-3d",
-      "band-unfolding",
       "fermi-surface",
-      "fermi-nesting",
+      "band-unfolding",
       "effective-mass",
-      "spin-texture",
-      "wannier90",
+      "population-analysis",
+      "cohp",
       "dft-plus-u"
     ]
   },
   {
     "id": "charge",
-    "name": "电荷分布与成键",
+    "name": "界面电荷与间隙电子",
     "order": [
       "delta-charge",
       "bader",
       "elf",
-      "cohp",
-      "population-analysis"
-    ]
-  },
-  {
-    "id": "interface",
-    "name": "表面与界面",
-    "order": [
-      "heterostructure-modeling",
-      "adsorption-energy",
-      "exfoliation-energy",
       "electrostatic-potential",
       "workfunction",
       "band-alignment"
     ]
   },
   {
-    "id": "magnet",
-    "name": "磁性与自旋",
+    "id": "phonons",
+    "name": "声子与振动模式",
     "order": [
-      "magnetic-gs",
-      "mae",
-      "exchange-j"
+      "phonon-dfpt",
+      "phonon-finite-disp",
+      "imaginary-phonon",
+      "phdos"
     ]
   },
   {
@@ -115,31 +72,40 @@ export const categories = [
     "name": "电子–声子耦合与超导",
     "order": [
       "epc",
+      "phonon-linewidth",
       "eliashberg-a2f",
       "allen-dynes",
-      "epw-eliashberg",
-      "phonon-linewidth"
+      "epw-eliashberg"
     ]
   },
   {
-    "id": "topo",
-    "name": "Berry 相位与拓扑",
+    "id": "strain",
+    "name": "应变响应",
     "order": [
-      "berry-chern"
+      "strain-doping-scan",
+      "fermi-nesting",
+      "temperature-effective-fc"
     ]
   },
   {
-    "id": "transport",
-    "name": "载流子输运",
+    "id": "soc",
+    "name": "SOC 与拓扑分析",
     "order": [
-      "carrier-mobility"
+      "spin-texture",
+      "wannier90",
+      "berry-chern",
+      "magnetic-gs"
     ]
   },
   {
-    "id": "model",
-    "name": "二维统计模型",
+    "id": "basics",
+    "name": "共同计算基础",
     "order": [
-      "bkt-scaling"
+      "convergence",
+      "relax",
+      "vc-relax",
+      "scf",
+      "nscf"
     ]
   }
 ];
@@ -212,7 +178,7 @@ export const methods = {
   },
   "nscf": {
     "zh": "非自洽 NSCF",
-    "category": "electronic",
+    "category": "basics",
     "needs": [
       "scf"
     ],
@@ -288,7 +254,7 @@ export const methods = {
       "relax"
     ],
     "produces": [
-      "吸附能 / 界面结合能"
+      "吸附能"
     ],
     "engines": [
       "qe",
@@ -296,8 +262,8 @@ export const methods = {
     ]
   },
   "phonon-dfpt": {
-    "zh": "DFPT 声子",
-    "category": "stability",
+    "zh": "DFPT 声子与模式分析",
+    "category": "phonons",
     "needs": [
       "scf"
     ],
@@ -311,7 +277,7 @@ export const methods = {
   },
   "phonon-finite-disp": {
     "zh": "有限位移声子",
-    "category": "stability",
+    "category": "phonons",
     "needs": [
       "scf"
     ],
@@ -324,14 +290,14 @@ export const methods = {
     ]
   },
   "imaginary-phonon": {
-    "zh": "虚频 / 软模判据",
-    "category": "stability",
+    "zh": "虚频与软模分析",
+    "category": "phonons",
     "needs": [
       "phonon-dfpt",
       "phonon-finite-disp"
     ],
     "produces": [
-      "无虚频判定 / 软模指认"
+      "模式指认与软模结构分析"
     ],
     "engines": [
       "qe",
@@ -354,7 +320,7 @@ export const methods = {
   },
   "aimd": {
     "zh": "短时 AIMD",
-    "category": "stability",
+    "category": "interface",
     "needs": [
       "vc-relax"
     ],
@@ -367,8 +333,8 @@ export const methods = {
     ]
   },
   "phdos": {
-    "zh": "声子态密度 PHDOS",
-    "category": "stability",
+    "zh": "声子态密度与层投影",
+    "category": "phonons",
     "needs": [
       "phonon-dfpt",
       "phonon-finite-disp"
@@ -520,7 +486,7 @@ export const methods = {
   },
   "spin-texture": {
     "zh": "SOC 自旋投影",
-    "category": "electronic",
+    "category": "soc",
     "needs": [
       "bands"
     ],
@@ -539,7 +505,7 @@ export const methods = {
   },
   "electrostatic-potential": {
     "zh": "静电势 / 平面平均电势",
-    "category": "interface",
+    "category": "charge",
     "needs": [
       "scf"
     ],
@@ -553,12 +519,12 @@ export const methods = {
   },
   "fermi-nesting": {
     "zh": "费米面几何嵌套",
-    "category": "electronic",
+    "category": "strain",
     "needs": [
       "fermi-surface"
     ],
     "produces": [
-      "嵌套函数 / χ(q)"
+      "几何联合权重J(q)，不是完整chi(q)"
     ],
     "producesByEngine": {
       "qe": [
@@ -628,7 +594,7 @@ export const methods = {
   },
   "cohp": {
     "zh": "COHP / ICOHP（LOBSTER）",
-    "category": "charge",
+    "category": "electronic",
     "needs": [
       "scf"
     ],
@@ -642,7 +608,7 @@ export const methods = {
   },
   "population-analysis": {
     "zh": "布居分析",
-    "category": "charge",
+    "category": "electronic",
     "needs": [
       "scf"
     ],
@@ -656,7 +622,7 @@ export const methods = {
   },
   "wannier90": {
     "zh": "Wannier90",
-    "category": "electronic",
+    "category": "soc",
     "needs": [
       "scf"
     ],
@@ -669,7 +635,7 @@ export const methods = {
     ]
   },
   "epc": {
-    "zh": "电声耦合 EPC / 双网格",
+    "zh": "电声耦合与模式分析",
     "category": "supercon",
     "needs": [
       "wannier90",
@@ -692,7 +658,7 @@ export const methods = {
     ]
   },
   "eliashberg-a2f": {
-    "zh": "Eliashberg 谱函数 α²F",
+    "zh": "Eliashberg谱函数与累计耦合",
     "category": "supercon",
     "needs": [
       "epc"
@@ -706,7 +672,7 @@ export const methods = {
     ]
   },
   "allen-dynes": {
-    "zh": "Tc：Allen–Dynes / McMillan",
+    "zh": "超导Tc公式与网格比较",
     "category": "supercon",
     "needs": [
       "eliashberg-a2f"
@@ -720,7 +686,7 @@ export const methods = {
     ]
   },
   "epw-eliashberg": {
-    "zh": "Tc：EPW / Eliashberg 方程",
+    "zh": "EPW能隙方程与各向异性路线",
     "category": "supercon",
     "needs": [
       "eliashberg-a2f"
@@ -735,7 +701,7 @@ export const methods = {
     ]
   },
   "phonon-linewidth": {
-    "zh": "声子线宽",
+    "zh": "声子线宽与模式耦合",
     "category": "supercon",
     "needs": [
       "epc"
@@ -761,7 +727,7 @@ export const methods = {
   },
   "workfunction": {
     "zh": "功函数",
-    "category": "interface",
+    "category": "charge",
     "needs": [
       "scf"
     ],
@@ -775,7 +741,7 @@ export const methods = {
   },
   "band-alignment": {
     "zh": "真空参考能级对齐",
-    "category": "interface",
+    "category": "charge",
     "needs": [
       "bands",
       "workfunction"
@@ -801,7 +767,7 @@ export const methods = {
   },
   "magnetic-gs": {
     "zh": "磁构型与能量比较",
-    "category": "magnet",
+    "category": "soc",
     "needs": [
       "relax",
       "vc-relax",
@@ -858,13 +824,15 @@ export const methods = {
     ]
   },
   "strain-doping-scan": {
-    "zh": "应变响应扫描",
-    "category": "mechanics",
+    "zh": "应变下的电荷、电子态与声子/EPC",
+    "category": "strain",
     "needs": [
       "vc-relax"
     ],
     "produces": [
-      "能量、应力随应变的变化"
+      "应变结构与应力",
+      "冻结态层PDOS对照",
+      "电荷与声子/EPC/Tc比较的来源关系"
     ],
     "engines": [
       "qe",
@@ -887,7 +855,7 @@ export const methods = {
   },
   "berry-chern": {
     "zh": "占据态 Berry 相位与切片陈数",
-    "category": "topo",
+    "category": "soc",
     "needs": [],
     "produces": [
       "占据态重叠相位 / 周期切片陈数"
@@ -918,7 +886,7 @@ export const methods = {
   },
   "temperature-effective-fc": {
     "zh": "有限温度有效力常数",
-    "category": "stability",
+    "category": "strain",
     "needs": [
       "aimd"
     ],
@@ -945,6 +913,9 @@ export const methods = {
 };
 
 export const methodRouteAliases = { "anharmonic-sscha": "temperature-effective-fc" };
-
-export function methodList() { return categories.flatMap(c => c.order.map(slug => ({ slug, ...methods[slug] }))); }
+const hiddenMethods = new Set(researchScope.hidden_methods);
+const hiddenManuals = new Set(researchScope.hidden_manual_ids);
+export function isManualVisible(id) { return !hiddenMethods.has(id.split('/')[0]) && !hiddenManuals.has(id); }
+export function methodList() { return categories.flatMap(c => c.order.filter(slug => !hiddenMethods.has(slug)).map(slug => ({ slug, ...methods[slug] }))); }
+export function routeMethodList() { return Object.entries(methods).filter(([slug]) => !hiddenMethods.has(slug)).map(([slug, method]) => ({ slug, ...method })); }
 export function normalizeBase(raw) { return raw.endsWith("/") ? raw.slice(0,-1) : raw; }

@@ -1,0 +1,67 @@
+{
+  "source": "frozen_pdos_long.csv",
+  "method": "Nearest grid point; no interpolation at EF",
+  "units": "PDOS: states/(eV cell); E-EF: eV",
+  "reference": "Each state has its own Fermi energy",
+  "scope": "Frozen geometry; projected DOS is not transferred charge",
+  "rows": [
+    {
+      "state": "Heterostructure 0%",
+      "strain_percent": 0.0,
+      "nearest_E_minus_EF_eV": 0.0007999999999999674,
+      "sc2c_pdos": 2.564971,
+      "zrcl2_pdos": 2.222928,
+      "total_projected_pdos": 4.78
+    },
+    {
+      "state": "Isolated Sc2C 0%",
+      "strain_percent": 0.0,
+      "nearest_E_minus_EF_eV": 0.0007999999999999119,
+      "sc2c_pdos": 4.232279999999999,
+      "zrcl2_pdos": 0.0,
+      "total_projected_pdos": 4.23
+    },
+    {
+      "state": "Heterostructure +1.5%",
+      "strain_percent": 1.5,
+      "nearest_E_minus_EF_eV": -0.0023000000000000242,
+      "sc2c_pdos": 2.080865,
+      "zrcl2_pdos": 2.45961,
+      "total_projected_pdos": 4.54
+    },
+    {
+      "state": "Isolated Sc2C +1.5%",
+      "strain_percent": 1.5,
+      "nearest_E_minus_EF_eV": 0.002200000000000202,
+      "sc2c_pdos": 4.477110000000001,
+      "zrcl2_pdos": 0.0,
+      "total_projected_pdos": 4.48
+    }
+  ],
+  "checks": [
+    {
+      "state": "Heterostructure 0%",
+      "rows": 10533,
+      "grid_step_eV": 0.005000000000002558,
+      "L1_projection_error_percent_EF_pm_0p1": 0.07496075156576301
+    },
+    {
+      "state": "Isolated Sc2C 0%",
+      "rows": 10387,
+      "grid_step_eV": 0.0049999999999954525,
+      "L1_projection_error_percent_EF_pm_0p1": 0.08548978522786477
+    },
+    {
+      "state": "Heterostructure +1.5%",
+      "rows": 10527,
+      "grid_step_eV": 0.005000000000002558,
+      "L1_projection_error_percent_EF_pm_0p1": 0.07097945113788491
+    },
+    {
+      "state": "Isolated Sc2C +1.5%",
+      "rows": 10378,
+      "grid_step_eV": 0.005000000000002558,
+      "L1_projection_error_percent_EF_pm_0p1": 0.07324924068679109
+    }
+  ]
+}

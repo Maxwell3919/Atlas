@@ -1,6 +1,8 @@
+界面匹配若把面内晶胞扩大，能带线数增加首先可能来自折叠。反折叠用波函数的谱权重回到所选原胞动量；下面完美 Si 的真实对照只验证这一映射，不承担界面超胞的物性结论。
+
 把同一块完美 Si 晶体沿一个原胞基矢重复两次，原子从 2 个变成 4 个。电子结构并没有因此增加一种材料性质，超胞的布里渊区却缩小了，能带图里会出现更多折叠后的支线。要回到原胞的图，除了本征值，还必须读取每个超胞本征态的波函数，判断它在指定原胞 k 点上有多少权重。
 
-[Ku、Berlijn 与 Lee 的 Eq. (2)](https://arxiv.org/pdf/1002.4218)把原胞谱函数写成超胞本征态谱函数与原胞投影权重的乘积之和，完美晶体的额外折叠分支应被权重区分。[Zheng 等 Fig. 2b 与补充材料 S8](https://doi.org/10.1103/PhysRevB.99.161119)将同一思路用于真实 CDW 超胞中的 NbSe₂；本页先用没有破坏平移对称性的 Si 检查原胞映射和波函数权重。
+[Ku、Berlijn 与 Lee 的 Eq. (2)](https://arxiv.org/pdf/1002.4218)把原胞谱函数写成超胞本征态谱函数与原胞投影权重的乘积之和，完美晶体的额外折叠分支应被权重区分。这里先用没有破坏平移对称性的 Si 检查原胞映射和波函数权重，界面超胞还需要它自己的晶胞与波函数链。
 
 这里实际完成了一次 2×1×1 完美超胞校验：原胞、超胞分别重新做 SCF，再沿同一条 Γ–X–W–L–Γ 路径计算能带，最后用 QE 自带的 `bands_unfold.x` 读取超胞波函数。没有引入缺陷或热位移，因此图中恢复出清楚的原胞能带正是应当看到的结果。普通能带的 SCF 与能带步骤可在[能带计算](/Atlas/m/bands/qe/)查看；这一页集中说明超胞映射、谱权重和检验。
 
@@ -890,9 +892,7 @@ python3 plot_unfold.py
 
 右图中有权重的点落到原胞直接能带上；额外折叠支线在对应原胞 k 点上没有可见权重。没有人为加入能量高斯宽度，所以点的视觉大小只表示谱权重，不表示寿命或散射率。
 
-![波函数归一化、展开权重和原胞能量的数值核验](/Atlas/examples/si-unfolding-electronic/unfolding-audit.png)
-
-第二张图把范数误差、原生与独立投影的差异、逐点能量差分开放置。只看第一张图的线是否重合，会漏掉坐标读取或权重归一化问题。
+波函数归一化和能量差的具体检查值已经在前文列出，完整逐点核验 CSV 随包保留。[原核验图](/Atlas/examples/si-unfolding-electronic/unfolding-audit.png)作为数值检查资料下载；正文用谱权重能带图判断折叠支线。
 
 <details>
 <summary>绘图脚本 plot_unfold.py</summary>
@@ -961,23 +961,13 @@ print('Weights below1e-5 are hidden in the spectral scatter only; source values 
 
 这条路线已经取得完整的本征值、复波函数和展开权重，也给出了原胞对照。继续研究缺陷、无序或热位移时，应从新的超胞结构重新完成 SCF 与波函数链，检查能量覆盖、超胞大小、k 点映射和赝势对应的重叠定义，再解释谱重的分散。当前完美超胞的尖锐权重本身不提供缺陷展宽或电子寿命结论。
 
-## 文献中的相关图件与表达方式
+## 界面超胞什么时候需要反折叠
 
-当体系存在莫尔超晶格、长周期重构或缺陷超胞时，平移对称性变化会导致布里渊区折叠（Brillouin Zone Folding），产生密集的微带（Mini-bands）或将原胞本征态分摊到多个超胞态上。文献中常将实空间莫尔超晶格、倒空间微布里渊区折叠与能带色散并列呈现：
+[Ku、Berlijn 与 Lee，Eq. (2)、Fig. 1](https://doi.org/10.1103/PhysRevLett.104.216401)用谱权重把超胞本征态展开到原胞动量，区分重复晶胞的折叠支线与平移对称性变化。本文完美 Si 以两种晶胞的直接能量和波函数投影相互核对，支持这种映射基础。
 
-### 1. 转角双层石墨烯的莫尔超晶格、微布里渊区折叠与微带色散
+匹配界面若需要较大的面内超胞，原胞和界面的带图将落在不同 BZ；这时才使用反折叠，并先给出两层原胞到共同超胞的整数变换。谱权重描述的是相对于所选原胞周期的动量成分，分层轨道权重描述的是局域来源，两者不能互换。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的实空间莫尔超胞几何、微布里渊区折叠与魔角微带能带结构" loading="lazy"/><figcaption>转角双层石墨烯的超晶格折叠三联图：(a) 包含 AA、AB 与 BA 堆垛微区的实空间莫尔超晶格结构；(b) 旋转单层六角布里渊区交叠生成的微布里渊区（Mini-BZ）几何关系；(c) 折叠到微布里渊区后的魔角微带能带结构，展示费米能级附近的孤立平带与高对称路径色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018), Fig. 1(a–c)，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
-
-在研究超胞能带时，先用实空间超胞与倒空间微布里渊区图建立几何对应关系，再在能带图中通过颜色或线型区分不同谷（Valley）或原子层的投影贡献，能直观反映超胞对能带结构的调控机制。
-
-### 2. 电荷密度波超胞费米面按谱权重反折叠回原胞布里渊区
-
-除了沿高对称路径展开，能带展开还常用于固定在费米能处的二维动量平面：将重构超胞（如 3×3 电荷密度波超胞）的费米面按谱权重 W<sub>k</sub> 展开回原胞六角布里渊区，可以直接标出哪些费米面片段保留了原始谱重、哪些动量区域打开了部分能隙，并与角分辨光电子能谱（ARPES）等能面测量直接对比。
-
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe2 的 3x3 电荷密度波超胞费米面展开回原胞六角布里渊区的谱权重分布" loading="lazy"/><figcaption>单层 NbSe<sub>2</sub> 的 3×3 电荷密度波（CDW）超胞费米面展开回原胞六角布里渊区后的谱权重 <em>W</em><sub>k</sub> 分布（Fig. 2b），展示 K 点口袋附近的各向异性部分能隙打开与折叠鬼影带。引自 Zheng 等人，<em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，Fig. 2b，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
-
-下一步：回到[普通能带](/Atlas/m/bands/qe/)查看直接 DFT 路径；需要低成本插值时接[Wannier90](/Atlas/m/wannier90/qe/)。
+如果材料本身使用同一 1×1 面内胞，直接比较相同物理路径和分层投影即可。本文没有界面超胞的真实展开数据，不将完美 Si 展开后恢复的尖锐谱重解释成界面杂化或缺陷寿命。下一步接[能带](/Atlas/m/bands/qe/)与[逐态轨道投影](/Atlas/m/fatband/qe/)。
 
 ```text
 公开 Si 原胞 + NC 赝势
