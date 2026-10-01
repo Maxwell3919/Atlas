@@ -194,7 +194,7 @@ DAV:  59    -0.633320572727E+01   -0.26196E-08   -0.24485E-09  8532   0.418E-04
    1 F= -.63332057E+01 E0= -.63327868E+01  d E =-.125685E-02  mag=     0.0001    -0.0001     2.9668
 ```
 
-这份 OUTCAR 给出从 SAXIS 自旋基底到笛卡尔坐标的矩阵：m_cart=(m₃,m₂,−m₁)。因此 OSZICAR 中主要落在第三分量的 2.9668 μB，在真实空间沿 x；直接看到 `mag` 的第三列较大就说它沿 z，会把这个方向读反。
+这份 OUTCAR 给出从 SAXIS 自旋基底到笛卡尔坐标的矩阵：m_cart=(m₃,m₂,−m₁)。因此 OSZICAR 中主要落在第三分量的 2.9668 μB，在笛卡尔坐标中沿 x；直接看到 `mag` 的第三列较大就说它沿 z，会把这个方向读反。
 
 包内 `read_mae.py` 对四份输入逐项比较：结构和 PAW 一致，除 SYSTEM/SAXIS 外的有效 INCAR 参数相同，每一对的 KPOINTS 与实际 NKPTS 一致；再要求电子收敛与正常结束，并把磁矩转到笛卡尔坐标。含授权 POTCAR 的原目录使用实际哈希；公开下载包使用保留的原始哈希记录。
 
@@ -273,7 +273,7 @@ k15_x: F=-6.33320573 eV; E0=-6.33278678 eV; NKPTS=225; wall=199.324 s
 先核对每个网格下的 x/z 输入与最终笛卡尔磁矩，再分别计算 ΔF 与 ΔE0。把两组差值并列，才能看清展宽影响和网格改变引起的符号翻转。可以把这些读取规则写成下面的请求：
 
 ```text
-请编写 Python 3 独立后处理程序。读取 k09_x/k09_z/k15_x/k15_z 的 INCAR、KPOINTS、POSCAR、POTCAR.identity.txt、OUTCAR 和 OSZICAR；核对同网格成对参数、电子收敛和计时，从 SAXIS 基底转到笛卡尔磁矩，输出四份 F/E0/磁矩/方向偏角以及 DeltaE0=(E0_x-E0_z)*1000 meV/Fe。保留 DeltaF 和 9→15 网格差，不用两个方向拟合角度函数，也不推断稳定易轴。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。读取 k09_x/k09_z/k15_x/k15_z 的 INCAR、KPOINTS、POSCAR、POTCAR.identity.txt、OUTCAR 和 OSZICAR；核对同网格成对参数、电子收敛和计时，从 SAXIS 基底转到笛卡尔磁矩，输出四份 F/E0/磁矩/方向偏角以及 DeltaE0=(E0_x-E0_z)*1000 meV/Fe。保留 DeltaF 和 9→15 网格差，将结果写入 mae-summary.json，并用另一个脚本导出四行方向能量和两行网格差值 CSV。遇到输入协议不同、缺少电子收敛或计时标记、最终磁矩偏离目标方向超过 1° 时报错退出；不由两个方向拟合角度函数。
 ```
 
 [read_mae.py 完整源码](/Atlas/examples/interface-magnet-mae/read_mae.py) · [export_mae_table.py 完整源码](/Atlas/examples/interface-magnet-mae/export_mae_table.py)

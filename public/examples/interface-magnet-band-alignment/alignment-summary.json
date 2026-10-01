@@ -37,7 +37,7 @@
   "interface_facing_isolated_reference": {
     "cbm_minus_metal_fermi_eV": -2.282607259654033,
     "metal_fermi_minus_vbm_eV": 2.5607102596540328,
-    "scope": "Frozen isolated layers, scalar nonmagnetic PBE-D2; not an interface barrier",
+    "scope": "Frozen isolated layers, scalar nonmagnetic PBE-D3 (zero damping); not an interface barrier",
     "snse2_side": "lower_z",
     "sr2n_side": "upper_z"
   },

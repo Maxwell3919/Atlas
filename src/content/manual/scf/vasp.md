@@ -1,4 +1,4 @@
-先跑一个两个原子的 bcc Fe 固定结构计算，再沿着它实际生成的文件读一遍。电子自洽这一步解决的是：在指定晶格、原子位置和计算设置下，找到相互一致的电荷密度与有效势。它可以计算能量、磁矩和力，但不会因为电子收敛就自动把几何结构变成平衡结构。
+本页用两原子的 bcc Fe 常规胞演示固定结构 SCF。先准备结构、PAW 数据、电子参数和 k 网格，再从 OSZICAR 与 OUTCAR 中检查电子迭代、能量、磁矩、力和压力。电子自洽得到的是给定结构与磁性设置下的一组解；几何优化和不同磁态的比较需要另外进行。
 
 [VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
 
@@ -237,7 +237,7 @@ Reciprocal lattice
   external pressure =       56.94 kB  Pullay stress =        0.00 kB
 ```
 
-两个高对称位置上的力接近零，但外压为 56.94 kbar，约 5.694 GPa。这个例子清楚地区分了电子收敛与晶胞平衡：对称性可以让原子受力抵消，固定的晶格常数仍可能远离零压位置。若要优化几何，先确定需要开放哪些自由度：只移动原子时查看 [固定晶胞结构优化](/Atlas/m/relax/)，连晶格一起调整时查看 [晶胞优化](/Atlas/m/vc-relax/)。这两处进入方法目录，各条计算路线会说明自己的程序和结构前提。
+两个高对称位置上的力接近零，但 OUTCAR 的 `external pressure` 行仍给出 56.94 kbar，约 5.694 GPa。这里是由应力计算得到的晶胞压力，不是已施加这一外压的声明；其含义见 [VASP 的应力说明](https://vasp.at/wiki/ISIF)。这个例子清楚地区分了电子收敛与晶胞平衡：对称性可以让原子受力抵消，固定的晶格常数仍可能远离零压位置。若要优化几何，先确定需要开放哪些自由度：只移动原子时查看 [固定晶胞结构优化](/Atlas/m/relax/)，连晶格一起调整时查看 [晶胞优化](/Atlas/m/vc-relax/)。这两处进入方法目录，各条计算路线会说明自己的程序和结构前提。
 
 ## 按后续任务选择输出文件
 
@@ -314,7 +314,7 @@ LELF = .TRUE.
 
 ## 文献中的相关图件与表达方式
 
-在二维材料与表面的固定结构 SCF 计算中，若体系上下表面不对称（如极性 Janus 单层 MoSSe 或单面吸附薄膜），自洽收敛后的电荷重排会产生面外固有偶极矩。文献中常输出平面平均静电势（VASP 中对应 `LVHAR = .TRUE.` 生成的 `LOCPOT`），将沿垂直方向 `z` 的静电势曲线、偶极修正引起的上下表面真空平台跃变 `ΔV`，以及对齐到两侧真空能级的价带顶（VBM）和导带底（CBM）画在同一张示意图中。
+对于 Janus 单层或单面吸附薄膜等非对称结构，面外电荷分布可能产生净偶极，使两侧的真空能级不同。`LVHAR = .TRUE.` 输出的 LOCPOT 包含离子势与 Hartree 势，可用于求平面平均电势。周期性边界还会引入人工电场；偶极修正用于减小这类周期镜像误差，并不是材料两侧本征真空能级差的物理来源。读图时应区分两侧的平台高度与修正势在真空中的不连续位置。参数含义分别见 [LVHAR](https://vasp.at/wiki/LVHAR) 和 [LDIPOL](https://vasp.at/wiki/LDIPOL)。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg" alt="极性 Janus MoSSe 单层经偶极修正后的自洽静电势分布与两侧真空能级差" loading="lazy"/><figcaption>极性二维单层 MoSSe 的自洽静电势与带边对齐：展示沿垂直方向平面平均静电势在偶极修正下的两侧真空平台差值，以及相对于两侧真空能级的带边位置（Haastrup 等，<em>2D Mater.</em> <strong>5</strong>, 042002 (2018)，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>）。</figcaption></figure>
 

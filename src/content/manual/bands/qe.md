@@ -1,6 +1,6 @@
 ## 沿 Γ–X–W–K–Γ–L–X 看 Si 的能级怎样变化
 
-这里沿用 [Si SCF](/Atlas/m/scf/qe/)的固定结构与密度，单独建立一条高对称路径。均匀 [NSCF](/Atlas/m/nscf/qe/)用于 DOS 与布里渊区采样；路径能带与它各自读取相同父 SCF 的密度，按需要选择分支。
+能带计算沿指定的倒空间路径求电子本征值，用来观察色散、交叉和带边位置。本页读取 [Si SCF](/Atlas/m/scf/qe/) 的固定结构与密度，沿 Γ–X–W–K–Γ–L–X 建立独立计算。它与用于 DOS 的[均匀网格 NSCF](/Atlas/m/nscf/qe/) 是两个分支，不需要先完成后者。
 
 例子使用 QE 7.5、PBE、两个 Si 原子、无 SOC。当前坐标与原胞约定对应下面的路径；换晶胞基矢后，不能只保留这些点的标签和数字。
 
@@ -147,7 +147,7 @@ cd "$SLURM_SUBMIT_DIR"
 ```
 `.gnu` 第一列是沿路径累计的距离，第二列已经是 eV。不能把每一行当作不同能带，也不能再次把能量乘 Ry→eV 的换算常数。
 
-这里的横轴不是“第几个 k 点”。脚本从实际坐标计算 `sᵢ = Σⱼ |kⱼ₊₁−kⱼ|`，路径每段按长度连接；在这个 `tpiba` 约定下，s 的单位为 `2π/a`。本例 `a=5.397607551 Å`，乘以 `2π/a≈1.16406857 Å⁻¹` 可转换为物理倒空间长度。若直接把 121 个点等距编号，不同路径段就会被拉伸到错误的相对长度。
+这里的横轴不是“第几个 k 点”。`bands.x` 已按实际 k 点坐标给出累计距离 `sᵢ = Σⱼ |kⱼ₊₁−kⱼ|`，绘图脚本直接沿用 `.gnu` 的第一列；在这个 `tpiba` 约定下，s 的单位为 `2π/a`。本例 `a=5.397607551 Å`，乘以 `2π/a≈1.16406857 Å⁻¹` 可转换为物理倒空间长度。若直接把 121 个点等距编号，不同路径段就会被拉伸到错误的相对长度。
 
 | 节点 | 1 起始的实际 k 点编号 | 笛卡尔坐标（2π/a） | 累计距离（2π/a） |
 | --- | ---: | --- | ---: |
@@ -161,7 +161,9 @@ cd "$SLURM_SUBMIT_DIR"
 
 索引由真实 121 点展开得到，与 `bands-post.out` 的七个位置一致。两个 Γ 在倒空间是同一点，却在累计路径的不同位置。表中坐标只适用于本页的 FCC 基矢约定，不能连同标签移植到另一种晶胞。
 
-## 可复制的 AI 编码提示词
+<span id="可复制的-ai-编码提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-可复制的-ai-编码提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 路径本征值的整理与作图
 
 将下面的需求和本页示例文件交给代码助手：
 
@@ -248,7 +250,7 @@ python3 plot_bands.py
 
 <figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png" alt="ZrCl₂/Sc₂C 异质结的轨道投影 Fatbands、水平 PDOS 与二维六角布里渊区费米面三联图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的电子结构三联图：(a) <code>Γ–M–K–Γ</code> 路径上的 31 条能带与 45 个正交化原子轨道归并后的空心圆轨道权重；(b) 共享 <code>E − E_F</code> 纵轴的水平总 DOS 与轨道分辨 PDOS；(c) 由 <code>zrclscc_fs.bxsf</code> 插值得到的第 26 带（蓝）与第 27 带（橙红）二维六角第一布里渊区费米面。</figcaption></figure>
 
-沿着 `E − E_F = 0` 水平虚线横向对照：子图 a 中沿 `Γ–M` 和 `Γ–K` 穿越费米能级的第 26、27 条能带，在子图 c 的六角布里渊区中对应围绕 Γ 点的内外口袋与围绕 K 点的口袋；而费米能级附近的平缓色散段则直接对应子图 b 在 `E_F` 附近的 `Zr-4d` 与 `Sc-3d` 态密度峰。
+在子图 a 中沿零能线寻找第 26、27 带的交点，再与子图 c 中相应路径上的等能线交点比较，可以把路径色散与费米口袋联系起来。平缓色散提示该能区可能有较大的态密度，但一条高对称路径不能决定整个布里渊区的 DOS 峰；具体轨道贡献仍以均匀网格 PDOS 为准。这里能带与 PDOS 使用 0.3133 eV 作为零点，BXSF 使用其自身的 0.3154 eV。两者来自不同采样，图适合并列观察；定量配对交点前应检查采样和费米能的一致性。
 
 下载本算例：[bands.in](/Atlas/examples/zrcl2-sc2c/scf/bands.in) · [pdos.in](/Atlas/examples/zrcl2-sc2c/pdos/pdos.in) · [绘图脚本 plot_zrcl2_sc2c.py](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py)。
 
@@ -970,19 +972,19 @@ if __name__ == '__main__':
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_MoW_Bekaert2020_Fig2.jpg" alt="Mo₂C、Mo₂N、W₂C、W₂N 在不含 SOC 与含 SOC 下的能带、水平总 DOS 与费米速度着色二维六角费米面对比" loading="lazy"/><figcaption>二维过渡金属碳/氮化物（<code>Mo₂C, Mo₂N, W₂C, W₂N</code>）在费米能级附近窄窗口 <code>[−1, 1] eV</code> 内的能带与水平总 DOS 对比（红色虚线为不含 SOC，蓝色实线与浅蓝阴影填充为含 SOC），右侧配对展示按费米速度 <code>v_F(k)</code> 着色的二维六角布里渊区费米面。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 2，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **读图与作图要点**：将能量纵轴聚焦在 `E − E_F ∈ [−1, 1] eV` 的近费米窗口，在同一坐标系内用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）直接对比自旋轨道耦合引起的能带劈裂与总 DOS 变化，并在右侧列出按费米速度 `v_F(k)` 着色的二维六角费米面。
+将能量纵轴聚焦在 `E − E_F ∈ [−1, 1] eV` 的近费米窗口，在同一坐标系内用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）直接对比自旋轨道耦合引起的能带劈裂与总 DOS 变化，并在右侧列出按费米速度 `v_F(k)` 着色的二维六角费米面。
 
 ### 2. GGA-PBE 与 HSE06 泛函下两种材料能带的上下行与双色线型对比
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="HfBr₂ 与 HfI₂ 在 GGA-PBE（上行）与 HSE06（下行）下的能带结构及直接/间接光学跃迁箭头标注" loading="lazy"/><figcaption>上行子图为 GGA-PBE 能带，下行子图为 HSE06 杂化泛函能带；每个子图内以红色实线表示 <code>HfBr₂</code>、蓝色点线表示 <code>HfI₂</code>，并用竖直与倾斜箭头标出直接与间接光学跃迁路径。图片来源：Santos et al., <em>J. Appl. Phys.</em> <strong>138</strong>, 104302 (2025), Fig. 4，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
 
-- **读图与作图要点**：当需要同时比较两种泛函（上行 GGA-PBE、下行 HSE06）和两种同构化合物（红色实线 `HfBr₂`、蓝色点线 `HfI₂`）时，固定相同的能量参考与高对称路径，并用竖直箭头和斜箭头分别标出直接跃迁与间接跃迁极值点，便于横向比较化学取代效应、纵向比较杂化泛函对带隙的修正。
+当需要同时比较两种泛函（上行 GGA-PBE、下行 HSE06）和两种同构化合物（红色实线 `HfBr₂`、蓝色点线 `HfI₂`）时，固定相同的能量参考与高对称路径，并用竖直箭头和斜箭头分别标出直接跃迁与间接跃迁极值点，便于横向比较化学取代效应、纵向比较杂化泛函对带隙的修正。
 
 ### 3. 转角莫尔超晶格的微布里渊区折叠与窄平带色散
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的莫尔布里渊区折叠示意图与费米面附近窄平带微带色散" loading="lazy"/><figcaption>倒空间莫尔微布里渊区（Mini Brillouin Zone）几何关系图与费米能级附近窄能量窗口内的微带（Minibands）色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018), Fig. 1，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
 
-- **读图与作图要点**：对于超胞或转角莫尔体系，在能带图旁给出原胞布里渊区与超胞微布里渊区的几何折叠示意图（标明 `K_+`、`K_-`、`Γ_M`、`M_M`），并将能量纵轴放大到平带所在的窄能量窗口。
+对于超胞或转角莫尔体系，在能带图旁给出原胞布里渊区与超胞微布里渊区的几何折叠示意图（标明 `K_+`、`K_-`、`Γ_M`、`M_M`），并将能量纵轴放大到平带所在的窄能量窗口。
 
 下一步：需要 s/p 成分时进入 [逐 k 胖带](/Atlas/m/fatband/qe/)，保留本页的相同 k 点与带号；需要态数分布时进入 [DOS](/Atlas/m/dos/qe/)，读取均匀网格分支。
 

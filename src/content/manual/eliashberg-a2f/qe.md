@@ -669,7 +669,7 @@ Native calculation completed; scientific convergence not established.
 
 对数可理解为先对 `ν/(1 THz)` 取对数，最终恢复 THz。计算频率矩的归一化 λ 要由同一份谱得到；不能把另一条插值路线的 λ 填进分母。零频点不直接做除法或取对数。本例零频谱为零，可以从正频点积分；这不是允许在其他材料中删掉异常低频峰或实质性虚频。
 
-新增脚本从八份电声原件重建 QE 7.5 的 2000 点 Gaussian 谱，复现程序的内部积分，再对已打印的谱做梯形积分，区分打印舍入与错列、错单位。对负谱不取绝对值、不裁零，也不为它生成可接受的频率矩。
+`verify_tc_chain.py` 从八份电声原件重建 QE 7.5 的 2000 点 Gaussian 谱，复现程序的内部积分，再对已打印的谱做梯形积分，区分打印舍入与错列、错单位。对负谱不取绝对值、不裁零，也不为它生成可接受的频率矩。
 
 ```console
 maxwell@maxwell:~/al/tc-route$ mkdir -p evidence
@@ -707,9 +707,7 @@ Cross-check completed. Material Tc convergence is not established.
 
 右幅只改变查看范围，没有修改数据。0.005 Ry 的 146 行负值和 0.010 Ry 的 9 行微小负值需要继续排查；直接求和谱非负，不会自动消除这条插值路线的问题。
 
-在公开包内运行提取与绘图：
-
-在解包后的 `al` 目录中执行：
+在解包后的 `al` 目录中运行提取与绘图：
 
 ```bash
 cd tc-route
@@ -719,7 +717,7 @@ python3 scripts/plot_tc_chain.py --data data --output figures
 
 提取只需 Python 标准库，绘图使用 NumPy、Matplotlib。脚本保留原始符号，不再乘自旋因子；网页 PNG 用大字号，PDF 用 7 pt 正文、8 pt 黑色粗体面板标记和可编辑字体，不加背景网格。
 
-新增下载：[提取与交叉计算](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [绘图脚本](/Atlas/examples/al/tc-route/scripts/plot_tc_chain.py) · [λ、频率矩与公式表](/Atlas/examples/al/tc-route/data/tc-formula-scan.csv) · [两条谱及累计积分](/Atlas/examples/al/tc-route/data/spectra-and-integrals.csv) · [源文件与单位核验](/Atlas/examples/al/tc-route/data/tc-chain-checks.json)。
+下载：[提取与交叉计算](/Atlas/examples/al/tc-route/scripts/verify_tc_chain.py) · [绘图脚本](/Atlas/examples/al/tc-route/scripts/plot_tc_chain.py) · [λ、频率矩与公式表](/Atlas/examples/al/tc-route/data/tc-formula-scan.csv) · [两条谱及累计积分](/Atlas/examples/al/tc-route/data/spectra-and-integrals.csv) · [源文件与单位核验](/Atlas/examples/al/tc-route/data/tc-chain-checks.json)。
 
 <details>
 <summary>plot_tc_chain.py 的完整源码</summary>
@@ -896,11 +894,11 @@ print('Wrote eliashberg-a2f, epc-smearing, allen-dynes, phonon-linewidth as PNG 
 
 ## 二维异质结 ZrCl₂/Sc₂C：含声子带隙体系的 α²F(ω) 谱积分上限核验与共享频率轴三联图
 
-在单质金属 Al 中，3 条声子支连续分布在 `0–9.94 THz`，`lambda.in` 设 `emax = 14 THz` 即可覆盖全谱。而在同时包含重过渡金属（Zr、Sc、Cl）与轻元素（C 或 N）的层状异质结中，声子谱往往存在宽达数 THz 的**声子带隙（Phononic Gap）**，高频轻原子光学支容易超出 `emax = 10 THz` 的积分上限。
+在单质金属 Al 中，3 条声子支连续分布在 `0–9.94 THz`，`lambda.in` 设 `emax = 14 THz` 即可覆盖全谱。而在同时包含较重元素（Zr、Sc、Cl）与轻元素（C 或 N）的层状异质结中，声子谱可能分为间隔较大的频段，具体范围需要从力常数和模式频率中确认，高频轻原子光学支容易超出 `emax = 10 THz` 的积分上限。
 
 在 **`ZrCl₂/Sc₂C`**（[完整双网格计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)）中：
 - 重原子 `Zr/Sc/Cl` 的 15 条声学与中低频光学支分布在 `0–10.11 THz`（直接 DFPT 网格为 `0–10.02 THz`）；
-- 轻原子 C 原子位移主导的 3 条高频光学支（ν=16–18）跨越 10.11–12.49 THz 的声子带隙，分布在 12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz；σ=0.003 Ry 下，Γ 点第 16 支面外模与第 17、18 支简并面内模的线宽在 ph64 中为 260.01–318.58 GHz，在 ph96 中为 297.74–322.13 GHz）。C-2p 是电子轨道投影标签，不是原子振动模式标签。
+- 轻原子 C 原子位移主导的 3 条高频光学支（ν=16–18）跨越 10.11–12.49 THz 的声子带隙，分布在 12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz；σ=0.003 Ry 下，Γ 点第 16 支面外模与第 17、18 支简并面内模的线宽在 ph64 中为 260.01–318.58 GHz，在 ph96 中为 297.74–322.13 GHz）。
 
 
 匹配的 10 THz 输入首行是 10 0.12 1（Methfessel–Paxton）。在 σ=0.003 Ry 下，直接 q 加权 λ 为 ph64=2.459034、ph96=2.451080；谱积分分别为 2.427435 和 2.418456。QE 7.1 lambda.f90 限定 α²F 频率网格与 ωlog 的计算范围，高于 emax 的模式仍可能通过展宽尾部贡献较低频率。18 THz 保存表在 σ=0.003 Ry 的积分值为 ph64=2.458955、ph96=2.451001；全表直接 λ 与积分的最大绝对差为 0.000102。可是 18 THz 表尚未与生成输入、运行命令或 QE 可执行文件绑定，ph64.1/ph96.1 的 18 0.12 1 输入只是候选文件，不能证明输出来源，也不能将变化归因于只提高 emax。参见 <a href="https://raw.githubusercontent.com/QEF/q-e/qe-7.1/PHonon/PH/lambda.f90">QE 7.1 lambda.f90 源码</a>。
@@ -1629,13 +1627,13 @@ if __name__ == '__main__':
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="四种二维过渡金属碳氮化物的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及底部对应的三维声子振动模式示意图" loading="lazy"/><figcaption>子面板 (a)–(d) 分别展示 Mo<sub>2</sub>C、Mo<sub>2</sub>N、W<sub>2</sub>C 与应变 W<sub>2</sub>N 的 Eliashberg 谱函数 α<sup>2</sup>F(ω)（蓝色曲线，左轴）与累计耦合函数 λ(ω)（红色曲线，右轴），并在特征峰处标注罗马数字 I、II、III；底部子面板 (e) 集中展示峰 I、II、III 对应的三维晶体结构与实空间原子振动位移箭头。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **数据组织要点**：由于被积函数含有 `2 α²F(ω) / ω` 权重，子图 (a)–(d) 中特征峰 `I`（低频过渡金属声学/光学模）对右轴红色累计曲线 `λ(ω)` 的台阶拉升显著大于高频区的特征峰 `III`（轻元素 C/N 光学模）。在底部子图 (e) 中列出 `I、II、III` 对应的三维原子位移方向，能够清楚交代每个 `λ(ω)` 台阶的微观振动起源。
+由于被积函数含有 `2 α²F(ω) / ω` 权重，子图 (a)–(d) 中特征峰 `I`（低频过渡金属声学/光学模）对右轴红色累计曲线 `λ(ω)` 的台阶拉升显著大于高频区的特征峰 `III`（轻元素 C/N 光学模）。在底部子图 (e) 中列出 `I、II、III` 对应的三维原子位移方向，能够清楚交代每个 `λ(ω)` 台阶的微观振动起源。
 
 ### 2. 声子色散、模式耦合强度、分波 PHDOS 与 α²F(ω)/λ(ω) 共享频率纵轴五面板图
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散、模式耦合 λ_qν、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与二维布里渊区耦合分布图" loading="lazy"/><figcaption>将频率 ω 统一设为纵轴，从左至右依次排列 (a) 振动方向与原子投影声子色散、(b) 模式电声耦合强度 λ<sub>qν</sub>、(c) Al/H 元素分辨 PHDOS、(d) α<sup>2</sup>F(ω) 与累计 λ(ω)，并在右上角附 (e) 二维布里渊区中的 λ(q) 热力分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
 
-- **数据组织要点**：当体系同时含有重金属与轻元素（如 H、C、N）时，把频率轴竖置并将色散、模式 `λ_qν`、元素 PHDOS 与 `α²F(ω)` 水平并排，可以直观对比重原子低频支与轻原子高频支各自贡献的 `Δλ` 台阶。
+当体系同时含有重金属与轻元素（如 H、C、N）时，把频率轴竖置并将色散、模式 `λ_qν`、元素 PHDOS 与 `α²F(ω)` 水平并排，可以直观对比重原子低频支与轻原子高频支各自贡献的 `Δλ` 台阶。
 
 ## 把完整谱函数交给 Tc 求解
 

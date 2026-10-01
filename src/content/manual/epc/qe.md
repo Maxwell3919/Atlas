@@ -4,7 +4,7 @@
 
 ## 两条 pwxall 流程算完后，对照 Tc 曲线
 
-这条 Tc 计算路线需要先完成一整条 `pwxall → pwx → phx → … → lambdax`，再在新目录中更换 `pwxall` 的致密 k 网格，重复相同流程。两次 `lambdax` 各自产生一条 Tc 随电子展宽 σ 变化的曲线，最后把两条曲线放在一起，检查交点及其附近的一致程度。只跑通第一条路径，或只从它的输出中选一行 Tc，还没有完成这项对照。
+本页用单原子 fcc Al 介绍 QE 的双网格电子–声子耦合计算。先分清致密电子网格、响应电子网格和声子 q 网格各自的任务，再完成两条独立的 `pwxall → pwx → phx → … → lambdax` 计算链。第二条只改变致密 k 网格。将两份输出按相同电子展宽 σ 配对，画出 Tc₃₂(σ)、Tc₄₈(σ) 和差值曲线，再逐段求出采样范围内的全部交点；没有交点时也保留这一结果。随后结合 λ、ωlog 和交点附近的差值，检查网格与展宽的稳定性。
 
 `pwxall`、`pwx`、`phx`、`lambdax` 是这里的文件或任务命名，调用的程序分别是 `pw.x`、`pw.x`、`ph.x`、`lambda.x`。本页 Al 算例中的前两份真文件叫 `al.dense.in` 和 `al.scf.in`；研究目录则直接使用 `pwxall.in` 和 `pwx.in`。
 
@@ -47,7 +47,7 @@ epc-q4-k48：pwxall 48³ → pwx 16³ → phx q=4³ → … → lambdax → Tc�
 
 两次 `lambda.x` 必须采用相同的 μ*、q 权重、频率积分范围和频率展宽；两次 `ph.x` 的电子展宽序列也要一致。比较图横轴是这组 **EPC 双 δ 积分展宽 σ**，纵轴才是 Tc。它不同于 SCF 的 `degauss`，也不同于 `lambda.in` 中谱函数的频率展宽。
 
-两条曲线的交点提供一个候选的 (σ*, Tc*)，接着要读交点两侧是否仍然接近、λ 与 ωlog 是否各自稳定。QE 开发者对这项检查的说明是：在同一展宽下继续增加 k 点，结果应趋于不变；可用的展宽区间还应向较小 σ 延伸。一个孤立交点不能代替这个区间检查。增加 q 网格后也要重新核对 k–σ 稳定区，不能默认旧区间仍然适用。[QE 开发者关于 k 网格与展宽的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)
+两条曲线相交，只说明在该展宽处得到相同 Tc；λ 与 ωlog 的变化还可能相互抵消。应同时检查谱形、两个谱矩和交点附近的差值。更密 k 网格在固定展宽下趋于稳定，并在减小展宽时仍保持一致，才是收敛检查的方向；q 网格改变后也需重新比较。参见 [QE 开发者对 k 网格与展宽的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)。
 
 第二个目录中的实际 `cp`、`vi`、Slurm 提交与输出检查见[48³ 分支的操作记录](/Atlas/m/epc/qe/#dense-k48-run)。两份输出怎样配对、两条曲线的求交结果与差值，接着看 [Tc 页的实际叠图与交点表](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两条链的原生文件、求交脚本和绘图脚本放在[同一个下载包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
 
@@ -193,7 +193,7 @@ maxwell@maxwell:~/al/epc-q4$ cat _err.1969.log
 cp: 对 'al.a2Fsave' 调用 stat 失败: 没有那个文件或目录
 ```
 
-输入设置了 `outdir='./tmp'`，实际文件在 `tmp/al.a2Fsave`，原脚本却从工作目录复制 `al.a2Fsave`。`set -e` 使脚本在这条 `cp` 失败后退出，后面的响应 SCF 尚未开始。保留已经正常结束的致密结果，将复制路径改正后，用下面的 `continue.slurm` 接着运行；下载包同时保留原脚本与错误记录，便于对照。
+输入设置了 `outdir='./tmp'`，实际文件在 `tmp/al.a2Fsave`，原脚本却从工作目录复制 `al.a2Fsave`。`set -e` 使脚本在这条 `cp` 失败后退出，后面的响应 SCF 尚未开始。保留已经正常结束的致密结果，将复制路径改正后，用下面的 `continue.slurm` 接着运行；这条错误保留在上面的终端记录中；下载包内的 `continue.slurm` 使用修正后的复制路径。
 
 脚本中的 `cmp` 没有输出且返回成功，才会继续到 ph.x；`set -e` 会在前面的命令失败时停止脚本。第二个 48³ 分支的[完整脚本](/Atlas/m/epc/qe/#dense-k48-run)从第一次 SCF 开始，已经使用正确的 `tmp/al.a2Fsave` 路径。
 
@@ -226,6 +226,8 @@ mpirun -np 8 <qe_bin>/ph.x -in al.elph.in > al.elph.out 2> al.elph.err
 maxwell@maxwell:~/al/epc-q4$ sbatch continue.slurm
 Submitted batch job 1970
 ```
+
+这份续算脚本执行到 `matdyn.x`。接着在 32³ 分支运行 `lambda.x`，实际输入、命令和输出见 [α²F 页的 lambda.x 记录](/Atlas/m/eliashberg-a2f/qe/#h-输入之后-程序实际留下了什么)。
 
 队列里的任务消失只说明它不再处于排队或运行状态。运行期间可用 `squeue -j 1970` 查看调度状态，用 `tail -f al.elph.out` 看响应迭代；退出实时查看按 Ctrl+C，不会终止后台任务。结束后读取 ph.x 的末尾，并检查每个 q 点是否有频率、十组展宽和完整模式行。
 
@@ -334,7 +336,7 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 | `epc-q4` | 32 × 32 × 32 | 16 × 16 × 16 | 4 × 4 × 4 |
 | `epc-q4-k48` | 48 × 48 × 48 | 16 × 16 × 16 | 4 × 4 × 4 |
 
-[两条分支的输入、原生输出与比较脚本](/Atlas/examples/supercon-al-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `al-dense-grid-tc/k32/` 和 `al-dense-grid-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
+[两条分支的输入、原生输出与比较脚本](/Atlas/examples/supercon-al-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `supercon-al-tc/k32/` 和 `supercon-al-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
 
 两套电子网格和 q 网格均不作偏移。48/16 = 3、32/16 = 2，16/4 = 4；在本例的共同倒格基矢下，这保证所用响应网格及其 k + q 点能嵌入对应的致密网格。32 和 48 彼此不必是整数倍，分别满足同一条响应网格的包含关系即可。这里比较的是致密电子积分网格，q 网格保持 4³；对 q 网格的收敛判断还要另做加密。
 
@@ -523,7 +525,7 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat finished.txt
 
 > 读取 k32/、k48/ 各自的 lambda.in/out 和八个 elph.inp_lambda 文件。逐分支核对 q 坐标、文件顺序、星权重、十档电子展宽和 μ*，按 QE 7.5 算法重建 λ、ωlog、Tc，核对原生打印精度。按同一 σ 配对，计算 ΔTc；检查分段直线的端点交点、异号区间与重合区间，没有交点时输出零个。保存配对 CSV、求交 JSON 和完整可运行源码；画两条 Tc 曲线及 ΔTc 零线，保留原始采样点。只处理保存文件，不外推或补算缺失分支。
 
-完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。在 [双分支下载包](/Atlas/examples/supercon-al-tc-files.tar.gz) 解包后的 `al-dense-grid-tc` 运行：
+完整源码：[rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py)、[compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)、[plot_supercon_tc_difference.py](/Atlas/examples/supercon-al-tc/plot_supercon_tc_difference.py)。在 [双分支下载包](/Atlas/examples/supercon-al-tc-files.tar.gz) 解包后的 `supercon-al-tc` 目录中运行：
 
 <details>
 <summary>rebuild_tc.py 的完整源码</summary>
@@ -1079,7 +1081,10 @@ def read_rows(path: Path):
     return sigma, tc32, tc48, delta, mu[0]
 
 
-def intersections(sigma, delta):
+def intersections(sigma, tc32, tc48):
+    if not (len(sigma) == len(tc32) == len(tc48)):
+        raise ValueError("paired arrays must have the same length")
+    delta = [a - b for a, b in zip(tc32, tc48)]
     points = []
     intervals = []
     i = 0
@@ -1093,12 +1098,14 @@ def intersections(sigma, delta):
         if j > i:
             intervals.append((sigma[i], sigma[j]))
         else:
-            points.append((sigma[i], 0.0))
+            points.append((sigma[i], tc32[i]))
         i = j + 1
     for i in range(len(delta) - 1):
         if delta[i] * delta[i + 1] < 0:
             x = sigma[i] - delta[i] * (sigma[i + 1] - sigma[i]) / (delta[i + 1] - delta[i])
-            points.append((x, 0.0))
+            fraction = (x - sigma[i]) / (sigma[i + 1] - sigma[i])
+            tc = tc32[i] + fraction * (tc32[i + 1] - tc32[i])
+            points.append((x, tc))
     return points, intervals
 
 
@@ -1109,7 +1116,7 @@ def main():
     ap.add_argument("--prefix", default="supercon-al-k32-k48-tc-delta")
     args = ap.parse_args()
     sigma, tc32, tc48, delta, mu = read_rows(args.data)
-    points, intervals = intersections(sigma, delta)
+    points, intervals = intersections(sigma, tc32, tc48)
     args.out.mkdir(parents=True, exist_ok=True)
 
     blue, vermillion = "#0072B2", "#D55E00"
@@ -1134,7 +1141,7 @@ def main():
                           color="#6A3D9A", alpha=0.10, interpolate=True)
     for x, y in points:
         ax_tc.scatter([x], [y], s=50, facecolor="white", edgecolor="#111111", zorder=5)
-        ax_delta.scatter([x], [y], s=45, facecolor="white", edgecolor="#111111", zorder=5)
+        ax_delta.scatter([x], [0.0], s=45, facecolor="white", edgecolor="#111111", zorder=5)
     ax_delta.set_ylabel(r"$\Delta T_c=T_c(32^3)-T_c(48^3)$ (K)")
     ax_delta.set_xlabel(r"Electronic smearing $\sigma$ (Ry)")
     ax_delta.set_xlim(min(sigma) - 0.002, max(sigma) + 0.002)

@@ -8,7 +8,7 @@
 
 ## 两条 pwxall 流程算完后，对照 Tc 曲线
 
-这条 Tc 计算路线需要先完成一整条 `pwxall → pwx → phx → … → lambdax`，再在新目录中更换 `pwxall` 的致密 k 网格，重复相同流程。两次 `lambdax` 各自产生一条 Tc 随电子展宽 σ 变化的曲线，最后把两条曲线放在一起，检查交点及其附近的一致程度。只跑通第一条路径，或只从它的输出中选一行 Tc，还没有完成这项对照。
+本页用单原子 fcc Al 介绍 QE 的双网格电子–声子耦合计算。先分清致密电子网格、响应电子网格和声子 q 网格各自的任务，再完成两条独立的 `pwxall → pwx → phx → … → lambdax` 计算链。第二条只改变致密 k 网格。将两份输出按相同电子展宽 σ 配对，画出 Tc₃₂(σ)、Tc₄₈(σ) 和差值曲线，再逐段求出采样范围内的全部交点；没有交点时也保留这一结果。随后结合 λ、ωlog 和交点附近的差值，检查网格与展宽的稳定性。
 
 `pwxall`、`pwx`、`phx`、`lambdax` 是这里的文件或任务命名，调用的程序分别是 `pw.x`、`pw.x`、`ph.x`、`lambda.x`。本页 Al 算例中的前两份真文件叫 `al.dense.in` 和 `al.scf.in`；研究目录则直接使用 `pwxall.in` 和 `pwx.in`。
 
@@ -51,7 +51,7 @@ epc-q4-k48：pwxall 48³ → pwx 16³ → phx q=4³ → … → lambdax → Tc�
 
 两次 `lambda.x` 必须采用相同的 μ*、q 权重、频率积分范围和频率展宽；两次 `ph.x` 的电子展宽序列也要一致。比较图横轴是这组 **EPC 双 δ 积分展宽 σ**，纵轴才是 Tc。它不同于 SCF 的 `degauss`，也不同于 `lambda.in` 中谱函数的频率展宽。
 
-两条曲线的交点提供一个候选的 (σ*, Tc*)，接着要读交点两侧是否仍然接近、λ 与 ωlog 是否各自稳定。QE 开发者对这项检查的说明是：在同一展宽下继续增加 k 点，结果应趋于不变；可用的展宽区间还应向较小 σ 延伸。一个孤立交点不能代替这个区间检查。增加 q 网格后也要重新核对 k–σ 稳定区，不能默认旧区间仍然适用。[QE 开发者关于 k 网格与展宽的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)
+两条曲线相交，只说明在该展宽处得到相同 Tc；λ 与 ωlog 的变化还可能相互抵消。应同时检查谱形、两个谱矩和交点附近的差值。更密 k 网格在固定展宽下趋于稳定，并在减小展宽时仍保持一致，才是收敛检查的方向；q 网格改变后也需重新比较。参见 [QE 开发者对 k 网格与展宽的说明](https://lists.quantum-espresso.org/pipermail/users/2003-September/000602.html)。
 
 第二个目录中的实际 `cp`、`vi`、Slurm 提交与输出检查见[48³ 分支的操作记录](/Atlas/m/epc/qe/#dense-k48-run)。两份输出怎样配对、两条曲线的求交结果与差值，接着看 [Tc 页的实际叠图与交点表](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两条链的原生文件、求交脚本和绘图脚本放在[同一个下载包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
 
@@ -295,7 +295,7 @@ maxwell@maxwell:~/al/epc-q4$ cat _err.1969.log
 cp: 对 'al.a2Fsave' 调用 stat 失败: 没有那个文件或目录
 ```
 
-输入设置了 `outdir='./tmp'`，实际文件在 `tmp/al.a2Fsave`，原脚本却从工作目录复制 `al.a2Fsave`。`set -e` 使脚本在这条 `cp` 失败后退出，后面的响应 SCF 尚未开始。保留已经正常结束的致密结果，将复制路径改正后，用下面的 `continue.slurm` 接着运行；下载包同时保留原脚本与错误记录，便于对照。
+输入设置了 `outdir='./tmp'`，实际文件在 `tmp/al.a2Fsave`，原脚本却从工作目录复制 `al.a2Fsave`。`set -e` 使脚本在这条 `cp` 失败后退出，后面的响应 SCF 尚未开始。保留已经正常结束的致密结果，将复制路径改正后，用下面的 `continue.slurm` 接着运行；这条错误保留在上面的终端记录中；下载包内的 `continue.slurm` 使用修正后的复制路径。
 
 脚本中的 `cmp` 没有输出且返回成功，才会继续到 ph.x；`set -e` 会在前面的命令失败时停止脚本。第二个 48³ 分支的[完整脚本](/Atlas/m/epc/qe/#dense-k48-run)从第一次 SCF 开始，已经使用正确的 `tmp/al.a2Fsave` 路径。
 
@@ -460,7 +460,7 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 | `epc-q4` | 32 × 32 × 32 | 16 × 16 × 16 | 4 × 4 × 4 |
 | `epc-q4-k48` | 48 × 48 × 48 | 16 × 16 × 16 | 4 × 4 × 4 |
 
-[两条分支的输入、原生输出与比较脚本](/Atlas/examples/supercon-al-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `al-dense-grid-tc/k32/` 和 `al-dense-grid-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
+[两条分支的输入、原生输出与比较脚本](/Atlas/examples/supercon-al-tc-files.tar.gz)放在同一个文件包内，解压后分别位于 `supercon-al-tc/k32/` 和 `supercon-al-tc/k48/`。后面的终端记录保留运行时目录名 `epc-q4` 与 `epc-q4-k48`；包内的短目录名用于整理这两套已经产生的文件。
 
 两套电子网格和 q 网格均不作偏移。48/16 = 3、32/16 = 2，16/4 = 4；在本例的共同倒格基矢下，这保证所用响应网格及其 k + q 点能嵌入对应的致密网格。32 和 48 彼此不必是整数倍，分别满足同一条响应网格的包含关系即可。这里比较的是致密电子积分网格，q 网格保持 4³；对 q 网格的收敛判断还要另做加密。
 
@@ -868,24 +868,24 @@ epc-q4-k48/al.dense.in 48³ → 本目录 16³ SCF → 本目录 q4³ ph.x → �
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维金属氢化物 h-AlH₂ 的声子色散投影、模式耦合 λ_qν、原子投影 PHDOS、Eliashberg 谱函数 α²F(ω) 与二维布里渊区 λ(q) 分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板电声后处理图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) 对齐频率轴的 Al 与 H 分波声子态密度（PHDOS），(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与阶梯上升的累计耦合强度 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
 
-- **数据组织要点**：子图 (a)–(d) 共享同一频率纵轴 `ω`，横向对照即可确认：哪一段高对称路径上的声子支（a、b）产生了局域态密度峰（c），并在对应频段把累计 `λ(ω)` 推上台阶（d）；右上角子图 (e) 进一步给出全布里渊区积分前的动量空间耦合分布 `λ(q)`。
+子图 (a)–(d) 共享同一频率纵轴 `ω`，横向比较可以找到路径声子支（a、b）、态密度峰（c）与累计 `λ(ω)` 台阶（d）所处的频段；不过路径只覆盖部分 q 点，具体峰的来源仍需完整网格和模式权重分析；右上角子图 (e) 进一步给出全布里渊区积分前的动量空间耦合分布 `λ(q)`。
 
 ### 2. Eliashberg 谱函数特征峰与实空间声子振动本征矢的对应展示
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_Eliashberg_a2F_Modes_MoW_Bekaert2020_Fig4.jpg" alt="四种二维过渡金属碳氮化物的 Eliashberg 谱函数 α²F(ω)、累计 λ(ω) 及底部关键声子振动模式实空间箭头图" loading="lazy"/><figcaption>子面板 (a)–(d) 绘制四种二维过渡金属碳氮化物的 α<sup>2</sup>F(ω)（蓝色左轴）与累计 λ(ω)（红色右轴）并标出特征峰 I、II、III，底部子面板 (e) 展示特征峰 I、II、III 对应的三维实空间原子位移本征矢（振动箭头）。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **数据组织要点**：单独的 `α²F(ω)` 曲线只能显示峰值频率，而将 `matdyn.modes`（或 `dynmat.x`）提取出的特征峰原子位移矢量在底部子面板 (e) 中列出，能够直观区分低频过渡金属振动峰（I、II）与高频轻原子光学振动峰（III）对累计配对强度 `λ(ω)` 的不同贡献。
+单独的 `α²F(ω)` 曲线只能显示峰值频率，而将 `matdyn.modes`（或 `dynmat.x`）提取出的特征峰原子位移矢量在底部子面板 (e) 中列出，能够直观区分低频过渡金属振动峰（I、II）与高频轻原子光学振动峰（III）对累计配对强度 `λ(ω)` 的不同贡献。
 
 ### 3. 声子色散上的连续变宽度线宽色带（Fat-Phonon Ribbon）
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 变宽度红色色带叠加图" loading="lazy"/><figcaption>二维电子化合物 Ba<sub>2</sub>N 的声子色散与声子线宽 γ<sub>qν</sub> 叠加表示：黑色实线给出声子本征色散骨架，沿声子支填充的实心红色色带宽度编码对应 (q, ν) 处的电声线宽大小。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
 
-- **数据组织要点**：在声子支较少或重点突出特定光学支/声学支时，沿色散曲线绘制变宽度实心色带（`fill_between`）能直观标出 Γ 点附近或科恩反常（Kohn anomaly）波矢处的强线宽区；而在声子支密集交叉的多原子异质结中，也可改用半透明散点编码以避免分支遮挡。
+在声子支较少或重点突出特定光学支/声学支时，沿色散曲线绘制变宽度实心色带（`fill_between`）能直观标出 Γ 点附近或科恩反常（Kohn anomaly）波矢处的强线宽区；而在声子支密集交叉的多原子异质结中，也可改用半透明散点编码以避免分支遮挡。
 
 ### 4. 各向异性超导能隙 Δ_nk(T) 的小提琴统计分布图与费米面三维着色
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="超导能隙随温度演化的小提琴统计分布图与费米面能隙热力投影" loading="lazy"/><figcaption>各向异性 Migdal–Eliashberg 方程求解得到的超导能隙 Δ(T) 随温度演化的小提琴统计分布（Violin Plot）及低温费米面能隙分布内嵌图。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026)，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
 
-- **数据组织要点**：当从 Allen–Dynes 公式进一步走向[各向异性 EPW–Eliashberg 求解](/Atlas/m/epw-eliashberg/qe/)时，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
+与本站[各向同性 EPW 求解](/Atlas/m/epw-eliashberg/qe/)相比，文献中的各向异性计算还保留逐态能隙；在这类计算中，每个温度 T 下费米面上有大量 `(n, k)` 能隙值。使用小提琴核密度分布（Violin Plot）并在低温区嵌入按 `Δ_nk` 着色的费米面口袋，可以同时展示多能隙分布宽度以及在 `T → Tc` 处的闭合行为。
 
 下一步：[谱函数与积分](/Atlas/m/eliashberg-a2f/qe/) → [Tc 获取方法](/Atlas/m/allen-dynes/qe/)。

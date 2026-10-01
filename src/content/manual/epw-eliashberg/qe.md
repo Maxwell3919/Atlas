@@ -336,7 +336,7 @@ preston@preston-System-Product-Name:epw-tc$ tail -n 20 nonlinear-w010/epw.out
 
 ## 截断变化后，交叉点是否稳定
 
-不能在这里收起输出就把 1.46 K 当作 Al 的验收 Tc。至少还要看看 Matsubara 截断改变后发生什么。下面三组只改变 `wscut`，原始 α²F 和输入 μ*=0.10 都保持不变；每组都实际细化了交叉温区。
+接着检查 Matsubara 截断对这个交叉温区的影响。下面三组只改变 `wscut`，原始 α²F 和输入 μ*=0.10 都保持不变；每组都细化了交叉温区。
 
 | 请求截断 / eV | η>1 的温度与数值 | η<1 的温度与数值 | 实际交叉夹区 / K |
 |---:|---|---|---|
@@ -502,7 +502,7 @@ python3 plot_tc.py
 
 绘图保留所有通过验收的点，用符号区分采样点，用细线连接而不做平滑拟合。第一张图的灰带来自相邻温度对 η=1 的夹区；第二张图的短横线也是采样夹区，不是统计误差棒。坐标轴、单位和曲线说明都应保留到论文图中。字体、线宽与矢量导出方式见[科研绘图与导出](/Atlas/plotting/)；这些版式设置不改变数值或截断范围。
 
-本次真正得到的是：EPW 6.0 已对指定 Al 谱函数求解各向同性虚频轴方程；低温非线性能隙函数有逐温度收敛记录，线性方程有 η=1 的实际夹区和 LAPACK 对照；截断敏感性仍然可见。因此这些数字应随“谱来源、μ*、截断、各向同性近似”一起引用，不能替代对材料超导性的完整论证。
+EPW 6.0 对上述 Al 谱函数求解了各向同性虚频轴方程。低温非线性能隙函数保留逐温度收敛记录，线性方程给出 η=1 的夹区和 LAPACK 对照。不同 `wscut` 下的夹区仍有差别，引用温度时需同时给出谱来源、μ*、Matsubara 截断和各向同性近似。
 
 下一步回到[电子–声子耦合](/Atlas/m/epc/qe/)补齐原谱的数值比较，或沿下面另一条路线直接从粗 k/q 网格的波函数和扰动势做 EPW Wannier 插值。两条路线最后都能进入 Eliashberg 求解器，但中间数据的来源必须一直分清。
 
@@ -618,7 +618,7 @@ JOB DONE.
 
 本次已安装的 Wannier 库含 MPI 集体通信，而 EPW 6.0 在 `meta_ionode` 分支调用库模式。8 进程的第一轮在解纠缠首轮输出前等待，保留为停止记录。相同输入改成 1 进程后，Wannier 阶段正常推进。这里按程序支持的方式先以 `elph=.false.` 完成局域化，再令 `wannierize=.false.` 读取已有 `al.ukk`，用 8 进程计算粗网格电子–声子矩阵元。不需要改动全局安装。
 
-局域化输入中的投影是设计的初始猜测，中心和展宽必须读原生 `al.wout`，不能拿输入投影充当结果：
+局域化输入中的投影是设计的初始猜测，中心和空间展布应读取 `al.wout`，不能拿输入投影充当结果：
 
 ```fortran
 &INPUTEPW
@@ -671,7 +671,7 @@ epbwrite = .true.
 
 ### 先比较能带，再检查实空间衰减
 
-小展宽和局域化迭代停止，均不能替代能带检查。本次取 Wannier90 原生 `al_band.kpt` 中的 166 个路径点，让 `pw.x` 在同一份 SCF 势上直接计算，并与 `al_band.dat` 逐点比较。每个 k 点按能量升序配对前 4 个本征值；该检查比较能谱，不跨交叉点追踪轨道身份。两边统一减去响应 SCF 输出的 8.4122 eV，没有单独对齐每轮的费米能，也没有拟合或平移曲线。
+Wannier 函数的空间展布较小、局域化迭代达到停止条件，仍不能替代插值能带的检查。本次取 Wannier90 原生 `al_band.kpt` 中的 166 个路径点，让 `pw.x` 在同一份 SCF 势上直接计算，并与 `al_band.dat` 逐点比较。每个 k 点按能量升序配对前 4 个本征值；该检查比较能谱，不跨交叉点追踪轨道身份。两边统一减去响应 SCF 输出的 8.4122 eV，没有单独对齐每轮的费米能，也没有拟合或平移曲线。
 
 初始 4×4×4、冻结窗上限 10 eV 的结果，在 `|E_QE−EF|≤1 eV` 的 47 个态上 RMS 误差为 0.634477 eV、最大误差为 1.524481 eV。这会明显影响后续 0.1 eV 展宽积分。8×8×8、同一能窗降到 RMS 0.126236 eV，但仍有 0.548917 eV 的局部误差。两次解纠缠也都到达 1000 次上限，所以保留其警告，继续检查更宽冻结窗和更密电子粗网格。
 
@@ -754,6 +754,8 @@ EPW 6.0 的谱构造对每个声子模判断 `wq > eps_acoustic`；负频率及�
 
 下载包提供完整输入、纯文本原生输出、比较 CSV 和提取脚本，不打包赝势正文、波函数、dvscf 或二进制 Wannier 矩阵。要从头重跑，应先用包内 SCF/DFPT 输入产生声子父链；已有同一父链时，运行只复制文件的收集脚本，再继续 NSCF。
 
+这里采用下载包根目录下的 `00-phonon/`、`01-nscf/`、`02-wannier/`、`03-coarse/`、`04-fine/` 布局，`phonon-save/` 与它们同级。包内 `inputs/epw1-k12.in`、`epw-coarse.in` 和 `epw2-k12-fine24.in` 已使用 `dvscf_dir='../phonon-save'`。前面展示的历史输入写作 `../../phonon-save`，对应当时更深一层的运行目录；若用它建立重跑副本，要在下面的 `vi` 步骤改为 `../phonon-save`。各阶段的 `outdir='./tmp'` 读取自己的临时目录，NSCF 的 `pseudo_dir='./pseudo'` 读取复制进该阶段的赝势目录。
+
 下面是从下载包重跑时的普通目录操作。开始前，应已按包内父链输入得到 `00-phonon/tmp/al.save`，并把同一套 dyn、dvscf、patterns 和力常数整理到 `phonon-save/`；`pseudo/` 中的赝势须与前述 SHA 一致。先按实际机器设置运行环境、程序路径与可用 MPI 数，再逐步复制和运行。每一步结束后先检查原生输出，再执行下一段。
 
 ```bash
@@ -771,6 +773,7 @@ cd ..
 mkdir 02-wannier
 cp -r 01-nscf/tmp pseudo 02-wannier/
 cp inputs/epw1-k12.in 02-wannier/epw1.in
+vi 02-wannier/epw1.in
 cd 02-wannier
 mpirun -np 1 epw.x -nk 1 -in epw1.in > epw1.out 2> epw1.err
 cd ..
@@ -779,6 +782,7 @@ mkdir 03-coarse
 cp -r 01-nscf/tmp pseudo 03-coarse/
 cp 02-wannier/{al.ukk,al.win,al.bvec,al.mmn} 03-coarse/
 cp inputs/epw-coarse.in 03-coarse/epw-coarse.in
+vi 03-coarse/epw-coarse.in
 cd 03-coarse
 mpirun -np 8 epw.x -nk 8 -in epw-coarse.in > epw-coarse.out 2> epw-coarse.err
 cd ..
@@ -787,6 +791,7 @@ mkdir -p 04-fine/tmp
 cp 03-coarse/{crystal.fmt,epwdata.fmt,dmedata.fmt,vmedata.fmt,wigner.fmt,al.ukk} 04-fine/
 cp 03-coarse/tmp/al.epmatwp 04-fine/tmp/
 cp inputs/epw2-k12-fine24.in 04-fine/epw2.in
+vi 04-fine/epw2.in
 cd 04-fine
 mpirun -np 8 epw.x -nk 8 -in epw2.in > epw2.out 2> epw2.err
 ```
@@ -893,7 +898,7 @@ python3 plot_native_tc.py
 
 `plot_native_tc.py` 需要同目录的 `atlas_plot_style.py`、NumPy 与 Matplotlib，输出 PNG、SVG 和宽 183 mm 的矢量 PDF。`analyse_tc.py` 从这些原件提取绘图数据：`source-spectrum.csv` 保留谱和累计 λ，`linear.csv` 保留每个温度的本征值、实际频率数和迭代数，`gap.csv` 记录这一个收敛的低温点，`tc-brackets.json` 记录实际跨 1 的两端。它们与前面的外部 QE 谱数据分包保存。
 
-至此，这一条真实的“QE 粗网格 → Wannier → EPW 精细网格谱 → Eliashberg 求解”已连通。0.84–0.85 K 应始终连同这组网格、展宽、μ*、截断和各向同性近似一起陈述。它没有代替上游的插值质量检查，也没有证明粗 q 网格、精细积分网格或材料 Tc 已经收敛。
+这条“QE 粗网格 → Wannier → EPW 精细网格谱 → Eliashberg 求解”给出 0.84–0.85 K 的交叉温区。0.84–0.85 K 应始终连同这组网格、展宽、μ*、截断和各向同性近似一起陈述。它没有代替上游的插值质量检查，也没有证明粗 q 网格、精细积分网格或材料 Tc 已经收敛。
 
 ## 文献中的相关图件与表达方式
 
@@ -903,19 +908,19 @@ python3 plot_native_tc.py
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_FS_MgB2_EPW2016_Fig21.jpg" alt="EPW 计算的 MgB₂ 三维六角柱布里渊区费米面上的各向异性超导能隙 Δ_nk 色标分布" loading="lazy"/><figcaption>EPW 基准算例 MgB₂ 在三维六角柱第一布里渊区内的费米面超导能隙 <code>Δ_nk</code>（色标范围 2–8 meV）分布，清晰区分沿 Γ–A 方向的高能隙红橙色圆柱形 σ 费米面片（约 7 meV）与低能隙蓝色管状 π 费米面网络（约 2 meV）。图片来源：Poncé et al., <em>Comput. Phys. Commun.</em> <strong>209</strong>, 116 (2016), Fig. 21，<a href="https://doi.org/10.1016/j.cpc.2016.07.028" target="_blank" rel="noopener noreferrer">DOI: 10.1016/j.cpc.2016.07.028</a>。</figcaption></figure>
 
-- **读图与作图要点**：该图不绘制随温度变化的 `Δ(T)` 曲线，而是将低温下的动量分辨超导能隙 `Δ_nk` 直接投影为三维六角柱布里渊区内的费米面颜色分布。通过将沿 Γ–A 轴向延伸的二维圆柱状 σ 费米面片（红橙色，约 7 meV）与三维连通的管状 π 网络（深蓝色，约 2 meV）同框展示，可以直接辨认双能隙超导体中不同能带与轨道特征对配对强度的贡献。
+该图不绘制随温度变化的 `Δ(T)` 曲线，而是将低温下的动量分辨超导能隙 `Δ_nk` 直接投影为三维六角柱布里渊区内的费米面颜色分布。通过将沿 Γ–A 轴向延伸的二维圆柱状 σ 费米面片（红橙色，约 7 meV）与三维连通的管状 π 网络（深蓝色，约 2 meV）同框展示，可以直接辨认双能隙超导体中不同能带与轨道特征对配对强度的贡献。
 
 ### 2. 不同库仑赝势下的各向异性能隙温度直方图与二维费米面插图
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_Violin_FS_NiH3_Duan2026_Fig3a.jpg" alt="空穴掺杂 CuH₃ 的各向异性超导能隙随温度演化的竖直能量直方图及二维六角费米面插图" loading="lazy"/><figcaption>空穴掺杂 CuH₃ 的各向异性超导能隙 <code>Δ_nk(T)</code> 在 T = 10–100 K 温区内的竖直能量分布直方图，对比三种库仑赝势 <code>μ* = 0.10</code>（蓝）、<code>0.13</code>（红）与 <code>0.15</code>（绿）及各自的 BCS 拟合曲线，内插两幅分别按 <code>λ_nk</code> 与 <code>Δ_nk</code> 着色的二维六角布里渊区费米面。图片来源：Duan et al., <em>Phys. Rev. B</em> (2026), Fig. 3a，<a href="https://doi.org/10.1103/xqsd-2fnl" target="_blank" rel="noopener noreferrer">DOI: 10.1103/xqsd-2fnl</a>。</figcaption></figure>
 
-- **读图与作图要点**：当精细 k 网格采样点很多时，在每个温度刻度上沿纵轴绘制 `Δ_nk(T)` 的竖直能量分布直方图，并叠加不同库仑赝势（`μ* = 0.10, 0.13, 0.15`）对应的 BCS 趋势线，既能展示每个温度下能隙的展宽范围，又能直观比较 `μ*` 对能隙闭合温度 `T_c` 的移动。图内同时嵌入按电声耦合强度 `λ_nk` 和超导能隙 `Δ_nk` 着色的二维六角布里渊区费米面轮廓，使动量空间分布与温度演化相互印证。
+当精细 k 网格采样点很多时，在每个温度刻度上沿纵轴绘制 `Δ_nk(T)` 的竖直能量分布直方图，并叠加不同库仑赝势（`μ* = 0.10, 0.13, 0.15`）对应的 BCS 趋势线，既能展示每个温度下能隙的展宽范围，又能直观比较 `μ*` 对能隙闭合温度 `T_c` 的移动。图内同时嵌入按电声耦合强度 `λ_nk` 和超导能隙 `Δ_nk` 着色的二维六角布里渊区费米面轮廓，使动量空间分布与温度演化相互印证。
 
 ### 3. 电荷密度波超胞反折叠费米面与动量分辨能隙分布
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe₂ 在 3×3 CDW 态下的超导能隙分布直方图、反折叠费米面谱权重与动量分辨能隙映射" loading="lazy"/><figcaption>单层 NbSe₂ 的各向异性超导能隙与费米面表征：(a) 四个温度（T = 2, 2.8, 3.6, 4.4 K）下 <code>Δ_k</code>（meV）的竖直分布直方图；(b) 3×3 CDW 超胞反折叠到原胞布里渊区的费米面谱权重 <code>W_k</code>，显示 K 口袋上的部分能隙打开；(c) T = 2 K 时映射在二维 Γ 与 K/K' 费米面轮廓上的动量分辨超导能隙 <code>Δ_k</code>（0.55–0.75 meV）。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019), Fig. 2，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
 
-- **读图与作图要点**：对于存在 3×3 电荷密度波（CDW）重构的单层 `NbSe₂`，将多个温度下的 `Δ_k` 分布直方图（a）、超胞能带反折叠得到的费米面谱权重 `W_k`（b）以及低温（`T = 2 K`）下投影在二维 Γ 与 K/K' 费米面等能线上的 `Δ_k` 色标分布（c，范围 `0.55–0.75 meV`）并置，能够清楚区分 CDW 引起的 K 口袋部分能隙化与各口袋内部的超导能隙各向异性。
+对于存在 3×3 电荷密度波（CDW）重构的单层 `NbSe₂`，将多个温度下的 `Δ_k` 分布直方图（a）、超胞能带反折叠得到的费米面谱权重 `W_k`（b）以及低温（`T = 2 K`）下投影在二维 Γ 与 K/K' 费米面等能线上的 `Δ_k` 色标分布（c，范围 `0.55–0.75 meV`）并置，能够清楚区分 CDW 引起的 K 口袋部分能隙化与各口袋内部的超导能隙各向异性。
 
 下一步：把[原生双网格 EPC](/Atlas/m/epc/qe/#double-grid-pwxall)、[谱函数积分](/Atlas/m/eliashberg-a2f/qe/)和[Allen–Dynes 公式](/Atlas/m/allen-dynes/qe/)放回同一组物理设置下比较。真正做材料 Tc 时，沿每一条分支分别检查结构、声子、粗细 k/q 网格、展宽和截断，不能从不同目录各挑一个数拼成结果。
 

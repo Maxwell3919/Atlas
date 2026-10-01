@@ -35,10 +35,16 @@ Hill 平均取两者中点 G<sub>H</sub> = (G<sub>V</sub> + G<sub>R</sub>) / 2�
 
 ## 用同一个脚本重新读原始输出
 
-下载包带有 [analyse.py](/Atlas/examples/al/elastic/analyse.py)、`cases.json` 和 12 份原始 SCF 输出，不包含计算主机的 `.venv`。本机已有 NumPy 时，从解包后的 `al` 根目录执行下面三行；分析在 `elastic` 中读取输入，最后回到稍后绘图使用的目录：
+下载包带有 [analyse.py](/Atlas/examples/al/elastic/analyse.py)、`cases.json` 和 12 份原始 SCF 输出。本机已有 NumPy 时，在解包后的 `al` 目录运行：
+
+```bash
+cd elastic
+python3 analyse.py
+cd ..
+```
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+下面的任务从同一批弹性常数计算 Voigt、Reuss、Hill 平均，分别保存模量和泊松比，便于回查不同输入设置的影响。
 
 ```text
 编写 analyse.py，在 elastic 目录读取 cases.json 中的成对应变 SCF。检查每份输出唯一 JOB DONE、电子收敛且 stderr 为空；取最后一份 total stress 的左侧 Ry/bohr³ 张量，乘 -14710.5076 转为拉伸为正的 GPa。按 ±ε 中心差分得到 C11，C12 取 yy、zz 平均；剪切输入工程应变 γ 对应变形矩阵 xy=yx=γ/2，用 σxy 对 γ 的差分求 C44。对 0.003、0.005、0.008 分别保存应力与弹性常数，依立方 Voigt–Reuss–Hill 公式计算 B、Gv、Gr、GH、E、nu 和各向异性比；写 strain-stress.csv 与 elastic-results.csv。保持原始应力符号与原文件。
@@ -87,11 +93,6 @@ for r in results:print(f"{r['strain']:.3f} {r['C11_GPa']:10.4f} {r['C12_GPa']:9.
 
 </details>
 
-```bash
-cd elastic
-python3 analyse.py
-cd ..
-```
 
 下面保留原计算主机的命令与输出，其中 `../.venv/bin/python` 是当时使用的 Python 环境路径：
 
@@ -135,7 +136,7 @@ B 使用 C₁₁+2C₁₂ 的组合；这批计算里两个分量的变化部分
 在下载的 Al 示例目录中运行 [plot_elastic.py](/Atlas/examples/al/plot_elastic.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）：
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+作图应标明采用的多晶平均，而不是将这些标量画成单晶的方向响应。
 
 ```text
 编写 plot_elastic.py，在 Al 根目录按列名读取 elastic/kmesh-comparison.csv。横轴 kmesh，单位为 n×n×n 电子网格；一图比较 C11_GPa、C12_GPa、C44_GPa、B_GPa，另一图比较 B_GPa、GH_GPa、E_GPa。纵轴 GPa，使用全部已保存的网格行，分别输出 figures/elastic-kmesh 与 figures/elastic-moduli 的 PNG/PDF，复用 atlas_plot_style.py。

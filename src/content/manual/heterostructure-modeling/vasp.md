@@ -165,7 +165,7 @@ Bu 与 Sun，*Tuning the electronic properties of WS₂/Sc₂C heterostructures 
 把三份 POSCAR 转到同一笛卡尔参考后，分别检查层内刚性位移、跨层最近距离和周期镜像空白，再按单层参考计算面内伸长。可以把这些读取规则写成下面的请求：
 
 ```text
-请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；按缩放系数和 Direct/Cartesian 格式得到笛卡尔坐标，a×b 定义法向。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。不要自动解释成键或最低能结构， 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。读取 POSCAR.reference、POSCAR.gap3p0、POSCAR.SnSe2.reference；此例只支持正缩放系数的 Direct 坐标，按晶格矢量转成笛卡尔坐标，用 a×b 定义法向。保持所示元素和坐标顺序，前三个原子为 SnSe2，后三个为 Sr2N。核对元素/原子数/晶格/分数 x-y 不变和每层刚性位移，枚举相邻周期像求跨层最近距离，输出法向间隙、层厚、镜像空白、居中和相对单层参考伸长的 JSON/CSV。遇到不支持的坐标格式、原子数不符、层发生交叠或目标间距未达到时，报错退出。几何表不自动判断成键或最低能结构。脚本写入分析结果，保留原始计算文件。
 ```
 
 [check_model.py 完整源码](/Atlas/examples/interface-magnet-heterostructure-modeling/check_model.py)

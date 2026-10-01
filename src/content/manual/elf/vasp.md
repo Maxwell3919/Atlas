@@ -1,4 +1,4 @@
-这里沿用 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁小体系，计算电子局域化函数 ELF，读取 ELFCAR 的两个自旋通道，并在 VESTA 中查看同一阈值下的三维等值面。
+ELF 是用于分析电子局域化特征的无量纲函数，不是电荷密度，也不能积分成转移电子数。本页沿用 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁结构，读取 ELFCAR 中分别保存的上、下自旋通道，并在 VESTA 中用同一阈值比较三维等值面。两个通道的文件约定见 [ELFCAR 文档](https://vasp.at/wiki/ELFCAR)。
 
 [VASP：LELF](https://vasp.at/wiki/LELF) · [ELFCAR](https://vasp.at/wiki/ELFCAR) · [NPAR](https://vasp.at/wiki/NPAR)
 
@@ -273,11 +273,11 @@ wrote: ELFCAR_down.vasp
 
 ## 在 VESTA 中分别打开两个自旋通道
 
-通过 **File → Open** 打开 `elf/ELFCAR_up.vasp`；在 **Properties → Isosurfaces** 设置 `ELF=0.10`，使用蓝色半透明表面，保留金色 Fe 球。通过 **File → Export Raster Image** 导出 PNG，并用 **File → Save As** 保存场景。
+通过 **File → Open** 打开刚生成的 `new-elf/ELFCAR_up.vasp`；若使用下载包中的结果，则打开 `elf/ELFCAR_up.vasp`。在 **Properties → Isosurfaces** 设置 `ELF=0.10`，使用蓝色半透明表面，保留金色 Fe 球。通过 **File → Export Raster Image** 导出 PNG，并用 **File → Save As** 保存场景。
 
 <figure><img src="/Atlas/examples/elf/elf_up_isosurface.png" alt="真实 VESTA 导出的 bcc Fe 上自旋 ELF=0.10 等值面" loading="lazy"/><figcaption>上自旋 ELF↑=0.10，36³ 原始网格。蓝色为等值面，金色球为 Fe，周期单元边界截断部分表面；图中表面的封闭或连接形状只对应这一阈值。</figcaption></figure>
 
-再打开 `elf/ELFCAR_down.vasp`，同样设置 `ELF=0.10` 后导出。可直接下载场景 [elf-up.vesta](/Atlas/examples/charge-vesta/elf/elf-up.vesta)、[elf-down.vesta](/Atlas/examples/charge-vesta/elf/elf-down.vesta)，它们用相对路径导入各自的单块网格。
+再打开同一输出目录中的 `ELFCAR_down.vasp`，同样设置 `ELF=0.10` 后导出。可直接下载场景 [elf-up.vesta](/Atlas/examples/charge-vesta/elf/elf-up.vesta)、[elf-down.vesta](/Atlas/examples/charge-vesta/elf/elf-down.vesta)，它们用相对路径导入各自的单块网格。
 
 <figure><img src="/Atlas/examples/elf/elf_down_isosurface.png" alt="真实 VESTA 导出的 bcc Fe 下自旋 ELF=0.10 等值面" loading="lazy"/><figcaption>下自旋 ELF↓=0.10，使用同一36³网格和阈值。两幅截图视向不同，比较时先按左下角晶轴对应方向；不要用投影面积估算两个通道的体积或电子数。</figcaption></figure>
 

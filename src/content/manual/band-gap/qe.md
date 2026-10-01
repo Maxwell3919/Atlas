@@ -1,6 +1,6 @@
 Si 的价带顶位于 Γ 附近，导带底却在 Γ–X 之间。只在几个高对称点读数，容易越过真正的导带谷；只看 DOS 的展宽曲线，也很难准确给出能隙。这次从均匀 k 网格中找价带最高值和导带最低值，再把导带谷附近加密，逐步看清误差来自哪里。
 
-结构、赝势和父密度沿用[收敛测试](/Atlas/m/convergence/qe/)中的固定两原子 Si 原胞。如何得到父密度见[SCF](/Atlas/m/scf/qe/)，如何让非自洽计算读取它见[NSCF](/Atlas/m/nscf/qe/)。这里保持同一结构、PBE、`60/640 Ry`、无 SOC，比较 `12³`、`18³`、`24³` 三个均匀网格；每一个目录都从自己的父密度副本出发。
+结构、赝势和父密度沿用[收敛测试](/Atlas/m/convergence/qe/)中的固定两原子 Si 原胞。如何得到父密度见[SCF](/Atlas/m/scf/qe/)，如何让非自洽计算读取它见[NSCF](/Atlas/m/nscf/qe/)。这里保持同一结构、PBE、`60/640 Ry`、无 SOC，比较 `12³`、`18³`、`24³` 三个均匀网格；这三组计算分别读取同一份 8³ 父 SCF 密度的独立副本；后文再单独改变父 SCF 网格。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
@@ -209,9 +209,11 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 
 随后沿同一个 `12³` 父密度的 Γ–X 谷做密集采样，局部拟合把谷底定位在 `kx≈0.84430088×2π/a`。与同父密度的 VBM 相减，得到约 **0.54017968 eV**。这一细化步骤的输入、点距和窗口检查都在[有效质量](/Atlas/m/effective-mass/qe/)页，不在这里重走一次。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 带边搜索的输入与检查
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+程序需要分别找出每张均匀网格上的 VBM、CBM 和同 k 直接间隙，再读取谷底加密数据。下面的任务说明保留了带序、单位和父密度的区别。
 
 ```text
 编写 Si 采样带隙分析程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -488,7 +490,7 @@ python3 plot_si.py gap
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M9_BSE_vs_IPA_OpticalAbsorption_HfCl2_Fig8a.jpg" alt="单层 HfCl2 在独立粒子近似 IPA 与含激子效应 BSE 下的面内偏振光吸收谱对比" loading="lazy"/><figcaption>单层 HfCl<sub>2</sub> 沿面内 X 与 Y 偏振方向的光学吸收谱，对比独立粒子近似（IPA，点线）与包含电子—空穴相互作用的 Bethe–Salpeter 方程（BSE，实线）结果，展示显著的激子红移与激子吸收峰。引自 <em>ACS Omega</em> <strong>10</strong>, 13122 (2025)，Fig. 8a，<a href="https://doi.org/10.1021/acsomega.4c10560" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acsomega.4c10560</a>。</figcaption></figure>
 
-下一步：轨道组成接[胖带](/Atlas/m/fatband/qe/)，带边曲率接[有效质量](/Atlas/m/effective-mass/qe/)，空间分布接[三维能带](/Atlas/m/band-3d/qe/)。
+下一步：轨道组成接[胖带](/Atlas/m/fatband/qe/)，带边曲率接[有效质量](/Atlas/m/effective-mass/qe/)，倒空间中的谷形接[三维能带](/Atlas/m/band-3d/qe/)。
 
 ```text
 SCF 密度 → 均匀 NSCF 网格 → 全点搜索 VBM / CBM

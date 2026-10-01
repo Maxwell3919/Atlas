@@ -1,6 +1,6 @@
 [QE 电子声子系数与 Tc 公式](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html) · [QE 7.5 lambda.x 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/lambda.f90) · [QE 的 k 网格与展宽检查](https://www.quantum-espresso.org/Doc/ph_user_guide/node10.html) · [Allen–Dynes 原论文](https://doi.org/10.1103/PhysRevB.12.905)
 
-这里把两条完整计算链的 Tc 曲线放在一起，实际求交点。材料选用单原子 fcc Al：第一条 `pwxall` 为 32³，第二条在新目录改成 48³；两边都接上 16³ 的 `pwx`、4³ q 网格的 `ph.x` 和各自的 `lambda.x`。两次计算采用同一组结构、赝势和参数，比较时只改变致密电子网格。
+给定 λ、ωlog 和库仑参数 μ*，可以用 Allen–Dynes 型公式估算 Tc。本页先比较 fcc Al 两条计算的结果：致密电子网格分别为 32³、48³，响应网格和声子网格固定为 16³、4³；随后逐项解释公式、频率矩和 μ* 的影响。将两条 Tc(σ) 曲线按相同 σ 配对、叠图并逐段求交，是这里的比较步骤。交点给出两条曲线在该展宽处的共同 Tc；网格与展宽是否收敛，还要结合差值、λ 和 ωlog 检查。
 
 <span id="tc-from-double-grid"></span>
 
@@ -69,7 +69,10 @@ def read_rows(path: Path):
     return sigma, tc32, tc48, delta, mu[0]
 
 
-def intersections(sigma, delta):
+def intersections(sigma, tc32, tc48):
+    if not (len(sigma) == len(tc32) == len(tc48)):
+        raise ValueError("paired arrays must have the same length")
+    delta = [a - b for a, b in zip(tc32, tc48)]
     points = []
     intervals = []
     i = 0
@@ -83,12 +86,14 @@ def intersections(sigma, delta):
         if j > i:
             intervals.append((sigma[i], sigma[j]))
         else:
-            points.append((sigma[i], 0.0))
+            points.append((sigma[i], tc32[i]))
         i = j + 1
     for i in range(len(delta) - 1):
         if delta[i] * delta[i + 1] < 0:
             x = sigma[i] - delta[i] * (sigma[i + 1] - sigma[i]) / (delta[i + 1] - delta[i])
-            points.append((x, 0.0))
+            fraction = (x - sigma[i]) / (sigma[i + 1] - sigma[i])
+            tc = tc32[i] + fraction * (tc32[i + 1] - tc32[i])
+            points.append((x, tc))
     return points, intervals
 
 
@@ -99,7 +104,7 @@ def main():
     ap.add_argument("--prefix", default="supercon-al-k32-k48-tc-delta")
     args = ap.parse_args()
     sigma, tc32, tc48, delta, mu = read_rows(args.data)
-    points, intervals = intersections(sigma, delta)
+    points, intervals = intersections(sigma, tc32, tc48)
     args.out.mkdir(parents=True, exist_ok=True)
 
     blue, vermillion = "#0072B2", "#D55E00"
@@ -124,7 +129,7 @@ def main():
                           color="#6A3D9A", alpha=0.10, interpolate=True)
     for x, y in points:
         ax_tc.scatter([x], [y], s=50, facecolor="white", edgecolor="#111111", zorder=5)
-        ax_delta.scatter([x], [y], s=45, facecolor="white", edgecolor="#111111", zorder=5)
+        ax_delta.scatter([x], [0.0], s=45, facecolor="white", edgecolor="#111111", zorder=5)
     ax_delta.set_ylabel(r"$\Delta T_c=T_c(32^3)-T_c(48^3)$ (K)")
     ax_delta.set_xlabel(r"Electronic smearing $\sigma$ (Ry)")
     ax_delta.set_xlim(min(sigma) - 0.002, max(sigma) + 0.002)
@@ -164,7 +169,7 @@ if __name__ == "__main__":
 
 ## 在解包目录把两份输出配起来
 
-前一个脚本从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。后一个脚本把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。QE 7.5 `lambda.x` 源码中的 q 坐标检查被注释掉了；本页的重建脚本逐文件检查坐标和输入顺序，允许六位小数输出带来的舍入差。
+`rebuild_tc.py` 从八个逐 q 原件重新求和，检查文件头的 q 坐标、权重、展宽、DOS(EF)、模式编号，以及结果是否与原生 λ、ωlog、Tc 的打印精度相符。`compare_tc.py` 把两边实际写出的 σ 一一配对，保留原生 Tc 与重建值，计算差值并找出所有交点。QE 7.5 `lambda.x` 源码中的 q 坐标检查被注释掉了；本页的重建脚本逐文件检查坐标和输入顺序，允许六位小数输出带来的舍入差。
 
 两个求和都使用星权重 `1, 8, 4, 6, 24, 12, 3, 6`，总和 64。程序以总权重归一化，每一档展宽独立求出 λ 和谱函数。计算 Tc 时使用输出括号外的逐 q 加权 λ；括号内的谱积分 λ 用来核对谱积分，不能换掉这一列后继续引用原来的 Tc。
 
@@ -1728,19 +1733,19 @@ Tc 表算术核对及其来源标记见 [tc-intersections.json](/Atlas/examples/
 
 ## 文献中的超导临界温度相图与多口袋能隙分布图例（附 DOI 溯源）
 
-在完成单构型的 `Tc(σ)` 与 `μ*` 收敛检验后，文献常将 `Tc` 映射到外部连续调控参量（双轴应变、载流子掺杂、压力）构建二维相图，或进一步在多口袋费米面上分辨超导能隙分布。下面结合两幅文献原图说明常见的数据呈现方式：
+在检查单构型的网格与展宽收敛，并评估 `μ*` 假设的敏感性后，文献常将 `Tc` 映射到外部连续调控参量（双轴应变、载流子掺杂、压力）构建二维相图，或进一步在多口袋费米面上分辨超导能隙分布。下面结合两幅文献原图说明常见的数据呈现方式：
 
 ### 1. 应变–掺杂二维连续参量空间中的等 Tc 热力相图
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_2DPhaseDiagram_Strain_Doping_Tc_BC_Fig4d.jpg" alt="应变与载流子掺杂双参量空间中的超导临界温度 Tc 二维热力相图与稳定域边界" loading="lazy"/><figcaption>二维超导体系在双轴应变与载流子掺杂浓度双参量空间中的超导临界温度 T<sub>c</sub> 二维热力相图及晶格动力学稳定域边界。图片来源：<em>Phys. Rev. B</em> <strong>111</strong>, 174524 (2025)，<a href="https://doi.org/10.1103/PhysRevB.111.174524" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.111.174524</a>。</figcaption></figure>
 
-- **数据组织要点**：当研究包含多个应变点或静电掺杂浓度时，将离散构型计算得到的 `Tc` 绘制为二维热力等值线图，并标出声子出现虚频的动力学失稳边界，能够直观展示声子软化增强 `λ` 与晶格失稳之间的竞争关系。
+当研究包含多个应变点或静电掺杂浓度时，将离散构型计算得到的 `Tc` 绘制为二维热力等值线图，并标出声子出现虚频的动力学失稳边界，能够直观展示声子软化增强 `λ` 与晶格失稳之间的竞争关系。
 
 ### 2. 单层 NbSe₂ 的超导能隙能量直方图、CDW 反折叠费米面与动量分辨能隙
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_AnisotropicGap_CDW_FS_NbSe2_Zheng2019_Fig2.jpg" alt="单层 NbSe₂ 在不同温度下的超导能隙直方图、3×3 CDW 反折叠费米面谱权重与 2 K 下费米面口袋上的能隙分布" loading="lazy"/><figcaption>单层 NbSe<sub>2</sub> 的三面板超导能隙与费米面分析：(a) 在 T = 2、2.8、3.6、4.4 K 四个温度下费米面上各 k 点超导能隙 Δ<sub>k</sub> 的纵向能量分布直方图，(b) 3×3 电荷密度波（CDW）相反折叠到原始布里渊区的费米面谱权重 W<sub>k</sub>，以及 (c) T = 2 K 时超导能隙 Δ<sub>k</sub> 在 Γ 口袋与 K/K′ 口袋上的二维动量空间色标分布。图片来源：Zheng et al., <em>Phys. Rev. B</em> <strong>99</strong>, 161119(R) (2019)，<a href="https://doi.org/10.1103/PhysRevB.99.161119" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.99.161119</a>。</figcaption></figure>
 
-- **数据组织要点**：当材料费米面同时包含布里渊区中心空穴口袋与角点口袋（如单层 `NbSe₂` 或本页 `ZrCl₂/Sc₂C` 的 Γ 六瓣口袋与 K 三角形口袋）时，各向同性 Allen–Dynes 公式给出的是全布里渊区平均 `Tc`；进入各向异性求解后，结合能量直方图（子图 a）与二维费米面着色图（子图 c），可以直接分辨不同费米面口袋上的能隙大小差异及随温度升高的闭合过程。
+当材料费米面同时包含布里渊区中心空穴口袋与角点口袋（如单层 `NbSe₂` 或本页 `ZrCl₂/Sc₂C` 的 Γ 六瓣口袋与 K 三角形口袋）时，各向同性 Allen–Dynes 公式利用平均耦合与谱矩估算一个转变温度，并不是对各 k 点的局部 `Tc` 作平均；进入各向异性求解后，结合能量直方图（子图 a）与二维费米面着色图（子图 c），可以直接分辨不同费米面口袋上的能隙大小差异及随温度升高的闭合过程。
 
 下一步：把同一份完整谱交给 [EPW / Eliashberg 方程](/Atlas/m/epw-eliashberg/qe/)，比较相同 μ* 下的公式估算与方程求解；回到 [α²F 与累计 λ](/Atlas/m/eliashberg-a2f/qe/)可以定位频段贡献，需要追到单 q、单模时继续读[声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 

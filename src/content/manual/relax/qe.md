@@ -1,6 +1,6 @@
 ## 在固定晶胞里，把移开的 Si 原子找回来
 
-这次把金刚石 Si 原胞里的第二个原子沿 x 方向稍微移开，再让 `relax` 把它找回来。晶胞保持不变，第一个原子固定；这样既能看见真实的 BFGS 步骤，也不会把整个晶体的平移混进轨迹。从[Si SCF](/Atlas/m/scf/qe/)的两原子输入出发，改变坐标和优化设置；截断与 k 网格沿用该教学起点，参数比较见[收敛测试](/Atlas/m/convergence/qe/)。
+离子弛豫利用原子力更新位置，同时保持晶胞不变。本例从 [Si SCF](/Atlas/m/scf/qe/) 的两原子结构出发，将第二个 Si 沿 x 方向移开约 0.108 Å，再观察 BFGS 优化怎样减小残余力。第一个原子固定，用来去除整体平移自由度。截断能与 k 网格沿用入门算例，参数比较见[收敛测试](/Atlas/m/convergence/qe/)。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 的 Si 结构示例](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
 
@@ -10,7 +10,7 @@
 
 ## 修改坐标与离子优化设置
 
-原始对称位置是 `(0.25, 0.25, 0.25)`，输入改为 `(0.27, 0.25, 0.25)`，单位为 `alat`。本例晶格常数为 5.397607551 Å，这个位移约 0.108 Å。下面是实际运行的完整文件。
+原始对称位置是 `(0.25, 0.25, 0.25)`，输入改为 `(0.27, 0.25, 0.25)`，单位为 `alat`。本例晶格常数为 5.397607551 Å，这个位移约 0.108 Å。下面是实际运行的完整文件。从零准备时，先在 `si-pbe` 下用 `mkdir relax` 建立计算目录；下载包中的 `relax` 已有原始输入输出，复算应另建目录，并保持 `../pseudo` 指向赝势目录。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cp scf/scf.in relax/relax.in
@@ -148,7 +148,7 @@ Submitted batch job 777
 ```
 
 
-这里明确写了 **5 个 SCF 周期、4 步 BFGS**。这句话比最后的 `JOB DONE.` 更直接地说明优化为何停止。若输出写的是到达最大步数，或 `bfgs` 没有收敛，即使程序已经结束，也不能把那份结构当成通过优化。
+这里明确写了 **5 个 SCF 周期、4 步 BFGS**。初始结构的电子循环第 8 轮曾出现三条 `c_bands: 3 eigenvalues not converged`，第 9、10 轮未再出现，随后给出电子收敛行；后续四个结构的电子循环也分别收敛。检查这类警告时，要连着读它所在的电子轮次和之后的收敛记录，具体说明见 [QE 故障排查](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html)。BFGS 收敛行直接说明了离子优化的停止原因。若输出写的是到达最大步数，或 `bfgs` 没有收敛，即使程序已经结束，也不能把那份结构当成通过优化。
 
 ## 读取最终坐标，复核末态力
 

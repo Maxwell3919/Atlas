@@ -344,7 +344,7 @@ symfc 使用参考晶体的对称性与力常数约束来拟合 `Φ`。最后一
 `calculate_full_force_constants=True` 选择完整原子对矩阵的存储布局，不是把拟合阶数提高了。当前模型仍只包含对位移线性的恢复力；将训练帧数从 20 增至 60，改变的是这些系数的拟合数据。即使增加数据，二阶表达式本身仍可能不能准确描述热运动中较大的位移，所以后面必须同时读取验证力误差与频率变化。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+拟合需要成对的位移与力、统一参考结构以及未参加拟合的验证数据。下面列出数据准备和结果检查的具体要求。
 
 ```text
 编写 fit.py，用 reference-unitcell.extxyz、reference-supercell.extxyz、phonopy-to-ase-order.npy、mapped-dataset.npz 及 independent-nve.traj 建立有限温度有效二阶力常数。位移为 Å、力为 eV/Å，预测力为 -Φu；按周期最小像处理位移并减去整体平移，再按保存映射排序。原数据 101×64×3，独立轨迹 51×64×3；训练索引依次 1–20、1–40、1–60，后段 80–100 与独立轨迹始终不拟合。用 symfc 拟合完整 (64,64,3,3) 力常数，与两种简谐位移基线比较。保存 NPY/YAML、Γ—X—W—K—Γ—L 色散 CSV（THz）、学习曲线、三组力预测误差及真实平均温度到 fit-summary.json。保留负频，比较 40/60 帧色散差；这段程序不执行 SSCHA 自由能变分。
@@ -523,7 +523,7 @@ segment,distance_inv_A,q1,q2,q3,frequency_1_THz,frequency_2_THz,frequency_3_THz,
 色散来自 `harmonic-0.005-bands.csv`、`harmonic-0.01-bands.csv`、`effective-40-bands.csv` 和 `effective-60-bands.csv`。曲线本身使用 THz，差值图把两组对应频率相减后乘 1000，才变成 GHz；这一步不会重新拟合力常数。`fit-summary.json` 提供高对称点的位置，不能用等间隔刻度代替真实路径长度。
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+绘图时把不同样本数的结果放在同一路径上比较，保留负频率和各分支的拟合设置。
 
 ```text
 编写 plot.py，从本目录 CSV、fit-summary.json、independent-dataset.npz 和预测力 NPY 出图。用 summary 中的路径边界，频率保持 THz，叠画简谐与有效二阶色散；并列比较训练、后段与独立轨迹的力 RMSE，画预测力对照和 40/60 帧色散变化。只读取已保存数据，使用 NumPy、Matplotlib 与 atlas_plot_style.py，不加载 MACE。保留所有负频和真实采样温度。
@@ -738,13 +738,13 @@ DATA_AND_EXPORT_CHECKS_FINISHED
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg" alt="H₃S 简谐虚频声子谱与 SSCHA 辅助频率、非谐动力学频率及线宽展宽的上下叠排对比，以及 LaH₁₀ 畸变 C2 与高对称 Fm-3m 笼状结构对比" loading="lazy"/><figcaption>超导氢化物的量子非谐晶格动力学表征：(a) 下方为 H₃S 的非稳定简谐声子色散（灰色阴影标出 <code>ω &lt; 0</code> 虚频区），上方叠绘 SSCHA 辅助频率（绿色虚线）、非谐动力学频率 <code>Ω_ν(q)</code>（红色实线）及非谐线宽展宽 <code>2Γ_ν(q)</code>（粉色阴影带）；(b) 畸变 <code>C2</code> 相与高对称 <code>Fm-3m</code> 相 LaH₁₀ 氢笼结构的对比。图片来源：Monacelli et al., <em>J. Phys.: Condens. Matter</em> <strong>33</strong>, 363001 (2021), Fig. 8，<a href="https://doi.org/10.1088/1361-648X/ac066b" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac066b</a>。</figcaption></figure>
 
-- **读图与作图要点**：子图 (a) 将 H₃S 具有大幅虚频（`ω < 0`，灰色背景）的简谐声子谱放在下方，而在上方正频区同时画出 SSCHA 变分自由能对应的辅助频率（绿色虚线）、包含三阶/四阶自能修正的动力学频率 `Ω_ν(q)`（红色实线）以及非谐声子线宽 `2Γ_ν(q)`（粉色阴影包络），把不同层次的非谐近似区分清楚。
+子图 (a) 下方是 H₃S 的简谐声子谱，灰色区域标出虚频；上方绿色虚线是 SSCHA 优化所得的辅助谐频率。红色实线和粉色阴影则来自动力学谱函数在 Lorentzian 近似下的峰位与线宽，见 Monacelli 等人的 Fig. 8。这三种频率来自不同定义；辅助谐频率本身不是自由能 Hessian 的本征频率。
 
 ### 2. 单层 1L-CoTe₂ 的简谐虚频与多温度非谐声子色散叠绘
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_TempEvolution_CoTe2_Chen2026_Fig1e.jpg" alt="单层 1L-CoTe₂ 的简谐声子谱（黑色，含浅黄色背景虚频区）与 100 K、200 K、300 K 有限温度非谐声子色散对比" loading="lazy"/><figcaption>单层 1L-CoTe₂ 的声子色散随温度演化：黑色曲线为简谐近似声子谱（浅黄色背景标示虚频软模区），绿色、蓝色与红色曲线分别为 100 K、200 K 与 300 K 下的有限温度非谐声子谱。图片来源：Chen, Zhang, and Zheng (2026), Fig. 1(e)。</figcaption></figure>
 
-- **读图与作图要点**：在同一高对称路径坐标系内，以浅黄色底色标出 `ω < 0` 虚频区间，将包含虚频分支的 0 K 简谐声子谱（黑线）与 100 K（绿线）、200 K（蓝线）和 300 K（红线）的有限温度非谐声子谱直接叠画，能够清楚观察声学/低频软模随温度升高逐步硬化为正频的过程。
+Chen、Zhang 与 Zheng 的《Interlayer-coupling-driven stabilization and superconductivity in bilayer CoTe₂》中，Fig. 1(e) 将简谐结果与 100、200、300 K 的 SSCHA 自由能 Hessian 频率放在同一路径上比较，显示软模随温度升高硬化。论文的计算使用深度势辅助 SSCHA 构型采样与自由能优化；与本页从短经典 MD 轨迹拟合二阶力常数相比，它计算的是不同的量。
 
 ```text
 已核验模型与结构

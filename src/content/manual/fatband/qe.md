@@ -1,4 +1,4 @@
-普通能带告诉我们某个 k 点上有哪些能级；胖带再把这些态的轨道投影画成点的大小或带线的粗细。这次沿 Si 的 Γ–X–W–K–Γ–L–X 路径计算 121 个 k 点，每点保留 8 条能带，再分别画两个原子合计的 s 和 p 权重。横轴始终是这条路径中的位置。
+胖带把电子态的轨道投影叠加在能带图上，用点面积或线宽表示权重。本例沿 Si 的 Γ–X–W–K–Γ–L–X 路径，读取 121 个 k 点、每点八条带的本征值和投影，分别比较两个 Si 原子合计的 s、p 成分。能量、波矢和投影必须按同一个态配对。
 
 下载包保留输入、输出、XML 与作图数据，未打包 `tmp/si.save` 中的电荷密度和波函数。阅读输出、重新作图可直接使用包内文件；重新计算投影时，先完成 [Si 路径能带](/Atlas/m/bands/qe/)，本页读取其中 121 个路径点的波函数。
 
@@ -32,7 +32,7 @@
 [preston@preston-System-Product-Name si-pbe]$
 ```
 
-`ngauss=0`、`degauss=0.01 Ry` 和 `DeltaE=0.02 eV` 管理同时写出的 Gaussian 展宽数据；前者的宽度约为 0.1361 eV，后者是能量步长。本页胖带直接读取每个波函数的投影幅度，不用这组展宽生成点的大小。这里只选择 Si 的 s、p 两组，是因为实际赝势给出了这些投影态。路径上的点和权重也不是均匀布里渊区积分，因此同时产生的 PDOS 文件不在本页作为总 DOS 使用。
+`ngauss=0`、`degauss=0.01 Ry` 和 `DeltaE=0.02 eV` 管理同时写出的 Gaussian 展宽数据；`degauss` 对应约 0.1361 eV 的展宽，`DeltaE` 是能量步长。本页胖带直接读取每个波函数的投影幅度，不用这组展宽生成点的大小。这里只选择 Si 的 s、p 两组，是因为实际赝势给出了这些投影态。路径上的点和权重也不是均匀布里渊区积分，因此同时产生的 PDOS 文件不在本页作为总 DOS 使用。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cat bands-cg/post.sh
@@ -257,9 +257,11 @@ ik,iband,path_distance_tpiba,kx_tpiba,ky_tpiba,kz_tpiba,energy_eV,Si_s_weight,Si
 
 运行末尾确认 `projwfc.x` 正常结束。[完整输出](/Atlas/examples/si-pbe-electronic/bands-cg/projwfc.out)尾部还会打印 Löwdin 数字，但这次输入的是能带路径，不把它用于布里渊区积分的布居结论；[布居分析](/Atlas/m/population-analysis/qe/)另用均匀 `18³` 网格演示。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 能量与投影权重的配对
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+下面的任务把投影权重与路径本征值按 k 点和带编号合并；画图之前先检查记录数、能量参考和投影归并。
 
 ```text
 编写 Si 逐 k 逐带轨道投影程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -1258,13 +1260,13 @@ if __name__ == '__main__':
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_OrbitalFatbands_PDOS_FS_TiSH_Li2024_Fig3a.jpg" alt="按 Ti d_xy+d_x²−y²、d_xz+d_yz 与 d_z² 拆分为三列窄能带面板的轨道胖带、水平 PDOS 与二维费米面联立图" loading="lazy"/><figcaption>将过渡金属 Ti-3d 轨道按晶体场对称性拆分为三列并排的窄能带面板，分别展示 <code>d_xy + d_x²−y²</code>、<code>d_xz + d_yz</code> 与 <code>d_z²</code> 权重，并与右侧共享能量轴的水平分波 PDOS 及二维费米面插图组合展示。图片来源：Li et al., <em>Phys. Rev. B</em> <strong>109</strong>, 174516 (2024), Fig. 3a，<a href="https://doi.org/10.1103/PhysRevB.109.174516" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.109.174516</a>。</figcaption></figure>
 
-- **读图与作图要点**：当同一条能带同时含有多个 `d` 分波分量时，把高对称路径压缩为三列并排的窄面板，分别绘制面内 `d_xy + d_x²−y²`、面外倾斜 `d_xz + d_yz` 和面外 `d_z²` 权重，再在右侧接上共享能量轴的水平 PDOS，可以减少不同 `d` 分波在同一像素位置上的遮挡。
+当同一条能带同时含有多个 `d` 分波分量时，把高对称路径压缩为三列并排的窄面板，分别绘制面内 `d_xy + d_x²−y²`、面外倾斜 `d_xz + d_yz` 和面外 `d_z²` 权重，再在右侧接上共享能量轴的水平 PDOS，可以减少不同 `d` 分波在同一像素位置上的遮挡。
 
 ### 2. 空心圆轨道与间隙空球 X 投影胖带及带边同心圆放大图
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M4_Electride_HZrCl2_He2022_Fig2.png" alt="单层 2H-ZrCl₂ 的空心圆轨道与空球 X 投影胖带、VBM/CBM 局部同心圆放大及 ELF、PDOS、部分电荷密度联立图" loading="lazy"/><figcaption>单层 2H-ZrCl₂ 电子化合物的空心圆轨道投影能带（子图 a）：使用不同颜色的空心圆区分原子轨道与间隙空球 <code>X</code> 的投影权重，并在右侧附上 VBM 与 CBM 附近的局部放大图（多个轨道的空心圆在同一采样点上形成同心圆环）。图片来源：He et al., <em>J. Mater. Chem. C</em> <strong>10</strong>, 7674 (2022), Fig. 2，<a href="https://doi.org/10.1039/D2TC00564F" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D2TC00564F</a>。</figcaption></figure>
 
-- **读图与作图要点**：采用无填充空心圆（`facecolors='none'`）绘制多通道胖带并在 VBM/CBM 极值处给出局部放大插图，不同轨道分量在同一个 `(k, E)` 点上会呈现为半径不同的同心圆环，不会像实心散点那样由后绘制的图层完全盖住先绘制的图层。
+采用无填充空心圆（`facecolors='none'`）绘制多通道胖带并在 VBM/CBM 极值处给出局部放大插图，不同轨道分量在同一个 `(k, E)` 点上会呈现为半径不同的同心圆环，不会像实心散点那样由后绘制的图层完全盖住先绘制的图层。
 
 下一步：能量分辨的轨道贡献接[DOS](/Atlas/m/dos/qe/)，全区积分的投影电子数接[布居分析](/Atlas/m/population-analysis/qe/)，带边位置接[带隙](/Atlas/m/band-gap/qe/)。
 

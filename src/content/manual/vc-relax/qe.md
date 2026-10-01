@@ -1,6 +1,6 @@
 ## 让晶胞参与优化，先看完整的 Al 算例
 
-[Si SCF](/Atlas/m/scf/qe/)中原子力接近零，压力仍为 38.45 kbar。若要寻找目标压力下的晶格，就需要让晶胞自由度参与优化。这里用单原子 fcc Al 演示完整的 `vc-relax` 输入、晶胞更新与最后压力；它是 Si 路线旁的结构优化参考，重新计算时使用自己的材料输入。
+在 [Si SCF](/Atlas/m/scf/qe/) 中，原子力接近零，晶胞压力却仍为 38.45 kbar。原子处于对称位置，并不保证体积已经合适。要寻找给定外压下的结构，需要开放相应的晶胞自由度。本页用单原子 fcc Al 展示 `vc-relax` 的输入、晶胞更新和末态检查；后半页保留一份未收敛记录，用于比较不同的停止原因。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Al 例子的官方赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)
 
@@ -126,11 +126,9 @@ End final coordinates
    0.00000000   0.00000014  -0.00000000            0.00        0.02       -0.00
   -0.00000000  -0.00000000   0.00000014           -0.00       -0.00        0.02
 ```
-最后的压力为 0.02 kbar，原子力在打印精度内为零；这次有 BFGS 收敛、完整最后坐标、重新计算的电子收敛和末尾 `JOB DONE.`。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
+最后的压力为 0.02 kbar，原子力在打印精度内为零。最终晶胞的电子重算在第 1 轮出现了 `c_bands` 本征值未收敛警告；第 2 至第 7 轮没有再出现，随后打印电子收敛行。读这份结果时，应同时保留中途警告、BFGS 收敛、完整最后坐标和程序收尾；中途警告与末轮仍有未收敛本征值的处理不同，见 [QE 故障排查](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html)。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
 
 准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)将这份最终晶胞写成 `ibrav=0` 与 `CELL_PARAMETERS angstrom`，并展示匹配的 SCF 和保存目录；后续计算使用的是这些最终晶格矢量。
-
-Al 输出写明 `bfgs converged in 4 scf cycles and 3 bfgs steps`：初始结构之后进行了 3 次 BFGS 更新，随后还有最终晶胞上的电子重算。计数时分别读取优化段与最后 SCF 段；最终压力为 0.02 kbar，常规立方晶格常数为 3.95607 Å。
 
 ## HfCl₂/PbO₂ 记录：读取未收敛的停止原因
 
@@ -236,7 +234,7 @@ np 后的 56 是这个任务占用的 MPI 进程数；`ulimit -s` 设置栈限�
 
 ### 提交与监控
 
-任务提交后用 `squeue` 看是否在运行，建议提交 5–10 秒后再查，避免短运行后已报错。也可以用 `htop` 对比提交前后的线程数。更完整的优化进展我更推荐：
+任务提交后，用 `squeue` 查看排队或运行状态，并同时读取程序输出和错误日志。很快退出的作业也可能已经报错，队列中没有任务不能单独说明计算成功。下面用 `watch` 定期查看能量和力的变化：
 
 ```bash
 watch -n 5 "grep -E 'iteration #|convergence has been achieved|Total force|total stress|CELL_PARAMETERS|ATOMIC_POSITIONS|End of BFGS Geometry Optimization|JOB DONE' rx.out | tail -n 80"

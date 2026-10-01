@@ -439,7 +439,7 @@ Si         0.00000000       0.00000000       0.00000000
 
 ## 在网格外另算 DFT，再谈插值好不好
 
-仅在训练网格上比较，可能掩盖网格之间的插值误差。因此本次沿同一条 Γ–X–W–L–Γ 路径选择了 13 个位置做直接 DFT；首尾 Γ 重复，对应 12 个不同 k 点，其中包含两套均匀网格之外的点。验证输入如下，完整 SCF 电荷密度来自先前独立保存的副本。
+仅在构造 Wannier 模型的均匀网格上比较，可能掩盖网格之间的插值误差。因此本次沿同一条 Γ–X–W–L–Γ 路径选择了 13 个位置做直接 DFT；首尾 Γ 重复，对应 12 个不同 k 点，其中包含两套均匀网格之外的点。验证输入如下，完整 SCF 电荷密度来自先前独立保存的副本。
 
 ```console
 maxwell@maxwell:~/si-wannier/k4/validation$ cat si.bands.in
@@ -517,7 +517,7 @@ maxwell@maxwell:~/si-wannier/k4/validation$ tail -10 si.bands.out
 
 ### 交给代码助手的任务：核对接口、展布与插值误差
 
-> 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序。读取 k4/、k6/ 下的 si.win、si.wout、接口输出及直接 DFT 验证数据；核对 mp_grid、显式 k 点数/坐标/顺序、四个价带的 num_wann/num_bands 和接口正常结束状态。提取逐次 spread 与最终四个 Wannier 函数展布，单位保留 bohr²；以 direct-bands.csv 和相同 k 坐标上的 Wannier 插值值计算逐带误差及最大绝对误差，单位 eV，沿用原脚本的能量参考和带排序。输出检查 JSON 与逐点 CSV，标出缺文件或不匹配项，不以零填充。只解析已有结果，不运行 QE/Wannier90，也不将四价带 Si 模型外推到金属费米面。
+> 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序，使用 Python 3 和 NumPy。读取 validation-kpoints.csv 及 k4/validation/ 下的直接 DFT XML、stdout 和 stderr，核对验证点坐标，将 Hartree 本征值换成 eV。对 k4/、k6/，核对 SCF、NSCF、接口及 Wannier 输出的结束状态，比较 silicon.win 与 NSCF XML 的显式 k 点坐标和顺序，检查 silicon.eig、silicon.mmn、silicon.amn 的四带维数。读取 silicon.wout 中的逐次总展布和最终总展布，单位保留 bohr²；按 validation-kpoints.csv 的路径索引，从 silicon_band.dat 取同一位置的四条插值能带，与直接 DFT 逐带比较，计算最大绝对误差和均方根误差。作图参考取直接 DFT Γ 点的最高占据态，同时保留原始能量。输出 summary.json、direct-bands.csv、validation-errors.csv，以及两种网格各自的 bands.csv、spread-history.csv；赝势文件用于记录 SHA256。遇到缺文件、坐标或维数不符时停止，不以零填充。
 
 [已有完整核对源码 analyse_wannier.py](/Atlas/examples/si-wannier/analyse_wannier.py) · [完整准备源码 prepare_si_wannier.py](/Atlas/examples/si-wannier/prepare_si_wannier.py)。
 
@@ -794,7 +794,7 @@ python plot_wannier.py
 
 ## 文献中基于 Wannier 紧束缚模型的表面态与谱函数应用
 
-构造出经过验证的最大局域化 Wannier 函数实空间哈密顿量 `*_hr.dat` 后，除了做体相能带插值，还常将其输入到 WannierTools 等后处理程序中，采用迭代格林函数法计算半无限大晶体表面的局域态密度（表面谱函数）及三维表面态色散，直接与 ARPES 测量结果对照。
+构造出经过验证的最大局域化 Wannier 函数实空间哈密顿量 `*_hr.dat` 后，除了做体相能带插值，还常将其输入到 WannierTools 等后处理程序中，采用迭代格林函数法计算半无限大晶体表面的局域态密度（表面谱函数）及表面能带色散，直接与 ARPES 测量结果对照。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="由最大局域化 Wannier 紧束缚哈密顿量计算的 ZrAs2 (001) 半无限表面谱函数与三维鞍点色散" loading="lazy"/><figcaption>由最大局域化 Wannier 紧束缚哈密顿量结合 WannierTools 计算得到的 ZrAs<sub>2</sub> (001) 半无限表面谱函数与三维鞍点色散，并与高分辨 ARPES 实验谱进行对比。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
 

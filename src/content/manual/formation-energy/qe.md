@@ -1,4 +1,4 @@
-把 B2 AlSi 的 OUT 打开，可以找到一个以 Ry 为单位的总能。这个数随原子数、元素和赝势改变；要判断形成 AlSi 是否比拆成 Al 和 Si 更有利，必须把三者放到同一套计算约定下相减。这里实际计算了五个小晶胞：fcc Al、金刚石 Si，以及在 B2、L1₂ 原型上替换元素得到的三个 Al–Si 候选。
+形成能比较化合物与指定元素参考态的能量。以 B2 AlSi 为例，总能量必须与同一计算约定下的 Al、Si 参考配对，并按组成和原子数归一化。本页使用五个小晶胞：fcc Al、金刚石 Si，以及 B2、L1₂ 原型上的三个 Al–Si 教学候选。它们用于展示参考态与能量比较，并非一份穷尽所有可能相的结构搜索。
 
 本算例求的是相对 **fcc Al 和 diamond Si 元素晶体**的每原子形成能。内聚能则比较晶体与同元素的孤立原子，参考态和常用符号约定均需另行说明；这里没有计算孤立原子能量。24³ 下 B2 AlSi 的形成能为 `0.265762 eV/atom`，下面从输入、优化输出和匹配的静态能量读出这个数。
 
@@ -187,13 +187,15 @@ K_POINTS automatic
 
 五个候选在所有比较目录里都固定为各自 12³ 优化得到的同一几何；提取程序会核对晶胞与坐标的哈希。`24³` 是每个晶格自身倒格矢方向的网格数，不能把 fcc 原胞与简单立方晶胞的同一网格数理解成完全相同的倒空间间距。
 
+保存输入后，从 `alsi-formation-hull` 根目录进入 `alsi-b2/k24`（`cd alsi-b2/k24`），再提交该目录中的 `run.sh`。下面保留这项 24³ 计算的提交记录：
+
 ```console
 [preston@preston-System-Product-Name k24]$ sbatch run.sh
 Submitted batch job 841
 [preston@preston-System-Product-Name k24]$
 ```
 
-运行中用 `watch -n 2 "tail -n 10 alsi-b2/k20/scf.out"` 看尾部；这条命令在会话里实际执行过，按 Ctrl-C 退出的是监视程序。屏幕上 `iteration #` 增加表示电子迭代在推进，仍需等待 `estimated scf accuracy` 达到阈值。
+历史记录中的 `watch -n 2 "tail -n 10 alsi-b2/k20/scf.out"` 用于查看另一项 20³ 对照的尾部。若跟踪刚提交的 24³ 重跑，回到 `alsi-formation-hull` 根目录后，用 `tail -f alsi-b2/k24/scf.out` 查看这一项的实时输出。按 Ctrl-C 只退出监视程序；`iteration #` 增加表示电子迭代在推进，仍需等待 `estimated scf accuracy` 达到阈值。
 
 OUT 开头先核对版本、原子数、电子数、截断与晶胞。下面的 12³ 例子只摘录这一部分，[完整 OUT](/Atlas/examples/alsi-formation-hull/alsi-b2/k12/scf.out) 可以同时查看前面的程序说明与后面的本征值列表。
 
@@ -295,7 +297,11 @@ B2 晶胞含 1 个 Al 和 1 个 Si，赝势价电子数合计为 7，所以这�
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-末尾同时保留了耗时和 `JOB DONE.`。提取脚本要求最后一轮电子迭代没有本征值未收敛行、OUT 给出电子收敛、XML 的收敛标记为 true，并要求 XML 与 OUT 总能一致。初轮警告的数量另存为表列。20³ 高截断结果还进行了电子自洽重算。其中四项沿用已完成的密度和波函数；AlSi₃ 的原生输入重复写了 `startingpot` 与 `startingwfc`，实际 OUT 显示读取已有密度、重新生成随机化原子波函数，不能把它也写成波函数延续。五项重算全程均没有本征值未收敛行，与父计算的能量差最大为 `0.000006 meV/atom`；这检验的是同一数值协议下电子求解的一致性，不能替代 k 网格收敛。错误流保留了本机重复出现的 `Authorization required, but no authorization protocol specified` 环境提示，不能写成空文件。示例输入见 [alsi-b2/verify/scf.in](/Atlas/examples/alsi-formation-hull/alsi-b2/verify/scf.in)。
+取能量前，先在 OUT 中确认电子收敛和 `JOB DONE.`，再检查最后一轮电子迭代是否还有本征值未收敛提示。提取脚本同时检查 XML 的收敛标记，并比较 OUT 与 XML 的总能；较早电子迭代中的警告数量另存为表列。
+
+20³ 高截断结果还做了同协议的电子自洽重算。五项重算全程均没有本征值未收敛行，与父计算的能量差最大为 `0.000006 meV/atom`。这项对照检查电子求解的一致性；k 网格对形成能的影响仍要通过改变网格、成对重算候选与端元来判断。
+
+重算的起始文件也需要对应：其中四项沿用已完成的密度和波函数；AlSi₃ 的原生输入重复写了 `startingpot` 与 `startingwfc`，实际 OUT 显示读取已有密度、重新生成随机化原子波函数。错误流中的 `Authorization required, but no authorization protocol specified` 是本机重复出现的环境提示，下载包保留了这些文件。示例输入见 [alsi-b2/verify/scf.in](/Atlas/examples/alsi-formation-hull/alsi-b2/verify/scf.in)。
 
 `verify` 的父计算是同一候选的 `cutoff80`，不是 12³ 的优化波函数。重跑时应等 `cutoff80` 验收后，在干净的验证目录中复制：
 
@@ -307,15 +313,15 @@ AlSi₃ 的原始输入保留在下载包中，便于核对这次输出。如果
 
 ## 按原子数减去元素参考能
 
-真正取形成能时，先把端元能量换成每原子：`μAl=E(Al原胞)/1`，`μSi=E(Si原胞)/2`。对含 nAl 个 Al、nSi 个 Si 的候选：
+计算形成能时，先把端元能量换成每原子：`μAl=E(Al原胞)/1`，`μSi=E(Si原胞)/2`。下面的 `E_cell`、`μAl` 和 `μSi` 都以 Ry 为单位；减去晶胞内全部原子的参考能后，乘 Ry→eV 换算系数，再除以总原子数。对含 nAl 个 Al、nSi 个 Si 的候选：
 
 ```text
 ΔE_form (eV/atom) = [E_cell − nAl × μAl − nSi × μSi] × 13.605693122994 / (nAl + nSi)
 ```
 
-例如这组 24³ 结果中，Al 为 `-5.0395901951 Ry/atom`，Si 两原子原胞为 `-22.8402546465 Ry`，所以 Si 参考需要先除以 2。B2 AlSi 的 `-16.4206511902 Ry/cell` 减去 1 个 Al 和 1 个 Si 的参考后，再除以 2，得到 `0.265762 eV/atom`。
+例如这组 24³ 结果中，Al 为 `-5.0395901951 Ry/atom`，Si 两原子原胞为 `-22.8402546465 Ry`，所以 Si 参考需要先除以 2。B2 AlSi 的 `-16.4206511902 Ry/cell` 减去 1 个 Al 和 1 个 Si 的参考后，再除以 2，得到 `0.265762 eV/atom`。这三个能量分别对应 `al-fcc/k24`、`si-diamond/k24` 与 `alsi-b2/k24`：手动读数时，在各自 `scf.out` 中找末次 `! total energy`。表格保留的更多小数位来自 XML 的 `total_energy/etot`；该字段以 Hartree 为单位，提取脚本先乘 2 转成 Ry，再与 OUT 的打印值比较。
 
-提取程序 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py) 会从实际输入、OUT 和 XML 生成下表，同时留下各文件的 SHA。画图程序 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 只读取 CSV，因此可以把数据拉到本机绘图。
+提取程序 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py) 会从实际输入、OUT 和 XML 生成下表，同时留下各文件的 SHA。画图程序 [plot_alsi.py](/Atlas/examples/alsi-formation-hull/plot_alsi.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/alsi-formation-hull/atlas_plot_style.py)） 只读取 CSV，因此可以把数据拉到本机绘图。运行这里的原始提取器需要 Python 3 和 NumPy；绘图还需要 Matplotlib，并保留随包提供的 `atlas_plot_style.py`。后面的 `review_alsi_thermo.py` 读取已提取的 CSV，只依赖 Python 标准库。
 
 <details>
 <summary>analyse_alsi.py 的完整源码</summary>
@@ -611,7 +617,7 @@ al-fcc/k32/scf.out  al3si-l12/k32/scf.out  alsi-b2/k32/scf.out  alsi3-l12/k32/sc
 [preston@preston-System-Product-Name alsi-formation-hull]$
 ```
 
-这一步只说明原生程序完成。独立提取还要求五项 XML 的 SCF 收敛标记为真、误差低于 `conv_thr=1e-10 Ry`、OUT 与 XML 的总能一致，以及末轮无本征值未收敛信息。五项本次都满足这些电子求解检查；错误文件仍要一起看：
+五项输出均正常结束；取数时还要确认 XML 的 SCF 收敛标记为真、误差低于 `conv_thr=1e-10 Ry`、OUT 与 XML 总能一致，以及末轮没有本征值未收敛信息。这五项均满足上述电子求解条件。再看本次保留的错误文件：
 
 ```text
 [preston@preston-System-Product-Name alsi-formation-hull]$ wc -c */k32/scf.err
@@ -679,7 +685,7 @@ Davidson-CG Al3Si difference: 1.15852021e-07 meV/atom
 用 --outdir 参数输出 alsi-thermo-review.csv 和 alsi-thermo-review.md。报告两组凸包顶点、三个中间候选的形成能、above-hull 距离和网格变化；1 meV/atom 沿用本例比较线，不改变判断标准。不要绘图，不推断未计算结构或温度项。
 ~~~
 
-完整源码如下，与上面的下载文件相同。保存为 `review_alsi_thermo.py`，和所需 CSV 放在同一目录。
+完整源码如下，与上面的下载文件相同。将 `review_alsi_thermo.py`、`formation-energy.csv`、`formation-k32.csv` 与 `comparison-k24-k32.csv` 放在同一目录；运行命令见源码后。
 
 <details>
 <summary>review_alsi_thermo.py 完整源码</summary>
@@ -904,7 +910,7 @@ rows=5 k24_hull=Al-fcc,Si-diamond k32_hull=Al-fcc,Si-diamond
 max_intermediate_change=1.798223 meV/atom case=al3si-l12
 ```
 
-五个候选的表格关系能够重算一致；最大网格变化仍来自 Al₃Si，超过原定的 1 meV/atom 比较线。这两个判断分别对应数据核对和数值参数检查。
+脚本重算得到的形成能与表格一致，两组凸包顶点均为 fcc Al 和 diamond Si。最大网格变化来自 Al₃Si，为 `1.798223 meV/atom`，超过原定的 1 meV/atom 比较线；顶点组成相同仍需继续检查形成能的数值变化。
 
 ## 文献中的候选相与能量修正
 

@@ -169,7 +169,7 @@ maxwell@maxwell:~/al/finite-disp/n2-d0.01$ tail -9 disp-001/al.scf.out
 [analyse.py](/Atlas/examples/al/finite-disp/analyse.py) 从 `phonopy_disp.yaml` 读取位移顺序，从相同编号的 `.out` 读取力，先生成未额外对称化的力常数，再保存平移和规则处理后的力常数与声子路径数据。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+后处理先匹配位移超胞与原子力，再构造力常数。下面的任务保留正负位移、单位和 ASR 设置，使不同结果能够按同一约定比较。
 
 ```text
 编写有限位移后处理 analyse.py。读取四个目录 n2-d0.01、n2-d0.02、n2-d0.01-k9、n3-d0.01，各自将 phonopy_disp.yaml 与 disp-001/002 的 QE 力输出按编号配对。未完成的目录打印 still running 并不填数；已完成输出检查唯一 JOB DONE、电子收敛和空 stderr。用 ASE 读取 eV/Å 的原子力，Phonopy 使用 primitive_matrix=P，先记录未经对称化的平移残差，再对称化力常数并保存 phonopy_params.yaml。保存 Γ、X、W、L 的原始和处理后频率（THz）；路径 bands.csv 的列为 segment,distance_A_minus1,q1,q2,q3,f1_cm_minus1,f2_cm_minus1,f3_cm_minus1，频率在写表时乘 33.3564095198152 换为 cm⁻¹。保留负频，并保存每份力输出的哈希和净力。
@@ -257,7 +257,7 @@ n3-d0.01 raw FC drift= 1.8180444807003315e-05 ; Gamma THz= [-1.27883366e-07 -5.1
 [plot_finite.py](/Atlas/examples/al/plot_finite.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取各目录的 `bands.csv`，`bands.csv` 的后三列已由分析脚本换成 cm⁻¹，绘图直接读取，按 Γ—X—W—L—Γ 的分段端点放标签。下载整个 Al 示例的数据结构后，在本机运行：
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+下面的绘图任务保留实际计算路径、频率符号和位移幅度，比较时不移动曲线。
 
 ```text
 编写 plot_finite.py，在 Al 根目录读取 finite-disp 下四个目录的 bands.csv。第二列为累计倒空间距离，最后三列已经是 cm⁻¹，不再换算。左面板对比 n2-d0.01 与 n2-d0.02；右面板对比 n2-d0.01-k9 与 n3-d0.01。用行 0、40、81、122、163 的路径距离标 Γ—X—W—L—Γ，保留频率零线，输出 figures/finite-displacement.png 和 PDF。复用同目录 atlas_plot_style.py。

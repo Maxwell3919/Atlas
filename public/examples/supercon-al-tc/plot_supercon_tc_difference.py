@@ -34,7 +34,10 @@ def read_rows(path: Path):
     return sigma, tc32, tc48, delta, mu[0]
 
 
-def intersections(sigma, delta):
+def intersections(sigma, tc32, tc48):
+    if not (len(sigma) == len(tc32) == len(tc48)):
+        raise ValueError("paired arrays must have the same length")
+    delta = [a - b for a, b in zip(tc32, tc48)]
     points = []
     intervals = []
     i = 0
@@ -48,12 +51,14 @@ def intersections(sigma, delta):
         if j > i:
             intervals.append((sigma[i], sigma[j]))
         else:
-            points.append((sigma[i], 0.0))
+            points.append((sigma[i], tc32[i]))
         i = j + 1
     for i in range(len(delta) - 1):
         if delta[i] * delta[i + 1] < 0:
             x = sigma[i] - delta[i] * (sigma[i + 1] - sigma[i]) / (delta[i + 1] - delta[i])
-            points.append((x, 0.0))
+            fraction = (x - sigma[i]) / (sigma[i + 1] - sigma[i])
+            tc = tc32[i] + fraction * (tc32[i + 1] - tc32[i])
+            points.append((x, tc))
     return points, intervals
 
 
@@ -64,7 +69,7 @@ def main():
     ap.add_argument("--prefix", default="supercon-al-k32-k48-tc-delta")
     args = ap.parse_args()
     sigma, tc32, tc48, delta, mu = read_rows(args.data)
-    points, intervals = intersections(sigma, delta)
+    points, intervals = intersections(sigma, tc32, tc48)
     args.out.mkdir(parents=True, exist_ok=True)
 
     blue, vermillion = "#0072B2", "#D55E00"
@@ -89,7 +94,7 @@ def main():
                           color="#6A3D9A", alpha=0.10, interpolate=True)
     for x, y in points:
         ax_tc.scatter([x], [y], s=50, facecolor="white", edgecolor="#111111", zorder=5)
-        ax_delta.scatter([x], [y], s=45, facecolor="white", edgecolor="#111111", zorder=5)
+        ax_delta.scatter([x], [0.0], s=45, facecolor="white", edgecolor="#111111", zorder=5)
     ax_delta.set_ylabel(r"$\Delta T_c=T_c(32^3)-T_c(48^3)$ (K)")
     ax_delta.set_xlabel(r"Electronic smearing $\sigma$ (Ry)")
     ax_delta.set_xlim(min(sigma) - 0.002, max(sigma) + 0.002)

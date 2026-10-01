@@ -110,7 +110,7 @@ if __name__=='__main__':
   a=results['snse2'];b=results['sr2n']
   if a['classification']!='gapped_on_sampled_mesh' or b['classification']!='metallic_on_sampled_mesh': raise ValueError('The expected semiconductor/metal scope is not supported')
   av=a['windows'][0];bv=b['windows'][1]
-  ref={'snse2_side':'lower_z','sr2n_side':'upper_z','cbm_minus_metal_fermi_eV':av['cbm_minus_vacuum_eV']-bv['fermi_minus_vacuum_eV'],'metal_fermi_minus_vbm_eV':bv['fermi_minus_vacuum_eV']-av['vbm_minus_vacuum_eV'],'scope':'Frozen isolated layers, scalar nonmagnetic PBE-D2; not an interface barrier'}
+  ref={'snse2_side':'lower_z','sr2n_side':'upper_z','cbm_minus_metal_fermi_eV':av['cbm_minus_vacuum_eV']-bv['fermi_minus_vacuum_eV'],'metal_fermi_minus_vbm_eV':bv['fermi_minus_vacuum_eV']-av['vbm_minus_vacuum_eV'],'scope':'Frozen isolated layers, scalar nonmagnetic PBE-D3 (zero damping); not an interface barrier'}
   summary={'geometry':g,'layers':results,'interface_facing_isolated_reference':ref}
   json.dump(summary,open('alignment-summary.json','w'),indent=2,sort_keys=True)
   print('Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=%.6f eV; E_F(Sr2N)-VBM(SnSe2)=%.6f eV'%(ref['cbm_minus_metal_fermi_eV'],ref['metal_fermi_minus_vbm_eV']))

@@ -130,9 +130,9 @@ Gamma
 
 两层统一使用 `ISMEAR = 0` 的高斯展宽、`SIGMA = 0.05 eV`，使同一套设置能用于后面分别呈现带隙和金属交叉的两份结果。展宽与 21×21×1 网格会影响占据、费米能及采样到的带边；继续做精度检查时，应比较各能级减去本次真空势后的变化，而不只看 OUTCAR 的总能量是否稳定。[VASP 的展宽说明](https://vasp.at/wiki/Smearing_technique)
 
-`LVHAR = .TRUE.` 写出离子势加 Hartree 势。`LDIPOL = .TRUE.`、`IDIPOL = 3` 在法向加入偶极修正，`DIPOL` 放在居中后的层附近。非对称层可以具有两个不同的真空平台；偶极修正并不要求把这两个平台强行变成一个值。[LDIPOL 官方说明](https://vasp.at/wiki/LDIPOL) 也指出，这类修正可能让电子收敛变慢，所以是否达到 EDIFF 必须从输出中确认。
+`LVHAR = .TRUE.` 写出离子势加 Hartree 势。`LDIPOL = .TRUE.`、`IDIPOL = 3` 在法向加入偶极修正，`DIPOL` 放在居中后的层附近。非对称层的电荷分布可以产生法向净偶极，使孤立薄膜两侧的真空势不同。在三维周期晶胞中，势还必须满足周期边界，重复镜像会引入额外的真空势斜率。偶极修正抵消这一周期误差，让两侧各自出现平坦区，并保留由薄膜电荷分布产生的势差。[LDIPOL 官方说明](https://vasp.at/wiki/LDIPOL) 也指出，这类修正可能让电子收敛变慢，所以是否达到 EDIFF 必须从输出中确认。
 
-两个单层用以下脚本串行运行，每次使用 8 个 MPI 进程。
+两个单层分别提交；前一个任务结束后，再运行另一个目录的任务。下面以 SnSe₂ 为例，每次使用 8 个 MPI 进程。
 
 ```text
 [bcgong@localhost band_alignment]$ cat snse2/run.slurm
@@ -297,7 +297,7 @@ window 6.00:10.00 A  N=60  mean=0.872342013 eV  std=5.30532e-06 eV  range=2.4683
 window 29.00:33.00 A  N=60  mean=1.273814882 eV  std=4.78083e-06 eV  range=2.37907e-05 eV
 ```
 
-两个窗口分别取 6–10 Å 和 29–33 Å，避开原子层及晶胞边界附近的偶极修正跳变。`range` 是所选窗口内势的最大值减最小值，这里均小于 0.00007 eV。SnSe₂ 两侧平台却相差约 0.5440 eV，Sr₂N 两侧相差约 0.4015 eV：平台本身很平坦，并不意味着两侧平台必须相等。
+两个窗口分别取 6–10 Å 和 29–33 Å，避开原子层及偶极修正的势跳变。层已居中，跳变落在远离原子的真空中；这个人为跳变用于维持晶胞势的周期性，不能当成接触后的界面势阶。`range` 是所选窗口内势的最大值减最小值，这里均小于 0.00007 eV。SnSe₂ 两侧平台却相差约 0.5440 eV，Sr₂N 两侧相差约 0.4015 eV：平台本身很平坦，并不意味着两侧平台必须相等。
 
 同一组窗口再用 CHGCAR 核对。CHGCAR 首个电荷网格采用与 LOCPOT 不同的归一化；全网格平均给出总价电子数，而平面平均再除以晶胞体积才得到电子密度，单位为 e/Å³。
 
@@ -343,7 +343,7 @@ Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnS
 | SnSe₂，lower z | 1.738360 | VBM = −5.992725；CBM = −5.714622 |
 | Sr₂N，upper z | 1.273815 | E_F = −3.432015 |
 
-因此，把这两份孤立层的面向表面按真空能级对齐，会得到 `CBM(SnSe₂) − E_F(Sr₂N) = −2.282607 eV`。这个数表达指定参考模型的能级相对位置。接触以后，电荷转移、界面偶极、杂化与结构响应都会改变势和能带，不能把这里的差值当作已经计算出的实际界面势垒，也不能用它直接定量推算转移电子数。Sr₂N 在本次模型中是金属，半导体—半导体的 type I / II 分类也不适用于这张图。
+因此，把这两份孤立层的面向表面按真空能级对齐，会得到 `CBM(SnSe₂) − E_F(Sr₂N) = −2.282607 eV`。这个数表达指定参考模型的能级相对位置。接触以后，电荷转移、界面偶极、杂化与结构响应都会改变势和能带，不能把这里的差值当作已经计算出的实际界面势垒，也不能用它直接定量推算转移电子数。Sr₂N 在本次模型中是金属，半导体—半导体的 type I / II 分类也不适用于这组能级。
 
 本例采用共同晶胞下的冻结几何、非磁 PBE+D3、无 SOC 和 21×21×1 网格。PBE 带隙未作准粒子修正；接触性质的分析继续使用实际界面的结构、磁性、密度与能带。
 
@@ -560,7 +560,7 @@ if __name__=='__main__':
   a=results['snse2'];b=results['sr2n']
   if a['classification']!='gapped_on_sampled_mesh' or b['classification']!='metallic_on_sampled_mesh': raise ValueError('The expected semiconductor/metal scope is not supported')
   av=a['windows'][0];bv=b['windows'][1]
-  ref={'snse2_side':'lower_z','sr2n_side':'upper_z','cbm_minus_metal_fermi_eV':av['cbm_minus_vacuum_eV']-bv['fermi_minus_vacuum_eV'],'metal_fermi_minus_vbm_eV':bv['fermi_minus_vacuum_eV']-av['vbm_minus_vacuum_eV'],'scope':'Frozen isolated layers, scalar nonmagnetic PBE-D2; not an interface barrier'}
+  ref={'snse2_side':'lower_z','sr2n_side':'upper_z','cbm_minus_metal_fermi_eV':av['cbm_minus_vacuum_eV']-bv['fermi_minus_vacuum_eV'],'metal_fermi_minus_vbm_eV':bv['fermi_minus_vacuum_eV']-av['vbm_minus_vacuum_eV'],'scope':'Frozen isolated layers, scalar nonmagnetic PBE-D3 (zero damping); not an interface barrier'}
   summary={'geometry':g,'layers':results,'interface_facing_isolated_reference':ref}
   json.dump(summary,open('alignment-summary.json','w'),indent=2,sort_keys=True)
   print('Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=%.6f eV; E_F(Sr2N)-VBM(SnSe2)=%.6f eV'%(ref['cbm_minus_metal_fermi_eV'],ref['metal_fermi_minus_vbm_eV']))
@@ -671,6 +671,8 @@ python3 analyze_alignment.py
 python3 check_vacuum_density.py
 python3 export_alignment_tables.py
 ```
+
+从包内保存的摘要重建这两张表时，上面的三个命令即可使用。若从 LOCPOT 重新开始，先分别在 `snse2` 与 `sr2n` 中执行前面展示的 `python ../plane_average.py LOCPOT 6:10 29:33`，生成各自的 `potential-summary.json`，再回到 `example-pack` 运行汇总和导出命令。
 
 脚本的本次实际输出为 4 行表面值、2 行相向偏移。SnSe₂ lower-z 表面的真空势为 1.738360141 eV，VBM−Vvac = −5.992725141 eV，CBM−Vvac = −5.714622141 eV；Sr₂N upper-z 表面的真空势为 1.273814882 eV，EF−Vvac = −3.432014882 eV。按各自真空参考组合后，CBM(SnSe₂)−EF(Sr₂N) = −2.282607260 eV。CSV 保留两侧所有平台均值与窗口内势差，可[查看真空参考表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)和[相向表面偏移表](/Atlas/examples/interface-magnet-band-alignment/facing-surface-offsets.csv)。
 

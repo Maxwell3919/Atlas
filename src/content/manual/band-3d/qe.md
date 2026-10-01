@@ -1,6 +1,6 @@
-一条高对称路径只是在倒空间里走过几条线。要看 Si 导带谷为什么在不同方向有不同曲率，需要离开那条线。这次在 Γ–X 导带谷附近真正计算一个三维 k 点立方网格，再从中画两张能量曲面。两张图显示的是局部 Γ–X 谷的纵向与横向切面。
+高对称路径只采到倒空间中的几条线，不能完整显示能谷的形状。本页在 Si 的 Γ–X 导带谷附近计算三维 k 点网格，再从中取纵向与横向两个切面，比较不同方向上的色散。图的竖轴是能量，另外两个轴是波矢，不是原子的实空间位置。
 
-前面的[带隙](/Atlas/m/band-gap/qe/)和[有效质量](/Atlas/m/effective-mass/qe/)已经把这个谷定位在 `kx≈0.8443×2π/a`。这里仍使用同一固定 Si 晶胞、同一 `60/640 Ry` 设置和 `12³` 父 SCF 密度，接续方式见 [SCF](/Atlas/m/scf/qe/)。
+[带隙](/Atlas/m/band-gap/qe/)与[有效质量](/Atlas/m/effective-mass/qe/)将这个谷定位在 `kx≈0.8443×2π/a`。这里保持同一 Si 晶胞、PBE、无 SOC 和 `60/640 Ry` 截断，读取有效质量页所述的 `12³` 父 SCF 密度。重新计算时应先完成该页的 `k12` 输入，而不是直接接用 SCF 入门页的 `8³` 密度。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
@@ -59,7 +59,7 @@ K_POINTS tpiba
 [preston@preston-System-Product-Name si-pbe]$
 ```
 
-三个方向分别为：x 从 0.75 到 0.95，共 11 点；y、z 从 −0.08 到 0.08，各 9 点，间隔均为 0.02，单位都是 `2π/a`。`11×9×9=891`，所以这里有真实的离面采样，并非把一条曲线绕轴旋转出来。
+三个方向分别为：x 从 0.75 到 0.95，共 11 点；y、z 从 −0.08 到 0.08，各 9 点，间隔均为 0.02，单位都是 `2π/a`。`11×9×9=891`，因此两个切面都有独立计算的离面点作为依据。
 
 取值范围决定这张局部图覆盖多大的谷区，点距决定能看清多细的起伏。扩大范围仍可能错过很窄的极值；缩小点距也不会把局部网格变成全布里渊区采样。这两种修改都只是在既有父密度上增加本征值采样。
 
@@ -148,9 +148,11 @@ kx_tpiba,ky_tpiba,kz_tpiba,kx_inv_A,ky_inv_A,kz_inv_A,band5_eV
 
 其中 `band5_eV` 是每个点的第 5 条能带。图中的零点采用这个立方网格内采样到的最小值，并不宣称它就是连续函数的精确谷底。x 的间隔只有 0.02，采样最低点落在 0.85 附近；[有效质量](/Atlas/m/effective-mass/qe/)中更细的线采样把谷底进一步定位到约 0.8443。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 三维网格后处理的输入与检查
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+后处理从局部三维网格提取两个切面，并保留波矢单位和谷底能量参考。下面列出输入与检查条件，可据此自行写脚本，或交给 Agent 实现后逐项检查。
 
 ```text
 编写 Si 导带谷局部网格后处理程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -163,6 +165,8 @@ kx_tpiba,ky_tpiba,kz_tpiba,kx_inv_A,ky_inv_A,kz_inv_A,band5_eV
 ## 后处理源码与运行
 
 完整源码：[analyse_electronic.py](/Atlas/examples/si-pbe-electronic/analyse_electronic.py) · [plot_si.py](/Atlas/examples/si-pbe-electronic/plot_si.py) · [atlas_plot_style.py](/Atlas/examples/si-pbe-electronic/atlas_plot_style.py)。Python 3 依赖：NumPy、Matplotlib。
+
+重提取 `band3d/cube.csv` 时，在完整 `si-pbe` 示例包中运行 `analyse_electronic.py`。这个共用脚本也会读取 `mass/data-file-schema.xml`、`bands-cg/data-file-schema.xml` 和 `bands-cg/atomic_proj.xml`，因此这些目录要一并保留。已有 `cube.csv` 时，直接运行 `python3 plot_si.py band3d`；该绘图分支只读取三维网格表；`atlas_plot_style.py` 包装保存调用，同时输出 PNG、SVG 与 PDF。
 
 <details>
 <summary>analyse_electronic.py 的完整源码</summary>

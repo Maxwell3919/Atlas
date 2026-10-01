@@ -4,9 +4,9 @@
 
 画图前，先写清楚准备比较哪两个量。能带要交代能量零点和 k 路径，DOS 要交代每个原胞还是每个原子的归一化，声子要保留虚频，Tc 要同时留下产生它的 λ、ωlog、μ* 和公式。只调整颜色与字体，解决不了这些定义上的歧义。
 
-本站的图从可下载的原始输出或提取表重画。输入、输出、后处理脚本和图片沿用同一组目录；计算没有完成时，不用平滑曲线把空缺接上。先运行相应页面的提取脚本，再画图，才能把图上的点追溯到具体输出行。
+本站自绘算例图可从下载包中的原始输出或提取表重画；引用的文献图则以图注中的论文为来源，不能由本站脚本重新生成。输入、输出、后处理脚本和图片沿用同一组目录；计算没有完成时，不用平滑曲线把空缺接上。先运行相应页面的提取脚本，再画图，才能把图上的点追溯到具体输出行。
 
-本次本机重绘使用 Python 3.14.0、NumPy 2.3.4 和 Matplotlib 3.10.7。提取程序所需的其他软件在各页单独注明；只改颜色、字号和导出格式，不需要重新提交 DFT。字体优先使用本机已有的 Arial，缺少时回退到 DejaVu Sans，并检查实际导出的文字。
+这里保留的一次重绘记录使用 Python 3.14.0、NumPy 2.3.4 和 Matplotlib 3.10.7；其他算例的环境在各自页面中说明。提取程序所需的其他软件在各页单独注明；只改颜色、字号和导出格式，不需要重新提交 DFT。字体优先使用本机已有的 Arial，缺少时回退到 DejaVu Sans，并检查实际导出的文字。
 
 ## 先把一条曲线的含义说完整
 
@@ -106,39 +106,27 @@ install()
 
 ## 科研绘图规范与计算结果可视化指南
 
-计算物理与材料科学图表不仅要求字体、线宽和色标克制统一，还强调共享同一能量轴、频率轴或实空间法向坐标的多子图对齐：把同一套计算输出的能带、态密度、声子线宽和谱函数并排或上下组合，使图面上的每个特征都能回溯到原始输出文件。
+把几张图放在一起，应当有一个具体的比较目的。共用坐标轴可以减少读图时的换算，但不能使原本不同来源的数据自动变成同一次计算。下面的异质结图件来自保存记录，用于说明排版和数据对应；每组记录的未完成部分也应随图保留。
 
 ### 图面组织与读图要点：多子图联动实例
 
-在 `ZrCl₂/Sc₂C` 与 `SnSe₂/Sr₂N` 异质结计算中，脚本 [`plot_zrcl2_sc2c.py`](/Atlas/examples/zrcl2-sc2c/plot_zrcl2_sc2c.py) 与 [`plot_snse2_sr2n.py`](/Atlas/examples/snse2-sr2n/ph64/plot_snse2_sr2n.py) 采用 `GridSpec` 将核心输出组织为多子图联排：
-
-1. **`ZrCl₂/Sc₂C` 电子结构三联图**：
-   - **子图 a（`Orbital fatbands`）**：沿二维六角布里渊区 `Γ–M–K–Γ` 路径（`151` 个 k 点、`31` 条能带，`ecutwfc = 100 Ry`、`ecutrho = 800 Ry`、`degauss = 0.0037 Ry`，能量参考取 `scf/pwx.out` 的 `E_F = 0.3133 eV`）绘制本征能带，并将 `scf/fatbands.projwfc_up` 中 `45` 个正交化原子轨道归并为四组主通道（`Zr-4d` `#9–13`、`Sc-3d` `#31–35, #41–45`、`C-2p` `#15–17`、`Cl-3p` `#19–21, #23–25`），以空心圆（`facecolors='none'`，阈值 `w > 0.04`）叠加轨道权重；
-   - **子图 b（`PDOS`）**：与子图 a 共享垂直能量轴 `E − E_F ∈ [−2.5, 2.0] eV`，绘制水平分波态密度（灰色填充为 `zrclscc.pdos_tot` 总态密度，叠加 `Zr-4d`、`Sc-3d`、`C-2p`、`Cl-3p` 四条投影曲线）；
-   - **子图 c（`2D Fermi surface`）**：由 `FS/zrclscc_fs.bxsf`（`64×64×1` k 网格、`65×65×2` BXSF 节点，`E_F = 0.3154 eV`）插值重建二维六角第一布里渊区内穿过费米能级的 **Band 26**（蓝色）与 **Band 27**（橙红色）费米面等能线。
+ZrCl₂/Sc₂C 的电子结构图将轨道胖带、PDOS 和费米面并列。前两幅使用 0.3133 eV 作为能量零点，BXSF 等能线使用其自身的 0.3154 eV。这个差别应在定量配对交点时检查，不能通过挪动数据消除。胖带按同一 `(k, band)` 的投影显示轨道组成，PDOS 则对均匀网格求和；高对称路径上较平缓的一段色散，只能提示可能相关的能区，不能独自解释整个 DOS 峰。
 
 ![ZrCl₂/Sc₂C 轨道投影胖带、水平 PDOS 与二维六角费米面三联图](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-electronic.png)
 
-2. **`ZrCl₂/Sc₂C` 晶格动力学与电声耦合三联图（共享频率纵轴 `0–18 THz`）**：
-   - **子图 a**：声子色散曲线叠加模式线宽 `γ_qν`（颜色）与模式电声耦合常数 `λ_qν`（圆面积），标出分隔 `ν = 1–15` 重原子支（`0–10.11 THz`）与 `ν = 16–18` 高频 `C-2p` 光学支（`12.49–17.11 THz`）的 `10.11–12.49 THz` 声子带隙，以及 Γ 点高频光学支线宽极大值 `γ_{Γ,17–18} ≈ 322 GHz`（在 `ph96`、`σ = 0.003 Ry` 下第 17、18 支简并面内 `E` 模分别为 `318.99` 与 `322.13 GHz`，`15.48 THz`；第 16 支 `12.49 THz` 面外 `A₁` 模为 `297.74 GHz`）和 `q = 7, ν = 1` 处的声学软化支（`1.42 THz`，`γ = 141.72 GHz`，`λ_{qν} = 4.6873`）；
-   - **子图 b**：由 `zrclscc.phdos` 读取的原子分辨声子态密度 `PHDOS`（`Total, Zr, Sc, Cl, C`）；
-   - **子图 c**：Eliashberg 谱函数 `α²F(ω)`（`σ = 0.003 Ry` 实线，`σ = 0.001 Ry` 点线）与按 `0.36 × λ(ω)` 缩放的累积耦合曲线（将积分上限 `emax` 从 `10 THz` 扩展到全谱 `18 THz` 时，包含高频 `C-2p` 支后 `λ = 2.451`，`ω_log` 由 `83.3 K` 增至 `85.7 K`）。
+声子与耦合图共用频率纵轴，用来比较色散、原子投影 PHDOS 和 α²F。这里的高频光学支以 C 原子位移为主；对应的电子结构图则用 C-2p 表示轨道投影。还要分清原生逐 q 结果与路径插值：逐 q 文件中的点编号不是色散图的路径坐标，必须先匹配实际波矢，才能比较频率和线宽。数据对应见[声子线宽](/Atlas/m/phonon-linewidth/qe/)。
 
 ![ZrCl₂/Sc₂C 声子色散、声子线宽、PHDOS 与 Eliashberg 谱函数三联图](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png)
 
-3. **`ZrCl₂/Sc₂C` 致密电子网格（`64²` vs `96²`）对展宽 `σ` 与 `emax` 的敏感性对比**：
-   - **`zrcl2-sc2c-k64-k96-tc.png`（双子图 a–b）**：子图 **a** 对比 `64²` 与 `96²` 电子网格在 `emax = 18 THz`（全谱）与 `10 THz`（截断高频支）下的 `T_c(σ)` 曲线，两条全谱曲线在 `σ* ≈ 0.0036 Ry` 处相交（`T_c ≈ 13.58 K`）；子图 **b** 绘制两套网格的临界温度差 `ΔT_c(σ) = T_{c,64} − T_{c,96}`；
-   - **`zrcl2-sc2c-k64-k96-moments.png`（三子图 a–c）**：分别对比双高斯费米面态密度 `N_σ(E_F)`（子图 **a**）、总电声耦合常数 `λ(σ)`（子图 **b**）与对数平均频率 `ω_log(σ)`（子图 **c**）随展宽 `σ` 的变化。
+右侧谱函数使用有匹配输入记录的 10 THz 数据。文件中另有 18 THz 的保存输出，但仍缺生成输入、运行命令和程序身份记录；不能把两份谱矩的变化只归因于提高积分上限，也不能据此宣布复算已经通过。频率范围和来源说明见[谱函数页](/Atlas/m/eliashberg-a2f/qe/)。
+
+两组致密网格的 Tc 图按相同展宽配对，下方显示 ΔTc。对 18 THz 保存表逐段线性求交，得到 σ≈0.003579 Ry、Tc≈13.587 K（两位小数为 13.59 K）。这份保存表尚缺生成输入、命令和程序身份记录；该交点描述表格插值，网格与展宽收敛仍需结合差值和谱矩比较。具体表格与来源说明见[Tc 对照](/Atlas/m/allen-dynes/qe/)。
 
 ![ZrCl₂/Sc₂C 在 64² 与 96² 网格下的 Tc(σ) 与 ΔTc(σ) 对比](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-tc.png)
 
 ![ZrCl₂/Sc₂C 在 64² 与 96² 网格下的 N_σ(E_F)、λ(σ) 与 ω_log(σ) 对比](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png)
 
-4. **`SnSe₂/Sr₂N` 的 SCF 收敛、原子质量核查与单 q 点电声记录（四子图 a–d）**：
-   - **子图 a**：`pwxall (64²)` 与 `pwx (16²)` 两套 SCF 经 23 步迭代收敛至 `5.5×10⁻¹³ Ry` 的能量残差曲线；
-   - **子图 b**：修正氮原子质量前（误设为 `M_N = 118.71`，高频光学支被压低至 `4.49–6.70 THz`）与修正为真实质量 `M_N = 14.007` 后（`Sr–N` 光学支恢复至 `7.99–11.94 THz`）的声子色散对比；
-   - **子图 c**：修正质量后的原子分辨 `PHDOS`；
-   - **子图 d**：质量修正前已写出文件的 `q = 1, 2`（`elph.inp_lambda.1,2`）在 `σ = 0.040 Ry` 下的逐模电声耦合 `λ_qν` 记录。
+SnSe₂/Sr₂N 图需要按面板区分记录时间。左侧为保存的两步 SCF 收敛过程；质量修正对照、PHDOS 与前两个 q 点的耦合属于历史诊断资料。研究记录中 2026-09-29 的检查确认两步 SCF 已完成，但修正质量后的 Γ 点响应被取消，未形成完整 q 网格和 EPC 结果。旧质量下的逐模数字不能当作修正后的材料结果。该图用于读错误和检查文件，不用于给出 Tc；详见[研究记录](/Atlas/cases/epc-research-notes/)。
 
 ![SnSe₂/Sr₂N 的 SCF 收敛、质量修正前后声子谱、PHDOS 与已记录 q 点电声耦合四子图](/Atlas/figures/snse2-sr2n/snse2-sr2n-scf-ph-progress.png)
 
@@ -147,10 +135,10 @@ install()
 本站各方法页面在算例末尾整理了相关文献中的常见图件表达方式，均标注原始论文 DOI，便于制图与读图时查阅：
 
 - **异质结建模与层间作用**：六种堆叠构型侧视配准矩阵（DOI: [10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）、1T-TMD 与 1T-MXene 反演配位对照（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）、范德华相与准离子电子化合物相剥离能对比（DOI: [10.1016/j.mtcomm.2022.104176](https://doi.org/10.1016/j.mtcomm.2022.104176)）——详见 [异质结建模](/Atlas/m/heterostructure-modeling/vasp/)。
-- **电子能带、投影与费米面**：SOC/非 SOC 能带与费米速度着色费米面联立（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）、PBE 与 HSE06 能带对比（DOI: [10.1063/5.0286460](https://doi.org/10.1063/5.0286460)）、晶体场分波轨道胖带与空球投影能带（DOI: [10.1103/PhysRevB.109.174516](https://doi.org/10.1103/PhysRevB.109.174516)、[10.1039/D2TC00564F](https://doi.org/10.1039/D2TC00564F)）、六重鞍点等高线与嵌套磁化率对比（DOI: [10.1103/PhysRevB.89.205426](https://doi.org/10.1103/PhysRevB.89.205426)、[10.1103/jmys-zkgs](https://doi.org/10.1103/jmys-zkgs)）——详见 [能带](/Atlas/m/bands/qe/)、[投影能带](/Atlas/m/fatband/qe/)、[DOS](/Atlas/m/dos/qe/)、[费米面](/Atlas/m/fermi-surface/qe/)、[费米面嵌套](/Atlas/m/fermi-nesting/qe/)。
+- **电子能带、投影与费米面**：SOC/非 SOC 能带与费米速度着色费米面联立（DOI: [10.1039/D0NR03875J](https://doi.org/10.1039/D0NR03875J)）、PBE 与 HSE06 能带对比（DOI: [10.1063/5.0286460](https://doi.org/10.1063/5.0286460)）、晶体场分波轨道胖带与空球投影能带（DOI: [10.1103/PhysRevB.109.174516](https://doi.org/10.1103/PhysRevB.109.174516)、[10.1039/D2TC00564F](https://doi.org/10.1039/D2TC00564F)）、六重鞍点等高线与几何嵌套与电子易感率对比（DOI: [10.1103/PhysRevB.89.205426](https://doi.org/10.1103/PhysRevB.89.205426)、[10.1103/jmys-zkgs](https://doi.org/10.1103/jmys-zkgs)）——详见 [能带](/Atlas/m/bands/qe/)、[投影能带](/Atlas/m/fatband/qe/)、[DOS](/Atlas/m/dos/qe/)、[费米面](/Atlas/m/fermi-surface/qe/)、[费米面嵌套](/Atlas/m/fermi-nesting/qe/)。
 - **静电势、功函数与能带对齐**：静电势叠加球棍结构侧视图（DOI: [10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)）、静电势与差分电荷共享法向坐标并排对照（DOI: [10.1021/acs.jpcc.5c02913](https://doi.org/10.1021/acs.jpcc.5c02913)）、Janus 偶极台阶与 Type-II 带边偏移判据（DOI: [10.1088/2053-1583/aacfc1](https://doi.org/10.1088/2053-1583/aacfc1)）、宏观平均势提取 VBO/CBO（DOI: [10.1103/RevModPhys.77.1083](https://doi.org/10.1103/RevModPhys.77.1083)）、外电场肖特基势垒相图（DOI: [10.1016/j.apsusc.2022.156054](https://doi.org/10.1016/j.apsusc.2022.156054)）——详见 [功函数](/Atlas/m/workfunction/vasp/)、[能带对齐](/Atlas/m/band-alignment/vasp/)。
 - **电荷转移、ELF 与化学键（COHP）**：三维等值面与一维平面平均 `Δρ(z)` 组合（DOI: [10.1039/D5CP02349A](https://doi.org/10.1039/D5CP02349A)、[10.1039/D5CP01402F](https://doi.org/10.1039/D5CP01402F)）、界面 Bader 电荷散点矩阵与 Born 有效电荷对比（DOI: [10.1039/D4CP04577G](https://doi.org/10.1039/D4CP04577G)、[10.1088/2053-1583/ac1059](https://doi.org/10.1088/2053-1583/ac1059)）、电子化合物 ELF 等值面与切片（DOI: [10.1038/nature11812](https://doi.org/10.1038/nature11812)、[10.1039/D2TC00564F](https://doi.org/10.1039/D2TC00564F)、[10.1021/jacs.2c03024](https://doi.org/10.1021/jacs.2c03024)）、COHP 波函数配对与共享能量轴四联图（DOI: [10.1021/acs.accounts.4c00209](https://doi.org/10.1021/acs.accounts.4c00209)、[10.1038/s41524-026-02245-0](https://doi.org/10.1038/s41524-026-02245-0)）——详见 [差分电荷](/Atlas/m/delta-charge/vasp/)、[Bader 电荷](/Atlas/m/bader/vasp/)、[ELF](/Atlas/m/elf/vasp/)、[COHP](/Atlas/m/cohp/qe/)。
-- **声子谱、非谐重整化与电声超导**：声子色散、线宽、PHDOS 与 `α²F(ω)` 联立（DOI: [10.1103/PhysRevB.96.094526](https://doi.org/10.1103/PhysRevB.96.094526)、[10.1039/D2CP04106E](https://doi.org/10.1039/D2CP04106E)、[10.1021/acs.jpcc.3c08135](https://doi.org/10.1021/acs.jpcc.3c08135)）、SSCHA 非谐重整化声子谱（DOI: [10.1088/1361-648X/ac066b](https://doi.org/10.1088/1361-648X/ac066b)）、各向异性 Eliashberg 超导能隙与费米面映射（DOI: [10.1016/j.cpc.2016.07.028](https://doi.org/10.1016/j.cpc.2016.07.028)、[10.1103/xqsd-2fnl](https://doi.org/10.1103/xqsd-2fnl)、[10.1103/PhysRevB.99.161119](https://doi.org/10.1103/PhysRevB.99.161119)）——详见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)、[Eliashberg 谱函数](/Atlas/m/eliashberg-a2f/qe/)、[Allen–Dynes 超导 Tc](/Atlas/m/allen-dynes/qe/)、[EPW 各向异性超导](/Atlas/m/epw-eliashberg/qe/)、[SSCHA 非谐声子](/Atlas/m/anharmonic-sscha/mace/)。
+- **声子谱、非谐重整化与电声超导**：声子色散、线宽、PHDOS 与 `α²F(ω)` 联立（DOI: [10.1103/PhysRevB.96.094526](https://doi.org/10.1103/PhysRevB.96.094526)、[10.1039/D2CP04106E](https://doi.org/10.1039/D2CP04106E)、[10.1021/acs.jpcc.3c08135](https://doi.org/10.1021/acs.jpcc.3c08135)）、SSCHA 非谐重整化声子谱（DOI: [10.1088/1361-648X/ac066b](https://doi.org/10.1088/1361-648X/ac066b)）、各向异性 Eliashberg 超导能隙与费米面映射（DOI: [10.1016/j.cpc.2016.07.028](https://doi.org/10.1016/j.cpc.2016.07.028)、[10.1103/xqsd-2fnl](https://doi.org/10.1103/xqsd-2fnl)、[10.1103/PhysRevB.99.161119](https://doi.org/10.1103/PhysRevB.99.161119)）——详见 [DFPT 声子](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)、[Eliashberg 谱函数](/Atlas/m/eliashberg-a2f/qe/)、[Allen–Dynes 超导 Tc](/Atlas/m/allen-dynes/qe/)、[EPW 各向同性方程求解](/Atlas/m/epw-eliashberg/qe/)、[有限温度有效力常数](/Atlas/m/anharmonic-sscha/mace/)。
 - **自旋纹理与 Berry 曲率拓扑**：K 能谷三维自旋劈裂能带锥（DOI: [10.1038/nphys3580](https://doi.org/10.1038/nphys3580)）、二维布里渊区 Berry 曲率热力图与量子反常霍尔手性边缘态（DOI: [10.1088/1361-648X/ac96bb](https://doi.org/10.1088/1361-648X/ac96bb)、[10.1038/s41524-025-01732-0](https://doi.org/10.1038/s41524-025-01732-0)）——详见 [自旋纹理](/Atlas/m/spin-texture/vasp/)、[Berry 曲率与陈数](/Atlas/m/berry-chern/qe/)。
 
 继续阅读：[能带](/Atlas/m/bands/qe/)、[DOS](/Atlas/m/dos/qe/)、[虚频](/Atlas/m/imaginary-phonon/qe/)、[α²F](/Atlas/m/eliashberg-a2f/qe/)、[Tc 的完整提取](/Atlas/m/allen-dynes/qe/)、[差分电荷](/Atlas/m/delta-charge/vasp/)。

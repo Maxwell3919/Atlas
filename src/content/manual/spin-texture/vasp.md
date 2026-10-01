@@ -62,7 +62,7 @@ Reciprocal
      0.0000000 m_x     1.0000000 m_y     0.0000000 m_z
      0.0000000 m_x     0.0000000 m_y     1.0000000 m_z
 ```
-本例自旋基底到 Cartesian 坐标的变换是单位矩阵，三个磁化分量可以依次记作 mx、my、mz。更换 SAXIS 后，先按该变换将三个分量转换到笛卡尔坐标。
+本例自旋基底到 Cartesian 坐标的变换是单位矩阵，三个磁化分量可以依次记作 mx、my、mz。下方 `spin_path.py` 按本例的默认 `SAXIS=(0,0,1)` 直接保存这三个分量；使用其他 SAXIS 时，需在读取投影后加入对应的笛卡尔坐标变换。
 
 ## 逐态读取四组投影
 
@@ -141,16 +141,17 @@ OUTCAR: E-fermi :  -1.5887     XC(G=0):  -3.0424     alpha+bet : -2.9160
 ```
 输出的十三列依次是 k 点编号、带号、累计路径长度、三个分数倒易坐标、原能量、相对 SCF 费米能的能量、占据、投影权重、mx、my、mz。它没有把相邻带号自动当作同一条连续自旋分支；带交叉和近简并处仍需结合波函数连续性判断。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 自旋投影的读取与作图
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+下面的任务从 PROCAR 读取逐态自旋投影，按同一路径和能量参考画图，同时保留自旋基底与投影归一化的说明。
 
 ```text
-编写 SnSe₂/Sr₂N SOC 路径投影程序，使用 Python 3、NumPy 和 Matplotlib。
-输入：PROCAR、POSCAR、SCF OUTCAR，以及 spin-path.dat、spin-summary.json；150 点×72 带，每态有投影权重及三个磁化块。
-方法：保留 charge、mx、my、mz，读取 SAXIS 基底变换。本例为单位矩阵，零点为 SOC SCF EF=−1.4881 eV，横轴为累计距离（Å⁻¹）。
-检查：10800 态、四块 tot、十三列和点序完整，保留残余总磁矩 (0.0017,0.0167,0.0001) 的计算条件。
-输出：源码、依赖、命令、表格与 PNG/PDF；三个磁化面板共享 −1…1 色标及 EF±2 eV 窗口。颜色表示原子投影磁化，二维纹理需平面网格。
+编写 SnSe₂/Sr₂N SOC 路径投影的两步后处理程序，使用 Python 3、NumPy 和 Matplotlib。
+第一步提取：输入 PROCAR、POSCAR、SCF_OUTCAR。PROCAR 有 150 点×72 带，每态依次读取 charge、mx、my、mz 四块 tot；按本例默认 SAXIS=(0,0,1) 直接保存磁化分量。由 POSCAR 倒格矢计算累计路径距离（Å⁻¹），从 SCF_OUTCAR 读取 EF=−1.4881 eV，生成十三列 spin-path.dat 与 spin-summary.json。检查每态四块 tot、末态完整和 10800 条记录；保留残余总磁矩 (0.0017,0.0167,0.0001) 的计算条件。
+第二步绘图：输入 spin-path.dat、spin-summary.json，并使用同目录 atlas_plot_style.py；三个磁化面板共享 −1…1 色标及 EF±2 eV 窗口，横轴和节点取提取结果。
+输出：两步完整源码、依赖、命令、表格与 PNG/SVG/PDF。颜色表示未经归一化的原子投影磁化；当前源码按默认 SAXIS 工作，二维纹理需另取平面网格。
 ```
 
 ## 后处理源码与运行
@@ -252,7 +253,7 @@ columns charge,mx,my,mz; output spin-path.dat
 
 `spin_path.py` 从原始 PROCAR 检查每态四个 `tot` 块并生成十三列表；已有 `spin-path.dat` 与 `spin-summary.json` 时，直接执行 `python3 plot_spin.py`。绘图入口使用已提取的表格。
 
-将 `spin-path.dat`、`spin-summary.json` 和 `plot_spin.py` 放到本机同一目录，执行 `python3 plot_spin.py`。脚本并排画出 mx、my、mz 三幅着色能带，显示费米能上下 2 eV，三幅图共用 −1 到 1 的颜色标尺，同时输出 PNG 与 PDF。颜色在近简并态之间跳变时，先检查成对态和投影基底，不要把每个带号的突变都解释成独立的物理纹理。
+将 `spin-path.dat`、`spin-summary.json`、`plot_spin.py` 和同目录的 [atlas_plot_style.py](/Atlas/examples/vasp/snse2_sr2n_spin/atlas_plot_style.py) 一起放到本机，执行 `python3 plot_spin.py`。脚本并排画出 mx、my、mz 三幅着色能带，显示费米能上下 2 eV，三幅图共用 −1 到 1 的颜色标尺，同时输出 PNG 与 PDF。颜色在近简并态之间跳变时，先检查成对态和投影基底，不要把每个带号的突变都解释成独立的物理纹理。
 
 下一步若需更密的 k 平面数据，可到 [Wannier90 方法目录](/Atlas/m/wannier90/)查看插值所需的波函数与接口数据，再验证插值能带和自旋矩阵元。拓扑量的数据需求另见 [Berry 曲率与 Chern 数方法目录](/Atlas/m/berry-chern/)；目录中已有例程使用各自的材料和程序，不能仅凭当前 PROCAR 接续得到这些量。
 
@@ -266,13 +267,13 @@ columns charge,mx,my,mz; output spin-path.dat
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinValleyLocking_MoS2_Lu2015_Fig4a.jpg" alt="K 能谷处的三维自旋劈裂能带锥、内外同心费米环及相反的面外 Ising 自旋箭头示意图" loading="lazy"/><figcaption>K 能谷处的三维自旋劈裂能带锥（3D spin-split band cone）与内外同心费米环示意，红/蓝曲面与上下箭头标出内外分支相反的面外 Ising 自旋极化方向 <code>S_z</code>。图片来源：Saito et al., <em>Nat. Phys.</em> <strong>12</strong>, 144 (2016), Fig. 1a，<a href="https://doi.org/10.1038/nphys3580" target="_blank" rel="noopener noreferrer">DOI: 10.1038/nphys3580</a>。</figcaption></figure>
 
-- **读图与作图要点**：该图聚焦单个 K 能谷的三维自旋劈裂能带锥，在费米能级截面上形成内、外两个同心费米环，并用红/蓝颜色和朝上/朝下的竖直箭头标出两支自旋子带相反的面外 Ising 自旋极化方向 `S_z`，直观表达非中心对称单层中的面外自旋劈裂特征。
+该图聚焦单个 K 能谷的三维自旋劈裂能带锥，在费米能级截面上形成内、外两个同心费米环，并用红/蓝颜色和朝上/朝下的竖直箭头标出两支自旋子带相反的面外 Ising 自旋极化方向 `S_z`，直观表达非中心对称单层中的面外自旋劈裂特征。
 
 ### 2. 实空间自旋密度等值面与近邻磁交换路径标定
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M7_SpinDensity_Exchange_LaH2_Fig2ab.jpg" alt="实空间自旋极化密度 ρ↑ − ρ↓ 等值面与近邻磁交换耦合路径 J₁, J₂, J₃ 示意图" loading="lazy"/><figcaption>实空间自旋极化电荷密度等值面（<code>ρ↑ − ρ↓</code>）与第一、第二、第三近邻磁交换作用路径（<code>J₁, J₂, J₃</code>）的晶体结构标注。图片来源：Shi et al., <em>J. Phys.: Condens. Matter</em> <strong>34</strong>, 475303 (2022), Fig. 2(a,b)，<a href="https://doi.org/10.1088/1361-648X/ac96bb" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac96bb</a>。</figcaption></figure>
 
-- **读图与作图要点**：当体系存在本征磁序时，将倒空间的自旋能带投影与实空间自旋密度等值面（`ρ↑ − ρ↓`）及晶体中的近邻磁交换路径 `J₁, J₂, J₃` 对照展示，有助于确认巡游或局域磁矩的空间分布来源。
+当体系存在本征磁序时，将倒空间的自旋能带投影与实空间自旋密度等值面（`ρ↑ − ρ↓`）及晶体中的近邻磁交换路径 `J₁, J₂, J₃` 对照展示，有助于确认巡游或局域磁矩的空间分布来源。
 
 ```text
 SOC SCF 的电荷密度与费米能

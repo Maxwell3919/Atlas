@@ -200,7 +200,7 @@ MD_INTEGRATION_ACCEPTED
 进一步用 [check_trajectory.py](/Atlas/examples/mace-si/si-md/check_trajectory.py) 直接读取二进制轨迹，逐帧核对 CSV 中的能量、原子数、晶胞和初始速度：
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+下面的任务分别读取两种时间步长的轨迹，用相同的能量参考比较漂移，并保留热浴段与 NVE 段的边界。
 
 ```text
 编写 check_trajectory.py，读取 nve-1fs.traj 与 nve-0p5fs.traj 及对应 CSV。用 ASE 逐帧提取每原子总能、原子数、晶胞体积、总动量、周期最短原子间距和相对初帧的 RMS 位移；按 CSV 保存精度比较能量。比较两条轨迹首帧位置、动量和晶胞，分别报告帧数与行数。只读保存的轨迹属性，不重新调用 MACE。
@@ -306,7 +306,7 @@ delta_half = 1000 * (half["total_eV_atom"] - half["total_eV_atom"][0])
 两张 CSV 各有 101 行记录，覆盖同一个 0—0.5 ps 区间；它们第一行的总能与初始动量一致，因此这里比较的是相同初态下的步长误差。不要再把能量除以 64，也不要把积分步号当成时间。`warmup.log` 的第一列是时间，最后一列是温度，其中能量列按整个超胞记录；本图只从它读取热化温度，不与 NVE 表的每原子能量列直接拼接。
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+温度与能量漂移分别作图，两个时间步长使用相同的时间单位和能量零点。
 
 ```text
 编写 plot.py，读取 warmup.log（跳过标题）及 nve-1fs.csv、nve-0p5fs.csv。CSV time_ps 已是 ps，total_eV_atom 已按原子数归一；每条 NVE 减去自己的首行总能并乘 1000，画 ΔE 的 meV/atom 曲线，不再除以 64。三个面板依次画 warmup 的实际温度与 300 K 参考线、两种步长 NVE 的能量变化、两种步长的真实温度。输出 md-check.svg/png/pdf，复用 atlas_plot_style.py。
@@ -358,7 +358,7 @@ python3 plot.py
 
 ![64 原子 Si 的热化温度和两种步长的 NVE 能量检查](/Atlas/examples/mace-si/si-md/md-check.svg)
 
-第一幅图看热浴交换能量时的温度起伏；第二幅图从两条轨迹各自的初始总能中减去同一个基准，放大每原子能量的微小变化；第三幅图保留真实温度波动。不能用一条平滑温度曲线代替能量守恒检验，也不能把 NVT 中的总能变化按 NVE 的标准判错。
+第一幅图显示热化期间的温度起伏；第二幅图将两条 NVE 轨迹分别减去各自首帧的每原子总能，再乘 1000 换成 meV/atom，放大积分误差；第三幅图显示对应的瞬时温度。两段 NVE 从同一初态开始，因此它们的能量参考一致。热浴段的能量会与环境交换，能量守恒检查放在后面的 NVE 段。
 
 ## 将同一份数据导出成论文图
 
@@ -385,7 +385,7 @@ fig.savefig("md-check.pdf", bbox_inches="tight", facecolor="white")
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M8_AIMD_ThermalStability_ZrI2_Fig2.jpg" alt="恒温分子动力学中温度与能量时间序列同超胞末帧结构快照的组合展示" loading="lazy"/><figcaption>恒温分子动力学模拟中将温度 <em>T</em>(<em>t</em>)、总能量 <em>E</em>(<em>t</em>) 时间序列监控与初始及 10 ps 末帧超胞结构快照结合展示的典型图件。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 2，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
 
-当体系存在强非谐效应（或量子核效应）致使简谐声子出现大范围虚频时，可以通过对有限温度系综构型的力—位移采样进行非谐声子重整化（如随机自洽谐波近似 SSCHA），将简谐近似下的虚频软模修正为有限温度下稳定的实频色散。
+简谐近似不足时，可以进一步计算非谐和核量子效应，但这些处理不保证软模一定变成实频。SSCHA 通过变分最小化自由能建立有限温度描述；判断结构失稳需检查自由能 Hessian，不能只看优化中使用的辅助谐频率。它也不同于从一段经典 MD 轨迹拟合有效二阶力常数。两种路线的区别见 [SSCHA 方法说明](https://arxiv.org/abs/2103.03973) 与[自由能曲率教程](https://sscha.eu/Tutorials/tutorial_03_secondorder_phase_transitions/)。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_SSCHA_AnharmonicPhonon_H3S_Monacelli2021_Fig8.jpg" alt="H3S 中基于系综力位移采样的有限温度非谐声子重整化对比" loading="lazy"/><figcaption>高压超导体 H<sub>3</sub>S 中简谐声子谱（含大范围虚频）与通过系综力—位移采样获得的有限温度非谐重整化声子色散对比。引自 Monacelli 等人，<em>J. Phys.: Condens. Matter</em> <strong>33</strong>, 363001 (2021)，Fig. 8，<a href="https://doi.org/10.1088/1361-648X/ac066b" target="_blank" rel="noopener noreferrer">DOI: 10.1088/1361-648X/ac066b</a>。</figcaption></figure>
 

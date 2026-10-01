@@ -1,4 +1,4 @@
-SnSe₂ 单层的功函数需要两个来自同一次计算的量：真空平台 V_vac 和费米能 E_F。下面用三原子单层完成固定结构 SCF，从 LOCPOT 沿层法向求平面平均，再结合 OUTCAR 的费米能与 EIGENVAL 的带边，读出 Φ = V_vac − E_F。真空平台要从完整势曲线中选取平坦窗口。
+功函数按 Φ=Vvac−EF 定义，需要同一次计算的真空平台和电子化学势。本页对三原子 SnSe₂ 单层做固定结构 SCF，从 LOCPOT 求法向平面平均，再结合 OUTCAR 的 EF 与 EIGENVAL 的带边解释结果。SnSe₂ 是半导体，带隙内的 EF 还与占据约定有关，因此同时报告真空参考带边，避免把程序给出的一个 EF 当成唯一的材料常数。
 
 [下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。
 
@@ -71,7 +71,9 @@ LVHAR = .TRUE.
 
 这份输入的 `ISMEAR = 0` 是 Gaussian 展宽，`SIGMA = 0.05` 以 eV 计，用于求电子占据；它不是离子温度。后文得到有带隙的解，因此费米能读数要连着占据设置解释。`ENCUT = 520` 与 `EDIFF = 1E-7` 分别控制基组范围和电子迭代残差；判断功函数是否稳定时，应比较提高截断能或收紧迭代后 `V_vac − E_F` 的变化。本例只计算了这一截断能，截断能的敏感性仍需这样比较。
 
-`LDIPOL = .TRUE.`、`IDIPOL = 3` 沿 z 加偶极修正，`DIPOL = 0.5 0.5 0.5` 选在层中心。这里的晶格第三矢量垂直于层；若你的晶胞倾斜，应先确认所采用修正方向与真空法向一致。`LCHARG = .TRUE.` 保留本次自洽密度，`LWAVE = .FALSE.` 则节省波函数存储空间。
+这份 SnSe₂ 结构的上下两侧对称，法向净偶极应接近零；后面的两侧平台也近乎相等。这里保留了实际输入中的 `LDIPOL = .TRUE.`、`IDIPOL = 3`。非对称薄膜若有法向净偶极，三维周期边界会使它与重复的镜像相互作用，在真空中形成额外势斜率；偶极修正用于抵消这部分周期误差。薄膜自身的电荷不对称及其两侧真空势差仍可保留。[偶极修正说明](https://vasp.at/wiki/LDIPOL)
+
+本例第三晶格矢量垂直于层，`IDIPOL = 3` 因而选中了法向；倾斜晶胞需先核对这个方向。`DIPOL = 0.5 0.5 0.5` 选在层中心，`LCHARG = .TRUE.` 保存本次自洽密度，`LWAVE = .FALSE.` 则关闭波函数写出。
 
 `DIPOL` 的三个数是相对于晶格矢量的分数坐标，不是以 Å 为单位的位置。本例将单层放在晶胞中部，便于让两侧真空区与势的修正跳变分开；改动层的位置或真空高度后，应重新画整个势分布，再选择平台窗口，而不是保留旧窗口机械读数。
 
@@ -280,7 +282,7 @@ z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM 
 
 按窗口重建的数据用于下图；完整脚本和运行命令在后面列出。
 
-`--windows` 的数字单位是 Å，窗口均值、窗口内标准差与最大-最小差写入 `workfunction-summary.json`；同时重建两列 `PLANAR_AVERAGE.dat`。绘图使用下方真空窗口作为唯一能量零点，展示整胞势曲线、两个真空窗口、POSCAR 给出的原子层法向范围与本次 SCF 的费米能。两侧平台均值相差 −0.0181 meV。
+`--windows` 的数字单位是 Å，窗口均值、窗口内标准差与最大-最小差写入 `workfunction-summary.json`；同时重建两列 `PLANAR_AVERAGE.dat`。两侧平台均值相差 −0.0181 meV。
 
 后面的分析与绘图命令在解包目录运行，需要 Python 3、NumPy 和 Matplotlib；`atlas_plot_style.py` 随包提供。整合分析重建数据，绘图脚本据此输出 PNG、SVG 与 PDF。
 
@@ -305,7 +307,7 @@ Zhang, Li, Tang, and Cao, “Robust p-type ohmic contact in ZrI₂–Dirac semi-
 
 LOCPOT 是 POSCAR 头部、三维网格尺寸 nx ny nz 和一个标量势块；该势以 eV 为单位，x 方向变化最快。校验势值数量正好为 nx*ny*nz 且均为有限数，把数组按 (nz,ny,nx) 重排；用每个 xy 平面的算术平均求 Vbar(z)，z_k=k*h/nz，其中 h=abs(c·(a×b))/|a×b|，坐标单位为 Å。
 
-从 OUTCAR 读取 NELECT 和 E-fermi，并确认输出出现 EDIFF 收敛标记、LVHAR=T、LVTOT=F 和 ISPIN=1。解析 EIGENVAL 中的 k 点权重、本征值和占据数；权重和必须为 1，按权重汇总的电子数必须匹配 NELECT，边界带不得部分占据。若输入是自旋极化、金属、缺少数据或格式不支持，清楚报错退出，禁止假定费米能、猜测带边、补零或静默接受坏数据。
+从 OUTCAR 读取 NELECT 和 E-fermi，并确认输出出现 EDIFF 收敛标记、LVHAR=T、LVTOT=F 和 ISPIN=1。解析 EIGENVAL 中的 k 点权重、本征值和占据数；权重和与按权重汇总的电子数分别在 1e-5 和 1e-3 容差内匹配 1 与 NELECT。按 NELECT/2 确定边界，要求所有 k 点的第 13 带占据不低于 0.5、第 14 带不高于 0.5，再检查采样 CBM 高于 VBM。若输入是自旋极化、金属、缺少数据或格式不支持，清楚报错退出，禁止假定费米能、猜测带边、补零或静默接受坏数据。
 
 每个窗口输出采样平面数、Vbar 均值、总体标准差、最大值减最小值，以及 Phi=Vvac-EF、IP=Vvac-VBM、EA=Vvac-CBM。VBM/CBM 只报 EIGENVAL 当前 k 网格采样值。输出 PLANAR_AVERAGE.dat（z_A, planar_potential_eV）和带有输入 SHA256、单位、公式、窗口数据及限制说明的 workfunction-summary.json。
 

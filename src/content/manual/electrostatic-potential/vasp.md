@@ -142,16 +142,18 @@ Direct
 ```
 这份输出的费米能为 −1.2958 eV。若要继续计算两个表面的功函数，需要各自使用同一份计算中的真空平台与这个费米能相减；下一步接 [功函数](/Atlas/m/workfunction/vasp/)。电荷转移方向和接触后的带型还需结合差分电荷与带边对齐。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 电势平均与平台统计
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+下面的读取规则用于从 LOCPOT 重建平面平均势，并分别统计两侧平台。电子势已用 eV 表示，不再按密度文件除以体积。
 
 ```text
-编写 HfCl₂/PbO₂ 平面平均势程序，使用 Python 3、NumPy 和 Matplotlib。
-输入：LOCPOT、INCAR、OUTCAR，以及 PLANAR_AVERAGE.dat、potential-summary.json。LVHAR 为离子势加 Hartree 势（eV），网格 56×56×480，法向晶胞 30 Å。
-方法：按 x 最快顺序读取 1,505,280 个标量，逐 z 层平均，间隔 0.0625 Å；对 2–5 Å、25–28 Å 窗口求均值、标准差与范围。
-检查：完整标量数、480 层、有限值，窗口各 49 点，均值约 2.538191/5.029000 eV，范围均 <0.0003 eV。
-输出：源码、依赖、命令、两列表、平台摘要、PNG/PDF。图保留整个晶胞和窗口；功函数延伸取同一 OUTCAR EF=−1.2958 eV 与各侧平台配对。
+按本例现有程序拆成两步，用 Python 3 处理 HfCl₂/PbO₂ 平面平均势。
+第一步 plane_average.py 仅使用标准库，读取 LOCPOT 和命令行窗口 2:5、25:28；按 x 最快顺序读取第一标量块，核对正的结构缩放因子、三维正整数网格和完整标量数，逐 z 层平均，对每个非空窗口求均值、标准差与范围。输出 PLANAR_AVERAGE.dat 和 potential-summary.json，后者记录源文件 SHA256、网格、法向高度和窗口统计。
+第二步 plot_potential.py 使用 NumPy、Matplotlib，读取上述 dat/json，并从同目录 atlas_plot_style.py 导入绘图样式；保留整个晶胞曲线，标出两侧窗口和窗口均值，输出 potential-z.png、potential-z.pdf。命令依次为 python3 plane_average.py LOCPOT 2:5 25:28 和 python3 plot_potential.py。
+INCAR/OUTCAR 由读者核对，两个脚本不解析它们：本例 LVHAR 对应离子势加 Hartree 势，LOCPOT 数值单位为 eV，不除晶胞体积。预期网格 56×56×480，共 1,505,280 个标量，法向高度 30 Å、层间隔 0.0625 Å；两个窗口各 49 点，均值约 2.538191/5.029000 eV，范围均 <0.0003 eV。这些数值用于对照本例输出；现有提取程序没有额外的有限值检查。
+若延伸计算功函数，由读者从同一 OUTCAR 读取 EF=−1.2958 eV，再与各侧平台配对相减。提供完整源码、依赖与运行命令。
 ```
 
 ## 后处理源码与运行
@@ -272,17 +274,17 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
 
 已有 [PLANAR_AVERAGE.dat](/Atlas/examples/vasp/hfcl2_pbo2_potential/PLANAR_AVERAGE.dat) 和 [potential-summary.json](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-summary.json) 时，直接执行 `python3 plot_potential.py`；第一条命令用于从原始 LOCPOT 重提取平台统计。
 
-把 `PLANAR_AVERAGE.dat`、`potential-summary.json` 和 `plot_potential.py` 放在本机同一目录后，用 `python3 plot_potential.py` 绘图。脚本读第一列作横轴、第二列作纵轴，把两个统计窗口涂成浅色，并同时输出 PNG 与 PDF。图上保留整个晶胞，才能同时检查原子区、两侧平台和周期边界。
+只重画已有结果时，把 `PLANAR_AVERAGE.dat`、`potential-summary.json`、`plot_potential.py` 和 `atlas_plot_style.py` 放在本机同一目录。脚本读第一列作横轴、第二列作纵轴，把两个统计窗口涂成浅色，并同时输出 PNG 与 PDF。图上保留整个晶胞，才能同时检查原子区、两侧平台和周期边界。
 
 ![非对称薄层两侧的平面平均势](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-z.png)
 
 ## 文献中平面平均静电势与界面电荷的对齐画法
 
-在二维异质结或表面体系的论文图件中，常将平面平均有效静电势 V<sub>eff</sub>(z) 直接叠画在按相同法向比例缩放的侧视原子结构模型上，使每个势阱谷底与对应的原子层精确对齐，同时在两侧真空平台处标出功函数与界面偶极势差 ΔV。
+平面平均电势与侧视结构可以共用法向坐标，便于比较势的变化和原子层位置。两者必须使用同一坐标原点与长度单位，不能为了让势谷与原子重合而挪动曲线。势谷也不必严格落在原子平面上：平均后的势由离子与电子分布共同决定。图中另标两侧真空平台及所取窗口，功函数还需同一次计算的电子化学势。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M3_ElectrostaticPotential_OverlaidStructure_ZrI2_Zhang2025_Fig4.jpg" alt="平面平均静电势直接叠加在异质结侧视原子结构模型上的对齐图件" loading="lazy"/><figcaption>六种 ZrI<sub>2</sub> 基异质结沿法向 <em>z</em> 的平面平均静电势 <em>V</em><sub>eff</sub>(<em>z</em>) 曲线直接叠加在侧视原子结构模型上，清楚标示各原子层势阱位置及两侧真空能级差。引自 Zhang 等人，<em>Phys. Chem. Chem. Phys.</em> <strong>27</strong>, 19410 (2025)，Fig. 4，<a href="https://doi.org/10.1039/D5CP02349A" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D5CP02349A</a>。</figcaption></figure>
 
-另一类常见表达是将平面平均静电势 V<sub>eff</sub>(Z) 与平面平均差分电荷密度 Δρ(Z) 左右并排放置，共用垂直方向的法向坐标轴 Z，从而直接把层间电子得失极值位置与界面电势阶跃关联起来。
+另一类常见表达是将平面平均静电势 V<sub>eff</sub>(Z) 与平面平均差分电荷密度 Δρ(Z) 左右并排放置，共用垂直方向的法向坐标轴 Z，以便在同一位置对照电荷积累、耗尽区域与电势变化。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="共用垂直 Z 轴的平面平均静电势与平面平均差分电荷密度并排对照图" loading="lazy"/><figcaption>ZrI<sub>2</sub>/NbS<sub>2</sub> 异质结的平面平均静电势 <em>V</em><sub>eff</sub>(<em>Z</em>) 与平面平均差分电荷密度 Δρ(<em>Z</em>) 共用垂直 <em>Z</em> 轴并排对齐展示，并叠加三维差分电荷密度等值面与侧视原子结构。引自 Huang 等人，<em>J. Phys. Chem. C</em> <strong>129</strong>, 11654 (2025)，Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
 

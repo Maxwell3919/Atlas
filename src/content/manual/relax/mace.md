@@ -144,7 +144,7 @@ BFGS:   15 21:28:05      -42.953872        0.000627
 
 ## 把优化过程画出来
 
-从轨迹逐帧读取能量、力和体积，导出的[数据表](/Atlas/examples/mace-si/si-relax/optimization.csv) 第一列是优化步数。绘图取相对初态的每原子能量，力使用对数坐标，最后几步是否跨过阈值就能直接看清。导出脚本也保留在[这里](/Atlas/examples/mace-si/export_series.py)，它读取计算实际生成的 `.traj`，不从图片反推数值。
+从轨迹逐帧读取能量、力和体积，导出的[数据表](/Atlas/examples/mace-si/si-relax/optimization.csv) 第一列是优化步数。绘图取相对初态的每原子能量，力使用对数坐标，最后几步是否跨过阈值就能直接看清。导出脚本也保留在[这里](/Atlas/examples/mace-si/export_series.py)。它从实际 `.traj` 读取数值，循环处理 `si-relax` 和 `si-vc-relax` 两个目录；按下面的原脚本运行时，需要先备齐两份轨迹，并从这两个目录的共同上级运行。只分析固定晶胞算例时，将循环列表改为 `[("si-relax", "relax.traj")]` 即可。
 
 <details>
 <summary>export_series.py 的完整源码</summary>
@@ -170,7 +170,7 @@ for directory, trajectory in [("si-relax", "relax.traj"), ("si-vc-relax", "vc-re
 绘图使用这份轨迹导出的 CSV，不重新运行优化。可把下面的需求交给 AI 编程助手：
 
 ```text
-编写 plot.py，使用 NumPy 和 Matplotlib 读取同目录 optimization.csv 的 step、energy_eV、fmax_eV_A。第一面板画1000*(E-E初态)/8，单位meV/atom；第二面板按对数纵轴画最大原子力，单位eV/Å，标0.001阈值虚线。横轴为BFGS步数。导入同目录atlas_plot_style.install，保留真实数据，输出relaxation.svg与180 dpi relaxation.png。
+编写 plot.py，使用 NumPy 和 Matplotlib 读取同目录 optimization.csv 的 step、energy_eV、fmax_eV_A。第一面板画1000*(E-E初态)/8，单位meV/atom；第二面板按对数纵轴画最大原子力，单位eV/Å，标0.001阈值虚线。横轴为BFGS步数。导入同目录atlas_plot_style.install，保留真实数据，输出 relaxation.png、relaxation.svg 和 relaxation.pdf；由 atlas_plot_style 统一导出，PNG 为 240 dpi。
 ```
 
 [完整绘图源码 plot.py](/Atlas/examples/mace-si/si-relax/plot.py) 如下：
@@ -218,7 +218,7 @@ python3 plot.py
 
 ## 文献中的相关图件与表达方式
 
-固定晶胞的快速力场或第一性原理弛豫常用于高通量筛选表面多位点吸附构型与表面迁移路径：在保持基底晶胞不变的前提下，对空位、桥位、顶位及过渡态插值构型逐一弛豫内部原子坐标，进而将几何构型俯视图、各路径能量曲线以及不同材料体系的势垒汇总在同一组图件中。机器学习原子间势（如 MACE）可在进入 DFT 精修前快速完成这类多位点与多路径初筛。
+固定晶胞弛豫可用于比较表面不同吸附位点：分别优化顶位、桥位或空位附近的初始结构，再检查它们是否落入不同的局部极小值。迁移势垒需要另一类计算，不能把路径上的插值构型各自无约束弛豫后，将所得能量连成势垒曲线；中间构型可能全部回到同一端点。求最小能量路径时，应采用 NEB 等带路径约束的方法，见 [climbing-image NEB 原论文](https://doi.org/10.1063/1.1329672)。机器学习势可用于提供力和能量，但用于新体系前仍需检查模型对这些构型的适用性。
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M8_NEB_DiffusionBarrier_Electrenes_Fig5.jpg" alt="二维电极化合物表面的高对称吸附位点、扩散路径及多体系迁移势垒对比" loading="lazy"/><figcaption>表面多位点固定晶胞弛豫与迁移势垒综合图件：包含候选吸附位点（Site 1–3）与迁移路径（Path 1–3）的俯视几何、路径能量曲线及多材料能垒对比柱状图（Kocabas 等，<em>J. Phys. Chem. Lett.</em> <strong>9</strong>, 4262 (2018)，<a href="https://doi.org/10.1021/acs.jpclett.8b01468" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpclett.8b01468</a>）。</figcaption></figure>
 

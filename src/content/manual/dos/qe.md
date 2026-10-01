@@ -111,7 +111,9 @@ cd "$SLURM_SUBMIT_DIR"
 
 在价带顶本身，累计列约为 `7.997`：Gaussian 展宽将部分边缘谱重带到了价带顶以上。不能为了让该端点等于整数而重新缩放曲线。`degauss` 是 QE 的展宽参数，不是能量步长、仪器分辨率或真实温度。
 
-## 可复制的 AI 编码提示词
+<span id="可复制的-ai-编码提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-可复制的-ai-编码提示词" class="legacy-anchor" aria-hidden="true"></span>
+## DOS 数据列与能量参考
 
 将下面的需求和本页示例文件交给代码助手：
 
@@ -321,7 +323,7 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 <figcaption>QE 7.1 ZrCl2/Sc2C site mapping. Layer labels and fractional z values follow the scf/pwx.in crystal coordinates; horizontal spacing is schematic.</figcaption>
 </figure>
 
-通过共享能量纵轴，便于将子图 b 中费米能级附近的态密度峰与子图 a 中平缓的 `Zr-4d` / `Sc-3d` 能带色散对应起来。在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)的 `lambdax.emax18.out` 中，`σ = 0.003 Ry` 处由双高斯展宽计算的费米面态密度 `N_σ(E_F)` 在 `ph64`（`64²`）与 `ph96`（`96²`）网格下分别为 `30.598` 与 `30.772 states/spin/Ry/cell`（完整 `N_σ(E_F)` 随展宽 `σ` 的变化曲线见 [`zrcl2-sc2c-k64-k96-moments.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png) 的子图 a）。
+通过共享能量纵轴，便于将子图 b 中费米能级附近的态密度峰与子图 a 中平缓的 `Zr-4d` / `Sc-3d` 能带色散对应起来。在[双网格电声计算](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)的 `lambdax.emax18.out` 中，`σ = 0.003 Ry` 处采用该电子展宽求得的费米能处态密度 `N_σ(E_F)` 在 `ph64`（`64²`）与 `ph96`（`96²`）网格下分别为 `30.598` 与 `30.772 states/spin/Ry/cell`（完整 `N_σ(E_F)` 随展宽 `σ` 的变化曲线见 [`zrcl2-sc2c-k64-k96-moments.png`](/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-k64-k96-moments.png) 的子图 a）。
 
 ### 冻结几何对照：异质结与孤立 Sc₂C 的 PDOS
 
@@ -499,13 +501,13 @@ for s in states:
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_Bands_DOS_FS_Ta2N_Sc2C_Bekaert2020_Fig5.jpg" alt="1T-Ta₂N 与金属性 1T-Sc₂C 在不含 SOC 与含 SOC 下的能带、水平总 DOS 及费米速度着色二维费米面对比" loading="lazy"/><figcaption><code>1T-Ta₂N</code> 与金属性 <code>1T-Sc₂C</code> 的电子能带及共享能量轴的水平总 DOS 对比（红色虚线为不含 SOC，蓝色实线与浅蓝阴影填充为含 SOC），右侧并列展示按费米速度 <code>v_F(k)</code> 着色的二维六角费米面。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020), Fig. 5，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **读图与作图要点**：将水平总 DOS 紧贴在能带图右侧，并用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）区分自旋轨道耦合前后的态密度变化，同时配合右侧按 `v_F(k)` 着色的二维六角费米面，便于比较 `1T-Ta₂N` 与 `1T-Sc₂C` 在费米能级处的态密度峰位置。
+将水平总 DOS 紧贴在能带图右侧，并用红色虚线（不含 SOC）与蓝色实线加浅蓝阴影（含 SOC）区分自旋轨道耦合前后的态密度变化，同时配合右侧按 `v_F(k)` 着色的二维六角费米面，便于比较 `1T-Ta₂N` 与 `1T-Sc₂C` 在费米能级处的态密度峰位置。
 
 ### 2. 二维费米面、能带、水平元素分辨 PDOS 与总 COHP 四子图横排对齐
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M4_FS_Bands_DOS_COHP_Mo2ScN2O2_Keivanloo2026_Fig3.jpg" alt="Mo₂ScN₂O₂ 的二维六角费米面、电子能带、元素分辨 PDOS 与总 COHP 曲线四子图横排联立" loading="lazy"/><figcaption>将二维六角布里渊区费米面、高对称路径能带、水平元素分辨 PDOS（Mo、Sc、N、O 与 Total）与总 COHP 成键/反键曲线沿同一能量纵轴 <code>E − E_F</code> 横向并排展示。图片来源：Keivanloo et al., <em>npj Comput. Mater.</em> <strong>12</strong>, 46 (2026), Fig. 3，<a href="https://doi.org/10.1038/s41524-026-02245-0" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41524-026-02245-0</a>。</figcaption></figure>
 
-- **读图与作图要点**：当费米能级附近存在显著的元素分波态密度峰时，在水平 PDOS 右侧继续并排放置共享能量轴的总 [COHP](/Atlas/m/cohp/qe/) 曲线，可以同时读出各元素对 `N(E_F)` 的贡献以及对应能量区间的总体成键或反键特征。
+当费米能级附近存在显著的元素分波态密度峰时，在水平 PDOS 右侧继续并排放置共享能量轴的总 [COHP](/Atlas/m/cohp/qe/) 曲线，可以同时读出各元素对 `N(E_F)` 的贡献以及对应能量区间的总体成键或反键特征。
 
 ## 下一步
 

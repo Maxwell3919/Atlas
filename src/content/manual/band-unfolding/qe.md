@@ -680,9 +680,11 @@ ik,primitive_bands,supercell_bands,expected_weight,measured_weight,primitive_mea
 
 40 个路径点的 320 个原胞本征值全部找到对应，共比较 238 组。能量质心最大差 5.91×10⁻⁷ eV，RMS 为 1.35×10⁻⁷ eV，分组权重与预期整数的最大差 6.65×10⁻⁶。这些核对确认了完美超胞与原胞的能量、简并子空间及谱权重映射一致。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 反折叠谱权重的处理要求
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+反折叠后的能量与谱权重要按同一原胞波矢配对。下面的任务说明还要求检查权重和与直接原胞能带的差异，不以图上的点大小代替数值检查。
 
 ```text
 编写 Si 2×1×1 完美超胞展开结果后处理程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -965,7 +967,7 @@ print('Weights below1e-5 are hidden in the spectral scatter only; source values 
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_MoireFolding_MiniBands_TBG_Wu2018_Fig1.jpg" alt="转角双层石墨烯的实空间莫尔超胞几何、微布里渊区折叠与魔角微带能带结构" loading="lazy"/><figcaption>转角双层石墨烯的超晶格折叠三联图：(a) 包含 AA、AB 与 BA 堆垛微区的实空间莫尔超晶格结构；(b) 旋转单层六角布里渊区交叠生成的微布里渊区（Mini-BZ）几何关系；(c) 折叠到微布里渊区后的魔角微带能带结构，展示费米能级附近的孤立平带与高对称路径色散。图片来源：Wu et al., <em>Phys. Rev. Lett.</em> <strong>121</strong>, 257001 (2018), Fig. 1(a–c)，<a href="https://doi.org/10.1103/PhysRevLett.121.257001" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevLett.121.257001</a>。</figcaption></figure>
 
-- **读图与作图要点**：在研究超胞能带时，先用实空间超胞与倒空间微布里渊区图建立几何对应关系，再在能带图中通过颜色或线型区分不同谷（Valley）或原子层的投影贡献，能直观反映超胞对能带结构的调控机制。
+在研究超胞能带时，先用实空间超胞与倒空间微布里渊区图建立几何对应关系，再在能带图中通过颜色或线型区分不同谷（Valley）或原子层的投影贡献，能直观反映超胞对能带结构的调控机制。
 
 ### 2. 电荷密度波超胞费米面按谱权重反折叠回原胞布里渊区
 

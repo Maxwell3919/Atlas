@@ -1,6 +1,6 @@
-晶胞拉长一点，总能量和应力会怎样变？这页从一个已经优化的 fcc Al 原胞出发，沿笛卡尔 x 方向压缩或拉伸，逐点计算固定结构的 SCF。六个纵向应变点都实际运行过，输入、输出和作图数据可以[一起下载](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)。
+本页从优化后的 fcc Al 原胞出发，沿笛卡尔 x 方向施加六个压缩或拉伸应变，分别进行固定结构 SCF，比较能量和应力。扫描保持电子数不变，没有进行掺杂计算；每个点开放哪些几何自由度，将决定这条曲线描述什么响应。[输入、输出与作图数据](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)可一并下载。
 
-这里保持每个原胞的电子数不变，计算的是应变响应。电子掺杂会改变电子数和静电边界，需要另行建立并检查带电体系；下面的曲线没有包含掺杂结果。
+电子掺杂需要另行设置电子数并检查带电体系的静电处理；本页先沿同一电子数比较应变响应。
 
 ## 先确定哪些量可以动
 
@@ -8,7 +8,7 @@
 
 例如 +0.5% 应变使 −1.97803390040536 Å 变为 −1.98792406990739 Å。两个含非零 x 分量的基矢都要改。若只把第一条基矢整体放大，得到的是另一种形变。
 
-实际交互中先保存母体输入，再编辑新的应变目录：
+母体输入和保存数据的接续见 [Al 声子前的 SCF](/Atlas/m/phonon-dfpt/qe/)。这里复制的是优化后晶胞上的 `dfpt/al.scf.in`，每个应变点重新做 SCF，不继承一份共用的可写密度。准备新的计算时，先用 `mkdir xx_+0.005` 建立目录，再保存母体输入并编辑应变文件；下载包中已有这六个目录，复算应另建目录。实际交互如下：
 
 ```console
 maxwell@maxwell:~/al/elastic$ cp ../dfpt/al.scf.in al.reference.in
@@ -189,7 +189,7 @@ Alqurashi 等，*The effect of uniaxial compressive and tensile strains on the s
 逐点读取同一 F 定义和笛卡尔应力，将 QE 压缩为正的应力转换为拉伸为正，再从 CSV 筛选六个 xx 点作图。能量以最低采样 F 为零点。可以把这些读取规则写成下面的请求：
 
 ```text
-请编写 Python 3 独立后处理程序。读取 elastic/cases.json 所列六个 mode=xx 的 al.scf.in/out/err。检查电子收敛、唯一 JOB DONE 和 stderr；统一读取 QE 感叹号行 F（Ry），应力取左侧 Ry/bohr^3 张量，乘 -14710.5076 转成拉伸为正的 GPa。排序实际应变，输出六行 CSV 与输入 SHA256；图只使用这些样本，F 减最低采样值后乘 13.605693122994*1000 得 meV/atom，不加入零应变或掺杂/DOS/EPC 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。读取 elastic/cases.json 所列六个 mode=xx 的 al.scf.in/out/err。检查电子收敛行、唯一 JOB DONE，并要求 stderr 为空；遇到 convergence NOT achieved 或 Error in routine 时停止；统一读取 QE 感叹号行 F（Ry），应力取左侧 Ry/bohr^3 张量，乘 -14710.5076 转成拉伸为正的 GPa。排序实际应变，输出六行 CSV 与输入 SHA256；图只使用这些样本，F 减最低采样值后乘 13.605693122994*1000 得 meV/atom，不加入零应变或掺杂/DOS/EPC 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [analyse_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/analyse_strain.py) · [plot_strain.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py) · [atlas_plot_style.py 完整源码](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)

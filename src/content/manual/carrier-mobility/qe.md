@@ -550,7 +550,9 @@ maxwell@maxwell:<工作目录>/mos2-mobility$ grep -A 15 "End of band structure 
 
 每点有 16 个本征值，前 13 条占据，第 14 条是本例检查的最低导带。完整 XML 提供比屏幕四位小数更高的精度，曲率拟合使用 XML 的原始数值。第 14 条是否仍与其他带分离、谷底是否留在拟合区域里，也必须检查；金属、交叉带或非抛物谷不能直接代入此公式。
 
-质量拟合使用 ±0.01、±0.02、±0.03 Å⁻¹ 三种窗口。写成 E(q)=E₀+v·q+½qᵀHq，极小值偏移是 −H⁻¹v，x 方向质量为 ħ²/Hxx，态密度质量取 ħ²/√det(H)。Hxy 非零时，md 与 √(mx my) 不完全相等；后者只在所选坐标使交叉项为零时成立。这些量使用同一基态 K 谷和同一套能量单位。
+质量拟合使用 ±0.01、±0.02、±0.03 Å⁻¹ 三种二维方形窗口，分别包含 9、25、49 个采样点。写成 E(q)=E₀+v·q+½qᵀHq，极小值偏移是 −H⁻¹v，x 方向曲率质量为 ħ²/Hxx，态密度质量为 ħ²/√det(H)。因为 E 用 eV、q 用 Å⁻¹，H 的单位是 eV·Å²；用 ħ²/mₑ=7.619964231 eV·Å²，便可直接计算 mx/mₑ=7.619964231/Hxx，以及 md/mₑ=7.619964231/√det(H)。
+
+Hxy 非零时，md 与 √(mx my) 不完全相等；后者只在所选坐标使交叉项为零时成立。这里的 mx=ħ²/Hxx 是沿 x 方向曲率所定义的质量；有交叉项时，它不是质量张量 M=ħ²H⁻¹ 的 xx 分量。本例的近各向同性 K 谷适合所用简化模型；推广到旋转的各向异性谷时，需要连同散射模型一起处理张量。
 
 ![K 谷的曲率与有效质量窗口检查](/Atlas/examples/transport-mobility/transport-effective-mass-windows.png)
 
@@ -564,11 +566,13 @@ zero,0.02,0.4560118247455952,0.4559465055835881,0.4559791639949692,6.65965306890
 zero,0.03,0.45893936618406683,0.4589364866081122,0.45893792639383113,0.00012499550864600306,-6.094468692460792e-10,0.022201726043026494,9.177831588345768e-05,0.00019741314053896286,-2.0659789278941693e-07
 ```
 
-零应变的中间窗口得到 mx=0.456012mₑ、my=0.455947mₑ，态密度质量 md=0.455979mₑ。单位 Å⁻¹ 不可漏掉：把晶体分数坐标直接当作笛卡尔 k，会使有效质量的量纲和数值都出错。
+后续迁移率采用 quality-gates.json 指定的 ±0.02 Å⁻¹ 中间窗口。零应变拟合的 Hxx=16.710015 eV·Å²、Hyy=16.712408 eV·Å²，得到 mx=0.456012mₑ、my=0.455947mₑ、md=0.455979mₑ。三个窗口的最大值与最小值之差除以中间窗口值，mx、my、md 分别变化 0.9853%、0.9264%、0.9559%，均低于本例 5% 的窗口检查阈值。单位 Å⁻¹ 不可漏掉：把晶体分数坐标直接当作笛卡尔 k，会使有效质量的量纲和数值都出错。
 
 ## 比较应变区间、k 网格与真空厚度
 
-从总能量拟合 E(ε)=E₀+a₁ε+a₂ε²，Cxx²ᴰ=2a₂/A₀。面积用母体的真实面内面积，不除以含真空的三维体积；1 eV/Å²=16.02176634 N/m。带边则拟合 Ecb(ε)−Vvac(ε)=b₀+E₁ε，E₁ 的单位是 eV，进入散射公式的是 E₁²。
+拟合时用无量纲应变 ε，例如 0.5% 写成 0.005、1% 写成 0.01。把各构型三原子晶胞的总能量转成 eV，拟合 E(ε)=E₀+a₁ε+a₂ε²，得到 Cxx²ᴰ=2a₂/A₀；能量不再除以原子数。面积用母体的真实面内面积，不除以含真空的三维体积。五点拟合给出 a₂≈36.168289 eV、A₀≈8.772627 Å²；用未舍入参数计算，Cxx²ᴰ=(2a₂/A₀)×16.02176634=132.110909 N/m，其中 1 eV/Å²=16.02176634 N/m。
+
+带边则拟合 Ecb(ε)−Vvac(ε)=b₀+E₁ε，E₁ 的单位是 eV，进入散射公式的是 E₁²。用下表中央 ±0.5% 的真空对齐带边可先检查斜率：(−4.29929460−(−4.21711737))/(0.005−(−0.005))≈−8.217723 eV，与中央三点拟合一致。加入 ±1% 后，五点最小二乘拟合得到 E₁=−8.217569 eV；后续主结果使用这一五点值。
 
 先比较五点与中央三点拟合，再保持对应已松弛原子结构，计算中央三点的 16×16×1 网格与 c 加厚 5 Å 的两组复核。厚真空组仍用 12×12×1。后一组把单层重新置于晶胞中央，不拉伸 S–Mo–S 厚度。这些复核检查电子采样和真空影响，不是另一套优化母体。
 
@@ -664,7 +668,7 @@ cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 
 表中的 E₁ 标准误差只来自线性回归残差，不包含截断、赝势、SOC 或散射模型带来的系统误差。
 
-<code>quality-gates.json</code>统一保存判定阈值：应变区间和 k 网格对 C₂D、E₁ 的相对影响不超过 5%，真空厚度的影响不超过 2%，质量窗口变化不超过 5%；|E₁| 至少 0.1 eV，回归相对标准误差不超过 10%。曲率非正、谷底越出窗口、候选最低谷改变或金属化时，分析停止输出迁移率。
+<code>quality-gates.json</code>保存本算例选用的检查阈值，并非适用于所有材料的精度标准：应变区间和 k 网格对 C₂D、E₁ 的相对影响不超过 5%，真空厚度的影响不超过 2%，质量窗口变化不超过 5%；|E₁| 至少 0.1 eV，回归相对标准误差不超过 10%。曲率非正、谷底越出窗口、候选最低谷改变或金属化时，分析停止输出迁移率。
 
 十一配置通过所列检查。五应变拟合参数与零应变中间窗口质量给出 300 K 的 μx=200.386 cm²/(V·s)。
 
@@ -674,11 +678,26 @@ cp tmp/mos2.save/data-file-schema.xml bands.data-file-schema.xml
 
 <p>μx = e ħ³ Cxx²ᴰ / (kB T mx md E₁²)。</p>
 
-C₂D 用 N/m，质量换成 kg，E₁ 从 eV 换成 J，公式得到 m²/(V·s)，再乘 10⁴ 换成 cm²/(V·s)。[独立公式复核结果](/Atlas/examples/transport-mobility/transport-parameter-checks.json)给出逐项 SI 数值。E₁ 回归标准误差单独传播的相对贡献为 2σ(E₁)/|E₁|=0.3597%，即 0.720739 cm²/(V·s)；它只描述带边线性拟合残差，不是包含弹性、质量、离散误差和散射模型的总误差条。
+C₂D 用 N/m，质量换成 kg，E₁ 从 eV 换成 J。取 mₑ=9.1093837015×10⁻³¹ kg 和 1 eV=1.602176634×10⁻¹⁹ J，零应变中间窗口的 mx、md 分别为 4.153986684×10⁻³¹ kg、4.153689165×10⁻³¹ kg，五点 E₁=−1.316599668×10⁻¹⁸ J。300 K 时 kB T=4.141947×10⁻²¹ J。代入 e=1.602176634×10⁻¹⁹ C、ħ=1.054571817×10⁻³⁴ J·s 和 C₂D=132.110909 N/m，得到 μx=0.020038557 m²/(V·s)；乘 10⁴ 后为 200.385570 cm²/(V·s)。计算使用未舍入参数，[独立公式复核结果](/Atlas/examples/transport-mobility/transport-parameter-checks.json)保留逐项 SI 数值。
+
+E₁ 回归标准误差单独传播的相对贡献为 2σ(E₁)/|E₁|=0.3597%，即 0.720739 cm²/(V·s)；它只描述带边线性拟合残差，不是包含弹性、质量、离散误差和散射模型的总误差条。
 
 ## 把应变、真空与曲率连成后处理
 
-程序先按 config.json 找到各构型完成的分支，配对同一构型的总能量、真空平台和带边，再拟合弹性、形变势与质量。只有这些参数和候选谷检查都满足所列条件时，才代入迁移率公式。下面的具体提示词可交给 AI 编写程序，并与完整源码和保存结果逐项比较。
+程序先按 config.json 找到各构型完成的分支，配对同一构型的总能量、真空平台和带边，再拟合弹性、形变势与质量。只有这些参数和候选谷检查都满足所列条件时，才代入迁移率公式。下载包中的配置、判定条件和输出表按下列结构组织：
+
+| 文件 | 每行或条目含义 | 单位与用途 |
+| --- | --- | --- |
+| cases.csv | 一个计算构型 | εxx 无量纲；总能、真空电势和谷能差为 eV；面积为 Å²；高度为 Å；质量以 mₑ 表示 |
+| mass-windows.csv | 一个构型的一种二维拟合窗口 | 窗口半宽与极值位移为 Å⁻¹；质量为 mₑ；残差为 eV；Hxy 为 eV·Å² |
+| valley-bands.csv | 一个构型的一个采样 k 点 | K 局部位移为 Å⁻¹；Γ–K 路径比例为无量纲；本征值和真空对齐导带为 eV |
+| potential-profiles.csv | 一个沿 z 的采样点 | z 为 Å；平面平均与宏观平均电势为 eV |
+| quality-gates.json | 分析判定条件 | 包括单位明确的阈值、采样数、能带索引及温度 |
+| summary.json | 拟合和判定结果 | 完成数、失败项、拟合参数、质量与迁移率 |
+| config.json | 构型与数据分支 | 应变、网格、真空增量和 bands_subdir |
+| FILE_SHA256.json | 下载包文件清单 | 每份文件的大小与 SHA-256 |
+
+下面的具体提示词可交给 AI 编写程序，并与完整源码和保存结果逐项比较。
 
 <details><summary>展开完整提示词</summary><pre><code>为 QE 7.5 单层 MoS2 声学形变势示例编写 Python 3 后处理器，读取下载包的已有文件，输出应变拟合、真空对齐、二维有效质量与参数敏感性表。
 
@@ -694,7 +713,7 @@ C₂D 用 N/m，质量换成 kg，E₁ 从 eV 换成 J，公式得到 m²/(V·s)
 
 ## 完整源码与逐项结果
 
-[分析器](/Atlas/examples/transport-mobility/analyse_mobility.py)读取每个配置的 OUT、XML、avg.dat 与 k 点表，重建 CSV 和 summary.json；[公式复核脚本](/Atlas/examples/transport-mobility/transport_mobility_check.py)只依赖标准库，用 SI 常数核对迁移率，并写出参数敏感性表。共同的 OUT/XML 读取与几何转换放在 [mobility_common.py](/Atlas/examples/transport-mobility/mobility_common.py)，应与分析器放在同一目录。保存结果使用 Python 3.12.3、NumPy 2.4.6。
+[分析器](/Atlas/examples/transport-mobility/analyse_mobility.py)读取每个配置的 OUT、XML、avg.dat 与 k 点表，重建 CSV 和 summary.json；[公式复核脚本](/Atlas/examples/transport-mobility/transport_mobility_check.py)只依赖标准库，用 SI 常数核对迁移率，并写出参数敏感性表。[mobility_common.py](/Atlas/examples/transport-mobility/mobility_common.py)提供 XML 晶胞与原子坐标读取、几何和 k 点坐标转换，应与分析器放在同一目录；OUT 状态和 XML 本征值由分析器读取。保存结果使用 Python 3.12.3、NumPy 2.4.6。
 
 <details>
 <summary>analyse_mobility.py 的完整源码</summary>
@@ -1074,17 +1093,6 @@ def post_inputs(d):
 
 </details>
 
-| 文件 | 每行或条目含义 | 单位与用途 |
-| --- | --- | --- |
-| cases.csv | 一个计算构型 | εxx 无量纲；总能、真空电势和谷能差为 eV；面积为 Å²；高度为 Å；质量以 mₑ 表示 |
-| mass-windows.csv | 一个构型的一种二维拟合窗口 | 窗口半宽与极值位移为 Å⁻¹；质量为 mₑ；残差为 eV；Hxy 为 eV·Å² |
-| valley-bands.csv | 一个构型的一个采样 k 点 | K 局部位移为 Å⁻¹；Γ–K 路径比例为无量纲；本征值和真空对齐导带为 eV |
-| potential-profiles.csv | 一个沿 z 的采样点 | z 为 Å；平面平均与宏观平均电势为 eV |
-| quality-gates.json | 分析判定条件 | 包括单位明确的阈值、采样数、能带索引及温度 |
-| summary.json | 拟合和判定结果 | 完成数、失败项、拟合参数、质量与迁移率 |
-| config.json | 构型与数据分支 | 应变、网格、真空增量和 bands_subdir |
-| FILE_SHA256.json | 下载包文件清单 | 每份文件的大小与 SHA-256 |
-
 QE 7.5 的 <code>pp.x</code>用 <code>plot_num=11</code>输出 <code>V_bare+V_H</code>；[pp.x 文档](https://www.quantum-espresso.org/Doc/INPUT_PP.html)与[average.f90 源码](https://gitlab.com/QEF/q-e/-/blob/qe-7.5/PP/src/average.f90)给出数据含义。<code>avg.dat</code>三列分别是 Bohr 坐标、Ry 平面平均和 Ry 宏观平均；后处理用第二列取真空参考，并检查三列均有限、坐标递增且覆盖本晶胞。
 
 页面的两组图分别显示应变拟合与 K 谷二次曲率。已有的势能与谷比较复合图也保存在包中。下载图件：[应变拟合 PNG](/Atlas/examples/transport-mobility/transport-deformation-fits.png) · [SVG](/Atlas/examples/transport-mobility/transport-deformation-fits.svg) · [PDF](/Atlas/examples/transport-mobility/transport-deformation-fits.pdf)；[质量窗口 PNG](/Atlas/examples/transport-mobility/transport-effective-mass-windows.png) · [SVG](/Atlas/examples/transport-mobility/transport-effective-mass-windows.svg) · [PDF](/Atlas/examples/transport-mobility/transport-effective-mass-windows.pdf)。
@@ -1097,7 +1105,7 @@ QE 7.5 的 <code>pp.x</code>用 <code>plot_num=11</code>输出 <code>V_bare+V_H<
 python3 transport_mobility_check.py
 </code></pre>
 
-读取包内保存的摘要，可以先确认它使用了哪些构型和模型：
+分析完成后，读取生成的摘要可以确认它使用了哪些构型和模型：
 
 ```console
 head -n 7 summary.json

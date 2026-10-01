@@ -372,7 +372,7 @@ scf_d1.50,OUTCAR absent,0,0,0
 
 d=1 Å 没有完整结果；0.25、0.50、0.75、1.00、1.25、1.50 Å 的相关尝试也没有全部验收条件。因此实际采样集合是 `0,2,3,…,20 Å`。曲线连接线只是帮助阅读离散点，不表示中间空缺位移已经计算过。
 
-同一行 OUTCAR 会写出 `energy without entropy` 和 `energy(sigma->0)`。这一表统一取前者；没有逐点挑选两列中的较小值，也不与自由能 TOTEN 混用。原始两列都保存在 [exfoliation.csv](/Atlas/examples/hfi2-frozen20/exfoliation.csv)，便于核查所取的能量定义。
+在每份 OUTCAR 的最终能量行中，`energy without entropy` 与 `energy(sigma->0)` 并列出现。上面零点的输出分别为 −107.79327340 和 −107.79327383 eV；下表统一读取前一列 `energy without entropy`，再减去零点同一列的值。原始两列都保存在 [exfoliation.csv](/Atlas/examples/hfi2-frozen20/exfoliation.csv)，全组保持同一种能量定义。
 
 | 顶层位移 d / Å | energy without entropy / eV·cell⁻¹ | E(d)−E(0) / meV·cell⁻¹ | [E(d)−E(0)]/A / meV·Å⁻² |
 | ---: | ---: | ---: | ---: |
@@ -397,7 +397,7 @@ d=1 Å 没有完整结果；0.25、0.50、0.75、1.00、1.25、1.50 Å 的相关
 | 19 | -107.54475578 | 248.51762 | 22.908605 |
 | 20 | -107.54517866 | 248.09474 | 22.869623 |
 
-零点的真实能量为 −107.79327340 eV/cell，20 Å 点为 −107.54517866 eV/cell。这里每个 cell 都是同一个 18 原子晶胞，先统一相减，再转换单位：
+零点的能量为 −107.79327340 eV/cell，20 Å 点为 −107.54517866 eV/cell。两者都是同一个 18 原子晶胞的总能，先相减得到每晶胞的分离功，再除以面内面积 `A=10.8482214944 Å²`，转换单位：
 
 ```text
 ΔE(20) = −107.54517866 − (−107.79327340)
@@ -419,7 +419,7 @@ $$
 W(d)=\frac{E_{\rm without\ entropy}(d)-E_{\rm without\ entropy}(0)}{A},\qquad
 1\;\mathrm{eV/\mathring A^2}=16.02176634\;\mathrm{J/m^2}.
 $$
-该量定义为一次界面分离操作的功，不含表面能定义中的二倍面积因子；若改报单面表面能，需另行定义为 ΔE/(2A)。d=20 Å 时 ΔE=0.24809474 eV/cell，W=0.36641176 J/m²。由于 d=0 仍是六层 slab，本值不能直接叫作由体相参考得到的 HfI₂ 材料剥离能。
+该量定义为一次界面分离操作的功，不含表面能定义中的二倍面积因子；只有在生成两个等价表面、参照态和厚度极限都适当时，才能用分离功的一半讨论相应表面能；本例的有限多层冻结几何分离曲线不能仅除以 2 就改称单面表面能。d=20 Å 时 ΔE=0.24809474 eV/cell，W=0.36641176 J/m²。由于 d=0 仍是六层 slab，本值不能直接叫作由体相参考得到的 HfI₂ 材料剥离能。
 
 ### 接受点与末段起伏
 
@@ -439,6 +439,8 @@ d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降�
 
 ## 编写分离功分析脚本
 
+原始提取器已经将每个位移目录整理成一行 CSV，保留位移、两种能量、能量差、面积归一化值与周期镜像间距。下面的表格后处理读取这些行，用位移零点 POSCAR 的前两根晶格矢量重算面积，再统一减去 `scf_eq` 的 `energy_without_entropy_eV`。排除表单独保留失败目录；它们不参与能量相减，也不补成曲线上的点。可以按以下需求编写脚本：
+
 ~~~text
 请用 Python 3 编写 review_hfi2_exfoliation.py，读取同目录的 exfoliation.csv、excluded.csv 和 scf_eq 的 POSCAR；这些输入不可修改。接受点 CSV 的关键字段是 directory、d_A（Å）、energy_without_entropy_eV（eV/cell）、energy_sigma0_eV（eV/cell）、delta_E_meV（meV/cell）、W_meV_A2（meV/Å²）、W_J_m2（J/m²）、outer_periodic_gap_A（Å）。排除表字段为 directory、reason、energy_lines、ediff、normal_end。
 
@@ -451,7 +453,9 @@ d=16…20 Å 的五点能量范围是 0.77266 meV/cell；d=19→20 Å 反而降�
 验收检查：A≈10.8482214944 Å²；accepted=20、excluded=7；d20 的 W≈0.36641176 J/m²；16…20 Å 能量范围≈0.77266 meV/cell；所有结果使用同一 OUTCAR 能量定义。不要将本例有限距离的 W 称为已收敛的材料剥离能。
 ~~~
 
-完整原始输出提取器为 [extract_scan.py](/Atlas/examples/hfi2-frozen20/extract_scan.py)。配套表格复核脚本为 [review_hfi2_exfoliation.py](/Atlas/examples/thermo-postprocessing/exfoliation/review_hfi2_exfoliation.py)；同目录下载 [采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/exfoliation.csv)、[排除目录表](/Atlas/examples/thermo-postprocessing/exfoliation/excluded.csv) 与 [scf_eq POSCAR](/Atlas/examples/thermo-postprocessing/exfoliation/POSCAR)。复核脚本只用 Python 3.12.3 标准库；下方给出完整源码和运行命令，输出选点表、排除表和数据核对记录。 实际结果可下载：[采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-selected-separation-review.csv)、[排除点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-exclusion-review.csv)、[数据核对记录](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-separation-review.md)。
+完整原始输出提取器为 [extract_scan.py](/Atlas/examples/hfi2-frozen20/extract_scan.py)。配套表格分析脚本为 [review_hfi2_exfoliation.py](/Atlas/examples/thermo-postprocessing/exfoliation/review_hfi2_exfoliation.py)；同时下载 [采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/exfoliation.csv)、[排除目录表](/Atlas/examples/thermo-postprocessing/exfoliation/excluded.csv) 与 [scf_eq POSCAR](/Atlas/examples/thermo-postprocessing/exfoliation/POSCAR)。将三份输入分别保存为 `exfoliation.csv`、`excluded.csv`、`POSCAR`，与分析脚本放在同一目录。该脚本只用 Python 标准库，本例运行环境为 Python 3.12.3。
+
+脚本输出选点表、排除表和数据核对记录；本次结果可下载：[采用点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-selected-separation-review.csv)、[排除点表](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-exclusion-review.csv)、[数据核对记录](/Atlas/examples/thermo-postprocessing/exfoliation/review/hfi2-separation-review.md)。
 
 <details>
 <summary>extract_scan.py 的完整源码</summary>
@@ -567,7 +571,7 @@ for row in excluded:
 </details>
 
 
-完整源码如下，与上面的下载文件相同。保存为 `review_hfi2_exfoliation.py`，和所需 CSV 放在同一目录。
+完整源码如下，与上面的下载文件相同。保存为 `review_hfi2_exfoliation.py`，和 `exfoliation.csv`、`excluded.csv`、`POSCAR` 放在同一目录。
 
 <details>
 <summary>review_hfi2_exfoliation.py 完整源码</summary>

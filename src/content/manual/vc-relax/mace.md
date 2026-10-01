@@ -157,10 +157,10 @@ ASE 的应力数组按 `xx, yy, zz, yz, xz, xy` 排列，原始值单位是 eV/�
 
 ## 画出体积收缩与力的收敛
 
-[optimization.csv](/Atlas/examples/mace-si/si-vc-relax/optimization.csv) 是从 `vc-relax.traj` 逐帧提取的 8 原子超胞总能量、最大原子力和晶胞体积。可把以下绘图需求交给 AI 编程助手：
+[optimization.csv](/Atlas/examples/mace-si/si-vc-relax/optimization.csv) 是从 `vc-relax.traj` 逐帧提取的 8 原子晶胞总能量、最大原子力和晶胞体积。提取方法和 [export_series.py 完整源码](/Atlas/m/relax/mace/)见固定晶胞页；运行原脚本时，从 `si-relax`、`si-vc-relax` 的共同上级读取两份轨迹。只处理本页时，将循环列表改为 `[("si-vc-relax", "vc-relax.traj")]`。可把以下绘图需求交给 AI 编程助手：
 
 ```text
-编写plot.py，用NumPy、Matplotlib读取同目录optimization.csv的step、energy_eV、volume_A3、fmax_eV_A。三面板共享BFGS步数横轴：每原子相对初态能量1000*(E-E0)/8，单位meV/atom；体积，单位Å³；对数纵轴上的最大原子力，单位eV/Å，标0.001原子力阈值。这里画的是实际原子力而非filter日志fmax。导入同目录atlas_plot_style.install，不平滑或补点，输出cell-relaxation.svg和180 dpi cell-relaxation.png。
+编写plot.py，用NumPy、Matplotlib读取同目录optimization.csv的step、energy_eV、volume_A3、fmax_eV_A。三面板共享BFGS步数横轴：每原子相对初态能量1000*(E-E0)/8，单位meV/atom；体积，单位Å³；对数纵轴上的最大原子力，单位eV/Å，标0.001原子力阈值。这里画的是实际原子力而非filter日志fmax。导入同目录atlas_plot_style.install，不平滑或补点，输出 cell-relaxation.png、cell-relaxation.svg 和 cell-relaxation.pdf；由 atlas_plot_style 统一导出，PNG 为 240 dpi。
 ```
 
 [完整绘图源码 plot.py](/Atlas/examples/mace-si/si-vc-relax/plot.py) 如下：

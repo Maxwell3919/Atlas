@@ -312,7 +312,7 @@ maxwell@maxwell:~/al/dfpt$ head -6 al.freq.gp
 第一列是路径距离，后面 3 列分别对应三支声子频率，单位 cm⁻¹。[绘图脚本](/Atlas/examples/al/plot_phonon.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 直接读取这 4 列，按节点位置加标签，不再手工抄频率。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+绘图脚本读取 `dfpt/al.freq.gp` 的路径距离和三列频率，再按五个节点放置标签。下面的编程需求对应这份路径数据：
 
 ```text
 编写 plot_phonon.py，从 Al 根目录读取 dfpt/al.freq.gp，要求 161 行、4 列。首列是路径累计距离，后三列为 cm⁻¹ 频率，直接绘制全部三条分支并保留负号。以行 0、40、80、120、160 的距离标 Γ—X—W—L—Γ，画零线和分段界线，输出 figures/phonon-dfpt.png 与 PDF。使用同目录 atlas_plot_style.py，读取文件而不是从示意图拟合曲线。

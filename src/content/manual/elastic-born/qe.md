@@ -175,7 +175,7 @@ maxwell@maxwell:~/al/elastic$ tail -9 xx_+0.005/al.scf.out
 实际脚本把 yy 和 zz 两个等价分量取平均；剪切对用相同的中心差分求 C₄₄。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+每个弹性斜率都由正、负应变的对应应力求出。下面的任务要求保留应变定义、单位与零应变参考，再比较幅度和网格。
 
 ```text
 编写 analyse.py，在 elastic 目录读取 cases.json 中的成对应变 SCF。检查每份输出唯一 JOB DONE、电子收敛且 stderr 为空；取最后一份 total stress 的左侧 Ry/bohr³ 张量，乘 -14710.5076 转为拉伸为正的 GPa。按 ±ε 中心差分得到 C11，C12 取 yy、zz 平均；剪切输入工程应变 γ 对应变形矩阵 xy=yx=γ/2，用 σxy 对 γ 的差分求 C44。对 0.003、0.005、0.008 分别保存应力与弹性常数，依立方 Voigt–Reuss–Hill 公式计算 B、Gv、Gr、GH、E、nu 和各向异性比；写 strain-stress.csv 与 elastic-results.csv。保持原始应力符号与原文件。
@@ -251,7 +251,7 @@ strain     C11       C12       C44       B         GH        E        nu
 <figure><img src="/Atlas/examples/al/figures/elastic-kmesh.png" alt="Al 三个弹性分量和体模量随k网格变化" loading="lazy"/><figcaption>同一组 ±0.5% 应变的电子网格检查。不同分量对网格的敏感程度明显不同。</figcaption></figure>
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+作图时分别显示刚度常数和参数变化，避免用同一纵轴掩盖较小分量的差异。
 
 ```text
 编写 plot_elastic.py，在 Al 根目录按列名读取 elastic/kmesh-comparison.csv。横轴 kmesh，单位为 n×n×n 电子网格；一图比较 C11_GPa、C12_GPa、C44_GPa、B_GPa，另一图比较 B_GPa、GH_GPa、E_GPa。纵轴 GPa，使用全部已保存的网格行，分别输出 figures/elastic-kmesh 与 figures/elastic-moduli 的 PNG/PDF，复用 atlas_plot_style.py。
@@ -298,9 +298,9 @@ python3 plot_elastic.py
 
 ## 文献中由弹性刚度检验稳定性与强度极限的展示方式
 
-对于正交或单斜等低对称性二维晶体，弹性刚度张量 C<sub>ij</sub> 满足对应的 Born 正定判据后，通常会进一步变换到面内任意方向角 θ，以极坐标图同时展示各向异性杨氏模量、剪切模量和泊松比，直观确认所有面内方向均保持正刚度。
+低对称二维晶体的弹性分析需要先在规定的应力状态和应变空间中检查刚度矩阵，再计算不同面内方向的杨氏模量、剪切模量和泊松比。前两者反映相应形变的刚度，泊松比描述横向应变响应；负泊松比不等于负刚度，也不自动违反 Born 稳定性条件。极坐标图用来展示方向依赖，不能代替矩阵正定性检查。不同晶系的条件见 [Mouhat 与 Coudert 的推导](https://arxiv.org/abs/1410.0065)。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向依赖弹性模量与泊松比极坐标图" loading="lazy"/><figcaption>正交与单斜二维晶体 α-ZrI<sub>2</sub>、β-ZrI<sub>2</sub> 的方向依赖杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标分布，用于共同检验力学稳定性判据与面内各向异性。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向依赖弹性模量与泊松比极坐标图" loading="lazy"/><figcaption>正交与单斜二维晶体 α-ZrI<sub>2</sub>、β-ZrI<sub>2</sub> 的方向依赖杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标分布，用于展示面内弹性响应的方向依赖。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
 
 在线性小应变刚度之外，将平衡态附近求得的弹性模量与大应变非线性拉伸得到的理想断裂强度放在同一张对数坐标图上，可以检验材料的线性弹性刚度与非线性理想强度极限之间的标度关系。
 

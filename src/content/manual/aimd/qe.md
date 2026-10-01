@@ -259,7 +259,7 @@ maxwell@maxwell:~/al/aimd/nvt-dt20-cg$ tail -12 al.md.out
 NVE 大步长分支也有一次对角化警告，但发生在最后一个离子步的中间 SCF 迭代，随后的最终迭代已经消失。提取脚本区分中途警告与最终未解决的警告，不用简单的关键字计数代替这项检查。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+提取轨迹时，应让能量、温度、坐标与同一个 MD 步号对应。下面的程序需求也保留电子求解和时间步长的检查。
 
 ```text
 编写 analyse_aimd.py，读取 nvt-dt20-cg、nve-dt20-nosym、nve-dt10-nosym 的最终 al.md.in/out/err。分别要求 100、50、100 个离子步、正常步数停止和 JOB DONE、空 stderr、每段电子收敛；区分中间 SCF 对角化警告与每步末次迭代仍存在的警告。Ry 转 eV，dt 的时间单位乘 0.04837768653 转 fs；记录 QE Verlet 坐标时间 n*dt 与能量采样时间 (n-1)*dt 两列。总能量取程序 Etot 加离子动能，再除以 8 个原子。保留晶胞与连续坐标以计算短时 RMS 位移；写 thermo.csv、轨迹与 JSON 摘要，报告 NVE 总能量峰峰变化和共同末时刻位置差。不由短时位移拟合扩散系数。
@@ -394,7 +394,7 @@ step,energy_sample_time_fs,position_time_fs,temperature_K,potential_Ry,kinetic_R
 图中 RMS 位移是相对初始原子位置的短时变化，没有据此拟合扩散系数。要重新出图，把 `aimd` 子目录和 [plot_aimd.py](/Atlas/examples/al/plot_aimd.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)） 放在同一 Al 数据目录，运行：
 
 
-画图时沿用上面的数据列。给 AI 编程助手的说明可以写成：
+图中分别保留恒温与 NVE 时段，以及两种时间步长的实际采样点；下面列出出图时使用的数据列。
 
 ```text
 编写 plot_aimd.py，从 Al 根目录读取三条轨迹各自的 aimd/<case>/thermo.csv。温度按真实时间绘制；NVE 总能量用 energy_sample_time_fs 对齐，以各自第一行作能量变化基准，换成 meV/atom；同时画势能与动能交换。位移从各目录 trajectory.npz 的 positions_A 计算相对初帧的 RMS，横轴使用其中 time_fs，保留坐标与能量两套时间约定。输出现有温度、能量和位移三组 PNG/PDF，复用 atlas_plot_style.py。

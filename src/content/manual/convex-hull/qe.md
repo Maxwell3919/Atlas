@@ -59,6 +59,8 @@ Numerical differences: numerical-checks.csv (1 meV/atom teaching comparison line
 
 提取脚本先按 x 排序，再逐个保留使相邻连线斜率递增的点，得到下边界；然后把每个候选投到对应的边界线段上，计算高度差。处理数值误差时使用很小的几何比较阈值，并保留未四舍五入的形成能。画图时才格式化小数位。代码在 [analyse_alsi.py](/Atlas/examples/alsi-formation-hull/analyse_alsi.py)，输入汇总在 [formation-energy.csv](/Atlas/examples/alsi-formation-hull/formation-energy.csv)；原始 30 项协议对照在 [energy-table.csv](/Atlas/examples/alsi-formation-hull/energy-table.csv)。
 
+从原始输出运行 `analyse_alsi.py` 需要 Python 3 和 NumPy；运行 `plot_alsi.py` 绘图还需要 Matplotlib，并保留同目录的 `atlas_plot_style.py`。后面的 `review_alsi_thermo.py` 只读取已提取的 CSV，使用 Python 标准库。
+
 <details>
 <summary>analyse_alsi.py 的完整源码</summary>
 
@@ -303,7 +305,7 @@ python3 analyse_k32.py
 | alsi3-l12 | 0.75 | 0.366450970 | 366.450970 |
 | si-diamond | 1.00 | 0.000000000 | 0.000000 |
 
-32³ 的数据仍给出相同的有限集合顶点：fcc Al 与 diamond Si；三个中间候选继续高于端元连线。表中分别记录顶点组成与网格数值变化；24³ 和 32³ 的顶点相同，能量变化仍按所选的 1 meV/atom 比较线单独检查。可用 [独立表格复核脚本](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py)重建两组凸包，并查看[逐候选 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv)与[复核报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。
+32³ 的数据仍给出相同的有限集合顶点：fcc Al 与 diamond Si；三个中间候选继续高于端元连线。顶点相同说明这组候选的最低能量分解组合没有改变。形成能的网格变化另按所选的 1 meV/atom 比较线判断：Al₃Si 与 AlSi 的 24³→32³ 变化分别为 1.798223 与 1.090635 meV/atom，均超过该线。可用 [独立表格复核脚本](/Atlas/examples/thermo-postprocessing/formation-hull/review_alsi_thermo.py) 重建两组凸包，并查看 [逐候选 CSV](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.csv) 与 [复核报告](/Atlas/examples/thermo-postprocessing/formation-hull/review/alsi-thermo-review.md)。
 
 前面的 20³→24³ 对照和后续 24³→32³ 对照均已保留，优化与不同静态协议下的压力差也在形成能页中列出。图上的正值来自本次电子能量计算；其中没有声子零点能、振动熵或组态熵，不能把这条线当成某个实验温度下的相界。所有候选均受限于指定立方原型，原子力小也不等于声子稳定。
 
@@ -316,7 +318,7 @@ python3 analyse_k32.py
 校验重复候选、缺少端元、原始能量与形成能不符、CSV 中 eV/atom 和 meV/atom 的单位混用，以及 ΔEform=ΔEcandidate−ΔEreference 不闭合。任一不一致报告候选和字段并停止。用 --outdir review 输出 alsi-thermo-review.csv 和 alsi-thermo-review.md，保留 1 meV/atom 比较线；只讨论这五个候选，不生成新图。
 ~~~
 
-完整源码如下，与上面的下载文件相同。保存为 `review_alsi_thermo.py`，和所需 CSV 放在同一目录。
+完整源码如下，与上面的下载文件相同。将 `review_alsi_thermo.py` 与 `formation-energy.csv`、`formation-k32.csv`、`comparison-k24-k32.csv` 放在同一目录；三份 CSV 的下载链接和运行命令见源码后。
 
 <details>
 <summary>review_alsi_thermo.py 完整源码</summary>

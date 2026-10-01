@@ -1,4 +1,4 @@
-总磁矩为零，可以是两个局域磁矩相互抵消，也可以是每个原子都没有自旋极化。下面比较两原子 bcc Fe 的 FM、AFM 和非自旋极化解，从 OUTCAR 读取最终局域磁矩，再按统一的 E0 定义排列三态能量。
+总磁矩为零，可能来自局域磁矩的抵消，也可能来自非自旋极化的解。本页在同一两原子 bcc Fe 晶胞中比较 FM、AFM 和非自旋极化候选，从 OUTCAR 检查最终局域磁矩，再按统一的 E0 定义比较能量。非自旋极化计算没有包含有限温度下无序局域磁矩的采样，不能直接称为顺磁相模拟。
 
 采用 MAGMOM 官方示例中的两原子 bcc 常规胞，元素选 Fe，固定晶格常数 2.8 Å。分别从平行、反平行和非自旋极化三个初始条件计算；三份结构、POTCAR、截断能、k 网格和展宽保持相同。这里只比较这个固定晶胞内的三个候选态。
 
@@ -122,7 +122,7 @@ DAV:  18    -0.164736559415E+02   -0.30582E-08   -0.59411E-11  3008   0.941E-05
 --------------------------------------------------
 tot         -0.027  -0.116   4.339   4.196
 ```
-两个 Fe 的局域投影磁矩同为 2.098 μB，方向相同。表中的投影和是 4.196 μB，与整个晶胞积分得到的 4.2127 μB 略有差别；原子投影区之外还有贡献，所以不要强迫这两种定义逐位相等。
+两个 Fe 的局域投影磁矩同为 2.098 μB，符号相同。这里没有开启 SOC，正负号表示共线自旋轴上的相对取向；表题中的 `(x)` 不表示已经确定了磁化沿晶体 x 方向。表中的投影和是 4.196 μB，与整个晶胞积分得到的 4.2127 μB 略有差别；原子投影区之外还有贡献，所以不要强迫这两种定义逐位相等。
 
 另开 `afm` 目录，使用 `cp fm/POSCAR fm/INCAR fm/KPOINTS fm/POTCAR fm/run.slurm afm/` 复制输入。进入 `afm` 后用 `vi INCAR` 将 MAGMOM 改为 `3 -3`，其余物理参数保持一致。脚本仅改任务名。本次提交返回 18185，运行 13 秒结束。
 
@@ -215,10 +215,10 @@ Torelli 等，*High-throughput computational screening for two-dimensional magne
 
 ## 从原始文件重建结果
 
-后处理先确认三份输入可比，再读取最终磁矩和 E0。每胞两个 Fe，能量差除以 2 后换算为 meV/atom，F 与 E0 分列保留。可以把这些读取规则写成下面的请求：
+前面的 OUTCAR 投影表用来辨认最终磁态；下面的脚本汇总 F、E0 和 OSZICAR 总磁矩，不提取局域投影。它核对结构、网格和 PAW 记录，以 FM 为参考计算能量差，每胞两个 Fe，除以 2 后换算为 meV/atom。三份 INCAR 的物理参数仍需按前面展示的输入逐项比较。对应的编程请求是：
 
 ```text
-请编写 Python 3 独立后处理程序。从 fm/afm/nm 的 OUTCAR、OSZICAR、POSCAR、KPOINTS 和 POTCAR.identity.txt 读取数据；核对同几何/网格/PAW 指纹、EDIFF 和正常计时。使用同一 E0 定义，以最低候选为参考，除以两个 Fe 后换算 meV/atom；保留 F、总磁矩与最终局域投影。输出 JSON 与三态 CSV，不生成重复的柱图。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 后处理程序，在含 fm、afm、nm 的 example-pack 目录中运行。用 SHA256 比较三份 POSCAR、KPOINTS；公开包不含 POTCAR，用包根目录 POTCAR.identity.txt 的原始哈希及各 OUTCAR 的 TITEL 记录核对 PAW。要求 OUTCAR 有 EDIFF 收敛标记和最终计时段，读取最后的 F 和 energy(sigma->0)，从 OSZICAR 取最终总磁矩；nm 为非自旋极化计算，缺少 mag 字段时按零记录。以 fm 的 E0 为参考，差值除以两个 Fe，再乘 1000，输出 magnetic-energies.json；另写脚本导出三态 CSV。局域磁矩由正文中的 OUTCAR 投影表检查，不在这个汇总脚本中提取。
 ```
 
 [magnetic_energies.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/magnetic_energies.py) · [export_magnetic_table.py 完整源码](/Atlas/examples/interface-magnet-magnetic-gs/export_magnetic_table.py)

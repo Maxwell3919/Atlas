@@ -112,7 +112,7 @@ Direct
 相加程序先核对这四项，再读取两份文件的第一块标量数据，生成找盆地边界用的 `CHGCAR_sum`。可将下面的需求交给 AI 编程助手：
 
 ```text
-用 Python 3 标准库编写 sum_charge.py。读取同目录 AECCAR0、AECCAR2、CHGCAR，解析结构头，核对晶胞、元素顺序、坐标和网格一致。每份只读取第一块 nx*ny*nz 个总密度值，排除磁化密度和 augmentation occupancies；用 Σg/N 打印各自电子数积分。逐点相加 AECCAR0+AECCAR2，保留结构头写入 CHGCAR_sum，再读回检查完整网格和参考积分。源文件只读，不修正或归一化原始数值。
+用 Python 3 标准库编写 sum_charge.py。读取同目录 AECCAR0、AECCAR2、CHGCAR，解析结构头，核对晶胞、元素顺序、坐标和网格一致。每份只读取第一块 nx*ny*nz 个总密度值，排除磁化密度和 augmentation occupancies；用 Σg/N 打印各自电子数积分。逐点相加 AECCAR0+AECCAR2，保留结构头写入 CHGCAR_sum，用写出前的相加数组计算 reference_integral=Σg/N；再读回检查网格尺寸和数组长度。回读检查不重新计算参考积分。源文件只读，不修正或归一化原始数值。
 ```
 
 [完整源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。将脚本放入 `charge_elf`，用 Python 3 运行。原始执行记录为：
@@ -156,7 +156,7 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
 
 ## 加密网格，比较等价原子的盆地数
 
-在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。后处理仍执行同一个相加脚本和 Bader 命令。
+在新目录 `charge_elf_192` 中把 NGXF、NGYF、NGZF 改为 192，保持结构、赝势、k 网格和其余电子参数一致。本次同时将 ELF 使用的粗网格从 18³ 改为 36³，VASP 任务 18188 用时 102 秒结束。因此这是两套实空间网格设置的比较，并非只改变细网格一个参数的对照。后处理仍执行同一个相加脚本和 Bader 命令。
 
 ```text
 [bcgong@localhost charge_elf_192]$ cat ACF.dat
@@ -186,7 +186,7 @@ CHGCAR 的积分是 16.0000000133，与两个 Fe 各 8 个价电子相符。芯�
 用 Python 3 标准库写 extract_bader_grid.py，只解析已经完成的96³和192³ bcc Fe Bader输出，不运行VASP/Bader。读取每目录ACF.dat原子行的编号、X/Y/Z、CHARGE、MIN DIST、ATOMIC VOL，以及底部VACUUM CHARGE、VACUUM VOLUME、NUMBER OF ELECTRONS。CHARGE是价电子盆地数，坐标/距离单位Å，体积Å³；本例ZVAL=8，两Fe，总价电子16，晶胞体积21.952Å³。输出N_Bader、N_Bader-ZVAL、Q=ZVAL-N_Bader，保留两种符号定义；核对原子数和总量到原文件打印精度，打印残差而非宣称严格为零。另读取sum_charge.py记录的AECCAR0/2、CHGCAR与reference_integral，不把芯电子积分与盆地稳定性混成同一指标。输出CSV，拒绝覆盖输入。不画柱图或另加无来源材料数据；若要查看空间形貌，交给专业GUI读取真实密度。完整脚本应附命令行运行说明。
 ```
 
-[完整源码：extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py)；[密度相加源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。需要 Python 3；上述两个脚本均使用标准库。在解包后的 `charge-vesta/bader` 目录运行：
+[完整源码：extract_bader_grid.py](/Atlas/examples/charge-vesta/scripts/extract_bader_grid.py)；[密度相加源码：sum_charge.py](/Atlas/examples/charge-vesta/scripts/sum_charge.py)。需要 Python 3；上述两个脚本均使用标准库。
 
 <details>
 <summary>sum_charge.py 的完整源码</summary>
@@ -284,6 +284,8 @@ print(f'wrote: {a.output}; zero printed residual does not establish an exact int
 ```
 
 </details>
+
+在解包后的 `charge-vesta/bader` 目录运行：
 
 ```bash
 python3 -B ../scripts/extract_bader_grid.py --output new-bader-grid.csv

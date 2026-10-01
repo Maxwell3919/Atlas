@@ -1,4 +1,4 @@
-两份磁构型能量可以解出一个有效交换参数，但是否能预测第三个磁构型，还需要实际检查。这里接着两原子 bcc Fe 的 FM、AFM 结果，先逐条枚举周期最近邻键，再用一个四原子超胞检验计数、能量归一化和磁态是否保留。
+在事先选定的自旋模型中，两份磁构型能量可以确定一个有效交换参数。这个参数是否能描述其他构型，需要另外检验。本页沿用两原子 bcc Fe 的 FM、AFM 结果，先枚举周期最近邻键，再用四原子超胞检查计数、能量归一化和最终磁矩。磁矩发生塌缩的构型不能直接套入固定自旋长度的映射。
 
 [下载原始计算目录、周期键表与分析脚本](/Atlas/examples/interface-magnet-exchange-j/example-pack.tar.gz)。本页使用固定 a=2.8 Å、PBE、ENCUT=400 eV 的同一套输入协议。已有两原子计算的准备和结果见 [磁性候选态](/Atlas/m/magnetic-gs/vasp/)，SCF 文件读法见 [SCF](/Atlas/m/scf/vasp/)。
 
@@ -207,7 +207,7 @@ ValueError: Local moment collapsed; direction mapping invalid
 
 脚本中的 0.1 μB 是用于拦截本例明显磁矩衰减的检查阈值，不是通用的磁性物理界限。实际读数约 0.007 μB，比两份参考磁态小两个数量级。继续把这个能量按初始 `++--` 模式算预测残差，会把未获得的磁态当成已获得。
 
-因此下面只拟合原来的两份磁态，并用 FM4/Néel4 检查晶胞折叠；第三份输出仅保留为诊断记录，明确排除在拟合和第三态残差验证之外：
+接下来用原来的 FM2/AFM2 两态求 J，并用 FM4/Néel4 检查晶胞折叠。stripe4 已达到电子停止条件，但所需磁构型没有保持，因此只记录它的能量和局域磁矩，不给它分配初始模式的关联和或预测残差。若某个目录连 EDIFF 都未达到，读取函数会直接报错，它的末步能量也不能进入拟合：
 
 ```text
 [bcgong@localhost fe_exchange_j]$ python fit_two_states.py
@@ -222,7 +222,7 @@ The intended third magnetic state was not obtained. The nearest-neighbor model h
 
 FM4 和 Néel4 相对两原子拟合式的回代误差分别约 −0.0151、−0.0056 meV/原子。它们说明在这里的精度下，超胞计数、能量归一化和匹配 k 密度得到了较好的数值复现。这两个对照代表的仍是原来的两种磁序，不能代替独立第三磁序的检验。
 
-因此 J_eff=54.1219 meV/键表示指定两态与最近邻键定义下的有效参数。FM 与 AFM 的 PAW 局域磁矩幅值从约 2.098 变为 1.317 μB；刚性局域磁矩模型的预测，需要更多实际保持的独立磁构型来检查，更远邻或其他电子重排也可能贡献这份能量差。
+因此 J_eff=54.1219 meV/键表示指定两态与最近邻键定义下的有效参数。FM 与 AFM 的 PAW 局域磁矩幅值分别约为 2.098 和 1.317 μB，已经发生明显变化。虽然上面的模型把方向归一化为单位向量，这个数学约定并没有使 DFT 中的磁矩长度固定。因此，两态能量差给出的 J_eff 还包含随磁构型发生的电子态响应；要把它用于其他磁序，需要更多实际保持的独立磁构型来检查，也需判断是否要加入更远邻等作用项。
 
 若要继续建立可转用的自旋模型，需要获取更多实际保持的磁构型，或采用合适的约束/响应方法，再用足够独立的数据区分不同作用项。
 
@@ -255,7 +255,7 @@ Rezaei 等，*Benchmarking first-principles approaches for extracting magnetic e
 周期键表给出关联和，最终局域磁矩决定某份能量能否按指定模式进入映射。两态拟合和四原子折叠对照分别输出；塌缩的 stripe4 保留实际读数。可以把这些读取规则写成下面的请求：
 
 ```text
-请编写 Python 3 独立后处理程序。先从真实 POSCAR 枚举周期唯一最近邻键并输出键表，注明单位向量模型 H=NEref-J*sum(e_i·e_j)。读取 fm2/afm2/fm4/neel4/stripe4 的实际 OUTCAR/OSZICAR，检查收敛、计时和最终局域磁矩；两态拟合 J，四原子同序仅作折叠对照，塌缩的 stripe4 排除关联和残差。输出能量、原子数、键关联和、局域矩及残差 CSV，不从单个 J 生成温度或 Tc 数据。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。先从真实 POSCAR 枚举周期唯一最近邻键并输出键表，注明单位向量模型 H=NEref-J*sum(e_i·e_j)。读取 fm2/afm2/fm4/neel4/stripe4 的 INCAR、POSCAR、KPOINTS、POTCAR.identity.txt 与 OUTCAR，检查输入协议、网格密度、电子收敛、计时和最终局域磁矩；两态拟合 J，四原子同序仅作折叠对照，塌缩的 stripe4 排除关联和残差。输出能量、原子数、键关联和、局域矩及残差 CSV，先写 bonds-summary.json，再写 exchange-summary.json，另用导出脚本生成两份 CSV。拟合态若缺少收敛/计时记录、局域磁矩绝对值低于本例检查阈值 0.1 μB、逐原子符号改变，或输入协议不匹配，就报错退出。stripe4 以关闭幅值检查的方式单独读取，作为已排除的诊断记录；不由单个 J 生成温度或 Tc 数据。
 ```
 
 [fit_two_states.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_two_states.py) · [export_exchange_table.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/export_exchange_table.py) · [enumerate_bonds.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/enumerate_bonds.py) · [fit_exchange.py 完整源码](/Atlas/examples/interface-magnet-exchange-j/fit_exchange.py)

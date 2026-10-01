@@ -1,3 +1,3 @@
 quantity,value_eV,meaning,scope
-"CBM(SnSe2, lower-z) - EF(Sr2N, upper-z)",-2.282607260,vacuum-referenced isolated-layer edge offset,"Frozen isolated layers, scalar nonmagnetic PBE-D2; not an interface barrier"
-"EF(Sr2N, upper-z) - VBM(SnSe2, lower-z)",2.560710260,vacuum-referenced isolated-layer edge offset,"Frozen isolated layers, scalar nonmagnetic PBE-D2; not an interface barrier"
+"CBM(SnSe2, lower-z) - EF(Sr2N, upper-z)",-2.282607260,vacuum-referenced isolated-layer edge offset,"Frozen isolated layers, scalar nonmagnetic PBE-D3 (zero damping); not an interface barrier"
+"EF(Sr2N, upper-z) - VBM(SnSe2, lower-z)",2.560710260,vacuum-referenced isolated-layer edge offset,"Frozen isolated layers, scalar nonmagnetic PBE-D3 (zero damping); not an interface barrier"

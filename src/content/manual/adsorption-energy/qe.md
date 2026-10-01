@@ -503,6 +503,8 @@ Eads (eV/H) = [E(Al3H2) − E(Al3) − E(H2)] × 13.605693122994 / 2
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
 
+从原始输出运行 `analyse_adsorption.py` 和后面的 `analyse_refinement.py` 需要 Python 3 与 NumPy；后面的独立表格复核器 `review_al111_adsorption.py` 读取已提取的 CSV，只用 Python 标准库。
+
 实际解析命令会同时核对元素个数、两个表面的同胞关系、PBE/自旋/截断/展宽、最终力、OUT 与 XML 的总能一致性，以及各组检查中内部几何是否保持不变：
 
 ```console
@@ -522,7 +524,9 @@ Comparison completed for the named finite model; untested model dimensions remai
 [preston@preston-System-Product-Name h-al111-adsorption]$
 ```
 
-[独立表格复核脚本](/Atlas/examples/thermo-postprocessing/adsorption/review_al111_adsorption.py)读取同目录提供的 [energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/energy-table.csv)、[adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/adsorption-energy.csv)、[refined-energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-energy-table.csv)、[refined-adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-adsorption-energy.csv) 与 [refined-force-check.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-force-check.csv)，重算三能差并交叉核对原有协议汇总及力阈值标记。复核产物包括[协议对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.csv)、[力对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv)和[文字报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)。把这些文件放在同一目录，按下方完整脚本后的命令运行；脚本只使用 Python 标准库。
+[独立表格复核脚本](/Atlas/examples/thermo-postprocessing/adsorption/review_al111_adsorption.py) 读取 [energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/energy-table.csv)、[adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/adsorption-energy.csv)、[refined-energy-table.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-energy-table.csv)、[refined-adsorption-energy.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-adsorption-energy.csv) 与 [refined-force-check.csv](/Atlas/examples/thermo-postprocessing/adsorption/refined-force-check.csv)，按每组洁净表面、吸附态和 H₂ 的配对关系重算三能差，并单独检查力阈值。将上述五份 CSV 与脚本放在同一目录，按下方完整源码后的命令运行；脚本只使用 Python 标准库。
+
+输出包括 [协议对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.csv)、[力对照 CSV](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-refined-force-review.csv) 和 [文字报告](/Atlas/examples/thermo-postprocessing/adsorption/review/al111-h-adsorption-review.md)。下表列出前三项参数对照：
 
 | 参数变化 | Eads (eV/H) | 相对 k6 (meV/H) | 本例 10 meV/H 比较线 |
 | --- | ---: | ---: | --- |
@@ -614,7 +618,7 @@ Comparison completed for the named finite model; untested model dimensions remai
 | clean-k12-relax | 0.00013632 | 150.90 |
 | ads-k12-relax | 0.00000845 | 195.38 |
 
-两份结构都达到了本次 BFGS 条件。然后把这组新坐标分别写进 16×16×1 的静态输入；它们与各自 12 网格父结构的晶胞、原子顺序和坐标逐项相同。这一轮才是在同一组更密网格优化几何上检验 12→16。输入为 [clean-k16/scf.in](/Atlas/examples/h-al111-adsorption/clean-k16/scf.in) 与 [ads-k16/scf.in](/Atlas/examples/h-al111-adsorption/ads-k16/scf.in)。原始力行没有因电子收敛而变成零：
+两份结构都达到了本次 BFGS 条件。把各自的新坐标写进 16×16×1 静态输入，并保持晶胞、原子顺序和坐标与对应的 12 网格父结构相同，就能在固定几何下比较 12→16 的能量与力。输入为 [clean-k16/scf.in](/Atlas/examples/h-al111-adsorption/clean-k16/scf.in) 与 [ads-k16/scf.in](/Atlas/examples/h-al111-adsorption/ads-k16/scf.in)。下面读取 16 网格静态计算的力，判断这些坐标在更密网格下是否仍满足力阈值：
 
 ```console
 [preston@preston-System-Product-Name h-al111-adsorption]$ grep -n 'force =' clean-k16/scf.out
@@ -710,7 +714,7 @@ if __name__=='__main__':main()
 单独核对 clean-k16 与 ads-k16 的最大力和 refined-force-check.csv，沿用 2e-4 Ry/Bohr 力阈值与 10 meV/H 能量比较线；k16 是 k12 优化几何上的静态计算。支持 --outdir，写出 al111-h-adsorption-review.csv、al111-h-refined-force-review.csv、al111-h-adsorption-review.md。报告 k6→k8 的 13.072091 meV/H、k12→k16 的 5.356413 meV/H 和两结构的力判断。不要绘图；正值解释为相对洁净薄膜+气相 H2 的电子能量升高。
 ~~~
 
-完整源码如下，与上面的下载文件相同。保存为 `review_al111_adsorption.py`，和所需 CSV 放在同一目录。
+完整源码如下，与上面的下载文件相同。保存为 `review_al111_adsorption.py`，与前面列出的五份 CSV 放在同一目录；运行命令见源码后。
 
 <details>
 <summary>review_al111_adsorption.py 完整源码</summary>
@@ -949,7 +953,7 @@ k12_to_k16_change=+5.356413 meV/H (within selected 10 meV/H line)
 force_limit=2.0e-04 Ry/Bohr clean=0.00252060 ads=0.00166686
 ```
 
-k6→k8 的能量变化超出比较线；k12→k16 的能量变化在线内，但两结构的最大力均超出力阈值。后处理与前面的原始输出给出相同判断，接下来应继续处理密网格下的几何。
+k6→k8 的能量变化超出比较线；k12→k16 的能量变化在线内，但两结构的最大力均超出力阈值。下一步应在 16×16×1 网格下继续弛豫洁净与吸附结构，再以匹配设置成对重算吸附能并检查可移动原子的力。
 
 ## 文献方法与吸附能参考态
 
@@ -957,7 +961,7 @@ Kocabas 等人研究 electrene 材料上的 Li 储存，在 2×2×1 超胞中采
 
 本页采用解离 H₂ 参考：洁净 Al(111) 薄膜、对称放置的两个吸附 H，以及独立 H₂。参考能与 Kocabas 等人的原子吸附定义不同；本例当前也只覆盖一个指定顶位构型。两者的吸附能数值不作横向比较，本例没有计算位点排序或 NEB 势垒。
 
-继续计算时，可先在更密表面采样下优化洁净与吸附几何，再用匹配设置复核能量差和自由原子力；随后比较薄膜层数、覆盖度与其他吸附位点。若目标是 H₂ 到达吸附态的路径，应另建初态、终态与中间构型并计算 NEB 势垒。当前结果是非磁性 PBE 电子能量差；零点能和温度项需要独立计算。
+继续计算时，可先在更密表面采样下优化洁净与吸附几何，再用匹配设置复核能量差和可移动原子的力；随后比较薄膜层数、覆盖度与其他吸附位点。若目标是 H₂ 到达吸附态的路径，应另建初态、终态与中间构型并计算 NEB 势垒。当前结果是非磁性 PBE 电子能量差；零点能和温度项需要独立计算。
 
 ```text
 同一表面晶胞 → 洁净基底优化 ─┐

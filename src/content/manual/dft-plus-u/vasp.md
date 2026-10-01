@@ -1,4 +1,4 @@
-这份 VGe₂P₄ 静态计算给 V 的 d 轨道加了 U。先把元素顺序、U 的作用轨道和程序实际采用的参数连起来，再看电子迭代有没有结束。这里使用已有的完整输入与 OUTCAR；U = 3 eV 是这份算例的选择，不能仅凭计算收敛就推广给其他结构或其他材料。
+本页读取 VGe₂P₄ 的一份静态 DFT+U 计算。Dudarev 形式实际使用 Ueff=U−J；此例给 V 的 d 轨道设置 Ueff=3 eV。先对齐元素顺序、轨道与程序读入的参数，再检查电子迭代和输出。这里使用保存的输入与 OUTCAR，不把该 Ueff 值当作其他结构或材料的通用选择。
 
 [下载本例的输入与原始输出](/Atlas/examples/interface-magnet-dft-plus-u/example-pack.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
 
@@ -60,7 +60,7 @@ Gamma
   18  18   1
 0.0  0.0  0.0
 ```
-这次固定结构 SCF 使用 Γ 中心 18 × 18 × 1 网格。拿它与不加 U 的结果比较时，还需保留相同结构、赝势、截断能、展宽和 k 网格；不同设置下的能量不能直接归因于 U。
+这次固定结构 SCF 使用 Γ 中心 18 × 18 × 1 网格。若要检查 U 对带隙、磁矩等量的影响，应在不加 U 的对照中保留相同结构、赝势、截断能、展宽和 k 网格。比较磁态能量则仍按上一段所述，在同一 U 下进行。
 
 ## 读取实际参数和电子收敛结果
 
@@ -171,7 +171,7 @@ DAV:  31    -0.340993033925E+02   -0.69305E-06   -0.34108E-08  9520   0.662E-04
 汇总脚本把 POSCAR 的元素顺序与 OUTCAR 的 U 参数回显对应起来，读取实际 LMAXMIX、LORBIT、最终能量和总磁矩，输出一行结果及参数记录。可以把这些读取规则写成下面的请求：
 
 ```text
-请编写 Python 3 独立后处理程序。读取当前目录 POSCAR、INCAR、KPOINTS、OUTCAR、OSZICAR。按 V Ge P 顺序核对 Dudarev l/U/J 回显，从实际 OUTCAR 提取 LMAXMIX、LORBIT、F、E0、Efermi，OSZICAR 提取电子步数和最终总磁矩。检查 EDIFF 和计时段，保留单位与输入 SHA256，输出 JSON/CSV。缺失数据明确报错；仅报告 Ueff=3 eV 单点记录，不把 SCF 残差或无序 EIGENVAL 散点当作 U 效应。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
+请编写 Python 3 独立后处理程序。读取脚本所在目录的 POSCAR、OUTCAR、OSZICAR；INCAR、KPOINTS 和 EIGENVAL 还需存在，用于记录输入输出哈希。按 V Ge P 顺序核对 Dudarev l/U/J 回显，从实际 OUTCAR 提取 LMAXMIX、LORBIT、F、E0、Efermi，OSZICAR 提取电子步数和最终总磁矩。检查 EDIFF 和计时段，保留单位与输入 SHA256，输出 JSON/CSV。缺失数据明确报错；仅报告 Ueff=3 eV 单点记录，不把 SCF 残差或无序 EIGENVAL 散点当作 U 效应。 缺少文件、格式或非有限数值时明确失败，不猜值、不补零。脚本写入分析结果，保留原始计算文件。
 ```
 
 [summarize_dftu.py 完整源码](/Atlas/examples/interface-magnet-dft-plus-u/summarize_dftu.py)

@@ -1,4 +1,4 @@
-金刚石中，每个 C 原子有四个最近邻。本次从两原子原胞出发，计算这四条 C–C 键的 pCOHP，并检查把 k 网格和波函数截断提高后，每条键的积分值变了多少。先看实际生成了哪些键，再看它们在哪些能量范围呈现成键、反键贡献。
+COHP 将能带能量的贡献分解到选定的原子对，用来观察不同能区的成键与反键特征。本页从金刚石两原子原胞出发，计算四条最近邻 C–C 键的 pCOHP，并比较 k 网格和截断能对积分值的影响。先确认实际输出的是哪些周期键，再读谱和积分；符号约定与投影质量也随结果一起检查。
 
 - [Quantum ESPRESSO 7.5：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 - [LOBSTER 官方页面、下载与配套手册](https://www.cohp.de/)
@@ -613,7 +613,7 @@ k10 同样建立独立目录，改成 `10 10 10 0 0 0`；最后一组仍用 k10�
 
 ![相同几何、PAW、基组与积分设置下的 ICOHP 对照](/Atlas/figures/cohp-diamond/cohp-comparison.png)
 
-三个变化都小于本次比较线，说明最近邻 ICOHP 在所测试的 k 网格与 60→80 Ry 波函数截断范围内，对这些设置不敏感。比较保持密度截断 640 Ry、Gaussian 展宽 0.2 eV 和固定几何；空态总 spilling 约为 9.26%，因此高能空态谱还需另行检查。
+三个变化都小于本次比较线，说明最近邻 ICOHP 在所测试的 k 网格与 60→80 Ry 波函数截断范围内，对这些设置不敏感。比较保持密度截断 640 Ry、Gaussian 展宽 0.2 eV 和固定几何；涵盖所保留全部能带的 total spilling 约为 9.26%，因此高能空态谱还需另行检查。
 
 ## 从原始文件重画并导出论文用图
 
@@ -624,7 +624,7 @@ k10 同样建立独立目录，改成 `10 10 10 0 0 0`；最后一组仍用 k10�
 下面的需求说明可复制给 AI 编程助手，用真实输出复现上述三张图：
 
 ```text
-用Python 3、NumPy与Matplotlib读取本例各目录COHPCAR.lobster、ICOHPLIST.lobster、lobsterout和QE XML，不运行QE或LOBSTER。先检查文件能量点数、列布局、自旋约定、四条最近邻C-C键及晶格平移；从XML与ICOHPLIST重建键向量、距离和周期像。按原生COHPCAR已相对EF的能量轴画-pCOHP，零点0 eV，横纵轴标单位，逐键区分；占据区累计曲线与原生ICOHP符号一致，并独立核验0 eV端点。第二组比较只采用同一几何、PAW、Bunge C2s/2p、积分与展宽设定下的k网格/截断对照；不可把三个库名当作三个独立基组收敛。保留charge/total spilling和每键ICOHP数值，输出PNG/PDF及plot-checks.json。不可从文献抄数或增加无原始文件材料曲线。命令python3 plot_cohp.py，源码读入只读，结果写figures目录；论文PDF宽183mm并检查字体嵌入。
+用Python 3、NumPy与Matplotlib读取本例各目录COHPCAR.lobster、ICOHPLIST.lobster、lobsterout和QE XML，不运行QE或LOBSTER。先检查文件能量点数、列布局、自旋约定、四条最近邻C-C键及晶格平移；从XML与ICOHPLIST重建键向量、距离和周期像。按原生COHPCAR已相对EF的能量轴画-pCOHP，零点0 eV，横纵轴标单位，画四条等价近邻键的平均谱和平均累计曲线；累计曲线与原生ICOHP符号一致，并独立核验0 eV端点。逐键ICOHP、周期平移与距离检查保留在plot-checks.json中。第二组比较只采用同一几何、PAW、Bunge C2s/2p、积分与展宽设定下的k网格/截断对照；不可把三个库名当作三个独立基组收敛。保留charge/total spilling和每键ICOHP数值，输出PNG/PDF及plot-checks.json。不可从文献抄数或增加无原始文件材料曲线。命令python3 plot_cohp.py，源码读入只读，结果写figures目录；论文PDF宽183mm并检查字体嵌入。
 ```
 
 完整脚本可单独下载：[plot_cohp.py](/Atlas/examples/diamond-cohp/plot_cohp.py)。一般的轴标、图例、配色与矢量导出操作见[科研图的后处理与导出](/Atlas/plotting/)。

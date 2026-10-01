@@ -72,7 +72,7 @@ export const methodTeaching = {
     ]
   },
   "phonon-dfpt": {
-    "overview": "通过电子和离子的一阶响应得到动力学矩阵，再连接频率、位移与声子色散。",
+    "overview": "由原子位移扰动引起的电子线性响应和力的变化构造动力学矩阵，再求频率、位移与声子色散。",
     "aliases": [
       "DFPT",
       "ph.x",
@@ -455,7 +455,7 @@ export const manualTeaching = {
   "allen-dynes/qe": {
     "title": "Al 双致密网格 Tc 估算对照",
     "kind": "DFT",
-    "summary": "读取 32³ 与 48³ 致密电子网格各自的谱矩和 Tc 表，比较电子展宽曲线与交点。",
+    "summary": "读取 32³ 与 48³ 两条计算链的谱矩和 Tc 表，按相同电子展宽配对求交，再比较 λ、ωlog 与 μ* 的影响。",
     "inputs": [
       {
         "method": "epc",
@@ -470,13 +470,13 @@ export const manualTeaching = {
       "lambda.in",
       "lambda.dat",
       "paired-tc.csv",
-      "crossings.csv"
+      "crossings.json"
     ]
   },
   "anharmonic-sscha/mace": {
     "title": "Si 有限温度有效二阶力常数拟合",
     "kind": "机器学习势",
-    "summary": "用 MACE 轨迹中的位移和力拟合二阶力常数，再由 symfc 与 phonopy 求频率并比较样本数；采用有效力常数路线。",
+    "summary": "从 MACE 轨迹中提取位移与力，用 symfc 拟合有效二阶力常数，再由 phonopy 比较不同样本数下的频率。",
     "inputs": [
       {
         "method": "vc-relax",
@@ -502,7 +502,7 @@ export const manualTeaching = {
   "bader/vasp": {
     "title": "bcc Fe 的 Bader 盆地电荷",
     "kind": "DFT",
-    "summary": "用共线 FM Fe 的 CHGCAR 和全电子参考密度划分盆地，比较 96³ 与 192³ 细网格及整胞积分。",
+    "summary": "用共线 FM Fe 的 CHGCAR 和全电子参考密度划分盆地，比较包含 96³ 与 192³ 细网格的两套实空间设置及整胞积分。",
     "inputs": [
       {
         "method": "magnetic-gs",
@@ -1259,7 +1259,7 @@ export const manualTeaching = {
   "relax/qe": {
     "title": "固定 Si 晶胞的位移恢复",
     "kind": "DFT",
-    "summary": "固定第一个原子和晶胞，优化第二个原子的 x 位移，读取实际 BFGS 轨迹和最后力。",
+    "summary": "固定第一个原子和晶胞，从第二个原子的 x 向位移出发进行位置优化，读取 BFGS 轨迹和末态力。",
     "inputs": [],
     "related": [
       "scf",

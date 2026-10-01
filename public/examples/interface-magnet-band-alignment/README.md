@@ -2,6 +2,8 @@
 
 This evidence package stages two fixed-geometry, scalar nonmagnetic VASP SCF outputs and the scripts used to inspect them. It contains no POTCAR payload. Each `POTCAR.identity.txt` contains only dataset titles, valence counts, and a SHA-256 identity.
 
+Protocol: scalar nonmagnetic PBE-D3 (zero damping), as specified by `GGA = PE` and `IVDW = 11` in both original INCAR files. VASP supports this D3 setting from version 5.3.4; these outputs were produced by VASP 5.4.4. Official definition: https://vasp.at/wiki/IVDW . The protocol label in the analysis source and derived JSON/CSV is synchronized here; the original inputs, outputs and all numerical results are unchanged.
+
 ## Analysis logic
 
 1. Check that the two layer POSCARs preserve the shared in-plane cell and their intended rigid-layer shifts from the six-atom reference.

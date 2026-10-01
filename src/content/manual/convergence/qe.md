@@ -1,8 +1,8 @@
 ## 跑过一次 SCF，再比较截断能和 k 网格
 
-先读[Si 的固定结构 SCF](/Atlas/m/scf/qe/)，认识输入、电子迭代和最后总能量。现在把同一结构算几遍，每次只改变一个数值参数，看总能量怎样变化。
+[Si 的固定结构 SCF](/Atlas/m/scf/qe/)介绍了一份输入怎样完成电子自洽。接下来保持结构和计算模型不变，分别改变截断能与 k 网格，比较总能量的变化。这样可以区分一次电子迭代是否收敛，以及有限基组和有限采样是否足以满足计算目的。
 
-先在一个算得快、结果容易核对的结构上看参数到底改了什么。这里用两个 Si 原子的金刚石原胞，晶格取自 QE 官方例子的 `celldm(1)=10.20 bohr`，换算为 `A=5.397607551 Å`。赝势改用公开库的 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。下面在这个固定晶胞内比较 PBE 总能量对三个数值参数的响应。
+算例仍采用两个原子的金刚石 Si 原胞，常规立方晶格参数为 10.20 bohr（5.397607551 Å），使用 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。晶胞在所有对照中固定；本页比较的是这一模型的总能量，不涉及平衡晶格的搜索。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
 
@@ -58,7 +58,7 @@ K_POINTS automatic
 
 `ecutwfc=60` 和 `ecutrho=640` 都以 Ry 为单位：前者限制波函数的平面波基组，后者控制电荷密度与势的表示，超软赝势的增广电荷也在其中。增大它们通常会增加平面波或 FFT 网格及计算开销，所以先分开比较，才知道计算量花在哪一项上。`conv_thr=1.0d-10` 控制本次电子自洽的估计能量误差；即使一次 SCF 已满足这个阈值，改用更密的 k 网格仍然可能改变总能量。`occupations='fixed'` 对应本例的非磁性半导体设置。最后三个零表示这份均匀网格没有半格位移；后面比较网格时也保持这一约定。
 
-做一个截断能对照时，实际操作是复制输入，再用 `vi` 改那一个数。例如 `cutoff40/scf.in` 把 `ecutwfc` 改成 40，保留 `ecutrho=640` 和 `8 8 8 0 0 0`。这样横轴才只有一个变量。这里没有把 `ecutrho` 同时设成波函数截断的某个固定倍数，否则能量变化会混入两个来源。完整文件可直接核对：[40 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff40/scf.in)、[80 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff80/scf.in)。
+做一个新的截断能对照时，先在 `si-pbe` 下建立独立目录（如 `mkdir cutoff40`），再复制输入和提交脚本，用 `vi` 只改截断能。下载包中的这些目录已有原始结果，复算时另建目录。例如 `cutoff40/scf.in` 把 `ecutwfc` 改成 40，保留 `ecutrho=640` 和 `8 8 8 0 0 0`。这样横轴才只有一个变量。这里没有把 `ecutrho` 同时设成波函数截断的某个固定倍数，否则能量变化会混入两个来源。完整文件可直接核对：[40 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff40/scf.in)、[80 Ry 输入](/Atlas/examples/basics-si-convergence/si-pbe/cutoff80/scf.in)。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ cp scf/scf.in scf/run.sh cutoff40/
@@ -227,7 +227,7 @@ Submitted batch job 783
 ```
 
 
-输出出现 `convergence has been achieved` 后，带感叹号的总能量才是这次 SCF 要收集的值。这里还会给出分项能量和力；一份完整 OUT 不只有一列最终数字。
+提取带感叹号的最终总能量时，同时核对相邻的 `convergence has been achieved` 信息和末轮误差。这里还会给出分项能量和力；一份完整 OUT 不只有一列最终数字。
 
 ```text
 [preston@preston-System-Product-Name si-pbe]$ grep -A20 '!    total energy' scf/scf.out
@@ -360,7 +360,7 @@ k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1
 
 ## 从原始文件重新生成表格
 
-完整脚本 [analyze_si_convergence.py](/Atlas/examples/basics-si-convergence/analyze_si_convergence.py)读取每个目录的 `scf.in`、`scf.out` 和 `scf.err`，先核对 [原始文件校验和](/Atlas/examples/basics-si-convergence/SHA256SUMS.raw)，再检查原子数、截断回显、QE 版本、SCF 收敛与结束标志。它按数字排序扫描点，并核对每组其余输入相同；`scf`、`cutoff60`、`k8` 的等效设置在同一组中只计一次。
+完整脚本 [analyze_si_convergence.py](/Atlas/examples/basics-si-convergence/analyze_si_convergence.py)读取每个目录的 `scf.in`、`scf.out` 和 `scf.err`，先核对 [原始文件校验和](/Atlas/examples/basics-si-convergence/SHA256SUMS.raw)，再检查原子数、截断回显、QE 版本、SCF 收敛与结束标志。它按源码 `AXES` 中列出的递增顺序整理这三组扫描，并核对每组其余输入相同；`scf`、`cutoff60`、`k8` 的等效设置在同一组中只计一次。
 
 <details>
 <summary>analyze_si_convergence.py 的完整源码</summary>

@@ -168,7 +168,7 @@ cat matdyn-dos32.err
 解包本页开头的 Al 算例并保留目录结构，在 `al` 目录运行[绘图脚本](/Atlas/examples/al/plot_phdos.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/al/atlas_plot_style.py)）。脚本从 `dfpt/al.phdos.dat` 和 `dfpt/al.phdos32.dat` 读取 24³、32³ 两份数据；[单独下载的原始 DOS 数据](/Atlas/examples/al/dfpt/al.phdos.dat)也应放回对应的 `dfpt` 子目录。它先输出积分再画曲线，这样能发现列读错、单位弄错或数据截断的问题。
 
 
-后处理的输入字段和单位已经确定，可以用下面的说明让 AI 编程助手写出脚本：
+绘图脚本读取两份总 DOS，先按频率列积分并与单原子原胞的 3 个振动自由度比较，再叠画 24³ 与 32³ 积分网格的结果。下面的需求对应这一步：
 
 ```text
 编写 plot_phdos.py，从 Al 根目录读取 dfpt/al.phdos.dat 与 dfpt/al.phdos32.dat，比较 24³ 和 32³ 后处理积分网格。第一列频率单位 cm⁻¹，第二列总 DOS 单位 states/(cm⁻¹)；用梯形积分打印原始积分，与单原子原胞的 3 个模式比较，不强制归一化。以真实频率列画 DOS 曲线、标单位和网格，输出 figures/phdos.png 与 PDF，复用 atlas_plot_style.py。
@@ -223,11 +223,11 @@ python3 plot_phdos.py
 
 在 **`ZrCl₂/Sc₂C`**（[完整计算记录](/Atlas/m/epc/qe/#zrcl2-sc2c-k64-k96-record)，使用 `nk1=48, nk2=48, nk3=1` 插值网格生成 [`zrclscc.phdos`](/Atlas/examples/zrcl2-sc2c/ph64/zrclscc.phdos)）与 **`SnSe₂/Sr₂N`**（[`srnsnse.phdos`](/Atlas/examples/snse2-sr2n/ph64/srnsnse.phdos)）中，将同种元素的原子列相加（如 `Cl = site 3 + site 4`，`Sc = site 5 + site 6`），并将 PHDOS 旋转为**水平图（X 轴为 PHDOS，Y 轴为频率 ω）**与左侧声子色散共享纵轴：
 
-<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨水平 PHDOS 与 Eliashberg 谱函数联立图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的原子分辨 PHDOS（中面板）与声子色散（左面板）、Eliashberg α<sup>2</sup>F(ω)（右面板）共享频率纵轴（0–18 THz）。中面板显示 Zr、Sc、Cl 振动分布在 0–10.11 THz，而轻原子 C 独占 12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz）的高频光学带。</figcaption></figure>
+<figure><img src="/Atlas/figures/zrcl2-sc2c/zrcl2-sc2c-phonon-epc.png" alt="ZrCl₂/Sc₂C 的声子色散、原子分辨水平 PHDOS 与 Eliashberg 谱函数联立图" loading="lazy"/><figcaption>ZrCl₂/Sc₂C 的原子分辨 PHDOS（中面板）与声子色散（左面板）、Eliashberg α<sup>2</sup>F(ω)（右面板）共享频率纵轴（0–18 THz）。中面板显示 Zr、Sc、Cl 振动分布在 0–10.11 THz，12.49–17.11 THz（原始 DFPT 网格为 12.38–17.11 THz）的高频光学带以 C 原子位移为主。</figcaption></figure>
 
 这种“左色散 + 中水平 PHDOS”的共享纵轴排版比单独画一张横置 PHDOS 图多传递两层关键信息：
 1. **比较色散与态密度的频段**：共享频率轴便于判断 PHDOS 峰附近有哪些近乎平坦的分支及原子贡献。PHDOS 对整个布里渊区积分，高对称路径只取部分 q 点；要确定峰来自哪个鞍点，还需检查该频段的完整 q 网格或等频分布。
-2. **轻重元素频段分离与积分上限核验**：在 `ZrCl₂/Sc₂C` 中，`Zr/Sc/Cl` 分支位于 `0–10.11 THz`（直接 DFPT 网格为 `0–10.02 THz`），经 `10.11–12.49 THz` 的声子带隙后，`C` 原子（锈红）贡献完全落在 `12.49–17.11 THz`（直接 DFPT 网格为 `12.38–17.11 THz`）；在 `SnSe₂/Sr₂N` 中，恢复 `M_N = 14.007` 后的 `N` 原子（锈红）高频光学支从错误质量下的 `4.49–6.70 THz` 移至 `7.99–11.94 THz`（已绘路径范围 `7.42–11.94 THz`）。这为设定 `lambda.x` 的频率积分上限 `emax` 提供了直接依据。
+2. **轻重元素频段分离与积分上限核验**：在 `ZrCl₂/Sc₂C` 中，`Zr/Sc/Cl` 分支位于 `0–10.11 THz`（直接 DFPT 网格为 `0–10.02 THz`），经 `10.11–12.49 THz` 的声子带隙后，以 `C` 原子位移为主的高频分支位于 `12.49–17.11 THz`（直接 DFPT 网格为 `12.38–17.11 THz`）；在 `SnSe₂/Sr₂N` 中，恢复 `M_N = 14.007` 后的 `N` 原子（锈红）高频光学支从错误质量下的 `4.49–6.70 THz` 移至 `7.99–11.94 THz`（已绘路径范围 `7.42–11.94 THz`）。这为设定 `lambda.x` 的频率积分上限 `emax` 提供了直接依据。
 
 ## 文献中的声子态密度（PHDOS）与色散对照图例（附 DOI 溯源）
 
@@ -237,13 +237,13 @@ python3 plot_phdos.py
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="四种二维过渡金属碳氮化物在有无自旋轨道耦合及应变调控下的声子色散与元素分辨 PHDOS 对比图" loading="lazy"/><figcaption>四个子面板 (a)–(d) 依次展示 Mo<sub>2</sub>C、Mo<sub>2</sub>N、W<sub>2</sub>C 及 4% 双轴应变 W<sub>2</sub>N 在不含自旋轨道耦合（红虚线）与含自旋轨道耦合（蓝实线）下的声子色散及右侧共享频率轴的元素分辨 PHDOS；子面板 (d) 同时以绿色点线（标有 <code>CDW &lt;-</code>）叠绘未应变 W<sub>2</sub>N 在 M 点的电荷密度波软模虚频支。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-- **数据组织要点**：每个子面板将声子色散与右侧的元素投影 PHDOS 紧邻拼接并共用频率纵轴（隐藏右侧重复的 Y 轴刻度标签），直观呈现过渡金属（Mo/W）占据低频声学区、轻元素（C/N）占据高频光学区的频段分离，同时对比自旋轨道耦合（SOC）与双轴应变对 M 点声学软模的调控。
+每个子面板将声子色散与右侧的元素投影 PHDOS 紧邻拼接并共用频率纵轴（隐藏右侧重复的 Y 轴刻度标签），直观呈现过渡金属（Mo/W）占据低频声学区、轻元素（C/N）占据高频光学区的频段分离，同时对比自旋轨道耦合（SOC）与双轴应变对 M 点声学软模的调控。
 
 ### 2. 声子色散、模式耦合强度、元素分辨 PHDOS 与 Eliashberg α²F(ω) 多面板并列
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_5Panel_FatPhonon_PHDOS_a2F_BZ_hAlH2_Jiang_Fig3.jpg" alt="二维 h-AlH₂ 的振动方向投影色散、模式电声耦合常数、元素分辨 PHDOS、Eliashberg 谱函数与布里渊区耦合分布五面板图" loading="lazy"/><figcaption>二维金属氢化物 h-AlH<sub>2</sub> 的五面板组合图：(a) 振动方向与原子投影声子色散，(b) 模式分辨电声耦合强度 λ<sub>qν</sub>，(c) Al 与 H 的分波声子态密度 PHDOS，(d) Eliashberg 谱函数 α<sup>2</sup>F(ω) 与累计 λ(ω)，以及 (e) 二维布里渊区中的 λ(q) 分布。图片来源：Jiang et al., <em>Phys. Status Solidi RRL</em> <strong>18</strong>, 2300417 (2024)，<a href="https://doi.org/10.1002/pssr.202300417" target="_blank" rel="noopener noreferrer">DOI: 10.1002/pssr.202300417</a>。</figcaption></figure>
 
-- **数据组织要点**：把 `PHDOS(ω)` 放在声子色散与 `α²F(ω)` 之间并共享频率纵轴，可以直接对比某频段内的声子态密度峰值与电声耦合谱函数峰值，区分态密度基数贡献与电声矩阵元贡献。
+把 PHDOS 与 α²F 放在共同频率轴上，可以比较声子态数与耦合加权谱的差别。不过 α²F 还包含电子态的散射相空间和矩阵元权重；仅凭两条曲线的峰值对应，不能唯一分解各项贡献。解释具体频段时应继续检查逐 q、逐模的耦合与原子位移。
 
 下一步可以回到 [声子色散](/Atlas/m/phonon-dfpt/qe/) 对照峰主要来自哪些近乎平坦的声子支，也可以到 [虚频排查](/Atlas/m/imaginary-phonon/qe/) 检查低频端的残差。
 

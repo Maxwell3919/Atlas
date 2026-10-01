@@ -1,6 +1,6 @@
 能带图沿一条路径画出电子能量。费米面则在整个三维倒空间里寻找满足 Eₙ(k)=E_F 的位置：一条能带可以贡献一个电子口袋、一个空穴口袋，也可能穿过倒空间单元的边界。只沿高对称线做一次能带计算，没有足够信息画这张面。
 
-这里使用新计算的 fcc Al。结构、赝势与父 SCF 沿用 [Al 声子示例](/Atlas/m/phonon-dfpt/qe/)，QE 7.5、LDA-PZ、无自旋极化和 SOC。[SCF](/Atlas/m/scf/qe/) 与 [NSCF](/Atlas/m/nscf/qe/) 页可用于对照输入读法和接续方式；本次在 Al 自己的密度上求整个均匀网格的本征值，不能复制那些 Si 例程的保存目录。下面只展开费米面需要额外核对的部分。
+本例采用 fcc Al，结构与父 SCF 的准备见 [Al 声子算例](/Atlas/m/phonon-dfpt/qe/)。计算使用 QE 7.5、LDA-PZ，不含自旋极化与 SOC；随后在完整均匀网格上求本征值，寻找与费米能相交的等能面。SCF 与 NSCF 的一般操作可以参考入门页，但保存目录必须由这套 Al 输入生成。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [Plotly 的三维等值面](https://plotly.com/python/3d-isosurface-plots/)
 
@@ -66,7 +66,7 @@ maxwell@maxwell:~/al/fermi/k32-cg$ grep "not converged" ../k24/al.nscf.out
      c_bands:  1 eigenvalues not converged
      c_bands:  1 eigenvalues not converged
 ```
-这些提示表明部分本征值尚未达到求解阈值。默认非自洽本征值阈值与 `conv_thr`、电子数有关；本例把 SCF 阈值直接继承到 NSCF 后过于紧。我们保留原来的 `k24`、`k32` 目录，在新目录明确设置 CG 求解、1.0×10⁻⁹ Ry 的本征值阈值、空带同精度以及最大迭代数，再完整重算 SCF→NSCF。
+这些提示表明部分本征值尚未达到求解阈值。默认非自洽本征值阈值与 `conv_thr`、电子数有关；原计算在继承的设置下未达到本征值求解阈值；仅凭这条警告不能判断是阈值选择、迭代上限还是求解器造成了困难。我们保留原来的 `k24`、`k32` 目录，在新目录明确设置 CG 求解、1.0×10⁻⁹ Ry 的本征值阈值、空带同精度以及最大迭代数，再完整重算 SCF→NSCF。
 
 ```console
 maxwell@maxwell:~/al/fermi/k32-cg$ diff ../k32/al.nscf.in al.nscf.in
@@ -154,9 +154,11 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 第一带在所有采样点都低于 E_F，第四带及以上高于 E_F；本次被网格直接检测到穿越零能的，是第二带和第三带。因此两张费米面分别保留带号，不能把它们叠起来后称作同一个口袋。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 重建周期点阵与提取等能面
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+等能面提取前，先将本征值恢复为完整的周期 k 点阵。下面的任务明确网格顺序、费米能来源和异常记录的处理方式。
 
 ```text
 编写 Al 完整网格费米面后处理程序，使用 Python 3、NumPy、Matplotlib 和 Plotly。
@@ -1003,13 +1005,13 @@ if __name__ == '__main__':
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_2DContour_SixSaddleVHS_In2Te2_Zolyomi2014_Fig4.jpg" alt="单层 In₂Te₂ 价带在二维六角布里渊区内的能量等高线与穿过六个鞍点的红色粗实线分界线" loading="lazy"/><figcaption>单层 In₂Te₂ 价带在二维六角第一布里渊区内的纯等高线图（Contour lines），红色粗实线标出穿过围绕 Γ 点对称分布的六个鞍点（Saddle Points）的等能分界线。图片来源：Zólyomi, Drummond, and Fal'ko, <em>Phys. Rev. B</em> <strong>89</strong>, 205426 (2014), Fig. 4，<a href="https://doi.org/10.1103/PhysRevB.89.205426" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.89.205426</a>。</figcaption></figure>
 
-- **读图与作图要点**：在二维六角第一布里渊区内绘制密集的纯等能线，并用红色粗实线高亮经过六个对称鞍点的临界等能线（Separatrix），可以清楚展示等能面从围绕 Γ 的闭合环向围绕 K 的口袋转变的 Lifshitz 拓扑边界。
+在二维六角第一布里渊区内绘制密集的纯等能线，并用红色粗实线高亮经过六个对称鞍点的临界等能线（Separatrix），可以清楚展示等能面从围绕 Γ 的闭合环向围绕 K 的口袋转变的 Lifshitz 拓扑边界。
 
 ### 2. 三维费米面、表面态计算谱与 ARPES 实验等能切面对照
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="ZrAs₂ 的三维费米面、表面态与体态计算等能切面及 ARPES 实验强度对照图" loading="lazy"/><figcaption>将第一性原理计算的费米面/等能面切面、<code>k_z</code> 色散与角分辨光电子能谱（ARPES）实验强度图并排对齐，标出表面态与体态在动量空间中的轨迹。图片来源：<em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025), Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
 
-- **读图与作图要点**：与实验 ARPES 对比时，理论计算的二维等能面切面采用与实验一致的动量坐标单位（`Å⁻¹`），将计算能带等能线与实验光电子强度分布并排或半侧叠放，便于区分体态投影与表面态贡献。
+与实验 ARPES 对比时，理论计算的二维等能面切面采用与实验一致的动量坐标单位（`Å⁻¹`），将计算能带等能线与实验光电子强度分布并排或半侧叠放，便于区分体态投影与表面态贡献。
 
 下一步到 [费米面嵌套](/Atlas/m/fermi-nesting/qe/) 看怎样将这些真实网格变成 J(q)，以及为什么几何面看起来能重合，不等于已经算出了电荷密度波或超导。
 

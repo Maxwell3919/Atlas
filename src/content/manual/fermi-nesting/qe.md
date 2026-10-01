@@ -128,9 +128,11 @@ Chen 等在 CoTe₂ 层间耦合研究中，先用 PBE DFT/DFPT 分析单层的�
 
 Al 表格给出 J(q) 对网格和 σ 的敏感性。进一步分析材料响应时，可从同一材料的能带与占据计算 Lindhard χ，再与 DFPT 声子、线宽及 EPC 对照。
 
-## 把后处理要求写成提示词
+<span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
+## 周期求和与直接计算对照
 
-上面的单位、点序和能量参考可以整理成下面的编码要求，与示例文件一起交给代码助手：
+下面将 J(q) 的周期求和、FFT 实现与直接求和对照写成后处理任务。输出要保留窗口宽度和归一化，不把几何权重改称完整响应函数。
 
 ```text
 编写 Al 几何联合权重 J(q) 分析程序，使用 Python 3、NumPy 和 Matplotlib。
@@ -250,7 +252,7 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 ## 文献中的相关图件与表达方式
 
-在研究电荷密度波（CDW）或声子软化机制时，文献常将二维费米面上的嵌套矢量箭头标注与全布里渊区电子磁化率 `χ'(q)`、嵌套函数 `χ''(q)` 及声子线宽 `γ(q)` 对照展示：
+研究电荷密度波或声子软化时，可以把费米面几何、电子电荷响应和声子线宽放在同一 q 空间中比较。下列文献的 χ′ 表示相应定义下的电子易感率；一些图将与低频耗散响应有关的嵌套量记作 χ″，其归一化和频率极限应回原文核对，不能直接当作静态 Im χ(q,0)。本页计算的 J(q) 只是前面定义的几何联合权重，不包含完整的电子响应或电子–声子矩阵元。
 
 ### 1. 单层 1L-CoTe₂ 轨道分辨费米面与嵌套波矢箭头标注
 
@@ -262,7 +264,7 @@ k=32^3 nks=32768 EF=8.38150272 eV crossing bands=[2, 3]; all grid cells assigned
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M2_Susceptibility_Nesting_Linewidth_BN2Si_Shang2026_Fig5.jpg" alt="六角单层 BN₂Si 的声子色散软模、二维布里渊区电子磁化率实部 χ'(q) 热力图、嵌套函数虚部 χ''(q) 热力图与声学支声子线宽 γ(q) 四子图横排图" loading="lazy"/><figcaption>六角单层 BN₂Si 的四子图横排对照：(a) 沿 <code>Γ–M–K–Γ</code> 含 CDW 软模的一维声子色散，(b) 二维六角布里渊区内的电子磁化率实部 <code>χ'(q)</code> 热力图，(c) 二维六角布里渊区内的费米面嵌套函数 <code>χ''(q)</code> 热力图，(d) 沿 <code>Γ–M–K–Γ</code> 的一维声学支声子线宽 <code>γ(q)</code>。图片来源：Shang et al., <em>Phys. Rev. B</em> (2026), Fig. 5，<a href="https://doi.org/10.1103/jmys-zkgs" target="_blank" rel="noopener noreferrer">DOI: 10.1103/jmys-zkgs</a>。</figcaption></figure>
 
-- **读图与作图要点**：仅凭 `q → 0` 处自相关峰很强的几何嵌套函数 `χ''(q)` 不足以判定晶格失稳；通过将沿 `Γ–M–K–Γ` 的声子色散软模（a）、二维六角布里渊区 `χ'(q)` 与 `χ''(q)` 热力图（b, c）以及声学支电声线宽 `γ(q)`（d）横排并列，可以严格区分纯几何嵌套峰值与包含电声耦合矩阵元后的真实声子软化动量位置。
+仅凭 `q → 0` 处自相关峰很强的几何嵌套函数 `χ''(q)` 不足以判定晶格失稳；通过将沿 `Γ–M–K–Γ` 的声子色散软模（a）、二维六角布里渊区 `χ'(q)` 与 `χ''(q)` 热力图（b, c）以及声学支电声线宽 `γ(q)`（d）横排并列，可以比较几何权重、电子响应和声子异常的位置是否一致。因果判断还需矩阵元与收敛对照，不能由峰位对应直接得出。
 
 下一步可以继续加密 k 网格并交叉检查窗口，或者返回 [费米面三维图](/Atlas/m/fermi-surface/qe/) 看同一个 q 实际连接哪两块面。
 
