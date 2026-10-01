@@ -1,5 +1,7 @@
 有效质量取决于带边附近的局部曲率。Si 的导带谷位于 Γ–X 之间，先由[带隙计算](/Atlas/m/band-gap/qe/)定位其附近区域，再沿谷的纵向和两个横向加密采样。拟合范围应围绕同一个极值点，不能用整条 Γ–X 能带的一条抛物线代替局部曲率。
 
+[Yates 等 Eq. (24) 与 Fig. 2](https://arxiv.org/pdf/cond-mat/0702554)给出逆质量张量与能带 Hessian 的关系，并以 Pb 比较不同求导方式。本页用 Si 谷底的直接 DFT 采样做局部抛物线拟合；纵横两个方向的曲率回答同一能谷的惯性响应如何随方向变化。迁移率还需要散射时间等信息。
+
 `mass` 使用 Si 的 `12³` 父 SCF 密度，`ecutwfc/ecutrho=60/640 Ry`，固定晶胞、PBE、无 SOC。父密度来自独立完成的 `k12/tmp/si.save`。复制后，精细采样在自己的目录中读写；`k12` 保留原样。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html)

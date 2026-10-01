@@ -2,6 +2,8 @@
 
 α²F(ω) 把声子频率与电子–声子耦合权重放在同一条谱上；对 `2α²F/ω` 积分得到 λ，对它做对数频率平均得到 ωlog。本页从 [Al EPC](/Atlas/m/epc/qe/) 的八份逐 q 文件接到这两个积分，并分别追踪 `matdyn` 与 `lambda.x` 的输出来源。
 
+同样的总 λ 可以来自不同频率的振动，因此还要看耦合权重集中在哪里。[EPW 方法论文](https://arxiv.org/abs/1604.03525)式 (12)、(62) 将逐模耦合汇总为 α²F，并用累计积分显示各频段对 λ 的贡献。本页把 Al 的逐 q 输出接成这条谱；[Bekaert 等的二维 MXene 研究](https://doi.org/10.1039/D0NR03875J)式 (1) 和图 3、4 则对照声子态密度、α²F 与累计 λ，说明振动态数量和配对权重需要分别观察。该论文使用 ABINIT 研究独立单层，材料、网格和展宽均不同于这里的 Al。
+
 下面展开 32³ 致密、16³ 响应、4³ q 网格这一完整分支。原件与脚本在 [Al 输入输出包](/Atlas/examples/al-lesson-files.tar.gz)，新增表位于 `al/tc-route/`。48³ 分支的独立计算及两条 Tc 曲线求交见 [Tc 对照](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)；两分支原件在 [双分支下载包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
 
 ## q2r / matdyn 与 lambda.x 分别留下什么

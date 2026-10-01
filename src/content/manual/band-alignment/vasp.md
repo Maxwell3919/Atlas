@@ -1,4 +1,6 @@
-把两份 OUTCAR 中的 `E-fermi` 直接画到一根能量轴上，会漏掉它们各自的能量零点。这里从一个六原子的 SnSe₂/Sr₂N 结构中拆出两层，保持共同面内晶胞，分别做固定结构 SCF；每一层都用自己的真空势换算带边或费米能，最后比较真空参考下的能级偏移。
+要比较 SnSe₂ 带边与金属 Sr₂N 的费米能，首先需要把两层的能量放到共同参考上；两份 OUTCAR 的 E-fermi 各有自己的零点。本例从六原子 SnSe₂/Sr₂N 参考结构中拆出两层，保留共同面内晶胞与层内几何，分别做固定结构 SCF，再用相向表面的真空势对齐能级。得到的偏移回答指定冻结几何下两层能级如何排列，为后续接触体系的比较提供基线。
+
+[Choudhary 等](https://arxiv.org/abs/2004.03025v2)在 Results and discussion 中先将各层 VBM、CBM 减去各自真空能级，Fig. 2 再用显式异质结构 DOS 检验单层参考，Fig. 5 展示半导体对齐类型。本例的 Sr₂N 有费米面交叉，所以比较量是 SnSe₂ 带边与金属费米能的偏移；半导体—半导体的 type-I/II/III 分类不适用于这组结果。
 
 [下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-band-alignment/example-pack.tar.gz)。包内保留两份完整 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL`，以及产生本文数字的脚本。POTCAR 仅提供标题、价电子数与哈希，需要使用自己的授权文件。平面平均与能级提取脚本可在安装 NumPy 的 Python 环境中运行；表格导出脚本只依赖 Python 标准库。
 

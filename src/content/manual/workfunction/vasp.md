@@ -1,4 +1,6 @@
-功函数按 Φ=Vvac−EF 定义，需要同一次计算的真空平台和电子化学势。本页对三原子 SnSe₂ 单层做固定结构 SCF，从 LOCPOT 求法向平面平均，再结合 OUTCAR 的 EF 与 EIGENVAL 的带边解释结果。SnSe₂ 是半导体，带隙内的 EF 还与占据约定有关，因此同时报告真空参考带边，避免把程序给出的一个 EF 当成唯一的材料常数。
+电子从一层材料移到真空参考能级需要多大能量，是比较表面电子化学势的起点。本例对三原子 SnSe₂ 单层做固定结构 SCF，按 Φ=Vvac−EF 从同一次计算的 LOCPOT 和 OUTCAR 提取功函数，并用 EIGENVAL 补充真空参考带边。SnSe₂ 是半导体，带隙内的 EF 与占据约定有关；同时给出带边，才能区分程序报告的功函数和由带边定义的电离能、电子亲和能。
+
+[VASP 功函数说明](https://vasp.at/wiki/Computing_the_work_function)给出了真空平台与费米能的取差方法。[Zhang 等的界面研究](https://doi.org/10.1039/D5CP02349A)在 Fig. 4 比较法向势和功函数，并在 Fig. 5 检查界面电荷重排。本例提取的是孤立 SnSe₂ 层的参考量，后续讨论实际接触中的电荷转移还需要接触体系的密度与势。
 
 [下载本例的输入、原始输出和分析脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)。包内有 `LOCPOT`、`CHGCAR`、`OUTCAR`、`EIGENVAL` 和本文使用的 Python 脚本；POTCAR 只附元素标题、价电子数和哈希，需从自己的授权赝势库取得对应文件。
 

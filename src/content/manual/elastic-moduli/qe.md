@@ -4,6 +4,8 @@
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
+[MechElastic 方法论文第 4 节式 (24)–(31)](https://arxiv.org/html/2012.04758)依次给出 Voigt、Reuss、Hill 平均，以及由体模量和剪切模量求 E、ν 的关系；这里把它们化简到立方 Al 的三个独立常数。[ELATE 第 2.1 节与 Fig. 1](https://arxiv.org/pdf/1602.06175)另说明单晶方向响应中施力方向与测量方向的区别，便于对照文末二维文献的极坐标图。
+
 ## 先读结果表，避免凭图抄数
 
 ```console
@@ -177,7 +179,7 @@ python3 plot_elastic.py
 
 对于各向异性显著的二维晶体，仅给出标量平均不足以描述面内不同晶向的刚度差异。研究论文常将二维弹性刚度张量 C<sub>ij</sub> 变换到面内极角 θ，用极坐标曲线同时绘出杨氏模量 E(θ)、剪切模量 G(θ) 和泊松比 ν(θ)。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向杨氏模量、剪切模量与泊松比极坐标图" loading="lazy"/><figcaption>由二维弹性刚度常数 <em>C</em><sub>ij</sub> 导出的单层 α-ZrI<sub>2</sub> 与 β-ZrI<sub>2</sub> 面内杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标图，直观呈现不同晶向的刚度差异。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="ml-alpha、ml-hex、ml-tet ZrI2 单层的面内方向杨氏模量、剪切模量与泊松比极坐标图" loading="lazy"/><figcaption>由二维弹性刚度常数 <em>C</em><sub>ij</sub> 导出的ml-alpha、ml-hex、ml-tet 三种 ZrI<sub>2</sub> 单层结构 面内杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标图，直观呈现不同晶向的刚度差异。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
 
 跨多种材料横向比较时，常采用对数坐标的 Ashby 图谱，将小应变求得的二维杨氏模量与大应变拉伸所得的理想断裂强度绘制在同一平面上，标示不同结构家族所处的刚度—强度区间。
 

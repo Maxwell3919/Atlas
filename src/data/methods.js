@@ -1,13 +1,23 @@
-// Method routes stay stable; examples and teaching metadata live in teaching.js.
+// Physical questions and actual software routes; legacy addresses remain reachable.
 export const engines = [
-  { id: 'qe', name: 'Quantum ESPRESSO' },
-  { id: 'vasp', name: 'VASP' },
-  { id: 'mace', name: 'MACE' },
-  { id: 'model', name: '数值模型（Python）' },
+  {
+    "id": "qe",
+    "name": "Quantum ESPRESSO"
+  },
+  {
+    "id": "vasp",
+    "name": "VASP"
+  },
+  {
+    "id": "mace",
+    "name": "MACE"
+  },
+  {
+    "id": "model",
+    "name": "数值模型（Python）"
+  }
 ];
 
-// 分类与类内展示顺序（目录页与全部索引的唯一顺序来源）
-// subtitle 仅存档；现有各组标题均为纯文本，各组保持同构，不渲染。
 export const categories = [
   {
     "id": "basics",
@@ -16,40 +26,44 @@ export const categories = [
       "scf",
       "convergence",
       "relax",
-      "vc-relax",
-      "nscf",
-      "strain-doping-scan"
+      "vc-relax"
     ]
   },
   {
     "id": "thermo",
-    "name": "结构能量与相稳定性",
+    "name": "形成能与相稳定性",
     "order": [
       "formation-energy",
-      "convex-hull",
-      "exfoliation-energy",
-      "adsorption-energy"
+      "convex-hull"
     ]
   },
   {
     "id": "stability",
-    "name": "声子、力学与有限温度",
+    "name": "声子与有限温度",
     "order": [
       "phonon-dfpt",
       "phonon-finite-disp",
       "imaginary-phonon",
       "phdos",
-      "elastic-born",
-      "elastic-moduli",
       "aimd",
       "mlip-md",
-      "anharmonic-sscha"
+      "temperature-effective-fc"
+    ]
+  },
+  {
+    "id": "mechanics",
+    "name": "应变与弹性",
+    "order": [
+      "strain-doping-scan",
+      "elastic-born",
+      "elastic-moduli"
     ]
   },
   {
     "id": "electronic",
     "name": "电子结构",
     "order": [
+      "nscf",
       "bands",
       "band-gap",
       "dos",
@@ -60,7 +74,8 @@ export const categories = [
       "fermi-nesting",
       "effective-mass",
       "spin-texture",
-      "wannier90"
+      "wannier90",
+      "dft-plus-u"
     ]
   },
   {
@@ -70,9 +85,29 @@ export const categories = [
       "delta-charge",
       "bader",
       "elf",
-      "electrostatic-potential",
       "cohp",
       "population-analysis"
+    ]
+  },
+  {
+    "id": "interface",
+    "name": "表面与界面",
+    "order": [
+      "heterostructure-modeling",
+      "adsorption-energy",
+      "exfoliation-energy",
+      "electrostatic-potential",
+      "workfunction",
+      "band-alignment"
+    ]
+  },
+  {
+    "id": "magnet",
+    "name": "磁性与自旋",
+    "order": [
+      "magnetic-gs",
+      "mae",
+      "exchange-j"
     ]
   },
   {
@@ -83,442 +118,833 @@ export const categories = [
       "eliashberg-a2f",
       "allen-dynes",
       "epw-eliashberg",
-      "phonon-linewidth",
-      "bkt-scaling"
-    ]
-  },
-  {
-    "id": "interface",
-    "name": "表面与界面",
-    "order": [
-      "workfunction",
-      "band-alignment",
-      "heterostructure-modeling"
-    ]
-  },
-  {
-    "id": "magnet",
-    "name": "磁性与自旋",
-    "order": [
-      "magnetic-gs",
-      "dft-plus-u",
-      "mae",
-      "exchange-j"
+      "phonon-linewidth"
     ]
   },
   {
     "id": "topo",
-    "name": "拓扑",
+    "name": "Berry 相位与拓扑",
     "order": [
       "berry-chern"
     ]
   },
   {
     "id": "transport",
-    "name": "输运",
+    "name": "载流子输运",
     "order": [
       "carrier-mobility"
+    ]
+  },
+  {
+    "id": "model",
+    "name": "二维统计模型",
+    "order": [
+      "bkt-scaling"
     ]
   }
 ];
 
 export const methods = {
-  'convergence': {
-    zh: '收敛测试',
-    category: 'basics',
-    needs: [],
-    produces: ['收敛参数结论'],
-    engines: ['qe', 'vasp'],
+  "convergence": {
+    "zh": "收敛测试",
+    "category": "basics",
+    "needs": [],
+    "produces": [
+      "收敛参数结论"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'relax': {
-    zh: '离子弛豫',
-    category: 'basics',
-    needs: ['convergence'],
-    produces: ['优化后结构'],
-    engines: ['qe', 'vasp', 'mace'],
-    needsByEngine: { mace: [] },
+  "relax": {
+    "zh": "离子弛豫",
+    "category": "basics",
+    "needs": [
+      "convergence"
+    ],
+    "produces": [
+      "优化后结构"
+    ],
+    "engines": [
+      "qe",
+      "vasp",
+      "mace"
+    ],
+    "needsByEngine": {
+      "mace": []
+    }
   },
-  'vc-relax': {
-    zh: '晶胞弛豫',
-    category: 'basics',
-    needs: ['convergence'],
-    produces: ['优化晶胞与结构'],
-    engines: ['qe', 'vasp', 'mace'],
-    needsByEngine: { mace: [] },
+  "vc-relax": {
+    "zh": "晶胞弛豫",
+    "category": "basics",
+    "needs": [
+      "convergence"
+    ],
+    "produces": [
+      "优化晶胞与结构"
+    ],
+    "engines": [
+      "qe",
+      "vasp",
+      "mace"
+    ],
+    "needsByEngine": {
+      "mace": []
+    }
   },
-  'scf': {
-    zh: '电子自洽 SCF',
-    category: 'basics',
-    needs: ['convergence', 'relax', 'vc-relax'],
-    needsNote: 'relax 与 vc-relax 按结构自由度选择，不要求依次完成两者。',
-    produces: ['电荷密度'],
-    engines: ['qe', 'vasp'],
+  "scf": {
+    "zh": "电子自洽 SCF",
+    "category": "basics",
+    "needs": [
+      "convergence",
+      "relax",
+      "vc-relax"
+    ],
+    "needsNote": "relax 与 vc-relax 按结构自由度选择，不要求依次完成两者。",
+    "produces": [
+      "电荷密度"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'nscf': {
-    zh: '非自洽 NSCF',
-    category: 'basics',
-    needs: ['scf'],
-    produces: ['固定电荷下的本征值'],
-    engines: ['qe', 'vasp'],
+  "nscf": {
+    "zh": "非自洽 NSCF",
+    "category": "electronic",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "固定电荷下的本征值"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'formation-energy': {
-    zh: '形成能与参考态',
-    category: 'thermo',
-    needs: ['relax'],
-    produces: ['形成能 / 凸包距离'],
-    engines: ['qe', 'vasp'],
-    needsByEngine: { qe: ['vc-relax'] },
-    producesByEngine: { qe: ['同协议元素参照的形成能'] },
+  "formation-energy": {
+    "zh": "形成能与参考态",
+    "category": "thermo",
+    "needs": [
+      "relax"
+    ],
+    "produces": [
+      "同协议参照的形成能"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ],
+    "needsByEngine": {
+      "qe": [
+        "vc-relax"
+      ]
+    },
+    "producesByEngine": {
+      "qe": [
+        "同协议元素参照的形成能"
+      ]
+    }
   },
-  'convex-hull': {
-    zh: '凸包相图 / Energy-above-hull',
-    category: 'thermo',
-    needs: ['formation-energy'],
-    produces: ['凸包距离 / 相稳定性判定'],
-    engines: ['qe', 'vasp'],
-    producesByEngine: { qe: ['有限候选集凸包 / 凸包距离'] },
+  "convex-hull": {
+    "zh": "凸包相图 / Energy-above-hull",
+    "category": "thermo",
+    "needs": [
+      "formation-energy"
+    ],
+    "produces": [
+      "凸包距离 / 相稳定性判定"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ],
+    "producesByEngine": {
+      "qe": [
+        "有限候选集凸包 / 凸包距离"
+      ]
+    }
   },
-  'exfoliation-energy': {
-    zh: '层间分离能',
-    category: 'thermo',
-    needs: ['relax'],
-    produces: ['剥离能 / 解理能'],
-    engines: ['qe', 'vasp'],
+  "exfoliation-energy": {
+    "zh": "层间分离能",
+    "category": "interface",
+    "needs": [
+      "relax"
+    ],
+    "produces": [
+      "指定分离操作的面积归一化能量差"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'adsorption-energy': {
-    zh: '吸附能',
-    category: 'thermo',
-    needs: ['relax'],
-    produces: ['吸附能 / 界面结合能'],
-    engines: ['qe', 'vasp'],
+  "adsorption-energy": {
+    "zh": "吸附能",
+    "category": "interface",
+    "needs": [
+      "relax"
+    ],
+    "produces": [
+      "吸附能 / 界面结合能"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'phonon-dfpt': {
-    zh: 'DFPT 声子',
-    category: 'stability',
-    needs: ['scf'],
-    produces: ['声子谱'],
-    engines: ['qe', 'vasp'],
+  "phonon-dfpt": {
+    "zh": "DFPT 声子",
+    "category": "stability",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "声子谱"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'phonon-finite-disp': {
-    zh: '有限位移声子',
-    category: 'stability',
-    needs: ['scf'],
-    produces: ['力常数与声子谱'],
-    engines: ['qe', 'vasp'],
+  "phonon-finite-disp": {
+    "zh": "有限位移声子",
+    "category": "stability",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "力常数与声子谱"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'imaginary-phonon': {
-    zh: '虚频 / 软模判据',
-    category: 'stability',
-    needs: ['phonon-dfpt', 'phonon-finite-disp'],
-    produces: ['无虚频判定 / 软模指认'],
-    engines: ['qe', 'vasp'],
+  "imaginary-phonon": {
+    "zh": "虚频 / 软模判据",
+    "category": "stability",
+    "needs": [
+      "phonon-dfpt",
+      "phonon-finite-disp"
+    ],
+    "produces": [
+      "无虚频判定 / 软模指认"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'elastic-born': {
-    zh: '弹性常数与 Born 判据',
-    category: 'stability',
-    needs: ['vc-relax'],
-    produces: ['弹性常数与 Born 力学稳定性判据'],
-    engines: ['qe', 'vasp'],
+  "elastic-born": {
+    "zh": "弹性常数与 Born 判据",
+    "category": "mechanics",
+    "needs": [
+      "vc-relax"
+    ],
+    "produces": [
+      "弹性常数与 Born 力学稳定性判据"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'aimd': {
-    zh: '短时 AIMD',
-    category: 'stability',
-    needs: ['vc-relax'],
-    produces: ['短时 MD 轨迹'],
-    engines: ['qe', 'vasp'],
+  "aimd": {
+    "zh": "短时 AIMD",
+    "category": "stability",
+    "needs": [
+      "vc-relax"
+    ],
+    "produces": [
+      "短时 MD 轨迹"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'phdos': {
-    zh: '声子态密度 PHDOS',
-    category: 'stability',
-    needs: ['phonon-dfpt', 'phonon-finite-disp'],
-    produces: ['声子态密度 / 投影声子'],
-    engines: ['qe', 'vasp'],
+  "phdos": {
+    "zh": "声子态密度 PHDOS",
+    "category": "stability",
+    "needs": [
+      "phonon-dfpt",
+      "phonon-finite-disp"
+    ],
+    "produces": [
+      "声子态密度 / 投影声子"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'elastic-moduli': {
-    zh: '弹性模量 / 泊松比',
-    category: 'stability',
-    needs: ['elastic-born'],
-    produces: ['弹性模量 / 泊松比'],
-    engines: ['qe', 'vasp'],
+  "elastic-moduli": {
+    "zh": "弹性模量 / 泊松比",
+    "category": "mechanics",
+    "needs": [
+      "elastic-born"
+    ],
+    "produces": [
+      "弹性模量 / 泊松比"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'mlip-md': {
-    zh: '机器学习势 MD',
-    category: 'stability',
-    needs: ['relax'],
-    needsByEngine: { mace: ['vc-relax'] },
-    produces: ['MLIP 分子动力学轨迹'],
-    engines: ['mace'],
+  "mlip-md": {
+    "zh": "机器学习势 MD",
+    "category": "stability",
+    "needs": [
+      "relax"
+    ],
+    "needsByEngine": {
+      "mace": [
+        "vc-relax"
+      ]
+    },
+    "produces": [
+      "MLIP 分子动力学轨迹"
+    ],
+    "engines": [
+      "mace"
+    ]
   },
-  'anharmonic-sscha': {
-    zh: '有限温度有效力常数',
-    category: 'stability',
-    needs: ['phonon-dfpt'],
-    produces: ['温度重整化声子 / 非谐自由能'],
-    engines: ['qe', 'vasp', 'mace'],
-    needsByEngine: { mace: ['mlip-md', 'vc-relax'] },
-    producesByEngine: { mace: ['有限温度有效二阶力常数与声子'] },
+  "bands": {
+    "zh": "能带",
+    "category": "electronic",
+    "needs": [
+      "scf"
+    ],
+    "needsNote": "路径能带与 DOS 的均匀网格 NSCF 是从同一 SCF 出发的两个分支。",
+    "produces": [
+      "能带图"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'bands': {
-    zh: '能带',
-    category: 'electronic',
-    needs: ['scf'],
-    needsNote: '路径能带与 DOS 的均匀网格 NSCF 是从同一 SCF 出发的两个分支。',
-    produces: ['能带图'],
-    engines: ['qe', 'vasp'],
+  "band-gap": {
+    "zh": "带隙（直接 / 间接）",
+    "category": "electronic",
+    "needs": [
+      "nscf"
+    ],
+    "produces": [
+      "直接 / 间接带隙"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'band-gap': {
-    zh: '带隙（直接 / 间接）',
-    category: 'electronic',
-    needs: ['nscf'],
-    produces: ['直接 / 间接带隙'],
-    engines: ['qe', 'vasp'],
+  "band-3d": {
+    "zh": "3D 能带",
+    "category": "electronic",
+    "needs": [
+      "nscf"
+    ],
+    "produces": [
+      "3D 能带 E(kx,ky) 面"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'band-3d': {
-    zh: '3D 能带',
-    category: 'electronic',
-    needs: ['nscf'],
-    produces: ['3D 能带 E(kx,ky) 面'],
-    engines: ['qe', 'vasp'],
+  "band-unfolding": {
+    "zh": "能带反折叠",
+    "category": "electronic",
+    "needs": [
+      "bands"
+    ],
+    "produces": [
+      "原胞 BZ 能带 / 光谱权重"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'band-unfolding': {
-    zh: '能带反折叠',
-    category: 'electronic',
-    needs: ['bands'],
-    produces: ['原胞 BZ 能带 / 光谱权重'],
-    engines: ['qe', 'vasp'],
+  "dos": {
+    "zh": "态密度 DOS / PDOS",
+    "category": "electronic",
+    "needs": [
+      "nscf"
+    ],
+    "produces": [
+      "DOS/PDOS"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'dos': {
-    zh: '态密度 DOS / PDOS',
-    category: 'electronic',
-    needs: ['nscf'],
-    produces: ['DOS/PDOS'],
-    engines: ['qe', 'vasp'],
+  "fatband": {
+    "zh": "投影能带 / 胖带",
+    "category": "electronic",
+    "needs": [
+      "bands",
+      "dos"
+    ],
+    "needsByEngine": {
+      "qe": [
+        "bands"
+      ]
+    },
+    "produces": [
+      "投影能带"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'fatband': {
-    zh: '投影能带 / 胖带',
-    category: 'electronic',
-    needs: ['bands', 'dos'],
-    needsByEngine: { qe: ['bands'] },
-    produces: ['投影能带'],
-    engines: ['qe', 'vasp'],
+  "fermi-surface": {
+    "zh": "费米面",
+    "category": "electronic",
+    "needs": [
+      "nscf"
+    ],
+    "produces": [
+      "费米面"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'fermi-surface': {
-    zh: '费米面',
-    category: 'electronic',
-    needs: ['nscf'],
-    produces: ['费米面'],
-    engines: ['qe', 'vasp'],
+  "spin-texture": {
+    "zh": "SOC 自旋投影",
+    "category": "electronic",
+    "needs": [
+      "bands"
+    ],
+    "produces": [
+      "自旋纹理图"
+    ],
+    "producesByEngine": {
+      "vasp": [
+        "SOC 路径上的自旋投影"
+      ]
+    },
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'spin-texture': {
-    zh: 'SOC 自旋投影',
-    category: 'electronic',
-    needs: ['bands'],
-    produces: ['自旋纹理图'],
-    producesByEngine: { vasp: ['SOC 路径上的自旋投影'] },
-    engines: ['qe', 'vasp'],
+  "electrostatic-potential": {
+    "zh": "静电势 / 平面平均电势",
+    "category": "interface",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "平面平均静电势 / 电势阶跃"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'electrostatic-potential': {
-    zh: '静电势 / 平面平均电势',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['平面平均静电势 / 电势阶跃'],
-    engines: ['qe', 'vasp'],
+  "fermi-nesting": {
+    "zh": "费米面几何嵌套",
+    "category": "electronic",
+    "needs": [
+      "fermi-surface"
+    ],
+    "produces": [
+      "嵌套函数 / χ(q)"
+    ],
+    "producesByEngine": {
+      "qe": [
+        "费米面几何联合权重 J(q)"
+      ]
+    },
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'fermi-nesting': {
-    zh: '费米面几何嵌套',
-    category: 'electronic',
-    needs: ['fermi-surface'],
-    produces: ['嵌套函数 / χ(q)'],
-    producesByEngine: { qe: ['费米面几何联合权重 J(q)'] },
-    engines: ['qe', 'vasp'],
+  "effective-mass": {
+    "zh": "有效质量",
+    "category": "electronic",
+    "needs": [
+      "band-gap"
+    ],
+    "produces": [
+      "有效质量 m*"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'effective-mass': {
-    zh: '有效质量',
-    category: 'electronic',
-    needs: ['band-gap'],
-    produces: ['有效质量 m*'],
-    engines: ['qe', 'vasp'],
+  "delta-charge": {
+    "zh": "差分电荷",
+    "category": "charge",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "差分电荷密度"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'delta-charge': {
-    zh: '差分电荷',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['差分电荷密度'],
-    engines: ['qe', 'vasp'],
+  "bader": {
+    "zh": "Bader 电荷",
+    "category": "charge",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "Bader 电荷"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'bader': {
-    zh: 'Bader 电荷',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['Bader 电荷'],
-    engines: ['qe', 'vasp'],
+  "elf": {
+    "zh": "ELF",
+    "category": "charge",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "ELF 图"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'elf': {
-    zh: 'ELF',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['ELF 图'],
-    engines: ['qe', 'vasp'],
+  "cohp": {
+    "zh": "COHP / ICOHP（LOBSTER）",
+    "category": "charge",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "COHP / ICOHP 成键分析"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'cohp': {
-    zh: 'COHP / ICOHP（LOBSTER）',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['COHP / ICOHP 成键分析'],
-    engines: ['qe', 'vasp'],
+  "population-analysis": {
+    "zh": "布居分析",
+    "category": "charge",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "原子 / 轨道布居"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'population-analysis': {
-    zh: '布居分析',
-    category: 'charge',
-    needs: ['scf'],
-    produces: ['原子 / 轨道布居'],
-    engines: ['qe', 'vasp'],
+  "wannier90": {
+    "zh": "Wannier90",
+    "category": "electronic",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "最大局域化 Wannier 函数"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'wannier90': {
-    zh: 'Wannier90',
-    category: 'electronic',
-    needs: ['scf'],
-    produces: ['最大局域化 Wannier 函数'],
-    engines: ['qe', 'vasp'],
+  "epc": {
+    "zh": "电声耦合 EPC / 双网格",
+    "category": "supercon",
+    "needs": [
+      "wannier90",
+      "phonon-dfpt",
+      "phonon-finite-disp"
+    ],
+    "needsByEngine": {
+      "qe": [
+        "scf",
+        "phonon-dfpt"
+      ]
+    },
+    "needsNote": "本页 QE interpolated 路线不以 Wannier90 或有限位移声子为必经步骤。",
+    "produces": [
+      "λ / α²F / Tc"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'epc': {
-    zh: '电声耦合 EPC / 双网格',
-    category: 'supercon',
-    needs: ['wannier90', 'phonon-dfpt', 'phonon-finite-disp'],
-    needsByEngine: { qe: ['scf', 'phonon-dfpt'] },
-    needsNote: '本页 QE interpolated 路线不以 Wannier90 或有限位移声子为必经步骤。',
-    produces: ['λ / α²F / Tc'],
-    engines: ['qe', 'vasp'],
+  "eliashberg-a2f": {
+    "zh": "Eliashberg 谱函数 α²F",
+    "category": "supercon",
+    "needs": [
+      "epc"
+    ],
+    "produces": [
+      "α²F(ω) / λ(ω)"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'eliashberg-a2f': {
-    zh: 'Eliashberg 谱函数 α²F',
-    category: 'supercon',
-    needs: ['epc'],
-    produces: ['α²F(ω) / λ(ω)'],
-    engines: ['qe', 'vasp'],
+  "allen-dynes": {
+    "zh": "Tc：Allen–Dynes / McMillan",
+    "category": "supercon",
+    "needs": [
+      "eliashberg-a2f"
+    ],
+    "produces": [
+      "Tc 估算"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'allen-dynes': {
-    zh: 'Tc：Allen–Dynes / McMillan',
-    category: 'supercon',
-    needs: ['eliashberg-a2f'],
-    produces: ['Tc 估算'],
-    engines: ['qe', 'vasp'],
+  "epw-eliashberg": {
+    "zh": "Tc：EPW / Eliashberg 方程",
+    "category": "supercon",
+    "needs": [
+      "eliashberg-a2f"
+    ],
+    "needsNote": "已有完整各向同性 α²F 可直接求解；从头生成谱函数时，按正文另一入口接上 DFPT 和 Wannier 插值。",
+    "produces": [
+      "超导能隙随温度变化",
+      "线性化方程的 Tc"
+    ],
+    "engines": [
+      "qe"
+    ]
   },
-  'epw-eliashberg': {
-    zh: 'Tc：EPW / Eliashberg 方程',
-    category: 'supercon',
-    needs: ['eliashberg-a2f'],
-    needsNote: '已有完整各向同性 α²F 可直接求解；从头生成谱函数时，按正文另一入口接上 DFPT 和 Wannier 插值。',
-    produces: ['超导能隙随温度变化', '线性化方程的 Tc'],
-    engines: ['qe'],
+  "phonon-linewidth": {
+    "zh": "声子线宽",
+    "category": "supercon",
+    "needs": [
+      "epc"
+    ],
+    "produces": [
+      "声子线宽 γ_qν / 散射热点"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'phonon-linewidth': {
-    zh: '声子线宽',
-    category: 'supercon',
-    needs: ['epc'],
-    produces: ['声子线宽 γ_qν / 散射热点'],
-    engines: ['qe', 'vasp'],
+  "bkt-scaling": {
+    "zh": "二维 XY：相位刚度与涡旋",
+    "category": "model",
+    "needs": [],
+    "produces": [
+      "有限尺寸 Monte Carlo / 相位刚度 / 涡旋"
+    ],
+    "engines": [
+      "model"
+    ]
   },
-  'bkt-scaling': {
-    zh: 'BKT 相位转变（XY 模型）',
-    category: 'supercon',
-    needs: ['epc'],
-    produces: ['BKT 转变 / 标度分析'],
-    engines: ['qe', 'vasp', 'model'],
-    needsByEngine: { model: [] },
-    producesByEngine: { model: ['二维 XY 有限尺寸采样 / 相位刚度与涡旋'] },
+  "workfunction": {
+    "zh": "功函数",
+    "category": "interface",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "功函数"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'workfunction': {
-    zh: '功函数',
-    category: 'interface',
-    needs: ['scf'],
-    produces: ['功函数'],
-    engines: ['qe', 'vasp'],
+  "band-alignment": {
+    "zh": "真空参考能级对齐",
+    "category": "interface",
+    "needs": [
+      "bands",
+      "workfunction"
+    ],
+    "produces": [
+      "能带对齐图"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ],
+    "needsByEngine": {
+      "vasp": [
+        "workfunction",
+        "heterostructure-modeling"
+      ]
+    },
+    "producesByEngine": {
+      "vasp": [
+        "冻结孤立层的真空参考能级"
+      ]
+    }
   },
-  'band-alignment': {
-    zh: '能带对齐',
-    category: 'interface',
-    needs: ['bands', 'workfunction'],
-    produces: ['能带对齐图'],
-    engines: ['qe', 'vasp'],
-    needsByEngine: { vasp: ['workfunction', 'heterostructure-modeling'] },
-    producesByEngine: { vasp: ['冻结孤立层的真空参考能级'] },
+  "magnetic-gs": {
+    "zh": "磁构型与能量比较",
+    "category": "magnet",
+    "needs": [
+      "relax",
+      "vc-relax",
+      "scf"
+    ],
+    "produces": [
+      "FM/AFM/NM 能量比较"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'magnetic-gs': {
-    zh: '磁基态',
-    category: 'magnet',
-    needs: ['relax', 'vc-relax', 'scf'],
-    produces: ['FM/AFM/NM 能量比较'],
-    engines: ['qe', 'vasp'],
+  "dft-plus-u": {
+    "zh": "DFT+U",
+    "category": "electronic",
+    "needs": [
+      "scf"
+    ],
+    "produces": [
+      "U 修正后的结果"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'dft-plus-u': {
-    zh: 'DFT+U',
-    category: 'magnet',
-    needs: ['scf'],
-    produces: ['U 修正后的结果'],
-    engines: ['qe', 'vasp'],
+  "mae": {
+    "zh": "磁各向异性能 MAE",
+    "category": "magnet",
+    "needs": [
+      "magnetic-gs"
+    ],
+    "produces": [
+      "磁各向异性能"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'mae': {
-    zh: '磁各向异性能 MAE',
-    category: 'magnet',
-    needs: ['magnetic-gs'],
-    produces: ['磁各向异性能'],
-    engines: ['qe', 'vasp'],
+  "exchange-j": {
+    "zh": "磁能量映射与有效 J",
+    "category": "magnet",
+    "needs": [
+      "magnetic-gs"
+    ],
+    "produces": [
+      "交换参数 J"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'exchange-j': {
-    zh: '磁交换耦合 J',
-    category: 'magnet',
-    needs: ['magnetic-gs'],
-    produces: ['交换参数 J'],
-    engines: ['qe', 'vasp'],
+  "strain-doping-scan": {
+    "zh": "应变响应扫描",
+    "category": "mechanics",
+    "needs": [
+      "vc-relax"
+    ],
+    "produces": [
+      "能量、应力随应变的变化"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'strain-doping-scan': {
-    zh: '应变响应扫描',
-    category: 'basics',
-    needs: ['vc-relax'],
-    produces: ['性质随应变 / 掺杂的扫描'],
-    engines: ['qe', 'vasp'],
+  "heterostructure-modeling": {
+    "zh": "异质结构建模",
+    "category": "interface",
+    "needs": [
+      "convergence"
+    ],
+    "produces": [
+      "异质结 / 莫尔超晶格模型"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-  'heterostructure-modeling': {
-    zh: '异质结构建模',
-    category: 'interface',
-    needs: ['convergence'],
-    produces: ['异质结 / 莫尔超晶格模型'],
-    engines: ['qe', 'vasp'],
+  "berry-chern": {
+    "zh": "占据态 Berry 相位与切片陈数",
+    "category": "topo",
+    "needs": [],
+    "produces": [
+      "占据态重叠相位 / 周期切片陈数"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ],
+    "producesByEngine": {
+      "qe": [
+        "占据态重叠相位 / 周期切片 Chern 和"
+      ]
+    }
   },
-
-  'berry-chern': {
-    zh: 'Berry 相位与陈数',
-    category: 'topo',
-    needs: ['wannier90'],
-    produces: ['Berry 曲率 / 陈数 / ℤ₂'],
-    engines: ['qe', 'vasp'],
-    producesByEngine: { qe: ['占据态重叠相位 / 周期切片 Chern 和'] },
+  "carrier-mobility": {
+    "zh": "二维声学形变势迁移率",
+    "category": "transport",
+    "needs": [
+      "bands"
+    ],
+    "produces": [
+      "声学形变势近似的迁移率"
+    ],
+    "engines": [
+      "qe",
+      "vasp"
+    ]
   },
-
-  'carrier-mobility': {
-    zh: '形变势迁移率',
-    category: 'transport',
-    needs: ['bands'],
-    produces: ['迁移率 / 弛豫时间'],
-    engines: ['qe', 'vasp'],
-  },
+  "temperature-effective-fc": {
+    "zh": "有限温度有效力常数",
+    "category": "stability",
+    "needs": [
+      "aimd"
+    ],
+    "produces": [
+      "有限温度有效二阶力常数与声子"
+    ],
+    "engines": [
+      "qe",
+      "vasp",
+      "mace"
+    ],
+    "needsByEngine": {
+      "mace": [
+        "mlip-md",
+        "vc-relax"
+      ]
+    },
+    "producesByEngine": {
+      "mace": [
+        "有限温度有效二阶力常数与声子"
+      ]
+    }
+  }
 };
 
-// 展开成扁平列表（getStaticPaths 用）
-export function methodList() {
-  return categories.flatMap((c) =>
-    c.order.map((slug) => ({ slug, ...methods[slug] }))
-  );
-}
+export const methodRouteAliases = { "anharmonic-sscha": "temperature-effective-fc" };
 
-// BASE_URL 规范化：去掉结尾斜杠，方便拼接
-export function normalizeBase(raw) {
-  return raw.endsWith('/') ? raw.slice(0, -1) : raw;
-}
+export function methodList() { return categories.flatMap(c => c.order.map(slug => ({ slug, ...methods[slug] }))); }
+export function normalizeBase(raw) { return raw.endsWith("/") ? raw.slice(0,-1) : raw; }

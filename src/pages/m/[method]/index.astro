@@ -1,13 +1,16 @@
 ---
 import Base from '../../../layouts/Base.astro';
-import { engines, methods, methodList, normalizeBase } from '../../../data/methods.js';
+import { engines, methods, methodList, normalizeBase, methodRouteAliases } from '../../../data/methods.js';
 import { methodTeaching, manualTeaching } from '../../../data/teaching.js';
 import { availableManualIds } from '../../../lib/manual.js';
 export function getStaticPaths() {
-  return methodList().map(({ slug, zh }) => ({ params: { method: slug }, props: { zh } }));
+  return [
+    ...methodList().map(({ slug, zh }) => ({ params: { method: slug }, props: { zh, canonical: slug } })),
+    ...Object.entries(methodRouteAliases).map(([oldSlug, canonical]) => ({ params: { method: oldSlug }, props: { zh: methods[canonical].zh, canonical } })),
+  ];
 }
 const { zh } = Astro.props;
-const slug = Astro.params.method;
+const slug = Astro.props.canonical;
 const method = methods[slug];
 const base = normalizeBase(import.meta.env.BASE_URL);
 const available = await availableManualIds();

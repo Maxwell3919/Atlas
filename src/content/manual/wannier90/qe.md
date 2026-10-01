@@ -1,6 +1,8 @@
 [Wannier90 官方 Si 教程](https://wannier90.readthedocs.io/en/latest/tutorials/tutorial_11/) · [Wannier90 参数说明](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/) · [QE 的 pw2wannier90 接口](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 
-一条很密的能带曲线可以逐点运行 DFT，也可以先在均匀 k 网格上构造 Wannier 表象，再做插值。插值很快，但“曲线很平滑”和“与直接 DFT 相符”是两回事。这一页先把接口完整走通，再另算几个路径点，把差异画在图下面。
+能否用均匀网格上的四条 Si 价带，在网格以外可靠地重建色散？这次构造四个 Wannier 函数，比较两套网格得到的插值，并在另算的路径点上直接核对误差。这样可以判断稀疏采样得到的哈密顿量是否保留了所选价带的色散。
+
+[Marzari 等 Eq. (18)](https://arxiv.org/pdf/1112.5411)定义轨道的总展布，Eqs. (98)–(99)说明如何把实空间哈密顿量变换回任意 k 点并对角化。展布决定本页局域化步骤所优化的量，直接 DFT 对照则检查插值能量；两张结果图分别回答这两个问题。
 
 例子采用 Wannier90 3.1.0 随附官方 example11 的两原子金刚石 Si 结构，晶格常数为 10.2 bohr。结构在本例中保持固定，没有重新优化。赝势从 QE 公开库重新下载 `Si.pbe-n-van.UPF`，是非相对论 PBE 超软赝势；本次使用 QE 7.5、40/320 Ry 截断能。计算目录中的 SCF、NSCF、重叠矩阵与 Wannier 结果均在这次实际运行中生成，没有使用官方示例附带的预计算矩阵。
 
@@ -794,9 +796,9 @@ python plot_wannier.py
 
 ## 文献中基于 Wannier 紧束缚模型的表面态与谱函数应用
 
-构造出经过验证的最大局域化 Wannier 函数实空间哈密顿量 `*_hr.dat` 后，除了做体相能带插值，还常将其输入到 WannierTools 等后处理程序中，采用迭代格林函数法计算半无限大晶体表面的局域态密度（表面谱函数）及表面能带色散，直接与 ARPES 测量结果对照。
+下面的 ZrAs₂ 研究从投影 Wannier 哈密顿量出发，用半无限表面的格林函数求谱函数，再与 ARPES 对照。该文没有执行最大局域化步骤；本页 Si 的局域化和插值检查是另一份算例，转向表面谱时还需选择表面方向、截断和相应的后处理。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="由最大局域化 Wannier 紧束缚哈密顿量计算的 ZrAs2 (001) 半无限表面谱函数与三维鞍点色散" loading="lazy"/><figcaption>由最大局域化 Wannier 紧束缚哈密顿量结合 WannierTools 计算得到的 ZrAs<sub>2</sub> (001) 半无限表面谱函数与三维鞍点色散，并与高分辨 ARPES 实验谱进行对比。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M7_SurfaceStates_3DVHS_ARPES_ZrAs2_Fig4.jpg" alt="由投影 Wannier 紧束缚哈密顿量计算的 ZrAs2 (001) 半无限表面谱函数与三维鞍点色散" loading="lazy"/><figcaption>由投影 Wannier 紧束缚哈密顿量通过半无限表面格林函数 计算得到的 ZrAs<sub>2</sub> (001) 半无限表面谱函数与三维鞍点色散，并与高分辨 ARPES 实验谱进行对比。引自 <em>Nat. Commun.</em> <strong>16</strong>, 2831 (2025)，Fig. 4，<a href="https://doi.org/10.1038/s41467-025-58024-w" target="_blank" rel="noopener noreferrer">DOI: 10.1038/s41467-025-58024-w</a>。</figcaption></figure>
 
 另一项重要应用是在 EPW 等程序中利用 Wannier 表象对电子本征态与电子—声子耦合矩阵元同时做精细动量网格插值，进而计算有限温度下的电子谱函数 A(k, ω)，将多体自能重整化后的能带色散、声子伴峰与未重整化的白色 DFT 裸能带曲线叠加展示。
 

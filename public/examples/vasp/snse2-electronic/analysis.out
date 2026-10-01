@@ -1,0 +1,9 @@
+SCF: 18x18x1 -> 37 irreducible points; weighted occupied states = 26.00000205
+Path: 150 points x 20 bands; length = 2.57419424 A^-1
+PROCAR: 3000 paired states; max energy difference = 5.000e-07 eV
+Energy zero: SCF efermi = -2.39071823 eV; path efermi = -2.38897901 eV
+DOS: 301 energy points; step = 0.110000 eV; SIGMA = 0.05 eV
+IDOS: at SCF EF = 26.00000000; lower/upper ends = 0.00000000/40.00000000
+Path extrema: VBM k=13, band=13; CBM k=50, band=14
+Path sampled gap = 0.76419500 eV
+Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv and summary.json

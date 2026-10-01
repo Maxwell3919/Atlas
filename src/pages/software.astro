@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { methodList, engines, methods, normalizeBase } from '../data/methods.js';
+import { manualTeaching } from '../data/teaching.js';
+import { availableManualIds } from '../lib/manual.js';
+const base=normalizeBase(import.meta.env.BASE_URL);
+const available=await availableManualIds();
+const list=methodList();
+const count=(engine)=>list.filter(m=>available.has(`${m.slug}/${engine}`)).length;
+---
+<Base title="软件算例 · Atlas" wide>
+ <article class="software-page">
+  <p class="crumb"><a href={`${base}/?open=1&view=directory`}>← 计算目录</a></p>
+  <h1>软件算例</h1>
+  <p class="intro">点软件名称，可以进入相应的输入、原始输出与后处理记录。未收录表示这条路线还没有可用正文；— 表示本目录没有设置这一实现。</p>
+  <div class="software-counts">{engines.map(e=><span>{e.name}<strong>{count(e.id)}</strong></span>)}</div>
+  <div class="coverage-scroll"><table><thead><tr><th>计算方法</th>{engines.map(e=><th>{e.id==='model'?'数值模型':e.name}</th>)}</tr></thead><tbody>{list.map(m=><tr><th><a href={`${base}/m/${m.slug}/`}>{m.zh}</a></th>{engines.map(e=><td>{available.has(`${m.slug}/${e.id}`)?<a href={`${base}/m/${m.slug}/${e.id}/`} title={manualTeaching[`${m.slug}/${e.id}`]?.title}>{e.id==='qe'?'QE':e.name} ↗</a>:m.engines.includes(e.id)?<span class="missing">未收录</span>:<span class="not-set">—</span>}</td>)}</tr>)}</tbody></table></div>
+ </article>
+</Base>
+<style>
+ .software-page{padding-top:1rem}.crumb{font-size:.85rem;margin-bottom:1.8rem}h1{font-size:2rem;font-weight:500;margin-bottom:1rem}.intro{font-size:.9rem;color:var(--muted);max-width:43rem;margin-bottom:1.8rem}.software-counts{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:2rem}.software-counts>span{display:flex;gap:.7rem;align-items:center;padding:.4rem .7rem;border:1px solid var(--line);border-radius:6px;font-size:.76rem;color:var(--muted)}.software-counts strong{color:var(--fg);font:1rem ui-monospace,monospace}.coverage-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.79rem;line-height:1.6}th,td{padding:.7rem .5rem;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}thead th{color:var(--muted);font-weight:500;font-size:.72rem}tbody th{font-weight:400}tbody th a{color:var(--fg)}.missing{color:var(--muted);font-size:.69rem}.not-set{color:var(--muted);opacity:.45}
+</style>

@@ -1,0 +1,15 @@
+---
+import Base from '../layouts/Base.astro';
+import MethodDirectory from '../components/MethodDirectory.astro';
+import { normalizeBase } from '../data/methods.js';
+import '../styles/home.css';
+const base=normalizeBase(import.meta.env.BASE_URL);
+---
+<Base title="计算目录 · Atlas" wide><article class="atlas-home catalog-page"><p><a href={`${base}/?open=1`}>← 计算问题</a></p><h1>计算目录</h1><MethodDirectory /></article></Base>
+<style>.catalog-page{padding-top:1rem}.catalog-page>p{font-size:.85rem;margin-bottom:1.8rem}.catalog-page h1{font-size:2rem;font-weight:500;margin-bottom:1.8rem}</style>
+<script>
+ const search=document.getElementById('method-search') as HTMLInputElement|null;
+ const entries=Array.from(document.querySelectorAll<HTMLElement>('[data-method-entry]'));
+ const groups=Array.from(document.querySelectorAll<HTMLElement>('[data-method-group]'));
+ search?.addEventListener('input',()=>{const terms=search.value.normalize('NFKC').toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);let n=0;for(const e of entries){e.hidden=!terms.every(t=>(e.dataset.search??'').includes(t));if(!e.hidden)n++;}for(const g of groups)g.hidden=!Array.from(g.querySelectorAll<HTMLElement>('[data-method-entry]')).some(e=>!e.hidden);const result=document.getElementById('search-result');if(result)result.textContent=terms.length?`${n} 个方法`:'';const empty=document.getElementById('no-results');if(empty)empty.hidden=n>0;});
+</script>

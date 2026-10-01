@@ -2,6 +2,8 @@
 
 [Si 的固定结构 SCF](/Atlas/m/scf/qe/)介绍了一份输入怎样完成电子自洽。接下来保持结构和计算模型不变，分别改变截断能与 k 网格，比较总能量的变化。这样可以区分一次电子迭代是否收敛，以及有限基组和有限采样是否足以满足计算目的。
 
+这里比较总能量，是为了在继续优化和比较能量之前，量出有限基组与 k 点采样带来的变化。Si 使用超软赝势，波函数与含增广项的密度需要分别表示；[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节解释了两套截断能的来源。三组扫描分别改变参数，后面的选择对应这个固定晶胞模型与总能量容差。
+
 算例仍采用两个原子的金刚石 Si 原胞，常规立方晶格参数为 10.20 bohr（5.397607551 Å），使用 PBE 超软赝势 `Si.pbe-n-rrkjus_psl.1.0.0.UPF`。晶胞在所有对照中固定；本页比较的是这一模型的总能量，不涉及平衡晶格的搜索。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 7.5 的 Si 官方例子](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example) · [本例 Si 赝势来源](https://pseudopotentials.quantum-espresso.org/upf_files/Si.pbe-n-rrkjus_psl.1.0.0.UPF)
@@ -597,6 +599,6 @@ Results: results
 
 可分别下载 [能量表](/Atlas/examples/basics-si-convergence/results/convergence.csv)、[运行清单](/Atlas/examples/basics-si-convergence/results/run-inventory.csv)、[设置摘要](/Atlas/examples/basics-si-convergence/results/summary.json)、[文件哈希](/Atlas/examples/basics-si-convergence/results/source-files.json)、[数值报告](/Atlas/examples/basics-si-convergence/results/energy-report.md)及[实际命令输出](/Atlas/examples/basics-si-convergence/run.log)。将源码与原始文件目录一起保存，便可重算所有差值。
 
-EPW 的方法论文同样按目标物理量组织网格检查，Fig. 1 分开比较粗网格、细积分网格和展宽，并展示网格与展宽的共同影响。本例采用同样的控制变量思路，目标量为固定晶胞 Si 总能量。参见 Lee 等，*npj Computational Materials* **9**, 156 (2023)，[DOI: 10.1038/s41524-023-01107-3](https://doi.org/10.1038/s41524-023-01107-3)。单位换算见 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
+Lee 等的 Fig. 1 检查 c-BN 声子限制迁移率，式 (3)–(5) 将输运积分与迁移率相连。Si 总能量扫描使用不同目标量，不能由它接受迁移率、声子或 EPC 的数值参数。EPW 的方法论文同样按目标物理量组织网格检查，Fig. 1 分开比较粗网格、细积分网格和展宽，并展示网格与展宽的共同影响。本例采用同样的控制变量思路，目标量为固定晶胞 Si 总能量。参见 Lee 等，*npj Computational Materials* **9**, 156 (2023)，[DOI: 10.1038/s41524-023-01107-3](https://doi.org/10.1038/s41524-023-01107-3)。单位换算见 [NIST Hartree energy in eV](https://physics.nist.gov/cgi-bin/cuu/Value?hrev)。
 
 接下来可用[离子弛豫](/Atlas/m/relax/qe/)观察原子位置的调整，或继续固定结构的[均匀 NSCF](/Atlas/m/nscf/qe/)与[路径能带](/Atlas/m/bands/qe/)；需要优化晶胞时，另读[Al 的变胞算例](/Atlas/m/vc-relax/qe/#al-vc-relax)。

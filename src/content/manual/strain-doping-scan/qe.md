@@ -1,5 +1,7 @@
 本页从优化后的 fcc Al 原胞出发，沿笛卡尔 x 方向施加六个压缩或拉伸应变，分别进行固定结构 SCF，比较能量和应力。扫描保持电子数不变，没有进行掺杂计算；每个点开放哪些几何自由度，将决定这条曲线描述什么响应。[输入、输出与作图数据](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)可一并下载。
 
+这里量能量和应力随应变的变化，为后续弹性斜率拟合提供实际样本。xx 形变固定 y、z 分量，横向应力也会出现；它与允许横向自由收缩的拉伸采用不同边界条件。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节给出电子结构与晶胞优化框架；本页则在规定形变下固定晶胞，用相同电子参数逐点计算响应。
+
 电子掺杂需要另行设置电子数并检查带电体系的静电处理；本页先沿同一电子数比较应变响应。
 
 ## 先确定哪些量可以动
@@ -181,6 +183,8 @@ python3 plot_strain.py
 [完整绘图脚本](/Atlas/examples/interface-magnet-strain-doping-scan/plot_strain.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/interface-magnet-strain-doping-scan/atlas_plot_style.py)） 只读取这张 CSV，筛选 `mode=xx`，按实际应变排序，输出 `figures/strain-scan.png` 和 SVG。连线用于连接相邻采样点；它没有寻找连续曲线的极小值。
 
 ## 对照文献中的分析方法
+
+该材料案例的结构与能量步骤使用 VASP，电子和光学步骤使用 WIEN2k，见原文 Computational details。它通过应变改变半导体带隙；本页 Al 读取力学响应，应按所求物理量分别组织。
 
 Alqurashi 等，*The effect of uniaxial compressive and tensile strains on the structural, dynamical, electronic, and optical properties of ZrCl₂ monolayer: Ab-initio calculations*，[DOI: 10.1016/j.chphi.2025.100828](https://doi.org/10.1016/j.chphi.2025.100828)，Table 1 给出实际应变样本的结构与带隙，Fig. 4 绘制带隙随应变变化。该文分析的是 ZrCl₂ 电子响应；本例读取三维 Al 的 F 与应力，纵轴物理量不同。可借鉴的是把实际采样值与明确应变定义对应起来。本页曲线只连接六个 xx 样本，能量零点取最低采样 F，应力保留拉伸为正的单位约定。
 

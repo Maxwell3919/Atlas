@@ -1,4 +1,6 @@
-本页读取 VGe₂P₄ 的一份静态 DFT+U 计算。Dudarev 形式实际使用 Ueff=U−J；此例给 V 的 d 轨道设置 Ueff=3 eV。先对齐元素顺序、轨道与程序读入的参数，再检查电子迭代和输出。这里使用保存的输入与 OUTCAR，不把该 Ueff 值当作其他结构或材料的通用选择。
+局域 d 轨道的占据会影响带隙、磁矩和电子态；DFT+U 通过对这些轨道的占据矩阵加入能量修正来改变自洽解。本例读取 VGe₂P₄ 的一份静态结果，用 Dudarev 形式把 Ueff=U−J=3 eV 加到 V 的 d 轨道，核对元素顺序、轨道与程序读入参数，再读取电子迭代、能量和磁矩。这份记录回答指定 Ueff 下实际算出了什么；Ueff 对该材料性质的影响还需同协议的多点比较。
+
+[Hubbard U 高通量研究](https://doi.org/10.1038/s41524-024-01503-3)的 Computational methods 中 Eq. (1) 定义 Ueff=U−J，Eq. (2) 写出占据矩阵修正 Ueff Tr(ρ−ρ²)/2；它解释了为什么要核对受修正的元素和轨道。文中的 Fig. 1 比较多种材料的 U 依赖，计算采用 GPAW，广泛比较用 Ueff=4 eV；这些选择没有为本例 VGe₂P₄ 的 3 eV 提供材料专属标定。VASP 的对应实现见 [LDAUTYPE=2](https://vasp.at/wiki/LDAUTYPE)。
 
 [下载本例的输入与原始输出](/Atlas/examples/interface-magnet-dft-plus-u/example-pack.tar.gz)。包内 `INCAR.active` 仅去除了原输入的注释，计算参数原样保留，附原文件哈希；复制为 INCAR 即可读入。归档未保存原提交脚本、CHGCAR 或 WAVECAR，因此这里使用 OUTCAR 核验已结束的 SCF，提交方法接 [SCF](/Atlas/m/scf/vasp/)。
 

@@ -1,5 +1,7 @@
 把同一块完美 Si 晶体沿一个原胞基矢重复两次，原子从 2 个变成 4 个。电子结构并没有因此增加一种材料性质，超胞的布里渊区却缩小了，能带图里会出现更多折叠后的支线。要回到原胞的图，除了本征值，还必须读取每个超胞本征态的波函数，判断它在指定原胞 k 点上有多少权重。
 
+[Ku、Berlijn 与 Lee 的 Eq. (2)](https://arxiv.org/pdf/1002.4218)把原胞谱函数写成超胞本征态谱函数与原胞投影权重的乘积之和，完美晶体的额外折叠分支应被权重区分。[Zheng 等 Fig. 2b 与补充材料 S8](https://doi.org/10.1103/PhysRevB.99.161119)将同一思路用于真实 CDW 超胞中的 NbSe₂；本页先用没有破坏平移对称性的 Si 检查原胞映射和波函数权重。
+
 这里实际完成了一次 2×1×1 完美超胞校验：原胞、超胞分别重新做 SCF，再沿同一条 Γ–X–W–L–Γ 路径计算能带，最后用 QE 自带的 `bands_unfold.x` 读取超胞波函数。没有引入缺陷或热位移，因此图中恢复出清楚的原胞能带正是应当看到的结果。普通能带的 SCF 与能带步骤可在[能带计算](/Atlas/m/bands/qe/)查看；这一页集中说明超胞映射、谱权重和检验。
 
 [QE：pw.x 输入参数](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [EPW/ZG：bands_unfold.x 输入说明](https://epwdoc.gitlab.io/source/doc/InputsZG.html) · [EPW/ZG：能带展开实例](https://epwdoc.gitlab.io/source/doc/TutorialZG.html) · [QE 7.5：展开程序源码](https://gitlab.com/QEF/q-e/-/blob/qe-7.5/EPW/ZG/src/bands_unfold.f90)

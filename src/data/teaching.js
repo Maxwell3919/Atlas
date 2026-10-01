@@ -1,4 +1,4 @@
-// Teaching scope and actual file dependencies, reviewed against the articles.
+// Case scope and file ancestry, checked against the article records.
 export const methodTeaching = {
   "convergence": {
     "overview": "改变截断能、网格等数值参数，观察目标量何时稳定。比较时保留同一结构、参考和能量定义。",
@@ -33,7 +33,7 @@ export const methodTeaching = {
     ]
   },
   "nscf": {
-    "overview": "保持已收敛密度，在新的 k 点求本征态。均匀网格常用于积分，路径采样用于色散。",
+    "overview": "固定已收敛的电子密度，在指定 k 点求本征态。均匀网格用于态密度等积分，路径采样用于色散。",
     "aliases": [
       "非自洽",
       "本征值"
@@ -133,15 +133,6 @@ export const methodTeaching = {
       "MLIP",
       "MACE",
       "机器学习势MD"
-    ]
-  },
-  "anharmonic-sscha": {
-    "overview": "研究有限温度振动如何偏离谐近似。当前 MACE 路线用位移与力拟合有效二阶力常数。",
-    "aliases": [
-      "非谐",
-      "有效力常数",
-      "symfc",
-      "SSCHA"
     ]
   },
   "bands": {
@@ -323,12 +314,13 @@ export const methodTeaching = {
     ]
   },
   "bkt-scaling": {
-    "overview": "利用二维相位模型的刚度、涡旋和尺寸依赖研究 BKT 行为，明确温度与抽样时间的模型单位。",
+    "overview": "在二维周期方格的 XY 模型中采样相位，读取相位刚度与涡旋，观察有限尺寸下它们怎样随温度变化。",
     "aliases": [
       "BKT",
       "XY",
       "相位刚度",
-      "涡旋"
+      "涡旋",
+      "Monte Carlo"
     ]
   },
   "workfunction": {
@@ -413,6 +405,15 @@ export const methodTeaching = {
       "形变势",
       "声学散射"
     ]
+  },
+  "temperature-effective-fc": {
+    "overview": "从有限温度采样的位移与原子力拟合有效二阶力常数，比较样本数与所得振动频率。当前算例采用 MACE、symfc 和 Phonopy。",
+    "aliases": [
+      "有限温度",
+      "有效力常数",
+      "symfc",
+      "力拟合"
+    ]
   }
 };
 
@@ -471,32 +472,6 @@ export const manualTeaching = {
       "lambda.dat",
       "paired-tc.csv",
       "crossings.json"
-    ]
-  },
-  "anharmonic-sscha/mace": {
-    "title": "Si 有限温度有效二阶力常数拟合",
-    "kind": "机器学习势",
-    "summary": "从 MACE 轨迹中提取位移与力，用 symfc 拟合有效二阶力常数，再由 phonopy 比较不同样本数下的频率。",
-    "inputs": [
-      {
-        "method": "vc-relax",
-        "label": "relaxed.extxyz 参考晶胞"
-      },
-      {
-        "method": "mlip-md",
-        "label": "nve-1fs.traj 与 initial.traj"
-      },
-      {
-        "method": "relax",
-        "label": "同一 MACE-MP-0 small 模型"
-      }
-    ],
-    "related": [],
-    "files": [
-      "mapped-dataset.npz",
-      "independent-dataset.npz",
-      "fit-summary.json",
-      "learning-curve.csv"
     ]
   },
   "bader/vasp": {
@@ -1028,7 +1003,7 @@ export const manualTeaching = {
   },
   "heterostructure-modeling/vasp": {
     "title": "SnSe₂/Sr₂N 的层距几何构造",
-    "kind": "DFT",
+    "kind": "几何建模",
     "summary": "从已有共同晶胞出发，将法向层间距设为 3 Å 并居中，检查层厚、配准和周期镜像空白。",
     "inputs": [],
     "related": [
@@ -1109,7 +1084,7 @@ export const manualTeaching = {
       }
     ],
     "related": [
-      "anharmonic-sscha"
+      "temperature-effective-fc"
     ],
     "files": [
       "initial.traj",
@@ -1404,6 +1379,140 @@ export const manualTeaching = {
       "EIGENVAL",
       "PLANAR_AVERAGE.dat",
       "workfunction-summary.json"
+    ]
+  },
+  "temperature-effective-fc/mace": {
+    "title": "Si 有限温度有效二阶力常数拟合",
+    "kind": "机器学习势",
+    "summary": "从 MACE 轨迹中提取位移与力，用 symfc 拟合有效二阶力常数，再由 phonopy 比较不同样本数下的频率。",
+    "inputs": [
+      {
+        "method": "vc-relax",
+        "label": "relaxed.extxyz 参考晶胞"
+      },
+      {
+        "method": "mlip-md",
+        "label": "nve-1fs.traj 与 initial.traj"
+      },
+      {
+        "method": "relax",
+        "label": "同一 MACE-MP-0 small 模型"
+      }
+    ],
+    "related": [],
+    "files": [
+      "mapped-dataset.npz",
+      "independent-dataset.npz",
+      "fit-summary.json",
+      "learning-curve.csv"
+    ]
+  },
+  "relax/vasp": {
+    "title": "HfCl₂ 薄层的固定晶胞优化",
+    "kind": "DFT",
+    "summary": "读取 24 原子薄层的完整输入、10 个离子步和最终力，核对 ISIF=2 下的内部坐标优化。",
+    "inputs": [],
+    "related": [
+      "scf",
+      "vc-relax"
+    ],
+    "files": [
+      "POSCAR",
+      "CONTCAR",
+      "OUTCAR",
+      "OSZICAR",
+      "ionic-history.csv"
+    ]
+  },
+  "nscf/vasp": {
+    "title": "SnSe₂/Sr₂N 固定密度的均匀网格电子态",
+    "kind": "DFT",
+    "summary": "从包内同结构 SCF 的 CHGCAR 接续 ICHARG=11 分支，读取本征值、DOSCAR 与实际求解状态。",
+    "inputs": [],
+    "related": [
+      "scf",
+      "dos",
+      "bands"
+    ],
+    "files": [
+      "CHGCAR",
+      "EIGENVAL",
+      "DOSCAR",
+      "density-lineage.json"
+    ]
+  },
+  "bands/vasp": {
+    "title": "SnSe₂ 路径能带与内部带边",
+    "kind": "DFT",
+    "summary": "同一18×18×1父SCF密度，沿Γ–M–K–Γ计算150点、20带，以真实倒格矢构造路径距离，辨认路径内价带最高点与M导带底。",
+    "inputs": [],
+    "related": [
+      "scf",
+      "band-gap",
+      "dos",
+      "fatband"
+    ],
+    "files": [
+      "bands/parameters-from-output.txt",
+      "bands/incar-run.xml",
+      "bands/POSCAR",
+      "bands/KPOINTS",
+      "bands/OUTCAR",
+      "bands/EIGENVAL",
+      "scf/vasprun.xml",
+      "tables/bands.csv",
+      "analysis.out",
+      "analyse.py",
+      "plot.py"
+    ]
+  },
+  "dos/vasp": {
+    "title": "SnSe₂ 静态均匀网格的 DOS 与态数",
+    "kind": "DFT",
+    "summary": "读取18×18×1静态SCF的301点DOSCAR与原子lm投影，核对26个价电子和40个带态；保留有限网格与步长的峰形，不使用路径DOS。",
+    "inputs": [],
+    "related": [
+      "scf",
+      "bands",
+      "fatband",
+      "population-analysis"
+    ],
+    "files": [
+      "scf/parameters-from-output.txt",
+      "scf/incar-run.xml",
+      "scf/KPOINTS",
+      "scf/OUTCAR",
+      "scf/DOSCAR",
+      "scf/EIGENVAL",
+      "tables/dos.csv",
+      "analysis.out",
+      "analyse.py",
+      "plot.py"
+    ]
+  },
+  "fatband/vasp": {
+    "title": "SnSe₂ 的 Sn-s 与 Se-p 逐态胖带",
+    "kind": "DFT",
+    "summary": "将150×20个路径态的PROCAR投影与EIGENVAL按索引配对，保留两原子Se-p及Sn-s原始权重，给出带边投影表。",
+    "inputs": [
+      {
+        "method": "bands",
+        "label": "同一 SnSe₂ 路径的 EIGENVAL 与 LORBIT=11 PROCAR"
+      }
+    ],
+    "related": [
+      "dos",
+      "population-analysis"
+    ],
+    "files": [
+      "bands/PROCAR",
+      "bands/POSCAR",
+      "bands/EIGENVAL",
+      "tables/fatband.csv",
+      "tables/path-edges.csv",
+      "analysis.out",
+      "analyse.py",
+      "plot.py"
     ]
   }
 };

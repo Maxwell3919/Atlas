@@ -1,0 +1,8 @@
+{
+  "parent": "scf/CHGCAR",
+  "child_original_density_identical": true,
+  "parent_child_PAW_identical_on_source": true,
+  "sha256": "a5ce4be5ffd31a68f0b5a96ee3f9d9b330f171a9366bc9d5bf52694d93e4f9ec",
+  "bytes": 38535563,
+  "note": "The source dos CHGCAR was byte-identical; only the parent copy is distributed."
+}

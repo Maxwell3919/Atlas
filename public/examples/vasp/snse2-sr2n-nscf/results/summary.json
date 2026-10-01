@@ -1,0 +1,50 @@
+{
+  "version": "vasp.5.4.4.18Apr17-6-g9f103f2a35 (build Feb 26 2024 21:30:50) complex",
+  "parent_parameters": {
+    "ENCUT": 520.0,
+    "ISPIN": 1.0,
+    "ISMEAR": 0.0,
+    "SIGMA": 0.05,
+    "NELECT": 51.0,
+    "NBANDS": 32.0,
+    "NKPTS": 37.0,
+    "LMAXMIX": 4.0,
+    "IVDW": 11.0
+  },
+  "child_parameters": {
+    "ENCUT": 520.0,
+    "ISPIN": 1.0,
+    "ISMEAR": 0.0,
+    "SIGMA": 0.05,
+    "NELECT": 51.0,
+    "NBANDS": 32.0,
+    "NKPTS": 37.0,
+    "LMAXMIX": 4.0,
+    "IVDW": 11.0
+  },
+  "parent_ICHARG": 2.0,
+  "child_ICHARG": 11.0,
+  "parent_EDIFF_reached": true,
+  "child_EDIFF_reached": true,
+  "parent_timing_footer": true,
+  "child_timing_footer": true,
+  "parent_CHGCAR_sha256": "a5ce4be5ffd31a68f0b5a96ee3f9d9b330f171a9366bc9d5bf52694d93e4f9ec",
+  "same_POSCAR": true,
+  "same_KPOINTS": true,
+  "NEDOS": 301,
+  "fermi_energy_eV": -1.49081474,
+  "energy_min_eV": -38.37991605,
+  "energy_max_eV": 4.59266727,
+  "mean_DOS_energy_spacing_eV": 0.14324333333333333,
+  "nearest_EF_sample": {
+    "energy_eV": -1.423,
+    "energy_minus_EF_eV": 0.06781473999999998,
+    "DOS_states_per_eV_cell": 2.573,
+    "integrated_states_per_cell": 51.18
+  },
+  "EIGENVAL_counts": {
+    "NELECT": 51,
+    "NKPTS": 37,
+    "NBANDS": 32
+  }
+}

@@ -1,5 +1,7 @@
 这里从金刚石结构的 Si 出发：立方常规胞有 8 个原子，边长取 5.43 Å。先把第一个原子沿三个方向分别移动 0.10、−0.06、0.04 Å，再固定晶胞做 BFGS 优化。这样起点带着明确的原子力，可以同时看见能量下降、力收敛和晶胞保持不变。
 
+这个位移测试检查已加载的势能模型与 ASE 优化器能否共同降低原子力，得到可继续做变胞优化的内部坐标。[Batatia 等的 MACE 方法论文](https://arxiv.org/abs/2206.07697)第 2.1 节式 (4)、第 4 节式 (13)说明能量读出；本页由指定的 MACE-MP-0 small 文件提供能量与力，ASE 移动原子。与 DFT 的 Si 平衡结构是否一致，需要同结构对照。
+
 结构由 ASE 的 `bulk("Si", "diamond", a=5.43, cubic=True)` 明确生成。5.43 Å 是这次教学输入，不是本次拟合出的平衡晶格常数。所用 MACE-MP-0 small 势来自[官方模型发布](https://github.com/ACEsuit/mace-foundations/releases/tag/mace_mp_0)，所用文件的 SHA256 见下面的模型准备步骤。
 
 - [MACE：预训练模型与 ASE 接口](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
@@ -216,11 +218,12 @@ python3 plot.py
 
 完整材料：[输入](/Atlas/examples/mace-si/si-relax/relax.py)、[原始输出](/Atlas/examples/mace-si/si-relax/relax.out.txt)、[优化轨迹](/Atlas/examples/mace-si/si-relax/relax.traj)、[末步 CIF](/Atlas/examples/mace-si/si-relax/relaxed.cif)。
 
-## 文献中的相关图件与表达方式
+<span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-固定晶胞弛豫可用于比较表面不同吸附位点：分别优化顶位、桥位或空位附近的初始结构，再检查它们是否落入不同的局部极小值。迁移势垒需要另一类计算，不能把路径上的插值构型各自无约束弛豫后，将所得能量连成势垒曲线；中间构型可能全部回到同一端点。求最小能量路径时，应采用 NEB 等带路径约束的方法，见 [climbing-image NEB 原论文](https://doi.org/10.1063/1.1329672)。机器学习势可用于提供力和能量，但用于新体系前仍需检查模型对这些构型的适用性。
+## 从优化末态继续计算
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M8_NEB_DiffusionBarrier_Electrenes_Fig5.jpg" alt="二维电极化合物表面的高对称吸附位点、扩散路径及多体系迁移势垒对比" loading="lazy"/><figcaption>表面多位点固定晶胞弛豫与迁移势垒综合图件：包含候选吸附位点（Site 1–3）与迁移路径（Path 1–3）的俯视几何、路径能量曲线及多材料能垒对比柱状图（Kocabas 等，<em>J. Phys. Chem. Lett.</em> <strong>9</strong>, 4262 (2018)，<a href="https://doi.org/10.1021/acs.jpclett.8b01468" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpclett.8b01468</a>）。</figcaption></figure>
+固定晶胞优化给出这份 MACE 模型上的局部极小构型。后续若开放晶胞自由度，沿用同一个模型和几何继续检查原子力与应力；做动力学时，从已检查的末态准备初始速度。
 
 下一步：想让晶格常数也由这份势决定，接着做[可变晶胞优化](/Atlas/m/vc-relax/mace/)；准备有限温度轨迹时，先使用那里已检查原子力与应力的结构，再进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)。
 

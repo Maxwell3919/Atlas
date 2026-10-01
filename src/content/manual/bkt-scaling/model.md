@@ -2,6 +2,8 @@
 
 把一个小箭头放在每个格点上，相邻箭头越平行，能量越低。升高温度后，局部方向会波动；绕某个小方格走一圈，方向还可能完整转过一周。这一页实际运行这样的二维 XY 模型，看自旋构型、涡旋和相位刚度怎样随温度与尺寸变化。
 
+这里关心的是二维系统怎样失去长程的相位刚度：对边界施加微小扭转的自由能代价，如何随温度和系统尺寸变化？经典 XY 模型只保留相位自由度，涡旋与相位刚度因而可以直接观察。[Hasenbusch 的有限尺寸研究](https://arxiv.org/abs/cond-mat/0502556)第 2.2 节式 (8)、(9) 定义扭转响应，第 3 节式 (31) 和第 4 节讨论跃变附近的对数尺寸修正。文中使用无量纲刚度 Υ，本页以能量单位记录 Y，两者按 Υ=Y/(kB·T) 对应；本页图上比较 Y 与 2T/π。文献的大尺寸单团簇抽样与本例小尺寸棋盘式 Metropolis 不同；这套 Python/NumPy 计算提供相位相干的模型例子，不输入 EPC 谱，也不给材料的开尔文 Tc。
+
 这是使用 Python 与 NumPy 运行的方格经典 XY 模型。以 J 作为能量单位、J/kB 作为温度单位；程序令 J=kB=1，因此输入 0.92 表示 kB·T/J=0.92。下文和原始输出中的 T/J 是这一约定下的简写，不能直接标为 K。一次 Monte Carlo sweep 是抽样操作，不是飞秒、皮秒或真实自旋动力学时间。
 
 [下载完整算例](/Atlas/examples/xy-bkt-files.tar.gz)后，可以查看全部随机种子、热化记录、抽样序列和末态构型。[mc.py](/Atlas/examples/xy-bkt/mc.py) 是完整计算输入，[analyse.py](/Atlas/examples/xy-bkt/analyse.py) 提取相位刚度与误差，[verify.py](/Atlas/examples/xy-bkt/verify.py) 核对保存数据，[plot.py](/Atlas/examples/xy-bkt/plot.py)（同时下载同目录的 [atlas_plot_style.py](/Atlas/examples/xy-bkt/atlas_plot_style.py)） 重新作图。

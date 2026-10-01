@@ -2,6 +2,8 @@
 
 一个声子频率只告诉我们这个振动有多快。电子声子计算还会给出线宽 γ：在 QE 采用的定义下，它包含该模式与费米面附近电子态的耦合及可用散射相空间。本页从真实输出里找到这些数字，把频率、γ 和 λ 放在同一行，再按 q 点比较。
 
+把 γ 与逐模 λ 放在一起，是为了辨认哪些模式的电子–声子散射较强，以及它们怎样进入配对谱；频率因子也参与 γ 到 λ 的换算。本页计算的是电子–声子贡献，声子–声子非谐散射需要另一套计算。[Qiu 等的 Ba₂N 研究](https://doi.org/10.1103/PhysRevB.105.165101)式 (2)–(4) 联系 λ、α²F 与 γ，图 3 用红色点的大小在色散上编码 γ，并结合振动模式解释其来源。该文的结构和电子态使用 VASP，声子与 EPC 使用 QE；这里的 Al 则以三个声学分支学习相同量的逐模读法。
+
 这里沿用 [Al EPC 与 α²F](/Atlas/m/eliashberg-a2f/qe/) 的完整 4³ q 网格。SCF、致密网格与 `ph.x` 的完整输入见 [EPC 主教程](/Atlas/m/epc/qe/#double-grid-al-inputs)，本页从 `elph_dir` 开始。单原子 fcc Al 原胞只有三个声学分支，不存在本例中的光学分支。当前网格用来学习输出结构，尚未给出收敛的线宽预测。
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后进入 `al`，按正文运行绘图命令。
@@ -1047,11 +1049,14 @@ if __name__ == '__main__':
 
 动量分辨的声子线宽 `γ_qν` 常叠加在声子色散上，或与第一布里渊区的电子磁化率与费米面嵌套函数并列比较。下面结合两幅文献原图说明其表示方式：
 
-### 1. 声子色散上的连续变宽度色带叠加（Fat-Phonon Ribbon）
+<span id="1-声子色散上的连续变宽度色带叠加fat-phonon-ribbon" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-1-声子色散上的连续变宽度色带叠加-fat-phonon-ribbon" class="legacy-anchor" aria-hidden="true"></span>
+
+### 1. 声子色散上的模式分辨线宽叠加
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="二维电子化合物 Ba₂N 的声子色散与电声线宽 γ_qν 变宽度红色色带叠加图" loading="lazy"/><figcaption>二维电子化合物 Ba<sub>2</sub>N 的声子色散与模式分辨声子线宽 γ<sub>qν</sub> 叠加图：黑色实线表示声子本征色散，沿声子支绘制的实心红色色带上下包络宽度正比于对应 (q, ν) 处的电声线宽 γ<sub>qν</sub>。图片来源：Qiu et al., <em>Phys. Rev. B</em> <strong>105</strong>, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevB.105.165101</a>。</figcaption></figure>
 
-- **绘图方式对比**：对于声子支数量较少或重点突出某几条声学/光学支的体系，可以在本征频率曲线 `ω_qν` 上下对称填充 `ω_qν ± c · γ_qν` 的连续实心色带（`fill_between`）；而在 18 条声子支密集交叉的异质结中，采用降采样半透明散点编码更能避免相邻分支重叠遮挡。
+Qiu 等原论文图 3(a) 的图注说明红色点的大小正比于 γ，属于点大小编码。若另行用 `fill_between` 将 `ω_qν ± c · γ_qν` 填成连续色带，那是另一种可选绘法；图中重叠的红点也不能直接解释为连续包络。下图现有图注仍需按原论文修正。
 
 ### 2. 声子软模、二维布里渊区电子磁化率 χ'(q)、嵌套函数 χ''(q) 与声子线宽的四面板对比
 

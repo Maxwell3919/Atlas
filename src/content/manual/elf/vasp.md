@@ -1,4 +1,6 @@
-ELF 是用于分析电子局域化特征的无量纲函数，不是电荷密度，也不能积分成转移电子数。本页沿用 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁结构，读取 ELFCAR 中分别保存的上、下自旋通道，并在 VESTA 中用同一阈值比较三维等值面。两个通道的文件约定见 [ELFCAR 文档](https://vasp.at/wiki/ELFCAR)。
+bcc Fe 自旋极化后，两个自旋通道的电子局域化函数在空间上有什么差别？本页沿用 [bcc Fe 磁构型比较](/Atlas/m/magnetic-gs/vasp/) 的铁磁结构，读取 ELFCAR 的上、下自旋块，在 VESTA 中用同一阈值查看两者的等值面。ELF 是无量纲的局域化描述量，图中位置和形状回答局域化函数如何分布；它的积分不是电子数。两个通道的文件约定见 [ELFCAR 文档](https://vasp.at/wiki/ELFCAR)。
+
+[Savin 的定义讨论](https://doi.org/10.1016/j.theochem.2005.02.034)在 Sec. 1、Eq. (1) 将 ELF 写为 1/[1+(D/Dh)²]，其中 D 是相对于单轨道动能密度的余量，Dh 是均匀电子气的参照量。因此密度积累图与 ELF 图读取的是不同物理量。本例比较的是固定 Fe 数据的两个通道；文献 LaH₂ 中间隙电子的判读还用到中性与失电子结构的对照，不能仅凭这里的单一阈值套用。
 
 [VASP：LELF](https://vasp.at/wiki/LELF) · [ELFCAR](https://vasp.at/wiki/ELFCAR) · [NPAR](https://vasp.at/wiki/NPAR)
 

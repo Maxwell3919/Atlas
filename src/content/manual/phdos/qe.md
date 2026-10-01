@@ -4,6 +4,8 @@
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
+本例从同一组力常数比较 24³ 与 32³ 后处理网格，读取谱形及总积分是否接近单原子原胞的三个振动自由度。这也为振动热力学准备了谱：例如 [Hellman 等的 TDEP 方法论文式 (18)](https://arxiv.org/html/1303.1145)用全布里渊区的声子态密度积分振动自由能。本页只计算态密度，还没有执行这一步自由能计算。
+
 ## 先看手上的动力学矩阵
 
 ```console
@@ -237,7 +239,7 @@ python3 plot_phdos.py
 
 <figure class="research-figure"><img src="/Atlas/figures/literature/M5_Phonon_PHDOS_CDW_MoW_Bekaert2020_Fig3.jpg" alt="四种二维过渡金属碳氮化物在有无自旋轨道耦合及应变调控下的声子色散与元素分辨 PHDOS 对比图" loading="lazy"/><figcaption>四个子面板 (a)–(d) 依次展示 Mo<sub>2</sub>C、Mo<sub>2</sub>N、W<sub>2</sub>C 及 4% 双轴应变 W<sub>2</sub>N 在不含自旋轨道耦合（红虚线）与含自旋轨道耦合（蓝实线）下的声子色散及右侧共享频率轴的元素分辨 PHDOS；子面板 (d) 同时以绿色点线（标有 <code>CDW &lt;-</code>）叠绘未应变 W<sub>2</sub>N 在 M 点的电荷密度波软模虚频支。图片来源：Bekaert et al., <em>Nanoscale</em> <strong>12</strong>, 17354 (2020)，<a href="https://doi.org/10.1039/D0NR03875J" target="_blank" rel="noopener noreferrer">DOI: 10.1039/D0NR03875J</a>。</figcaption></figure>
 
-每个子面板将声子色散与右侧的元素投影 PHDOS 紧邻拼接并共用频率纵轴（隐藏右侧重复的 Y 轴刻度标签），直观呈现过渡金属（Mo/W）占据低频声学区、轻元素（C/N）占据高频光学区的频段分离，同时对比自旋轨道耦合（SOC）与双轴应变对 M 点声学软模的调控。
+色散与右侧元素投影 PHDOS 使用同一频率轴，先读取每种材料的振动组成，再比较 SOC 与应变。碳化物具有较清楚的频段间隔；Mo₂N 的相应间隔闭合，氮化物中的金属与 N 振动不能按同一条频率线分开。W₂N 的未应变软模与 4% 应变结果另作对照。
 
 ### 2. 声子色散、模式耦合强度、元素分辨 PHDOS 与 Eliashberg α²F(ω) 多面板并列
 

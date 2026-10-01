@@ -2,6 +2,8 @@
 
 离子弛豫利用原子力更新位置，同时保持晶胞不变。本例从 [Si SCF](/Atlas/m/scf/qe/) 的两原子结构出发，将第二个 Si 沿 x 方向移开约 0.108 Å，再观察 BFGS 优化怎样减小残余力。第一个原子固定，用来去除整体平移自由度。截断能与 k 网格沿用入门算例，参数比较见[收敛测试](/Atlas/m/convergence/qe/)。
 
+如果直接使用对称位置，原子力可能已经为零，便看不到优化如何修复内部坐标。本例有意加入位移，检查给定晶胞中能否回到小残余力的结构，为后续固定结构性质建立起点。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节区分原子坐标与晶胞自由度；本页只开放前者，末态不能回答平衡体积是多少。
+
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [QE 的 Si 结构示例](https://github.com/QEF/q-e/blob/qe-7.5/PW/examples/example01/run_example)
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/si-pbe-lesson-files.tar.gz)。解包后保留目录结构，进入 `si-pbe` 运行文中的绘图命令；赝势按正文的官方来源准备。

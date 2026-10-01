@@ -1,5 +1,7 @@
 高对称路径只采到倒空间中的几条线，不能完整显示能谷的形状。本页在 Si 的 Γ–X 导带谷附近计算三维 k 点网格，再从中取纵向与横向两个切面，比较不同方向上的色散。图的竖轴是能量，另外两个轴是波矢，不是原子的实空间位置。
 
+这个局部切面也能说明纵向和横向有效质量为什么不同。[Yates 等 Eq. (24)](https://arxiv.org/pdf/cond-mat/0702554)把逆质量张量写成能量对两个波矢分量的二阶导数；本页先看两个方向的谷形，再由[有效质量页](/Atlas/m/effective-mass/qe/)用局部采样拟合曲率。
+
 [带隙](/Atlas/m/band-gap/qe/)与[有效质量](/Atlas/m/effective-mass/qe/)将这个谷定位在 `kx≈0.8443×2π/a`。这里保持同一 Si 晶胞、PBE、无 SOC 和 `60/640 Ry` 截断，读取有效质量页所述的 `12³` 父 SCF 密度。重新计算时应先完成该页的 `k12` 输入，而不是直接接用 SCF 入门页的 `8³` 密度。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)

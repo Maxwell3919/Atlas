@@ -1,4 +1,6 @@
-Bader 分析把实空间分成一个个原子盆地，再积分盆地内的电子数。先用两个完全等价的 Fe 原子跑通一次：它们的分区电子数应当相同，整胞总数也应与 VASP 的价电子数一致。这个小体系很容易看清输入、三维网格、参考密度与 ACF.dat 之间的关系。
+连续电子密度怎样分配给原子，分出来的电子数是否保持晶体中原子的等价性？本页用两个等价 Fe 原子的铁磁 bcc 原胞，先以全电子参考密度确定 Bader 盆地，再积分盆地内的价电子密度。对照两套粗、细网格设置，检查每个 Fe 的盆地电子数和整胞总数；两个等价原子之间的小差异用于判断分区采样的影响。
+
+Bader 盆地边界满足密度梯度沿法向为零。[Henkelman、Arnaldsson 和 Jónsson](https://doi.org/10.1016/j.commatsci.2005.04.010)的 Sec. 1–2 说明如何沿网格密度的上升路径把点分配到同一极大值，并讨论赝势核附近的密度问题。本例的 AECCAR0+AECCAR2 用于确定边界，ACF.dat 的电子数来自 CHGCAR；这两份密度承担不同作用。
 
 [Henkelman 组：Bader 程序](https://www.henkelmanlab.org/code/bader/) · [VASP：LAECHG](https://vasp.at/wiki/LAECHG) · [CHGCAR](https://vasp.at/wiki/CHGCAR)
 
@@ -296,7 +298,7 @@ ACF.dat 将总数打印为16.0000 e，两个盆地数在所列六位小数下相
 
 ## 文献如何比较界面电荷
 
-在金属/MoS₂ 与金属/Ca₂N/MoS₂ 的研究中，Fig. 2(c) 将 MoS₂ 的 Bader 转移量与接触距离联系起来，并区分不同接触强度。[Phys. Chem. Chem. Phys. 27, 5786 (2025)](https://doi.org/10.1039/D4CP04577G)。该文使用 Yu–Trinkle/critic2 分区。本例用 Henkelman Bader 程序验证同质 Fe 的等价性和网格变化；界面比较需要在自己的密度、片段参考与分区定义下重新求值。
+在金属/MoS₂ 与金属/Ca₂N/MoS₂ 的研究中，Fig. 2(c) 将 MoS₂ 的 Bader 转移量与接触距离联系起来，并区分不同接触强度。[Phys. Chem. Chem. Phys. 27, 6438 (2025)](https://doi.org/10.1039/D4CP04577G)。该文使用 Yu–Trinkle/critic2 分区。本例用 Henkelman Bader 程序验证同质 Fe 的等价性和网格变化；界面比较需要在自己的密度、片段参考与分区定义下重新求值。
 
 下一步接 [差分电荷密度](/Atlas/m/delta-charge/vasp/)，查看电子在空间中的增减位置；或接 [ELF](/Atlas/m/elf/vasp/)，读取这次同一计算写出的局域化函数。盆地电荷与空间分布回答的问题不同，应保留各自的定义。
 

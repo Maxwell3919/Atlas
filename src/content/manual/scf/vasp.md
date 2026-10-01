@@ -1,5 +1,7 @@
 本页用两原子的 bcc Fe 常规胞演示固定结构 SCF。先准备结构、PAW 数据、电子参数和 k 网格，再从 OSZICAR 与 OUTCAR 中检查电子迭代、能量、磁矩、力和压力。电子自洽得到的是给定结构与磁性设置下的一组解；几何优化和不同磁态的比较需要另外进行。
 
+bcc Fe 的自旋极化会改变电子占据和总能量。这支固定结构的铁磁解提供能量与磁矩，供后续在相同结构、PAW 数据和采样下比较磁构型。电子自洽的固定点含义可参照 [Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)附录 A.1 式 (A.1)；本页实际使用 VASP 5.4.4，电子停止条件按 [EDIFF](https://vasp.at/wiki/EDIFF) 读取。
+
 [VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
 
 [下载本次 SCF 的输入和输出](/Atlas/examples/vasp/fe-scf-files.tar.gz)。包内保留输入、OUTCAR、OSZICAR 和本例生成的其他小输出文件；POTCAR 只提供 TITEL、ZVAL 与 SHA256，使用前需从自己的授权赝势库准备对应文件。下面保留这次已执行的终端操作和结果。
@@ -312,11 +314,12 @@ LELF = .TRUE.
 
 
 
-## 文献中的相关图件与表达方式
+<span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-对于 Janus 单层或单面吸附薄膜等非对称结构，面外电荷分布可能产生净偶极，使两侧的真空能级不同。`LVHAR = .TRUE.` 输出的 LOCPOT 包含离子势与 Hartree 势，可用于求平面平均电势。周期性边界还会引入人工电场；偶极修正用于减小这类周期镜像误差，并不是材料两侧本征真空能级差的物理来源。读图时应区分两侧的平台高度与修正势在真空中的不连续位置。参数含义分别见 [LVHAR](https://vasp.at/wiki/LVHAR) 和 [LDIPOL](https://vasp.at/wiki/LDIPOL)。
+## 从自洽结果继续计算
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_JanusDipoleStep_VBM_CBM_MoSSe_C2DB2018_Fig12.jpg" alt="极性 Janus MoSSe 单层经偶极修正后的自洽静电势分布与两侧真空能级差" loading="lazy"/><figcaption>极性二维单层 MoSSe 的自洽静电势与带边对齐：展示沿垂直方向平面平均静电势在偶极修正下的两侧真空平台差值，以及相对于两侧真空能级的带边位置（Haastrup 等，<em>2D Mater.</em> <strong>5</strong>, 042002 (2018)，<a href="https://doi.org/10.1088/2053-1583/aacfc1" target="_blank" rel="noopener noreferrer">DOI: 10.1088/2053-1583/aacfc1</a>）。</figcaption></figure>
+这次 Fe 自洽计算保留的电子密度，可以用于同结构、同磁态的密度分析。进入后续目录前，先核对需要的是 CHGCAR 还是 WAVECAR，再查看对应的参数开关。
 
 下一步若比较磁构型，接 [磁性基态候选态](/Atlas/m/magnetic-gs/vasp/)；若读真空能级，接 [功函数](/Atlas/m/workfunction/vasp/)。这些页面各自说明需要继承哪些文件，SCF 的一般读法不再重复展开。
 

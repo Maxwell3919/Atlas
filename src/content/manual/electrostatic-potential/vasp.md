@@ -1,4 +1,6 @@
-把二维异质结构沿法向剖开，原子附近的势起伏很大，真空区应当逐渐平坦。这里读取一份已经结束的 HfCl₂/PbO₂ 静态计算：六个原子，晶胞沿 z 为 30 Å，使用 PBE、D3(BJ) 和 z 方向的偶极修正。我们从它的 LOCPOT 生成平面平均势，并保留两侧真空平台。
+非对称薄层两侧能否使用同一个真空能量参考？本页读取一份已经结束的 HfCl₂/PbO₂ 固定几何静态计算，将 LOCPOT 的离子势加 Hartree 势沿 xy 平面平均，再分别统计两侧真空平台。两侧平台差和平台内的起伏回答真空参考是否相同、所选窗口是否平坦，为后续逐侧计算功函数和能带对齐提供参考。该结构有六个原子，z 向晶胞为 30 Å，采用 PBE、D3(BJ) 和 z 方向偶极修正。
+
+这里的平均量是 V̄(z)=A⁻¹∫A V(x,y,z)dxdy，V 按本例 [LVHAR](https://vasp.at/wiki/LVHAR) 的定义取离子势加 Hartree 势。[Zhang 等](https://doi.org/10.1039/D5CP02349A)在 Sec. II–III 和 Fig. 4 用法向电势与结构位置研究 ZrI₂/半金属界面；本例使用这一坐标对照思路，实际平台和偶极修正区域仍由自己的 LOCPOT 决定。
 
 结构和静态自洽的准备接 [SCF](/Atlas/m/scf/vasp/)。
 
@@ -286,7 +288,7 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
 
 另一类常见表达是将平面平均静电势 V<sub>eff</sub>(Z) 与平面平均差分电荷密度 Δρ(Z) 左右并排放置，共用垂直方向的法向坐标轴 Z，以便在同一位置对照电荷积累、耗尽区域与电势变化。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="共用垂直 Z 轴的平面平均静电势与平面平均差分电荷密度并排对照图" loading="lazy"/><figcaption>ZrI<sub>2</sub>/NbS<sub>2</sub> 异质结的平面平均静电势 <em>V</em><sub>eff</sub>(<em>Z</em>) 与平面平均差分电荷密度 Δρ(<em>Z</em>) 共用垂直 <em>Z</em> 轴并排对齐展示，并叠加三维差分电荷密度等值面与侧视原子结构。引自 Huang 等人，<em>J. Phys. Chem. C</em> <strong>129</strong>, 11654 (2025)，Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M3_Veff_and_DeltaRho_SharedZ_ZrI2_NbS2_Huang2025_Fig4a.jpg" alt="共用垂直 Z 轴的平面平均静电势与平面平均差分电荷密度并排对照图" loading="lazy"/><figcaption>ZrI<sub>2</sub>/NbS<sub>2</sub> 异质结的平面平均静电势 <em>V</em><sub>eff</sub>(<em>Z</em>) 与平面平均差分电荷密度 Δρ(<em>Z</em>) 共用垂直 <em>Z</em> 轴并排对齐展示，并叠加三维差分电荷密度等值面与侧视原子结构。引自 Huang 等人，<em>J. Phys. Chem. C</em> <strong>129</strong>, 13776 (2025)，Fig. 4a，<a href="https://doi.org/10.1021/acs.jpcc.5c02913" target="_blank" rel="noopener noreferrer">DOI: 10.1021/acs.jpcc.5c02913</a>。</figcaption></figure>
 
 下一步也可接 [能带对齐](/Atlas/m/band-alignment/vasp/)。比较两种材料前，还要准备各自一致的能带边与势参考。
 

@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='utf-8'?>
+<incar>
+  <i type="string" name="SYSTEM"> SnS2</i>
+  <i type="string" name="PREC">accurate</i>
+  <i type="string" name="ALGO"> N</i>
+  <i type="int" name="NSIM">     4</i>
+  <i type="int" name="MAXMIX">    80</i>
+  <i name="AMIX">      0.10000000</i>
+  <i name="BMIX">      0.00010000</i>
+  <i name="AMIX_MAG">      0.40000000</i>
+  <i name="BMIX_MAG">      0.00010000</i>
+  <i type="int" name="ICHARG">    11</i>
+  <i type="int" name="NELM">   160</i>
+  <i type="int" name="NELMIN">     4</i>
+  <i type="int" name="IBRION">    -1</i>
+  <i name="EDIFF">      0.00000100</i>
+  <i type="int" name="ISIF">     2</i>
+  <i name="ENCUT">    400.00000000</i>
+  <i type="string" name="LREAL"> A                 projection done in re</i>
+  <i type="logical" name="LPLANE"> T  </i>
+  <i type="int" name="ISMEAR">     0</i>
+  <i name="SIGMA">      0.05000000</i>
+  <i type="logical" name="LCORR"> T  </i>
+  <i type="int" name="LMAXMIX">     4</i>
+  <i type="logical" name="LWAVE"> F  </i>
+  <i type="logical" name="LCHARG"> F  </i>
+  <i type="int" name="LORBIT">    11</i>
+  <i type="logical" name="LASPH"> T  </i>
+  <v type="int" name="KPOINT_BSE">    -1     0     0     0</v>
+  <i type="int" name="NELM">   160</i>
+  <i type="string" name="GGA"> PE</i>
+  <i type="int" name="VOSKOWN">     1</i>
+  <i type="logical" name="LASPH"> T  </i>
+ </incar>
+ 

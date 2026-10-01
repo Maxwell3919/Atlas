@@ -1,6 +1,8 @@
-一个六层 slab 的最上面一层被逐渐抬高，能量会怎样变化？这里读取一组已经存在的 HfI₂ 固定结构单点：位移零点与 2–20 Å 共 20 个完整结果。另有 7 个目录缺少完整电子收敛或正常结束记录，保存在排除表中。本例以这份冻结六层 slab 的位移零点为参考，得到 `W(20 Å)=0.36641176 J/m²` 的有限距离分离功。材料剥离能需要相应的体相或 bulk-like 参考；解理能对应分开两块材料的界面操作，两者应按各自结构与分离方式定义。
+从层状材料表面取走一层，需要付出多少单位面积的能量？这一能量代价是判断机械剥离难易的出发点。本例先回答一个确定的模型问题：固定 HfI₂ 六层 slab 的其余坐标，将最上面一层逐渐抬高时，相对位移零点的能量怎样变化？已有零点与 2–20 Å 共 20 个完整单点，另有 7 个未完成结果列入排除表。能量差除以面内面积，得到 `W(20 Å)=0.36641176 J/m²` 的有限距离分离功；后面再从参考厚度、几何弛豫与周期镜像间距判断如何接到材料剥离能。
 
 [VASP：OUTCAR 输出](https://vasp.at/wiki/OUTCAR) · [VASP：展宽与能量选择](https://vasp.at/wiki/Smearing_technique) · [VASP：IVDW 色散修正](https://vasp.at/wiki/IVDW) · [Jung 等：剥离能与参考态](https://arxiv.org/abs/1805.04527)
+
+[Jung 等的方法论文](https://arxiv.org/html/1805.04527v1)在 Fig. 1–2 区分厚 slab 的逐层剥离与体相—单层参考，式 (1)–(7) 用厚度极限建立二者关系。那里允许剩余薄膜与分离层弛豫；本例保持六层几何冻结，直接计算随位移变化的 ΔE/A。因此先读这条分离曲线，再检查厚度、弛豫和大距离极限，才能讨论对应材料的剥离代价。
 
 [下载本例原始输入、OUTCAR、提取与绘图脚本](/Atlas/examples/hfi2-frozen20-files.tar.gz)，解压为 `hfi2-frozen20`。包内 `raw/` 保留各目录的实际文件，电子失败的长标准输出以 `out.gz` 保存；读取能量与验收使用 OUTCAR。重新提取已有结果不需要 VASP，重新计算则需要自行准备有权限的匹配 POTCAR。
 
@@ -800,7 +802,7 @@ d16-20 energy spread=0.77266 meV/cell; d19->20=-0.42288 meV/cell
 
 以下两篇论文都把材料剥离能与明确的多层参考结构和分离距离联系起来。TbCl 研究的 **Fig. 3a** 使用五层 slab；正文报告单层剥离能 0.24 J/m²，并与 graphite（约 0.32 J/m²）和 H-MoS₂（约 0.29 J/m²）比较，随后把较低能量解释为从 bulk 更易剥离。见 “5d orbital induced room temperature quantum anomalous Hall effect in TbCl,” *npj Computational Materials* 11, 236 (2025), [DOI](https://doi.org/10.1038/s41524-025-01732-0)。
 
-CaCl 研究的 **Fig. 5(a)** 比较 AB-stacking 与 P3m1 结构的距离曲线，图注明确说明 bulk 以 16 个原子层建模；正文报告 AB-stacking 的剥离能为 0.17 J/m²，并据此讨论其较易剥离。见 Ying Chen et al., “A van der Waals CaCl semiconducting electride and ferromagnetic half-metallicity induced by superhalogen decoration,” *Materials Today Communications* 32 (2022), 104176, [DOI](https://doi.org/10.1016/j.mtcomm.2022.104176)。
+CaCl 研究的 **Fig. 5(a)** 比较 AB-stacking 与 P3m1 结构的距离曲线，图注明确说明 bulk 以 16 个原子层建模；正文报告 AB-stacking 的剥离能为 0.17 J/m²，并据此讨论其较易剥离。见 Ying Chen et al., “A van der Waals CaCl semiconducting electrene and ferromagnetic half-metallicity induced by superhalogen decoration,” *Materials Today Communications* 32 (2022), 104176, [DOI](https://doi.org/10.1016/j.mtcomm.2022.104176)。
 
 参照是六层冻结 HfI₂ slab。d=16–20 Å 能量仍非单调，表中报告各实际距离的 ΔE/A；继续增加分离距离并检验平台后讨论大距离极限。与体相参照论文比较时，先统一参考厚度、堆垛与位移定义。
 

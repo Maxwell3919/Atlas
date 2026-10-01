@@ -1,5 +1,7 @@
 Si 的价带顶位于 Γ 附近，导带底却在 Γ–X 之间。只在几个高对称点读数，容易越过真正的导带谷；只看 DOS 的展宽曲线，也很难准确给出能隙。这次从均匀 k 网格中找价带最高值和导带最低值，再把导带谷附近加密，逐步看清误差来自哪里。
 
+[Santos 等 Sec. II、III D 与 Fig. 4](https://doi.org/10.1063/5.0286460)比较单层 HfBr₂、HfI₂ 的 PBE 与 HSE06 能带，极值在 C–Z 与 Γ–Y 路径内部，而非仅在端点。本页用 Si 比较 k 采样误差，论文则还改变交换关联近似；本页得到的是所用 PBE 模型的本征值间隙，光学吸收还涉及跃迁矩阵元及电子—空穴相互作用。
+
 结构、赝势和父密度沿用[收敛测试](/Atlas/m/convergence/qe/)中的固定两原子 Si 原胞。如何得到父密度见[SCF](/Atlas/m/scf/qe/)，如何让非自洽计算读取它见[NSCF](/Atlas/m/nscf/qe/)。这里保持同一结构、PBE、`60/640 Ry`、无 SOC，比较 `12³`、`18³`、`24³` 三个均匀网格；这三组计算分别读取同一份 8³ 父 SCF 密度的独立副本；后文再单独改变父 SCF 网格。
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
@@ -478,9 +480,9 @@ python3 plot_si.py gap
 
 ## 文献中对不同层级能隙与光学跃迁的比较方式
 
-半局域泛函（如 GGA-PBE）通常会低估半导体与绝缘体的带隙。文献中报告能隙时，常将 PBE 与杂化泛函（如 HSE06）的能带及态密度上下对照排列，并用箭头在图上直接标出直接跃迁（如 Γ→Γ）与间接跃迁（如 Γ→M）的带边位置。
+半局域泛函（如 GGA-PBE）通常会低估半导体与绝缘体的带隙。文献中报告能隙时，常将 PBE 与杂化泛函（如 HSE06）的能带及态密度上下对照排列，并沿实际采用的路径标明带边位置。下面这幅 HfBr₂/HfI₂ 图使用 Γ–Y–C–Z–Γ 路径，极值位于 C–Z 与 Γ–Y 线段内，读取间接带隙时要保留它们在路径中的位置。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="HfBr2 与 HfI2 在 GGA-PBE 与 HSE06 下的能带结构、态密度及直接与间接带隙跃迁箭头标注" loading="lazy"/><figcaption>单层 HfBr<sub>2</sub>（红色实线）与 HfI<sub>2</sub>（蓝色点线）在 GGA-PBE（上排）与 HSE06（下排）下的能带结构及态密度对比，图中用箭头明确标出直接跃迁（Γ→Γ）与间接跃迁（Γ→M）的带边位置。引自 Santos 等人，<em>J. Appl. Phys.</em> <strong>138</strong>, 104302 (2025)，Fig. 4，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M2_PBE_vs_HSE06_Bands_DOS_HfX2_Santos2025_Fig4.jpg" alt="HfBr2 与 HfI2 在 GGA-PBE 与 HSE06 下的能带结构、态密度及直接与间接带隙跃迁箭头标注" loading="lazy"/><figcaption>单层 HfBr<sub>2</sub>（红色实线）与 HfI<sub>2</sub>（蓝色点线）在 GGA-PBE（上排）与 HSE06（下排）下的能带结构及态密度对比，图中箭头标出 Γ–Y–C–Z–Γ 路径上的能隙，带边位于 C–Z 与 Γ–Y 线段内。引自 Santos 等人，<em>J. Appl. Phys.</em> <strong>138</strong>, 104302 (2025)，Fig. 4，<a href="https://doi.org/10.1063/5.0286460" target="_blank" rel="noopener noreferrer">DOI: 10.1063/5.0286460</a>。</figcaption></figure>
 
 若进一步引入多体微扰理论修正，常在同一坐标系下叠加 GGA、杂化泛函与自洽准粒子 GW（scQPGW）能带，直观显示准粒子自能对不同能带的非均匀拉伸或移动，而非简单的刚性平移。
 

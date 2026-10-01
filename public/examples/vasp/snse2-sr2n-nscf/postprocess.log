@@ -1,0 +1,5 @@
+$ python3 analyze_nscf.py
+ICHARG: parent=2 child=11; counts: NELECT=51 NKPTS=37 NBANDS=32
+NEDOS=301; EF=-1.49081474 eV; mean_DOS_spacing=0.14324333 eV
+nearest_EF_sample: E-EF=0.06781474 eV; DOS=2.5730 states/eV/cell
+same_POSCAR=True same_KPOINTS=True parent_EDIFF=True child_EDIFF=True

@@ -1,4 +1,6 @@
-`projwfc.x` 能把波函数投影到赝势提供的原子轨道上，并给出 Löwdin 布居。先从两个完全等价的 Si 原子开始，容易看清哪些数字是电子布居，哪些只是投影没有覆盖的部分。结构和父密度的建立见[SCF](/Atlas/m/scf/qe/)，均匀积分网格见[NSCF](/Atlas/m/nscf/qe/)；这里接 `18³` 网格的 `gap18-cg`，其输出中全部本征值求解均已结束。
+Si 的价电子在选定的原子 s、p 轨道子空间中如何分配，这个子空间又覆盖了多少电子？本页用 `projwfc.x` 读取均匀 `18³` 网格的 `gap18-cg` 波函数，提取两个等价 Si 的 Löwdin 布居，并将总投影电子数与 spilling 对照。等价原子的结果应一致；每原子布居与四个价电子之间的差额需要结合投影覆盖解释。结构和父密度见[SCF](/Atlas/m/scf/qe/)，波函数积分网格见[NSCF](/Atlas/m/nscf/qe/)。
+
+[Sánchez-Portal、Artacho 和 Soler](https://doi.org/10.1088/0953-8984/8/21/012)在 Sec. II、Eqs. (1)–(2) 用投影子空间定义 spilling，并在 Sec. VII 讨论布居对原子轨道基组的依赖。本页使用 [QE 7.5 的 Löwdin 原子投影](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html)，不是该论文的非正交 Mulliken 布居；两者都要求说明轨道子空间和投影缺口，原子的空间盆地电荷则另由 Bader 定义。
 
 [projwfc.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html) · [后处理用户手册](https://www.quantum-espresso.org/Doc/pp_user_guide/) · [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 

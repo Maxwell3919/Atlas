@@ -1,4 +1,6 @@
-COHP 将能带能量的贡献分解到选定的原子对，用来观察不同能区的成键与反键特征。本页从金刚石两原子原胞出发，计算四条最近邻 C–C 键的 pCOHP，并比较 k 网格和截断能对积分值的影响。先确认实际输出的是哪些周期键，再读谱和积分；符号约定与投影质量也随结果一起检查。
+金刚石最近邻 C–C 键的哪些能区提供成键贡献，占据态累积后得到怎样的净贡献？本页从固定两原子原胞的 QE 波函数出发，用 LOBSTER 投影四条周期最近邻键，读取 pCOHP 的成键、反键符号和占据态 ICOHP。再改变 k 网格与波函数截断，检查这个键积分对数值设置的敏感性。选等价 C–C 键，是为了同时核对周期键识别、投影和积分，而不把局域带能贡献当成断键能。
+
+[Deringer、Tchougréeff 和 Dronskowski](https://doi.org/10.1021/jp202489s)在 Sec. II.A、Eq. (7) 用投影密度矩阵与 Hamilton 矩阵构造 pCOHP，Sec. III.A、Fig. 2(a) 用金刚石近邻作示例。本页同样研究金刚石 C–C 键，但采用 QE 7.5/LOBSTER 6.0.0、固定几何、Bunge C 2s/2p 与实际 Gaussian 积分；原论文的 VASP/LMTO、局域函数及四面体设置不同，不能按图形相似就称为复现。
 
 - [Quantum ESPRESSO 7.5：pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html)
 - [LOBSTER 官方页面、下载与配套手册](https://www.cohp.de/)

@@ -2,7 +2,7 @@
 // Atlas 共享布局：顶栏只放一个「Atlas」回首页链接，无其他导航项。
 import { normalizeBase } from '../data/methods.js';
 
-const { title = 'Atlas' } = Astro.props;
+const { title = 'Atlas', wide = false } = Astro.props;
 const base = normalizeBase(import.meta.env.BASE_URL);
 ---
 <!doctype html>
@@ -18,7 +18,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     <header class="site-head">
       <a class="wordmark" href={base + '/'}>Atlas</a>
     </header>
-    <main>
+    <main class:list={{ 'site-wide': wide }}>
       <slot />
     </main>
     <footer class="site-foot">Atlas · DFT 计算方法手册</footer>
@@ -83,6 +83,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     margin: 0 auto;
     padding: 0 1.5rem 4rem;
   }
+  main.site-wide { max-width: 68rem; }
   .site-foot {
     padding: 1.4rem 1.5rem;
     border-top: 1px solid var(--line);

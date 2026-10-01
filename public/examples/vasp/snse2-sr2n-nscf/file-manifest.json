@@ -1,0 +1,104 @@
+{
+  "files": {
+    "analyze_nscf.py": {
+      "bytes": 3689,
+      "sha256": "3e18561cdca1486cf84c3ba11a24e2e949e9a34fc9a9c139fddea4f80926e485"
+    },
+    "PACKAGE.md": {
+      "bytes": 703,
+      "sha256": "5736ae1777822f7b15e864d17e27aa6e88a91c269b245ae55f5e41f5f05025d5"
+    },
+    "postprocess.log": {
+      "bytes": 286,
+      "sha256": "a5b5402d5e6b3cabd31b595070f9642d1c17a4f7fb6903c99c0d2a11b905a607"
+    },
+    "density-lineage.json": {
+      "bytes": 314,
+      "sha256": "2f27e1ba19c222aa6bd1407955339e3e48e731992e0c3d45abdc72fd1a29fd14"
+    },
+    "scf/POSCAR": {
+      "bytes": 691,
+      "sha256": "8df6f97cce96d70aae848421ee1424bbacc35261df7723c61267ece8d6a0625f"
+    },
+    "scf/OUTCAR": {
+      "bytes": 119972,
+      "sha256": "cd2eef084666919aa75347b1b4545c3a20782f0de224555e9f29888f631e8513"
+    },
+    "scf/KPOINTS": {
+      "bytes": 77,
+      "sha256": "35f02aaabaa2f7a589bcbfed88be345718dc5d652560691477410320a3de6944"
+    },
+    "scf/CHGCAR": {
+      "bytes": 38535563,
+      "sha256": "a5ce4be5ffd31a68f0b5a96ee3f9d9b330f171a9366bc9d5bf52694d93e4f9ec"
+    },
+    "scf/INCAR": {
+      "bytes": 4052,
+      "sha256": "1930aa521fbf27785f898239bcaf713d4d62501ce0523582503d15d870b21c3f"
+    },
+    "scf/OSZICAR": {
+      "bytes": 2506,
+      "sha256": "276248b8b44e45c2d8a1b2a1a46f60f04516e86090f76e31598ebcdecc5d38b1"
+    },
+    "scf/potcar-metadata.json": {
+      "bytes": 190,
+      "sha256": "e64e197fe630b48dbf47b767208aa3e23dd5fcbf7961ca652c3493c6b61cda6d"
+    },
+    "scf/script_std": {
+      "bytes": 249,
+      "sha256": "ca24e102d623f6344dd562771c8e1f8278095999d13d93e03c573cfbb8bb1ade"
+    },
+    "scf/out": {
+      "bytes": 3892,
+      "sha256": "ad6d6d84e4f29820fa7251b5aa09305cdee4f409329f758a0af02ee795127a13"
+    },
+    "dos/POSCAR": {
+      "bytes": 691,
+      "sha256": "8df6f97cce96d70aae848421ee1424bbacc35261df7723c61267ece8d6a0625f"
+    },
+    "dos/OUTCAR": {
+      "bytes": 85012,
+      "sha256": "d139dec8c62f837635ab3e5b78988a8a4815a26dade76a61f2e4aaf58e97fe9f"
+    },
+    "dos/KPOINTS": {
+      "bytes": 77,
+      "sha256": "35f02aaabaa2f7a589bcbfed88be345718dc5d652560691477410320a3de6944"
+    },
+    "dos/INCAR": {
+      "bytes": 4053,
+      "sha256": "8504e211ba365dd27fc25594a8e08cd31e042ffb1ff062c98bb7ae5fafbc243a"
+    },
+    "dos/DOSCAR": {
+      "bytes": 228213,
+      "sha256": "7e6db91dc35bd63b54d0b6df4378032291e4f4e97485ceb76b8b04ee27a4aa53"
+    },
+    "dos/OSZICAR": {
+      "bytes": 873,
+      "sha256": "e85b4f22ad35fb04a8dcb41cfb5c9b740557bb906db4c4cbe2a562c028051694"
+    },
+    "dos/potcar-metadata.json": {
+      "bytes": 190,
+      "sha256": "e64e197fe630b48dbf47b767208aa3e23dd5fcbf7961ca652c3493c6b61cda6d"
+    },
+    "dos/script_std": {
+      "bytes": 248,
+      "sha256": "464dfb533fa685ad457ff708a0cee874ead0a603bbd63ae9f1bd17c776743284"
+    },
+    "dos/out": {
+      "bytes": 2376,
+      "sha256": "4ca47d23a6fc5a298df86c956f9617b30a4115732efc5143c93183174036cef1"
+    },
+    "dos/EIGENVAL": {
+      "bytes": 41596,
+      "sha256": "ff277146481f252998110764dd743b50c3b629825cb4dc3e21a508f207c85b0c"
+    },
+    "results/total-dos.csv": {
+      "bytes": 10211,
+      "sha256": "51f845163e96a8974903b6970c1f997bc3dd5eef801ca47b4372d57dc579588f"
+    },
+    "results/summary.json": {
+      "bytes": 1233,
+      "sha256": "cdcb6cbf9ddda2747113f619ed38d9a58a8502004e7b5dc5a54dd2e62016dc71"
+    }
+  }
+}

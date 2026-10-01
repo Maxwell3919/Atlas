@@ -2,6 +2,8 @@
 
 在 [Si SCF](/Atlas/m/scf/qe/) 中，原子力接近零，晶胞压力却仍为 38.45 kbar。原子处于对称位置，并不保证体积已经合适。要寻找给定外压下的结构，需要开放相应的晶胞自由度。本页用单原子 fcc Al 展示 `vc-relax` 的输入、晶胞更新和末态检查；后半页保留一份未收敛记录，用于比较不同的停止原因。
 
+Al 的末态将成为本站声子、弹性和费米面的共同几何起点，因此先寻找所选 LDA-PZ 模型在零外压、fcc 约束下的体积。[Giannozzi 等的 QE 方法论文](https://doi.org/10.1088/0953-8984/21/39/395502)第 4.1 节说明晶胞自由度可参与优化；本例的 QE 7.5 [cell_dofree 定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)进一步决定哪些自由度开放。
+
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/) · [Al 例子的官方赝势](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)
 
 Al 算例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 读取文件；赝势按官方来源准备。HfCl₂/PbO₂ 的历史记录放在后面，用来对照 BFGS 未收敛的停止信息。

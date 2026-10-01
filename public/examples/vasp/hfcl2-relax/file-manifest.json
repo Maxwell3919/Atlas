@@ -1,0 +1,60 @@
+{
+  "files": {
+    "POSCAR": {
+      "bytes": 2943,
+      "sha256": "838a5c9a11a6a103306b40a444f740ad97563270edd81fbfe1f47581d4597202"
+    },
+    "OUTCAR": {
+      "bytes": 1874821,
+      "sha256": "877863cda6db847720f162e81dfd63c6b779a59f8d96851d2df3aee83af0de79"
+    },
+    "analyze_relax.py": {
+      "bytes": 3850,
+      "sha256": "60c1b386b72f7ada621bfa111babea47468d7cfa1066128f2cda448d28616a98"
+    },
+    "KPOINTS": {
+      "bytes": 77,
+      "sha256": "35f02aaabaa2f7a589bcbfed88be345718dc5d652560691477410320a3de6944"
+    },
+    "INCAR": {
+      "bytes": 475,
+      "sha256": "24bd898a6ac5541ae0385172837a9d56b197b5e41d63fa898eebe1982718a505"
+    },
+    "PACKAGE.md": {
+      "bytes": 605,
+      "sha256": "5f47c0eec2954c3d96a77a6e495ce68819b66edd616229fb63f6cc6053686b8f"
+    },
+    "CONTCAR": {
+      "bytes": 2943,
+      "sha256": "32cecb715e0ba2fef5e7a20456402d409a6b17162cedfd8487da895688f1fce3"
+    },
+    "OSZICAR": {
+      "bytes": 7579,
+      "sha256": "bfca27db63088c3bc64808ede9710eb3b7bf5478677d201abd9e043da7d752fe"
+    },
+    "postprocess.log": {
+      "bytes": 225,
+      "sha256": "e58ab1b30111ab24fb5d6c8ef0a4d38f68cb1752bf4581b0e7c99de41c6101be"
+    },
+    "potcar-metadata.json": {
+      "bytes": 126,
+      "sha256": "64c146f1b3f22631ba2279b812fbe361951ababcf4646dce6446aec5247c5a25"
+    },
+    "script_std": {
+      "bytes": 263,
+      "sha256": "4cd77160a3e7f86d8e4dc3f75d97d4af8ce312e1f89eb5db857e0213c6e6bd80"
+    },
+    "out": {
+      "bytes": 11346,
+      "sha256": "b99bba25ff8e6bc37d0e8deaebd35874dd6150e3f77728a9ae7caa767adc3fbf"
+    },
+    "results/summary.json": {
+      "bytes": 5854,
+      "sha256": "f9ce7feefe801af57b8a68954551b1564cfb0274976ca0b1833ecc2fcb9da123"
+    },
+    "results/ionic-history.csv": {
+      "bytes": 294,
+      "sha256": "1fba15179de94681eb0e939d861b64ea37be3fe0765d92915a65d629fd9c6500"
+    }
+  }
+}

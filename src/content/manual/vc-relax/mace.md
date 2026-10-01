@@ -1,5 +1,7 @@
 固定晶胞优化只能移动原子。这里把金刚石 Si 的立方胞边长设成 5.60 Å，同时给一个原子加上小位移，让原子坐标和六个晶胞应变自由度一起调整。问题变成了：能量降低之后，原子力和晶胞应力是否同时足够小？
 
+让晶胞参与优化，是为了给后续 Si 分子动力学提供在该模型下残余力和应力都小的起点，减少从偏大晶胞开始的机械扰动。[Batatia 等的 MACE 方法论文](https://arxiv.org/abs/2206.07697)第 4 节式 (13)定义能量读出；这里由 MACECalculator 返回应力，FrechetCellFilter 将晶胞变形交给优化器。下面分别检查原子力、应力与晶胞。
+
 模型准备沿用[固定晶胞优化](/Atlas/m/relax/mace/)中的 MACE-MP-0 small，SHA256 为 `2ddb079cee0e131eaaf6912ba581b394551ead283e95c99cfe78c605d10b5736`。这里只读同一份模型，重新建立一个明确的 8 原子 Si 输入。
 
 - [MACE：预训练模型与 ASE 接口](https://mace-docs.readthedocs.io/en/latest/guide/foundation_models.html)
@@ -207,11 +209,12 @@ python3 plot.py
 
 完整材料：[输入](/Atlas/examples/mace-si/si-vc-relax/vc-relax.py)、[原始输出](/Atlas/examples/mace-si/si-vc-relax/vc-relax.out.txt)、[轨迹](/Atlas/examples/mace-si/si-vc-relax/vc-relax.traj)、[末态结构](/Atlas/examples/mace-si/si-vc-relax/relaxed.extxyz)、[CIF](/Atlas/examples/mace-si/si-vc-relax/relaxed.cif)。
 
-## 文献中的相关图件与表达方式
+<span id="文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
+<span id="h-文献中的相关图件与表达方式" class="legacy-anchor" aria-hidden="true"></span>
 
-机器学习原子间势（如 MACE）的可变晶胞优化常用于晶体结构预测与二元/多元相图的高通量初筛：在各个化学计量比下对大量候选晶胞同时放开晶格矢量与内部坐标进行零压（或指定外压）弛豫，按收敛后的每原子能量构建热力学凸包（convex hull），从中识别稳定相与亚稳相，随后再对凸包附近的低能结构做第一性原理复核与电子结构分析。
+## 从优化末态继续计算
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_BinaryConvexHull_PhaseDiagram_Sc2C_McRae2022_Fig2.jpg" alt="Sc–C 二元体系可变晶胞结构搜索的热力学凸包相图及稳定相晶体与电子结构" loading="lazy"/><figcaption>基于可变晶胞结构弛豫的二元热力学凸包与相稳定性分析：展示 Sc–C 体系跨越不同组分的形成焓凸包、实验已知相与新预测稳定相的位置，以及目标相的晶体结构与能带色散（McRae 等，<em>J. Am. Chem. Soc.</em> <strong>144</strong>, 10862 (2022)，<a href="https://doi.org/10.1021/jacs.2c03024" target="_blank" rel="noopener noreferrer">DOI: 10.1021/jacs.2c03024</a>）。</figcaption></figure>
+这份末态同时检查了原子力、应力和晶胞，可以作为下方短轨迹的初始结构。扩大超胞时保留相同模型与周期条件，再记录热化和关掉热浴后的能量变化。
 
 下一步：用这份末态扩成 64 原子超胞，进入[机器学习势分子动力学](/Atlas/m/mlip-md/mace/)，检查有限时间轨迹和积分步长。
 

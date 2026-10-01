@@ -4,6 +4,8 @@
 
 本例的输入、输出、数据表和绘图脚本可[一起下载](/Atlas/examples/al-lesson-files.tar.gz)。解包后保留目录结构，进入 `al` 运行文中的绘图命令；赝势按正文的官方来源准备。
 
+[Mouhat 与 Coudert](https://arxiv.org/pdf/1410.0065)式 (2)–(3) 把弹性刚度写成能量对应变的二阶导数，式 (6) 给出无外载立方晶体的三个稳定性条件。这里用成对应变的应力斜率求这些刚度，再检查条件中的三个组合；这与声子对不同波矢原子位移的检查相互补充。
+
 ## 留住零应变结构，再建立成对的形变
 
 [Al 声子页的固定结构 SCF](/Atlas/m/phonon-dfpt/qe/) 中保存的晶格作为参考。先复制输入，新的目录只放新的结构和输出，原来的 SCF 保留：
@@ -300,7 +302,7 @@ python3 plot_elastic.py
 
 低对称二维晶体的弹性分析需要先在规定的应力状态和应变空间中检查刚度矩阵，再计算不同面内方向的杨氏模量、剪切模量和泊松比。前两者反映相应形变的刚度，泊松比描述横向应变响应；负泊松比不等于负刚度，也不自动违反 Born 稳定性条件。极坐标图用来展示方向依赖，不能代替矩阵正定性检查。不同晶系的条件见 [Mouhat 与 Coudert 的推导](https://arxiv.org/abs/1410.0065)。
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="α-ZrI2 与 β-ZrI2 单层的面内方向依赖弹性模量与泊松比极坐标图" loading="lazy"/><figcaption>正交与单斜二维晶体 α-ZrI<sub>2</sub>、β-ZrI<sub>2</sub> 的方向依赖杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标分布，用于展示面内弹性响应的方向依赖。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
+<figure class="research-figure"><img src="/Atlas/figures/literature/M1_PolarModuli_E_G_nu_ZrI2_Chen2023_Fig3.jpg" alt="ml-alpha、ml-hex、ml-tet ZrI2 单层的面内方向依赖弹性模量与泊松比极坐标图" loading="lazy"/><figcaption>ml-alpha、ml-hex、ml-tet 三种 ZrI<sub>2</sub> 单层结构 的方向依赖杨氏模量 <em>E</em>(θ)、剪切模量 <em>G</em>(θ) 及泊松比 ν(θ) 极坐标分布，用于展示面内弹性响应的方向依赖。引自 Chen 等人，<em>Phys. Rev. Applied</em> <strong>20</strong>, 064048 (2023)，Fig. 3，<a href="https://doi.org/10.1103/PhysRevApplied.20.064048" target="_blank" rel="noopener noreferrer">DOI: 10.1103/PhysRevApplied.20.064048</a>。</figcaption></figure>
 
 在线性小应变刚度之外，将平衡态附近求得的弹性模量与大应变非线性拉伸得到的理想断裂强度放在同一张对数坐标图上，可以检验材料的线性弹性刚度与非线性理想强度极限之间的标度关系。
 

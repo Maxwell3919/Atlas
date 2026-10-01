@@ -1,0 +1,160 @@
+{
+  "files": {
+    "analyse.py": {
+      "bytes": 10162,
+      "sha256": "ac9bab1244aa02b978d91078cb7929d501312de6676d527f64baecccd46716a8"
+    },
+    "POTCAR-identifiers.txt": {
+      "bytes": 87,
+      "sha256": "e2fa077a0cd0f17d5635d2d1f317dec6751bf79e059a274822a29bd18a1cf0fa"
+    },
+    "plot.py": {
+      "bytes": 3059,
+      "sha256": "91303b89e4713aaaf9bd47c8a0ece71404f6d128c52647c7c7a768091db9d1bf"
+    },
+    "analysis.out": {
+      "bytes": 566,
+      "sha256": "561ba149b31c524e24ec84633263b3ebe33ab2c54a6a0917ba6e8d7efb6cee53"
+    },
+    "structure-check.json": {
+      "bytes": 323,
+      "sha256": "4ae08bc19fa0ea155baae1222e18689123f49ca2c1e6e659b03c1b4217ac4dab"
+    },
+    "extract_inputs.py": {
+      "bytes": 1518,
+      "sha256": "a1fbeffa597d6c766c1679519d698b6b0a3d896c9fc88bfdb03e36e52bb5fad4"
+    },
+    "extract-inputs.out": {
+      "bytes": 166,
+      "sha256": "f3d7c693fde2b2b618ce1fa7662e89cb4ee07f92826d4294fd46c8c78061e49d"
+    },
+    "DATA-NOTES.md": {
+      "bytes": 1975,
+      "sha256": "9fa56daaf873740122a38baec6a1fc8b4def9effdfbadc17869985f79aad3375"
+    },
+    "plot.out": {
+      "bytes": 90,
+      "sha256": "eb6b5d1945070608d7de3461a52b0f9454fed2d7f094251c26aea512a7df1997"
+    },
+    "summary.json": {
+      "bytes": 1626,
+      "sha256": "261f6eb8403df62db4ab6bf6400074db23dda8497dd54c835d3a3118dbf2a7a0"
+    },
+    "scf/POSCAR": {
+      "bytes": 633,
+      "sha256": "52de61c3dcda2ccd6bdd3f06f12c59aa5c04c5eb0208702403e6edfff44a9765"
+    },
+    "scf/OUTCAR": {
+      "bytes": 82267,
+      "sha256": "99f9fc6c9928d1500459807d748ba1037676c1061e2f062be7f446675efa3bea"
+    },
+    "scf/KPOINTS": {
+      "bytes": 77,
+      "sha256": "35f02aaabaa2f7a589bcbfed88be345718dc5d652560691477410320a3de6944"
+    },
+    "scf/vasprun.xml": {
+      "bytes": 449677,
+      "sha256": "6367ff6424acdf312da8f380eb81637f96149a1af349caa24da50bcb16a2476e"
+    },
+    "scf/DOSCAR": {
+      "bytes": 119643,
+      "sha256": "b17574e1c52dc8fed9791ee8583aec7a6ff547a63910976d5ef2b51d32ac3076"
+    },
+    "scf/OSZICAR": {
+      "bytes": 1483,
+      "sha256": "f12fd4be3423a4f72ded6ae069711daf26397818237fc659a869d4178977939f"
+    },
+    "scf/parameters-from-output.txt": {
+      "bytes": 587,
+      "sha256": "a58cc057b743ea54f6d15242935a7ca250def7f2ca26d72649b79d8aebccbbaf"
+    },
+    "scf/EIGENVAL": {
+      "bytes": 26944,
+      "sha256": "a9426b0cf26ae626450cfc61233583b1bb476c8fc74d7a6fc1c545c72b9d18f7"
+    },
+    "scf/incar-run.xml": {
+      "bytes": 1378,
+      "sha256": "20dcc86bf357c9b5cfa65641a86a0930b44f390a3bb015634def268076f08093"
+    },
+    "tables/bands.csv": {
+      "bytes": 162261,
+      "sha256": "4c16a80d1cba56a788c3c35b5761b2b4e13974acf6fcb0bf970ad8b13310da32"
+    },
+    "tables/path.csv": {
+      "bytes": 6784,
+      "sha256": "b5ef6dd6251ba450c3a2dddaf8b1d9d74db4096b9e038aeb631596be9b259ac4"
+    },
+    "tables/dos.csv": {
+      "bytes": 25732,
+      "sha256": "688b9cce68c104f32e9badfe4f68252240a5ba03b8a29f45a9bc526ac76cf4d9"
+    },
+    "tables/fatband.csv": {
+      "bytes": 252852,
+      "sha256": "3c15f3f9b882a8cb0232722dd7df6c7cc166e58192b1078feaa6e6400c026652"
+    },
+    "tables/path-edges.csv": {
+      "bytes": 349,
+      "sha256": "db8b25d6ad3de6669d44e98850838590c26ecd3b902c2d3b6640628e8a99ea3e"
+    },
+    "figures/fatband.pdf": {
+      "bytes": 602556,
+      "sha256": "2caaf6b0b9a30d23eeec277e54dc0c8205ff9ffe38bfd120b9a7c14ce10fd5d9"
+    },
+    "figures/fatband.svg": {
+      "bytes": 3968061,
+      "sha256": "375f3588998108cc7bc3f2ddb889b422545cdfb1764fc383dfb79bfd4352ee23"
+    },
+    "figures/bands-dos.pdf": {
+      "bytes": 34895,
+      "sha256": "628d6f23ec4e4794522449d619e4467adf0d145238a9abdc48f4a4a0f35fcb3c"
+    },
+    "figures/fatband.png": {
+      "bytes": 229479,
+      "sha256": "837906e97bc7beb06c298732e55af74f3e89e8cea81df079f09ace1a20bcf098"
+    },
+    "figures/bands-dos.svg": {
+      "bytes": 43136,
+      "sha256": "1ce6960ea91ea22191169765cb90d13dda9aaf7c8477355a975718f4203ddff3"
+    },
+    "figures/bands-dos.png": {
+      "bytes": 168291,
+      "sha256": "44dfc9e2df94945c64802db4b2027d46d24a2a409e6d8839c011f75959a6f882"
+    },
+    "bands/POSCAR": {
+      "bytes": 633,
+      "sha256": "52de61c3dcda2ccd6bdd3f06f12c59aa5c04c5eb0208702403e6edfff44a9765"
+    },
+    "bands/OUTCAR": {
+      "bytes": 172866,
+      "sha256": "f0500d791d8ea13152a066fbb0d36b372faf77936abeaaef6330cb38eae28486"
+    },
+    "bands/PROCAR": {
+      "bytes": 1316940,
+      "sha256": "f96d8067574fe6a5d5760c6ed98b1e4957e5f28552f404dc9c9d86102fa14188"
+    },
+    "bands/KPOINTS": {
+      "bytes": 458,
+      "sha256": "d84910178478cb4cc2d9610624af5cd6627bd4489562dc9fdae08bb50e7a22ce"
+    },
+    "bands/vasprun.xml": {
+      "bytes": 1342687,
+      "sha256": "39a9965b3973d14d2524d48eb8686c989498e2b14398f8b238ba08255768a5d7"
+    },
+    "bands/OSZICAR": {
+      "bytes": 793,
+      "sha256": "7c4ca17d2f603c8e78aa99ab88b529f4c85063af753a62097897fc55439097dd"
+    },
+    "bands/parameters-from-output.txt": {
+      "bytes": 588,
+      "sha256": "68481d5fcbfa642fb8dfe9c6d649472b0710580b5fc5a9159eaf8ad876250b56"
+    },
+    "bands/EIGENVAL": {
+      "bytes": 108643,
+      "sha256": "8f05f20ac65962412900297979d21aca8fbd8f2717c6459280037649663d3102"
+    },
+    "bands/incar-run.xml": {
+      "bytes": 1378,
+      "sha256": "211d90620822e9d0d0ccda2cce0824020b55fdeabe7a1b2ea468bd0bfdb92ddc"
+    }
+  }
+}
