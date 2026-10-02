@@ -1,4 +1,4 @@
-异质结的 SOC 能带若出现开隙或轨道次序改变，下一步需要用占据波函数检验正常态拓扑。能带图给出电子的能量，却没有直接告诉我们占据态沿布里渊区变化时积累了怎样的几何相位。陈数把一个闭合二维周期面上的 Berry 曲率通量汇总成整数，用来刻画该面上占据子空间的整体拓扑性质；要理解非零陈数与霍尔响应的联系，还要结合相应体系的能隙和占据。这里先用金刚石 Si 建立可逐项核对的零整数算例：相邻 k 点的原生重叠矩阵经过周期闭合、回路求和之后，是否给出一致的切片陈数，并且不随占据态的换基改变？
+能带图给出电子的能量，却没有直接告诉我们占据态沿布里渊区变化时积累了怎样的几何相位。陈数把一个闭合二维周期面上的 Berry 曲率通量汇总成整数，用来刻画该面上占据子空间的整体拓扑性质；要理解非零陈数与霍尔响应的联系，还要结合相应体系的能隙和占据。这里先用金刚石 Si 建立可逐项核对的零整数算例：相邻 k 点的原生重叠矩阵经过周期闭合、回路求和之后，是否给出一致的切片陈数，并且不随占据态的换基改变？
 
 这条进阶路线的几何相位基础可以用现存 Si 数据练习。本例读取 QE 7.5 导出的完整 4×4×4 与 6×6×6 网格，在固定分数坐标 k₃ 的平面内沿倒格方向 b₁、b₂ 构造 FHS 回路。十个实际采样切片均得到离散整数 C=0。下面的链接、跨界处理和规范检查共同说明这个整数怎样从文件中算出；这些 Si 数据回答的是周期切片的计算问题。
 
@@ -574,7 +574,7 @@ if __name__ == "__main__":
 
 ### 用 BHZ 原例自检 WCC 与边界谱接口
 
-在接入 DFT 的 SOC 自旋子 Wannier 模型前，可以先用已知的四带模型核对程序接口。[BHZ 原论文](https://doi.org/10.1126/science.1133734)式 (2)–(3) 将模型写成两个时间反演相关的块，并讨论量子自旋 Hall 边界态。这里实际运行的是 [WannierTools 官方 BHZ case1](https://github.com/quanshengwu/wannier_tools/tree/v2.7.2/examples/BHZ-model)：M=2、B=1、A=1、Δ₀=0，单位为模型 eV，四条自旋子带取两条占据带。它没有来自 HgTe 或本研究异质结的 DFT 拟合，输入中的 C、s、pz 是形式上的模型标签。[原件、输入和真实输出包](/Atlas/examples/soc-topology-bhz-check-files.tar.gz)保留原生成器与 `wt.in-normal`；本次使用无 Zeeman 的模型，没有采用磁场示例。
+在接入 DFT 的 SOC 自旋子 Wannier 模型前，可以先用已知的四带模型核对程序接口。[BHZ 原论文](https://doi.org/10.1126/science.1133734)式 (2)–(3) 将模型写成两个时间反演相关的块，并讨论量子自旋 Hall 边界态。这里实际运行的是 [WannierTools 官方 BHZ case1](https://github.com/quanshengwu/wannier_tools/tree/v2.7.2/examples/BHZ-model)：M=2、B=1、A=1、Δ₀=0，单位为模型 eV，四条自旋子带取两条占据带。它没有来自 HgTe 的 DFT 拟合，输入中的 C、s、pz 是形式上的模型标签。[原件、输入和真实输出包](/Atlas/examples/soc-topology-bhz-check-files.tar.gz)保留原生成器与 `wt.in-normal`；本次使用无 Zeeman 的模型，没有采用磁场示例。
 
 运行程序取源码 tag v2.6.2（日志内置版本标签仍为 2.6.1），GNU 构建只给未使用的 MKL 稀疏分支加显式保护，完整 [差异和构建命令](/Atlas/examples/soc-topology-bhz-check/README.txt)随包保存。所用 dense WCC 自适应积分与边界格林函数代码未改。输入让回路沿完整 b₁ 积分，横向扫描半个 b₂；边界保留 x 周期、沿 y 切开，同一 HR 不增加边界势。
 
@@ -959,7 +959,7 @@ unset multiplot
 
 </details>
 
-该自检说明“同一 HR → 占据子空间 WCC → 正常态 Z₂ → 同一切边谱”能够实际运行。进入材料计算时，仍须先完成下面的 SOC DFT/Wannier 模型验收；模型自检不能代替目标能区、能隙、自旋算符和结构的材料检查。
+该自检说明“同一 HR → 占据子空间 WCC → 正常态 Z₂ → 同一切边谱”能够实际运行。
 
 ### 异质结的 Z₂ 与边界态如何接续
 
@@ -969,4 +969,4 @@ unset multiplot
 
 [WannierTools 的 WCC 接口](https://wannier-tools.readthedocs.io/en/latest/features.html#wannier-charge-center-wilson-loop-calculation)中，`WannierCenter_calc` 指定矩阵回路，`KPLANE_BULK` 的第一向量定义完整周期、第二向量定义横向半周期。`NumOccupied` 是所选模型中占据带的数量，不能填入总电子数。`wcc.dat` 第一列为横向位置，第二列为最大 WCC 间隙的中心，第三列为相位和，第四列起为各条 WCC；相位和与单条谱流的用途不同。
 
-正常态 Z₂、自旋锁定和超导配对各需要自己的输入。前两者分别接到占据子空间和 [费米面自旋投影](/Atlas/m/spin-texture/vasp/)；讨论拓扑超导则还需配对矩阵与 BdG 能隙及不变量。本页材料数据止于 Si 的离散陈数和矩阵回路相位；BHZ 配套只核对正常态拓扑程序接口。
+本页材料数据止于 Si 的离散陈数和矩阵回路相位；BHZ 配套只核对正常态拓扑程序接口。

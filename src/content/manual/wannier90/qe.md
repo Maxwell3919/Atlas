@@ -816,25 +816,25 @@ python plot_wannier.py
 
 ## 把模型扩展到 SOC 自旋子与边界态
 
-Si 的四个轨道重建的是无 SOC 的四条价带，沿 13 个位置的验证仍有 0.083 eV 的最大误差。异质结若要判断一个更小的 SOC 开隙，必须把该能区的模型误差压到足以分辨这个能隙的程度，并扩大直接 DFT 验证点；不能把这份 Si 误差表当成另一材料的精度依据。
+Si 的四个轨道重建的是无 SOC 的四条价带，沿 13 个位置的验证仍有 0.083 eV 的最大误差。
 
 对含 SOC 的 QE 波函数，Wannier 输入与投影需采用相应的 `spinors` 设置；`nbnd`、`num_bands` 和 `num_wann` 按实际自旋子带与基底计数，不能照搬这里按自旋简并空间带得到的 4。先从轨道和层贡献选择覆盖目标占据子空间及相邻导带的基底。若能带纠缠，再记录外窗口与冻结窗口覆盖的能区，并检查窗口内直接 DFT 色散、SOC 劈裂及层/轨道成分。`write_hr` 得到的能量模型与用于自旋纹理的算符矩阵元是两种数据，均需与原始自旋子波函数对应。具体接口选项见 [pw2wannier90](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) 和 [Wannier90 的 spinors、解缠及矩阵输出参数](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/)。
 
 从能量模型转到自旋纹理，还需要把自旋算符放进相同的基底。把原始 Bloch 子空间变换到 Wannier 基底的矩阵记为 $V(k)$，则算符应变为 $S^{W}(k)=V^\dagger(k)S^{B}(k)V(k)$；解缠时 V 还包含选子空间的矩形变换。再用哈密顿量本征矢 $c_n(k)$ 求该态自旋：$\langle S\rangle_{nk}=c_n^\dagger(k)S^{W}(k)c_n(k)$。这沿用 [Marzari 等式 (102)](https://arxiv.org/pdf/1112.5411#page=37)的基底变换关系。只保存哈密顿量的本征值，不能恢复自旋矩阵的非对角元；给任意四轨道 HR 套上两个 Pauli 块，也没有确定哪个自由度对应真实自旋。
 
-QE 7.5 的 [pw2wannier90 `write_spn`](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html#write_spn)可以从非共线波函数导出 Bloch 带之间的自旋矩阵元。该版本 [compute_spin 源码](https://github.com/QEF/q-e/blob/qe-7.5/PP/src/pw2wannier90.f90#L4100-L4348)实际构造 Pauli 三分量，并在超软情形加入增广项；把输出解释成角动量前要核对 ℏ/2 的单位约定。后处理需保留与 HR 相同的带序、k 点序和规范变换，在独立验证点逐项比较三个分量；若只拿 PROCAR 的逐态原子投影 `tot`，既缺少这些非对角元，也没有覆盖全态算符。本页非相对论 Si 没有导出 `.spn`，这里说明材料 SOC 路线所需的数据，现有代码仍只验收能量。
+QE 7.5 的 [pw2wannier90 `write_spn`](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html#write_spn)可以从非共线波函数导出 Bloch 带之间的自旋矩阵元。该版本 [compute_spin 源码](https://github.com/QEF/q-e/blob/qe-7.5/PP/src/pw2wannier90.f90#L4100-L4348)实际构造 Pauli 三分量，并在超软情形加入增广项；把输出解释成角动量前要核对 ℏ/2 的单位约定。后处理需保留与 HR 相同的带序、k 点序和规范变换，在独立验证点逐项比较三个分量；若只拿 PROCAR 的逐态原子投影 `tot`，既缺少这些非对角元，也没有覆盖全态算符。本页非相对论 Si 没有导出 `.spn`，现有代码仍只验收能量。
 
 对正常态 Z₂，先确定全区域上固定维数、与其余能带分离的占据子空间及时间反演对称性。经验证的自旋子哈密顿量可以在二维布里渊区构造 Wilson loop，保留每条本征相位随横向坐标的流动。它们是混合 Wannier 电荷中心（WCC），与本页 `.wout` 中三维局域化轨道的中心表用途不同。[Si 重叠矩阵的真实回路后处理](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)说明矩阵乘积、本征相位与周期闭合如何衔接。
 
-接口的真实运行可先参考 [BHZ 配套自检](/Atlas/m/berry-chern/qe/#h-用-bhz-原例自检-wcc-与边界谱接口)：它核对两个占据自旋子带的 WCC 和同一 HR 的半无限边界谱。该 HR 来自官方模型生成器，不能替代本材料的 DFT/Wannier 验证。
+接口的真实运行可先参考 [BHZ 配套自检](/Atlas/m/berry-chern/qe/#h-用-bhz-原例自检-wcc-与边界谱接口)：它核对两个占据自旋子带的 WCC 和同一 HR 的半无限边界谱。
 
 WCC 之后，用同一哈密顿量计算所选切边的半无限边界谱，标出体能带投影与边界权重，判断谱支是否穿过体能隙并连接价带、导带。切边方向、终止方式和格林函数的展宽要随图保存；谱中的亮线只有在这些条件下才能被解释为边界态。[WannierTools 文档](https://wannier-tools.readthedocs.io/en/latest/features.html)给出 WCC 与边界谱接口。
 
 [Li 等研究的 Fig. 3(a–d) 与 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)（原文 PDF 第 4 页）提供了可对照的完整逻辑。Fig. 3 在相同 M–Γ–K–M 路径上比较两种极化构型各自不含、含 SOC 的体能带，颜色表示层/轨道贡献；Γ 附近的放大图帮助辨认 SOC 开隙及相关成分。复现时先对齐能量参考与路径，保留各构型和 SOC 设置，再用原始 DFT 投影核对进入 Wannier 基底的成分，不能凭两个颜色互换就判定拓扑。
 
-Fig. 4 的 WCC 纵轴为相位除以 2π 后的模 1 坐标、横轴为半周期 k₂，边缘谱沿 X̄–Γ̄–X̄ 展开。两构型的 WCC 与谱线连接提供进一步区分：4(e) 虽有能隙内谱线，却没有连接价带和导带的无隙边缘态。将这种方法接到本材料时，要从已验证的 SOC HR 计算 WCC 和同一切边谱，保存展宽、边界条件及体投影；本页的 Si 能带误差表和链接中的 BHZ 自检分别提供能量验收与接口运行的具体起点。这里沿用分析方法，不移入该文的材料数值或高阶拓扑结论。
+Fig. 4 的 WCC 纵轴为相位除以 2π 后的模 1 坐标、横轴为半周期 k₂，边缘谱沿 X̄–Γ̄–X̄ 展开。两构型的 WCC 与谱线连接提供进一步区分：4(e) 虽有能隙内谱线，却没有连接价带和导带的无隙边缘态。本页的 Si 能带误差表和链接中的 BHZ 自检分别提供能量验收与接口运行的具体起点。这里沿用分析方法，不移入该文的材料数值或高阶拓扑结论。
 
-正常态的 Z₂ 与边界态说明能带拓扑；若继续研究拓扑超导，需在该正常态模型上指定配对矩阵，构造 Bogoliubov–de Gennes 哈密顿量，并检查超导能隙、相应对称类和边界模。仅将正常态拓扑结果与一个 EPC 的 Tc 并列，还没有完成这一步。
+
 
 同样的 Wannier 表象也用于 [EPW](/Atlas/m/epw-eliashberg/qe/) 的电子与电声矩阵元插值。它与 WCC 的数据用途不同，沿线色散相合不能替代电声矩阵元的检验。
 
