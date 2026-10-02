@@ -1,0 +1,48 @@
+{
+  "source": "gamma-mode-products.json",
+  "grid": "gamma32",
+  "optical_mode": 1,
+  "full_mode_after_three_translations": 4,
+  "frequency_cm1": 75.22373393048241,
+  "normalization": "each whole-mode vector has squared norm 1",
+  "atoms": [
+    {
+      "atom": 1,
+      "symbol": "Zr",
+      "e_squared_weight": 0.31999377923829336,
+      "u_squared_weight": 0.14884566650916303
+    },
+    {
+      "atom": 2,
+      "symbol": "C",
+      "e_squared_weight": 0.06636965917607743,
+      "u_squared_weight": 0.23447372949964165
+    },
+    {
+      "atom": 3,
+      "symbol": "Cl",
+      "e_squared_weight": 0.14514761580488925,
+      "u_squared_weight": 0.17373904813708727
+    },
+    {
+      "atom": 4,
+      "symbol": "Cl",
+      "e_squared_weight": 0.002943058420394847,
+      "u_squared_weight": 0.0035227872379149103
+    },
+    {
+      "atom": 5,
+      "symbol": "Sc",
+      "e_squared_weight": 0.2637345244105868,
+      "u_squared_weight": 0.24893335566806354
+    },
+    {
+      "atom": 6,
+      "symbol": "Sc",
+      "e_squared_weight": 0.20181136294975965,
+      "u_squared_weight": 0.1904854129481295
+    }
+  ],
+  "total_e_weight": 1.0000000000000013,
+  "total_u_weight": 0.9999999999999999
+}

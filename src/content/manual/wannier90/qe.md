@@ -529,6 +529,10 @@ maxwell@maxwell:~/si-wannier/k4/validation$ tail -10 si.bands.out
 
 核对脚本读取 QE XML 里的本征值，明确从 Hartree 换成 eV，再按相同 k 点与能带排序比较。作图统一减去直接 DFT Γ 点的最高占据态 6.386039243 eV，原始能量与误差在 CSV 中同时保留。
 
+对照表中最容易漏掉的是网格点与网格外点的差别。[逐带误差 CSV](/Atlas/examples/si-wannier/validation-errors.csv)的 Γ 点，4³ 四条带的误差都小于 5×10⁻⁸ eV；但沿 Γ–X 的路径索引 13、分数坐标 (0.08125,0,0.08125) 上，第二条带的直接能量为 5.734847764 eV，4³ 插值为 5.917514400 eV，误差 +0.182666636 eV。6³ 在同一点给出 5.818090100 eV，误差降为 +0.083242336 eV。这些原始能量共用同一个零点，差值不受后续减价带顶的影响；仅看 Γ 点的吻合会错过这一误差。
+
+下面的程序先对齐坐标，再比较同一能量参考下的逐带本征值；它按能量排序匹配本例四条价带，检验的是能量集合。近简并带的顺序可能交换，因此这种匹配不能证明轨道或自旋成分也对应正确。若研究窄的 SOC 开隙，应在开隙附近的独立点检验上下两条带：两条能量误差的差才是隙宽误差，两边各自的误差可以叠加。这里 6³ 的误差量级仍为数十 meV，而数据没有导带或 SOC，适合展示检查方法，不能为另一体系的微小开隙提供精度保证。
+
 ### 交给代码助手的任务：核对接口、展布与插值误差
 
 > 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序，使用 Python 3 和 NumPy。读取 validation-kpoints.csv 及 k4/validation/ 下的直接 DFT XML、stdout 和 stderr，核对验证点坐标，将 Hartree 本征值换成 eV。对 k4/、k6/，核对 SCF、NSCF、接口及 Wannier 输出的结束状态，比较 silicon.win 与 NSCF XML 的显式 k 点坐标和顺序，检查 silicon.eig、silicon.mmn、silicon.amn 的四带维数。读取 silicon.wout 中的逐次总展布和最终总展布，单位保留 bohr²；按 validation-kpoints.csv 的路径索引，从 silicon_band.dat 取同一位置的四条插值能带，与直接 DFT 逐带比较，计算最大绝对误差和均方根误差。作图参考取直接 DFT Γ 点的最高占据态，同时保留原始能量。输出 summary.json、direct-bands.csv、validation-errors.csv，以及两种网格各自的 bands.csv、spread-history.csv；赝势文件用于记录 SHA256。遇到缺文件、坐标或维数不符时停止，不以零填充。
@@ -815,6 +819,10 @@ python plot_wannier.py
 Si 的四个轨道重建的是无 SOC 的四条价带，沿 13 个位置的验证仍有 0.083 eV 的最大误差。异质结若要判断一个更小的 SOC 开隙，必须把该能区的模型误差压到足以分辨这个能隙的程度，并扩大直接 DFT 验证点；不能把这份 Si 误差表当成另一材料的精度依据。
 
 对含 SOC 的 QE 波函数，Wannier 输入与投影需采用相应的 `spinors` 设置；`nbnd`、`num_bands` 和 `num_wann` 按实际自旋子带与基底计数，不能照搬这里按自旋简并空间带得到的 4。先从轨道和层贡献选择覆盖目标占据子空间及相邻导带的基底。若能带纠缠，再记录外窗口与冻结窗口覆盖的能区，并检查窗口内直接 DFT 色散、SOC 劈裂及层/轨道成分。`write_hr` 得到的能量模型与用于自旋纹理的算符矩阵元是两种数据，均需与原始自旋子波函数对应。具体接口选项见 [pw2wannier90](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html) 和 [Wannier90 的 spinors、解缠及矩阵输出参数](https://wannier90.readthedocs.io/en/latest/user_guide/wannier90/parameters/)。
+
+从能量模型转到自旋纹理，还需要把自旋算符放进相同的基底。把原始 Bloch 子空间变换到 Wannier 基底的矩阵记为 $V(k)$，则算符应变为 $S^{W}(k)=V^\dagger(k)S^{B}(k)V(k)$；解缠时 V 还包含选子空间的矩形变换。再用哈密顿量本征矢 $c_n(k)$ 求该态自旋：$\langle S\rangle_{nk}=c_n^\dagger(k)S^{W}(k)c_n(k)$。这沿用 [Marzari 等式 (102)](https://arxiv.org/pdf/1112.5411#page=37)的基底变换关系。只保存哈密顿量的本征值，不能恢复自旋矩阵的非对角元；给任意四轨道 HR 套上两个 Pauli 块，也没有确定哪个自由度对应真实自旋。
+
+QE 7.5 的 [pw2wannier90 `write_spn`](https://www.quantum-espresso.org/Doc/INPUT_pw2wannier90.html#write_spn)可以从非共线波函数导出 Bloch 带之间的自旋矩阵元。该版本 [compute_spin 源码](https://github.com/QEF/q-e/blob/qe-7.5/PP/src/pw2wannier90.f90#L4100-L4348)实际构造 Pauli 三分量，并在超软情形加入增广项；把输出解释成角动量前要核对 ℏ/2 的单位约定。后处理需保留与 HR 相同的带序、k 点序和规范变换，在独立验证点逐项比较三个分量；若只拿 PROCAR 的逐态原子投影 `tot`，既缺少这些非对角元，也没有覆盖全态算符。本页非相对论 Si 没有导出 `.spn`，这里说明材料 SOC 路线所需的数据，现有代码仍只验收能量。
 
 对正常态 Z₂，先确定全区域上固定维数、与其余能带分离的占据子空间及时间反演对称性。经验证的自旋子哈密顿量可以在二维布里渊区构造 Wilson loop，保留每条本征相位随横向坐标的流动。它们是混合 Wannier 电荷中心（WCC），与本页 `.wout` 中三维局域化轨道的中心表用途不同。[Si 重叠矩阵的真实回路后处理](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)说明矩阵乘积、本征相位与周期闭合如何衔接。
 

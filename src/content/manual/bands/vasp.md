@@ -568,9 +568,179 @@ Exported figures/fatband.png, .svg and .pdf
 
 两点位于不同 k，路径采样的间隙为 `0.764195 eV`。价带最高点处于 Γ–M 内部，直接读 Γ、M、K 三个节点会漏掉它。这个数来自当前路径；进一步确定整个二维 BZ 的带边，应在同一模型上做均匀搜索与局部加密，见[带隙方法目录](/Atlas/m/band-gap/)。
 
+在图上定位这两个态时，先从 `path.csv` 取真实横坐标：第13点在0.23074793 Å⁻¹，M点在0.94222055 Å⁻¹。VBM不是横轴第13/150处的等距位置，而在第一段内部。能量纵轴上两端分别为−0.30606177与+0.45813323 eV，间隔由 `0.45813323−(−0.30606177)` 得到0.764195 eV；统一换成VBM零点后两端成为0与0.764195，间隙不变。父SCF与路径各自给出的费米能相差1.73922 meV，若左右两栏分别减去各自的值，就会把这个人为偏移带进共轴图。
+
 这套孤立 SnSe₂ 是后续 SnSe₂/Sr₂N 分析的层来源参照，尚未与该界面建立相同面内应变、几何及势参考。接触后若出现穿越 E_F 的分支，要逐态核对是否来自这个原本未占据的导带区；晶格改变和层间接触的影响须用匹配孤立层对照区分。
 
 <figure><img src="/Atlas/examples/vasp/snse2-electronic/figures/bands-dos.png" alt="同一 SnSe2 模型的路径能带与18乘18乘1均匀SCF态密度" loading="lazy"/><figcaption>左：150 个路径点的20条能带；右：父 SCF 的总 DOS、Sn-s 与两原子合计的 Se-p。两侧共用父 SCF 费米能零点。DOS 保留实际采样，不额外平滑。</figcaption></figure>
+
+为了看清第一段内部的价带顶与M点导带底，下面将同一数据放大到−1～1.5 eV。采用原文Fig. 1(c)的共用能量纵轴、左能带/右水平PDOS布局，灰色总DOS、红色Sn-s、紫色Se-p分别读取真实表；VBM/CBM标记仍来自前面的路径极值。右侧的小点保留每个实际能量采样位置，让301点粗网格的折线表达可以直接辨认。
+
+<figure><img src="/Atlas/examples/enrichment-20261003/electronic/snse2-edge-panels.svg" alt="gnuplot绘制的真实SnSe2路径带边和均匀网格水平PDOS放大图" loading="lazy"/><figcaption>由本页3000个路径态与301点DOS原值绘制，统一减父SCF的−2.39071823 eV；左栏累计距离单位Å⁻¹，右栏为三原子胞states/eV/cell。gnuplot只连接已有采样；未拟合峰、未追加展宽。</figcaption></figure>
+
+[打开原尺寸SVG](/Atlas/examples/enrichment-20261003/electronic/snse2-edge-panels.svg) · [打开1440×780 PNG](/Atlas/examples/enrichment-20261003/electronic/snse2-edge-panels.png) · [下载矢量PDF](/Atlas/examples/enrichment-20261003/electronic/snse2-edge-panels.pdf)。手机上可打开原尺寸文件并放大，读取带边标记、轨道图例及右侧采样点。
+
+价带顶旁的紫色Se-p谱重比红色Sn-s明显，导带起始能区两种轨道共同出现；但右栏在同一能量合并了全网格的态，具体M点同一态的0.243与0.292仍要由[PROCAR表](/Atlas/m/fatband/vasp/)读取。本页采用论文看得见的布局和读图顺序；论文LDA界面与本页PBE孤立层是不同计算，也没有公开脚本可用来推断其绘图参数。
+
+<details>
+<summary>实际CSV到gnuplot共轴图：处理逻辑、完整源码、命令和输出</summary>
+
+先将长表按(k,band)转为150行、每行20条带的矩阵，重复的路径端点保留；DOS则原样取TDOS、Sn-s和两个Se合计的p。程序核对记录数、路径距离和共同零点，然后gnuplot逐列连接带能，以DOS值为横轴、同一相对能量为纵轴。绘图软件不承担原始电子态提取。
+
+可以向AI编码助手明确提出：
+
+```text
+读取已有tables/path.csv、bands.csv和dos.csv，检查150×20个唯一(k,band)、共同父SCF能量零点和301个递增DOS能量。按真实距离转成gnuplot矩阵，不平滑、重展宽或重归一PDOS。以原文Fig.1(c)的共轴能带/水平PDOS表达绘制带边能窗，并标出已有VBM/CBM。给出标准库转换源码、gnuplot源码和实际运行日志；拒绝覆盖旧输出。
+```
+
+[转换源码](/Atlas/examples/enrichment-20261003/electronic/prepare_snse2_panels.py) · [gnuplot源码](/Atlas/examples/enrichment-20261003/electronic/snse2-edge-panels.gp) · [带能矩阵](/Atlas/examples/enrichment-20261003/electronic/snse2-bands.dat) · [水平PDOS数据](/Atlas/examples/enrichment-20261003/electronic/snse2-pdos.dat) · [实际输出](/Atlas/examples/enrichment-20261003/electronic/prepare-snse2.out.txt)。标准库转换和gnuplot 6.0足够完成此图，不依赖Matplotlib。
+
+```python
+#!/usr/bin/env python3
+"""Repack frozen SnSe2 CSVs for gnuplot; no smoothing or recalculation."""
+import argparse
+import csv
+import math
+from pathlib import Path
+
+
+def read(path):
+    with path.open(newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def write_new(path, rows):
+    with path.open("x") as f:
+        for row in rows:
+            f.write(" ".join(format(x, ".12g") for x in row) + "\n")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("tables", type=Path)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args()
+    path = read(args.tables / "path.csv")
+    bands = read(args.tables / "bands.csv")
+    dos = read(args.tables / "dos.csv")
+    if len(path) != 150 or len(bands) != 3000 or len(dos) != 301:
+        raise ValueError("This frozen example requires 150 k points, 20 bands, 301 DOS points")
+    states = {}
+    for row in bands:
+        key = (int(row["k_index"]), int(row["band"]))
+        if key in states:
+            raise ValueError("Duplicate (k, band)")
+        states[key] = row
+    matrix = []
+    zeros = []
+    for i, p in enumerate(path, 1):
+        if int(p["k_index"]) != i:
+            raise ValueError("Path order changed")
+        distance = float(p["distance_Ainv"])
+        values = [distance]
+        for band in range(1, 21):
+            row = states[(i, band)]
+            if abs(float(row["distance_Ainv"]) - distance) > 1e-10:
+                raise ValueError("Path/band distance mismatch")
+            relative = float(row["energy_minus_scf_EF_eV"])
+            zeros.append(float(row["energy_eV"]) - relative)
+            values.append(relative)
+        matrix.append(values)
+    if max(zeros) - min(zeros) > 1e-9 or abs(zeros[0] + 2.39071823) > 1e-9:
+        raise ValueError("Energy zero differs from frozen SCF reference")
+    spectra = [[float(row[k]) for k in
+                ("total_DOS_states_per_eV_cell", "Sn_s", "Se_p", "energy_minus_scf_EF_eV")]
+               for row in dos]
+    if any(not math.isfinite(x) for row in matrix + spectra for x in row):
+        raise ValueError("Non-finite input")
+    if any(spectra[i][3] <= spectra[i - 1][3] for i in range(1, len(spectra))):
+        raise ValueError("DOS energies are not increasing")
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    destinations = [args.output_dir / n for n in ("snse2-bands.dat", "snse2-pdos.dat")]
+    if any(p.exists() for p in destinations):
+        raise FileExistsError("Use a new output directory; original results are retained")
+    write_new(destinations[0], matrix)
+    write_new(destinations[1], spectra)
+    print("Bands: 150 rows x 21 columns; all 20 bands and duplicated segment endpoints retained")
+    print("DOS: 301 rows x 4 columns; TDOS, Sn-s, summed Se-p, E-SCF_EF; no smoothing")
+    print("Energy zero: SCF EF = -2.39071823 eV")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+```gnuplot
+# Run beside the two .dat files written by prepare_snse2_panels.py.
+# gnuplot 6.0; existing CSV values, no fitting or additional smoothing.
+# Default: SVG. Use gnuplot -e "raster=1" or -e "pdf=1" for other exports.
+if (!exists("raster")) raster=0
+if (!exists("pdf")) pdf=0
+if (pdf) {set terminal pdfcairo enhanced color size 10.8in,5.85in font "DejaVu Sans,14"; set output "snse2-edge-panels.pdf"} else {if (raster) {set terminal pngcairo size 1440,780 font "DejaVu Sans,18"; set output "snse2-edge-panels.png"} else {set terminal svg size 1080,585 font "DejaVu Sans,14"; set output "snse2-edge-panels.svg"}}
+set encoding utf8
+set multiplot
+set border linewidth 1.2
+set tics out nomirror
+set yrange [-1:1.5]
+set ytics -1,0.5,1.5
+set lmargin at screen 0.085
+set rmargin at screen 0.68
+set bmargin at screen 0.15
+set tmargin at screen 0.90
+set xrange [0:2.574194239014428]
+set xtics ("Γ" 0, "M" 0.9422205454845932, "K" 1.486211776671035, "Γ" 2.574194239014428)
+set ylabel "E − E_F (eV)"
+set xlabel "Γ–M–K–Γ; cumulative distance (Å^{-1})"
+unset key
+set title "(a) Frozen PBE SnSe₂: path band edges" offset 0,0.5
+set arrow 1 from graph 0, first 0 to graph 1, first 0 nohead dt 2 lc rgb "#666666"
+set arrow 2 from first 0.9422205454845932, graph 0 to first 0.9422205454845932, graph 1 nohead lc rgb "#dddddd"
+set arrow 3 from first 1.486211776671035, graph 0 to first 1.486211776671035, graph 1 nohead lc rgb "#dddddd"
+set label 1 "VBM" at 0.23074792714808598,-0.30606177 point pt 7 ps 0.65 offset 1,-0.8
+set label 2 "CBM" at 0.9422205454845932,0.45813323 point pt 7 ps 0.65 offset 1,0.8
+plot for [n=1:20] "snse2-bands.dat" using 1:(column(n+1)) with lines lw 1.5 lc rgb "#303438"
+unset label
+unset arrow 2
+unset arrow 3
+set lmargin at screen 0.735
+set rmargin at screen 0.965
+unset ylabel
+set format y ""
+set xrange [0:8]
+set xtics 0,2,8
+set xlabel "DOS (states/eV/cell)"
+set title "(b) Uniform 18×18×1" offset 0,0.5
+set key at graph 0.98,0.97 right top font ",11" spacing 0.8 samplen 1.3 opaque
+plot "snse2-pdos.dat" using 1:4 with linespoints pt 7 ps 0.22 lw 1.5 lc rgb "#6c737b" title "TDOS", \
+     "snse2-pdos.dat" using 2:4 with linespoints pt 7 ps 0.22 lw 1.5 lc rgb "#b83f47" title "Sn-s", \
+     "snse2-pdos.dat" using 3:4 with linespoints pt 7 ps 0.22 lw 1.5 lc rgb "#7654a7" title "Se-p (2 atoms)"
+unset multiplot
+unset output
+```
+
+解开原下载包，将两份源码放在 `snse2-electronic` 根目录；先在新目录生成数据，再在该目录作图：
+
+```bash
+python3 prepare_snse2_panels.py tables --output-dir edge-panels
+cd edge-panels
+gnuplot ../snse2-edge-panels.gp
+# 同一源文件也可导出用于检查的PNG：
+gnuplot -e "raster=1" ../snse2-edge-panels.gp
+# PDF矢量导出，坐标、数据和双面板布局来自同一源文件：
+gnuplot -e "pdf=1" ../snse2-edge-panels.gp
+```
+
+在Talos对本次真实CSV执行后的输出：
+
+```text
+Bands: 150 rows x 21 columns; all 20 bands and duplicated segment endpoints retained
+DOS: 301 rows x 4 columns; TDOS, Sn-s, summed Se-p, E-SCF_EF; no smoothing
+Energy zero: SCF EF = -2.39071823 eV
+```
+
+gnuplot生成SVG、PNG与矢量PDF时stderr均为空；PNG与PDF渲染已实际查看，带边标记、共同零能虚线、轨道图例与两个横轴均可辨认。网页集成后的桌面及手机排版另由整站检查。
+
+</details>
 
 [相关论文 PDF 第3页 Fig. 1(c)](https://arxiv.org/pdf/2502.13690v1#page=3)左侧为孤立SnSe₂的 Γ–M–K–Γ 能带，右侧为共用 E−E_F 纵轴的总DOS、Sn-s/p和Se-p，DOS轴标states/eV。先读带边，再沿相同高度看轨道谱重：价带边以Se-p为主，导带边同时有Sn-s与Se-p。Fig. 1(i)才增加界面红/蓝层来源，不能从(c)推出与第二层的杂化。
 

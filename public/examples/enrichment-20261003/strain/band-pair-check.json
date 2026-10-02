@@ -1,0 +1,171 @@
+{
+  "source_root": "/home/talos/work/Atlas-evidence/2026-10-03/content-enrichment/sections/strain/verification/al",
+  "numpy_version": "2.4.6",
+  "definition": "J_nm(q)=mean_k delta_sigma(E_n(k)-EF) delta_sigma(E_m(k+q)-EF)",
+  "units": "eV^-2; all six bands; no added spin factor",
+  "scope": "Geometric band-pair weights, not orbital/layer-resolved EPC or static susceptibility",
+  "checks": [
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.1,
+      "fermi_eV": 8.397934321755272,
+      "all_six_bands_used": true,
+      "complete_grid_points": 13824,
+      "stored_cut_reproduced": true,
+      "nonnegative_and_J_not_above_J0": true,
+      "band_pair_direct_FFT_agree": true
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.2,
+      "fermi_eV": 8.397934321755272,
+      "all_six_bands_used": true,
+      "complete_grid_points": 13824,
+      "stored_cut_reproduced": true,
+      "nonnegative_and_J_not_above_J0": true,
+      "band_pair_direct_FFT_agree": true
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.1,
+      "fermi_eV": 8.381502717320133,
+      "all_six_bands_used": true,
+      "complete_grid_points": 32768,
+      "stored_cut_reproduced": true,
+      "nonnegative_and_J_not_above_J0": true,
+      "band_pair_direct_FFT_agree": true
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.2,
+      "fermi_eV": 8.381502717320133,
+      "all_six_bands_used": true,
+      "complete_grid_points": 32768,
+      "stored_cut_reproduced": true,
+      "nonnegative_and_J_not_above_J0": true,
+      "band_pair_direct_FFT_agree": true
+    }
+  ],
+  "summaries": [
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.1,
+      "q_name": "Gamma",
+      "q_fraction_b1_plus_b3": 0.0,
+      "J_eV_minus2": 0.6197572623333746,
+      "same_band_eV_minus2": 0.6179629649257515,
+      "different_band_eV_minus2": 0.00179429740762311,
+      "J_over_J0": 1.0000000000000007
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.1,
+      "q_name": "quarter",
+      "q_fraction_b1_plus_b3": 0.25,
+      "J_eV_minus2": 0.08240466823322465,
+      "same_band_eV_minus2": 0.07188661766178904,
+      "different_band_eV_minus2": 0.010518050571435606,
+      "J_over_J0": 0.13296281179985317
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.1,
+      "q_name": "X",
+      "q_fraction_b1_plus_b3": 0.5,
+      "J_eV_minus2": 0.09968021876828186,
+      "same_band_eV_minus2": 0.08261356306645111,
+      "different_band_eV_minus2": 0.017066655701830746,
+      "J_over_J0": 0.16083751627691745
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.2,
+      "q_name": "Gamma",
+      "q_fraction_b1_plus_b3": 0.0,
+      "J_eV_minus2": 0.3170886502640435,
+      "same_band_eV_minus2": 0.30291627569462964,
+      "different_band_eV_minus2": 0.0141723745694139,
+      "J_over_J0": 0.9999999999999998
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.2,
+      "q_name": "quarter",
+      "q_fraction_b1_plus_b3": 0.25,
+      "J_eV_minus2": 0.05182452438698081,
+      "same_band_eV_minus2": 0.03914731475475629,
+      "different_band_eV_minus2": 0.012677209632224526,
+      "J_over_J0": 0.16343859783005765
+    },
+    {
+      "kmesh": 24,
+      "sigma_eV": 0.2,
+      "q_name": "X",
+      "q_fraction_b1_plus_b3": 0.5,
+      "J_eV_minus2": 0.06123457464182151,
+      "same_band_eV_minus2": 0.04361908820491191,
+      "different_band_eV_minus2": 0.017615486436909602,
+      "J_over_J0": 0.19311499982995525
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.1,
+      "q_name": "Gamma",
+      "q_fraction_b1_plus_b3": 0.0,
+      "J_eV_minus2": 0.5330555786392913,
+      "same_band_eV_minus2": 0.5323781773508883,
+      "different_band_eV_minus2": 0.0006774012884030032,
+      "J_over_J0": 1.0000000000000004
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.1,
+      "q_name": "quarter",
+      "q_fraction_b1_plus_b3": 0.25,
+      "J_eV_minus2": 0.05051298766217688,
+      "same_band_eV_minus2": 0.038424757726424764,
+      "different_band_eV_minus2": 0.012088229935752107,
+      "J_over_J0": 0.09476120255812591
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.1,
+      "q_name": "X",
+      "q_fraction_b1_plus_b3": 0.5,
+      "J_eV_minus2": 0.04490039318727406,
+      "same_band_eV_minus2": 0.040859715240196444,
+      "different_band_eV_minus2": 0.004040677947077614,
+      "J_over_J0": 0.0842321044681484
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.2,
+      "q_name": "Gamma",
+      "q_fraction_b1_plus_b3": 0.0,
+      "J_eV_minus2": 0.28204494558340676,
+      "same_band_eV_minus2": 0.2742655256964144,
+      "different_band_eV_minus2": 0.007779419886992359,
+      "J_over_J0": 1.0000000000000004
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.2,
+      "q_name": "quarter",
+      "q_fraction_b1_plus_b3": 0.25,
+      "J_eV_minus2": 0.04472705614485836,
+      "same_band_eV_minus2": 0.03276465241598435,
+      "different_band_eV_minus2": 0.011962403728874013,
+      "J_over_J0": 0.1585813071471321
+    },
+    {
+      "kmesh": 32,
+      "sigma_eV": 0.2,
+      "q_name": "X",
+      "q_fraction_b1_plus_b3": 0.5,
+      "J_eV_minus2": 0.03678119446702143,
+      "same_band_eV_minus2": 0.028036314609179,
+      "different_band_eV_minus2": 0.008744879857842426,
+      "J_over_J0": 0.13040898283406555
+    }
+  ]
+}

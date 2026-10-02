@@ -2,6 +2,8 @@
 
 研究界面电荷转移、电子态与声子，先要给每个结构建立一份匹配的自洽密度和有效势。SCF 固定晶胞与原子位置，反复求本征态、更新密度，直到输入的电子停止条件满足。[Giannozzi 等](https://doi.org/10.1088/0953-8984/21/39/395502)附录 A.1 式 (A.1)把这一步写成密度或有效势的固定点问题；下面 OUT 中的估计误差与停止行对应这个求解过程。
 
+密度决定电子所感受到的 Hartree 势和交换关联势，而这些势又决定轨道和占据。SCF 每轮用当前密度求电子态，再由已占据态形成新的密度并混合，逐步使两者相容；本例的超软赝势还包含增广电荷，不能只把波函数平方相加就当作完整密度。固定晶胞时，8³ 网格参与的是这一次密度的布里渊区积分。后面把本征态采样加密到 24³，是在已有有效势上换位置求解，父密度本身仍来自这次 8³ 自洽。
+
 本例用 Preston 上的 QE 7.5 计算两个原子的金刚石 Si 原胞，常规立方晶格参数为 10.20 bohr，采用公开的 PBE 超软赝势。这个小体系让输入、电子数、迭代、力、压力和保存目录都能逐项读清。它提供固定结构 Si 的电子计算记录，后续 [NSCF](/Atlas/m/nscf/qe/)和 [Γ 点声子](/Atlas/m/imaginary-phonon/qe/)沿用相应父数据。
 
 自己的结构若来自优化，先在[离子弛豫](/Atlas/m/relax/qe/)或[晶胞弛豫](/Atlas/m/vc-relax/qe/)核对末态。以下输入的截断和网格是这份 Si 记录的设置；[收敛测试](/Atlas/m/convergence/qe/)给出它们对总能量的实际影响。[QE 7.5 输入定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)用于查本版本参数。
@@ -151,6 +153,8 @@ tail -f scf.out
 ```
 `total energy` 是当前轮的总能；`estimated scf accuracy` 是程序对电子自洽误差的估计，单位 Ry；`ethr` 属于本征值求解器的内部阈值。三者不是同一个量。能量两轮之间看起来变化很小，仍要继续核对 SCF 的停止条件。
 
+从这一排列可以分清两种迭代：Davidson 在当前有效势下求本征态，随后密度混合为下一轮 SCF 更新有效势。`ethr` 先随电子循环收紧，是为了在早期尚未稳定的势上节省对角化成本；真正接近自洽时，才用更精细的本征态支撑小残差。判断电子停止看末轮 `estimated scf accuracy` 与 `conv_thr`，[QE 7.5 定义](https://github.com/QEF/q-e/blob/qe-7.5/PW/Doc/INPUT_PW.def)明确它估计的是整胞自洽能量误差。把它和相邻两轮总能差混作一列，会失去这一判据的含义。
+
 这次第 9 轮结束后，输出先列能带本征值，再打印最高占据态、带感叹号的总能和自洽收敛信息：
 
 ```text
@@ -214,6 +218,8 @@ tail -f scf.out
 
 `scf.out` 便于人阅读，`tmp/si.save` 才保存后续程序读取的电子态。这个目录里的 `data-file-schema.xml` 记录结构和计算信息，`charge-density.dat` 保存电子密度，`wfc*.dat` 保存波函数；文件分布还会随 QE 版本和并行方式变化。
 
+XML 可以单独保留，用于核对结构、参数和能级；它不是电荷密度的替代文件。实际运行后，先在该计算目录检查 `tmp/si.save` 内的文件，再按 `prefix` 与 `outdir` 找到父数据。下载包只有 OUT/XML 时，能做的是读取存档和重绘已有数值；要重跑子计算，须先生成自己的匹配保存目录。
+
 准备新的分支时，先新建目录并复制这份父数据，避免后续 NSCF 改写 SCF 原件。下面用 `nscf` 演示分支命名；[下一页](/Atlas/m/nscf/qe/)保留的实际复算目录叫 `gap24-cg`，跟那份算例时按它的目录名接续。
 
 ```bash
@@ -228,6 +234,110 @@ vi nscf.in
 本例共 9 轮电子迭代，末轮 `estimated scf accuracy` 为 4.3×10⁻¹¹ Ry；[完整迭代表](/Atlas/examples/basics-si-convergence/results/scf-history.csv)由上述 OUT 逐轮提取。原子力在打印精度内为零，固定晶胞的压力为 38.45 kbar。电子收敛与晶胞是否达到目标压力应分别看这两项输出。
 
 下一步按所需结果选择：[均匀网格 NSCF](/Atlas/m/nscf/qe/)通向 DOS 与布里渊区采样；[路径能带](/Atlas/m/bands/qe/)沿指定高对称线求本征值；[Γ 点声子及虚频对照](/Atlas/m/imaginary-phonon/qe/)读取本例的密度与波函数求响应。
+
+这里的两条电子态分支从同一 SCF 出发，各自复制父数据，并按不同用途采样：
+
+| 想读出的量 | 本例实际分支 | 本征态在哪些位置求解 | 怎样使用结果 |
+| --- | --- | --- | --- |
+| 全区带边、DOS | `gap24-cg`，`calculation='nscf'` | 24³ 均匀网格，约化后 413 点 | 带权重积分或遍历所有已采样本征值 |
+| 高对称方向的色散 | `bands-cg`，`calculation='bands'` | Γ–X–W–K–Γ–L–X，121 个路径点 | 按路径距离连接同一带的能级 |
+
+路径点覆盖的是线而不是整个布里渊区，不能拿这 121 点代替 DOS 的均匀积分；均匀点也没有自动给出高对称路径顺序。两条分支都把带数从四条增到八条，以覆盖本例要读的空带，却不重新混合父密度。[官方 PWscf 手册第 3.3.0.2 节](https://www.quantum-espresso.org/Doc/pw_user_guide/node10.html)说明这两种非自洽用途，并提醒原子位置默认从父数据读取；只修改子输入中的坐标，可能仍读到旧结构。换结构时，应从那份结构建立新的 SCF。
+
+### 用存档核对两条分支的身份
+
+先读取三份 XML 的 `calculation`、`nks`、`nbnd` 和 `nelec`，再检查每个 k 点的本征值数目与有限性；结构、赝势名称、泛函、自旋设置和截断也一起比较。OUT 另查正常结束与本征值警告，这样才能分清“文件计数一致”和“求解是否留下警告”。这次核对只读现有存档，不提交计算。保存目录是否在包内另列出来，避免把 XML 的存在理解为完整父密度已经可用。
+
+可将下述具体需求交给编程助手：
+
+> 用 Python 标准库读取 si-pbe 下 scf、gap24-cg、bands-cg 的 OUT 与 data-file-schema.xml。核对输出 k 点数、能带数和每点有限本征值；比较原子/晶胞、赝势文件名、PBE、自旋开关和截断。按实际 calculation 区分三份记录，统计 c_bands 未收敛行、JOB DONE 和 XML exit_status。单列 scf/tmp/si.save 是否存在，不把这些检查解释成目标物理量或密度身份已经验证。打印逐分支记录，并可选输出 JSON；资料缺失时明确报错。
+
+[完整源码 audit_si_branches.py](/Atlas/examples/enrichment-20261003/basics/audit_si_branches.py)如下：
+
+<details>
+<summary>读取现有 OUT/XML 的完整核对程序</summary>
+
+```python
+#!/usr/bin/env python3
+"""Read this Si archive's OUT/XML; do not submit jobs or inspect remote save data."""
+import argparse
+import json
+import math
+import re
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+CASES = [('scf', 'scf.out'), ('gap24-cg', 'nscf.out'), ('bands-cg', 'bands.out')]
+
+def numbers(text):
+    values = [float(x) for x in text.split()]
+    if not all(math.isfinite(x) for x in values):
+        raise ValueError('Non-finite XML numbers')
+    return tuple(round(x, 11) for x in values)
+
+def read_case(root, name, outname):
+    x = ET.parse(root / name / 'data-file-schema.xml').getroot()
+    b = x.find('output/band_structure')
+    ks = b.findall('ks_energies')
+    nbnd, nks = int(b.findtext('nbnd')), int(b.findtext('nks'))
+    if len(ks) != nks or any(len(numbers(k.findtext('eigenvalues'))) != nbnd for k in ks):
+        raise ValueError(f'{name}: XML counts/eigenvalues disagree')
+    g = x.find('output/atomic_structure')
+    species = [(s.attrib['name'], s.findtext('pseudo_file'))
+               for s in x.findall('input/atomic_species/species')]
+    model = [x.findtext('input/dft/functional'), species,
+             [x.findtext('input/spin/' + tag) for tag in ('lsda', 'noncolin', 'spinorbit')],
+             [x.findtext('input/basis/' + tag) for tag in ('ecutwfc', 'ecutrho')],
+             [(q.tag, numbers(q.text)) for q in g.find('cell')],
+             [(q.attrib['name'], numbers(q.text)) for q in g.find('atomic_positions')]]
+    out = (root / name / outname).read_text()
+    report = dict(calculation=x.findtext('input/control_variables/calculation'),
+                  nks=nks, nbnd=nbnd, nelec=float(b.findtext('nelec')),
+                  xml_exit_status=int(x.findtext('exit_status')),
+                  job_done='JOB DONE.' in out,
+                  eigenvalue_warning_lines=len(re.findall(r'c_bands:.*not converged', out)))
+    return report, model
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument('root', type=Path, help='the extracted si-pbe directory')
+    p.add_argument('--json', type=Path, help='optional report destination')
+    args = p.parse_args()
+    rows, models = {}, []
+    for name, outname in CASES:
+        rows[name], model = read_case(args.root, name, outname)
+        models.append(model)
+        q = rows[name]
+        print(f"{name}: calculation={q['calculation']} nks={q['nks']} nbnd={q['nbnd']} "
+              f"nelec={q['nelec']:g} xml_exit={q['xml_exit_status']} "
+              f"JOB_DONE={q['job_done']} eigenvalue_warning_lines={q['eigenvalue_warning_lines']}")
+    same = all(m == models[0] for m in models[1:])
+    saved = (args.root / 'scf/tmp/si.save').is_dir()
+    print(f'same_geometry_and_model={same}; scf_save_directory_in_archive={saved}')
+    result = dict(cases=rows, same_geometry_and_model=same,
+                  scf_save_directory_in_archive=saved,
+                  boundary='XML/OUT consistency only; no proof of saved density identity or target convergence')
+    if args.json:
+        args.json.write_text(json.dumps(result, indent=2) + '\n')
+    if not same:
+        raise ValueError('Geometry or selected physical-model fields differ')
+
+if __name__ == '__main__':
+    main()
+```
+
+</details>
+
+下载程序，在解包后的共同上级运行 `python3 audit_si_branches.py si-pbe --json si-branch-audit.json`。下面是读取本站实际 `si-pbe` 存档得到的输出：
+
+```text
+scf: calculation=scf nks=29 nbnd=4 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+gap24-cg: calculation=nscf nks=413 nbnd=8 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+bands-cg: calculation=bands nks=121 nbnd=8 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+same_geometry_and_model=True; scf_save_directory_in_archive=False
+```
+
+程序核对了三组记录的模型、结构和本征态计数；最后的 `False` 对应包内未保存 SCF 保存目录。它支持按这些字段识别存档，不建立密度文件之间的逐字节身份关系。更密子网格能否满足带隙、DOS 或其他目标，由相应分析页的对照决定。[本次 JSON](/Atlas/examples/enrichment-20261003/basics/si-branch-audit.json)与[实际输出](/Atlas/examples/enrichment-20261003/basics/si-branch-audit.txt)一起保留。
 
 
 ## 密度差必须来自匹配的父计算

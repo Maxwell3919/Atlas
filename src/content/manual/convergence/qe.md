@@ -350,6 +350,8 @@ $$
 
 用 **1 meV/atom** 作为本例的比较线，从低到高选择第一个点：它与本组参照的差值不超过比较线，而且它之后的每次相邻变化也不超过比较线。这样得到 40 Ry、320 Ry 和 10³。三个最低设置来自各自的独立扫描，尚未组合为同一次计算。
 
+这条比较线以每原子计，本例的 1 meV/atom 等于两个原子整胞的 2 meV。40 Ry 点相对 80 Ry 的 0.900561 meV/atom，对应约 1.801122 meV/原胞；8³→10³ 的 1.602206 meV/atom 则对应约 3.204413 meV/原胞。比较异质结与两份组分的能量时，先统一整胞、每原子或每面积的定义，并让各份参照采用匹配条件；不能把这个两原子例子的比较线直接当作任意界面结合能的允许误差。
+
 k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1.952757 meV/atom，8³→10³ 还改变 1.602206 meV/atom；10³→12³ 和 12³→14³ 分别改变 0.291842、0.058709 meV/atom。因此 10³ 是本表中第一个满足规则的网格。截断组中，40→80 Ry 的总变化为 0.900561 meV/atom，320→640 Ry 的总变化为 0.025034 meV/atom；更低截断没有在这组文件中采样。
 
 ### 把本表画成可复核的误差图
@@ -359,6 +361,8 @@ k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1
 三个面板分别改变波函数截断、电荷密度截断和网格边长，纵轴统一为 meV/atom，红虚线是本例的 1 meV/atom 比较线，绿圈标出表中选点。纵轴使用对数尺度，因此零残差的参照点 80 Ry、640 Ry 和 14³ 不画在曲线上；这些点仍保留在 CSV 中，未人为加上正数。蓝点是实际已测设置，连线只帮助按顺序读点。尤其看右图：8³ 仍在比较线上方，10³ 才落到下方；是否满足后续相邻变化条件，还要回到上表核对。
 
 这幅图从本页的 [convergence.csv](/Atlas/examples/basics-si-convergence/results/convergence.csv) 直接读取，没有增加计算或拟合。下载 [同一 CSV 副本](/Atlas/examples/basics-literature/si-convergence/convergence.csv) 和 [plot.gp](/Atlas/examples/basics-literature/si-convergence/plot.gp)，放在同一目录运行 `gnuplot plot.gp`，同时生成 SVG、PNG 和 PDF（[SVG](/Atlas/examples/basics-literature/si-convergence/convergence.svg)、[PDF](/Atlas/examples/basics-literature/si-convergence/convergence.pdf)）。脚本不使用 SSSP 的 Pd 数值或筛选阈值。
+
+为何通过能量线后还要检查别的量，可以读 [SSSP 原文 Fig. 6，第 15 页](https://arxiv.org/pdf/1806.05609v2#page=15)：横轴是满足声子频率判据的截断能，纵轴是满足内聚能判据的截断能，单位都是 Ry；圆点颜色按右侧色条表示落在同一截断组合的赝势个数。两种判据来自该文 Table 2 的 efficiency 条件，许多点的横纵值不同。因此，针对一种性质选出的截断能，不能自动转用于另一种性质。本页三图都读总能量残差，没有力、压力或频率数据；若下一步要弛豫，应在匹配结构上看力对电子阈值、截断和采样的变化，变胞还要看应力。若下一步读 DOS，则比较目标能区随 k 网格与展宽的变化。原子能量差、力和费米能附近峰形各自决定应增加哪一组数据，而不是把一条总能量曲线重复当成它们的证据。
 
 <details>
 <summary>生成上图的完整 gnuplot 源码</summary>

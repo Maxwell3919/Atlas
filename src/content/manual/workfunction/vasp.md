@@ -189,6 +189,18 @@ z = 15.00:17.00 A; V_vac = 3.306265353 eV; Phi(E_F) = 5.784565353 eV; V_vac-VBM 
 
 EF=−2.478300 eV，程序给两侧Φ约5.78458、5.78457 eV。SnSe₂采样PBE隙0.767273 eV，带隙内的EF随占据处理、掺杂与实验条件变化；它不等于由带边定义的电离能$\mathrm{IP}=V_{\mathrm{vac}}-\mathrm{VBM}$或电子亲和能$\mathrm{EA}=V_{\mathrm{vac}}-\mathrm{CBM}$。这里IP约5.9970 eV、EA约5.2297 eV。
 
+以1–3 Å的下侧平台为例，先把三种能级放到相同真空零点：
+
+| 能级 | 原始SCF能量 / eV | 减去下侧真空后 / eV |
+| --- | ---: | ---: |
+| VBM | −2.690722 | −5.997005412 |
+| EF | −2.478300 | −5.784583412 |
+| CBM | −1.923449 | −5.229732412 |
+
+因此EF比VBM高0.212422 eV，CBM比EF高0.554851 eV，两段相加恢复0.767273 eV的采样隙。功函数也可从两个方向核对：$\Phi=\mathrm{IP}-(E_{\mathrm F}-\mathrm{VBM})=\mathrm{EA}+(\mathrm{CBM}-E_{\mathrm F})$。代入本例均为5.784583412 eV，不能把IP或EA中的任意一个直接改名为功函数。原始数据见[同次SCF摘要](/Atlas/examples/interface-magnet-workfunction/workfunction-summary.json)。
+
+若带边与表面势保持固定，只让带隙内化学势上移δ，Φ随之减小δ，而IP、EA不变；这是区分这三个量的参照操作，不是本例新增的掺杂计算。真实掺杂或吸附还可能改变势与带边，需要重新检查同次输出。选上侧平台时三个真空参照能级一起变化约18.1 μeV，带隙及EF距带边的两段差仍不变。
+
 本例非自旋极化、26电子，第13带最高值与第14带最低值用于采样带边。程序先核对均匀k点权重和占据，再做取差；金属或SOC/自旋模型需要按实际占据处理。[EIGENVAL](https://vasp.at/wiki/EIGENVAL)。
 
 ![SnSe₂真空参照的整胞势与费米能](/Atlas/examples/interface-magnet-workfunction/interface-magnet-workfunction-profile.svg)

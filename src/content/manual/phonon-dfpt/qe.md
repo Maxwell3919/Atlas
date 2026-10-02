@@ -246,7 +246,7 @@ maxwell@maxwell:~/al/dfpt$ tail -18 al.dyn1
  ( -0.827797  0.000000  0.356180  0.000000  0.433460  0.000000 ) 
  **************************************************************************
 ```
-每个频率后面的 6 个数是这个原子在 x、y、z 三个方向位移的实部/虚部，不是 6 个原子坐标。这里 Γ 点原始 3 支都是 +2.930394 cm⁻¹，显示了有限数值精度的平移残差；本例的同矩阵 ASR 对照保存在 [gamma-check](/Atlas/examples/al/dfpt/gamma-check/dynmat-crystal.out)。如何连同本征位移解释这类变化，见 [Si 的虚频排查算例](/Atlas/m/imaginary-phonon/qe/)。
+每个频率后面的 6 个数是这个原子在 x、y、z 三个方向位移的实部/虚部，不是 6 个原子坐标。[QE 7.5 的 dyndia 源码](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/dyndia.f90#L63-L104)先给矩阵除以质量并对角化，再把本征矢除以质量平方根、按整模归一化后写出这组数；文件上半部用于后处理的矩阵元素与这里供观察运动的位移向量，应分开读取。这里 Γ 点原始 3 支都是 +2.930394 cm⁻¹，显示了有限数值精度的平移残差；本例的同矩阵 ASR 对照保存在 [gamma-check](/Atlas/examples/al/dfpt/gamma-check/dynmat-crystal.out)。如何连同本征位移解释这类变化，见 [Si 的虚频排查算例](/Atlas/m/imaginary-phonon/qe/)。
 
 ```console
 maxwell@maxwell:~/al/dfpt$ tail -12 al.ph.out
@@ -385,6 +385,24 @@ ZrCl₂/Sc₂C 的 +1.5% 结构已有固定 32² 电荷密度下的 Γ16²/Γ32�
 矩阵头部给出原子顺序 `Zr, C, Cl, Cl, Sc, Sc`；τ 是以 alat 为单位的笛卡尔坐标，`alat=6.3466021 Bohr`。导出位置按 $r=\tau\times\mathrm{alat}\times0.529177210903\,\text{\AA}$ 换算；动力学矩阵中的质量保留 QE 内部单位。后处理先在未质量加权实力常数上施加三个平移约束，再除以 $\sqrt{M_I M_J}$ 对角化，不把层间相对运动删掉。
 
 对最低的光学双态，脚本将本征矢投影到两层刚性面内相对移动的质量加权模板，并与整体平移正交。这项权重约为 0.863，说明其运动主要是层间面内相对位移，同时仍含层内变形。逐原子的 e、归一化 u、元素和层权重可从[Γ32 向量表](/Atlas/examples/phonons-interface-gamma/gamma32-vectors.csv)及[完整模式结果](/Atlas/examples/phonons-interface-gamma/gamma-mode-products.json)查看。
+
+取 Γ32 最低光学双态的第一个成员（完整 18 模中的第 4 模，75.22373 cm⁻¹），把同一个向量的两种平方权重列在一起，质量因子的影响就能直接看出来。下表每列分别按整模归一化，六个原子之和均为 100%；它没有改变箭头的显示比例。
+
+| 原子序号 / 元素 | 本征矢平方权重 e / % | 归一化位移平方权重 u / % |
+|---|---:|---:|
+| 1 Zr | 31.9994 | 14.8846 |
+| 2 C | 6.6370 | 23.4474 |
+| 3 Cl | 14.5148 | 17.3739 |
+| 4 Cl | 0.2943 | 0.3523 |
+| 5 Sc | 26.3735 | 24.8933 |
+| 6 Sc | 20.1811 | 19.0485 |
+
+C 在质量加权本征矢中的份额约为 6.64%，在位移平方中却约为 23.45%；Zr 则从约 32.00% 变为 14.88%。因此，观察动画时看到 C 位移较大，并不与该模的 C 本征矢投影较小矛盾。这里的百分比只描述这个已保存的 Γ 模成员，不是整个布里渊区的 PHDOS 积分，也不是热均方位移；后者还需要各 q 模式、频率与温度占据。双态的结论仍要连同另一个成员及其子空间一起读。
+
+[短脚本 mode_weights.py](/Atlas/examples/enrichment-20261003/phonons/mode_weights.py)直接对已保存 JSON 中的 e、u 求平方和，并核对两列归一化与原表的 e 权重。[逐原子复算结果](/Atlas/examples/enrichment-20261003/phonons/gamma32-optical1-weights.json)保留未四舍五入的数值。将脚本与上面的 gamma-mode-products.json 放在同一目录后运行：
+```bash
+python3 mode_weights.py gamma-mode-products.json
+```
 
 ```text
 gamma16 lowest optical cm-1: 86.60094036 86.60094036 120.22328804

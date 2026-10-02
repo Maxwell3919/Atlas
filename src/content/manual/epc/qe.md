@@ -100,6 +100,16 @@ maxwell@maxwell:~/al/epc-q4$ cp tmp/al.save/data-file-schema.xml dense.data-file
 ```
 
 保存致密网格文件后，第二次 SCF 使用下列输入。原胞、赝势、截断能、展宽和前缀均保持相同，电子网格换成 16³。保存在同一个 `tmp` 下的当前电荷密度随后供 ph.x 读取；先前另存的 `al.a2Fsave.k32` 用来核对致密网格数据没有被替换。
+两次 SCF 的文件同时存在，是这条双网格链的关键。致密步骤提供积分所需的电子能量，响应步骤提供计算扰动的父态；备份只是保留前者的身份，并没有增加一次声子响应。
+
+| 这一支留下的文件 | 后面由谁读取 | 其中保留的信息 |
+|---|---|---|
+| `tmp/al.a2Fsave`，另存为 `al.a2Fsave.k32` | `ph.x` 的致密 EPC 积分 | 致密网格的本征值、k 坐标、权重及对称信息 |
+| 当前 `tmp/al.save` | `ph.x` 的响应步骤 | 16³ 父计算的结构、电荷密度和波函数等 |
+| `dense.data-file-schema.xml` | 人或检查脚本 | 备份时的致密父计算身份；不会作为谱函数输入 |
+
+因此，在 XML 里看到当前网格已变成 16³，同时致密文件仍来自 32³，是这次运行的正常衔接。反过来，只有 `al.a2Fsave.k32` 的文件名、没有对应输入/XML 或文件比较，就无法确认它来自哪一次计算。[Al 存档中的两份 XML](/Atlas/cases/epc-al-verification/#double-grid-pwxall)保留了这项直接核对；后面的完整脚本也在进入响应前比较当前致密文件和备份。
+
 
 ```console
 maxwell@maxwell:~/al/epc-q4$ cat al.scf.in
@@ -160,6 +170,8 @@ maxwell@maxwell:~/al/epc-q4$ cat al.elph.in
 ```
 
 `electron_phonon='interpolated'` 对应这次实跑的路线；`fildvscf` 保存势的一阶变化。完整计算共生成 8 个不可约 q 点，每个点有 3 个振动模式。
+这里一阶势与最后的逐模 λ 又是两层信息。一阶势描述电子如何受到振动扰动；矩阵元还要与电子波函数配合，再经费米面求和，才得到线宽和 λ。`elph.inp_lambda.*` 已将电子态信息汇总到每个 q、模式和 σ；它适合给 `lambda.x` 求和，却不能再倒推出逐带、逐 k 的散射矩阵。要进入 Wannier–EPW 路线，需要其匹配的 dyn、patterns、dvscf 和完整电子态文件，具体交接见[原生 EPW 链](/Atlas/m/epw-eliashberg/qe/#wannier-epw-tc)。保存一个名为 dvscf 的文件也不代替这套父计算关系。
+
 
 <span id="double-grid-al-run"></span>
 
@@ -282,6 +294,8 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.2
 首行前三个数是 q 坐标，`10 3` 是十组电子展宽和三个模式。第二行是三个模式的频率平方，使用 QE 内部的 Ry 频率标度，不能直接当作 THz。后面的每个展宽块先给 DOS(EF) 与费米能，再列各模 λ 和 γ。DOS 的单位为 states/spin/Ry/cell，γ 的单位是 GHz，均在原文写明。
 
 同一个 q 要读完十个块，再换另一个 q。后处理中不能把不同展宽、质量或父 SCF 的文件混进一套输入。QE 7.5 的 `lambda.f90` 中，q 坐标一致性检查被注释掉了，正常退出不会代替核对；新增 `verify_tc_chain.py` 会比较 `lambda.in` 与每份文件首行的坐标，并从 ph.x 原文核验星权重。
+完整性也有不同计数：每个 q 的频率是同一套三个模式，十个 σ 重新计算的是电子积分，所以八个 q 共给出 24 个模式频率、240 条 λ/γ 记录。不能把重复出现在十档展宽中的频率当成 240 个不同声子模。核对文件数之后，再核对每块的三行、σ 的顺序和 DOS(EF)，才能把后面十行总 λ 与 Tc 逐行配对；八份非空文件本身还不足以完成这一步。
+
 
 Γ 点还需要单独读：
 

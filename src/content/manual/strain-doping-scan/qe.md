@@ -1,4 +1,4 @@
-拉伸晶格以后，界面电荷怎样重新分配，费米能附近的电子态来自哪一层，哪些振动变软，最后又怎样影响 $\lambda$、$\omega_{\log}$ 和 $T_c$？应变扫描要把这些量放在同一组结构上比较。能量和应力先帮助核对施加的形变；真正的研究判断来自后面的电子与振动响应。
+拉伸晶格以后，界面电荷、费米能附近的谱和声子都可能变化。困难在于把这些变化接成一个解释：某层在 $E_{\mathrm F}$ 附近的 PDOS 下降，究竟是能带移出了这个能量点，还是整段谱权重减少？声子变软以后，耦合就一定增强吗？应变扫描需要在同一组结构与参考下依次回答这些问题。能量和应力先核对形变；电子态、空间电荷与逐模耦合再解释材料响应。
 
 这里先用六个真实 fcc Al SCF 点说明怎样修改晶胞、保留独立密度并读出应力，再接 ZrCl₂/Sc₂C 的既有冻结电子对照。Al 是一原子操作样本，采用 LDA-PZ；异质结是六原子界面，采用另一套结构和电子协议。两组结果各自解释，不能将 Al 曲线当作异质结的应变响应。[Al 输入、输出与后处理包](/Atlas/examples/interface-magnet-strain-doping-scan/example-pack.tar.gz)保留完整计算文件。
 
@@ -190,6 +190,8 @@ python3 plot_strain.py
 
 ## 从应变结构比较电荷与电子态
 
+对界面模型，还要区分面内形变和随后的内部调整。把分数坐标原样保留而改变面内基矢，会仿射改变面内原子间距；在固定晶胞下弛豫原子，则允许键长和层间距离重新平衡。记录实际层间距离、原子位置和残余力，才能知道后面的谱变化来自哪一个结构。两态若一个冻结、一个已经弛豫，就同时改变了应变与结构处理，不能只归因于 ε。计算目录中的结构应跟随该态的密度和声子文件，不靠文件夹名“+1.5%”配对。
+
 ZrCl₂/Sc₂C 的供受层共同形成新的电子态。应变改变键长和层间距离，既可能改变电荷平衡，也可能改变轨道杂化。比较两应变的 PDOS 前，先保留每态的结构、电子数、赝势、k 网格、SCF 展宽和 projwfc 展宽。各态以自己的 EF 对齐可以比较近 EF 谱形，绝对带偏移则要接[静电势参考](/Atlas/m/electrostatic-potential/vasp/)；这两种能量基准不能混用。
 
 已有四态对照在 0% 和 +1.5% 下，分别计算完整异质结与冻结在对应几何的中性 Sc₂C 层。它使用 QE 7.2、100/800 Ry、32×32×1 k 网格，SCF Gaussian 展宽 0.0037 Ry；projwfc 展宽 0.0022 Ry，能量步长 0.005 eV。异质结原子 #2 C 与 #5–6 Sc 合成 Sc₂C 层，#1 Zr 与 #3–4 Cl 合成 ZrCl₂ 层。完整协议与原子映射见[四态说明](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/README.txt)，操作接[投影与布居](/Atlas/m/population-analysis/qe/)。
@@ -208,6 +210,25 @@ ZrCl₂/Sc₂C 的供受层共同形成新的电子态。应变改变键长和�
 这份冻结对照还保存了完整谱形，见下图。实线是异质结内 Sc₂C、ZrCl₂ 层的原子投影，蓝色虚线是同应变几何中的中性孤立 Sc₂C；两面板共用纵轴，各态用自己的 $E_{\mathrm F}$ 作零点。这样可以同时看界面杂化和单层形变响应，而不把某个最近网格点的高低当作整个能窗的变化。图中投影按 simulation cell 计数，没有各曲线除以自身峰值，也没有归一化成同一条曲线。
 
 ![四态冻结几何的层 PDOS 与孤立层对照](/Atlas/examples/zrcl2-sc2c/frozen-controls-pdos_20260929/frozen_pdos.png)
+
+这里的“下降”只针对各自 EF 最近的那一个网格点。换一种读法，在每态自身 EF 的 ±0.1 eV 内积分，异质结 Sc₂C 层的谱权重反而从 0.404262 增到 0.416509 states/cell。为避免四态网格零点不一致导致积分范围不同，使用原谱的分段线性表示，只在 −0.1、+0.1 eV 两个端点取线性值，再做梯形积分；谱内部仍使用原有 0.005 eV 网格。下表由同一份 CSV 实际重算：
+
+| 冻结体系 | 应变 | Sc₂C 窗内投影权重 / states·cell⁻¹ | ZrCl₂ 窗内投影权重 / states·cell⁻¹ | 总投影权重 / states·cell⁻¹ |
+|---|---:|---:|---:|---:|
+| 异质结 | 0% | 0.404262 | 0.317533 | 0.721729 |
+| 中性孤立 Sc₂C | 0% | 0.667095 | — | 0.666938 |
+| 异质结 | +1.5% | 0.416509 | 0.329840 | 0.746342 |
+| 中性孤立 Sc₂C | +1.5% | 0.806143 | — | 0.806404 |
+
+Sc₂C 层的窗内权重在界面中增加约 3.03%，孤立层中则增加约 20.84%。因此，这两态并不支持“应变令整个近 EF 能窗的 Sc₂C 投影减少”；它们显示的是最近点与整段能窗的变化不同，而且接触后的形变响应比这份中性孤立层对照弱。沿图中的蓝色曲线检查峰形和位置，就能理解为什么一个点降低而有限窗口积分升高。窗口宽度仍是这次比较的定义，不能将 ±0.1 eV 的结论推广到整个价带。
+
+下图将原谱放大到 EF±0.5 eV，灰区标出上表真正积分的 ±0.1 eV。两面板共用纵轴；蓝色实线为界面 Sc₂C 层、蓝色虚线为同几何中性孤立层、橙线为界面 ZrCl₂ 层。观察灰区里的线形而不只看零点高度，可以把“谱峰旁一点的下降”与“整个窗口的面积增加”区分开。
+
+<figure><img src="/Atlas/examples/enrichment-20261003/strain/pdos-window.png" alt="四态冻结PDOS的近费米能放大图，灰色标出正负0.1eV积分窗" loading="lazy"/><figcaption>公开四态 CSV 的 gnuplot 重绘：EF 参考来自各态，原投影幅值保留，灰区是固定能窗。连线连接原始能量采样，与表中采用的分段线性积分一致。</figcaption></figure>
+
+这种比较采用了 [Ba₂N 原文 Fig. 4(a–c)，PDF 第 4 页](https://doi.org/10.1103/PhysRevB.105.165101)的相对 EF 能量轴和有标识的投影曲线；原论文颜色区分应变，本图颜色区分层，实/虚线区分接触环境，两个应变用独立面板比较。这里额外画灰区是为了说明自己的积分定义，灰区用于本页的积分定义；下面的 gnuplot 源码按自己的 CSV 编写，只参考原图可见的坐标与曲线表达。下载 [gnuplot 完整源码](/Atlas/examples/enrichment-20261003/strain/plot_window_pdos.gnu)和[矢量 SVG](/Atlas/examples/enrichment-20261003/strain/pdos-window.svg)。脚本直接读同一 CSV，按状态筛选第4列能量和第5/6列投影，共享可见范围内的纵轴，不另拟合峰形。
+
+这里积分的是投影谱，没有占据因子，还包含 EF 以上的态；states/cell 也不等于转移电子数。QE 7.2 的 [projwfc 定义与输出格式](https://github.com/QEF/q-e/blob/qe-7.2/PP/Doc/INPUT_PROJWFC.def)区分总 DOS 和总原子投影，本表仍用后者。层投影相加与文件总投影的微小差异保留为打印与求和检查，不把曲线强制修正成相等。窗内平均 PDOS 等于该权重除以 0.2 eV，可用于同宽窗口的谱强度比较；它也不是精确的 N(EF)。复算脚本、明确的写码需求和实际输出放在下文“重提冻结 PDOS 表的源码与结果”中。
 
 图的原 CSV 和原图均来自上述四态存档。要用 gnuplot 复现相同叠图，下载[完整绘图源码](/Atlas/examples/research-strain-literature/plot_frozen_pdos.gnu)，与 frozen_pdos_long.csv 放在同一目录，执行 gnuplot plot_frozen_pdos.gnu。脚本直接使用第 4 列 E−EF、第 5/6 列层 PDOS，按第 1 列状态筛选；固定线色与实/虚线区分层和环境，并按所有可见曲线确定共享纵轴。默认能窗为 ±2 eV，缩到 ±0.5 eV 的命令如下。缩窗只改变显示范围，既不重算展宽，也不平滑或插值。
 
@@ -264,6 +285,10 @@ print sprintf("Read column4 and layer columns5/6 without resampling; |E-EF|<=%.2
 
 要判断应变是否改变层间净转移量，需在每个 ε 下使用同一几何、网格和密度约定的完整界面与两份孤立层密度，接[三密度差分](/Atlas/m/delta-charge/vasp/)和[Bader 分区](/Atlas/m/bader/vasp/)。现有密度操作示例使用 VASP 文件；QE 密度仍需保留自身导出、网格和单位来源。单看某层 PDOS 下降，不能确定该层失去了多少电子。若讨论间隙电子的空间重分布，再接[ELF](/Atlas/m/elf/vasp/)与明确能窗的部分电荷密度；裸 Sc₂C 单层的身份也要由自己的空间证据判断。
 
+这一步的参考也要随应变走：在每个 ε 下，从该态界面结构中删去另一层得到冻结片段，保留原子原位、晶胞、网格和相应电子协议。先核对完整体系与两份片段的电子数是否相加闭合，再比较空间积分或相同原子集合的 Bader 和。如此得到的层净变化，才有明确的“相对于谁”。
+
+若用层净增电子数 $\Delta N_{\mathrm{layer}}$ 表示转移，面密度为 $\Delta N_{\mathrm{layer}}/S$，其中 $S=|\mathbf a\times\mathbf b|$。纯双轴 +1.5% 已使面积变为 $S/S_0=(1.015)^2=1.030225$；即使每胞转移数保持相同，每面积的数值也会改变。因此同时写每胞电子数和实际面积，比只列一个 e/cm² 数字更容易区分电荷重排与几何稀释。当前四态 PDOS 没有提供这套三密度或 Bader 对照，表中的投影差不能充当它的替代数据。
+
 这张表可在纯 Python 环境重新提取，不调用 DFT 或绘图程序。下载[inspect_frozen_pdos.py](/Atlas/examples/research-strain/inspect_frozen_pdos.py)，把上面的能量分辨 CSV 放在同一目录，执行 python3 inspect_frozen_pdos.py。脚本逐态检查能量轴、有限数值与层投影闭合，输出[近 EF 表](/Atlas/examples/research-strain/nearest-fermi-pdos.csv)和[核对摘要](/Atlas/examples/research-strain/nearest-fermi-pdos.json)。完整源码和真实运行结果见下文。
 
 ## 把电子变化接到声子、EPC 和 Tc
@@ -274,9 +299,11 @@ Fig. 4(d)把各应变下 [−0.1,0] eV 的部分电荷密度放在同一视向�
 
 同页 Fig. 5(a)以应变百分比为横轴，把红色 $N(0)$〔states/eV〕和蓝色 $\omega_{\log}$〔K〕放在各自标明单位的纵轴；(b)同样比较红色 $T_c$〔K〕与蓝色无量纲 $\lambda$。它的分析来自电子态增加、频率下降与耦合增强的共同变化，而不是只按软化程度排序。低频权重在 $\lambda=2\int \frac{\alpha^2F(\omega)}{\omega}\,d\omega$ 中被放大，同时 $\omega_{\log}$ 可能降低。要复现应变对照，可以用 gnuplot 的共享横轴分面或明确标注的双纵轴，使用同一组已验收结构、$\mu^*$、展宽和积分谱窗；本页的冻结 PDOS 表没有提供这一整组 EPC 数据，因此不另画 $T_c$ 增益曲线。
 
-再对照 PDF 第 3 页 Fig. 3(a–d) 的无应变结果与第 5 页 Fig. 6(a–e) 的 +4% 结果：色散 (a) 中红点大小按声子线宽 $\gamma_{\mathbf q\nu}$ 编码，(b) 的总/分原子 PHDOS 和 (c) 的 $\alpha^2F$ 共用频率坐标，(c) 还用另一纵轴画累计 $\lambda(\omega)$。这样能把 K 点约 24 cm⁻¹ 的软支、谱峰和 Fig. 6(e) 的位移联系起来，而非将 PHDOS 峰直接叫作强 EPC。复现时在 gnuplot 中对齐频率轴并保存点大小的量与尺度；振型在 XCrySDen 等模式显示工具中保留相位、原子和晶轴。Fig. 6(d) 是 Γ 附近约 49 cm⁻¹ 的光学模式，(e) 才是 K 软模；原文用 $\sqrt{3}\times\sqrt{3}$ 超胞把 K 折叠到 Γ 来展示，不能用原胞 Γ 振型替代它。本站的[声子与振型](/Atlas/m/phonon-dfpt/qe/)、[线宽](/Atlas/m/phonon-linewidth/qe/)及[谱函数](/Atlas/m/eliashberg-a2f/qe/)分别提供这些输入和读法；Ba₂N 的数值与振型仍属于原论文。
+再对照 PDF 第 3 页 Fig. 3(a–d) 的无应变结果与第 5 页 Fig. 6(a–e) 的 +4% 结果：色散 (a) 中红点大小按声子线宽 $\gamma_{\mathbf q\nu}$ 编码，(b) 的总/分原子 PHDOS 和 (c) 的 $\alpha^2F$ 共用频率坐标，Fig. 6(c) 右侧虽标有红色 $\lambda(\omega)$，但这份 PDF 的累计曲线与刻度无法清晰读取，不据它判断累计台阶或末值；本站累计量由真实原谱积分，可读的画法参照[谱函数页的 Pb Fig. 13 对照](/Atlas/m/eliashberg-a2f/qe/)。这样能把 K 点约 24 cm⁻¹ 的软支、谱峰和 Fig. 6(e) 的位移联系起来，而非将 PHDOS 峰直接叫作强 EPC。复现时在 gnuplot 中对齐频率轴并保存点大小的量与尺度；振型在 XCrySDen 等模式显示工具中保留相位、原子和晶轴。Fig. 6(d) 是 Γ 附近约 49 cm⁻¹ 的光学模式，(e) 才是 K 软模；原文用 $\sqrt{3}\times\sqrt{3}$ 超胞把 K 折叠到 Γ 来展示，不能用原胞 Γ 振型替代它。本站的[声子与振型](/Atlas/m/phonon-dfpt/qe/)、[线宽](/Atlas/m/phonon-linewidth/qe/)及[谱函数](/Atlas/m/eliashberg-a2f/qe/)分别提供这些输入和读法；Ba₂N 的数值与振型仍属于原论文。
 
 对于异质结，应先在统一结构与协议下对照[声子色散及模式](/Atlas/m/phonon-dfpt/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)与[α²F、累计 λ](/Atlas/m/eliashberg-a2f/qe/)，再按同一 μ*、积分谱窗和展宽比较[Tc](/Atlas/m/allen-dynes/qe/)。模式编号可能随应变交换，追踪软化应结合位移或简并子空间，不能只相减“第几支”。
+
+已有声子记录也给出一个具体的比较提醒。在另一个独立的 +1.5% Γ 响应对照中，同身份的最低光学双态从 Γ16² 的 86.60094 cm⁻¹ 变为 Γ32² 的 75.22373 cm⁻¹，两者相差 11.37721 cm⁻¹；相对 Γ16² 下降约 13.14%，以 Γ32² 为分母则相差约 15.12%。该比较固定了父密度与结构，却还改变了响应网格和电子求解路径，见[原始矩阵、向量与实际输出](/Atlas/m/phonon-dfpt/qe/)。这两个频率不是两个应变点，也不能和冻结 PDOS 直接拼成一条因果曲线；它们说明在解释应变软化前，先要知道同一个结构上的数值敏感性有多大。真正的应变对照应让 ε 变化，同时固定响应协议，并用位移或简并子空间追踪同一运动。
 
 现有 +2/+3% 的 K 点负频提示需要检查稳定范围；不能删除负频以后补一个 Tc。0/+1/+1.5% 历史代表 Tc 又分别取自不同展宽，旧谱窗也有截断问题，因此本文不把它们连成已收敛的应变增益曲线。Γ 点复核只能约束 Γ，完整布里渊区的软模与 EPC 仍要保留各自的验收范围。若研究物理上的非谐稳定化，先读[虚频诊断](/Atlas/m/imaginary-phonon/qe/)，确认数值与结构原因，再决定是否需要有限温度方法。
 
@@ -383,6 +410,223 @@ Four frozen-control PDOS states checked; no DFT invoked.
 ```
 
 这里四态的列值与前表一致。总投影取文件原列，层投影相加可能因原始打印精度有微小差别；脚本记录该差，没有强迫每行完全相等。[完整运行输出](/Atlas/examples/research-strain/postprocess.out.txt) · [源码、源 CSV 和核对结果包](/Atlas/examples/research-strain/frozen-pdos-table-pack.tar.gz)。
+
+### 为什么最近点与整段能窗会给出不同变化
+
+上面的近 EF 表保留真实网格点。本段补充固定能窗积分，比较相同宽度内的谱权重；两者使用同一份输入，回答的是不同问题。下载 [window_pdos.py 完整源码](/Atlas/examples/enrichment-20261003/strain/window_pdos.py)，与 frozen_pdos_long.csv 放在同一目录。可以将以下处理要求交给编程助手：
+
+```text
+编写 Python 3 标准库程序 window_pdos.py，读取公开的 frozen_pdos_long.csv。逐态核对四个状态名、应变和 EF 唯一、所有数值有限、递增 0.005 eV 能量轴以及保存的投影差列。使用每态自身 EF；默认在 [-0.1,+0.1] eV 上积分原谱的分段线性表示，只有边界需要线性取值，内部不重采样。分别保存 Sc2C、ZrCl2 和文件总投影的窗内权重(states/cell)、除以窗宽的平均 PDOS(states/(eV cell))，记录原投影差的 L1 积分，不能强迫闭合。输出四态 CSV、JSON、异质结与孤立 Sc2C 从0到+1.5%的权重变化和真实读取摘要。输入只读，输出必须是新目录；不从谱积分生成电子转移数，不调用 DFT 或绘图。
+```
+
+<details>
+<summary>window_pdos.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Integrate a fixed own-EF PDOS window from the published frozen controls."""
+from pathlib import Path
+import argparse, bisect, csv, json, math
+
+STATES = {
+    "Heterostructure 0%": 0.0,
+    "Isolated Sc2C 0%": 0.0,
+    "Heterostructure +1.5%": 1.5,
+    "Isolated Sc2C +1.5%": 1.5,
+}
+COLUMNS = ["sc2c_pdos", "zrcl2_pdos", "total_projected_pdos"]
+
+def integrate(x, y, lo, hi):
+    if not x[0] < lo < hi < x[-1]:
+        raise ValueError("Window must lie inside the saved energy grid")
+    def at(t):
+        i = bisect.bisect_right(x, t) - 1
+        return y[i] + (y[i+1] - y[i]) * (t - x[i]) / (x[i+1] - x[i])
+    points = [(lo, at(lo))]
+    points.extend((a, b) for a, b in zip(x, y) if lo < a < hi)
+    points.append((hi, at(hi)))
+    return math.fsum((b[0] - a[0]) * (a[1] + b[1]) / 2
+                     for a, b in zip(points, points[1:]))
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--input", type=Path, required=True)
+    ap.add_argument("--half-width", type=float, default=0.1)
+    ap.add_argument("--output-dir", type=Path, required=True)
+    args = ap.parse_args()
+    if not math.isfinite(args.half_width) or args.half_width <= 0:
+        raise ValueError("half-width must be a positive finite eV value")
+    if args.output_dir.exists():
+        raise FileExistsError("Use a new output directory: " + str(args.output_dir))
+    groups = {state: [] for state in STATES}
+    fields = ["strain_percent", "fermi_eV", "energy_minus_fermi_eV",
+              *COLUMNS, "projected_sum_error"]
+    with args.input.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        if not {"state", *fields}.issubset(reader.fieldnames or []):
+            raise ValueError("Missing PDOS fields")
+        for item in reader:
+            state = item["state"]
+            if state not in groups:
+                raise ValueError("Unknown state: " + state)
+            row = {name: float(item[name]) for name in fields}
+            if not all(math.isfinite(v) for v in row.values()):
+                raise ValueError("Non-finite data: " + state)
+            mismatch = row["sc2c_pdos"] + row["zrcl2_pdos"] - row["total_projected_pdos"]
+            if abs(mismatch - row["projected_sum_error"]) > 1e-10:
+                raise ValueError("Projection discrepancy column does not match")
+            groups[state].append(row)
+    rows, checks = [], []
+    width = 2 * args.half_width
+    for state, strain in STATES.items():
+        data = groups[state]
+        if not data or {v["strain_percent"] for v in data} != {strain}:
+            raise ValueError("Empty or mixed-strain state: " + state)
+        if len({v["fermi_eV"] for v in data}) != 1:
+            raise ValueError("Mixed Fermi energies: " + state)
+        x = [v["energy_minus_fermi_eV"] for v in data]
+        steps = [b-a for a, b in zip(x, x[1:])]
+        if not steps or any(abs(v - 0.005) > 1e-8 for v in steps):
+            raise ValueError("Expected a strictly increasing 0.005 eV grid")
+        weights = {col: integrate(x, [v[col] for v in data],
+                                  -args.half_width, args.half_width)
+                   for col in COLUMNS}
+        absolute_mismatch = integrate(x, [abs(v["projected_sum_error"]) for v in data],
+                                      -args.half_width, args.half_width)
+        if weights["total_projected_pdos"] <= 0:
+            raise ValueError("Nonpositive integrated total projection")
+        row = {"state": state, "strain_percent": strain,
+               "half_width_eV": args.half_width, "fermi_eV": data[0]["fermi_eV"]}
+        for col in COLUMNS:
+            row[col + "_weight_states_cell"] = weights[col]
+            row[col + "_mean_states_eV_cell"] = weights[col] / width
+        rows.append(row)
+        checks.append({"state": state, "source_rows": len(data),
+                       "L1_closure_percent": 100 * absolute_mismatch /
+                       weights["total_projected_pdos"]})
+        print(f'{state}: Sc2C={weights["sc2c_pdos"]:.6f}; '
+              f'ZrCl2={weights["zrcl2_pdos"]:.6f}; '
+              f'total projection={weights["total_projected_pdos"]:.6f} states/cell')
+    changes = {}
+    for tag, first, last in [("heterostructure", rows[0], rows[2]),
+                              ("isolated_Sc2C", rows[1], rows[3])]:
+        key = "sc2c_pdos_weight_states_cell"
+        changes[tag] = 100 * (last[key] / first[key] - 1)
+    print(f'Sc2C window-weight change: heterostructure={changes["heterostructure"]:+.4f}%; '
+          f'isolated={changes["isolated_Sc2C"]:+.4f}%')
+    report = {"source": str(args.input), "half_width_eV": args.half_width,
+              "method": "Piecewise-linear spectrum; exact window endpoints; trapezoidal integral",
+              "reference": "Each state uses its own saved Fermi energy; no absolute band alignment",
+              "units": "Integrated projected spectral weight: states/cell; mean PDOS: states/(eV cell)",
+              "scope": "Frozen geometry; no occupation integral, transferred charge, or EPC",
+              "rows": rows, "checks": checks, "sc2c_weight_change_percent": changes}
+    args.output_dir.mkdir(parents=True)
+    with (args.output_dir / "window-pdos.csv").open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    (args.output_dir / "window-pdos.json").write_text(json.dumps(report, indent=2) + "\n")
+    print(f'Window [-{args.half_width:g}, +{args.half_width:g}] eV; '
+          'linear endpoints only; no DFT or charge-transfer inference.')
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+在数据与脚本所在目录执行，window-0.1 必须是新目录：
+
+```bash
+python3 window_pdos.py --input frozen_pdos_long.csv --half-width 0.1 --output-dir window-0.1
+```
+
+Talos 用上述公开 CSV 实际读取的输出如下：
+
+```text
+Heterostructure 0%: Sc2C=0.404262; ZrCl2=0.317533; total projection=0.721729 states/cell
+Isolated Sc2C 0%: Sc2C=0.667095; ZrCl2=0.000000; total projection=0.666938 states/cell
+Heterostructure +1.5%: Sc2C=0.416509; ZrCl2=0.329840; total projection=0.746342 states/cell
+Isolated Sc2C +1.5%: Sc2C=0.806143; ZrCl2=0.000000; total projection=0.806404 states/cell
+Sc2C window-weight change: heterostructure=+3.0295%; isolated=+20.8438%
+Window [-0.1, +0.1] eV; linear endpoints only; no DFT or charge-transfer inference.
+```
+
+[四态积分表](/Atlas/examples/enrichment-20261003/strain/window-pdos.csv)和[完整检查与未舍入结果](/Atlas/examples/enrichment-20261003/strain/window-pdos.json)保留原始积分精度。总投影用原列单独积分；没有用两层投影之和替换它。这个有限窗口读法连接上方谱图与数值表，不改变原有最近网格点的结果。
+
+要复现这幅图，可将绘图需求写成：用 gnuplot 6.0 直接读取四态 CSV，画 0%/+1.5% 并排面板；横轴固定 ±0.5 eV，所有可见层谱共用纵轴；固定上述线色与实/虚线，标 E−EF=0 和 ±0.1 eV 边界，灰区放在曲线后；不平滑、不做自身峰值归一化，保存 PNG、SVG 和完整源码。
+
+<details>
+<summary>plot_window_pdos.gnu 完整源码</summary>
+
+```gnuplot
+# gnuplot 6.0; direct published CSV, piecewise-linear sample connections.
+# Run beside frozen_pdos_long.csv: gnuplot plot_window_pdos.gnu
+if (!exists("datafile")) datafile="frozen_pdos_long.csv"
+if (!exists("output_base")) output_base="pdos-window"
+set encoding utf8
+set datafile separator comma
+stats datafile using (abs($4)<=0.5 ? $5 : 1/0) nooutput
+shared_max=STATS_max
+stats datafile using (abs($4)<=0.5 ? $6 : 1/0) nooutput
+shared_max=1.08*(shared_max>STATS_max ? shared_max : STATS_max)
+do for [format_index=1:2] {
+    if (format_index==1) {
+        set terminal pngcairo enhanced font "DejaVu Sans,12" size 1500,620
+        set output output_base.".png"
+    } else {
+        set terminal svg enhanced font "DejaVu Sans,12" size 1500,620
+        set output output_base.".svg"
+    }
+    set multiplot layout 1,2 margins 0.075,0.97,0.18,0.78 spacing 0.06
+    set xrange [-0.5:0.5]
+    set yrange [0:shared_max]
+    set xlabel "Energy relative to each Fermi level (eV)"
+    set ylabel "Projected DOS (states / eV / simulation cell)"
+    set grid ytics lc rgb "#dddddd"
+    set border 3
+    set tics nomirror
+    set key top right font ",10"
+    set object 1 rect from -0.1,graph 0 to 0.1,graph 1 behind \
+        fc rgb "#777777" fs transparent solid 0.10 noborder
+    set arrow 1 from 0,graph 0 to 0,graph 1 nohead dt 2 lc rgb "#777777"
+    set arrow 2 from -0.1,graph 0 to -0.1,graph 1 nohead dt 3 lc rgb "#aaaaaa"
+    set arrow 3 from 0.1,graph 0 to 0.1,graph 1 nohead dt 3 lc rgb "#aaaaaa"
+    set label 1 "integrated window" at 0,graph 0.95 center font ",10" tc rgb "#555555"
+    set title "(a) 0% strain | frozen geometry"
+    plot datafile using 4:(stringcolumn(1) eq "Heterostructure 0%" ? $5 : 1/0) \
+        with lines lw 2 lc rgb "#0072b2" title "Sc2C layer", \
+      datafile using 4:(stringcolumn(1) eq "Isolated Sc2C 0%" ? $5 : 1/0) \
+        with lines lw 2 dt 2 lc rgb "#0072b2" title "matched isolated Sc2C", \
+      datafile using 4:(stringcolumn(1) eq "Heterostructure 0%" ? $6 : 1/0) \
+        with lines lw 2 lc rgb "#d55e00" title "ZrCl2 layer"
+    set title "(b) +1.5% strain | frozen geometry"
+    unset ylabel
+    plot datafile using 4:(stringcolumn(1) eq "Heterostructure +1.5%" ? $5 : 1/0) \
+        with lines lw 2 lc rgb "#0072b2" title "Sc2C layer", \
+      datafile using 4:(stringcolumn(1) eq "Isolated Sc2C +1.5%" ? $5 : 1/0) \
+        with lines lw 2 dt 2 lc rgb "#0072b2" title "matched isolated Sc2C", \
+      datafile using 4:(stringcolumn(1) eq "Heterostructure +1.5%" ? $6 : 1/0) \
+        with lines lw 2 lc rgb "#d55e00" title "ZrCl2 layer"
+    unset multiplot
+    unset output
+}
+print sprintf("Original CSV, common y range 0..%.8f; window +/-0.1 eV; PNG/SVG written.",shared_max)
+```
+
+</details>
+
+在该脚本和 frozen_pdos_long.csv 所在目录执行：
+
+```bash
+gnuplot plot_window_pdos.gnu
+```
+
+Talos 的 gnuplot 6.0 实际读取输出为：
+
+```text
+Original CSV, common y range 0..8.19772920; window +/-0.1 eV; PNG/SVG written.
+```
 
 ## 从原始文件重建结果
 

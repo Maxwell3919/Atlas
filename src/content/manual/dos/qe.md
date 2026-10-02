@@ -4,6 +4,15 @@
 
 Si 的哪些能量区间聚集了较多电子态，积分后的状态数是否与占据带相符？总 DOS 把整个布里渊区的能级按权重汇到能量轴上，适合回答这两个问题；路径能带上的线密不代表相应能量区间的态数。
 
+把每个 k 点的能级放到能量轴上，每条离散能级先展成一条有单位面积的窄函数，再按布里渊区权重相加，就是这里的 DOS。为说明归一化，若把非磁体系的 k 权重记作 $w_k$ 并约定 $\sum_k w_k=1$，则
+
+$$
+D_\sigma(E)=2\sum_{n,k}w_k\,g_\sigma(E-\varepsilon_{nk}),\qquad
+\int g_\sigma(E)\,dE=1.
+$$
+
+式中的2表示自旋简并；它已经包含在本页程序输出里，不是读完 DOS 后再乘的系数。$g_\sigma$ 的单位是 eV⁻¹，所以一小段能窗的面积近似为 $D(E)\,\Delta E$，才是该能窗内的状态数。将整条带都纳入能窗时，每条非磁性带贡献两个态；电子数还要按占据计算，不能把未占据态一起算成电子。程序文件中的 k 权重也可能已有自旋因子，手工核算时须先查权重和，不能把这个归一化约定直接套给任意 XML。
+
 [Yates 等，Sec. II D、Eqs. (33)–(34) 与 Fig. 3](https://arxiv.org/pdf/cond-mat/0702554)用金刚石比较固定展宽和随带速度变化的展宽，说明峰形同时受 k 网格与展宽影响。本页采用 QE 的固定 Gaussian 展宽，后面的积分和采样解释针对这套 Si 数据，没有改用论文的自适应插值方案。
 
 这里接 [Si 的 24³ NSCF](/Atlas/m/nscf/qe/)。那一页已经保留 8 条能带并检查本征值求解；`dos.x` 在这些带能量上做布里渊区加权，不再求一份新的电荷密度。高对称路径的点分布服务于画线，不能代替这里的均匀采样。
@@ -34,6 +43,8 @@ Si 的哪些能量区间聚集了较多电子态，积分后的状态数是否�
 `Emin/Emax/DeltaE` 使用 **eV**，而 `degauss` 使用 **Ry**。这里 0.01 Ry 约为 0.1361 eV，不能把它读成 0.01 eV。`ngauss=0` 选择普通 Gaussian 展宽；能量轴上采样更密只会让曲线绘得更细，并没有增加电子 k 点。
 
 `DeltaE=0.02 eV` 比这次的展宽小，用来在能量轴上取足够细的绘图点；曲线看起来平滑，不等于能分辨 0.02 eV 的细节。减小 `degauss` 后，原先被抹平的细节和 k 采样造成的锯齿都可能出现，需要配合更密的 NSCF 网格比较。`Emin=-8`、`Emax=16` 只规定本次输出能窗；若想分析更高能量，先核对 8 条带是否已经覆盖，而不是只扩大这两个数。
+
+这里有三个独立的改变：加密 NSCF 网格增加进入积分的能级，减小展宽改变每个能级铺开的宽度，减小 `DeltaE` 只增加同一条展宽曲线的输出点。若只把 `DeltaE` 改得很小，稀疏电子网格产生的峰仍在；若只加大展宽，锯齿可能消失，却也可能抹掉真实近费米结构。[QE 7.5 的 `dos.x` 定义](https://github.com/QEF/q-e/blob/qe-7.5/PP/Doc/INPUT_DOS.def)分别规定这些参数和单位，比较峰形时要把三者写在同一图注中。
 
 `dos.x` 根据保存的带能量和权重计算总 DOS，本身不需要再读取所有波函数。需要轨道投影时，`projwfc.x` 才沿另一条依赖读取相应波函数，见 [布居与投影](/Atlas/m/population-analysis/qe/)。
 
@@ -316,6 +327,8 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 
 整胞投影和应取两个原子的 s 文件各一份 ldos，加上两个原子的 p 文件各一份 ldos，对应 `si.pdos_tot` 第三列。有限投影空间未覆盖的部分保留下来，不能强行放大 PDOS 去等于总 DOS。本例文本只保留有限有效位数，逐行求和最大差 `0.006 states/eV/cell`，全部在各列舍入界内；不能把这点打印差当成额外丢失的物理态。
 
+“原子文件”说明投影来自哪个原子，并不自动把纵轴变成每原子归一化：每个文件仍是该原子在当前计算胞里的贡献。两个 Si 的 p 文件相加得到整胞 p 谱，若再报告平均每个 Si 的 p 谱，才另除以2。先逐行核对能量网格和壳层和，再做这个归一化，能避免把“每原子平均”和“按原子选出的贡献”混成同一种曲线。
+
 共线自旋极化时，`pdos_tot` 变为 `E、DOSup、DOSdw、PDOSup、PDOSdw`；原子文件也分别给 up/down 的 ldos 和 m 分量。按同一自旋、同一能量点求和后，再合并通道。本例非磁数据已含自旋简并，不再乘 2。
 
 ## 二维异质结 ZrCl₂/Sc₂C：轨道分辨 PDOS 与能带、二维费米面的共享能量轴对准
@@ -348,7 +361,102 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 | 异质结 +1.5% | 2.036121 | 0.158319 |
 | 孤立 Sc₂C +1.5% | 4.429229 | 0.463278 |
 
-在这四个冻结快照内，界面 Sc₂C 层的 D(E_F) 都低于同应变孤立层，说明接触后该层在费米点的投影谱形发生改变。异质结从 0% 到 +1.5% 的费米点读数降低，而占据侧窄窗口谱重略升；一个点的峰高与一段窗口的面积描述不同变化，不能互相替代。下一步要沿具体能带寻找这些变化对应的态，再读取它们的空间分布。
+这张表有两种比较，先固定问题再选行。比较接触效应时，在同一个应变下拿“异质结中的Sc₂C层”与“冻结孤立Sc₂C”配对；比较应变响应时，拿同一种模型的0%与+1.5%配对。两种模型各含一个Sc₂C化学式，层投影定义与图一致，所以这些层谱可以按同一份Sc₂C比较；它们仍不是同一绝对能量轴上的密度差。
+
+以下由原CSV全精度值计算，变化定义为100×(目标/参照−1)，没有重新求谱或改变展宽。
+
+| 比较 | 参照 → 目标 | Sc₂C层 D(E_F) 变化 | −0.1～0eV窗口谱重变化 |
+|---|---|---:|---:|
+| 0%下的接触对照 | 孤立层 → 界面内层 | −39.1251% | −58.6958% |
+| +1.5%下的接触对照 | 孤立层 → 界面内层 | −54.0299% | −65.8264% |
+| 界面内层的应变对照 | 0% → +1.5% | −21.1099% | +5.0139% |
+
+同一界面层的费米点读数下降而窄窗口面积略增，说明谱形发生了重新分布；单报一个 D(E_F) 会漏掉后一项。先在既有冻结图上看零能附近曲线的宽度与左右变化，再沿[逐态胖带](/Atlas/m/fatband/qe/)寻找相应分支，最后用空间密度判断态的位置。这里没有由层谱下降推出失去同样比例的电子，也没有由峰高判断有限q的EPC、λ或Tc；这些科研量的未验收状态保持。
+
+<details>
+<summary>由四态读数复核两种比较：逻辑、完整源码与实际输出</summary>
+
+处理逻辑是保留前表的三种单位和四个状态名称，只对Sc₂C这一相同层定义作配对。输入是已经由原长表提取的 `frozen-window.csv`，不把图像上的高度再读成数字；脚本用全精度CSV值计算百分比，并拒绝覆盖源或已有结果。可把下面的具体需求交给编程助手：
+
+```text
+读取既有 frozen-window.csv，要求四个唯一冻结状态及有限、非负的Sc2C读数。
+在0%和+1.5%下分别比较孤立层→界面内层，再比较界面内层0%→+1.5%。
+对D(EF)与[-0.1,0]窗口谱重分别保留参照、目标、差值和100*(target/reference-1)。
+D的原单位为states/eV/cell，窗口谱重为states/cell，百分比不是电子转移量。
+仅用Python标准库输出新CSV和终端记录，不改源CSV，不画重复的柱图，不调用DFT。
+```
+
+[完整比较源码](/Atlas/examples/enrichment-20261003/electronic/compare_frozen_spectra.py) · [全精度结果](/Atlas/examples/enrichment-20261003/electronic/frozen-comparisons.csv) · [实际终端记录](/Atlas/examples/enrichment-20261003/electronic/compare-frozen.out.txt)。在脚本和原CSV所在工作目录运行：
+
+```bash
+python3 compare_frozen_spectra.py frozen-window.csv --output frozen-comparisons.csv
+```
+
+实际输出：
+
+```text
+Contact at 0%: D(EF) change=-39.1251% ; window change=-58.6958%
+Contact at +1.5%: D(EF) change=-54.0299% ; window change=-65.8264%
+Heterostructure strain 0% to +1.5%: D(EF) change=-21.1099% ; window change=+5.0139%
+These are changes of broadened projected spectra, not transferred electrons.
+```
+
+```python
+#!/usr/bin/env python3
+"""Compare existing frozen Sc2C spectral readouts; no DFT or source writes."""
+from pathlib import Path
+import argparse
+import csv
+import math
+
+D = "sc2c_pdos_at_EF_states_per_eV_cell"
+W = "sc2c_pdos_window_weight_states_per_cell"
+PAIRS = [
+    ("Contact at 0%", "Isolated Sc2C 0%", "Heterostructure 0%"),
+    ("Contact at +1.5%", "Isolated Sc2C +1.5%", "Heterostructure +1.5%"),
+    ("Heterostructure strain 0% to +1.5%", "Heterostructure 0%", "Heterostructure +1.5%"),
+]
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    if args.output.resolve() == args.source.resolve():
+        raise ValueError("Output must differ from the source")
+    with args.source.open(newline="") as handle:
+        items = list(csv.DictReader(handle))
+    rows = {item["state"]: item for item in items}
+    if len(items) != 4 or len(rows) != 4:
+        raise ValueError("Expected four unique frozen states")
+    results = []
+    for label, ref, target in PAIRS:
+        record = dict(comparison=label, reference=ref, target=target)
+        for key, name in [(D, "D_EF"), (W, "window_weight")]:
+            x, y = float(rows[ref][key]), float(rows[target][key])
+            if not all(math.isfinite(v) for v in [x, y]) or x <= 0 or y < 0:
+                raise ValueError("Invalid recorded spectral quantity")
+            record[name + "_reference"] = x
+            record[name + "_target"] = y
+            record[name + "_difference"] = y - x
+            record[name + "_change_percent"] = 100 * (y / x - 1)
+        results.append(record)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("x", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(results[0]))
+        writer.writeheader()
+        writer.writerows(results)
+    for row in results:
+        print("{}: D(EF) change={:+.4f}% ; window change={:+.4f}%".format(
+            row["comparison"], row["D_EF_change_percent"],
+            row["window_weight_change_percent"]))
+    print("These are changes of broadened projected spectra, not transferred electrons.")
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
 
 窗口积分来自已有 Gaussian 展宽谱，尚未乘逐态占据函数。它是这组投影在选定能窗内的谱重，不能当成 Sc₂C 失去的电子数，也不能直接除以面积叫载流子浓度。各图独立减去各自 E_F，绝对带偏移另需共同势参考；该四态快照也不能单凭 D(E_F) 判断 EPC 或 Tc。
 

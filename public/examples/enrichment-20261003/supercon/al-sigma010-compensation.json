@@ -1,0 +1,20 @@
+{
+  "source_files": [
+    "/home/talos/work/Atlas/public/examples/supercon-al-tc/k32/alpha2F.dat",
+    "/home/talos/work/Atlas/public/examples/supercon-al-tc/k48/alpha2F.dat"
+  ],
+  "sigma_Ry": 0.01,
+  "rows": 2000,
+  "frequency_unit": "THz",
+  "method": "trapezoid on original printed frequency rows; positive and negative parts clipped at sample values before integration",
+  "cumulative_positive": 0.0325504506685674,
+  "cumulative_negative_magnitude": 0.03248113533663369,
+  "cumulative_signed": 6.931533193371003e-05,
+  "cumulative_absolute": 0.06503158600520109,
+  "source_spectrum_width_THz": 0.12,
+  "response_k": "16^3",
+  "DFPT_q": "4^3",
+  "smoothing": false,
+  "rescaling": false,
+  "no_QE_executable_run": true
+}

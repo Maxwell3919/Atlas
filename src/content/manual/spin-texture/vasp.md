@@ -117,6 +117,8 @@ band     2 # energy  -36.41344142 # occ.  1.00000000
 
 第一组没有恰好等于 1，是因为这里读的是原子投影子空间中的权重。本例保留后三组磁化原值，颜色表示原子投影子空间中的磁化。完整布洛赫态的归一化自旋期望值需要覆盖全态的自旋矩阵元。
 
+这四组 `tot` 不能合并成一个“自旋大小”。第一组告诉我们这个态落在所选原子投影空间中的权重，后三组才带方向和正负号；`tot` 也已经对六个原子求和，层来源要回到逐原子行另作分组。原始权重的变化可以使两处相同取向的态呈现不同颜色深浅。若另存 `mz/charge` 来比较投影空间内的取向，应保留分子、分母并说明这个比值的定义，不用它替换当前图的原值，更不能把它直接标成全态的 ⟨Sz⟩。
+
 ```text
 [bcgong@localhost snse2_sr2n_spin]$ tail -3 OSZICAR
 DAV:   9    -0.258918997342E+02   -0.18555E-05   -0.18547E-05 26488   0.101E-02
@@ -269,6 +271,8 @@ columns charge,mx,my,mz; output spin-path.dat
 
 ![SnSe₂/Sr₂N 路径上的三个自旋投影](/Atlas/examples/vasp/snse2_sr2n_spin/spin-path.png)
 
+[Lu 等的 Fig. 1A、1C](https://doi.org/10.1126/science.aab2277)（原文 PDF 第 1 页）可以与上图并排读：1A 在六角布里渊区标出 K/K′ 谷及方向相反的面外有效场，蓝、红口袋分别示意自旋向上、向下；1C 画相应能带劈裂，并显示 2H 堆垛相邻层在同一 K 谷的有效场反向。颜色是方向示意，没有连续自旋数值色标。本页则在 Γ–M–K–Γ 路径上用同一个 −1…1 色标分别画 PROCAR 的 mx、my、mz，纵轴统一减去 SCF EF；投影权重没有被归一化掉。对照时应比较谷位置、分量方向与层来源，不能把颜色深浅直接换算成有效场，或将沿线投影当成二维费米面纹理。
+
 颜色是 PROCAR 原子投影空间中的磁化，横轴是 Γ–M–K–Γ。具体看 K 点（第 100 个记录）附近的一对输出态：
 
 | 带号 | E−EF / eV | 投影权重 | mx | my | mz |
@@ -278,9 +282,76 @@ columns charge,mx,my,mz; output spin-path.dat
 
 两条记录相差 3.96649 meV，投影磁化主要沿 z，符号相反。它们位于 SCF 费米能上方约 0.12 eV，PROCAR 占据数均为零；这两行不能代替费米面上的配对电子。Γ 点的近简并态也可出现相反投影，简并子空间内的基底选择会改变单态颜色。沿线路径、投影权重和父密度的残余磁化共同限定了这张图的读法。
 
-若研究异质结的面外自旋锁定，接着要在同一 SOC 密度上覆盖二维布里渊区，提取实际 EF 等能线附近的态；把 mx、my、mz 转到一致的笛卡尔基底，与各能谷及其 −k 伙伴逐一对照。保留层分辨投影，才能判断自旋来自哪一层，以及层间杂化是否带入面内分量。用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
+“主要沿 z”还可以用现有列核对。将面内投影幅值与 |mz| 相比，这两态都得到 0.041187，说明在当前投影空间里面内分量约为面外幅值的 4.1%；`mz/charge` 分别为 −0.995342、+0.996890。这些比值从 PROCAR 已保存的三位小数投影算出，显示六位是为了重现列运算。比值不改变两态都未占据的事实，也没有补回原子投影外的自旋。两个相反颜色来自同一个 K 点的两个态；时间反演比较则要找 −K 所在的 K′ 谷，并核对相应能量、子空间和三分量。本页路径没有 K′，不能把这两行当作已验证的时间反演伙伴。
 
-[Lu 等的 Fig. 1A、1C](https://doi.org/10.1126/science.aab2277)（原文 PDF 第 1 页）可以与上图并排读：1A 在六角布里渊区标出 K/K′ 谷及方向相反的面外有效场，蓝、红口袋分别示意自旋向上、向下；1C 画相应能带劈裂，并显示 2H 堆垛相邻层在同一 K 谷的有效场反向。颜色是方向示意，没有连续自旋数值色标。本页则在 Γ–M–K–Γ 路径上用同一个 −1…1 色标分别画 PROCAR 的 mx、my、mz，纵轴统一减去 SCF EF；投影权重没有被归一化掉。对照时应比较谷位置、分量方向与层来源，不能把颜色深浅直接换算成有效场，或将沿线投影当成二维费米面纹理。
+下面的读取只核对这对记录，不重新拟合能带或绘图：先按 k 点记录号和带号找行，检查两行路径坐标相同，再由原始列计算能量差、`mz/charge` 和面内/面外幅值比。可交给编程助手的要求是：读取已经生成的十三列 `spin-path.dat`，默认选第 100 个记录的 51、52 带；文件列数、有限值、记录完整性和坐标不符就停止，原始文件只读。输出必须同时显示 E−EF、占据和投影权重，并标明两个比值不是全态自旋或时间反演检验。
+
+[完整读取脚本 inspect_spin_pair.py](/Atlas/examples/enrichment-20261003/soc/inspect_spin_pair.py)只使用 Python 标准库。把它放在本页解压目录的 `spin-path.dat` 旁，运行：
+
+```bash
+python3 inspect_spin_pair.py spin-path.dat --ik 100 --bands 51 52
+```
+
+本轮从保存的真实 `spin-path.dat` 读取输出为：
+
+```text
+ik band E-EF_eV occupation charge mz/charge inplane/abs(mz)
+100 51 +0.120867010 0.000 0.644 -0.995342 0.041187
+100 52 +0.124833500 0.000 0.643 +0.996890 0.041187
+energy_difference_meV=3.966490
+Ratios describe the saved atomic projections; no full-state spin or TR test.
+```
+
+<details>
+<summary>inspect_spin_pair.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Inspect saved projection columns at one path record, without fitting or plotting."""
+import argparse
+import math
+from pathlib import Path
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('data', type=Path)
+parser.add_argument('--ik', type=int, default=100)
+parser.add_argument('--bands', type=int, nargs=2, default=[51, 52])
+args = parser.parse_args()
+if args.ik < 1 or min(args.bands) < 1 or args.bands[0] == args.bands[1]:
+    parser.error("Choose a positive path record and two distinct positive bands")
+rows = {}
+for line in args.data.read_text().splitlines():
+    if not line.strip() or line.lstrip().startswith('#'):
+        continue
+    values = [float(x) for x in line.split()]
+    if len(values) != 13 or not all(math.isfinite(x) for x in values):
+        raise ValueError('Expected thirteen finite spin-path.dat columns')
+    ik, band = values[:2]
+    if ik != int(ik) or band != int(band):
+        raise ValueError('Noninteger record or band index')
+    if int(ik) == args.ik and int(band) in args.bands:
+        if int(band) in rows:
+            raise ValueError('Duplicate requested record')
+        rows[int(band)] = values
+if set(rows) != set(args.bands):
+    raise ValueError('Requested pair is incomplete')
+a, b = [rows[n] for n in args.bands]
+if a[2:6] != b[2:6]:
+    raise ValueError('Pair does not share the same path coordinate')
+print('ik band E-EF_eV occupation charge mz/charge inplane/abs(mz)')
+for row in (a, b):
+    q, mx, my, mz = row[9:13]
+    if q <= 0 or mz == 0:
+        raise ValueError('Ratio requires positive weight and nonzero mz')
+    print(f'{int(row[0])} {int(row[1])} {row[7]:+.9f} {row[8]:.3f} '
+          f'{q:.3f} {mz/q:+.6f} {math.hypot(mx,my)/abs(mz):.6f}')
+print(f'energy_difference_meV={(b[6]-a[6])*1000:.6f}')
+print('Ratios describe the saved atomic projections; no full-state spin or TR test.')
+```
+
+</details>
+
+若研究异质结的面外自旋锁定，接着要在同一 SOC 密度上覆盖二维布里渊区，提取实际 EF 等能线附近的态；把 mx、my、mz 转到一致的笛卡尔基底，与各能谷及其 −k 伙伴逐一对照。保留层分辨投影，才能判断自旋来自哪一层，以及层间杂化是否带入面内分量。用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
 
 同文 Fig. 3A、3B（PDF 第 3 页）从电阻曲线与 RN/2 的交点提取面内 Bc₂；3C 比较临界场随温度的变化及不同拟合，3D 再用横轴 T/Tc、纵轴 Bc₂/Bp 比较不同超导态，虚线 Bc₂/Bp=1 是 Pauli 界限。图 1D 的相图使用 90% RN 的 Tc 判据，不能与图 3 的 50% RN 混用。复现这种归一化比较需要原始磁输运曲线、各态一致的 Tc 判据和相应 Bp，逐态提取交点后再画无量纲坐标；本页的 PROCAR 与正常态能带没有这些超导态输入。
 

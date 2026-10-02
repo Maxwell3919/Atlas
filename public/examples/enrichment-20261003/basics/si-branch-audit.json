@@ -1,0 +1,34 @@
+{
+  "cases": {
+    "scf": {
+      "calculation": "scf",
+      "nks": 29,
+      "nbnd": 4,
+      "nelec": 8.0,
+      "xml_exit_status": 0,
+      "job_done": true,
+      "eigenvalue_warning_lines": 0
+    },
+    "gap24-cg": {
+      "calculation": "nscf",
+      "nks": 413,
+      "nbnd": 8,
+      "nelec": 8.0,
+      "xml_exit_status": 0,
+      "job_done": true,
+      "eigenvalue_warning_lines": 0
+    },
+    "bands-cg": {
+      "calculation": "bands",
+      "nks": 121,
+      "nbnd": 8,
+      "nelec": 8.0,
+      "xml_exit_status": 0,
+      "job_done": true,
+      "eigenvalue_warning_lines": 0
+    }
+  },
+  "same_geometry_and_model": true,
+  "scf_save_directory_in_archive": false,
+  "boundary": "XML/OUT consistency only; no proof of saved density identity or target convergence"
+}

@@ -391,6 +391,8 @@ DAV:   9    -0.261382490733E+02   -0.72118E-06   -0.72085E-06  2520   0.705E-03
 
 最后 dE=−7.2118×10⁻⁷ eV、d eps=−7.2085×10⁻⁷ eV，满足 1e-6 eV；OUTCAR 确有 EDIFF 达到和 timing。只看到 DOS 文件不足以判定求解完成。
 
+ICHARG=11 固定电荷密度，DAV 行仍然出现能量变化，是因为轨道和本征值还在迭代；这并不表示程序又开始更新父密度。[EDIFF 的定义](https://vasp.at/wiki/EDIFF)要求总自由能与带能的相邻变化都达到条件。读这份固定密度分支时，先确认实际 ICHARG，再看两个变化量和停止信息，便能分清“密度沿用”与“本征态求完”。
+
 | 实际字段 | 父 SCF | 固定密度分支 |
 | --- | --- | --- |
 | ICHARG | 2 | 11 |
@@ -409,73 +411,7 @@ DAV:   9    -0.261382490733E+02   -0.72118E-06   -0.72085E-06  2520   0.705E-03
 
 头部 NEDOS=301、EF=−1.49081474 eV，范围约 −38.37991605 至 4.59266727 eV。相对能量用本次 E−EF，不用其他分支的费米能。
 
-从前面的复算准备目录返回下载包中的存档目录，再运行后处理：
-
-```bash
-cd ..
-python3 analyze_nscf.py
-```
-
-若只读取存档，直接在解包后的 `snse2-sr2n-nscf` 目录运行。程序使用 Python 标准库，得到以下输出：
-
-
-```text
-ICHARG: parent=2 child=11; counts: NELECT=51 NKPTS=37 NBANDS=32
-NEDOS=301; EF=-1.49081474 eV; mean_DOS_spacing=0.14324333 eV
-nearest_EF_sample: E-EF=0.06781474 eV; DOS=2.5730 states/eV/cell
-same_POSCAR=True same_KPOINTS=True parent_EDIFF=True child_EDIFF=True
-```
-
-平均能量间隔约 0.14324 eV。离 EF 最近一行在 E−EF=0.06781474 eV，DOS=2.5730 states/eV/cell；它不是 EF 处的精确插值。高斯展宽与有限能量/k 网格共同影响曲线。若用费米能附近 DOS 解释界面电子态或 EPC 趋势，应直接比较该区域的积分采样和能量分辨率；这里只能报告离 EF 最近的实际样本。把 NEDOS 增大可细化绘出的能量轴，但不会增加 37 个不可约 k 点，也不会改善父密度。
-
-### 按同一费米能参照画已有 DOS
-
-<figure>
-<img src="/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.svg" alt="SnSe₂/Sr₂N 在费米能附近的总 DOS，点为实际采样" loading="lazy"/>
-<figcaption>六原子 SnSe₂/Sr₂N，ISPIN=1，固定父 SCF 密度，18×18×1 网格。DOSCAR 全能区有 301 个能量样本，平均间隔约 0.14324 eV；图取费米能附近 −2 至 2 eV。点为真实采样，线段连接相邻点，竖虚线标出本次费米能。</figcaption>
-</figure>
-
-参照 Ba₂N Fig. 2(b)的能量横轴和 DOS 纵轴，本图直接画已有 CSV 的第 2、3 列：能量已减去本次 EF，DOS 保持 states/eV/六原子胞的归一化。先看 −1.5 至 −1 eV 的较高态密度，再看 −0.5 至 0.5 eV 的费米能附近区域，可据此选择后续轨道或分层投影需要检查的能区。
-
-图在费米能附近每隔约 0.14324 eV 才有一个样本，这个间隔决定了现存曲线能分辨的细节。离 EF 最近的一行在 +0.06781474 eV，DOS 为 2.5730 states/eV/cell；报告这一带的态密度时，同时给出该能量偏移和采样间隔，才便于比较不同网格或展宽下的结果。
-
-Ba₂N 正文将 Fig. 2(b)的投影曲线与 Fig. 2(d)的空间区域对应，并说明空球只覆盖了部分表面电子气，因此 X 曲线表示的是那个投影范围内的贡献。本异质结的总 DOS 图也从定位能区开始，随后用自身的分层投影和空间密度判断电子归属，文件接续见下面“用同一构型接续投影和空间分析”。
-
-下载 [原 CSV 的副本](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.csv) 与 [plot.gp](/Atlas/examples/basics-literature/snse2-sr2n-dos/plot.gp)，放在同一目录运行 `gnuplot plot.gp`，生成 [SVG](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.svg)、PNG 与 [PDF](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.pdf)。坐标组织参照论文，曲线保留本页 DOSCAR 提取结果中的实际采样点和数值。
-
-<details>
-<summary>生成上图的完整 gnuplot 源码</summary>
-
-```gnuplot
-# Existing total DOS of the six-atom SnSe2/Sr2N cell, ISPIN=1.
-# Column 2 already subtracts this calculation's EF; never subtract EF again.
-set datafile separator ','
-set encoding utf8
-set border linewidth 1
-set tics out nomirror
-set xlabel 'Energy E-E_F (eV)'
-set ylabel 'Total DOS (states/eV/cell)'
-set xrange [-2:2]
-set yrange [0:*]
-set style line 1 lc rgb '#205493' lw 1.6 pt 7 ps 0.65
-set arrow 1 from 0,graph 0 to 0,graph 1 nohead lc rgb '#777777' dt 2
-set label 1 'E_F' at 0.06,graph 0.93 textcolor rgb '#555555'
-unset title
-set key top right
-unset label 2
-do for [fmt in 'svg png pdf'] {
- if (fmt eq 'svg') { set terminal svg size 940,460 enhanced font 'Arial,13' }
- if (fmt eq 'png') { set terminal pngcairo size 940,460 enhanced font 'DejaVu Sans,13' }
- if (fmt eq 'pdf') { set terminal pdfcairo size 9.4in,4.6in enhanced font 'DejaVu Sans,13' }
- set output 'total-dos.'.fmt
- plot 'total-dos.csv' using 2:3 with linespoints ls 1 title 'SnSe_{2}/Sr_{2}N'
- unset output
-}
-```
-
-</details>
-
-[总 DOS CSV](/Atlas/examples/vasp/snse2-sr2n-nscf/results/total-dos.csv)、[摘要](/Atlas/examples/vasp/snse2-sr2n-nscf/results/summary.json)、[DOSCAR](/Atlas/examples/vasp/snse2-sr2n-nscf/dos/DOSCAR)和 EIGENVAL 随包保留。沿高对称路径的能带需要另建 Line-Mode 分支；本页不可约点是均匀网格采样。
+这一步先读取头部，确定本次 EF 与总 DOS 块的长度，再按顺序读 301 行，保留原始 E、E−EF、DOS 和积分 DOS 四列。后面的逐原子投影使用另一套列定义，不能继续按这三列追加到同一条总 DOS 曲线。最后核对点数和有限数值，选择离 EF 最近的实际样本，而不把它改名为 DOS(EF)。下面的编程要求与完整程序落实这些读取规则，随后展示真实命令和输出。
 
 如果让 AI 帮忙整理这一步，可以把要读取的文件、提取规则和输出单位一起交代：
 
@@ -539,6 +475,76 @@ if __name__ == '__main__':
 ```
 
 </details>
+
+从前面的复算准备目录返回下载包中的存档目录，再运行后处理：
+
+```bash
+cd ..
+python3 analyze_nscf.py
+```
+
+若只读取存档，直接在解包后的 `snse2-sr2n-nscf` 目录运行。程序使用 Python 标准库，得到以下输出：
+
+
+```text
+ICHARG: parent=2 child=11; counts: NELECT=51 NKPTS=37 NBANDS=32
+NEDOS=301; EF=-1.49081474 eV; mean_DOS_spacing=0.14324333 eV
+nearest_EF_sample: E-EF=0.06781474 eV; DOS=2.5730 states/eV/cell
+same_POSCAR=True same_KPOINTS=True parent_EDIFF=True child_EDIFF=True
+```
+
+平均能量间隔约 0.14324 eV。离 EF 最近一行在 E−EF=0.06781474 eV，DOS=2.5730 states/eV/cell；它不是 EF 处的精确插值。高斯展宽与有限能量/k 网格共同影响曲线。若用费米能附近 DOS 解释界面电子态或 EPC 趋势，应直接比较该区域的积分采样和能量分辨率；这里只能报告离 EF 最近的实际样本。把 NEDOS 增大可细化绘出的能量轴，但不会增加 37 个不可约 k 点，也不会改善父密度。
+
+积分 DOS 是从低能量端累计到当前 E 的态数，单位为 states/整个晶胞。本次 CSV 的最后一行达到 64，符合 ISPIN=1 下 32 条带的两重自旋容量；电子数则是 51，部分计算出来的态没有被占据。离 EF 最近的一行位于 +0.06781474 eV，累计值为 51.18；它是在高于 EF 的这个实际能量点上的积分值，不能据此说晶胞多了 0.18 个电子或发生了层间转移。判断电子归属还要回到同构型的投影与密度数据。
+
+### 按同一费米能参照画已有 DOS
+
+<figure>
+<img src="/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.svg" alt="SnSe₂/Sr₂N 在费米能附近的总 DOS，点为实际采样" loading="lazy"/>
+<figcaption>六原子 SnSe₂/Sr₂N，ISPIN=1，固定父 SCF 密度，18×18×1 网格。DOSCAR 全能区有 301 个能量样本，平均间隔约 0.14324 eV；图取费米能附近 −2 至 2 eV。点为真实采样，线段连接相邻点，竖虚线标出本次费米能。</figcaption>
+</figure>
+
+参照 Ba₂N Fig. 2(b)的能量横轴和 DOS 纵轴，本图直接画已有 CSV 的第 2、3 列：能量已减去本次 EF，DOS 保持 states/eV/六原子胞的归一化。先看 −1.5 至 −1 eV 的较高态密度，再看 −0.5 至 0.5 eV 的费米能附近区域，可据此选择后续轨道或分层投影需要检查的能区。
+
+图在费米能附近每隔约 0.14324 eV 才有一个样本，这个间隔决定了现存曲线能分辨的细节。离 EF 最近的一行在 +0.06781474 eV，DOS 为 2.5730 states/eV/cell；报告这一带的态密度时，同时给出该能量偏移和采样间隔，才便于比较不同网格或展宽下的结果。
+
+Ba₂N 正文将 Fig. 2(b)的投影曲线与 Fig. 2(d)的空间区域对应，并说明空球只覆盖了部分表面电子气，因此 X 曲线表示的是那个投影范围内的贡献。本异质结的总 DOS 图也从定位能区开始，随后用自身的分层投影和空间密度判断电子归属，文件接续见下面“用同一构型接续投影和空间分析”。
+
+下载 [原 CSV 的副本](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.csv) 与 [plot.gp](/Atlas/examples/basics-literature/snse2-sr2n-dos/plot.gp)，放在同一目录运行 `gnuplot plot.gp`，生成 [SVG](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.svg)、PNG 与 [PDF](/Atlas/examples/basics-literature/snse2-sr2n-dos/total-dos.pdf)。坐标组织参照论文，曲线保留本页 DOSCAR 提取结果中的实际采样点和数值。
+
+<details>
+<summary>生成上图的完整 gnuplot 源码</summary>
+
+```gnuplot
+# Existing total DOS of the six-atom SnSe2/Sr2N cell, ISPIN=1.
+# Column 2 already subtracts this calculation's EF; never subtract EF again.
+set datafile separator ','
+set encoding utf8
+set border linewidth 1
+set tics out nomirror
+set xlabel 'Energy E-E_F (eV)'
+set ylabel 'Total DOS (states/eV/cell)'
+set xrange [-2:2]
+set yrange [0:*]
+set style line 1 lc rgb '#205493' lw 1.6 pt 7 ps 0.65
+set arrow 1 from 0,graph 0 to 0,graph 1 nohead lc rgb '#777777' dt 2
+set label 1 'E_F' at 0.06,graph 0.93 textcolor rgb '#555555'
+unset title
+set key top right
+unset label 2
+do for [fmt in 'svg png pdf'] {
+ if (fmt eq 'svg') { set terminal svg size 940,460 enhanced font 'Arial,13' }
+ if (fmt eq 'png') { set terminal pngcairo size 940,460 enhanced font 'DejaVu Sans,13' }
+ if (fmt eq 'pdf') { set terminal pdfcairo size 9.4in,4.6in enhanced font 'DejaVu Sans,13' }
+ set output 'total-dos.'.fmt
+ plot 'total-dos.csv' using 2:3 with linespoints ls 1 title 'SnSe_{2}/Sr_{2}N'
+ unset output
+}
+```
+
+</details>
+
+[总 DOS CSV](/Atlas/examples/vasp/snse2-sr2n-nscf/results/total-dos.csv)、[摘要](/Atlas/examples/vasp/snse2-sr2n-nscf/results/summary.json)、[DOSCAR](/Atlas/examples/vasp/snse2-sr2n-nscf/dos/DOSCAR)和 EIGENVAL 随包保留。沿高对称路径的能带需要另建 Line-Mode 分支；本页不可约点是均匀网格采样。
 
 ## 用同一构型接续投影和空间分析
 

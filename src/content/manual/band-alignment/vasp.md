@@ -259,6 +259,24 @@ $\mathrm{CBM}(\mathrm{SnSe}_2)-E_{\mathrm F}(\mathrm{Sr}_2\mathrm N)=-2.28260726
 
 要读实际界面的电子/空穴势垒，应在完整接触体系中找到仍可识别的SnSe₂层带边与共同EF，检查杂化/隙内态；平面势峰相对EF给的隧穿势垒属于另一种量。参考 [金属/Ca₂N/MoS₂论文Sec. 2.2、Fig. 3](https://doi.org/10.1039/D4CP04577G)，把层投影谱、电荷与几何一起检查。
 
+选相向表面是一个实际数值选择。保留同一套原始带边和EF，仅更换用于取差的表面平台，所得CBM−EF为：
+
+| SnSe₂所选表面 | Sr₂N所选表面 | 真空参照CBM−EF / eV | 对应关系 |
+| --- | --- | ---: | --- |
+| lower-z | upper-z | −2.282607 | 原结构的两个相向表面 |
+| upper-z | upper-z | −1.738607 | 改用了SnSe₂背面 |
+| lower-z | lower-z | −2.684080 | 改用了Sr₂N背面 |
+
+三个偏移由[四表面原始表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)直接相减得到。更换SnSe₂一侧使读数移动约0.5440 eV，更换Sr₂N一侧移动约0.4015 eV；不是原子突然接触后改变了能带，而是选了不同表面的真空零点。论文中画一条共同真空线时，每个材料用哪个朝向、哪个终止必须随图说明。
+
+[Choudhary等Fig. 2(d)](https://arxiv.org/abs/2004.03025v2)的纵轴明确写能量相对真空/eV，横向按WSe₂、MoS₂分别排列：绿色块的下边界给CBM，红色块的上边界给VBM，两者之间是各自带隙，蓝色虚线另标水氧化/还原参照。该面板读的是带边的位置；(a–c)的彩色DOS曲线则按元素分解，横轴能量/eV各以所在体系EF归零。颜色在这两类面板中承担不同含义，需要分别读图例。本站采用(d)的共同真空纵轴与按材料并列的方式，用短线和浅色带隙区显示自己CSV中的采样带边，再单独标金属EF；蓝、棕分别区分两层，虚线真空为0。每条能级线都由所选表面的真空平台取差得到。
+
+![冻结SnSe₂相向面带边与Sr₂N相向面费米能，统一真空为零](/Atlas/examples/enrichment-20261003/charge/frozen-facing-alignment.svg)
+
+图中SnSe₂的两个短线围出采样带隙，Sr₂N只标金属EF；箭头的有符号差定义为SnSe₂ CBM减Sr₂N EF。原始孤立计算各有自己的化学势，真空对齐只提供接触前能级参照，并没有让这两个EF达到平衡。两份居中过的LOCPOT可以分别读各自真空，若继续逐点CDD相减，则必须恢复完整AB中的原位片段。
+
+[gnuplot源码](/Atlas/examples/enrichment-20261003/charge/frozen-facing-alignment.gnuplot)直接读取上述原始CSV，按材料与表面名选择带边和EF；下载两份文件后运行 `gnuplot -e "datafile='band-edges-vacuum-referenced.csv'" frozen-facing-alignment.gnuplot` 可导出SVG、PDF、PNG，没有插值、拟合或给金属补造带边。
+
 ## 结果表与接触后的转移分析
 
 表格导出只读已验证摘要，按表面保留平台范围、带边和EF。这个写码需求可复现所列两张表：
@@ -645,6 +663,62 @@ FREE ENERGIE OF THE ION-ELECTRON SYSTEM (eV)
             └─ LOCPOT + CHGCAR：双侧平坦真空区间
                  └─ 每个能级减去对应表面的真空势
                       └─ 孤立层参考表 → 后续直接检查界面体系
+```
+
+</details>
+
+
+<details>
+<summary>冻结层相向表面真空对齐图的完整gnuplot源码</summary>
+
+```gnuplot
+# Actual frozen-layer SCF table; no fitting and no synthetic metal band edges.
+# Download band-edges-vacuum-referenced.csv beside this script, then run gnuplot.
+if (!exists('datafile')) datafile = 'band-edges-vacuum-referenced.csv'
+if (!exists('prefix')) prefix = 'frozen-facing-alignment'
+set datafile separator comma
+stats datafile using (strcol(1) eq 'snse2' && strcol(2) eq 'lower_z' ? column(7) : 1/0) nooutput
+if (STATS_records != 1) { print 'Need exactly one SnSe2 lower-z VBM'; exit error }
+vbm = STATS_mean
+stats datafile using (strcol(1) eq 'snse2' && strcol(2) eq 'lower_z' ? column(8) : 1/0) nooutput
+if (STATS_records != 1) { print 'Need exactly one SnSe2 lower-z CBM'; exit error }
+cbm = STATS_mean
+stats datafile using (strcol(1) eq 'sr2n' && strcol(2) eq 'upper_z' ? column(6) : 1/0) nooutput
+if (STATS_records != 1) { print 'Need exactly one Sr2N upper-z EF'; exit error }
+ef = STATS_mean
+offset = cbm - ef
+set encoding utf8
+set border 2 lc rgb '#444444'
+set tics nomirror out
+set xrange [0.5:2.8]
+set yrange [-6.65:0.65]
+set ylabel 'Energy relative to the selected vacuum (eV)'
+set xtics ('SnSe₂  lower-z' 1, 'Sr₂N  upper-z' 2.2) scale 0
+set ytics 1
+set key off
+set grid ytics lc rgb '#dddddd'
+set object 1 rect from 0.75,vbm to 1.25,cbm fc rgb '#e9f0f5' fs solid 1 noborder behind
+set arrow 1 from 0.75,vbm to 1.25,vbm nohead lw 3 lc rgb '#205a83'
+set arrow 2 from 0.75,cbm to 1.25,cbm nohead lw 3 lc rgb '#205a83'
+set arrow 3 from 1.95,ef to 2.45,ef nohead lw 3 lc rgb '#ae542f'
+set arrow 4 from 1.60,ef to 1.60,cbm heads size screen 0.012,15 lw 1.3 lc rgb '#555555'
+set arrow 5 from 1.27,cbm to 1.60,cbm nohead dt 2 lc rgb '#777777'
+set arrow 6 from 1.60,ef to 1.93,ef nohead dt 2 lc rgb '#777777'
+set label 1 sprintf('VBM  %.6f',vbm) at 0.78,vbm-0.24 left font ',12'
+set label 2 sprintf('CBM  %.6f',cbm) at 0.78,cbm+0.25 left font ',12'
+set label 3 sprintf('EF  %.6f',ef) at 2.2,ef+0.25 center font ',12'
+set label 4 'CBM − EF' at 1.69,(ef+cbm)/2+0.12 left font ',12'
+set label 6 sprintf('= %.6f eV',offset) at 1.69,(ef+cbm)/2-0.18 left font ',12'
+set label 5 'Vacuum = 0' at 0.58,0.18 left font ',12'
+set title 'Frozen isolated layers before contact' font ',17'
+do for [export_index=1:3] {
+ if (export_index==1) { set terminal svg size 960,680 font 'Liberation Sans,16'; set output prefix.'.svg' }
+ if (export_index==2) { set terminal pdfcairo enhanced color size 7in,5in font 'Liberation Sans,11'; set output prefix.'.pdf' }
+ if (export_index==3) { set terminal pngcairo size 960,680 font 'Liberation Sans,16'; set output prefix.'.png' }
+ plot 0 with lines lw 1.3 dt 2 lc rgb '#777777' notitle
+ unset output
+}
+print sprintf('VBM=%.9f; CBM=%.9f; Sr2N EF=%.9f; CBM-EF=%.9f eV',vbm,cbm,ef,offset)
 ```
 
 </details>

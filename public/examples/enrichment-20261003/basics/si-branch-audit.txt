@@ -1,0 +1,4 @@
+scf: calculation=scf nks=29 nbnd=4 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+gap24-cg: calculation=nscf nks=413 nbnd=8 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+bands-cg: calculation=bands nks=121 nbnd=8 nelec=8 xml_exit=0 JOB_DONE=True eigenvalue_warning_lines=0
+same_geometry_and_model=True; scf_save_directory_in_archive=False

@@ -1,4 +1,4 @@
-在应变下发现某个有限 q 的声子软化后，可以先问：这个 q 是否连接了较多费米能附近的电子态？完整 k 网格上的几何联合权重 J(q) 能量化这一线索。这里用真实 Al 的 24³/32³ NSCF 展示周期求和及窗口敏感性，随后说明怎样与二维异质结的声子/EPC 对照。
+费米面上两个区域能由某个 q 连起来，说明该散射有几何相空间；真正作用于哪个声子模式，还取决于电子态与该模式扰动的矩阵元。这里用真实 fcc Al 网格计算费米能附近的联合权重 $J(\mathbf q)$，先看同一量对采样和窗口有多敏感，再拆开能带配对，最后与原生电子–声子输出对照。这样可以知道几何图给出了什么，以及从它走到软模归因还缺什么。
 
 这个计算用于寻找值得进一步检查的散射波矢，并观察候选峰是否随采样与能量窗口移动。[Johannes 与 Mazin 的 Sec. II、Fig. 4（arXiv PDF 第 6 页）](https://arxiv.org/pdf/0708.1744)比较 TaSe₂ 的几何嵌套与电子响应：费米面的几何重叠峰不能代替完整的电荷响应峰。本页保留 Al 的几何联合权重定义，若要研究某个软模，还需把相同 q 处的声子与 EPC 数据接上。
 
@@ -23,6 +23,8 @@ $$
 所以 J 的单位是 eV⁻²，布里渊区平均采用等权完整网格。本例没有另外乘一个自旋简并因子；这条定义与所有数表保持一致。不同文献的归一化可能不同，比较数值前要先对齐定义。
 
 J(q) 是费米能附近的几何联合权重。静态 Lindhard 易感率还涉及占据数差与能量差，完整响应还可能包含矩阵元；这里没有这些项，因此文件名和纵轴都写 J，不写 χ。
+
+这一定义还有一个直接的读图约束。高斯权重 W 非负，周期平移又不改变 W² 的网格平均；由 Cauchy–Schwarz 不等式，对本例同一权重场的自相关有 $0\le J(\mathbf q)\le J(\mathbf 0)$。所以 Γ 成为最大值是定义允许并保证的结果，不是寻找到了最强有限 q 失稳。除以 J(0) 后每组 Γ 都等于 1，也会隐藏不同网格上绝对权重的差别。需要看的是 Γ 以外的局部结构、它对采样的稳定性，以及是否与声子响应位于同一 q。这个上界只用于本页的周期几何自相关，不能拿去约束含能量分母或矩阵元的响应函数。
 
 ## 确认网格来源，再运行提取和求和
 
@@ -122,6 +124,30 @@ q_fraction_along_b1_plus_b3,J_eV_minus2,J_over_J0
 
 加密网格后，窄窗口的 X 点权重由 0.09968 降到 0.04490 eV⁻²，显示明显的采样敏感性。讨论有限 q 特征前，需要继续交叉比较电子网格与 σ。
 
+把同一窗口的 X 点进一步拆开，就能看到总值里的不同几何配对。令每条带的高斯权重为 $w_n(\mathbf k)$，则
+
+$$
+\begin{aligned}
+J_{nm}(\mathbf q)&=\frac{1}{N_k}\sum_{\mathbf k}w_n(\mathbf k)w_m(\mathbf k+\mathbf q),\\
+J(\mathbf q)&=\sum_{n,m}J_{nm}(\mathbf q).
+\end{aligned}
+$$
+
+下面从存档六条带全部求和，分别合计 n=m 与 n≠m 的项，单位仍为 eV⁻²。不是只保留“穿过 EF”的两条带，也没有假设远离 EF 的高斯尾部严格为零。
+
+| 电子网格 | σ / eV | J(X) | 相同带号配对和 | 不同带号配对和 |
+|---|---:|---:|---:|---:|
+| 24³ | 0.10 | 0.09968022 | 0.08261356 | 0.01706666 |
+| 24³ | 0.20 | 0.06123457 | 0.04361909 | 0.01761549 |
+| 32³ | 0.10 | 0.04490039 | 0.04085972 | 0.00404068 |
+| 32³ | 0.20 | 0.03678119 | 0.02803631 | 0.00874488 |
+
+在 32³、0.20 eV 这组中，2→2、3→3 的项分别约为 0.02455538、0.00348093 eV⁻²；2→3 与 3→2 各约 0.00437243 eV⁻²。不同带号的几何配对确实存在，但这仍没有说它主要属于哪个原子、哪一层或哪种振动。这里的带号沿用存档的能量排序；遇到交叉或简并时，相同带号也不自动等于同一个连续费米口袋，需要波函数或轨道投影继续追踪。
+
+[CoTe₂ 原文 Fig. 2(b,c)，PDF 第 4 页](https://doi.org/10.1103/l89c-t2s4)为进一步归属提供了具体画法：(b) 在能带上以 Co-d/Te-p 投影着色，(c) 把 0–1 的轨道权重画到费米线上，并标 BZ 边界。要将上面的 2→3 配对说成某两种轨道或层之间的通道，需要这样的逐态投影，随后还要核对对应模式的矩阵元；本例六带能量数组足以做几何配对，不能产生那张彩色投影费米线。
+
+这次加密不仅改变总 J(X)，也改变配对组成。例如 0.10 eV 下不同带号配对和从 0.01706666 降到 0.00404068 eV⁻²；在网格敏感性尚明显时，把一张粗网格费米面上的口袋连线指定为耦合通道还过早。[全部 432 条配对记录](/Atlas/examples/enrichment-20261003/strain/band-pairs.csv)保留 Γ、q=(1/4,0,1/4) 和 X 的六带配对，下面给出求和逻辑、完整源码和实际运行输出。
+
 <span id="把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
 <span id="h-把后处理要求写成提示词" class="legacy-anchor" aria-hidden="true"></span>
 ## 周期求和与直接计算对照
@@ -135,6 +161,149 @@ q_fraction_along_b1_plus_b3,J_eV_minus2,J_over_J0
 检查：J(0)=mean(W²)，q=(1/4,0,1/4) 与直接求和一致；点序、网格/窗口标签、J/J0 起点为 1，对照正文四组 Γ/X 值。
 输出：源码、依赖、命令、CSV/JSON、PNG/SVG/PDF，展示网格与窗口敏感性。电子易感率还需占据数差与能量分母。
 ```
+
+### 把 J 拆成能带配对，核对三种求和
+
+处理顺序是先按存档能量生成每条带的窗口权重，再在同一周期网格平移到 k+q；36 项带配对合计应恢复原 J。FFT 一次得到全部 q，直接平移则在三个指定点独立核对。下载 [band_pair_weights.py](/Atlas/examples/enrichment-20261003/strain/band_pair_weights.py)，可将以下需求交给编程助手：
+
+```text
+编写 Python 3+NumPy 程序 band_pair_weights.py，只读解包后 al/fermi/k24-cg 与 k32-cg 中的 fermi-grid.npz、grid-info.json、四份 nesting-GX-s*.csv。核对完整24³/32³六带数组、有限能量、grid和EF一致。按存档定义生成逐带高斯权重，全部六带求和，不额外乘自旋简并。对σ=0.10/0.20 eV计算周期FFT J，逐点核对原Γ–X绝对与归一化CSV，并检查J(0)=mean(W²)、0≤J(q)≤J(0)。在Γ、(1/4,0,1/4)、X分别计算36项J_nm，和直接周期平移求和、FFT互校；保存相同带号与不同带号合计，但不将带号换成轨道/层/模式归属。输出432条配对CSV、12行摘要CSV、JSON和真实运行摘要。新输出目录才允许写入，不重算DFT，不引入占据差/能量分母或EPC矩阵元。
+```
+
+<details>
+<summary>band_pair_weights.py 完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Resolve original Al J(q) into band pairs without phonon matrix elements."""
+from pathlib import Path
+import argparse, csv, json
+import numpy as np
+
+def write_csv(path, rows):
+    with path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--al-root", type=Path, required=True,
+                    help="Extracted al directory containing fermi/k24-cg and k32-cg")
+    ap.add_argument("--output-dir", type=Path, required=True)
+    args = ap.parse_args()
+    if args.output_dir.exists():
+        raise FileExistsError("Use a new output directory: " + str(args.output_dir))
+    pairs, summaries, checks = [], [], []
+    for n in [24, 32]:
+        folder = args.al_root / "fermi" / f"k{n}-cg"
+        with np.load(folder / "fermi-grid.npz", allow_pickle=False) as saved:
+            energies = saved["energy_eV"].copy()
+            grid = int(saved["grid"])
+            ef = float(saved["fermi_eV"])
+        info = json.loads((folder / "grid-info.json").read_text())
+        if grid != n or energies.shape != (n, n, n, 6):
+            raise ValueError("Expected the archived six-band complete Al grid")
+        if not np.all(np.isfinite(energies)) or not np.isfinite(ef):
+            raise ValueError("Non-finite energies or Fermi reference")
+        if info["nks"] != n**3 or abs(info["fermi_eV"] - ef) > 1e-10:
+            raise ValueError("Grid metadata differs")
+        for sigma in [0.10, 0.20]:
+            band_weight = np.exp(-0.5 * (energies / sigma)**2) / (
+                sigma * np.sqrt(2 * np.pi))
+            total_weight = band_weight.sum(axis=3)
+            transform = np.fft.fftn(total_weight)
+            joint = np.fft.ifftn(transform.conj() * transform).real / n**3
+            zero = float(joint[0, 0, 0])
+            tolerance = 1e-10 * max(1.0, zero)
+            if zero <= 0 or np.min(joint) < -tolerance:
+                raise ValueError("Invalid joint weight")
+            if np.max(joint) > zero + tolerance:
+                raise ValueError("Periodic autocorrelation exceeds J(0)")
+            if abs(zero - float(np.mean(total_weight**2))) > tolerance:
+                raise ValueError("q=0 direct sum differs")
+            cut = np.loadtxt(folder / f"nesting-GX-s{sigma:.2f}.csv",
+                             delimiter=",", skiprows=1)
+            indices = np.arange(n//2 + 1)
+            computed = joint[indices, 0, indices]
+            if cut.shape != (n//2 + 1, 3):
+                raise ValueError("Unexpected stored cut shape")
+            if not np.allclose(cut[:, 0], indices/n, rtol=0, atol=1e-12):
+                raise ValueError("Stored q coordinates differ")
+            if not np.allclose(cut[:, 1], computed, rtol=1e-10, atol=1e-12):
+                raise ValueError("Stored absolute J differs from FFT")
+            if not np.allclose(cut[:, 2], computed/zero, rtol=1e-10, atol=1e-12):
+                raise ValueError("Stored normalized J differs")
+            for name, i in [("Gamma", 0), ("quarter", n//4), ("X", n//2)]:
+                shift = (i, 0, i)
+                shifted = np.roll(band_weight, tuple(-v for v in shift),
+                                  axis=(0, 1, 2))
+                matrix = (band_weight.reshape(-1, 6).T @
+                          shifted.reshape(-1, 6)) / n**3
+                direct = float(np.mean(total_weight *
+                                       np.roll(total_weight, tuple(-v for v in shift),
+                                               axis=(0, 1, 2))))
+                total = float(matrix.sum())
+                if abs(total - direct) > tolerance or abs(total - joint[shift]) > tolerance:
+                    raise ValueError("Band-pair, direct and FFT sums differ")
+                diagonal = float(np.trace(matrix))
+                offdiagonal = float(matrix[~np.eye(6, dtype=bool)].sum())
+                for band_n in range(6):
+                    for band_m in range(6):
+                        pairs.append({"kmesh": n, "sigma_eV": sigma,
+                                      "q_name": name, "q_fraction_b1_plus_b3": i/n,
+                                      "initial_band": band_n+1, "final_band": band_m+1,
+                                      "J_pair_eV_minus2": float(matrix[band_n, band_m])})
+                summaries.append({"kmesh": n, "sigma_eV": sigma,
+                                  "q_name": name, "q_fraction_b1_plus_b3": i/n,
+                                  "J_eV_minus2": total, "same_band_eV_minus2": diagonal,
+                                  "different_band_eV_minus2": offdiagonal,
+                                  "J_over_J0": total/zero})
+                if name == "X":
+                    print(f'{n}^3 sigma={sigma:.2f} eV: J(X)={total:.8f}; '
+                          f'same-band={diagonal:.8f}; different-band={offdiagonal:.8f} eV^-2')
+            checks.append({"kmesh": n, "sigma_eV": sigma,
+                           "fermi_eV": ef, "all_six_bands_used": True,
+                           "complete_grid_points": n**3, "stored_cut_reproduced": True,
+                           "nonnegative_and_J_not_above_J0": True,
+                           "band_pair_direct_FFT_agree": True})
+    report = {"source_root": str(args.al_root), "numpy_version": np.__version__,
+              "definition": "J_nm(q)=mean_k delta_sigma(E_n(k)-EF) delta_sigma(E_m(k+q)-EF)",
+              "units": "eV^-2; all six bands; no added spin factor",
+              "scope": "Geometric band-pair weights, not orbital/layer-resolved EPC or static susceptibility",
+              "checks": checks, "summaries": summaries}
+    args.output_dir.mkdir(parents=True)
+    write_csv(args.output_dir / "band-pairs.csv", pairs)
+    write_csv(args.output_dir / "band-pair-summary.csv", summaries)
+    (args.output_dir / "band-pair-check.json").write_text(json.dumps(report, indent=2) + "\n")
+    print(f'{len(summaries)} q-point summaries; {len(pairs)} band-pair records; '
+          'pair/direct/FFT sums, stored cuts and J(q)<=J(0) checked.')
+    print("No matrix elements, mode assignment, occupation denominator or DFT calculation added.")
+
+if __name__ == "__main__":
+    main()
+```
+
+</details>
+
+在解包得到的 al 根目录保存该脚本，运行命令；band-pairs 必须是新目录：
+
+```bash
+python3 band_pair_weights.py --al-root . --output-dir band-pairs
+```
+
+Talos 用公开包中的原 NPZ 与 CSV 实际读取输出为：
+
+```text
+24^3 sigma=0.10 eV: J(X)=0.09968022; same-band=0.08261356; different-band=0.01706666 eV^-2
+24^3 sigma=0.20 eV: J(X)=0.06123457; same-band=0.04361909; different-band=0.01761549 eV^-2
+32^3 sigma=0.10 eV: J(X)=0.04490039; same-band=0.04085972; different-band=0.00404068 eV^-2
+32^3 sigma=0.20 eV: J(X)=0.03678119; same-band=0.02803631; different-band=0.00874488 eV^-2
+12 q-point summaries; 432 band-pair records; pair/direct/FFT sums, stored cuts and J(q)<=J(0) checked.
+No matrix elements, mode assignment, occupation denominator or DFT calculation added.
+```
+
+[12 个 q 点摘要](/Atlas/examples/enrichment-20261003/strain/band-pair-summary.csv)与[检查记录](/Atlas/examples/enrichment-20261003/strain/band-pair-check.json)保留未舍入值。三种求和一致验证的是当前数组、周期索引和配对加法；24³ 与 32³ 的差别仍保留，不能用实现检查替代采样收敛。
 
 ## 后处理源码与运行
 
@@ -293,14 +462,24 @@ print "Read the four original CSVs; no interpolation, smoothing or peak normaliz
 
 把这种图法用于异质结，需要在同一倒空间坐标系中准备轨道投影费米线、二维 q 网格和对应模式数据；gnuplot 的二维 pm3d map 可画原网格，叠加 BZ 边界和可核对的 q，而不从曲线截图补造热图。先从本页真实 Al CSV 复现一维 J，再与[费米面](/Atlas/m/fermi-surface/qe/)和[模式线宽](/Atlas/m/phonon-linewidth/qe/)的数据接续，才有条件比较二维峰位。几何权重与模式散射是不同量，不能只画两口袋间的箭头就认定它们负责软化。
 
+本页 J 没有模式指标 ν：给定同一电子谱和 q，它不会知道原子沿哪个方向运动。原生 EPC 则先计算电子态对扰动的矩阵元，再投影到声子本征位移。QE 7.5 的 [elphon.f90](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/elphon.f90)在带求和中保留两个费米能窗口和扰动矩阵元，之后用模式向量收缩得到逐模线宽，并按频率平方与单自旋 DOS 得到 λ；这些信息都不在本页的 fermi-grid.npz 中。
+
+真实 Al 的第二个不可约 q 原件提供了具体对照。在[elph.inp_lambda.2](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.2)的 0.020 Ry 一档，同一个 q 下打印：
+
+| 模式 | γ / GHz | λ |
+|---|---:|---:|
+| 1 | 1.96 | 0.0599 |
+| 2 | 1.88 | 0.0576 |
+| 3 | 23.94 | 0.1845 |
+
+原件的三个模式共享 q 与电子展宽，却有不同线宽；一个不带 ν 的 J(q) 无法替代这三列。第三模线宽约为第一模 12 倍，λ 只约为 3 倍，因为频率与 DOS 归一化也参与比较，单位核对见[线宽页的原始频率和源码换算](/Atlas/m/phonon-linewidth/qe/)。这里没有把 Γ—X 的 0.10/0.20 eV 几何数据配给这份 q 文件：两套 q、窗口定义与电子积分来源须先逐项对齐，不能仅把 eV 换成 Ry 就拿 γ/J 推断矩阵元。
 
 现有 ZrCl₂/Sc₂C 费米面展示可以帮助提出候选口袋，但本例没有提取该体系的完整二维 J(q)，也没有闭合口袋到模式的矩阵元归属。本文因此保留 Al 的真实 J(q) 数据与实现，材料讨论接[费米面](/Atlas/m/fermi-surface/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)及[应变比较](/Atlas/m/strain-doping-scan/qe/)。只有这些同结构、同 q 的证据成立以后，才能判断软化主要来自几何相空间、矩阵元还是两者共同变化。
 
 ## 原文中怎样区分几何权重与响应
 
-[Johannes 与 Mazin，Phys. Rev. B 77, 165135，原作者稿 PDF 第 6 页 Fig. 4](https://arxiv.org/pdf/0708.1744#page=6)的 (a) 左图显示 TaSe₂ 与几何嵌套相关的虚部量，(b) 右图显示实部静态响应。同一倒空间中的强嵌套峰与实部弱峰不在同一位置，图注指出后者才对应观察到的 CDW 波矢。读图要比较峰的坐标，而不是把两图的高度或颜色当作共同归一化。本页左侧 J 与右侧 J/J(0) 则是同一几何量的绝对幅值和形状对照，并没有增加一份实部响应。若以后有完整二维数据，可用相同 q 网格、BZ 边界和各自有定义的纵轴或色标并排绘图；仅凭现有 Al Γ—X 切线不能复现原图的二维响应面。
+[Johannes 与 Mazin，Phys. Rev. B 77, 165135，原作者稿 PDF 第 6 页 Fig. 4](https://arxiv.org/pdf/0708.1744#page=6)的 (a) 左图显示 TaSe₂ 与几何嵌套相关的虚部量，(b) 右图显示实部静态响应。同一倒空间中的强嵌套峰与实部弱峰不在同一位置，图注指出后者才对应观察到的 CDW 波矢。原图用倒空间曲面的高度和蓝绿至黄的着色表现响应起伏，但没有可读的 q 轴刻度、数值纵轴或共同色条；两峰位置与 CDW 的关系需结合图注和正文，不能从这张截图标定自己的 K 点或比较绝对高度。本页左侧 J 与右侧 J/J(0) 则是同一几何量的绝对幅值和形状对照，并没有增加一份实部响应。若以后有完整二维数据，可用相同 q 网格、BZ 边界和各自有定义的纵轴或色标并排绘图；仅凭现有 Al Γ—X 切线不能复现原图的二维响应面。
 
 原文式 (2) 用低频极限 $\lim_{\omega\to0}\chi''(\mathbf q,\omega)/\omega$ 定义双 δ 函数几何权重，式 (1) 的静态实部还包含占据数差与能量差。本文的高斯 J(q) 是前述离散双窗口联合权重，保持本例的等权平均和自旋约定；不能重命名为静态 $\operatorname{Im}\chi(\mathbf q,0)$，也不能由它补出 (b) 的响应峰。
-
 
 想把这项分析用于应变软模，下一步应先取得对应结构的完整均匀电子网格，再按同一定义比较候选 q；Al 的四组数表和曲线仍作为网格与窗口敏感性的操作参照。

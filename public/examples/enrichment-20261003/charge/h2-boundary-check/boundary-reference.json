@@ -1,0 +1,83 @@
+{
+  "status": "pass",
+  "method": "exact integration of each piecewise-linear line-density segment",
+  "samples_including_periodic_endpoint": 145,
+  "area_factor_max_error_e_A": 0.0,
+  "cumulative_max_error_e": 1.3183898417423734e-16,
+  "full_cell_delta_e": 4.36263834317043e-10,
+  "positive_area_of_1d_profile_e": 0.20193873954723515,
+  "negative_area_of_1d_profile_e": -0.20193873911097132,
+  "positive_voxel_integral_3d_e": 0.2578313944388549,
+  "negative_voxel_integral_3d_e": -0.2578313940025911,
+  "profile_peak": {
+    "z_A": 5.0000000000000036,
+    "linear_e_A": 0.3281919522095552
+  },
+  "profile_trough": {
+    "z_A": 5.8333333333333375,
+    "linear_e_A": -0.1223083936317805
+  },
+  "boundary_fixtures": [
+    {
+      "boundary_A": 0.0,
+      "left_delta_e": 0.0,
+      "right_delta_e": 4.36263834317043e-10
+    },
+    {
+      "boundary_A": 4.0,
+      "left_delta_e": -0.05371112269602185,
+      "right_delta_e": 0.05371112313228569
+    },
+    {
+      "boundary_A": 4.63,
+      "left_delta_e": -0.0932196132417963,
+      "right_delta_e": 0.09321961367806013
+    },
+    {
+      "boundary_A": 4.9,
+      "left_delta_e": -0.032068091116555224,
+      "right_delta_e": 0.03206809155281906
+    },
+    {
+      "boundary_A": 4.95,
+      "left_delta_e": -0.01625029852160619,
+      "right_delta_e": 0.016250298957870023
+    },
+    {
+      "boundary_A": 5.0,
+      "left_delta_e": 1.2865148717395095e-09,
+      "right_delta_e": -8.502510374224665e-10
+    },
+    {
+      "boundary_A": 5.05,
+      "left_delta_e": 0.016250301082653615,
+      "right_delta_e": -0.01625030064638978
+    },
+    {
+      "boundary_A": 5.1,
+      "left_delta_e": 0.032068093641777345,
+      "right_delta_e": -0.03206809320551351
+    },
+    {
+      "boundary_A": 5.37,
+      "left_delta_e": 0.09321961519892705,
+      "right_delta_e": -0.09321961476266322
+    },
+    {
+      "boundary_A": 6.0,
+      "left_delta_e": 0.05371112279129778,
+      "right_delta_e": -0.05371112235503394
+    },
+    {
+      "boundary_A": 10.0,
+      "left_delta_e": 4.36263834317043e-10,
+      "right_delta_e": 0.0
+    }
+  ],
+  "input_files": [
+    "/home/talos/work/Atlas/public/examples/charge-planar/h2-half-spaces/planar.csv",
+    "/home/talos/work/Atlas/public/examples/charge-planar/h2-half-spaces/summary.json"
+  ],
+  "plot_created": false,
+  "raw_chgcar_reprocessed": false
+}

@@ -1,0 +1,69 @@
+{
+  "branch": "k32",
+  "sigma_Ry": 0.02,
+  "q_weight_sum": 64.0,
+  "lambda_qsum": 0.3744859375,
+  "native_printed_lambda_qsum": 0.374486,
+  "native_printed_lambda_spectrum": 0.374547,
+  "N_EF_states_per_spin_Ry_cell": 2.646097,
+  "q_contributions": [
+    {
+      "q_index": 1,
+      "star_weight": 1.0,
+      "lambda_modes_sum": 0.0,
+      "weighted_lambda": 0.0,
+      "share_percent": 0.0
+    },
+    {
+      "q_index": 2,
+      "star_weight": 8.0,
+      "lambda_modes_sum": 0.302,
+      "weighted_lambda": 0.03775,
+      "share_percent": 10.080485331975918
+    },
+    {
+      "q_index": 3,
+      "star_weight": 4.0,
+      "lambda_modes_sum": 0.3183,
+      "weighted_lambda": 0.01989375,
+      "share_percent": 5.312282253589296
+    },
+    {
+      "q_index": 4,
+      "star_weight": 6.0,
+      "lambda_modes_sum": 0.4351,
+      "weighted_lambda": 0.040790625,
+      "share_percent": 10.892431708467024
+    },
+    {
+      "q_index": 5,
+      "star_weight": 24.0,
+      "lambda_modes_sum": 0.3791,
+      "weighted_lambda": 0.1421625,
+      "share_percent": 37.962039629325204
+    },
+    {
+      "q_index": 6,
+      "star_weight": 12.0,
+      "lambda_modes_sum": 0.3783,
+      "weighted_lambda": 0.07093125,
+      "share_percent": 18.940964906058724
+    },
+    {
+      "q_index": 7,
+      "star_weight": 3.0,
+      "lambda_modes_sum": 0.3905,
+      "weighted_lambda": 0.0183046875,
+      "share_percent": 4.887950565566965
+    },
+    {
+      "q_index": 8,
+      "star_weight": 6.0,
+      "lambda_modes_sum": 0.4763,
+      "weighted_lambda": 0.044653125,
+      "share_percent": 11.92384560501688
+    }
+  ],
+  "frequency_note": "QE7.5 lambda.x constant 3289.828 THz/Ry and printed w2; not recovery of unprinted phonon precision",
+  "no_QE_executable_run": true
+}

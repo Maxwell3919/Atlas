@@ -3,6 +3,19 @@
 Al32³与48³各自执行致密SCF、16³响应SCF、q4³的8个不可约点与后处理。两条链共享比较协议，使用各自的outdir与致密电子数据；q2r/matdyn插值谱和lambda.x直接逐q谱分别保存。下文是历史终端记录，提交号和RUNNING快照对应当次执行，不作为新的运行指令。
 
 完整结果在0.005–0.050 Ry十档电子σ上无孤立交点、无重合区间。最近的0.050 Ry处，Tc32=0.984588 K、Tc48=0.975366 K，差0.009222 K；固定q4³与响应16³的比较不认证材料Tc收敛。普通跟做与物理解释读[EPC正文](/Atlas/m/epc/qe/)、[谱积分](/Atlas/m/eliashberg-a2f/qe/)和[Tc比较](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两套原件及复算源码在[双分支包](/Atlas/examples/supercon-al-tc-files.tar.gz)。
+展开长会话前，可以先读 32³ 存档中的四处输出。它们把一次运行的身份、模式、平均和温度连起来；48³ 分支在自己目录逐项做同样核对。
+
+| 原件 | 本例实际读到什么 | 接下来怎样使用 |
+|---|---|---|
+| [致密 XML](/Atlas/examples/al/epc-q4/dense.data-file-schema.xml)与[响应 XML](/Atlas/examples/al/epc-q4/response.data-file-schema.xml) | 分别为无偏移 32³ 与 16³ | 确认两次 pw.x 的角色，再检查致密数据备份 |
+| [第 2 个 q 的 elph 文件](/Atlas/examples/al/epc-q4/elph_dir/elph.inp_lambda.2) | σ=0.020 Ry：三个 λ 为 0.0599、0.0576、0.1845 | 与 lambda.in 的第 2 个星权重 8 配对，贡献 0.03775 |
+| [lambda.dat](/Atlas/examples/al/epc-q4/lambda.dat) | 同档 λqsum=0.374486，λspec=0.374547，ωlog=343.741 K | 区分逐 q 平均与频率谱积分，核对谱来源 |
+| [lambda.out](/Atlas/examples/al/epc-q4/lambda.out) | 同档简式 Tc=0.969 K | 到另一分支寻找同一 σ，形成一对温度 |
+
+表中的第 2 个 q 只是完整平均的一项，不能拿 0.3020 的模式和直接替代材料 λ。[八个 q 的逐项计算](/Atlas/m/eliashberg-a2f/qe/#mode-to-spectrum)会得到 0.37448594，与这里的原生打印值相符。做双网格图时，比较的是最后一行的同 σ 温度；做模式分析时，则从第二行的 q、模式和频率返回色散与位移，两种读取方向各有目的。
+
+第一条链还留下一个很容易误读的失败：作业 1969 的致密 SCF 已正常结束，脚本随后从错误位置复制 a2Fsave 才退出。下方 1970 的续算记录接的是这份已完成电子数据；它与声子迭代未收敛是不同问题。阅读历史会话时，把报错放回当时执行的那一行，再看后续实际跑到了哪里，才能判断可保留的是电子步骤、完整 q 响应，还是整条谱与温度链。
+
 
 <details>
 <summary>展开两套Al原始输入、终端操作和结束检查</summary>

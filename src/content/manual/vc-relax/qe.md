@@ -111,6 +111,16 @@ End final coordinates
 ```
 `CELL_PARAMETERS` 旁边写着 `alat=7.50000000`，它仍是初始长度单位（bohr）。不能把矩阵中的小数直接当 Å，也不能看见 `alat` 未变就说晶胞没有变化。把矩阵乘上这个长度，得到最终 fcc 晶格，常规立方晶格常数为 **3.95606780 Å**。
 
+fcc 原胞的矢量分量含常规立方边长的一半，矢量模长则为常规边长除以 $\sqrt{2}$。从这份打印矩阵读一个非零分量，可核对
+
+$$
+a_{\mathrm{cubic}}\simeq 2\times0.498392314\times7.50\times0.52917721\;\mathrm{\AA}
+\simeq3.95607\;\mathrm{\AA},\qquad
+V_{\mathrm{primitive}}=a_{\mathrm{cubic}}^3/4\simeq15.47858\;\mathrm{\AA}^3.
+$$
+
+体积与 OUT 的 15.47858 Å³ 对应，区别在于这里使用有限打印位数作核对；完整晶格精度仍由保存数据决定。初始 7.50 bohr 常规边长约 3.96883 Å，最终略小。初始负压力与这次收缩方向相符，不能将负号单独解释成结构不稳定。
+
 最终坐标后，程序还会按最后晶胞重新计算电子态。所以下面这一段也要读完，不能在第一次看见 `bfgs converged` 时就截断文件：
 
 ```text
@@ -128,7 +138,9 @@ End final coordinates
    0.00000000   0.00000014  -0.00000000            0.00        0.02       -0.00
   -0.00000000  -0.00000000   0.00000014           -0.00       -0.00        0.02
 ```
-最后的压力为 0.02 kbar，原子力在打印精度内为零。最终晶胞的电子重算在第 1 轮出现了 `c_bands` 本征值未收敛警告；第 2 至第 7 轮没有再出现，随后打印电子收敛行。读这份结果时，应同时保留中途警告、BFGS 收敛、完整最后坐标和程序收尾；中途警告与末轮仍有未收敛本征值的处理不同，见 [QE 故障排查](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html)。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
+最后的压力为 0.02 kbar，原子力在打印精度内为零。最终晶胞的电子重算在第 1 轮出现了 `c_bands` 本征值未收敛警告；第 2 至第 7 轮没有再出现，随后打印电子收敛行。读这份结果时，应同时保留中途警告、BFGS 收敛、完整最后坐标和程序收尾；中途警告与末轮仍有未收敛本征值的处理不同，见 [QE 故障排查](https://www.quantum-espresso.org/Doc/pw_user_guide/node21.html)。
+
+4 个 SCF 周期与 3 个 BFGS 步描述优化轨迹；最终晶胞上的电子重算又有自己的 7 轮电子迭代。这 7 轮没有继续更新晶胞，不能加到 BFGS 步数里。fcc 约束使本例主要读各向同性压力；若换成受限二维晶胞，需要读与允许变动方向对应的应力张量，整胞平均 P 不足以说明面内分量是否达到要求。完整[输入](/Atlas/examples/al/relax-ibrav/al.relax.in)、[输出](/Atlas/examples/al/relax-ibrav/al.relax.out)和[提交脚本](/Atlas/examples/al/relax-ibrav/run.slurm)保留了这些相邻段落。
 
 准备后续静态计算时，将最后晶胞和位置带进新的 SCF 输入。本站 [Al 的 DFPT 声子页](/Atlas/m/phonon-dfpt/qe/)将这份最终晶胞写成 `ibrav=0` 与 `CELL_PARAMETERS angstrom`，并展示匹配的 SCF 和保存目录；后续计算使用的是这些最终晶格矢量。
 

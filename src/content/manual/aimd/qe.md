@@ -170,7 +170,7 @@ Al               0.4998755303        0.4997068395        0.5002336603
      Linear momentum :   -0.0000000000    0.0000000000   -0.0000000000
 ```
 
-这里 `kinetic energy` 是离子动能；电子 SCF 给出的 `Etot` 与它相加，才是本次 NVE 检查的能量总和。金属展宽仍是电子计算中的数值设置，不应把 `degauss` 换算成离子温度写在这张图上。
+这里 `kinetic energy` 是离子动能；电子 SCF 给出的 `Etot` 与它相加，才是本次 NVE 检查的能量总和。这份八原子、没有固定原子或额外约束、去除质心速度的输入有 $3N-3=21$ 个离子自由度，瞬时温度满足 $T=2E_{\mathrm{kin}}/(21k_{\mathrm B})$；用首行的 0.01995091 Ry 可复核约 300 K。[QE 7.5 的 `compute_ekin` 与 `get_ndof`](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/dynamics_module.f90)分别给出温度计算与自由度计数。它是该时刻速度的统计量，和热浴输入的目标温度分开读。金属展宽仍是电子计算中的数值设置，不应把 `degauss` 换算成离子温度写在这张图上。
 
 前面的 OUT 同时打印了 `total energy` 与 `internal energy E=F+TS`。这条有限电子展宽的轨迹使用程序推进离子时对应的 `Etot` 加离子动能，不把其中一部分时刻换成另一列内部能。此处的 NVE 是固定晶胞、没有离子热浴的积分分支；电子展宽参数仍固定保留，不能进一步称为已经验证的真实有限电子温度系综。
 
@@ -184,7 +184,7 @@ QE 7.5 这段位置 Verlet 输出有一个细节：打印出的新坐标已前�
 
 SVR 的输入目标为 300 K，但这段不足 0.1 ps 的实际平均温度只有 196.418 K，瞬时范围为 90.061–348.887 K。它显然还不能作为充分平衡的 300 K 系综。初始位置接近零温极小值，最初输入的动能会转移为位移的势能；8 原子体系也会有很大的瞬时温度起伏。延长平衡与采样、增大体系，并检查统计量才可能回答热平衡性质。
 
-NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失能量。下面右图把势能变化与动能变化一起画出，两个方向相反；是否守恒，应看左图里的总和。
+NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失能量。细步长记录在 28.05905819 fs 降到 40.784938 K；相对第一行，离子动能降低 29.317871 meV/atom，电子势能增加 29.321850 meV/atom，总和仅增加 0.003963 meV/atom。势能和动能列分别保留到有限小数位，因此两列差值相加与直接读总能量列之间有末位舍入差别。下面右图把这两列一起画出，方向相反；是否守恒，应看左图里的总和。
 
 ![等时长NVE的能量变化与动势能交换](/Atlas/examples/al/figures/aimd-energy.png)
 
@@ -197,13 +197,21 @@ NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失
 
 表中峰峰值取各自完整的能量记录：大步长共 50 个能量时刻，范围为 0–47.410133 fs；小步长共 100 个，范围为 0–47.893910 fs。若只比较共同的 50 个能量时刻 0–47.410133 fs，小步长取 CSV 数据第 1、3、…、99 行，两条记录的峰峰值分别为 **0.019405 和 0.004218 meV/atom**。这一等时刻对照仍显示减半步长后短程能量波动减小。
 
-坐标检查单独使用两条轨迹的完整末帧：它们都位于 48.377687 fs，原子位置 RMS 差为 2.27×10⁻⁵ Å。这个共同坐标终点与上面的能量采样终点不同。两项结果检验的是本例短时间内的积分步长误差；不能把短时波动外推成长期能量稳定，也不能拿 SVR 中随热浴交换而变化的总能量套用 NVE 的守恒要求。
+坐标检查单独使用两条轨迹的完整末帧：它们都位于 48.377687 fs，原子位置 RMS 差为 2.27×10⁻⁵ Å。这是两个积分步长之间的差；同一条细步长轨迹的末帧相对共同初态，RMS 位移为 0.08657472 Å。原子已经运动，只是两次积分在这个时刻给出了接近的位置。这个共同坐标终点与上面的能量采样终点不同。两项步长对照检验本例短时间内的积分误差；不能把短时波动外推成长期能量稳定，也不能拿 SVR 中随热浴交换而变化的总能量套用 NVE 的守恒要求。
+
+![Al NVE 原子位移与初始近邻对的长度变化](/Atlas/examples/enrichment-20261003/interface/structure-observations/al-nve-structure.png)
+
+图 (a) 用每一帧相对初态的连续笛卡尔坐标计算 RMS 位移。橙色实线是粗步长，紫色虚线是细步长；两条曲线都在 32.89682684 fs 达到约 0.0983 Å，随后回落，和能量交换一起展示这段实际运动。两条曲线接近到在这个比例下几乎重合，定量差别仍由末帧对照给出。
+
+图 (b) 从初态枚举周期像，选出第一近邻壳层的 48 个不重复 Al–Al 对，沿细步长轨迹追踪相同的原子编号和像平移。初始长度是 2.79736237 Å；末帧平均长度为 2.79985005 Å，但最短、最长分别是 2.60460194 与 2.99119878 Å。绿色均值线变化很小，绿色带却显示各对长度已分散；只报平均值会漏掉这种变化。带的上下边界是这 48 对的最小、最大值，灰色虚线是初始长度，没有统计置信区间的含义。程序始终追踪初始配对，没有重新划分每帧近邻壳层，不能凭这张图宣称配位数不变。
+
+这里两幅横轴都是完整坐标时刻：粗步长有 51 帧，细步长有 101 帧，包含初态和末帧。上面的温度最低点要对应坐标轨迹中同为 28.05905819 fs 的帧，而不是同一打印块里已经推进一次的坐标；末帧则没有对应的最后一条温度、能量记录。
 
 
 
 [Bussi、Donadio 与 Parrinello，DOI: 10.1063/1.2408420](https://doi.org/10.1063/1.2408420)的作者版 PDF 第 4 页 [Fig. 1](https://arxiv.org/html/0803.4060v1#S2.F1)把物理能量 H 与有效守恒量 $\tilde H$ 分成上下两幅：横轴以积分步长计时，纵轴用 H 的均方根涨落归一化；实线段表示 Verlet 推进，虚线段表示速度重标度。这张示意图说明热浴能改变 H，而评估积分误差要跟踪相应守恒量，不能仅凭恒温轨迹的能量线“看着平”作判断。
 
-第 5 页 [Fig. 2 的上、下两幅](https://arxiv.org/html/0803.4060v1#S3.F2)使用相同的时间轴（ps），分别展示较小与较大的积分步长。每幅左轴是 NVE 总能量，右轴是 SVR–NVT 的有效能量，单位均为 kJ/mol；作者比较的是随时间的漂移，而不是把两种纵轴的绝对值相减。小步长没有明显漂移，大步长出现漂移，即使热浴仍让结构轨迹保持有界，也不能据此接受积分精度。本例只对应其中的 NVE 步长检查：已有的两条 Al 轨迹使用相同初态，作图按各自首个能量样本归零、换算为 meV/atom，并对齐真实能量采样时间。没有提取 $\tilde H$，所以不另造 NVT 守恒量曲线，也不用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动替代它。
+第 5 页 [Fig. 2 的上、下两幅](https://arxiv.org/html/0803.4060v1#S3.F2)使用相同的时间轴（ps），分别展示 5 fs 与 40 fs 的积分步长。每幅黑线对应左轴的 NVE 总能量，红线对应右轴的 SVR–NVT 有效能量，单位均为 kJ/mol；作者比较的是随时间的漂移，而不是把两种纵轴的绝对值相减。小步长没有明显漂移，大步长出现漂移，即使热浴仍让结构轨迹保持有界，也不能据此接受积分精度。本例只对应其中的 NVE 步长检查：已有的两条 Al 轨迹使用相同初态，作图按各自首个能量样本归零、换算为 meV/atom，并对齐真实能量采样时间。没有提取 $\tilde H$，所以不另造 NVT 守恒量曲线，也不用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动替代它。
 
 ## 提取能量、温度与坐标
 
@@ -386,6 +394,160 @@ print "Wrote al-nve-gnuplot.svg/.png/.pdf; panel (a) uses 50 shared energy times
 
 </details>
 
+上述结构图可从已有 NPZ 与 CSV 独立复现。把 [结构提取脚本](/Atlas/examples/enrichment-20261003/interface/inspect_aimd_observables.py)与 [gnuplot 脚本](/Atlas/examples/enrichment-20261003/interface/plot_aimd_structure.gp)保存到 `al` 根目录；前者需要 Python 3 和 NumPy，后者需要 gnuplot。它们读取两条 NVE 分支，不推进原子：
+
+```bash
+python3 inspect_aimd_observables.py
+gnuplot plot_aimd_structure.gp
+```
+
+实际提取输出为：
+
+```text
+nve-dt20-nosym: frames=51 initial_pairs=48 initial_nn=2.79736237 A
+  RMS_end=0.08658109 A RMS_peak=0.09833092 A at 32.89682684 fs
+  end_initial_neighbor_range=2.60455756..2.99124352 A
+nve-dt10-nosym: frames=101 initial_pairs=48 initial_nn=2.79736237 A
+  RMS_end=0.08657472 A RMS_peak=0.09831608 A at 32.89682684 fs
+  end_initial_neighbor_range=2.60460194..2.99119878 A
+matched_end_RMS_difference=2.2722030842e-05 A
+```
+
+输出在 `structure-observations`：两份结构 CSV、JSON 摘要与 SVG/PNG/PDF 图。[细步长 CSV](/Atlas/examples/enrichment-20261003/interface/structure-observations/nve-dt10-nosym-structure.csv)与 [JSON 摘要](/Atlas/examples/enrichment-20261003/interface/structure-observations/structure-summary.json)保留图中数值、温度最低点及其同时间结构帧。CSV 最后一帧的温度栏留空，因为原输出没有与它同时间的温度样本。
+
+给编程助手的要求可以具体到配对与时间的处理：
+
+> 读取已有 Al 两条 NVE 的 trajectory.npz 和 thermo.csv，核对晶胞、帧数与独立时间轴。保留未回卷坐标，算每帧相对初态的 RMS 位移。对初态枚举每个方向 −1、0、1 的周期像，选择最短壳层，去掉互为反向的重复对；追踪这 48 对的固定编号和像平移，输出最短、最长和均值。温度用同坐标时刻的能量行匹配，最后坐标帧没有样本就留空。记录最低温度时的动势能差与位置，两种步长的末帧另作对照。用 gnuplot 画位移曲线和近邻对长度范围，不把固定配对称为逐帧配位判据，不从短时位移拟合扩散。
+
+<details>
+<summary>inspect_aimd_observables.py 完整源码</summary>
+
+```python
+"""Inspect existing Al trajectory frames and match their native energy clock."""
+from pathlib import Path
+import csv, itertools, json, sys
+import numpy as np
+
+root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
+out = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("structure-observations")
+out.mkdir(parents=True, exist_ok=True)
+cases = ("nve-dt20-nosym", "nve-dt10-nosym")
+summary = {}
+end_frames = {}
+for case in cases:
+    folder = root / "aimd" / case
+    thermo = list(csv.DictReader((folder / "thermo.csv").open()))
+    with np.load(folder / "trajectory.npz") as trajectory:
+        positions = trajectory["positions_A"]
+        cell = trajectory["cell_A"]
+        time = trajectory["time_fs"]
+    assert positions.shape == (len(thermo) + 1, 8, 3)
+    assert cell.shape == (3, 3) and np.isfinite(positions).all()
+    assert all(abs(float(row["energy_sample_time_fs"]) - time[j]) < 1e-8 for j, row in enumerate(thermo))
+    # Use explicit periodic images; component-wise rounding is unsuitable for this oblique cell.
+    candidates = []
+    for i, j, shift in itertools.product(range(8), range(8), itertools.product((-1, 0, 1), repeat=3)):
+        if i == j and shift == (0, 0, 0):
+            continue
+        vector = positions[0, j] - positions[0, i] + np.array(shift) @ cell
+        candidates.append((float(np.linalg.norm(vector)), i, j, shift))
+    nearest = min(item[0] for item in candidates)
+    bonds = []
+    for distance, i, j, shift in candidates:
+        reverse = (j, i, tuple(-n for n in shift))
+        if abs(distance - nearest) < 1e-7 and (i, j, shift) < reverse:
+            bonds.append((i, j, np.array(shift) @ cell))
+    assert len(bonds) == 48
+    displacement = positions - positions[0]
+    rms = np.sqrt(np.mean(np.sum(displacement**2, axis=2), axis=1))
+    lengths = np.array([[np.linalg.norm(frame[j] - frame[i] + translation)
+                         for i, j, translation in bonds] for frame in positions])
+    rows = []
+    for frame, t in enumerate(time):
+        rows.append(dict(time_fs=float(t),rms_A=float(rms[frame]),
+                         bond_min_A=float(lengths[frame].min()),bond_max_A=float(lengths[frame].max()),
+                         bond_mean_A=float(lengths[frame].mean()),
+                         temperature_K=float(thermo[frame]["temperature_K"]) if frame < len(thermo) else ""))
+    with (out / (case + "-structure.csv")).open("w") as file:
+        writer = csv.DictWriter(file, fieldnames=rows[0].keys())
+        writer.writeheader()
+        writer.writerows(rows)
+    cold = min(range(len(thermo)), key=lambda j: float(thermo[j]["temperature_K"]))
+    e0 = thermo[0]
+    row = thermo[cold]
+    factor = 13.605693122994 * 1000 / 8
+    summary[case] = dict(nframes=len(time),initial_neighbor_pairs=48,initial_neighbor_A=nearest,
+                         rms_end_A=float(rms[-1]),rms_peak_A=float(rms.max()),
+                         rms_peak_time_fs=float(time[rms.argmax()]),
+                         end_bond_min_A=float(lengths[-1].min()),end_bond_max_A=float(lengths[-1].max()),
+                         end_bond_mean_A=float(lengths[-1].mean()),
+                         cold_energy_time_fs=float(row["energy_sample_time_fs"]),
+                         cold_temperature_K=float(row["temperature_K"]),cold_coordinate_frame=cold,
+                         cold_rms_A=float(rms[cold]),cold_bond_min_A=float(lengths[cold].min()),
+                         cold_bond_max_A=float(lengths[cold].max()),
+                         cold_potential_change_meV_atom=(float(row["potential_Ry"])-float(e0["potential_Ry"]))*factor,
+                         cold_kinetic_change_meV_atom=(float(row["kinetic_Ry"])-float(e0["kinetic_Ry"]))*factor,
+                         cold_total_change_meV_atom=(float(row["total_Ry"])-float(e0["total_Ry"]))*factor)
+    end_frames[case] = positions[-1]
+    print(f"{case}: frames={len(time)} initial_pairs=48 initial_nn={nearest:.8f} A")
+    print(f"  RMS_end={rms[-1]:.8f} A RMS_peak={rms.max():.8f} A at {time[rms.argmax()]:.8f} fs")
+    print(f"  end_initial_neighbor_range={lengths[-1].min():.8f}..{lengths[-1].max():.8f} A")
+difference = end_frames[cases[0]] - end_frames[cases[1]]
+summary["matched_end_rms_difference_A"] = float(np.sqrt(np.mean(np.sum(difference**2, axis=1))))
+summary["definition"] = "48 unique periodic-image pairs in the initial first neighbor shell, tracked without changing pair identity; range is not a confidence interval or a coordination-number test."
+summary["time_axis"] = "Coordinate frame j at j*dt matches thermo energy row j at j*dt; the final coordinate frame has no matching printed energy/temperature sample."
+(out / "structure-summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+print(f"matched_end_RMS_difference={summary['matched_end_rms_difference_A']:.10e} A")
+```
+
+</details>
+
+<details>
+<summary>plot_aimd_structure.gp 完整源码</summary>
+
+```gnuplot
+# Existing Al coordinate frames; the pair interval is a geometric range, not uncertainty.
+if (!exists("data_root")) data_root = "structure-observations"
+if (!exists("out_root")) out_root = data_root
+coarse = data_root."/nve-dt20-nosym-structure.csv"
+fine = data_root."/nve-dt10-nosym-structure.csv"
+set encoding utf8
+set datafile separator ","
+set datafile columnheaders
+stats fine using ($1==0 ? $5 : 1/0) nooutput
+r0 = STATS_mean
+set border 3
+set tics out nomirror
+do for [ext in "svg png pdf"] {
+    if (ext eq "svg") { set terminal svg size 1100,430 enhanced font "DejaVu Sans,11" }
+    if (ext eq "png") { set terminal pngcairo size 1100,430 enhanced font "DejaVu Sans,11" }
+    if (ext eq "pdf") { set terminal pdfcairo size 11,4.3 enhanced font "DejaVu Sans,11" }
+    set output out_root."/al-nve-structure.".ext
+    set size 1,1
+    set origin 0,0
+    unset title
+    set multiplot layout 1,2 margins 0.09,0.98,0.18,0.83 spacing 0.14,0.05 title "8-atom Al | recorded positions, fixed cell"
+    set title "(a) Motion from the shared initial frame"
+    set xlabel "Coordinate time (fs)"
+    set ylabel "RMS displacement (Å)"
+    set xrange [0:48.37768653]
+    set yrange [0:0.11]
+    set key top left
+    plot coarse using 1:2 with lines lw 1.5 lc rgb "#D55E00" title "dt = 0.967554 fs", fine using 1:2 with lines dt 2 lw 1.5 lc rgb "#CC79A7" title "dt = 0.483777 fs"
+    set title "(b) Initial neighbor pairs, fine step"
+    set ylabel "Al-Al pair length (Å)"
+    set yrange [*:*]
+    set key top left
+    set style fill transparent solid 0.2 noborder
+    plot fine using 1:3:4 with filledcurves lc rgb "#009E73" title "min-max of 48 pairs", fine using 1:5 with lines lw 1.5 lc rgb "#009E73" title "mean", r0 with lines dt 3 lc rgb "#777777" title "initial distance"
+    unset multiplot
+    unset output
+}
+print "Wrote al-nve-structure.svg/.png/.pdf from all recorded coordinate frames"
+```
+
+</details>
+
 下面保留原图的处理需求和完整 Python 生成记录，便于追溯已展示的温度、能量与位移图。重画上面的共同时间对照使用刚给出的 gnuplot 脚本。
 
 ```text
@@ -451,7 +613,7 @@ print('Wrote aimd-temperature, aimd-energy, aimd-displacement as PNG and PDF')
 
 界面 AIMD 的判读需要回到构型：在同一共同晶胞下追踪层间距的分布、两层相对滑移、层内键长和配位变化，并对相邻时间段与末帧查看是否发生持续重构。若原子跨过周期边界，应先按层和键的连续性展开坐标，再求距离，不能把分数 z 的跳变直接解释成层脱离。
 
-Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 说明 AIMD 使用 4×4×1 超胞，§3.1 给出 300 K、1 fs 步长和 6 ps 窗口。[原文 PDF 第 5 页，Fig. 6(d–f)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=5)分别对应未修饰、H 修饰和 F 修饰的界面：横轴是 0–6000 fs，纵轴是各体系的能量（图上写为 Free energy，eV），同时把初态、末态的侧视结构放进同一面板。各面板含不同组成，不能比较其绝对纵坐标高低来排列稳定性；作者依据各自时间序列与结构保持情况作分析，并将它们与上排 Fig. 6(a–c) 的沿高对称路径声子频率（THz）并列。
+Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 说明 AIMD 使用 4×4×1 超胞，§3.1 给出 300 K、1 fs 步长和 6 ps 窗口。[原文 PDF 第 5 页，Fig. 6(d–f)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=5)分别对应未修饰、H 修饰和 F 修饰的界面：横轴是 0–6000 fs，纵轴是各体系的能量（图上写为 Free energy，eV），黑色能量线旁同时放入初态、末态的侧视结构。各面板含不同组成，不能比较其绝对纵坐标高低来排列稳定性；作者依据各自时间序列与结构保持情况作分析，并将它们与上排 Fig. 6(a–c) 的沿高对称路径声子频率（THz）并列。
 
 这类图应同时给出“何时采样”和“结构怎样变”。用现有 Al 数据复现时间序列时，读 `thermo.csv` 的温度与能量采样时间；查看初末结构时，先从扩展 XYZ 保留晶胞导出 POSCAR，再在 VESTA 中打开。已有 [共同初态](/Atlas/examples/interface-literature/al-nve-frames/initial.POSCAR)、[粗步长末帧](/Atlas/examples/interface-literature/al-nve-frames/nve-dt20-end.POSCAR)和[细步长末帧](/Atlas/examples/interface-literature/al-nve-frames/nve-dt10-end.POSCAR)；两份末帧都对应坐标时刻 48.37768653 fs。保持相同的视角、原子大小和放大比例比较，不能因为逐图缩放而把小位移看成明显重构。能量终点使用上面独立的采样时间，不把结构帧时刻直接贴到能量样本上。对真正的异质层，还应在对应结构图旁给出已有轨迹算出的层间距、侧向滑移或键长变化，而不只摆两张截图；本例 Al 记录没有层间统计，因此这些量接回 [异质结构建模](/Atlas/m/heterostructure-modeling/vasp/)的层归属与法向定义。文献的 6 ps 是所用窗口，不能替代本例更短轨迹的实际范围。
 

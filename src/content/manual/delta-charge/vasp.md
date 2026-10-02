@@ -1,8 +1,91 @@
 要看接触改变了哪里，先明确与什么状态相比。对冻结的异质结几何，差分电子数密度定义为 $\Delta n(\mathbf r)=n_{AB}(\mathbf r)-n_A(\mathbf r)-n_B(\mathbf r)$：AB 是完整体系，A、B 是删去另一层后保持原位的独立自洽片段。正值表示相对于这组参考的电子积累，负值表示耗尽；电荷密度变化则是 $-e\Delta n$。
 
-本例提供完整 H₂ 与两个原位、自旋极化 H 原子的真实存档，演示相减、VESTA 和积分。两颗 H 等价，适合检验“密度重排”与“净转移”的区别。界面图的读法可参照 [ZrI₂/Dirac 半金属原文 Fig. 5(d)](https://doi.org/10.1039/D5CP02349A)，即 ZrI₂/graphene 面板：横轴为 z/Å，纵轴标为 e/Å，因此对应面积积分 $S\overline{\Delta n}(z)$；黄色正区与青色负区分别表示积累和耗尽，插图把同一差分密度放回原子结构。它借助三维位置和法向正负峰确定重排发生在哪一侧，没有只看等值面大小来报告转移量。原文使用 QuantumATK 可视化；本站的 H₂ 用 VESTA 保存同样可核对的结构、正负号与阈值，接触结论仍属于原文的 ZrI₂ 模型。
+先看成键把电子放到了哪里，再问某一侧一共得到多少。H₂的两个H等价：用同一几何的分子减去两个原位、自旋极化的独立H，键区会出现积累，但两半分子的净增电子数仍可接近零。下面的等值面、法向曲线与区间表都来自这组真实存档。
 
 前置计算见 [SCF](/Atlas/m/scf/vasp/)。[下载 H₂ 输入输出、分析源码](/Atlas/examples/h2-delta-charge-files.tar.gz)，解包为 `h2-delta-charge`；三份完整密度分别为 [AB](/Atlas/examples/h2-delta-charge/AB/CHGCAR.gz)、[A](/Atlas/examples/h2-delta-charge/A/CHGCAR.gz)、[B](/Atlas/examples/h2-delta-charge/B/CHGCAR.gz)，放回同名子目录。程序可直接读 gzip，POTCAR 使用自己的授权文件。
+
+
+## 先看重排发生在哪里
+
+<figure><img src="/Atlas/examples/delta-charge/h2_delta_3d_zoom.png" alt="H2真实差分密度等值面，金黄积累蓝色耗尽" loading="lazy"/><figcaption>H–H=0.74 Å，金黄为+0.03 e/Å³，蓝色为−0.03 e/Å³。VESTA显示范围为分数坐标0.3–0.7，沿a方向观察。键区积累、轴两端耗尽，对应冻结原子参考的成键重排。</figcaption></figure>
+
+金黄在键区，蓝色沿两颗H的轴向外侧。它们表示相对于独立原子的积累与耗尽，不是电子沿某个箭头运动的轨迹。H的实际位置为z=4.63、5.37 Å；分子中面为5 Å。等值面只显示达到±0.03 e/Å³的边界，所有积分仍使用完整网格。
+
+把同一三维差分密度沿xy积分，得到上幅的线密度。这里定义 $\lambda(z)=S\overline{\Delta n}(z)$：平面平均 $\overline{\Delta n}(z)$ 的单位为 e/Å³，乘本例面积100 Å²后，λ的单位为 e/Å。再从胞原点积分，得到下幅累计量 $T(z)=\int_0^z\lambda(z')\,dz'$，单位为e。gnuplot 读取现有 `planar.csv`：第一列 z/Å、第三列 $S\overline{\Delta n}$/e·Å⁻¹、第四列 $T(z)$/e，直接保留 CSV 样本。两条点线是实际 H 位置4.63、5.37 Å，虚线是分区边界5 Å。
+
+![H₂真实面积积分差分密度与累计积分，沿同一z坐标比较](/Atlas/examples/charge-literature/h2-planar-and-cumulative.svg)
+
+上图在 H–H 之间出现积累峰，沿轴向两端出现耗尽；下图先下降再上升，在5 Å边界附近返回零。局部正负峰清楚可见，半胞净数却仍接近零，这正是本例成键重排与层净转移的区别。三维图中的黄色键区与曲线的中间正峰相对应；曲线已汇总整张xy平面，轴两端的负峰则来自平面内耗尽占优的区域。
+
+## 移动边界，为什么读数会变号
+
+以z₍b₎为边界，左侧积分从0到z₍b₎，右侧从z₍b₎到10 Å。正号表示该空间区域相对于独立原子参考多了电子。由同一份145行CSV（含周期端点）得到：
+
+| 边界 z₍b₎ / Å | 左侧净增电子数 / e | 右侧净增电子数 / e |
+| ---: | ---: | ---: |
+| 4.90 | −0.0320680911 | +0.0320680916 |
+| 5.00 | +1.29×10⁻⁹ | −8.50×10⁻¹⁰ |
+| 5.10 | +0.0320680936 | −0.0320680932 |
+
+5 Å按等价两H的对称中面分区，两边的积累与耗尽各自抵消，因而没有从一颗H向另一颗H的有限净转移。边界左移到4.9 Å，左区少算了一段键区积累，读数变负；右移到5.1 Å则多算这一段，读数变正。密度、原子与电子数均未变化，变的是空间归属。把这两个非对称读数称为“H向H转移0.032 e”就会把人为边界当作材料变化。
+
+累计曲线在5 Å附近斜率较大，因为这里的线密度为正且接近峰值。因此边界稍移，净数就明显变化。研究界面时，可在所选间隙内移动边界并查看累计曲线是否有稳定区；没有稳定区时，报告边界敏感性，再与明确算法的Bader层加总对照。全胞积分接近零只检验守恒，不能替代这个归属检查。
+
+<!-- atlas-h2-widget-start -->
+<details>
+<summary>移动分区边界，核对两侧的净增电子数</summary>
+
+<iframe id="h2-charge-widget" src="/Atlas/examples/charge-interactive/h2/?embed=1" title="H₂ 差分密度的边界积分交互" loading="lazy" style="display:block;width:100%;height:1400px;border:0;"></iframe>
+<p><a href="/Atlas/examples/charge-interactive/h2/" target="_blank" rel="noopener">打开完整交互页、原始数据与绘图源码</a></p>
+</details>
+<script>
+(() => {
+  const frame = document.getElementById('h2-charge-widget');
+  if (!frame) return;
+  const origin = new URL(frame.src, window.location.href).origin;
+  window.addEventListener('message', event => {
+    if (event.origin !== origin || event.source !== frame.contentWindow) return;
+    if (event.data?.type !== 'atlas-charge-height') return;
+    const height = event.data.height;
+    if (Number.isFinite(height) && height >= 200 && height <= 10000)
+      frame.style.height = String(Math.ceil(height)) + 'px';
+  });
+  frame.addEventListener('load', () => {
+    frame.contentWindow.postMessage({type:'atlas-charge-size-request'}, origin);
+  });
+})();
+</script>
+<!-- atlas-h2-widget-end -->
+
+## 一维正区和三维积累区为何不同
+
+上图黄色曲线的正面积为0.2019387395 e，完整三维网格所有正值的积分为0.2578313944 e。它们分别定义为 $P_{1D}=\int_0^H\max[\lambda(z),0]\,dz$ 和 $P_{3D}=\int_V\max[\Delta n(\mathbf r),0]\,dV$。
+
+前者先把同一xy平面内的积累与耗尽相加，得到一个有正负号的线密度，再只积分正段；后者在每个三维网格点先取正值，耗尽点不参与抵消。因此 $P_{1D}\le P_{3D}$：一张平面内同时存在积累和耗尽时，一维曲线会丢掉它们互相抵消的部分。本例相差约0.05589 e，不是脚本少读了网格，也不需要把曲线乘系数“补齐”。
+
+这两个正区量都汇总局部重排；左右半空间的净数则保留该区所有正负贡献。三种读数的区域与运算顺序不同，不能统一写成“转移电荷”。沿其他方向做平面积分还可能得到不同的正区量，完整三维正值积分仍对应原密度。
+
+[边界复核脚本](/Atlas/examples/enrichment-20261003/charge/verify_boundaries.py)使用Python标准库，读取既有 [planar.csv](/Atlas/examples/charge-planar/h2-half-spaces/planar.csv) 与 [summary.json](/Atlas/examples/charge-planar/h2-half-spaces/summary.json)。将三份文件放在同一目录，在一个新输出目录复核：
+
+```console
+python3 -B verify_boundaries.py --planar planar.csv --summary summary.json --output-dir h2-boundary-check
+```
+
+它按分段线性的线密度积分：网格之间的部分积分为二次函数，正区面积在过零点处分段；不是对累计表简单线性插值。实际执行输出为：
+
+```text
+samples=145; full-cell residual=4.362638343170e-10 e
+positive 1D=0.2019387395 e; positive 3D=0.2578313944 e
+boundary=4.90 A: left=-3.206809111656e-02 e; right=+3.206809155282e-02 e
+boundary=5.00 A: left=+1.286514871740e-09 e; right=-8.502510374225e-10 e
+boundary=5.10 A: left=+3.206809364178e-02 e; right=-3.206809320551e-02 e
+```
+
+[完整11组边界表](/Atlas/examples/enrichment-20261003/charge/h2-boundary-check/boundary-reference.csv)与[检查摘要](/Atlas/examples/enrichment-20261003/charge/h2-boundary-check/boundary-reference.json)同时保留三维正负积分、单位关系和累计量误差。脚本复核现有平面数据；三维积累量保留原密度积分摘要中的结果。
+
+<figure style="max-width:680px;margin:1.5rem auto;"><a href="/Atlas/examples/charge-interactive/h2/zri2-dirac-fig5.jpg"><img src="/Atlas/examples/charge-interactive/h2/zri2-dirac-fig5.jpg" alt="ZrI2与六种Dirac半金属接触的原论文Fig.5，黄色积累、青色耗尽，左下(d)为graphene" loading="lazy" style="width:100%;height:auto;"/></a><figcaption>原论文 Fig. 5(a–f)，本段讨论左下(d)的 ZrI₂/graphene。来源：<a href="https://doi.org/10.1039/D5CP02349A">Robust p-type ohmic contact in ZrI₂–Dirac semi-metal van der Waals heterostructures，DOI:10.1039/D5CP02349A</a>。点击图片查看完整像素原图；各面板纵轴范围分别标示。</figcaption></figure>
+
+界面论文可按相同问题读。[ZrI₂/Dirac半金属原文Fig. 5(d)](https://doi.org/10.1039/D5CP02349A)是ZrI₂/graphene，横轴z-distance/Å、纵轴Δρ/e·Å⁻¹；纵轴单位说明它对应这里的面积积分线密度，而非e/Å³的平面平均。黄色在零线上方、青色在下方，三维插图补充重排的原子位置。插图中的结构没有与横轴作严格等比例坐标映射，不能凭插图原子横向位置读取某个z边界；本例曲线上的H位置直接来自POSCAR。六个面板各有纵轴范围，跨体系比较须使用同定义区域的积分与面积，而不是颜色大小。原文采用QuantumATK可视化，本例用VESTA；接触结论仍属于原文模型。
 
 ## 三份参考保持同一几何和网格
 
@@ -222,11 +305,7 @@ positive 3D redistribution=0.2578313944 e
 
 两个半空间净增电子数都在10⁻⁹ e量级，与这个对称参考的零转移一致；把极小残差乘10¹⁶换算后看起来较大，它仍是数值残差，不能解释成可用掺杂密度。0.2578 e的三维正区积分与近零的半空间净数并存，正好体现成键重排和定向层转移回答不同问题。可下载 [平面值与累计量](/Atlas/examples/charge-planar/h2-half-spaces/planar.csv)、[区间积分](/Atlas/examples/charge-planar/h2-half-spaces/regions.csv)、[来源与积分摘要](/Atlas/examples/charge-planar/h2-half-spaces/summary.json)。
 
-下面以文献 Fig. 5(d) 的“同一法向坐标、正负区域分开”画法重画已有数值，并把累计量放在第二幅以检查层净数。gnuplot 读取现有 `planar.csv`：第一列 z/Å、第三列 $S\overline{\Delta n}$/e·Å⁻¹、第四列 $T(z)$/e，直接保留 CSV 样本。两条点线是实际 H 位置4.63、5.37 Å，虚线是分区边界5 Å。
 
-![H₂真实面积积分差分密度与累计积分，沿同一z坐标比较](/Atlas/examples/charge-literature/h2-planar-and-cumulative.svg)
-
-上图在 H–H 之间出现积累峰，沿轴向两端出现耗尽；下图先下降再上升，在5 Å边界附近返回零。局部正负峰清楚可见，半胞净数却仍接近零，这正是本例成键重排与层净转移的区别。三维等值面保留在下一节，空间位置和这条曲线共用同一原点。
 
 下载 [原CSV](/Atlas/examples/charge-planar/h2-half-spaces/planar.csv) 与 [gnuplot完整脚本](/Atlas/examples/charge-literature/h2-planar-and-cumulative.gnuplot)，放在同一目录，可重建 SVG、PDF和PNG：
 
@@ -245,8 +324,6 @@ gnuplot -e "datafile='planar.csv'" h2-planar-and-cumulative.gnuplot
 ## 等值面看位置，数值从完整网格读
 
 [下载VESTA网格、场景与转换脚本](/Atlas/examples/charge-vesta-files.tar.gz)，进入 `charge-vesta`。转换保留AB结构，只写第一差分标量块；[build_delta_chgcar.py](/Atlas/examples/charge-vesta/scripts/build_delta_chgcar.py)的需求、源码和实际命令在文末。VESTA打开 `h2/CHGCAR_DELTA`，核对物理阈值±0.03 e/Å³；存储值为±30，本次显示界面转换为±0.00444555 e/bohr³，读显示单位后再输入。
-
-<figure><img src="/Atlas/examples/delta-charge/h2_delta_3d_zoom.png" alt="H2真实差分密度等值面，金黄积累蓝色耗尽" loading="lazy"/><figcaption>H–H=0.74 Å，金黄为+0.03 e/Å³，蓝色为−0.03 e/Å³。VESTA显示范围为分数坐标0.3–0.7，沿a方向观察。键区积累、轴两端耗尽，对应冻结原子参考的成键重排。</figcaption></figure>
 
 图的阈值只决定展示哪些区域；减小阈值出现更大体积不表示净转移增加。原平面轮廓截图没有可复核的切面坐标与连续色标，定量讨论改用上面的真实网格表。
 
@@ -930,293 +1007,7 @@ if __name__=='__main__': main()
 </details>
 
 
-<details>
-<summary>配套CHGCAR读取模块完整源码</summary>
-
-```python
-#!/usr/bin/env python3
-"""Build a VESTA-readable VASP volumetric file for Δρ = ρ(AB) − ρ(A) − ρ(B).
-
-Inputs are CHGCAR files (plain text or gzip-compressed).  The script reads only
-VASP's first total-charge grid block; magnetization and PAW augmentation blocks
-are not part of the plotted scalar field.  The output keeps VASP's stored
-volume-scaled values, so divide a grid value by cell volume (Å³) to get e/Å³.
-"""
-from __future__ import annotations
-
-import argparse
-import gzip
-import hashlib
-import itertools
-import json
-import math
-import re
-from pathlib import Path
-from typing import Iterable, TextIO
-
-import numpy as np
-
-_INTEGER = re.compile(r"^[+-]?\d+$")
-
-
-def _open_text(path: Path) -> TextIO:
-    if path.suffix.lower() == ".gz":
-        return gzip.open(path, "rt", encoding="ascii", errors="strict")
-    return path.open("rt", encoding="ascii", errors="strict")
-
-
-def _line(stream: TextIO, label: str) -> str:
-    value = stream.readline()
-    if not value:
-        raise ValueError(f"Unexpected end of file while reading {label}")
-    return value
-
-
-def _ints(tokens: list[str]) -> bool:
-    return bool(tokens) and all(_INTEGER.fullmatch(token) for token in tokens)
-
-
-def _float(token: str) -> float:
-    return float(token.replace("D", "E").replace("d", "e"))
-
-
-def _float_values(stream: TextIO) -> Iterable[float]:
-    for line in stream:
-        for token in line.split():
-            yield _float(token)
-
-
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def _sha256_uncompressed(path: Path) -> str:
-    opener = gzip.open if path.suffix.lower() == ".gz" else open
-    digest = hashlib.sha256()
-    with opener(path, "rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
-
-
-def read_chgcar(path: Path) -> dict:
-    """Parse cell/atoms, one 3-D total-charge block, and its exact VASP header."""
-    header: list[str] = []
-    with _open_text(path) as stream:
-        title = _line(stream, "title")
-        header.append(title)
-        scale_tokens = _line(stream, "scale factor").split()
-        header.append(" ".join(scale_tokens) + "\n")
-        if not scale_tokens:
-            raise ValueError(f"{path}: missing scale factor")
-        scale = _float(scale_tokens[0])
-
-        raw_cell = []
-        for axis in "abc":
-            row = _line(stream, f"lattice vector {axis}")
-            header.append(row)
-            values = [_float(token) for token in row.split()[:3]]
-            if len(values) != 3:
-                raise ValueError(f"{path}: invalid lattice vector {axis}")
-            raw_cell.append(values)
-        raw_cell = np.asarray(raw_cell, dtype=np.float64)
-        raw_volume = abs(float(np.linalg.det(raw_cell)))
-        if raw_volume <= 0 or scale == 0:
-            raise ValueError(f"{path}: invalid cell volume or scale factor")
-        factor = scale if scale > 0 else (abs(scale) / raw_volume) ** (1.0 / 3.0)
-        cell = raw_cell * factor
-
-        species_or_counts = _line(stream, "species/count line")
-        header.append(species_or_counts)
-        fields = species_or_counts.split()
-        if _ints(fields):
-            counts = [int(token) for token in fields]
-            species = [f"X{i + 1}" for i in range(len(counts))]
-        else:
-            species = fields
-            count_line = _line(stream, "atom counts")
-            header.append(count_line)
-            count_fields = count_line.split()
-            if not _ints(count_fields):
-                raise ValueError(f"{path}: atom-count line is not integer-valued")
-            counts = [int(token) for token in count_fields]
-        if len(species) != len(counts) or any(count <= 0 for count in counts):
-            raise ValueError(f"{path}: invalid species/count list")
-        atom_species = [symbol for symbol, count in zip(species, counts) for _ in range(count)]
-
-        coordinate_line = _line(stream, "coordinate mode or selective-dynamics line")
-        header.append(coordinate_line)
-        if coordinate_line.strip().lower().startswith("s"):
-            coordinate_line = _line(stream, "coordinate mode")
-            header.append(coordinate_line)
-        mode = coordinate_line.strip().lower()
-        if not mode or mode[0] not in {"d", "c", "k"}:
-            raise ValueError(f"{path}: unknown coordinate mode {coordinate_line!r}")
-
-        fractional_or_cartesian = []
-        for atom_index in range(len(atom_species)):
-            atom_line = _line(stream, f"atom coordinate {atom_index + 1}")
-            header.append(atom_line)
-            xyz = [_float(token) for token in atom_line.split()[:3]]
-            if len(xyz) != 3:
-                raise ValueError(f"{path}: invalid coordinate for atom {atom_index + 1}")
-            fractional_or_cartesian.append(xyz)
-        coordinates = np.asarray(fractional_or_cartesian, dtype=np.float64)
-        cartesian = coordinates @ cell if mode[0] == "d" else coordinates * factor
-
-        dimensions = None
-        for _ in range(40):
-            candidate = _line(stream, "grid dimensions")
-            header.append(candidate)
-            fields = candidate.split()
-            if _ints(fields) and len(fields) == 3 and all(int(value) > 0 for value in fields):
-                dimensions = tuple(int(value) for value in fields)
-                break
-        if dimensions is None:
-            raise ValueError(f"{path}: no 3-D grid dimensions after the structure header")
-
-        npoints = math.prod(dimensions)
-        values = np.fromiter(itertools.islice(_float_values(stream), npoints),
-                             dtype=np.float64, count=npoints)
-        if values.size != npoints:
-            raise ValueError(f"{path}: expected {npoints} charge values, read {values.size}")
-
-    return {
-        "path": path,
-        "header": header,
-        "cell": cell,
-        "volume_A3": abs(float(np.linalg.det(cell))),
-        "species": atom_species,
-        "cartesian_A": cartesian,
-        "dimensions": dimensions,
-        "values": values,
-        "sha256_gz_or_file": _sha256_file(path),
-        "sha256_uncompressed": _sha256_uncompressed(path),
-    }
-
-
-def check_same_cell_and_grid(data: dict[str, dict]) -> None:
-    reference = data["AB"]
-    for label in ("A", "B"):
-        item = data[label]
-        if item["dimensions"] != reference["dimensions"]:
-            raise ValueError(f"{label} grid {item['dimensions']} != AB grid {reference['dimensions']}")
-        if not np.allclose(item["cell"], reference["cell"], rtol=0.0, atol=1e-8):
-            raise ValueError(f"{label} cell vectors differ from AB")
-    if len(reference["species"]) != len(data["A"]["species"]) + len(data["B"]["species"]):
-        raise ValueError("AB atom count must equal A plus B")
-
-    # Verify that A and B retain the corresponding AB atomic coordinates.
-    remaining = list(range(len(reference["species"])))
-    for label in ("A", "B"):
-        item = data[label]
-        for symbol, xyz in zip(item["species"], item["cartesian_A"]):
-            matches = [i for i in remaining
-                       if reference["species"][i] == symbol
-                       and np.allclose(reference["cartesian_A"][i], xyz, rtol=0.0, atol=1e-6)]
-            if not matches:
-                raise ValueError(f"{label} atom {symbol} at {xyz} Å is not an AB atom at that position")
-            remaining.remove(matches[0])
-    if remaining:
-        raise ValueError(f"A/B references did not account for AB atom indices {remaining}")
-
-
-def write_grid(path: Path, header: list[str], values: np.ndarray) -> None:
-    if path.exists():
-        raise FileExistsError(f"Refusing to overwrite {path}; choose another output path")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    out_header = list(header)
-    out_header[0] = "H2 delta density rho_AB-rho_A-rho_B; VASP volume-scaled grid values\n"
-    with path.open("wt", encoding="ascii", newline="\n") as stream:
-        stream.writelines(out_header)
-        for start in range(0, values.size, 5):
-            chunk = values[start:start + 5]
-            stream.write(" ".join(f"{value: .11E}" for value in chunk) + "\n")
-
-
-def build(ab: Path, a: Path, b: Path, output: Path, summary: Path) -> dict:
-    for path in (output, summary):
-        if path.exists():
-            raise FileExistsError(f"Refusing to overwrite {path}; choose a new output path")
-    if output.resolve() == summary.resolve():
-        raise ValueError("Output and summary must have different paths")
-    data = {"AB": read_chgcar(ab), "A": read_chgcar(a), "B": read_chgcar(b)}
-    check_same_cell_and_grid(data)
-    npoints = math.prod(data["AB"]["dimensions"])
-    volume = data["AB"]["volume_A3"]
-    delta_stored = data["AB"]["values"] - data["A"]["values"] - data["B"]["values"]
-    delta_rho = delta_stored / volume
-
-    total_e = float(np.sum(delta_stored, dtype=np.float64) / npoints)
-    positive_e = float(np.sum(np.maximum(delta_stored, 0.0), dtype=np.float64) / npoints)
-    negative_e = float(np.sum(np.minimum(delta_stored, 0.0), dtype=np.float64) / npoints)
-    if abs(total_e) > 1e-6:
-        raise ValueError(f"Difference density does not conserve charge: integral={total_e:.9g} e")
-
-    if not all(np.isfinite(item["values"]).all() for item in data.values()):
-        raise ValueError("Input grid contains non-finite values")
-    write_grid(output, data["AB"]["header"], delta_stored)
-    record = {
-        "source": {label: {"path": str(item["path"]),
-                           "sha256_file": item["sha256_gz_or_file"],
-                           "sha256_uncompressed": item["sha256_uncompressed"]}
-                   for label, item in data.items()},
-        "output": str(output),
-        "formula": "rho_AB(r) - rho_A(r) - rho_B(r)",
-        "grid": list(data["AB"]["dimensions"]),
-        "volume_A3": volume,
-        "points": npoints,
-        "grid_value_convention": "VASP CHGCAR values are rho(r) * cell_volume; divide this output's grid values by volume_A3 to obtain e/Angstrom^3.",
-        "minimum_delta_rho_e_A3": float(np.min(delta_rho)),
-        "maximum_delta_rho_e_A3": float(np.max(delta_rho)),
-        "delta_integral_e": total_e,
-        "negative_integral_e": negative_e,
-        "positive_integral_e": positive_e,
-        "vesta_symmetric_threshold_grid_value": 30.0,
-        "equivalent_threshold_e_A3": 30.0 / volume,
-        "input_grid_integrals_e": {
-            label: float(np.sum(item["values"], dtype=np.float64) / npoints)
-            for label, item in data.items()
-        },
-        "output_sha256": _sha256_file(output),
-    }
-    summary.parent.mkdir(parents=True, exist_ok=True)
-    if summary.exists():
-        raise FileExistsError(f"Refusing to overwrite {summary}; choose another summary path")
-    summary.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
-    return record
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--ab", type=Path, required=True, help="AB CHGCAR or CHGCAR.gz")
-    parser.add_argument("--a", type=Path, required=True, help="A CHGCAR or CHGCAR.gz")
-    parser.add_argument("--b", type=Path, required=True, help="B CHGCAR or CHGCAR.gz")
-    parser.add_argument("--output", type=Path, required=True, help="New VESTA-readable VASP volumetric file")
-    parser.add_argument("--summary", type=Path, required=True, help="New JSON validation summary")
-    args = parser.parse_args()
-    result = build(args.ab, args.a, args.b, args.output, args.summary)
-    print(f"grid: {result['grid'][0]} {result['grid'][1]} {result['grid'][2]}")
-    print(f"volume: {result['volume_A3']:.6f} Å^3")
-    print(f"integrals A/B/AB: {result['input_grid_integrals_e']['A']:.9f} / "
-          f"{result['input_grid_integrals_e']['B']:.9f} / {result['input_grid_integrals_e']['AB']:.9f} e")
-    print(f"delta integral: {result['delta_integral_e']:.3e} e")
-    print(f"delta rho min/max: {result['minimum_delta_rho_e_A3']:.6f} / "
-          f"{result['maximum_delta_rho_e_A3']:.6f} e/Å^3")
-    print(f"±{result['equivalent_threshold_e_A3']:.3f} e/Å^3 maps to ±{result['vesta_symmetric_threshold_grid_value']:.1f} stored VASP grid values (VESTA display units must be checked)")
-    print(f"wrote: {result['output']}")
-    print(f"summary: {args.summary}")
-
-
-if __name__ == "__main__":
-    main()
-```
-
-</details>
+平面积分所导入的 `build_delta_chgcar.py` 与上面的转换脚本逐字一致，因此完整源码只列一次。两份可下载路径分别服务于 [VESTA转换](/Atlas/examples/charge-vesta/scripts/build_delta_chgcar.py) 和 [平面积分模块](/Atlas/examples/charge-planar/build_delta_chgcar.py)，函数与单位约定相同。
 
 <details>
 <summary>法向差分密度与累计积分的完整gnuplot源码</summary>
@@ -1265,6 +1056,163 @@ do for [export_index=1:3] {
  unset output
  set key at graph 0.98,0.95 right top horizontal font ",10"
 }
+```
+
+</details>
+
+
+<details>
+<summary>边界与一维正区复核的完整源码</summary>
+
+```python
+#!/usr/bin/env python3
+"""Check the archived H2 CSV and save exact slider reference values.
+
+This is numerical post-processing only; it does not run DFT or produce a plot.
+Supply archived planar.csv and summary.json; choose a new output directory.
+"""
+
+import argparse
+import bisect
+import csv
+import json
+import math
+from pathlib import Path
+
+
+def require(condition, message):
+    if not condition:
+        raise ValueError(message)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--planar', type=Path, required=True)
+    parser.add_argument('--summary', type=Path, required=True)
+    parser.add_argument('--output-dir', type=Path, required=True)
+    args = parser.parse_args()
+    DATA = args.output_dir
+    require(not DATA.exists(), 'Choose a new output directory')
+    with args.planar.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        require(
+            reader.fieldnames
+            == ["z_A", "delta_n_e_A3", "linear_e_A", "cumulative_e"],
+            "Unexpected CSV columns",
+        )
+        rows = [{key: float(value) for key, value in row.items()} for row in reader]
+    summary = json.loads(args.summary.read_text())
+    require(all(math.isfinite(v) for r in rows for v in r.values()), "Non-finite data")
+    z = [r["z_A"] for r in rows]
+    line = [r["linear_e_A"] for r in rows]
+    stored = [r["cumulative_e"] for r in rows]
+    require(len(rows) == summary["grid"][2] + 1, "Missing periodic endpoint")
+    require(all(a < b for a, b in zip(z, z[1:])), "Coordinate order")
+    require(abs(z[0]) < 1e-12, "Nonzero integral origin")
+    require(abs(z[-1] - summary["height_A"]) < 1e-12, "Cell height mismatch")
+    require(abs(line[-1] - line[0]) < 1e-12, "Periodic endpoint mismatch")
+    area_error = max(
+        abs(r["linear_e_A"] - summary["area_A2"] * r["delta_n_e_A3"])
+        for r in rows
+    )
+    require(area_error < 1e-12, "Area factor or units mismatch")
+
+    increments = [
+        0.5 * (a + b) * (zb - za)
+        for za, zb, a, b in zip(z, z[1:], line, line[1:])
+    ]
+    cumulative = [0.0]
+    for increment in increments:
+        cumulative.append(cumulative[-1] + increment)
+    cumulative_error = max(abs(a - b) for a, b in zip(cumulative, stored))
+    require(cumulative_error < 1e-12, "Stored cumulative values mismatch")
+    total = cumulative[-1]
+    require(abs(total - summary["full_cell_residual_e"]) < 1e-12, "Total mismatch")
+
+    def integral_at(boundary):
+        require(z[0] - 1e-12 <= boundary <= z[-1] + 1e-12, "Boundary outside cell")
+        if abs(boundary - z[0]) < 1e-12:
+            return 0.0
+        if abs(boundary - z[-1]) < 1e-12:
+            return total
+        boundary = min(max(boundary, z[0]), z[-1])
+        if boundary == z[-1]:
+            return total
+        k = max(0, bisect.bisect_right(z, boundary) - 1)
+        h = boundary - z[k]
+        width = z[k + 1] - z[k]
+        # The line density is piecewise linear, so its partial integral is quadratic.
+        return (
+            cumulative[k]
+            + line[k] * h
+            + 0.5 * (line[k + 1] - line[k]) * h * h / width
+        )
+
+    for region in summary["regions"]:
+        obtained = integral_at(region["hi_A"]) - integral_at(region["lo_A"])
+        require(abs(obtained - region["delta_e"]) < 1e-12, "Archived region mismatch")
+
+    positive_parts = []
+    for width, a, b in zip((b - a for a, b in zip(z, z[1:])), line, line[1:]):
+        if a >= 0 and b >= 0:
+            positive_parts.append(0.5 * (a + b) * width)
+        elif a <= 0 and b <= 0:
+            positive_parts.append(0.0)
+        else:
+            zero_fraction = -a / (b - a)
+            positive_width = width * (zero_fraction if a > 0 else 1 - zero_fraction)
+            positive_parts.append(0.5 * max(a, b) * positive_width)
+    positive_1d = math.fsum(positive_parts)
+    negative_1d = total - positive_1d
+    require(positive_1d <= summary["positive_3d_e"] + 1e-12, "Invalid 1D/3D ordering")
+
+    cuts = [0.0, 4.0, 4.63, 4.9, 4.95, 5.0, 5.05, 5.1, 5.37, 6.0, 10.0]
+    fixtures = []
+    for cut in cuts:
+        left = integral_at(cut)
+        right = total - left
+        require(abs(left + right - total) < 1e-12, "Complement mismatch")
+        fixtures.append(
+            {"boundary_A": cut, "left_delta_e": left, "right_delta_e": right}
+        )
+    DATA.mkdir(parents=True)
+    with (DATA / "boundary-reference.csv").open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(fixtures[0]))
+        writer.writeheader()
+        writer.writerows(fixtures)
+
+    peak = max(rows, key=lambda r: r["linear_e_A"])
+    trough = min(rows, key=lambda r: r["linear_e_A"])
+    result = {
+        "status": "pass",
+        "method": "exact integration of each piecewise-linear line-density segment",
+        "samples_including_periodic_endpoint": len(rows),
+        "area_factor_max_error_e_A": area_error,
+        "cumulative_max_error_e": cumulative_error,
+        "full_cell_delta_e": total,
+        "positive_area_of_1d_profile_e": positive_1d,
+        "negative_area_of_1d_profile_e": negative_1d,
+        "positive_voxel_integral_3d_e": summary["positive_3d_e"],
+        "negative_voxel_integral_3d_e": summary["negative_3d_e"],
+        "profile_peak": {"z_A": peak["z_A"], "linear_e_A": peak["linear_e_A"]},
+        "profile_trough": {"z_A": trough["z_A"], "linear_e_A": trough["linear_e_A"]},
+        "boundary_fixtures": fixtures,
+        "input_files": [str(args.planar), str(args.summary)],
+        "plot_created": False,
+        "raw_chgcar_reprocessed": False,
+    }
+    encoded = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
+    (DATA / "boundary-reference.json").write_text(encoded)
+    print(f"samples={len(rows)}; full-cell residual={total:.12e} e")
+    print(f"positive 1D={positive_1d:.10f} e; positive 3D={summary['positive_3d_e']:.10f} e")
+    for fixture in fixtures:
+        if fixture['boundary_A'] in (4.9, 5.0, 5.1):
+            print(f"boundary={fixture['boundary_A']:.2f} A: left={fixture['left_delta_e']:+.12e} e; right={fixture['right_delta_e']:+.12e} e")
+    print(f"checks=pass; wrote {DATA}/boundary-reference.csv and boundary-reference.json")
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 </details>

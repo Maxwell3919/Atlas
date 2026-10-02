@@ -1,0 +1,84 @@
+{
+  "source": "/home/talos/work/Atlas/public/examples/research-strain/frozen_pdos_long.csv",
+  "half_width_eV": 0.1,
+  "method": "Piecewise-linear spectrum; exact window endpoints; trapezoidal integral",
+  "reference": "Each state uses its own saved Fermi energy; no absolute band alignment",
+  "units": "Integrated projected spectral weight: states/cell; mean PDOS: states/(eV cell)",
+  "scope": "Frozen geometry; no occupation integral, transferred charge, or EPC",
+  "rows": [
+    {
+      "state": "Heterostructure 0%",
+      "strain_percent": 0.0,
+      "half_width_eV": 0.1,
+      "fermi_eV": 0.3522,
+      "sc2c_pdos_weight_states_cell": 0.40426217504800005,
+      "sc2c_pdos_mean_states_eV_cell": 2.02131087524,
+      "zrcl2_pdos_weight_states_cell": 0.317533232028,
+      "zrcl2_pdos_mean_states_eV_cell": 1.58766616014,
+      "total_projected_pdos_weight_states_cell": 0.7217290000000001,
+      "total_projected_pdos_mean_states_eV_cell": 3.608645
+    },
+    {
+      "state": "Isolated Sc2C 0%",
+      "strain_percent": 0.0,
+      "half_width_eV": 0.1,
+      "fermi_eV": -2.1388,
+      "sc2c_pdos_weight_states_cell": 0.6670951276799998,
+      "sc2c_pdos_mean_states_eV_cell": 3.335475638399999,
+      "zrcl2_pdos_weight_states_cell": 0.0,
+      "zrcl2_pdos_mean_states_eV_cell": 0.0,
+      "total_projected_pdos_weight_states_cell": 0.6669381599999998,
+      "total_projected_pdos_mean_states_eV_cell": 3.334690799999999
+    },
+    {
+      "state": "Heterostructure +1.5%",
+      "strain_percent": 1.5,
+      "half_width_eV": 0.1,
+      "fermi_eV": 0.3133,
+      "sc2c_pdos_weight_states_cell": 0.41650924887900004,
+      "sc2c_pdos_mean_states_eV_cell": 2.082546244395,
+      "zrcl2_pdos_weight_states_cell": 0.3298402377306,
+      "zrcl2_pdos_mean_states_eV_cell": 1.649201188653,
+      "total_projected_pdos_weight_states_cell": 0.7463420000000001,
+      "total_projected_pdos_mean_states_eV_cell": 3.73171
+    },
+    {
+      "state": "Isolated Sc2C +1.5%",
+      "strain_percent": 1.5,
+      "half_width_eV": 0.1,
+      "fermi_eV": -2.1362,
+      "sc2c_pdos_weight_states_cell": 0.8061429732400002,
+      "sc2c_pdos_mean_states_eV_cell": 4.0307148662,
+      "zrcl2_pdos_weight_states_cell": 0.0,
+      "zrcl2_pdos_mean_states_eV_cell": 0.0,
+      "total_projected_pdos_weight_states_cell": 0.8064038400000001,
+      "total_projected_pdos_mean_states_eV_cell": 4.032019200000001
+    }
+  ],
+  "checks": [
+    {
+      "state": "Heterostructure 0%",
+      "source_rows": 10533,
+      "L1_closure_percent": 0.07472401136714847
+    },
+    {
+      "state": "Isolated Sc2C 0%",
+      "source_rows": 10387,
+      "L1_closure_percent": 0.08547726223972228
+    },
+    {
+      "state": "Heterostructure +1.5%",
+      "source_rows": 10527,
+      "L1_closure_percent": 0.07077885317990953
+    },
+    {
+      "state": "Isolated Sc2C +1.5%",
+      "source_rows": 10378,
+      "L1_closure_percent": 0.0734577007966629
+    }
+  ],
+  "sc2c_weight_change_percent": {
+    "heterostructure": 3.029487938006037,
+    "isolated_Sc2C": 20.843780712891146
+  }
+}

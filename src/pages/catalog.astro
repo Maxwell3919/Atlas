@@ -5,5 +5,25 @@ import { normalizeBase } from '../data/methods.js';
 import '../styles/home.css';
 const base=normalizeBase(import.meta.env.BASE_URL);
 ---
-<Base title="性质目录 · Atlas" wide><article class="atlas-home catalog-page"><p><a href={`${base}/?open=1`}>← 首页</a></p><h1>性质目录</h1><MethodDirectory expanded /></article></Base>
-<style>.catalog-page{padding-top:1rem}.catalog-page>p{font-size:.85rem;margin-bottom:1.8rem}.catalog-page h1{font-size:2rem;font-weight:500;margin-bottom:1.8rem}</style>
+<Base title="性质目录 · Atlas" wide>
+  <article class="atlas-home catalog-page">
+    <p><a href={`${base}/?open=1`}>← 首页</a></p>
+    <h1>性质目录</h1>
+    <MethodDirectory expanded />
+    <section class="reading-connections" aria-labelledby="reading-connections-title">
+      <h2 id="reading-connections-title">几种常见的连读方式</h2>
+      <p>目录按要分析的性质分组；跨组阅读时，可以先认清上一页留下了什么数据，再看下一页还需要什么。</p>
+      <p>想看电子态随能量和动量怎样分布，可以从 <a href={`${base}/m/scf/qe/`}>Si 的 SCF</a> 分成两路：保存的自洽密度供<a href={`${base}/m/nscf/qe/`}>均匀网格 NSCF</a> 求能级，再按 k 点权重统计成 <a href={`${base}/m/dos/qe/`}>DOS</a>；同一份父密度也可直接供<a href={`${base}/m/bands/qe/`}>路径能带</a>计算，不必先跑 DOS 网格。DOS 看一个能量附近有多少态，能带看这些态在路径的哪些位置；要辨认轨道成分，再读<a href={`${base}/m/fatband/qe/`}>投影能带</a>，使用对应路径上的波函数。</p>
+      <p>想把界面电荷重排和能级变化联系起来，可以先用<a href={`${base}/m/delta-charge/vasp/`}>差分电荷</a>看哪里积累、哪里耗尽，再用<a href={`${base}/m/bader/vasp/`}>Bader 分区</a>统计原子区域的电子数。接着看同一界面结构的<a href={`${base}/m/electrostatic-potential/vasp/`}>静电势</a>：这里读取另行保存的 LOCPOT，沿层面平均后找真空平台，不能把电荷等值面的颜色直接换成能级偏移。平台与同次计算的费米能给出<a href={`${base}/m/workfunction/vasp/`}>功函数</a>；比较孤立层的<a href={`${base}/m/band-alignment/vasp/`}>能级排列</a>时，则把各层能级减去各自的真空势，放到共同参考上。</p>
+      <p>想追踪哪些振动参与电子配对，可以从<a href={`${base}/m/phonon-dfpt/qe/`}>声子频率与模式</a>读起，遇到负频先接<a href={`${base}/m/imaginary-phonon/qe/`}>虚频诊断</a>。频率和位移告诉我们原子怎样振动；<a href={`${base}/m/epc/qe/`}>EPC</a> 还需电子态与振动引起的自洽势变化，得到矩阵元和逐模耦合，单有声子曲线不足以构造配对谱。把这些贡献按 q 权重和频率汇成 <a href={`${base}/m/eliashberg-a2f/qe/`}>α²F</a>，才能取耦合积分 λ 与对数平均频率 ωlog，再带着所选 μ* 到 <a href={`${base}/m/allen-dynes/qe/`}>Tc 估计</a>。谱与积分可以对照 <a href="https://doi.org/10.1016/j.cpc.2016.07.028">Poncé 等的 Pb Fig. 13</a>：横轴是 meV 频率，纵轴画谱并标出无量纲累计 λ；红/蓝区分有/无 SOC，实/虚线区分配对谱与输运谱，细线显示积分怎样随频率累积。Al 页采用谱与累计量对读的画法，以 THz 为横轴，用上下两幅和一致颜色比较 32³/48³；从保存谱积分到 gnuplot 作图的命令和完整源码都在该页。材料数值是否收敛，还要核查各自的电子、q 网格和展宽。</p>
+    </section>
+  </article>
+</Base>
+<style>
+  .catalog-page{padding-top:1rem}
+  .catalog-page>p{font-size:.85rem;margin-bottom:1.8rem}
+  .catalog-page h1{font-size:2rem;font-weight:500;margin-bottom:1.8rem}
+  .reading-connections{max-width:48rem;margin-top:2.5rem;padding-top:1.4rem;border-top:1px solid var(--line)}
+  .reading-connections h2{font-size:1.15rem;font-weight:500;margin:0 0 1rem}
+  .reading-connections p{font-size:.9rem;line-height:1.9;margin:0 0 1.1rem;overflow-wrap:anywhere}
+</style>

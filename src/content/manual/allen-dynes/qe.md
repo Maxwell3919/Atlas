@@ -31,6 +31,8 @@ Tc = 0.969046 K
 ```
 
 这是用表格舍入数字得到的复算值；从逐 q 原件重建内部值为 0.969044 K，两者都对应原生输出的 0.969 K。分母非正、近于零或输入非有限时，新增脚本会停止公式计算，不会把一个失去适用意义的指数结果解释成材料温度。这也不能被反过来当成证明材料不超导。
+分母检查看的是这条拟合表达式的输入域。对正 λ，它要求 $\mu^{\ast}<\lambda/(1+0.62\lambda)$；本行的右边约为 0.303921。靠近这条边界时，分母很小，Tc 对输入舍入和参数选择会异常敏感。这个数只由当前 λ 和公式算出，不是材料的临界库仑相互作用，也不应据此向边界外延伸 μ* 扫描。通过分母检查后，还要按同一非负谱和适用近似解释温度。
+
 
 ## 从谱中提取二阶矩，才能计算完整 f₁、f₂
 
@@ -164,6 +166,16 @@ mu_star,Tc_QE_rounded_input_K,Tc_spectrum_simple_K,Tc_spectrum_full_AD_K
 
 
 Tc接近并不一定意味着谱形相同。窄电子展宽把费米面双δ的支撑限制在较少k点上，因而对采样敏感；增大σ能使两条有限网格曲线靠近，也会平滑电子能量选择。要在固定σ下加密k，再检查向较小σ延伸的稳定区；真实q网格与响应k仍各自需要比较。
+可以把图中的差异拆回这条公式，看看究竟由哪个输入带来。对相同 μ* 的两条分支，定义 $A(\lambda)=1.04(1+\lambda)/[\lambda-\mu^{\ast}(1+0.62\lambda)]$，便有：
+
+$$
+\ln\frac{T_{c,32}}{T_{c,48}}
+=\ln\frac{\omega_{\mathrm{log},32}}{\omega_{\mathrm{log},48}}
++A(\lambda_{48})-A(\lambda_{32}).
+$$
+
+在 σ=0.020 Ry，32³/48³ 的 λqsum 分别是 0.37448594/0.36750469，ωlog 分别为 343.74059/342.62212 K。[原件重建表](/Atlas/examples/supercon-al-tc/comparison-k32-k48/paired-tc.csv)给出的右边两项约为 0.003259 与 0.122563，合计 0.125822，温度比为 1.13408；这对应 0.969044 与 0.854476 K。在这个采样点，主要差别来自指数中的耦合项。其他 σ 应用各自的谱矩重新算，不能沿用本行判断。若两项符号相反，Tc 接近还可能是补偿的结果；下文 σ=0.010 Ry 的谱形比较继续检查这种“一个温度值看不出来”的信息。
+
 
 ## 按同一 σ 配对，保留全部求交结果
 
@@ -295,6 +307,34 @@ gnuplot -e "export_format='png'" plot_al_spectrum.gnuplot
 ```
 
 [完整数据CSV](/Atlas/examples/supercon-literature/al-sigma010-spectrum.csv) · [积分与来源记录](/Atlas/examples/supercon-literature/al-sigma010-summary.json) · [PNG](/Atlas/examples/supercon-literature/al-sigma010-spectrum.png) · [SVG](/Atlas/examples/supercon-literature/al-sigma010-spectrum.svg)
+
+若只看两条累计 λ 的末点，约 17.52% 的谱差如何抵消仍不直观。[Poncé等 Fig. 13，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)在同一 meV 频率轴画普通 α²F 的蓝粗实线与累计 λ 的蓝细实线，输运谱及积分另用虚线，SOC 分支另用红色；这种读法将峰形和已累计的耦合连接起来。本页只分析普通配对谱，保留 Al 原生 THz 横轴，再对两谱取差，将差值累计量放在单独纵轴，便于直接对照增减。
+
+令 $d(f)=2[\alpha^2F_{32}(f)-\alpha^2F_{48}(f)]/f$，分别累计其正部 P 与负部的绝对值 N：
+
+$$
+P(\Omega)=\int_0^\Omega\max[d(f),0]\,\mathrm{d}f,\quad
+N(\Omega)=\int_0^\Omega\max[-d(f),0]\,\mathrm{d}f.
+$$
+
+于是 $\Delta\lambda(\Omega)=P(\Omega)-N(\Omega)$，$L_1(\Omega)=P(\Omega)+N(\Omega)$。P、N 都是谱差的累计量，没有各自归一化成 1；N 以正数表示被减掉的量。
+
+<figure><img src="/Atlas/examples/enrichment-20261003/supercon/al-sigma010-compensation.svg" alt="Al双致密网格谱差的正部、负部与净累计贡献" loading="lazy"/><figcaption>同一 σ=0.010 Ry、响应16³/q4³下，黑实线累计32³谱高于48³谱的贡献 P，蓝虚线累计低于它的幅度 N，橙实线为净差 P−N；灰虚线为零。横轴0–14 THz，纵轴为无量纲耦合差。颜色和线型编码的是差值的不同部分，分支身份由标题和差值方向说明；原始两条谱仍在上图以黑/蓝表示。</figcaption></figure>
+
+在这张真实数据图中，约 6–8 THz 的净差先偏负，较高频率的正部随后将它抵消。到 14 THz，P=0.03255045、N=0.03248114，而净差仅为 0.00006932；两者相加的 L1=0.06503159 仍较大。这个比较支持“总 λ 接近，却有频段重分布”，不能据它给 Al 指定一个未算出的原子或方向机制。相较于[EPW论文 Fig. 12(a)，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)在相同坐标叠画 α²F，本图进一步把本例的差异分解成可复算的积分；这是我们的数据处理，没有假定作者也使用这种分解或公开了作图脚本。
+
+处理程序只读两个原始 2000 行文件，核对同一频率网格和 0.010 Ry 列，在原采样点拆分正负部后作梯形积分；零频点的谱差为零。gnuplot 直接读保存的 CSV，不平滑、不补峰。把[完整处理程序](/Atlas/examples/enrichment-20261003/supercon/spectrum_compensation.py)与[gnuplot 源文件](/Atlas/examples/enrichment-20261003/supercon/plot_compensation.gnuplot)放在双分支包解压目录，运行：
+
+```console
+$ python3 spectrum_compensation.py --a k32/alpha2F.dat --b k48/alpha2F.dat --outdir compensation
+$ cd compensation
+$ gnuplot ../plot_compensation.gnuplot
+$ gnuplot -e 'export_format="png"' ../plot_compensation.gnuplot
+$ gnuplot -e 'export_format="pdf"' ../plot_compensation.gnuplot
+```
+
+本次使用 gnuplot 6.0。可直接下载[逐频率 CSV](/Atlas/examples/enrichment-20261003/supercon/al-sigma010-compensation.csv)、[积分记录](/Atlas/examples/enrichment-20261003/supercon/al-sigma010-compensation.json)、[PNG](/Atlas/examples/enrichment-20261003/supercon/al-sigma010-compensation.png)和[183 mm 矢量 PDF](/Atlas/examples/enrichment-20261003/supercon/al-sigma010-compensation.pdf)。上方原谱图与新积分图来自同一组原件，原谱幅值、累计 λ 和差值各有自己的单位与口径。
+
 
 σ=0.010 Ry的总λ几乎相同，谱差却为17.52%，ωlog差6.072 K。这说明对总λ的积分会隐藏频段间的补偿；保留谱差和频率矩能解释为何仅检查一个总数不够。0.050 Ry的两条曲线很近，但当前q4³和响应16³固定，无交点与近似重合都没有指定一个收敛材料Tc。
 

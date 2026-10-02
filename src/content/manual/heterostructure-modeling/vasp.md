@@ -30,7 +30,7 @@ Direct
 
 `Direct` 坐标的第三列要乘以第三晶格矢量才是长度。比如 0.01 在此晶胞中对应约 0.3940 Å，不能把分数坐标增加 0.1 当作移动 0.1 Å。
 
-原文件中的两层占据 z≈16.74–24.92 Å。SnSe₂ 最下方的 Se 在 21.59988 Å，Sr₂N 最上方的 Sr 在 19.44204 Å，它们的 z 差给出法向间距 2.15784 Å。两个原子的平面位置不同，所以三维距离更长。
+原文件中的两层占据 z≈16.74–24.92 Å。SnSe₂ 最下方的 Se 在 21.59988 Å，Sr₂N 最上方的 Sr 在 19.44204 Å，它们的 z 差给出法向间距 2.15784 Å。配准说的是两层在面内怎样相对放置，间距说的是它们沿法向怎样分开；二者是独立的几何选择。沿法向移动一整层不会把原本错开的 Se 和 Sr 自动移到同一条竖线上。
 
 ## 刚性移动两层并将双层居中
 
@@ -85,6 +85,15 @@ Wrote model-check.json, reference-atoms.csv and gap3p0-atoms.csv
 
 新模型的法向间距正好为 3.0000000000 Å，跨层最近距离为 3.7684397028 Å。SnSe₂ 层厚仍为 3.3249000154 Å，Sr₂N 层厚仍为 2.7037385710 Å；晶格和分数 x/y 的最大变化均为零。这样才能确认改动的是层间关系。
 
+可以把最近配对拆开看。本例的最短配对是 3 号 Se 与 5 号 Sr 的周期像；按后面程序的“上层减下层再加晶格平移”约定，平移为 (0, −1, 0)。两者始终有 2.2806003143 Å 的面内错位，只有法向分量改变：
+
+| 结构 | 法向分量 g / Å | 面内分量 ρ / Å | 三维最近距离 / Å |
+|---|---:|---:|---:|
+| 原结构 | 2.1578395444 | 2.2806003143 | 3.1396511419 |
+| 刚性移层后 | 3.0000000000 | 2.2806003143 | 3.7684397028 |
+
+三维距离由 $r=\sqrt{g^2+\rho^2}$ 得到。因而“把间隙设为 3 Å”不等于“让最近两个原子相距 3 Å”。若为了得到 3 Å 的三维距离而继续压低这份模型的法向间隙，就改变了原来指定的构造目标；若通过侧向滑移减小 ρ，则改变的是配准。看结构图时应分别标明这两个操作。
+
 输出中的 `empty interval` 是相邻周期异质层之间没有原子的完整区间，原模型约 31.2157 Å，新模型约 30.3735 Å。晶胞高度保持不变，层间距增加使整个双层变厚，留给周期镜像之间的空白就会减少。39.4022 Å 是晶胞高度，不能直接把它写成真空厚度。
 
 新模型整体居中后，最低和最高原子到两个边界的距离相等。这个几何条件方便后续设置层法向和偶极修正，但真空是否足以收敛功函数、能量或声子，仍需针对所算物理量检验。
@@ -103,7 +112,9 @@ Wrote model-check.json, reference-atoms.csv and gap3p0-atoms.csv
 Direct
 ```
 
-这份单层参考的 a≈3.8464052688 Å，而共同晶胞的 a≈3.9501156207 Å。按 (a_common/a_reference − 1)×100% 计算，SnSe₂ 相对这份参考的两个面内方向均伸长约 2.69629%。这是有明确参考文件的几何比较；它不能替代两种材料在同一计算协议下的平衡晶格与应变能检验。
+这份单层参考的 a≈3.8464052688 Å，而共同晶胞的 a≈3.9501156207 Å。按 (a_common/a_reference − 1)×100% 计算，SnSe₂ 相对这份参考的两个面内方向均伸长约 2.69629%。两方向一起伸长，面积增加就不是 2.69629%：直接用两条基矢叉积，单层参考面积为 12.8127016485 Å²，共同晶胞为 13.5129524008 Å²，增加 5.46529%。本例两份晶胞的面内夹角几乎相同，面积比也与两个长度比的乘积一致。
+
+这几个百分数描述已有结构文件的几何差别。应变能还需要两份单层在各自明确参照几何下的能量，不能把面积变化乘上一个随意选的常数就得到。当前只保存了这一份 SnSe₂ 独立参考，因而也不能从它推断 Sr₂N 分担了多少失配。共同晶格的选择应同时说明两层参考；后面三能差采用的是“每层已经在这个共同晶胞里”的冻结参照。
 
 共同晶胞的第一矢量与这份 SnSe₂ 参考的第一矢量几乎平行，数值角度约 2×10⁻⁹ 度。这里没有额外施加相对转角，面内堆垛也保持了原文件的配准关系。这个检查说明本次操作没有意外旋转或滑移，本次模型沿用一个配准关系；扭角或不同堆垛需另建模型比较。
 
@@ -120,7 +131,7 @@ index,element,layer,x_A,y_A,z_A,normal_A
 6,Sr,Sr2N,-1.550551059455367e-09,2.280600317397634,15.186774603702489,15.186774603702489
 ```
 
-使用 Python 标准库执行 `python3 check_model.py`，即可从真实 POSCAR 重建几何表。若用 VESTA 复核，在 File → Open 分别打开 `POSCAR.reference` 与 `POSCAR.gap3p0`，显示相邻面内周期像，再从俯视和侧视检查配准与镜像空白；软件自动绘制的键不作为成键判据。
+使用 Python 标准库执行 `python3 check_model.py`，即可从真实 POSCAR 重建几何表。俯视、侧视和周期边界的 VESTA 对照方法放在下面文献图的判读中；几何表先固定要在图上核对的原子编号和距离定义。
 
 最后把准备好的模型复制到独立计算目录，不覆盖原文件：
 
@@ -142,7 +153,7 @@ index,element,layer,x_A,y_A,z_A,normal_A
 
 要选择一个供后续电子结构和声子计算使用的界面，需要比较有明确侧向位移、相对转角和层间距的候选。若候选使用相同的面内晶胞，可在相同约束下优化原子，再用同一静态协议比较总能量。若候选的共同晶胞也变化，单层应变能随之变化，不能把所有总能量差都解释成层间作用。
 
-Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)可以分两步读。[原文 PDF 第 3 页，Fig. 2–3](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=3)先用六张相同视角的侧视图标出 A-I、A-II、F-I、F-II、H-I、H-II 的原子配准，再将每一种配准画成独立的距离—能量曲线。Fig. 3 的横轴是层间距离（Å），纵轴是异质结构与两份单层的三能差（eV），没有除以面积。读图时同时比较每条曲线的最低点位置和最低值：前者给出该配准偏好的距离，后者才用于比较配准；文献据此选出 F-I。连接采样点的线帮助辨认曲线，不增加新的计算点。
+Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)可以分两步读。[原文 PDF 第 3 页，Fig. 2–3](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=3)先用六张相同视角的侧视图标出 A-I、A-II、F-I、F-II、H-I、H-II 的原子配准，再将每一种配准画成独立的距离—能量曲线。Fig. 3 的横轴是层间距离（Å），纵轴是异质结构与两份单层的三能差（eV），没有除以面积。图例中的 F1 是蓝色上三角，H1 是紫色菱形；即使颜色接近，也可沿标记区分配准。结构图的 Sc、C、W、S 分别用紫、棕、灰、黄表示，图上的 I/II 是堆垛配准编号，不是化学元素 I。读图时同时比较每条曲线的最低点位置和最低值：前者给出该配准偏好的距离，后者才用于比较配准；文献据此选出 F-I。连接采样点的线帮助辨认曲线，不增加新的计算点。
 
 [PDF 第 4 页，Fig. 5(a)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=4)又对 F-I 单独画总能量（eV）随面内晶格常数（Å）的变化，用最低点核对共同晶胞。它与 Fig. 3 的横轴和参照能量不同，不能把两张图的纵坐标混作同一条结合能曲线。按这种图法准备自己的数据，应为每个配准记录距离定义、共同晶胞和对应 AB/A/B 能量；同一曲线固定参照约定，跨曲线还要说明面内晶格是否相同。若改画 meV/Å²，应逐点用对应面内面积归一化并在轴上写明。
 
@@ -176,7 +187,9 @@ $$
 +[E_B(R_B;C)-E_B^{\mathrm{free}}].
 $$
 
-中括号内包含相应的面内应变与层内结构改变。所附 `POSCAR.SnSe2.reference` 有不同的晶胞高度和面内长度，它适合说明几何伸长，不能直接顶替冻结 A 的能量。选择哪一种参照，取决于是在量化既定界面的层间作用，还是研究两张自由单层组装的代价。
+式中的两项中括号把“拉伸并改变单层内部形状”和“两层相互靠近”的贡献分开。冻结 A/B 已经具有 AB 的面内晶格与层内坐标，因此冻结相互作用能回答的是：在这两份已形变的单层之间建立接触，电子能量怎样变化。自由单层参照回答的是：从各自自由状态开始组装这份界面，总共付出了多少形变代价，又获得多少相互作用能。
+
+比较两个配准时，若共同晶胞和每层的冻结几何都相同，单层参照可以共用，三能差的差别就集中到界面计算；若同时更换了面内晶格或重新弛豫了单层坐标，A/B 的参照也必须随候选配套，不能沿用另一条曲线的单层能量。所附 `POSCAR.SnSe2.reference` 具有不同的周期高度和面内长度，只提供前面的几何对照，不直接充当 $E_A^{\mathrm{free}}$ 的已验收能量。先写清参照，才能判断一条负的冻结相互作用能是否足以抵消组装时的形变代价。
 
 文献 §3.1 的 $E_b=E_{\mathrm{hetero}}-E_{\mathrm{layer1}}-E_{\mathrm{layer2}}$ 给出了三能差的符号约定。本教程进一步把冻结参照与自由单层参照写开，便于读者判断各自包括哪些几何变化。式中的同胞冻结要求是这里的比较协议，不声称原文已经逐项报告这些细节。
 
@@ -267,7 +280,67 @@ if __name__=='__main__':
 
 </details>
 
-在解包后的 `example-pack` 中运行 `python3 check_model.py`。实际结果见上面的终端输出和 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json)。用 VESTA 打开两份真实 POSCAR，从俯视比较侧向配准，从侧视检查层厚与周期像；自动绘制的键仅用于显示。
+在解包后的 `example-pack` 中运行 `python3 check_model.py`。实际结果见上面的终端输出和 [model-check.json](/Atlas/examples/interface-magnet-heterostructure-modeling/model-check.json)。
+
+若要复核上面“法向分量—面内分量—三维距离”的关系与面积变化，可把处理要求写成：
+
+> 复用同目录 check_model.py 的 POSCAR 读取与向量函数，不修改结构。用 a×b 的单位矢量定义法向，枚举两层原子及相邻周期像，找到三维距离最短的配对并报告原子编号、晶格平移、法向与面内分量；核对本例该配对的法向分量等于层间隙。分别用真实共同晶胞和 SnSe₂ 参考的 a×b 求面积与面积增幅。输出 JSON 和终端数值，不计算或猜测能量。
+
+把 [geometry_relations.py](/Atlas/examples/enrichment-20261003/interface/geometry_relations.py)保存到同一个 `example-pack` 目录，执行：
+
+```bash
+python3 geometry_relations.py
+```
+
+实际输出为：
+
+```text
+POSCAR.reference: normal=2.1578395444 A lateral=2.2806003143 A nearest=3.1396511419 A
+POSCAR.gap3p0: normal=3.0000000000 A lateral=2.2806003143 A nearest=3.7684397028 A
+SnSe2 area: reference=12.8127016485 A2 common=13.5129524008 A2 increase=5.46528571%
+```
+
+程序另写 `geometry-relations.json`。它补充距离分解和面积对照，原来的 `check_model.py` 仍负责刚性移动、晶胞及所有坐标的完整核对。
+
+<details>
+<summary>geometry_relations.py 完整源码</summary>
+
+```python
+"""Relate normal gaps, nearest distances and in-plane areas in the real model."""
+from pathlib import Path
+import itertools, json, math, sys
+
+root = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
+sys.path.insert(0, str(root.resolve()))
+from check_model import read_poscar, dot, cross, norm
+
+results = {}
+for name in ("POSCAR.reference", "POSCAR.gap3p0"):
+    cell, frac, xyz, symbols, normal, height = read_poscar(str(root / name))
+    upper = [i for i, el in enumerate(symbols) if el in ("Sn", "Se")]
+    lower = [i for i, el in enumerate(symbols) if el in ("Sr", "N")]
+    normal_gap = min(dot(xyz[i], normal) for i in upper) - max(dot(xyz[j], normal) for j in lower)
+    candidates = []
+    for i, j, shift in itertools.product(upper, lower, itertools.product((-1, 0, 1), repeat=3)):
+        delta = [sum((frac[i][k] - frac[j][k] + shift[k]) * cell[k][d] for k in range(3)) for d in range(3)]
+        candidates.append((norm(delta), i, j, shift, dot(delta, normal)))
+    distance, i, j, shift, separation = min(candidates)
+    lateral = math.sqrt(max(0.0, distance**2 - separation**2))
+    assert abs(separation - normal_gap) < 1e-9
+    results[name] = dict(normal_gap_A=normal_gap, nearest_distance_A=distance,
+                         nearest_pair_1based=[i + 1, j + 1], image_shift=list(shift),
+                         lateral_offset_A=lateral, area_A2=norm(cross(cell[0], cell[1])))
+    print(f"{name}: normal={normal_gap:.10f} A lateral={lateral:.10f} A nearest={distance:.10f} A")
+reference = read_poscar(str(root / "POSCAR.SnSe2.reference"))
+area_ref = norm(cross(reference[0][0], reference[0][1]))
+area_common = results["POSCAR.reference"]["area_A2"]
+results["SnSe2_area_comparison"] = dict(reference_area_A2=area_ref, common_area_A2=area_common,
+                                       area_increase_percent=100*(area_common/area_ref-1))
+print(f"SnSe2 area: reference={area_ref:.10f} A2 common={area_common:.10f} A2 increase={100*(area_common/area_ref-1):.8f}%")
+(root / "geometry-relations.json").write_text(json.dumps(results, indent=2) + "\n")
+```
+
+</details>
 
 同胞冻结 A/B 参照准备好后，可继续 [差分电荷](/Atlas/m/delta-charge/vasp/)；需要研究从多层表面取走一层的代价，则进入 [层间分离](/Atlas/m/exfoliation-energy/vasp/)。后者改变的是多层参考中的一个界面，与两张自由单层组装的参照不同。
 
