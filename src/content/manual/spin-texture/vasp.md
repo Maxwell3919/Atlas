@@ -351,11 +351,11 @@ print('Ratios describe the saved atomic projections; no full-state spin or TR te
 
 </details>
 
-若研究异质结的面外自旋锁定，接着要在同一 SOC 密度上覆盖二维布里渊区，提取实际 EF 等能线附近的态；把 mx、my、mz 转到一致的笛卡尔基底，与各能谷及其 −k 伙伴逐一对照。保留层分辨投影，才能判断自旋来自哪一层，以及层间杂化是否带入面内分量。用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
+用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
 
 同文 Fig. 3A、3B（PDF 第 3 页）从电阻曲线与 RN/2 的交点提取面内 Bc₂；3C 比较临界场随温度的变化及不同拟合，3D 再用横轴 T/Tc、纵轴 Bc₂/Bp 比较不同超导态，虚线 Bc₂/Bp=1 是 Pauli 界限。图 1D 的相图使用 90% RN 的 Tc 判据，不能与图 3 的 50% RN 混用。复现这种归一化比较需要原始磁输运曲线、各态一致的 Tc 判据和相应 Bp，逐态提取交点后再画无量纲坐标；本页的 PROCAR 与正常态能带没有这些超导态输入。
 
-对异质结，面外自旋取向可以支持讨论 Ising 配对的电子结构条件，EPC 与超导转变温度另接 [超导路线](/Atlas/m/epc/)；确认 Ising 超导还需要相应配对模型及磁场响应。正常态 Z₂ 与边界态从占据波函数或经验证的 SOC 哈密顿量出发，不能从这份逐态 PROCAR 的颜色推出，见 [Wilson loop 与拓扑判读](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)。
+正常态 Z₂ 与边界态从占据波函数或经验证的 SOC 哈密顿量出发，不能从这份逐态 PROCAR 的颜色推出，见 [Wilson loop 与拓扑判读](/Atlas/m/berry-chern/qe/#h-从矩阵回路到-wcc-和-z2)。
 
 ```text
 SOC SCF 密度与 EF → 二维 k 网格/费米线 → 三分量自旋与层投影
