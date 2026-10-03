@@ -2,11 +2,9 @@
 
 界面电子结构和电荷分析需要一份与最终几何匹配的自洽密度。这里先用两原子的 bcc Fe 常规胞练习 VASP 5.4.4 的完整记录：输入如何决定电子数与磁性，OSZICAR 如何记录电子循环，OUTCAR 如何给出能量、力、应力和保存开关。a=2.8 Å 的这个固定结构得到一支共线自旋极化解；它用于认识输出格式。
 
-[Ba₂N 原文 Fig. 2(d)，第 165101-3 页](https://doi.org/10.1103/PhysRevB.105.165101)先用 ELF=0.5 的俯视与侧视图定位原子面外的电子区域，再在 Fig. 2(b)中用总 DOS 和 Ba-d、N-p、空球 X 投影讨论这些区域对应的电子态。两幅图需要同一几何与电子模型，单有 SCF 能量不能代替它们。下面 Fe 算例先核对输出和文件是否保存；它的磁矩和密度只属于 Fe，不作为 Ba₂N 或二维界面电荷转移的结果。电子停止条件按 [EDIFF](https://vasp.at/wiki/EDIFF) 读取。
-
 [VASP：输入文件](https://vasp.at/wiki/Input_files) · [输出文件](https://vasp.at/wiki/Output_files) · [EDIFF](https://vasp.at/wiki/EDIFF) · [电子最小化](https://vasp.at/wiki/Category:Electronic_minimization)
 
-[下载本次 SCF 的输入和输出](/Atlas/examples/vasp/fe-scf-files.tar.gz)。包内保留输入、OUTCAR、OSZICAR 和本例生成的其他小输出文件；POTCAR 只提供 TITEL、ZVAL 与 SHA256，使用前需从自己的授权赝势库准备对应文件。下面保留这次已执行的终端操作和结果。
+[下载本次 SCF 的输入和输出](/Atlas/examples/vasp/fe-scf-files.tar.gz)。包内保留输入、OUTCAR、OSZICAR 和本例生成的其他小输出文件；POTCAR 只提供数据集名称 TITEL 与价电子数 ZVAL，使用前需从自己的授权赝势库准备对应文件。下面保留这次已执行的终端操作和结果。
 
 ## 准备结构、电子参数与 PAW 数据
 
@@ -330,5 +328,12 @@ LELF = .TRUE.
 [差分电荷](/Atlas/m/delta-charge/vasp/)需要匹配的异质结和冻结组分密度；[Bader](/Atlas/m/bader/vasp/)需要对应密度及其参考文件；[ELF](/Atlas/m/elf/vasp/)则读其实际空间分布。希望读取薄层真空能级时，还要按[静电势](/Atlas/m/electrostatic-potential/vasp/)与[功函数](/Atlas/m/workfunction/vasp/)准备 LOCPOT。bcc Fe 的体相晶胞没有真空平台，不能用它直接求薄层功函数。
 
 在[SnSe₂/Sr₂N 存档](/Atlas/m/nscf/vasp/)中，可以看到非空父 CHGCAR 如何接到固定密度的均匀网格计算。该记录的元素、51 个价电子和 18×18×1 网格均来自它自己的输入；不要把这里的 Fe 参数带过去。
+
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2bd.png" alt="Ba2N论文Fig.2(b,d)原图：DOS及ELF俯视侧视图" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 2(b,d)：单层 Ba₂N 的总及投影 DOS，以及 ELF=0.5 的俯视和侧视等值面。虚线圈标出空球 X 的位置。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+[Ba₂N 原文 Fig. 2(d)，第 165101-3 页](https://doi.org/10.1103/PhysRevB.105.165101)先用 ELF=0.5 的俯视与侧视图定位原子面外的电子区域，再在 Fig. 2(b)中用总 DOS 和 Ba-d、N-p、空球 X 投影讨论这些区域对应的电子态。两幅图需要同一几何与电子模型，单有 SCF 能量不能代替它们。本页 Fe 算例先核对输出和文件是否保存；它的磁矩和密度只属于 Fe，不作为 Ba₂N 或二维界面电荷转移的结果。电子停止条件按 [EDIFF](https://vasp.at/wiki/EDIFF) 读取。
 
 接到空间图时，使用本页另行保存密度的 `charge_elf` 分支；`fm` 下的零字节 CHGCAR 无法作图。[ELF 页的实际 Fe VESTA 图](/Atlas/m/elf/vasp/#vesta的同阈值比较)将两个自旋标量块分开，在相同 ELF 阈值下显示，提供了从网格到等值面的操作记录。它与 Ba₂N Fig. 2(d)对应的是“原子结构与等值面同时展示”的方法；Fe 页自己的阈值和双通道设置应保留，不能用论文的 0.5 或把两个通道平均后声称复现了原图。

@@ -14,7 +14,7 @@
 <details>
 <summary>历史输入与父密度的核对</summary>
 
-在原位归档核对时，`bands/CHGCAR` 是直接指向 `../scf/CHGCAR` 的软链接；解析目标与父 SCF 文件相同，哈希也相同。两分支的结构、赝势哈希一致，结构又与各自 XML 中的运行晶胞及原子位置相符。归档中的 SCF INCAR 后来改成了 520 eV，因此下载包提供 `incar-run.xml` 和从实际 XML/OUTCAR 导出的 `parameters-from-output.txt`，并明确标为运行参数重建，未把后来的文件冒充原输入。旧 `SYSTEM=SnS2` 是标签残留，实际 POSCAR 的元素及 PAW 标识均为 Sn、Se。
+路径分支的 `bands/CHGCAR` 通过 `../scf/CHGCAR` 读取父SCF密度，两分支保持相同晶胞、原子位置和PAW种类。归档中的 SCF INCAR 后来改成了 520 eV，因此下载包提供 `incar-run.xml` 和从实际 XML/OUTCAR 导出的 `parameters-from-output.txt`，并明确标为运行参数重建，未把后来的文件冒充原输入。旧 `SYSTEM=SnS2` 是标签残留，实际 POSCAR 的元素及 PAW 标识均为 Sn、Se。
 
 </details>
 
@@ -28,14 +28,6 @@
 
 > 回读 scf 与 bands 的原始 vasprun.xml，只提取原程序的 `<incar>` 字段，并从 OUTCAR 核对 XML 没有回显的 IVDW。把实际运行参数列为 parameters-from-output.txt，保留对应 XML 片段。不要把改过的归档 INCAR 当作历史输入，不添加输出中没有记录的参数。保留原结构，输出每个分支实际 ENCUT 和写出的文件名。
 
-在包根目录运行：
-
-```text
-python3 extract_inputs.py
-cat scf/parameters-from-output.txt
-cat bands/parameters-from-output.txt
-cat bands/POSCAR
-```
 <details>
 <summary>完整源码：extract_inputs.py</summary>
 
@@ -76,6 +68,15 @@ for directory in ("scf", "bands"):
 ```
 
 </details>
+
+在包根目录运行：
+
+```text
+python3 extract_inputs.py
+cat scf/parameters-from-output.txt
+cat bands/parameters-from-output.txt
+cat bands/POSCAR
+```
 实际导出日志：
 
 ```text
@@ -255,7 +256,7 @@ Reciprocal
 
 ## 从文件到表格，再到图
 
-先保存数据表，再画图。`analyse.py` 固定使用 `scf` 和 `bands` 两个数据分支，检查模型、状态数、路径节点、PROCAR 配对和 DOS 列数；输出独立 CSV，`plot.py` 只读取 CSV 与 `summary.json`。下面的源码已用本次下载包的数据实际运行。
+先保存数据表，再画图。`analyse.py` 固定使用 `scf` 和 `bands` 两个数据分支，检查模型、状态数、路径节点、PROCAR 配对和 DOS 列数；输出独立 CSV，`plot.py` 只读取能级、投影、DOS和路径节点CSV。下面的改版源码在Talos读取同一批原生数据实际运行，VASP计算没有重跑。路径节点保存在 `tables/path-nodes.csv`，能量零点、电子数、IDOS和采样间隙保存在 `tables/electronic-values.csv`；这两个表与能级/投影/DOS表一起供后处理使用。下载改版完整源码：[analyse.py](/Atlas/examples/vasp/snse2-electronic/analyse.py) · [plot.py](/Atlas/examples/vasp/snse2-electronic/plot.py)。
 
 <details>
 <summary>完整源码：analyse.py</summary>
@@ -265,7 +266,6 @@ Reciprocal
 """Read the fixed SnSe2 data set; export paired eigenvalues/projections/DOS."""
 from pathlib import Path
 import csv
-import json
 import re
 import xml.etree.ElementTree as ET
 import numpy as np
@@ -429,35 +429,32 @@ for name, (i,j) in [("VBM_path",vbm_index),("CBM_path",cbm_index)]:
 table("path-edges.csv", ["edge","k_index","band","kx_frac","ky_frac","kz_frac","energy_eV",
                         "energy_minus_scf_EF_eV","Sn_s","Sn_p","Sn_d","Se_s","Se_p","Se_d","projected_total"],
       edge_rows)
-summary = {
-    "version": "VASP 5.4.4", "encut_eV":400, "functional":"PBE",
-    "soc":False,"spin_polarized":False, "elements":["Sn","Se"],"counts":[1,2],
-    "nelect":nelect,"path_kpoints":nk,"bands":nb,"procar_states":len(seen),
-    "scf_mesh":[18,18,1],"scf_irreducible_kpoints":len(sk),
-    "energy_zero_source":"scf/vasprun.xml final efermi and scf/DOSCAR header",
-    "energy_zero_eV":ef,"path_reported_efermi_eV":ef_path,
-    "path_ticks":[{"index":i+1,"label":label,"distance_Ainv":float(distance[i])} for i,label in nodes],
-    "path_length_Ainv":float(distance[-1]),"procar_eigenval_max_difference_eV":energy_difference,
-    "dos_points":nedos,"dos_energy_bounds_eV":[float(total[0,0]),float(total[-1,0])],
-    "dos_grid_step_eV":float(np.median(np.diff(total[:,0]))),
-    "dos_sigma_eV":0.05,"weighted_occupied_states":occupied_count,
-    "IDOS_at_scf_EF":idos_ef,"IDOS_bottom":float(total[0,2]),"IDOS_top":float(total[-1,2]),
-    "trapezoid_total_DOS_full_window":float(np.trapezoid(total[:,1],total[:,0])),
-    "vbm_path":{"k_index":vbm_index[0]+1,"band":vbm_index[1]+1,"energy_eV":float(energy[vbm_index])},
-    "cbm_path":{"k_index":cbm_index[0]+1,"band":cbm_index[1]+1,"energy_eV":float(energy[cbm_index])},
-    "path_sampled_gap_eV":float(energy[cbm_index]-energy[vbm_index]),
-    "scope":"Single fixed PBE/no-SOC model; path extrema and finite SCF DOS sampling, no convergence scan or interface model."
-}
-(ROOT / "summary.json").write_text(json.dumps(summary,indent=2)+"\n")
+table("path-nodes.csv",["k_index","label","distance_Ainv"],
+      [(i+1,label,float(distance[i])) for i,label in nodes])
+dos_step=float(np.median(np.diff(total[:,0])))
+path_gap=float(energy[cbm_index]-energy[vbm_index])
+values=[("SCF_Fermi",ef,"eV"),("path_Fermi",ef_path,"eV"),
+        ("electrons",nelect,"electrons/cell"),("SCF_irreducible_points",len(sk),"points"),
+        ("path_points",nk,"points"),("bands",nb,"bands"),
+        ("path_length",float(distance[-1]),"A^-1"),
+        ("PROCAR_EIGENVAL_max_difference",energy_difference,"eV"),
+        ("DOS_points",nedos,"points"),("DOS_step",dos_step,"eV"),
+        ("DOS_SIGMA",0.05,"eV"),("weighted_occupied_states",occupied_count,"electrons/cell"),
+        ("IDOS_at_SCF_Fermi",idos_ef,"states/cell"),
+        ("IDOS_lower_bound",float(total[0,2]),"states/cell"),
+        ("IDOS_upper_bound",float(total[-1,2]),"states/cell"),
+        ("DOS_integral_full_window",float(np.trapezoid(total[:,1],total[:,0])),"states/cell"),
+        ("path_sampled_gap",path_gap,"eV")]
+table("electronic-values.csv",["quantity","value","unit"],values)
 print(f"SCF: 18x18x1 -> {len(sk)} irreducible points; weighted occupied states = {occupied_count:.8f}")
 print(f"Path: {nk} points x {nb} bands; length = {distance[-1]:.8f} A^-1")
 print(f"PROCAR: {len(seen)} paired states; max energy difference = {energy_difference:.3e} eV")
 print(f"Energy zero: SCF efermi = {ef:.8f} eV; path efermi = {ef_path:.8f} eV")
-print(f"DOS: {nedos} energy points; step = {summary['dos_grid_step_eV']:.6f} eV; SIGMA = 0.05 eV")
+print(f"DOS: {nedos} energy points; step = {dos_step:.6f} eV; SIGMA = 0.05 eV")
 print(f"IDOS: at SCF EF = {idos_ef:.8f}; lower/upper ends = {total[0,2]:.8f}/{total[-1,2]:.8f}")
 print(f"Path extrema: VBM k={vbm_index[0]+1}, band={vbm_index[1]+1}; CBM k={cbm_index[0]+1}, band={cbm_index[1]+1}")
-print(f"Path sampled gap = {summary['path_sampled_gap_eV']:.8f} eV")
-print("Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv and summary.json")
+print(f"Path sampled gap = {path_gap:.8f} eV")
+print("Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv, path-nodes.csv and electronic-values.csv")
 ```
 
 </details>
@@ -469,7 +466,7 @@ print("Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv and summa
 #!/usr/bin/env python3
 """Plot only the paired tables; use the common parent-SCF energy reference."""
 from pathlib import Path
-import json
+import csv
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -478,14 +475,14 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent
 FIG = ROOT / "figures"
 FIG.mkdir(exist_ok=True)
-summary = json.loads((ROOT / "summary.json").read_text())
 bands = np.genfromtxt(ROOT / "tables/bands.csv", delimiter=",", names=True)
 dos = np.genfromtxt(ROOT / "tables/dos.csv", delimiter=",", names=True)
 fat = np.genfromtxt(ROOT / "tables/fatband.csv", delimiter=",", names=True)
-nk, nb = summary["path_kpoints"], summary["bands"]
+nk, nb = int(np.max(bands["k_index"])), int(np.max(bands["band"]))
 x = bands["distance_Ainv"].reshape(nk,nb)[:,0]
 energy = bands["energy_minus_scf_EF_eV"].reshape(nk,nb)
-ticks = [item["distance_Ainv"] for item in summary["path_ticks"]]
+with (ROOT / "tables/path-nodes.csv").open(newline="") as f:
+    ticks = [float(row["distance_Ainv"]) for row in csv.DictReader(f)]
 labels = [r"$\Gamma$", "M", "K", r"$\Gamma$"]
 plt.rcParams.update({"font.family":"DejaVu Serif","font.size":10,
                      "axes.linewidth":0.8,"xtick.direction":"in","ytick.direction":"in",
@@ -543,7 +540,7 @@ python3 analyse.py
 python3 plot.py
 ```
 
-实际输出：
+本次在Talos运行改版后处理的实际输出：
 
 ```text
 SCF: 18x18x1 -> 37 irreducible points; weighted occupied states = 26.00000205
@@ -554,7 +551,7 @@ DOS: 301 energy points; step = 0.110000 eV; SIGMA = 0.05 eV
 IDOS: at SCF EF = 26.00000000; lower/upper ends = 0.00000000/40.00000000
 Path extrema: VBM k=13, band=13; CBM k=50, band=14
 Path sampled gap = 0.76419500 eV
-Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv and summary.json
+Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv, path-nodes.csv and electronic-values.csv
 Exported figures/bands-dos.png, .svg and .pdf
 Exported figures/fatband.png, .svg and .pdf
 ```
@@ -741,6 +738,11 @@ Energy zero: SCF EF = -2.39071823 eV
 gnuplot生成SVG、PNG与矢量PDF时stderr均为空；PNG与PDF渲染已实际查看，带边标记、共同零能虚线、轨道图例与两个横轴均可辨认。网页集成后的桌面及手机排版另由整站检查。
 
 </details>
+
+<figure>
+<img src="/Atlas/figures/literature/fan2025-snse2-ptte2-fig1cfi.png" alt="Fan等原文Fig.1(c,f,i)：孤立SnSe₂、PtTe₂与界面的能带和共轴PDOS" />
+<figcaption>Fan 等，arXiv:2502.13690v1 (2025)，原文第 3 页 Fig. 1(c,f,i)。三行依次为孤立 SnSe₂、PtTe₂ 与界面；各自以 E_F 为零点，红/蓝在界面面板分别标 SnSe₂/PtTe₂ 层来源。<a href="https://arxiv.org/pdf/2502.13690v1#page=3">论文原文</a>。</figcaption>
+</figure>
 
 [相关论文 PDF 第3页 Fig. 1(c)](https://arxiv.org/pdf/2502.13690v1#page=3)左侧为孤立SnSe₂的 Γ–M–K–Γ 能带，右侧为共用 E−E_F 纵轴的总DOS、Sn-s/p和Se-p，DOS轴标states/eV。先读带边，再沿相同高度看轨道谱重：价带边以Se-p为主，导带边同时有Sn-s与Se-p。Fig. 1(i)才增加界面红/蓝层来源，不能从(c)推出与第二层的杂化。
 

@@ -271,6 +271,13 @@ columns charge,mx,my,mz; output spin-path.dat
 
 ![SnSe₂/Sr₂N 路径上的三个自旋投影](/Atlas/examples/vasp/snse2_sr2n_spin/spin-path.png)
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/lu2015-mos2-fig1abc.png" alt="公开原文Fig.1(A–C)实际面板" />
+</div>
+<figcaption>Lu 等，Science 350, 1353–1357 (2015)，PDF 第 1 页 Fig. 1(A–C)：K/K′ 谷面外有效场、层堆垛与能带劈裂示意；蓝/红分别表示上/下自旋，箭头表示有效场方向。<a href="https://doi.org/10.1126/science.aab2277">论文原文</a>。</figcaption>
+</figure>
+
 [Lu 等的 Fig. 1A、1C](https://doi.org/10.1126/science.aab2277)（原文 PDF 第 1 页）可以与上图并排读：1A 在六角布里渊区标出 K/K′ 谷及方向相反的面外有效场，蓝、红口袋分别示意自旋向上、向下；1C 画相应能带劈裂，并显示 2H 堆垛相邻层在同一 K 谷的有效场反向。颜色是方向示意，没有连续自旋数值色标。本页则在 Γ–M–K–Γ 路径上用同一个 −1…1 色标分别画 PROCAR 的 mx、my、mz，纵轴统一减去 SCF EF；投影权重没有被归一化掉。对照时应比较谷位置、分量方向与层来源，不能把颜色深浅直接换算成有效场，或将沿线投影当成二维费米面纹理。
 
 颜色是 PROCAR 原子投影空间中的磁化，横轴是 Γ–M–K–Γ。具体看 K 点（第 100 个记录）附近的一对输出态：
@@ -352,6 +359,13 @@ print('Ratios describe the saved atomic projections; no full-state spin or TR te
 </details>
 
 用 Wannier 插值扩展网格时，还要验证目标能区的色散和自旋矩阵元；仅有能量一致的 `hr.dat` 不能保证任意轨道基底上的 Pauli 矩阵就是原始 DFT 自旋算符。接口和子空间的准备见 [Wannier90](/Atlas/m/wannier90/qe/)。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/lu2015-mos2-fig3abcd.png" alt="公开原文Fig.3(A–D)实际面板" />
+</div>
+<figcaption>Lu 等，Science 350, 1353–1357 (2015)，PDF 第 3 页 Fig. 3(A–D)：电阻交点、面内临界场与归一化比较；A/B 横虚线为 R_N/2，D 横轴 T/Tc、纵轴 Bc₂/Bp，虚线 1 为 Pauli 界限。<a href="https://doi.org/10.1126/science.aab2277">论文原文</a>。</figcaption>
+</figure>
 
 同文 Fig. 3A、3B（PDF 第 3 页）从电阻曲线与 RN/2 的交点提取面内 Bc₂；3C 比较临界场随温度的变化及不同拟合，3D 再用横轴 T/Tc、纵轴 Bc₂/Bp 比较不同超导态，虚线 Bc₂/Bp=1 是 Pauli 界限。图 1D 的相图使用 90% RN 的 Tc 判据，不能与图 3 的 50% RN 混用。复现这种归一化比较需要原始磁输运曲线、各态一致的 Tc 判据和相应 Bp，逐态提取交点后再画无量纲坐标；本页的 PROCAR 与正常态能带没有这些超导态输入。
 

@@ -535,7 +535,7 @@ maxwell@maxwell:~/si-wannier/k4/validation$ tail -10 si.bands.out
 
 ### 交给代码助手的任务：核对接口、展布与插值误差
 
-> 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序，使用 Python 3 和 NumPy。读取 validation-kpoints.csv 及 k4/validation/ 下的直接 DFT XML、stdout 和 stderr，核对验证点坐标，将 Hartree 本征值换成 eV。对 k4/、k6/，核对 SCF、NSCF、接口及 Wannier 输出的结束状态，比较 silicon.win 与 NSCF XML 的显式 k 点坐标和顺序，检查 silicon.eig、silicon.mmn、silicon.amn 的四带维数。读取 silicon.wout 中的逐次总展布和最终总展布，单位保留 bohr²；按 validation-kpoints.csv 的路径索引，从 silicon_band.dat 取同一位置的四条插值能带，与直接 DFT 逐带比较，计算最大绝对误差和均方根误差。作图参考取直接 DFT Γ 点的最高占据态，同时保留原始能量。输出 summary.json、direct-bands.csv、validation-errors.csv，以及两种网格各自的 bands.csv、spread-history.csv；赝势文件用于记录 SHA256。遇到缺文件、坐标或维数不符时停止，不以零填充。
+> 在保存的 Si Wannier 算例目录中编写独立 Python 后处理程序，使用 Python 3 和 NumPy。读取 validation-kpoints.csv 及 k4/validation/ 下的直接 DFT XML、stdout 和 stderr，核对验证点坐标，将 Hartree 本征值换成 eV。对 k4/、k6/，核对 SCF、NSCF、接口及 Wannier 输出的结束状态，比较 silicon.win 与 NSCF XML 的显式 k 点坐标和顺序，检查 silicon.eig、silicon.mmn、silicon.amn 的四带维数。读取 silicon.wout 中的逐次总展布和最终总展布，单位保留 bohr²；按 validation-kpoints.csv 的路径索引，从 silicon_band.dat 取同一位置的四条插值能带，与直接 DFT 逐带比较，计算最大绝对误差和均方根误差。作图参考取直接 DFT Γ 点的最高占据态，同时保留原始能量。输出 direct-bands.csv、validation-errors.csv，以及两种网格各自的 bands.csv、spread-history.csv；在终端汇总各网格的结束状态、展布与验证误差，并保留所用赝势与原生输入/输出。遇到缺文件、坐标或维数不符时停止，不以零填充。
 
 [已有完整核对源码 analyse_wannier.py](/Atlas/examples/si-wannier/analyse_wannier.py) · [完整准备源码 prepare_si_wannier.py](/Atlas/examples/si-wannier/prepare_si_wannier.py)。
 
@@ -736,6 +736,14 @@ Interpolation comparison is limited to these 13 points; no full-grid convergence
 
 上图画四条价带，下图在每个验证点取四条带中最大的绝对误差。6³ 比 4³ 明显改善，但这 13 个位置上仍有约 0.083 eV 的最大误差。因此不能称这条 6³ 曲线已经高精度收敛；它只完成了本例的一次网格对照。若后续用途需要更小误差，应继续加密并扩展直接 DFT 检查点，同时明确用途能接受的误差。
 
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/marzari2012-fig26.png" alt="公开原文Fig.26–27实际面板" />
+<img src="/Atlas/figures/literature/marzari2012-fig27.png" alt="公开原文Fig.26–27实际面板" />
+</div>
+<figcaption>Marzari 等，arXiv:1112.5411，PDF 第 37–38 页 Fig. 26–27：SOC bcc Fe 直接能带与 Wannier 插值对照及 Γ–H 避交叉放大；零点为 E_F，内窗口、网格竖线与直接验证空心圆分别保留。<a href="https://arxiv.org/pdf/1112.5411">论文原文</a>。</figcaption>
+</figure>
+
 [Marzari 等综述 Fig. 26](https://arxiv.org/pdf/1112.5411#page=37)（PDF 第 37 页）以 SOC bcc Fe 展示同类验收：横轴 Γ–H–P–N–Γ，纵轴减去 EF，实线为直接第一性原理能带，点线为 Wannier 插值，并标出内窗口。窗口内、外的偏差要分开看。本页复现的是共同路径上的直接 DFT 点与两套插值曲线，但能量零点是直接 Γ 点价带顶，不能把它与原图的 EF 零点混同；下方误差图把肉眼叠合变成可核对的数值。
 
 [Fig. 27](https://arxiv.org/pdf/1112.5411#page=38)（PDF 第 38 页）再放大 Γ–H 上的 SOC 避交叉：竖虚线标构造 Wannier 模型的网格点，空心圆是局部直接 DFT 验证，红、蓝表示 Sz 期望的方向。它提示 SOC 模型应在小能隙附近增加独立验证，并分别核对能量和自旋算符。本页现有脚本可重画 Si 能量对照；其无 SOC 四价带数据没有验证这种自旋颜色。
@@ -830,7 +838,13 @@ QE 7.5 的 [pw2wannier90 `write_spn`](https://www.quantum-espresso.org/Doc/INPUT
 
 WCC 之后，用同一哈密顿量计算所选切边的半无限边界谱，标出体能带投影与边界权重，判断谱支是否穿过体能隙并连接价带、导带。切边方向、终止方式和格林函数的展宽要随图保存；谱中的亮线只有在这些条件下才能被解释为边界态。[WannierTools 文档](https://wannier-tools.readthedocs.io/en/latest/features.html)给出 WCC 与边界谱接口。
 
-[Li 等研究的 Fig. 3(a–d) 与 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)（原文 PDF 第 4 页）提供了可对照的完整逻辑。Fig. 3 在相同 M–Γ–K–M 路径上比较两种极化构型各自不含、含 SOC 的体能带，颜色表示层/轨道贡献；Γ 附近的放大图帮助辨认 SOC 开隙及相关成分。复现时先对齐能量参考与路径，保留各构型和 SOC 设置，再用原始 DFT 投影核对进入 Wannier 基底的成分，不能凭两个颜色互换就判定拓扑。
+<figure>
+<img src="/Atlas/figures/literature/li2023-fig3.png" alt="公开原文 Fig. 3(a–d),4(a–f) 的实际面板" />
+<img src="/Atlas/figures/literature/li2023-fig4.png" alt="公开原文 Fig. 3(a–d),4(a–f) 的实际面板" />
+<figcaption>Li 等，Phys. Rev. B 108, 125302 (2023)，PDF 第 4 页 Fig. 3(a–d)、4(a–f)：两极化构型的能带与 WCC/边缘谱；读图重点为 4(a,b,d,e)，保留 4(c,f) 原始示意而不把它们赋给本站 Si。能带蓝、红、紫分别为内层 In/S、外层 In/S、Se 投影；WCC 为模 1 相位。 <a href="https://doi.org/10.1103/PhysRevB.108.125302">论文原文</a>。</figcaption>
+</figure>
+
+[Li 等研究的 Fig. 3(a–d) 与 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)（原文 PDF 第 4 页）提供了可对照的完整逻辑。Fig. 3 在相同 M–Γ–K–M 路径上比较两种极化构型各自不含、含 SOC 的体能带，颜色表示层/轨道贡献；(a,b) 与 (c,d) 分别在同一极化构型内比较不含、含 SOC 的结果；先定位 Γ 附近的开隙，再结合蓝、红、紫投影辨认相关成分。复现时先对齐能量参考与路径，保留各构型和 SOC 设置，再用原始 DFT 投影核对进入 Wannier 基底的成分，不能凭两个颜色互换就判定拓扑。
 
 Fig. 4 的 WCC 纵轴为相位除以 2π 后的模 1 坐标、横轴为半周期 k₂，边缘谱沿 X̄–Γ̄–X̄ 展开。两构型的 WCC 与谱线连接提供进一步区分：4(e) 虽有能隙内谱线，却没有连接价带和导带的无隙边缘态。本页的 Si 能带误差表和链接中的 BHZ 自检分别提供能量验收与接口运行的具体起点。这里沿用分析方法，不移入该文的材料数值或高阶拓扑结论。
 

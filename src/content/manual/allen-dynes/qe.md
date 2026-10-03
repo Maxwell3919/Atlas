@@ -273,12 +273,12 @@ $$
 
 谱数组 alpha2F.dat 以五位小数保存；λq、λspec、ωlog 和 Tc 则由逐 q 的 elph.inp_lambda 原件按 QE 7.5 算法复建。把保存谱直接积分与逐 q 重建的 λspec 对照，最大差为 4.13×10⁻⁶，符合 alpha2F.dat 的打印精度边界。更多有效位用于复算，不代表材料量的物理精度。
 
-[十个展宽的完整数值表](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-differences.csv) · [分析摘要与输入 SHA-256](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-summary.json) · [完整后处理源码](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py) · [Tc 配对与交点核验](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json)
+[十个展宽的完整数值表](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-differences.csv) · [完整后处理源码](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py) · [Tc 配对与交点核验](/Atlas/examples/supercon-al-tc/comparison-k32-k48/crossings.json)
 
 
 ### 交给代码助手的谱差补充任务
 
-> 只做后处理，不启动 pw.x、ph.x、lambda.x 或其他计算程序，也不生成图。读取 k32/alpha2F.dat、k48/alpha2F.dat 和 comparison-k32-k48/paired-tc.csv；验证十档 sigma 一一对应、频率网格相同且覆盖 0–14 THz、所有数值有限。按 L1λ = ∫₀¹⁴ 2|alpha2F32−alpha2F48|/ω dω 计算逐频谱差，并除以两条 lambda_spectrum_rebuilt 的平均值换算百分比；ω=0 且两谱为零时该点被积函数取零。逐档输出 lambda_qsum、lambda_spectrum、omega_log、Tc 的 32³/48³ 数值及差值。检查 alpha2F.dat 直接积分得到的 lambda_spectrum 与 paired-tc.csv 的逐 q 重建值之差，并写明 alpha2F.dat 的五位小数打印精度。保存 spectral-grid-differences.csv 与 spectral-grid-summary.json，记录输入文件 SHA-256、积分定义、采样点数和频率范围；不做平滑或外推，也不把展宽扫描或无交点写成网格收敛证明。
+> 只做后处理，不启动 pw.x、ph.x、lambda.x 或其他计算程序，也不生成图。读取 k32/alpha2F.dat、k48/alpha2F.dat 和 comparison-k32-k48/paired-tc.csv；验证十档 sigma 一一对应、频率网格相同且覆盖 0–14 THz、所有数值有限。按 L1λ = ∫₀¹⁴ 2|alpha2F32−alpha2F48|/ω dω 计算逐频谱差，并除以两条 lambda_spectrum_rebuilt 的平均值换算百分比；ω=0 且两谱为零时该点被积函数取零。逐档输出 lambda_qsum、lambda_spectrum、omega_log、Tc 的 32³/48³ 数值及差值。检查 alpha2F.dat 直接积分得到的 lambda_spectrum 与 paired-tc.csv 的逐 q 重建值之差，并写明 alpha2F.dat 的五位小数打印精度。保存 spectral-grid-differences.csv 与 spectral-grid-summary.json，保留积分定义、采样点数和频率范围；不做平滑或外推，也不把展宽扫描或无交点写成网格收敛证明。
 
 实际源码 [compare_spectral_grids.py](/Atlas/examples/supercon-al-tc/compare_spectral_grids.py) 只读上述文件，已生成完整 [逐展宽 CSV](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-differences.csv) 与 [复算摘要 JSON](/Atlas/examples/supercon-al-tc/comparison-k32-k48/spectral-grid-summary.json)。运行命令：
 
@@ -288,11 +288,28 @@ python3 compare_spectral_grids.py --root . --outdir comparison-k32-k48
 
 程序逐档打印 λ、谱 L1、Δωlog 和 ΔTc，并保存 CSV/JSON。十档结果及积分误差见上表和摘要文件。
 
+<figure>
+<img src="/Atlas/figures/literature/ponce2016-pb-fig12.png" alt="Poncé等原文Fig.12的Pb谱与采样对照" />
+<figcaption>Poncé 等，Comput. Phys. Commun. 209, 116–133 (2016)，原文 PDF 第 12 页 Fig. 12(a–d)：Pb 的采样、SOC 和电子展宽对照；(a,c) 横轴为 meV，(b,d) 横轴为电子采样点数。黑/蓝在(a,b)表示均匀/Sobol 加随机采样，蓝/红在(c,d)表示无/有 SOC；(b)按 q 网格、(d)按电子展宽分组。<a href="https://doi.org/10.1016/j.cpc.2016.07.028">论文原文</a>。</figcaption>
+</figure>
+
 [Poncé等，Fig. 12(a,b,d)，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)将三个检查分开：(a)在相同meV频率轴上叠画Pb的α²F，比较均匀与Sobol采样；(b)横轴是电子采样点数，λ按不同q采样分组；(d)在较密采样上改变电子展宽，并分别保留有/无SOC分支。正文第11–12页给出固定0.15 meV声子谱宽，说明不能把电子展宽和谱展宽当同一参数。本页采用(a)先看谱形、再看积分的读法，但横向比较的是Al的32³/48³致密网格，响应16³/q4³固定，原生频率轴为THz。两条链没有Pb的Sobol或SOC比较，图例用本页真实分支身份。
 
 <figure><img src="/Atlas/examples/supercon-literature/al-sigma010-spectrum.svg" alt="Al在同一0.010 Ry电子展宽下的32与48致密网格谱和累计耦合" loading="lazy"/><figcaption>真实Al的σ=0.010 Ry谱形对照：上幅直接画各自保存的α²F，下幅按同一2000点频率网格累计2α²F/ν。两条累计λ末值分别为0.37111797、0.37104865，频段台阶却不同；颜色在两幅保持一致，谱与累计量分别用自己的纵轴，没有平滑或归一化。gnuplot从公开CSV作图，源码见下方。</figcaption></figure>
 
+<figure>
+<img src="/Atlas/figures/literature/ponce2016-pb-fig13.png" alt="Poncé等原文Fig.13的Pb谱与采样对照" />
+<figcaption>Poncé 等，Comput. Phys. Commun. 209, 116–133 (2016)，原文 PDF 第 12 页 Fig. 13：Pb 的配对谱、输运谱和各自累计耦合。蓝色无 SOC，红色有 SOC；粗实线为配对谱，粗虚线为输运谱，细线为相应累计量。横轴为 meV，累计耦合无量纲。<a href="https://doi.org/10.1016/j.cpc.2016.07.028">论文原文</a>。</figcaption>
+</figure>
+
 [同文Fig. 13，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)还把普通配对谱与累计λ对读，并在图例中分别标普通配对量和输运谱/输运耦合。本图采用普通α²F与其累计积分，使用两个面板保持各自纵轴，所有数值来自本页Al谱文件。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig5ab.png" alt="Qiu2022原文Fig.5(a,b)：应变下 N(0)/ωlog 和 T_c/λ 的双纵轴对照，颜色在各面板中分别对应独立物理量。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 4 页 Fig. 5(a,b)：应变下 N(0)/ωlog 和 T_c/λ 的双纵轴对照，颜色在各面板中分别对应独立物理量。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 新图可直接看出6–8 THz附近的累计权重差在更高频段得到补偿。按打印谱本身的积分作分母，L1百分比为17.5248%；上表17.5246%沿用原内部重建λspec作分母，差别来自打印精度与离散口径。两者都说明接近的总λ并没有消除频段差异。与[Ba₂N Fig. 5(a,b)，PDF第4页](https://doi.org/10.1103/PhysRevB.105.165101)对读时，注意该图(a)以红/蓝双纵轴分别画N(0)与ωlog，(b)画Tc与λ，横轴是应变；相反的ωlog与λ趋势要通过同一公式解释，而不能按两条线在纸面上的斜率大小比较。本页横轴σ是积分参数，保留上述四个物理量分别核查，不把它称为材料应变趋势。
 

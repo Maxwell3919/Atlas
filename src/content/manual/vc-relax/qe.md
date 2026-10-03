@@ -351,6 +351,20 @@ Al 的零外压立方体积优化与薄层面内优化有不同自由度。二�
 
 规定某一应变后，面内矢量本身就是输入条件。此时通常在该条件下做[固定晶胞弛豫](/Atlas/m/relax/qe/)；若同时开放应变方向让它回到零压，最后结构就不再代表原先指定的应变。比较界面构型也应先决定是共同晶格下的比较，还是各自平衡晶格的比较，并把相应的单层参照带到后续能量和电荷分析中。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig1a.png" alt="Qiu2022原文Fig.1(a)：Ba₂N 的俯视、侧视、面内晶胞和二维布里渊区；蓝色为 Ba，红色为 N。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 2 页 Fig. 1(a)：Ba₂N 的俯视、侧视、面内晶胞和二维布里渊区；蓝色为 Ba，红色为 N。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/prandini2018-fig2.png" alt="公开原文Fig.2实际面板" />
+</div>
+<figcaption>Prandini 等，arXiv:1806.05609v2，PDF 第 12 页 Fig. 2：Pd 的声子、内聚能、压力及能带误差随波函数截断变化；各行颜色表示赝势，横虚线为该物理量的原文阈值，圈选所接受的组合。<a href="https://arxiv.org/pdf/1806.05609v2">论文原文</a>。</figcaption>
+</figure>
+
 [Prandini 原文 Fig. 2](https://arxiv.org/pdf/1806.05609v2#page=12)（第 12 页）把 Pd 的压力误差转换为等效体积偏差后，与声子、内聚能和能带误差分别检查，圈选通过判据的截断能。它说明晶胞优化后的压力不能只看一次 SCF 的电子误差：按这种图法复核本页 Al，需要在匹配几何下比较不同截断的压力，并有相应状态方程才可转换成论文的体积指标；这里现有的是一次变胞轨迹，不能把其最后 0.02 kbar 直接填到那张收敛图中。[Ba₂N Fig. 1(a)，第 165101-2 页](https://doi.org/10.1103/PhysRevB.105.165101)再提供二维几何的俯视/侧视参照：从自己的最后完整晶胞与坐标建立 VESTA 结构，画出面内晶胞和原子层高，并保留固定第三矢量的真空。Al 的 fcc 末态与旧 HfCl₂/PbO₂ 候选分别对应它们自己的文件；二维失败记录不能借 Ba₂N 的优化图补成已收敛结构。
 
 Al 输出的 `bfgs converged`、最后完整晶胞和电子重算支持该轮受限优化的停止状态；HfCl₂/PbO₂ 的 `bfgs failed` 保留为候选结构记录。把已经接受的几何写入新的 [SCF](/Atlas/m/scf/qe/)，再接[声子与 EPC](/Atlas/m/phonon-dfpt/qe/)；旧失败记录在这里解释停止条件，不作为本轮材料结果。

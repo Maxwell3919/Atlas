@@ -238,13 +238,7 @@ maxwell@maxwell:~/al/epc-q4$ tail -12 al.elph.out
 =------------------------------------------------------------------------------=
 ```
 
-```console
-maxwell@maxwell:~/al/epc-q4$ sha256sum tmp/al.a2Fsave al.a2Fsave.k32
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
-```
-
-这两个散列一致，说明后续步骤使用的致密网格文件与保存下来的那一份相同。它只是文件身份检查；电子网格是否足够密，仍要改变网格计算比较。
+后续响应计算读取的是上一步保存的致密网格 `al.a2Fsave.k32`，文件接续保持同一父结构、密度和电子设置。复制与文件内容相同不等于电子网格已经收敛；仍要用不同网格比较目标物理量。
 
 
 ## q 点、模式和文件要逐一对应
@@ -353,19 +347,15 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ diff -u ../epc-q4/al.dense.in al.d
 +48 48 48 0 0 0
 ```
 
-`diff` 只显示这一行变化。两条分支的 `al.scf.in`、`al.elph.in`、`q2r.in`、`matdyn-dos.in` 和 `lambda.in` 经 SHA-256 比对逐份相同；Al 的晶胞、赝势、`ecutwfc=40 Ry`、`ecutrho=160 Ry`、`nbnd=6`、SCF 的 `degauss=0.02 Ry` 均没有随分支改变。
+`diff` 只显示这一行变化。两条分支的 `al.scf.in`、`al.elph.in`、`q2r.in`、`matdyn-dos.in` 和 `lambda.in` 在原位记录中逐份相同；Al 的晶胞、赝势、`ecutwfc=40 Ry`、`ecutrho=160 Ry`、`nbnd=6`、SCF 的 `degauss=0.02 Ry` 均没有随分支改变。
 
 两个 `pw.x` 输入仍写 `prefix='al'`、`outdir='./tmp'`，但相对路径现在落在各自的工作目录内。`epc-q4-k48/tmp` 由这次运行重新产生，没有从 32³ 分支复制 `.save`、动力学矩阵或 EPC 输出。致密计算里的 `la2F=.true.` 会保存供后续积分使用的致密网格电子数据；第二次 16³ SCF 不打开这个选项，而是重新写出响应计算需要的电荷密度和波函数。
 
 ## 在一个作业里依次运行，并在两次 SCF 之间留下核对文件
 
-原分支的续算脚本可以作为编辑起点，但这次要从致密 SCF 开始，并把 `lambda.x` 放到末尾。实际修改后的脚本如下；执行时把 `<qe_bin>` 换成本机 QE 7.5 可执行程序目录。
+原分支的续算脚本可以作为编辑起点，但这次要从致密 SCF 开始，并把 `lambda.x` 放到末尾。下面从实际脚本提取计算次序与停止检查，供读者编辑；完整原脚本见 [run.slurm](/Atlas/examples/supercon-al-tc/k48/run.slurm) 和[两分支计算包](/Atlas/examples/supercon-al-tc-files.tar.gz)。执行时把 `<qe_bin>` 换成本机 QE 7.5 可执行程序目录。
 
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cp ../epc-q4/continue.slurm run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ vi run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ bash -n run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat run.slurm
+```bash
 #!/bin/bash
 #SBATCH --job-name=atlas-al-k48
 #SBATCH --nodes=1
@@ -390,7 +380,6 @@ grep -q 'JOB DONE.' al.scf.out
 grep -q 'convergence has been achieved' al.scf.out
 cp tmp/al.save/data-file-schema.xml response.data-file-schema.xml
 cmp tmp/al.a2Fsave al.a2Fsave.k48
-sha256sum tmp/al.a2Fsave al.a2Fsave.k48 > a2Fsave-after-response.sha256
 mpirun -np 8 <qe_bin>/ph.x -in al.elph.in > al.elph.out 2> al.elph.err
 grep -q 'JOB DONE.' al.elph.out
 <qe_bin>/q2r.x -in q2r.in > q2r.out 2> q2r.err
@@ -403,7 +392,7 @@ date -u > finished.txt
 
 作业申请 8 个 MPI 进程，每个进程 1 个 CPU，`mpirun -np 8` 与申请相同；`OMP_NUM_THREADS=1` 避免 MPI 进程再各自展开 OpenMP 线程。这里载入的是 Maxwell 实际使用的 `/opt/intel/oneapi/setvars.sh`。`q2r.x`、`matdyn.x` 和 `lambda.x` 按这份脚本串行执行。
 
-`set -e` 让程序返回错误、SCF 未出现收敛行或文件比较失败时停下来。第一次 SCF 后立刻复制 `.a2Fsave` 和 XML，第二次 SCF 后再复制一份 XML；这样即使同名 `tmp/al.save` 已被 16³ 结果更新，仍能看清两次计算各用了什么网格。`cmp` 无输出表示两份文件相同，紧接着的 SHA-256 则把这个核对留在磁盘上。这些检查先保证流程没有误接，EPC 数值是否随网格和展宽稳定还要在结果出来后比较。
+`set -e` 让程序返回错误、SCF 未出现收敛行或文件比较失败时停下来。第一次 SCF 后立刻复制 `.a2Fsave` 和 XML，第二次 SCF 后再复制一份 XML；这样即使同名 `tmp/al.save` 已被 16³ 结果更新，仍能看清两次计算各用了什么网格。`cmp` 无输出表示两份文件相同。这些检查先保证流程没有误接，EPC 数值是否随网格和展宽稳定还要在结果出来后比较。
 
 ```console
 maxwell@maxwell:<工作目录>/al/epc-q4-k48$ sbatch run.slurm
@@ -413,7 +402,7 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ squeue -o '%.10i %.18j %.8T %.10M 
       2016       atlas-al-k48  RUNNING       0:00      8 maxwell
 ```
 
-两次 SCF 的 XML 分别保存 48³ 与 16³ 网格；第二次 SCF 后 `.a2Fsave` 与本分支备份的 SHA-256 相同。作业 2016 最终返回 `COMPLETED`、`ExitCode=0:0`；两次 SCF 和八个 q 点响应正常结束。完整监控、逐 q 文件头及结束检查见 [48³ 会话](/Atlas/cases/epc-al-verification/#dense-k48-run)。
+两次 SCF 的 XML 分别保存 48³ 与 16³ 网格；第二次 SCF 后 `.a2Fsave` 与本分支保存的备份相同。作业 2016 最终返回 `COMPLETED`、`ExitCode=0:0`；两次 SCF 和八个 q 点响应正常结束。完整监控、逐 q 文件头及结束检查见 [48³ 会话](/Atlas/cases/epc-al-verification/#dense-k48-run)。
 
 ## 后处理输入与两条输出路线
 
@@ -488,6 +477,11 @@ elph_dir/elph.inp_lambda.8
 <span id="ba2n-mode-analysis"></span>
 
 ## Ba₂N 怎样把谱峰追到原子振动
+
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Ba2N论文Fig.3原图：声子色散红点线宽、原子PHDOS、a2F与Ba位移模式" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子色散、原子 PHDOS、α²F 与 Γ 附近约 55 cm⁻¹ 光学模。红点大小正比于线宽 γ；位移箭头表示原子运动幅度。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Qiu等，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图3把未应变Ba₂N的色散、投影PHDOS、α²F和振动模式并列。图3(a)的红点大小正比于γ；约55 cm⁻¹的Γ光学模对应图3(d)中上下Ba层相反的面内振动。PHDOS说明低于130 cm⁻¹主要由Ba振动构成，而160–220 cm⁻¹的N振动也在α²F中出现尖峰。由此先定位q与分支，再确认原子和方向，最后检查它们对频率积分的贡献。
 

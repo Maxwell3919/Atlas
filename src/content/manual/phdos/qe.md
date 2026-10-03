@@ -368,7 +368,27 @@ snse2-sr2n: rows=400 modes=18.74245521 / 18 sum_error/peak=4.769e-06
 
 ZrCl₂/Sc₂C 的现存路径色散在 0–10.11 THz 有 15 条中低频支，12.49–17.11 THz 有三条高频支。对照原子谱可见高频段以 C 的本征矢权重为主。它回答高频振动主要落在哪种元素上，尚不区分 C 的面内和面外运动。频段之间的间隔也不能只用轻重原子质量解释，恢复力与模式混合共同决定频率。
 
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Ba2N论文Fig.3原图：声子色散红点线宽、原子PHDOS、a2F与Ba位移模式" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子色散、原子 PHDOS、α²F 与 Γ 附近约 55 cm⁻¹ 光学模。红点大小正比于线宽 γ；位移箭头表示原子运动幅度。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6b.png" alt="Qiu2022原文Fig.6(a–d)完整联图，重点读(b)的4%应变原子PHDOS；其Frequency轴与(c)的λ(ω)标记分别属于各自面板。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6c.png" alt="Qiu2022原文Fig.6(c)：4% 应变的 α²F 蓝色谱线；右侧 λ 标记不能替代未清楚显示的累计数值。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 6(a–d)完整联图，重点读(b)的4%应变原子PHDOS：黑、红、蓝线分别为总谱、N、Ba，横轴Frequency/cm⁻¹；相邻(c)的λ(ω)不属于(b)。；第 5 页 Fig. 6(c)：4% 应变的 α²F 蓝色谱线；右侧 λ 标记不能替代未清楚显示的累计数值。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Ba₂N Fig. 3(b) 与 Fig. 6(b)](https://doi.org/10.1103/PhysRevB.105.165101)分别位于 165101-3、165101-5 页。横轴是 cm⁻¹ 频率，纵轴是 states/cm⁻¹；总谱、Ba 和 N 投影使用同一坐标，没有各自缩放到相同峰高。无应变时低于约 130 cm⁻¹ 主要来自 Ba，160–220 cm⁻¹ 主要来自 N；4% 拉伸后 N 频段降到约 120–172 cm⁻¹，72、92、105 cm⁻¹ 附近出现 Ba/N 混合。这个频段组成还要与 Fig. 6(a) 的色散及 (e) 的位移对读。Fig. 6(c) 的蓝色 α²F 曲线可读，右侧虽有红色 λ(ω) 标注，但累计红线与数值刻度不清晰，不能据此读取累计台阶或末值。本站的累计量分析以原始 α²F 谱积分为依据；PHDOS 峰高不替代耦合积分。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/yang2023-alh2-fig3c.png" alt="Yang 等原文 Fig.3(a–c)完整上排，重点读(c)色散与PHDOS" />
+</div>
+<figcaption>Yang、Jiang 与 Zhao，Chin. Phys. Lett. 40, 107401 (2023)，PDF 第 4 页 Fig. 3(a–c) 完整上排，重点读 (c)：色散与 Al/H 的 PHDOS 共用 cm⁻¹ 频率纵轴；红圈另表示逐模耦合，黄色底色强调中频段。<a href="https://doi.org/10.1088/0256-307X/40/10/107401">论文原文</a>。</figcaption>
+</figure>
 
 [AlH₂ Fig. 3(c)](https://doi.org/10.1088/0256-307X/40/10/107401)（107401-3 页）采用另一种布局：色散与 Al/H 投影共用频率纵轴，PHDOS 在右侧沿水平方向展开。沿同一高度看过去，可将分支所在频段与元素组成直接对应；右侧只标 PHDOS，不能从图形自行补出未说明的绝对归一化。复现时应读原始列和单位，本页已有的谱密度保留 states/THz，层权重由真实原子列合成，不对每条曲线作峰高归一化。
 

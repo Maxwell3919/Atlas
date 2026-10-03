@@ -28,54 +28,26 @@ J(q) 是费米能附近的几何联合权重。静态 Lindhard 易感率还涉�
 
 ## 确认网格来源，再运行提取和求和
 
-```console
-maxwell@maxwell:~/al/fermi/k32-cg$ cat grid-info.json
-{
-  "kmesh": 32,
-  "nks": 32768,
-  "fermi_eV": 8.381502717320133,
-  "crossing_bands": [
-    2,
-    3
-  ],
-  "band_ranges": [
-    {
-      "band": 1,
-      "min_eV": -11.548066959202437,
-      "max_eV": -0.8934928889577716
-    },
-    {
-      "band": 2,
-      "min_eV": -4.487132561119305,
-      "max_eV": 12.944767171883965
-    },
-    {
-      "band": 3,
-      "min_eV": -0.3267820822530947,
-      "max_eV": 12.94476717329531
-    },
-    {
-      "band": 4,
-      "min_eV": 1.3928520531046082,
-      "max_eV": 14.105570788518774
-    },
-    {
-      "band": 5,
-      "min_eV": 5.798257429908023,
-      "max_eV": 16.25759930823918
-    },
-    {
-      "band": 6,
-      "min_eV": 9.493962986363178,
-      "max_eV": 20.080026299221082
-    }
-  ],
-  "source_xml_sha256": "e8fa22aa590135fc71cf93ab82ac0b52844112240d8a8be195ffe962acb8e46f",
-  "nscf_out_sha256": "986abf2e10830fc5cd5cca0b7b56f55854cf5e4c8afaa88a521888f609226ed7",
-  "definition": "Energy grid includes all k, no interpolation, E-EF in eV."
-}
+从完整下载包的 `al` 根目录读取这次均匀 NSCF 的原生 OUT：
+
+```bash
+grep -E 'number of k points|Fermi energy|JOB DONE' fermi/k32-cg/al.nscf.out
 ```
-这份摘要记录了 32768 个真实 k 点、E_F、跨过费米能的带号和源 XML 哈希。不能对一条能带路径直接做下面的循环卷积，因为路径上的数组不是一个周期三维均匀网格。
+
+```text
+     number of k points= 32768  Marzari-Vanderbilt smearing, width (Ry)=  0.0200
+     the Fermi energy is     8.3815 ev
+   JOB DONE.
+```
+
+OUT 的费米能按打印精度显示；后处理能量网格使用对应 XML 的完整读数，零点为 `8.381502717320133 eV`。在这份完整网格中，第 2、3 带的 E−E_F 范围跨过零能：
+
+| 带号 | 最低 E−E_F / eV | 最高 E−E_F / eV |
+|---|---:|---:|
+| 2 | -4.487132561119 | 12.944767171884 |
+| 3 | -0.326782082253 | 12.944767173295 |
+
+点数、能量参考和穿越带来自同一份原生输出与 XML。不能对一条能带路径直接做下面的循环卷积，因为路径上的数组不是一个周期三维均匀网格。
 
 下载包中的 [extract_fermi_electronic.py](/Atlas/examples/al-electronic/fermi/extract_fermi_electronic.py) 会重新读取两套 NSCF 的 XML、标准输出和错误文件，再生成 `fermi-grid.npz` 与四份嵌套 CSV。本机已有 NumPy 时，在解包后的 `al` 根目录执行：
 
@@ -456,6 +428,11 @@ print "Read the four original CSVs; no interpolation, smoothing or peak normaliz
 
 二维计算采用完整面内均匀 k 网格，z 方向的处理与实际模型一致。若启用 SOC 或自旋极化，应保留相应能带和权重约定，不能额外随手乘二。不同应变使用相同窗口 σ 和相当的网格精度，并同时报告原始 J 与 J/J(0)，这样才能判断峰位和幅值怎样变化。Γ 的自相关通常很大，它衡量权重与自身重合，不能作为有限 q 失稳的机制证据。
 
+<figure>
+<img src="/Atlas/figures/literature/chen2026-cote2-fig2.png" alt="公开原文 Fig. 2(a–f) 的实际面板" />
+<figcaption>Chen、Zhang 与 Zheng，arXiv:2603.22101v2，PDF 第 4 页 Fig. 2(a–f)：CoTe₂ 的轨道投影、最低声子支与两种响应。声子采用 0.018 Ry 展宽；红点大小为 λ，(e,f) 的色条各自标 high/low，没有共同数值标尺。 <a href="https://arxiv.org/pdf/2603.22101v2">论文原文</a>。</figcaption>
+</figure>
+
 [Chen、Zhang 与 Zheng，Phys. Rev. B 114, 055413](https://doi.org/10.1103/l89c-t2s4)原文 PDF 第 4 页的 Fig. 2 把同一单层 CoTe₂ 的电子、声子和响应放在一组面板中。(b)的纵轴是 E−EF，蓝/橙投影分别对应 Co-d、Te-p；(c)将同样的轨道权重画到费米线上，色条为 0–1，虚线六角形标出 BZ，双向箭头标的是 (e) 中增强的 q。因此它先用轨道投影识别两个口袋的成分，再检查箭头所连散射是否也出现在响应图中，没有把画出的箭头本身当作矩阵元证据。
 
 (a)在 Γ–M–K–Γ 上画声子，红点大小表示 $\lambda_{\mathbf q\nu}$，不是 Ba₂N Fig. 6(a) 所用的线宽；(d)在扩展二维 BZ 中画最低支 $\omega_{\mathbf q,\nu=1}$，色条单位 meV。(e)是带 EPC 矩阵元的广义静态响应，(f)是去掉矩阵元后的常矩阵元响应，仍含占据差和能量分母，因而都不是本页 J(q)。作者比较的是 (f) 的较宽增强区如何在 (e) 中变成 M–K 附近热点，并与 (d) 的软化位置对应。(e)、(f)各自只标 high/low，不能按颜色相近断言数值相等。该组机制图还明确采用 0.018 Ry 的较大电子展宽来取得正频率；它不是把原正常展宽下的虚频系统验收为稳定。
@@ -477,6 +454,13 @@ print "Read the four original CSVs; no interpolation, smoothing or peak normaliz
 现有 ZrCl₂/Sc₂C 费米面展示可以帮助提出候选口袋，但本例没有提取该体系的完整二维 J(q)，也没有闭合口袋到模式的矩阵元归属。本文因此保留 Al 的真实 J(q) 数据与实现，材料讨论接[费米面](/Atlas/m/fermi-surface/qe/)、[声子线宽](/Atlas/m/phonon-linewidth/qe/)及[应变比较](/Atlas/m/strain-doping-scan/qe/)。只有这些同结构、同 q 的证据成立以后，才能判断软化主要来自几何相空间、矩阵元还是两者共同变化。
 
 ## 原文中怎样区分几何权重与响应
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/johannes2008-fig4.png" alt="公开原文Fig.4(a,b)实际面板" />
+</div>
+<figcaption>Johannes 与 Mazin，arXiv:0708.1744，PDF 第 6 页 Fig. 4(a,b)：TaSe₂ 的响应虚部与实部曲面。原图无可读数值轴或共同色条，分别比较峰的位置；不能从颜色恢复绝对响应值。<a href="https://arxiv.org/pdf/0708.1744">论文原文</a>。</figcaption>
+</figure>
 
 [Johannes 与 Mazin，Phys. Rev. B 77, 165135，原作者稿 PDF 第 6 页 Fig. 4](https://arxiv.org/pdf/0708.1744#page=6)的 (a) 左图显示 TaSe₂ 与几何嵌套相关的虚部量，(b) 右图显示实部静态响应。同一倒空间中的强嵌套峰与实部弱峰不在同一位置，图注指出后者才对应观察到的 CDW 波矢。原图用倒空间曲面的高度和蓝绿至黄的着色表现响应起伏，但没有可读的 q 轴刻度、数值纵轴或共同色条；两峰位置与 CDW 的关系需结合图注和正文，不能从这张截图标定自己的 K 点或比较绝对高度。本页左侧 J 与右侧 J/J(0) 则是同一几何量的绝对幅值和形状对照，并没有增加一份实部响应。若以后有完整二维数据，可用相同 q 网格、BZ 边界和各自有定义的纵轴或色标并排绘图；仅凭现有 Al Γ—X 切线不能复现原图的二维响应面。
 

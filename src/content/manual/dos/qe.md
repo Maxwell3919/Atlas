@@ -136,7 +136,7 @@ cd "$SLURM_SUBMIT_DIR"
 
 ```text
 编写 Si 总 DOS 后处理程序，使用 Python 3、NumPy 和 Matplotlib。
-输入：dos-cg/si.dos.dat 三列为能量（eV）、DOS（states/eV/cell）、累计态数（states/cell）；Gaussian degauss=0.01 Ry。零点取 gap-results.json 的 gap24-cg VBM=6.397028955497 eV。
+输入：dos-cg/si.dos.dat 三列为能量（eV）、DOS（states/eV/cell）、累计态数（states/cell）；Gaussian degauss=0.01 Ry。零点取 gap-results.csv 的 gap24-cg VBM=6.397028955497 eV。
 方法：平移能量轴，保留原始 DOS 和 Gaussian 尾部；本例非自旋总 DOS 已含简并。
 检查：1201 个严格递增点、间隔约 0.02 eV、有限值；梯形积分约 15.9733，与累计末值 15.97 在打印精度内相符，带隙中点累计态数约 8。
 输出：源码、依赖、命令、摘要、PNG/SVG/PDF；坐标为 E−VBM (eV)、DOS (states/eV/cell)，显示 −13…8 eV。精确带边取本征值，DOS 用于态数分布。
@@ -154,7 +154,7 @@ cd "$SLURM_SUBMIT_DIR"
 from atlas_plot_style import install as install_atlas_style
 install_atlas_style()
 from pathlib import Path
-import argparse,csv,json
+import argparse,csv
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -165,8 +165,12 @@ plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top
 BLUE='#0072b2';ORANGE='#e69f00';GRAY='#667080'
 
 def read(name):return np.genfromtxt(ROOT/name,delimiter=',',names=True,encoding='utf-8')
+def numeric_rows(name):
+    with (ROOT/name).open(newline='') as f:
+        return [{k:(v if k=='directory' else float(v)) for k,v in row.items()}
+                for row in csv.DictReader(f)]
 def save(fig,name):
-    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print(OUT/(name+'.png'))
+    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print('plots/'+name+'.png')
 def clean(ax):ax.grid(alpha=.18);ax.set_axisbelow(True)
 def convergence():
     rows=list(csv.DictReader((ROOT/'convergence.csv').open()))
@@ -219,11 +223,11 @@ def relax():
     save(fig, 'relax')
 
 def gap():
-    r=json.loads((ROOT/'gap-results.json').read_text());base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
+    r=numeric_rows('gap-results.csv');base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     axes[0].plot([12,18,24],[x['gap_eV'] for x in base],'o-',color=BLUE);axes[0].set_xticks([12,18,24]);axes[0].set_xlabel('Uniform NSCF mesh n × n × n');axes[0].set_ylabel('Sampled indirect gap (eV)');axes[0].set_title('The sampled minimum need not vary monotonically',fontsize=10)
-    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x['cbm_k_tpiba']):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
-    m=read('mass/longitudinal.csv');fit=json.loads((ROOT/'mass/mass-fits.json').read_text())[1]
+    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x[f'cbm_k{axis}_tpiba'] for axis in 'xyz'):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
+    m=read('mass/longitudinal.csv');fit=numeric_rows('mass/mass-fits.csv')[1]
     dense=next(x for x in r if x['directory']=='gap24-k12-cg');axes[1].plot(m['kx_tpiba'],m['band5_eV']-dense['vbm_eV'],color=BLUE)
     axes[1].scatter([fit['minimum_k_tpiba']],[fit['minimum_energy_eV']-dense['vbm_eV']],color=ORANGE,zorder=4)
     axes[0].margins(y=.20)
@@ -231,7 +235,7 @@ def gap():
     for ax in axes:clean(ax)
     save(fig,'band-gap')
 def mass():
-    r=read('mass/longitudinal.csv');fits=json.loads((ROOT/'mass/mass-fits.json').read_text());fit=fits[1]
+    r=read('mass/longitudinal.csv');fits=numeric_rows('mass/mass-fits.csv');fit=fits[1]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     dk=r['kx_inv_A']-fit['minimum_k_inv_A'];take=np.abs(dk)<.04
     axes[0].scatter(dk[take],(r['band5_eV'][take]-fit['minimum_energy_eV'])*1000,s=24,color=BLUE,label='Actual QE eigenvalues')
@@ -277,7 +281,7 @@ def bands():
     for tick in ticks:ax.axvline(tick,color='#dce1e8',lw=.7)
     ax.axhline(0,color=GRAY,ls='--',lw=.7);ax.set_xticks(ticks,['Γ','X','W','K','Γ','L','X']);ax.set_xlim(ticks[0],ticks[-1]);ax.set_ylim(-13,7);ax.set_ylabel('Energy − VBM (eV)');ax.set_title('Si, PBE, fixed example cell; no SOC');save(fig,'bands')
 def dos():
-    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=json.loads((ROOT/'gap-results.json').read_text());vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
+    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=numeric_rows('gap-results.csv');vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
     fig,ax=plt.subplots(figsize=(7.5,3.7),layout='constrained');ax.plot(r[:,0]-vbm,r[:,1],color=BLUE);ax.fill_between(r[:,0]-vbm,r[:,1],alpha=.15,color=BLUE);ax.axvline(0,color=GRAY,ls='--');ax.set_xlim(-13,8);ax.set_xlabel('Energy − VBM (eV)');ax.set_ylabel('DOS (states/eV/cell)');ax.set_title('24³ NSCF mesh; Gaussian broadening 0.01 Ry');clean(ax);save(fig,'dos')
 
 if __name__=='__main__':
@@ -775,7 +779,21 @@ for s in states:
 
 </details>
 
+## 先分清网格与展宽改变的峰形
+
+<figure>
+<img src="/Atlas/figures/literature/yates2007-fig3.png" alt="Yates 等 Fig.3 原图：金刚石固定与自适应展宽的 DOS 比较" />
+<figcaption>Yates 等，arXiv:cond-mat/0702554，PDF 第 7 页 Fig. 3：同一 50³ 插值网格上的金刚石 DOS。红色细线为固定 0.4/0.2 eV 展宽，黑色粗线为自适应展宽；横轴为能量 eV，插图显示全价带范围，原图未另标纵轴归一化单位。<a href="https://arxiv.org/pdf/cond-mat/0702554">论文原文</a>。</figcaption>
+</figure>
+
+原图的上、下栏固定同一能量范围和纵轴刻度，改变固定展宽 0.4→0.2 eV 后，红线在 10–15 eV 附近出现更多振荡；黑线保留较尖的峰形而没有同样的逐点起伏。正文将这类振荡联系到能级间隔大于固定展宽的区域，式 (34) 则用带速度和网格间距估计逐态展宽。这组对照没有把每条曲线单独归一成相同峰高。本站 Si 数据来自已给定的 QE 固定 Gaussian 网格与展宽，重画时保留这些实际设置和 DOS 单位；不能只把曲线平滑到黑线外观就声称采用了论文的插值或自适应算法。
+
 ## 把近费米谱重连回空间中的电子态
+
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2bd.png" alt="Ba2N论文Fig.2(b,d)原图：DOS及ELF俯视侧视图" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 2(b,d)：单层 Ba₂N 的总及投影 DOS，以及 ELF=0.5 的俯视和侧视等值面。虚线圈标出空球 X 的位置。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Ba₂N 原文 PDF 第3页 Fig. 2(b,d)](https://doi.org/10.1103/PhysRevB.105.165101)应合起来读：(b)横轴为相对费米能的Energy(eV)，纵轴DOS标states/eV，黑线总DOS与Ba-d、N-p、X分量没有各自缩成峰高一；(d)在无量纲ELF=0.5的俯视/侧视图中标出空球X的位置。作者在无核区域放四个半径1.1Å的Wigner–Seitz空球并读取PDOS，又明确有限空球不能覆盖全部电子气。原子投影差额不能直接命名为间隙电子。
 

@@ -344,4 +344,9 @@ same_geometry_and_model=True; scf_save_directory_in_archive=False
 
 界面差分密度要把异质结和两个冻结组分放在相同晶胞、相同原子位置参照和兼容 FFT 网格上，再按[差分电荷](/Atlas/m/delta-charge/)的定义相减。单独把两个自由层优化到不同晶格，所得密度不能直接逐格相减。若要分辨界面杂化与形变的作用，可以另外计算各自由层；那是另一个参照问题。
 
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2bd.png" alt="Ba2N论文Fig.2(b,d)原图：DOS及ELF俯视侧视图" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 2(b,d)：单层 Ba₂N 的总及投影 DOS，以及 ELF=0.5 的俯视和侧视等值面。虚线圈标出空球 X 的位置。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 自洽密度也为 [ELF](/Atlas/m/elf/)与[静电势](/Atlas/m/electrostatic-potential/)提供起点。[Ba₂N 原文 Fig. 2(d)，第 165101-3 页](https://doi.org/10.1103/PhysRevB.105.165101)用 ELF=0.5 的俯视和侧视等值面，把表面电子区域与 Ba–N–Ba 原子面对应；同页 Fig. 2(b)再比较总 DOS、Ba-d、N-p 与空球 X 投影。侧视图先定位区域，投影曲线再检查它参与哪些能量附近的态；ELF 的等值面体积本身不是电子数。要接续这种图法，先从自己的匹配 SCF 用 `pp.x` 导出所需标量网格，再用 VESTA 统一晶胞、视向和阈值检查；[ELF 页](/Atlas/m/elf/vasp/)已有另一份 Fe 网格的实际 VESTA 展示，可以参照操作。这里的 Si OUT 尚未提供 ELF 图，公开包也没有父密度与波函数，不能从总能和电子数画出那片等值面。进入 [DFPT](/Atlas/m/phonon-dfpt/qe/)时，密度和波函数同样必须对应待求响应的最终结构。

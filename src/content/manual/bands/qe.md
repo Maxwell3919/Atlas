@@ -268,6 +268,11 @@ python3 plot_bands.py
 
 ## 从孤立层能带到界面重构
 
+<figure>
+<img src="/Atlas/figures/literature/fan2025-snse2-ptte2-fig1cfi.png" alt="Fan等原文Fig.1(c,f,i)：孤立SnSe₂、PtTe₂与界面的能带和共轴PDOS" />
+<figcaption>Fan 等，arXiv:2502.13690v1 (2025)，原文第 3 页 Fig. 1(c,f,i)。三行依次为孤立 SnSe₂、PtTe₂ 与界面；各自以 E_F 为零点，红/蓝在界面面板分别标 SnSe₂/PtTe₂ 层来源。<a href="https://arxiv.org/pdf/2502.13690v1#page=3">论文原文</a>。</figcaption>
+</figure>
+
 [SnSe₂/PtTe₂ 原文 PDF 第3页 Fig. 1(c,f,i)](https://arxiv.org/pdf/2502.13690v1#page=3)按三行排列孤立SnSe₂、孤立PtTe₂和界面。左侧为 Γ–M–K–Γ 路径能带，右侧为共用 E−E_F 纵轴的总DOS与轨道PDOS；虚线标零能，DOS横轴标states/eV。先在(c)、(f)找各层带边，再在(i)沿红/蓝层权重辨认越过零能的分支，比只数新增线条更有意义。图注没有给出可移用的线宽归一化常数，DOS峰高也不是每原子电子数。
 
 本站三联图保留这一联读结构：a用151个路径点的原始能级与逐态投影，b取均匀网格PDOS，c取完整BXSF。复现时按真实倒空间距离连接能带，将投影按同一(k,band)配对，DOS作为另一个积分分支保持同一能量读法；Si零点仍是路径VBM，历史界面各分支使用前文各自参考，不借用论文零点或数据。
@@ -305,3 +310,13 @@ gnuplot呈现已经计算的数据；论文分层线仍需对应投影，不能�
                               └─ projwfc.x → 逐k逐带投影
 均匀 NSCF ──────────────────────────────→ DOS
 ```
+
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2.png" alt="Qiu2022原文Fig.2(a–d)：能带、DOS、费米面与 ELF=0.5 的俯视/侧视；空球 X 的位置由虚线圈标出。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 2(a–d)：能带、DOS、费米面与 ELF=0.5 的俯视/侧视；空球 X 的位置由虚线圈标出。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+论文(a)以 Γ–M–K–Γ 为横轴、E−E_F 为纵轴，红虚线与蓝实线比较 SOC 与无 SOC；(b)按同一能量参考比较黑色总 DOS、Ba-d、N-p 与绿色空球 X 投影。(c)定位二维口袋，(d)再把 X 放回 ELF=0.5 的俯视/侧视位置。本站 Si 以 VBM 作零点，界面的层权重又使用它自己的原子集合；沿路径找到穿越态之后，再按各自真实数据接完整网格和空间分析。

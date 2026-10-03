@@ -294,6 +294,13 @@ python3 -B extract_lowdin.py projwfc.out --output new-lowdin.csv
 
 本页的投影来自 QE 赝势原子轨道。使用 ADF 等原子中心局域基组得到的轨道占据有不同基组定义；间隙空球投影、Bader与Born有效电荷也各自定义不同，不能直接放进同一个“原子失电子”表。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2bd.png" alt="Qiu2022原文Fig.2(b,d)：总/投影 DOS 与 ELF=0.5 的空间位置；绿色 X 曲线对应图中无核投影区域。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 2(b,d)：总/投影 DOS 与 ELF=0.5 的空间位置；绿色 X 曲线对应图中无核投影区域。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Ba₂N 原文 PDF 第3页 Fig. 2(b,d)](https://doi.org/10.1103/PhysRevB.105.165101)从能量与空间两个角度展示电子态：(b)是能量分辨的总DOS、Ba-d、N-p和空球X的PDOS，纵轴states/eV；(d)是无量纲ELF=0.5的俯视/侧视等值面，虚线圆标出四个半径1.1Å空球。作者用空间位置解释无核投影，同时指出空球不能覆盖全部电子气，不能由投影缺口直接作身份判定。
 
 这里的 Si 布居表记录原子轨道占据与 spilling，0.0366 e 的差额用于检查投影覆盖。相应能量分析接[本站DOS的谱重与空间读法](/Atlas/m/dos/qe/#h-把近费米谱重连回空间中的电子态)，空间部分接[ELF例程](/Atlas/m/elf/)：已有ELF体数据时在VESTA叠加结构，固定同一等值及俯视/侧视方向，核对无核区域，空间图读取实际 ELF 网格。这是本项目复现图法的工具选择，原文没有明确声明其图件使用的软件。

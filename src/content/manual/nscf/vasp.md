@@ -214,11 +214,7 @@ DAV:  26    -0.261382462108E+02   -0.31776E-06   -0.17047E-06  2312   0.630E-03
 
 ## 将密度带到独立分支
 
-父密度须与结构、PAW、泛函、自旋模型对应。原位核验父子 CHGCAR 的 SHA256 都为：
-
-```text
-a5ce4be5ffd31a68f0b5a96ee3f9d9b330f171a9366bc9d5bf52694d93e4f9ec
-```
+父密度须与结构、PAW、泛函、自旋模型对应。原位记录中，子分支使用的是父 SCF 保存的同一份 CHGCAR；下面的独立目录继续从这份父密度复制，不能拿另一结构的密度替代。
 
 需要复算时，另建目录保存新输入；包内 dos 保留原结果：
 
@@ -415,7 +411,7 @@ ICHARG=11 固定电荷密度，DAV 行仍然出现能量变化，是因为轨道
 
 如果让 AI 帮忙整理这一步，可以把要读取的文件、提取规则和输出单位一起交代：
 
-> 读取 scf 和 dos 两个目录的 OUTCAR、POSCAR、KPOINTS，以及父 CHGCAR 和子 DOSCAR、EIGENVAL。核对 ICHARG=2 与 11、有效参数、结构和电子/能带/k 点数量；计算父 CHGCAR 的 SHA-256。针对实际 ISPIN=1 的 DOSCAR，仅提取第一个总 DOS 块，保留 E、E−EF、states/eV/整胞的 DOS 和积分 DOS，输出 CSV 与 JSON。给出离 EF 最近一行的能量偏移，不能把它写成精确的 DOS(EF)。用 Python 标准库，检查块长度、列数与有限数值。
+> 读取 scf 和 dos 两个目录的 OUTCAR、POSCAR、KPOINTS，以及父 CHGCAR 和子 DOSCAR、EIGENVAL。核对 ICHARG=2 与 11、有效参数、结构和电子/能带/k 点数量，确认子分支使用该父 CHGCAR。针对实际 ISPIN=1 的 DOSCAR，仅提取第一个总 DOS 块，保留 E、E−EF、states/eV/整胞的 DOS 和积分 DOS，输出 CSV 与 JSON。给出离 EF 最近一行的能量偏移，不能把它写成精确的 DOS(EF)。用 Python 标准库，检查块长度、列数与有限数值。
 
 <details><summary>完整后处理源码 analyze_nscf.py</summary>
 
@@ -507,6 +503,13 @@ same_POSCAR=True same_KPOINTS=True parent_EDIFF=True child_EDIFF=True
 参照 Ba₂N Fig. 2(b)的能量横轴和 DOS 纵轴，本图直接画已有 CSV 的第 2、3 列：能量已减去本次 EF，DOS 保持 states/eV/六原子胞的归一化。先看 −1.5 至 −1 eV 的较高态密度，再看 −0.5 至 0.5 eV 的费米能附近区域，可据此选择后续轨道或分层投影需要检查的能区。
 
 图在费米能附近每隔约 0.14324 eV 才有一个样本，这个间隔决定了现存曲线能分辨的细节。离 EF 最近的一行在 +0.06781474 eV，DOS 为 2.5730 states/eV/cell；报告这一带的态密度时，同时给出该能量偏移和采样间隔，才便于比较不同网格或展宽下的结果。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2bd.png" alt="Qiu2022原文Fig.2(b,d)：总/投影 DOS 与 ELF=0.5 的空间位置；绿色 X 曲线对应图中无核投影区域。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 2(b,d)：总/投影 DOS 与 ELF=0.5 的空间位置；绿色 X 曲线对应图中无核投影区域。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 Ba₂N 正文将 Fig. 2(b)的投影曲线与 Fig. 2(d)的空间区域对应，并说明空球只覆盖了部分表面电子气，因此 X 曲线表示的是那个投影范围内的贡献。本异质结的总 DOS 图也从定位能区开始，随后用自身的分层投影和空间密度判断电子归属，文件接续见下面“用同一构型接续投影和空间分析”。
 

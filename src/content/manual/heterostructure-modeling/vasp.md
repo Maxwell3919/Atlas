@@ -153,9 +153,27 @@ index,element,layer,x_A,y_A,z_A,normal_A
 
 要选择一个供后续电子结构和声子计算使用的界面，需要比较有明确侧向位移、相对转角和层间距的候选。若候选使用相同的面内晶胞，可在相同约束下优化原子，再用同一静态协议比较总能量。若候选的共同晶胞也变化，单层应变能随之变化，不能把所有总能量差都解释成层间作用。
 
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/bu2025-ws2-sc2c-fig2.png" alt="公开原文Fig.2–3实际面板" />
+<img src="/Atlas/figures/literature/bu2025-ws2-sc2c-fig3.png" alt="公开原文Fig.2–3实际面板" />
+</div>
+<figcaption>Bu 与 Sun，Phys. Chem. Chem. Phys. 27, 14397–14409 (2025)，PDF 第 3 页 Fig. 2–3：相同侧视的六种配准与层间距离—形成能曲线；距离为 Å，形成能为 eV。图例颜色及标记对应配准，I/II 为编号。<a href="https://doi.org/10.1039/D5CP01402F">论文原文</a>。</figcaption>
+</figure>
+
 Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)可以分两步读。[原文 PDF 第 3 页，Fig. 2–3](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=3)先用六张相同视角的侧视图标出 A-I、A-II、F-I、F-II、H-I、H-II 的原子配准，再将每一种配准画成独立的距离—能量曲线。Fig. 3 的横轴是层间距离（Å），纵轴是异质结构与两份单层的三能差（eV），没有除以面积。图例中的 F1 是蓝色上三角，H1 是紫色菱形；即使颜色接近，也可沿标记区分配准。结构图的 Sc、C、W、S 分别用紫、棕、灰、黄表示，图上的 I/II 是堆垛配准编号，不是化学元素 I。读图时同时比较每条曲线的最低点位置和最低值：前者给出该配准偏好的距离，后者才用于比较配准；文献据此选出 F-I。连接采样点的线帮助辨认曲线，不增加新的计算点。
 
+<figure>
+<img src="/Atlas/figures/literature/bu2025-ws2-sc2c-fig5a.png" alt="WS₂/Sc₂C 论文实际原图面板" />
+<figcaption>Bu 与 Sun，Phys. Chem. Chem. Phys. 27, 14397–14409 (2025)，PDF 第 4 页 Fig. 5(a)：WS₂/Sc₂C 整胞总能量/eV 随面内晶格常数/Å；黑方块为实际点，最低点用于选择共同晶胞。 <a href="https://doi.org/10.1039/D5CP01402F">论文原文</a>。</figcaption>
+</figure>
+
 [PDF 第 4 页，Fig. 5(a)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=4)又对 F-I 单独画总能量（eV）随面内晶格常数（Å）的变化，用最低点核对共同晶胞。它与 Fig. 3 的横轴和参照能量不同，不能把两张图的纵坐标混作同一条结合能曲线。按这种图法准备自己的数据，应为每个配准记录距离定义、共同晶胞和对应 AB/A/B 能量；同一曲线固定参照约定，跨曲线还要说明面内晶格是否相同。若改画 meV/Å²，应逐点用对应面内面积归一化并在轴上写明。
+
+<figure>
+<img src="/Atlas/figures/literature/bu2025-ws2-sc2c-fig4b.png" alt="WS₂/Sc₂C 论文实际原图面板" />
+<figcaption>同文 PDF 第 4 页 Fig. 4(a,b)：表面功能化结构的侧视与俯视；重点读(b)的面内配准，保留完整元素图例，X=H,F。 <a href="https://doi.org/10.1039/D5CP01402F">论文原文</a>。</figcaption>
+</figure>
 
 结构展示可参考 Fig. 2 的统一侧视和 [Fig. 4(b) 的俯视](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=4)：在 VESTA 中分别打开本例两份 POSCAR，保持相同元素颜色、原子大小、正交投影和放大比例；先沿层法向看俯视，再将视线转到面内方向看侧视。俯视图显示相同的面内配准，侧视图标出 2.15784 与 3.00000 Å 的法向间隙，并用相同周期边界显示镜像空白；三维最近距离应另标，不拿斜向连线代替法向间隙。图中的原子种类与位置可用已有逐原子 CSV 对照。这里已有的是这一组几何比较，尚无匹配的 AB/A/B 能量，因而不补画 SnSe₂/Sr₂N 的能量曲线。已有数值曲线的读法可接 [有限层间分离功](/Atlas/m/exfoliation-energy/vasp/)，但其 HfI₂ 位移路径与这里的异质界面距离扫描不同。
 

@@ -293,6 +293,13 @@ print sprintf("Read column4 and layer columns5/6 without resampling; |E-EF|<=%.2
 
 ## 把电子变化接到声子、EPC 和 Tc
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig4abc.png" alt="Qiu2022原文Fig.4(a–c)：0–4% 双轴应变下的总 DOS、Ba-5d 和 N-2p 投影；各自保留原纵轴幅值。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 4 页 Fig. 4(a–c)：0–4% 双轴应变下的总 DOS、Ba-5d 和 N-2p 投影；各自保留原纵轴幅值。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Qiu 等，Phys. Rev. B 105, 165101](https://doi.org/10.1103/PhysRevB.105.165101)的原文 PDF 第 4 页，Fig. 4(a)画总 DOS，(b)、(c)分别画 Ba 5d、N 2p 投影；横轴都是相对费米能的能量，黑至红的线色对应 0% 到 4% 双轴应变。三个面板的纵轴范围不同，读它们时应比较同一投影内的谱形与近零点变化，而不是凭线条高度直接比较两种轨道的总贡献。本页的层 PDOS 与这两种原子轨道投影也有不同定义；可以借用“同能量基准、分开投影、保留原始幅值”的画法，不能把总原子投影换名为完整 DOS。
 
 Fig. 4(d)把各应变下 [−0.1,0] eV 的部分电荷密度放在同一视向，等值面固定为 0.0005 e/Å³。表面和层内的等值面连通形状，结合 (a–c) 的 PDOS，才支持作者关于近费米能电子空间重分布的解释。复现这类图应使用每个结构自己的费米能窗导出三维部分密度，在 VESTA 或 XCrySDen 中保留共同等值面、晶胞边界、观察方向和色表，并显示晶轴；不能让软件对每张图自动选择不同阈值。本页目前可复现的是冻结层谱图；态选择与场的判读另见[能窗密度与 ELF](/Atlas/m/elf/vasp/)和[三密度对照](/Atlas/m/delta-charge/vasp/)，不能从 PDOS 表重建 Fig. 4(d) 那样的空间密度。

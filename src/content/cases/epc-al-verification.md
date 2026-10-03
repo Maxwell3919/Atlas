@@ -114,16 +114,13 @@ dense.data-file-schema.xml:      <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="
 dense.data-file-schema.xml:        <monkhorst_pack nk1="32" nk2="32" nk3="32" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
 tmp/al.save/data-file-schema.xml:      <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
 tmp/al.save/data-file-schema.xml:        <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-maxwell@maxwell:~/al/epc-q4$ cmp tmp/al.a2Fsave al.a2Fsave.k32 && sha256sum tmp/al.a2Fsave al.a2Fsave.k32
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
 ```
 
 下载包将响应 XML 单独保存为 [response.data-file-schema.xml](/Atlas/examples/al/epc-q4/response.data-file-schema.xml)，便于在不附带整个波函数目录的情况下核对。只读下载文件时，在 `al/epc-q4` 中使用 `grep monkhorst_pack dense.data-file-schema.xml response.data-file-schema.xml`；上面的会话仍保留实际计算目录中的原位置。
 
 同一 XML 中输入段与输出段各记一行，所以这里每个网格出现两次。两个文件各自一致，当前 `.save` 为 16³，致密本征值文件仍与 32³ 备份逐字节相同。仅仅看见一个 `.a2Fsave` 文件名，不足以完成这项父链检查。
 
-若在自己的独立计算副本中误把粗网格的 `la2F` 也打开，它可能重新写同名文件。应在进入 `ph.x` 前停下，先检查输入与备份的来源；确认同结构、同协议、同带数的致密备份后，才用 `cp al.a2Fsave.k32 tmp/al.a2Fsave` 恢复，并重新比较哈希。若没有可信的致密备份，需要重新完成那一步。本例哈希一直相同，没有发生这次恢复操作；正在运行的 `ph.x` 目录也不应被覆盖文件。
+若在自己的独立计算副本中误把粗网格的 `la2F` 也打开，它可能重新写同名文件。应在进入 `ph.x` 前停下，先检查输入与备份的来源；确认同结构、同协议、同带数的致密备份后，才用 `cp al.a2Fsave.k32 tmp/al.a2Fsave` 恢复，再用 `cmp` 比较恢复后的工作文件与致密备份。若没有可信的致密备份，需要重新完成那一步。本例已有文件比较记录一直相同，没有发生这次恢复操作；正在运行的 `ph.x` 目录也不应被覆盖文件。
 
 这里的行为已分别核对 QE 7.1 和 7.5 的版本源码：`punch` 仅在 `la2F` 为真时调用写出例程；`ph.x` 的 `elphsum` 从原先的 `outdir` 读取该文件，检查带数，并核对 q 是否落在致密网格中。两个版本在这条读写链上相符，计算文件仍应各自保持同一版本、同一物理设置。[QE 7.1 写出例程](https://github.com/QEF/q-e/blob/qe-7.1/PW/src/a2fmod.f90) · [QE 7.5 写出例程](https://github.com/QEF/q-e/blob/qe-7.5/PW/src/a2fmod.f90) · [QE 7.5 致密积分读取](https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/elphon.f90#L838-L943)
 
@@ -363,13 +360,8 @@ maxwell@maxwell:~/al/epc-q4$ tail -12 al.elph.out
 =------------------------------------------------------------------------------=
 ```
 
-```console
-maxwell@maxwell:~/al/epc-q4$ sha256sum tmp/al.a2Fsave al.a2Fsave.k32
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  tmp/al.a2Fsave
-2e2e5db92227e752d80ca7b1a0b86ee410c665b218d4ea534162ba4e92fdb3f8  al.a2Fsave.k32
-```
 
-这两个散列一致，说明后续步骤使用的致密网格文件与保存下来的那一份相同。它只是文件身份检查；电子网格是否足够密，仍要改变网格计算比较。
+原执行记录的文件比较确认后续步骤沿用保存的致密网格数据；电子网格是否足够密仍需改变网格、比较物理量。
 
 
 ## q 点、模式和文件要逐一对应
@@ -446,7 +438,7 @@ maxwell@maxwell:~/al/epc-q4$ head -12 elph_dir/elph.inp_lambda.1
 
 ### AI 后处理提示词：装配两条 EPC 输出链
 
-> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、CSV、JSON 和输入哈希，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
+> 读取 Al k32/、k48/ 两个独立分支的 SCF/PH 输入输出、lambda.in/out 与八个 elph.inp_lambda 文件。核对材料结构、赝势、截断能、响应 k/q 网格、电子展宽与 μ*，并逐分支记录正常结束/电子响应收敛/缺文件状态。由 lambda.in 获取 q 坐标、顺序和星权重，检查权重和64；解析每个 q 的三条模式、十档 σ、频率平方、λ、γ、DOS(EF) 和单位，输出240条模式记录及按 σ 加权求和表。频率和 EPC 数据分别使用本分支原件，跨网格频率差是比较输出，不要求逐位相同。重建 λ、ωlog、Tc 并与原生打印精度核对，再交给 Tc 配对程序。保存完整源码、物理量 CSV、原生输入输出及简短的终端汇总，不启动新计算；其他材料必须建立各自源文件清单，不能混入 Al 或独立 Sc₂C 的核验结论。
 
 [完整逐模解析源码 analyse_epc.py](/Atlas/examples/al/epc-q4/analyse_epc.py) · [完整双分支重建源码 rebuild_tc.py](/Atlas/examples/supercon-al-tc/rebuild_tc.py) · [配对源码 compare_tc.py](/Atlas/examples/supercon-al-tc/compare_tc.py)。
 
@@ -500,19 +492,15 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ diff -u ../epc-q4/al.dense.in al.d
 +48 48 48 0 0 0
 ```
 
-`diff` 只显示这一行变化。两条分支的 `al.scf.in`、`al.elph.in`、`q2r.in`、`matdyn-dos.in` 和 `lambda.in` 经 SHA-256 比对逐份相同；Al 的晶胞、赝势、`ecutwfc=40 Ry`、`ecutrho=160 Ry`、`nbnd=6`、SCF 的 `degauss=0.02 Ry` 均没有随分支改变。
+`diff` 只显示这一行变化。两条分支的 `al.scf.in`、`al.elph.in`、`q2r.in`、`matdyn-dos.in` 和 `lambda.in` 已逐份比对相同；Al 的晶胞、赝势、`ecutwfc=40 Ry`、`ecutrho=160 Ry`、`nbnd=6`、SCF 的 `degauss=0.02 Ry` 均没有随分支改变。
 
 两个 `pw.x` 输入仍写 `prefix='al'`、`outdir='./tmp'`，但相对路径现在落在各自的工作目录内。`epc-q4-k48/tmp` 由这次运行重新产生，没有从 32³ 分支复制 `.save`、动力学矩阵或 EPC 输出。致密计算里的 `la2F=.true.` 会保存供后续积分使用的致密网格电子数据；第二次 16³ SCF 不打开这个选项，而是重新写出响应计算需要的电荷密度和波函数。
 
 ## 在一个作业里依次运行，并在两次 SCF 之间留下核对文件
 
-原分支的续算脚本可以作为编辑起点，但这次要从致密 SCF 开始，并把 `lambda.x` 放到末尾。实际修改后的脚本如下；执行时把 `<qe_bin>` 换成本机 QE 7.5 可执行程序目录。
+原分支的续算脚本可以作为编辑起点，但这次要从致密 SCF 开始，并把 `lambda.x` 放到末尾。以下从原脚本提取计算次序与停止检查，保留父计算之间的 `cmp`；完整原脚本仍在下载包中。执行时把 `<qe_bin>` 换成本机 QE 7.5 可执行程序目录。
 
-```console
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cp ../epc-q4/continue.slurm run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ vi run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ bash -n run.slurm
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat run.slurm
+```bash
 #!/bin/bash
 #SBATCH --job-name=atlas-al-k48
 #SBATCH --nodes=1
@@ -537,7 +525,6 @@ grep -q 'JOB DONE.' al.scf.out
 grep -q 'convergence has been achieved' al.scf.out
 cp tmp/al.save/data-file-schema.xml response.data-file-schema.xml
 cmp tmp/al.a2Fsave al.a2Fsave.k48
-sha256sum tmp/al.a2Fsave al.a2Fsave.k48 > a2Fsave-after-response.sha256
 mpirun -np 8 <qe_bin>/ph.x -in al.elph.in > al.elph.out 2> al.elph.err
 grep -q 'JOB DONE.' al.elph.out
 <qe_bin>/q2r.x -in q2r.in > q2r.out 2> q2r.err
@@ -550,7 +537,7 @@ date -u > finished.txt
 
 作业申请 8 个 MPI 进程，每个进程 1 个 CPU，`mpirun -np 8` 与申请相同；`OMP_NUM_THREADS=1` 避免 MPI 进程再各自展开 OpenMP 线程。这里载入的是 Maxwell 实际使用的 `/opt/intel/oneapi/setvars.sh`。`q2r.x`、`matdyn.x` 和 `lambda.x` 按这份脚本串行执行。
 
-`set -e` 让程序返回错误、SCF 未出现收敛行或文件比较失败时停下来。第一次 SCF 后立刻复制 `.a2Fsave` 和 XML，第二次 SCF 后再复制一份 XML；这样即使同名 `tmp/al.save` 已被 16³ 结果更新，仍能看清两次计算各用了什么网格。`cmp` 无输出表示两份文件相同，紧接着的 SHA-256 则把这个核对留在磁盘上。这些检查先保证流程没有误接，EPC 数值是否随网格和展宽稳定还要在结果出来后比较。
+`set -e` 让程序返回错误、SCF 未出现收敛行或文件比较失败时停下来。第一次 SCF 后立刻复制 `.a2Fsave` 和 XML，第二次 SCF 后再复制一份 XML；这样即使同名 `tmp/al.save` 已被 16³ 结果更新，仍能看清两次计算各用了什么网格。`cmp` 无输出表示两份文件相同，不相同会使这份 `set -e` 脚本在进入响应计算前停止。这些检查先保证流程没有误接，EPC 数值是否随网格和展宽稳定还要在结果出来后比较。
 
 ```console
 maxwell@maxwell:<工作目录>/al/epc-q4-k48$ sbatch run.slurm
@@ -606,12 +593,9 @@ dense.data-file-schema.xml:      <monkhorst_pack nk1="48" nk2="48" nk3="48" k1="
 dense.data-file-schema.xml:        <monkhorst_pack nk1="48" nk2="48" nk3="48" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
 response.data-file-schema.xml:      <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
 response.data-file-schema.xml:        <monkhorst_pack nk1="16" nk2="16" nk3="16" k1="0" k2="0" k3="0">Monkhorst-Pack</monkhorst_pack>
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat a2Fsave-after-response.sha256
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  tmp/al.a2Fsave
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  al.a2Fsave.k48
 ```
 
-`.a2Fsave` 首行的 6 和 2769 分别对应这次保存的能带数和致密计算的 k 点数。它存的是电子本征值等中间数据，不能当作 α²F(ω) 谱读取。两份 XML 分别保留了 48³ 与 16³ 的网格，所有偏移标志都为 0；第二次 SCF 后，工作文件与 `al.a2Fsave.k48` 的 SHA-256 仍完全相同。到这里，响应计算可以读取自己的 16³ `.save`，同时使用本分支的 48³ 致密电子数据。
+`.a2Fsave` 首行的 6 和 2769 分别对应这次保存的能带数和致密计算的 k 点数。它存的是电子本征值等中间数据，不能当作 α²F(ω) 谱读取。两份 XML 分别保留了 48³ 与 16³ 的网格，所有偏移标志都为 0；第二次 SCF 后，工作文件与 `al.a2Fsave.k48` 的文件比较仍一致。到这里，响应计算可以读取自己的 16³ `.save`，同时使用本分支的 48³ 致密电子数据。
 
 ## 声子开始输出频率后，继续看 EPC 是否仍在运行
 
@@ -805,12 +789,9 @@ maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cat al.dyn0
 
 ```console
 maxwell@maxwell:<工作目录>/al/epc-q4-k48$ cmp tmp/al.a2Fsave al.a2Fsave.k48
-maxwell@maxwell:<工作目录>/al/epc-q4-k48$ sha256sum tmp/al.a2Fsave al.a2Fsave.k48
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  tmp/al.a2Fsave
-0c62b320aaa91c431ed9b15ab1bf57f5d33bef1f01813158e7af4a2152b7a1d3  al.a2Fsave.k48
 ```
 
-计算结束后再比较一次，致密电子文件的 SHA-256 仍与 SCF 后保存的备份一致，确认后续程序没有把它换成另一套网格的数据。`q2r.out` 同时报告 `q-space grid ok, #points = 64` 和 `fft-check success`，并完成了十档展宽的相应变换。
+计算结束后再比较一次，致密电子文件仍与 SCF 后保存的备份一致，确认后续程序没有把它换成另一套网格的数据。`q2r.out` 同时报告 `q-space grid ok, #points = 64` 和 `fft-check success`，并完成了十档展宽的相应变换。
 
 `matdyn-dos.out` 的末尾保留了下面这条提示及正常结束记录：
 
@@ -880,8 +861,28 @@ epc-q4-k48/al.dense.in 48³ → 本目录 16³ SCF → 本目录 q4³ ph.x → �
 
 ## 用原文图理解这些文件支持的分析
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Qiu2022原文Fig.3(a–d)：未应变 Ba₂N 的声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点编码线宽，箭头表示位移。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点编码线宽，箭头表示位移。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+<figure>
+<img src="/Atlas/figures/literature/ponce2016-pb-fig12.png" alt="Poncé等原文Fig.12的Pb谱与采样对照" />
+<figcaption>Poncé 等，Comput. Phys. Commun. 209, 116–133 (2016)，原文 PDF 第 12 页 Fig. 12(a–d)：Pb 的采样、SOC 和电子展宽对照；(a,c) 横轴为 meV，(b,d) 横轴为电子采样点数。黑/蓝在(a,b)表示均匀/Sobol 加随机采样，蓝/红在(c,d)表示无/有 SOC；(b)按 q 网格、(d)按电子展宽分组。<a href="https://doi.org/10.1016/j.cpc.2016.07.028">论文原文</a>。</figcaption>
+</figure>
+
 [Ba₂N Fig. 3(a–d)，PDF第3页](https://doi.org/10.1103/PhysRevB.105.165101)按色散上的γ红点、原子PHDOS、α²F和实际位移逐面板核对；它解释本档案中的逐q频率/γ/λ最终要接到什么分析量。这里的Al三支都是声学支，模式向量、频率和星权重使用自己的逐q文件。谱形比较另参考[Poncé等Fig. 12(a,b)，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)：先在同一频率轴叠画谱，再比较加权积分，不能只看Tc线是否相交。本项目已将32³/48³在0.010 Ry的保存谱按这一读法用gnuplot作[谱与累计λ对照](/Atlas/m/allen-dynes/qe/#spectral-grid-comparison)，附真实CSV、完整处理源码和未归一化积分；其他展宽仍使用本档案自己的十档列。
 
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6abcde.png" alt="Qiu2022原文Fig.6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig7.png" alt="Qiu2022原文Fig.7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。；第 5 页 Fig. 7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Ba₂N，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图3、6把线宽编码色散、投影PHDOS、α²F及振动模式接起来；图3(a)/6(a)红点大小编码γ，原图不是连续宽度色带。图7显示未应变材料的各向异性能隙分布随温度闭合，它与Al等方外部谱求解是不同数据路线。
 

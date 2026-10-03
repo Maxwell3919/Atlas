@@ -257,6 +257,13 @@ Facing isolated references: CBM(SnSe2)-E_F(Sr2N)=-2.282607 eV; E_F(Sr2N)-VBM(SnS
 
 $\mathrm{CBM}(\mathrm{SnSe}_2)-E_{\mathrm F}(\mathrm{Sr}_2\mathrm N)=-2.282607260\,\mathrm{eV}$，是这组冻结孤立层真空参照下的偏移。接触后共用EF、电荷重排、界面偶极和杂化会重构这些位置；这个负偏移不能直接作为已算出的接触势垒或转移电子数。它也不能和各自以EF归零的DOS横轴混用。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/rumson2025-ca2n-mos2-fig3.png" alt="公开原文Fig.3实际面板" />
+</div>
+<figcaption>Rumson 等，Phys. Chem. Chem. Phys. 27, 6438–6446 (2025)，PDF 第 7 页 Fig. 3：Ca₂N/MoS₂ 两配准的 MoS₂ 投影 DOS，紫/绿为 Geometry A/B；横轴 E−E_F/eV，纵轴按异质双层总原子数归一，插图为 B 的畸变。<a href="https://doi.org/10.1039/D4CP04577G">论文原文</a>。</figcaption>
+</figure>
+
 要读实际界面的电子/空穴势垒，应在完整接触体系中找到仍可识别的SnSe₂层带边与共同EF，检查杂化/隙内态；平面势峰相对EF给的隧穿势垒属于另一种量。参考 [金属/Ca₂N/MoS₂论文Sec. 2.2、Fig. 3](https://doi.org/10.1039/D4CP04577G)，把层投影谱、电荷与几何一起检查。
 
 选相向表面是一个实际数值选择。保留同一套原始带边和EF，仅更换用于取差的表面平台，所得CBM−EF为：
@@ -269,7 +276,13 @@ $\mathrm{CBM}(\mathrm{SnSe}_2)-E_{\mathrm F}(\mathrm{Sr}_2\mathrm N)=-2.28260726
 
 三个偏移由[四表面原始表](/Atlas/examples/interface-magnet-band-alignment/band-edges-vacuum-referenced.csv)直接相减得到。更换SnSe₂一侧使读数移动约0.5440 eV，更换Sr₂N一侧移动约0.4015 eV；不是原子突然接触后改变了能带，而是选了不同表面的真空零点。论文中画一条共同真空线时，每个材料用哪个朝向、哪个终止必须随图说明。
 
-[Choudhary等Fig. 2(d)](https://arxiv.org/abs/2004.03025v2)的纵轴明确写能量相对真空/eV，横向按WSe₂、MoS₂分别排列：绿色块的下边界给CBM，红色块的上边界给VBM，两者之间是各自带隙，蓝色虚线另标水氧化/还原参照。该面板读的是带边的位置；(a–c)的彩色DOS曲线则按元素分解，横轴能量/eV各以所在体系EF归零。颜色在这两类面板中承担不同含义，需要分别读图例。本站采用(d)的共同真空纵轴与按材料并列的方式，用短线和浅色带隙区显示自己CSV中的采样带边，再单独标金属EF；蓝、棕分别区分两层，虚线真空为0。每条能级线都由所选表面的真空平台取差得到。
+<figure>
+<img src="/Atlas/figures/literature/choudhary2020-fig2abcd.png" alt="公开原文 Fig. 2(a–d),5(b) 的实际面板" />
+<img src="/Atlas/figures/literature/choudhary2020-fig5b.png" alt="公开原文 Fig. 2(a–d),5(b) 的实际面板" />
+<figcaption>Choudhary 等，arXiv:2004.03025v2，PDF 第 8 页 Fig. 2(a–d)、第 12 页 Fig. 5(b)：MoS₂/WSe₂ 的孤立层/双层 DOS 与真空参照带边。Fig. 2(d) 绿色块下边界与红色块上边界分别标 CBM、VBM；Fig. 5(b) 改用橙色/蓝色，边界位置的含义相同。 <a href="https://arxiv.org/pdf/2004.03025v2">论文原文</a>。</figcaption>
+</figure>
+
+[Choudhary等Fig. 2(d)](https://arxiv.org/abs/2004.03025v2)的纵轴明确写能量相对真空/eV，横向按WSe₂、MoS₂分别排列：绿色块的下边界给CBM，红色块的上边界给VBM，两者之间是各自带隙，蓝色虚线另标水氧化/还原参照。Fig. 5(b) 则改用橙色上块、蓝色下块分别标 CBM 与 VBM 边界，不能把 Fig. 2(d) 的色名直接套过去。该面板读的是带边的位置；(a–c)的彩色DOS曲线则按元素分解，横轴能量/eV各以所在体系EF归零。颜色在这两类面板中承担不同含义，需要分别读图例。本站采用(d)的共同真空纵轴与按材料并列的方式，用短线和浅色带隙区显示自己CSV中的采样带边，再单独标金属EF；蓝、棕分别区分两层，虚线真空为0。每条能级线都由所选表面的真空平台取差得到。
 
 ![冻结SnSe₂相向面带边与Sr₂N相向面费米能，统一真空为零](/Atlas/examples/enrichment-20261003/charge/frozen-facing-alignment.svg)
 
@@ -612,15 +625,11 @@ if __name__=='__main__':
 
 ```text
 [bcgong@localhost band_alignment]$ python split_paw.py
-snse2 SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
-sr2n SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
 [bcgong@localhost band_alignment]$ cat snse2/POTCAR.identity.txt sr2n/POTCAR.identity.txt
-SHA256 5f3cbe84c6fe6bf10909ed09324ce2b0bdcd886a81e4b163eba45f3d16624e2f
 TITEL  = PAW_PBE Sn_d 06Sep2000
 POMASS =  118.710; ZVAL   =   14.000    mass and valenz
 TITEL  = PAW_PBE Se 06Sep2000
 POMASS =   78.960; ZVAL   =    6.000    mass and valenz
-SHA256 96913914225d67d7590b8fe9bbd0003c981e9097a9e13e583aec31706f54600a
 TITEL  = PAW_PBE N 08Apr2002
 POMASS =   14.001; ZVAL   =    5.000    mass and valenz
 TITEL  = PAW_PBE Sr_sv 07Sep2000

@@ -1,7 +1,5 @@
 功函数把材料的电子化学势放到可比较的真空参照上：$\Phi=V_{\mathrm{vac}}-E_{\mathrm F}$。它依赖表面朝向、终止、几何和占据条件，接触层选择不能只看两个孤立OUTCAR的EF。本例从同一次SnSe₂单层SCF提取势、费米能和带边，以真实输出演示这一取差。
 
-Ca₂N原文 [Lee等，Nature 494, 336 (2013), Fig. 4(b,c)](https://doi.org/10.1038/nature11812)分别显示单晶和多晶的UPS二次电子发射：横轴为动能/eV，纵轴为任意强度，不是DFT静电势。(c)内嵌图将截断能对样品偏置作比较，并外推至零偏置；单晶还区分光子产额，(b)内嵌图检查费米边和价带谱。作者借这些对照辨别表面与光致电压的影响，说明测量条件和表面朝向必须随功函数一起报告。本站则从指定SnSe₂结构的同次SCF求真空势与EF，不用UPS谱线强度或Ca₂N读数替代自己的计算。间隙态的联合图法见 [ELF与选中态密度](/Atlas/m/elf/vasp/)。
-
 前置 [SCF](/Atlas/m/scf/vasp/)。[下载输入输出、LOCPOT、EIGENVAL和脚本](/Atlas/examples/interface-magnet-workfunction/example-pack.tar.gz)，进入 `example-pack`。POTCAR仅附身份信息，重跑用自己的授权文件。
 
 ## 保存同一结构的势与能级
@@ -205,7 +203,12 @@ EF=−2.478300 eV，程序给两侧Φ约5.78458、5.78457 eV。SnSe₂采样PBE�
 
 ![SnSe₂真空参照的整胞势与费米能](/Atlas/examples/interface-magnet-workfunction/interface-magnet-workfunction-profile.svg)
 
-对计算图，可参照 [ZrI₂/graphene 原文 Fig. 4(d)](https://doi.org/10.1039/D5CP02349A)的双参照线与差值箭头，而不是UPS横轴：用gnuplot读已有两列法向势，把真空区间均值和同次EF画成水平参考，再标两者之差。本图的整条势与EF同时减去下侧Vvac，箭头才表示Φ；两侧真空窗口及原子范围保留。把曲线各自减最大值会毁掉能级关系。图中的输出反映指定结构和PBE，不作为未经精度检查的材料常数。
+<figure>
+<img src="/Atlas/figures/literature/zhang2025-zri2-graphene-fig4d.png" alt="公开论文原始Fig.4(d)面板" />
+<figcaption>Zhang 等，Phys. Chem. Chem. Phys. 27, 19410–19417 (2025)，原文第 5 页 Fig. 4(d)：ZrI₂/graphene 的平面平均静电势，横轴为法向位置 Å，纵轴为 eV，图中箭头表示真空能级与费米能之差。<a href="https://doi.org/10.1039/D5CP02349A">论文原文</a>。</figcaption>
+</figure>
+
+原图中紫色虚线标真空能级，青色虚线标费米能，黄色势剖面与原子层示意共用法向坐标；两线之差由黑色箭头标出。本站 SnSe₂ 的实际势和两个真空窗口已在上图显示，数值仍来自本页自己的同次 OUTCAR/LOCPOT。对计算图，可参照 [ZrI₂/graphene 原文 Fig. 4(d)](https://doi.org/10.1039/D5CP02349A)的双参照线与差值箭头，而不是UPS横轴：用gnuplot读已有两列法向势，把真空区间均值和同次EF画成水平参考，再标两者之差。本站上方 SnSe₂ 计算图的整条势与EF同时减去下侧Vvac，箭头才表示Φ；两侧真空窗口及原子范围保留。把曲线各自减最大值会毁掉能级关系。图中的输出反映指定结构和PBE，不作为未经精度检查的材料常数。
 
 ## 接触前参照怎样进入界面分析
 
@@ -853,3 +856,13 @@ DAV:  22    -0.118616262492E+02   -0.44434E-07   -0.62584E-10  3884   0.883E-05
 ```
 
 </details>
+
+
+## 与表面测量的条件一起比较
+
+<figure>
+<img src="/Atlas/figures/literature/lee2013-ca2n-fig4bc.png" alt="Lee等Ca2N原文Fig.4(b,c)的UPS与偏置对照" />
+<figcaption>Lee 等，Nature 494, 336–340 (2013)，PDF 第 4 页 Fig. 4(b,c)：单晶/多晶 UPS 二次电子发射和偏置外推；主图动能为 eV、强度为任意单位，各偏置由图例颜色区分。<a href="https://doi.org/10.1038/nature11812">论文原文</a>。</figcaption>
+</figure>
+
+Ca₂N原文 [Lee等，Nature 494, 336 (2013), Fig. 4(b,c)](https://doi.org/10.1038/nature11812)分别显示单晶和多晶的UPS二次电子发射：横轴为动能/eV，纵轴为任意强度，不是DFT静电势。(c)内嵌图将截断能对样品偏置作比较，并外推至零偏置；单晶还区分光子产额，(b)内嵌图检查费米边和价带谱。作者借这些对照辨别表面与光致电压的影响，说明测量条件和表面朝向必须随功函数一起报告。本站则从指定SnSe₂结构的同次SCF求真空势与EF，不用UPS谱线强度或Ca₂N读数替代自己的计算。间隙态的联合图法见 [ELF与选中态密度](/Atlas/m/elf/vasp/)。

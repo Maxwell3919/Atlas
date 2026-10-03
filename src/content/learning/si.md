@@ -209,6 +209,13 @@ Gap midpoint nearest row: E=6.66 eV; cumulative=8.0000 states/cell
 
 均匀网格读到的 `VBM=6.397029 eV`、`CBM=6.937159 eV` 相差约 `0.540130 eV`。价带顶在 Γ，采样导带底在 `(0,0.833333,0)`，坐标单位为 `2π/a`。它支持本次有限采样的间接带隙判断；更细的搜索和父密度比较见[带隙](/Atlas/m/band-gap/qe/)。已有 12³、18³、24³ 对照并不严格单调，因为网格可能恰好命中或错过导带谷底。加密子网格还不能消除父 SCF 密度误差，不能仅因曲线更平滑就接受全区带边已收敛。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2ab.png" alt="Qiu2022原文Fig.2(a,b)：以 E_F=0 对读 Γ–M–K–Γ 能带和总/投影 DOS；红虚线与蓝实线比较有、无 SOC。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 2(a,b)：以 E_F=0 对读 Γ–M–K–Γ 能带和总/投影 DOS；红虚线与蓝实线比较有、无 SOC。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 这两幅图也提供了阅读材料论文的起点。[Ba₂N 原文第 165101-3 页 Fig. 2(a,b)](https://doi.org/10.1103/PhysRevB.105.165101)把同样的两类信息并列：(a)沿 Γ–M–K–Γ 画能带，纵轴 Energy(eV) 以费米能为零，红虚线和蓝实线比较有、无 SOC；(b)横轴 Energy(eV)、纵轴 DOS(states/eV)，比较总 DOS 与投影分量。论文中的带穿过零能，本站 Si 图的零能却是 VBM。先核对参考与占据情况，才判断金属性；路径、标签和零点都由各自结构与计算确定，不能整套照搬。界面中哪些态来自哪一层，还需对应投影和空间密度，不能只从总 DOS 的增减推算电荷转移。
 
 ### 按论文的两栏画法重绘本例
@@ -274,9 +281,12 @@ gnuplot si-read.gnu
 
 Si 的 [Γ 点虚频对照](/Atlas/m/imaginary-phonon/qe/)从六个原始频率读取振动响应，再比较同一矩阵的 ASR（声学求和规则，用于约束整体平移）处理；它练习平移残差的判读。Al 的[DFPT 声子](/Atlas/m/phonon-dfpt/qe/)用密度泛函微扰理论计算小扰动响应，后续 EPC 分析电子–声子耦合，即振动与电子态的相互作用。Al 使用自己的最终几何和金属协议，两份小体系的结构、密度与赝势分别保留。
 
-<figure class="research-figure">
-<img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="Qiu等2022年Ba₂N论文Fig.3(a)：Γ–M–K–Γ声子路径、cm⁻¹频率和红色线宽权重" loading="lazy" />
-<figcaption>本站已有的 Ba₂N 原文 Fig. 3(a) 摘图。横轴为声子波矢路径，纵轴 Frequency (cm⁻¹)，黑线表示声子频率，红点的大小编码声子线宽；约 55 cm⁻¹ 的 Γ 附近模式需接原文 Fig. 3(d) 的振动箭头阅读。来源：Qiu 等，Phys. Rev. B 105, 165101 (2022)，<a href="https://doi.org/10.1103/PhysRevB.105.165101">原文第 165101-3 页</a>。</figcaption>
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3a.png" alt="Qiu2022原文Fig.3(a)：声子频率沿 Γ–M–K–Γ 的色散，红点大小正比于线宽 γ。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3d.png" alt="Qiu2022原文Fig.3(d)：约 55 cm⁻¹ 的 Γ 光学模俯视/侧视：上下 Ba 层作相反的面内运动。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 3(a)：声子频率沿 Γ–M–K–Γ 的色散，红点大小正比于线宽 γ。；第 3 页 Fig. 3(d)：约 55 cm⁻¹ 的 Γ 光学模俯视/侧视：上下 Ba 层作相反的面内运动。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
 </figure>
 
 读这些图时，可对照 [Ba₂N 原文 Fig. 3(a,d)，第 165101-3 页](https://doi.org/10.1103/PhysRevB.105.165101)：(a)以 Γ–M–K–Γ 高对称路径为横轴、cm⁻¹ 频率为纵轴，红点大小表示声子线宽；(d)给出 Γ 附近约 55 cm⁻¹ 的两个光学模式，顶视与侧视的箭头显示 Ba 原子在面内相向运动，箭头长度表示相对振幅。先在频率图中定位模式，再看本征矢的原子和方向，才把谱上的特征与几何运动联系起来。本站 Si 页已有真实 Γ 模动画，可按原子和振动方向阅读；它只覆盖 Γ 点和本例的 ASR 对照，没有论文那套全路径线宽。结构、频率和模式展示的具体文件与方法留在对应分析页，不在这份基础导航中借用论文曲线。

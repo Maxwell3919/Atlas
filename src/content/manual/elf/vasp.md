@@ -1,7 +1,5 @@
 电子位于原子间隙，是从什么数据看出来的？ELF给局域化函数，能窗或带分解密度给选中电子态的空间分布，两者需要放在同一结构中读。总电荷密度含全部占据态，CDD给相对于冻结参考的增减，都不能单独指出某条间隙电子带。
 
-H-ZrCl₂的原文提供一个贴近研究主线的比较：[He等，J. Mater. Chem. C 10, 7674 (2022), Fig. 2](https://doi.org/10.1039/D2TC00564F)。Fig. 2(a)沿 Γ–M–K–Γ 识别与其他带分离的价带；(b)在结构上以无量纲ELF=0.6定位六角中心X；(c)的绿色曲线来自X空球投影，与Zr、Cl投影比较，能量和(a)同样以EF=0；(d)只画(a)这条孤立带的分解密度，阈值为0.015 e/Å³。绿区同时出现在(b)、(d)的间隙位置，而(c)说明那里对应哪段能量范围。ELF阈值和电子密度阈值不是同一种量，不能直接比较0.6与0.015的大小。作者讨论的是H相ZrCl₂单层；把这些步骤放在一起，才把局域化位置与实际能带联系起来。下文真实bcc Fe存档只演示ELFCAR格式、两个自旋通道和VESTA操作。
-
 前置 [SCF](/Atlas/m/scf/vasp/) 完成固定结构电子态。下载 [Fe输入、OUTCAR与ELFCAR](/Atlas/examples/vasp/fe-bcc-lesson-files.tar.gz)，使用 `charge_elf_192`。Fe结构和本次自旋分支可从该包内 `charge_elf_192/POSCAR`、`charge_elf_192/INCAR` 与 `charge_elf_192/OUTCAR`核对；粗网格对应记录在 `charge_elf`。
 
 ## LELF输出来自哪个网格
@@ -148,6 +146,13 @@ File → Open打开 `new-elf/ELFCAR_up.vasp`，Properties → Isosurfaces设置E
 两通道的实际值域不同，但这两张截图视向也不同，不能只按投影轮廓归属差异。先在相同晶胞显示范围、原点和视向下比较同一阈值，或比较同一切面上的原始值。若要归属到d轨道或具体能带，继续读相应投影和态密度；Fe等值面不能作为Sc₂C、H-ZrCl₂或界面的electride证据。
 
 ## 从局域化位置到间隙电子态
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/lee2013-ca2n-fig3.png" alt="公开原文Fig.3(a–d)实际面板" />
+</div>
+<figcaption>Lee 等，Nature 494, 336–340 (2013)，PDF 第 4 页 Fig. 3(a–d)：共费米零点的能带/投影、两种选中态密度、总密度 ELF 与费米面；密度色标与 ELF 色标分别读取。<a href="https://doi.org/10.1038/nature11812">论文原文</a>。</figcaption>
+</figure>
 
 Ca₂N原文 [Lee等，Nature 494, 336 (2013), Fig. 3(c)](https://doi.org/10.1038/nature11812)把间隙带全部占据态的密度、EF附近窄窗密度和总密度ELF并列。三幅取相同的 $(1\bar{1}0)_R$ 切面，平行六角c轴、剖过菱方原胞；左幅能窗为−1.48至0 eV，中幅为EF±0.025 eV。两个密度面板的色标尺度不同，单位都是电子数/体积，右幅ELF则无量纲。前两幅回答哪一组能态位于层间，第三幅回答局域化函数在哪里较大；不能用同一种颜色跨三个面板比较电子数。近EF窗只是那一小段能态，不能拿它的积分当全部间隙电子；层间局域、面内延展也可以同时出现。Fig. 3(a,b,d)的能带、投影与费米面补充了态的身份与金属性。
 
@@ -302,3 +307,13 @@ if __name__ == "__main__":
 ```
 
 </details>
+
+
+## 从 ELF 位置回到同一电子态
+
+<figure>
+<img src="/Atlas/figures/literature/he2022-zrcl2-fig2.png" alt="He等H-ZrCl2原文Fig2：能带、ELF、PDOS及孤立带分解密度" />
+<figcaption>He 等，J. Mater. Chem. C 10, 7674–7679 (2022)，原文第 3 页 Fig. 2(a–d)：H-ZrCl₂ 的能带、ELF=0.6、PDOS 和孤立价带的分解密度。绿色空球 X 与间隙位置配对；分解密度采用 0.015 e/Å³。<a href="https://doi.org/10.1039/D2TC00564F">论文原文</a>。</figcaption>
+</figure>
+
+H-ZrCl₂的原文提供一个贴近研究主线的比较：[He等，J. Mater. Chem. C 10, 7674 (2022), Fig. 2](https://doi.org/10.1039/D2TC00564F)。Fig. 2(a)沿 Γ–M–K–Γ 识别与其他带分离的价带；(b)在结构上以无量纲ELF=0.6定位六角中心X；(c)的绿色曲线来自X空球投影，与Zr、Cl投影比较，能量和(a)同样以EF=0；(d)只画(a)这条孤立带的分解密度，阈值为0.015 e/Å³。绿区同时出现在(b)、(d)的间隙位置，而(c)说明那里对应哪段能量范围。ELF阈值和电子密度阈值不是同一种量，不能直接比较0.6与0.015的大小。作者讨论的是H相ZrCl₂单层；把这些步骤放在一起，才把局域化位置与实际能带联系起来。上文真实bcc Fe存档演示ELFCAR格式、两个自旋通道和VESTA操作。

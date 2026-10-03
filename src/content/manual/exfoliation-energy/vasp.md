@@ -176,6 +176,14 @@ print "Read 20 accepted points; wrote hfi2-separation-gnuplot.svg/.png/.pdf"
 
 ## 为什么有限分离功还需要参照厚度与弛豫
 
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/jung2018-fig1.png" alt="公开原文Fig.1–2实际面板" />
+<img src="/Atlas/figures/literature/jung2018-fig2.png" alt="公开原文Fig.1–2实际面板" />
+</div>
+<figcaption>Jung、Park 与 Ihm，arXiv:1805.04527v1，PDF 第 2–3 页 Fig. 1–2：厚 slab 的剥离对照与分步构型 I–IV；箭头表示移走顶层，红框跟踪体相层及最终孤立层，虚线划分体相/表面区域。<a href="https://arxiv.org/pdf/1805.04527v1">论文原文</a>。</figcaption>
+</figure>
+
 [Jung、Park 与 Ihm，DOI: 10.1021/acs.nanolett.7b04201](https://doi.org/10.1021/acs.nanolett.7b04201)的作者版 PDF 第 2 页 [Fig. 1(a,b)](https://arxiv.org/html/1805.04527v1#S0.F1)对照分离前的厚 slab 与取走顶层后的结构；图注还要求分离层和剩余 slab 都弛豫。第 3 页 [Fig. 2(a–e)](https://arxiv.org/html/1805.04527v1#S0.F2)将这个过程拆开：a→b 是整层刚性移走，b→c 允许剩余 slab 重排，c→d 允许分离层改变层内坐标和面内晶格，e 才比较初态 I 与终态 IV。虚线划分表面区和体相区，不是原子层或新的界面。
 
 本例抬高顶层三个原子、其余坐标固定，对应 Fig. 2(a→b) 的有限距离路径；后两步在现有数据中没有能量记录。读者可以在 VESTA 中并排打开 `raw/scf_eq/POSCAR` 与 `raw/scf_d20/POSCAR`，用相同侧视、颜色和比例标出移动层、剩余五层以及外侧周期像间距。这样的结构对照说明能量差对应哪一次操作；两份有限结构本身并不完成 Fig. 2(e) 的体相厚度极限。文献式 (1)–(7)先按体相面内晶胞定义每层能量，再取厚度极限；本页则按实际六层模型的面积报告 meV/Å² 与 J/m²，比较时必须保留这一参照差别。

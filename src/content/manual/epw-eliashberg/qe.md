@@ -40,28 +40,33 @@ elph_dir/elph.inp_lambda.8
 
 这里用的是 `lambda.x` 写出的 `alpha2F.dat`。它与 `matdyn.x` 另写的 `a2F.dos4` 不是同一个文件，不能只看文件名里都有 a2F 就互换。本列没有负的谱值。父计算中 Γ 点的三个声学残余模和 QE 的低频 EPC 处理仍按[前一页](/Atlas/m/eliashberg-a2f/qe/)的范围解释：程序对低于 20 cm⁻¹ 的相应 λ 贡献置零，不能因此推断真实材料在这些模式上没有耦合。
 
-EPW 6.0 的 `fila2f` 读取器先跳过一行，再读恰好 `nqstep` 行，每行前两列为频率和 α²F。频率必须是 **meV**，读入后程序除以 1000 转成 eV。第二列不乘换算因子；改变频率单位不应改变 λ=2∫α²F(ω)dω/ω。转换程序保留原始十列文件，另写 `al-sigma020.a2f`。下方 JSON 摘录其中的数值核对项，完整记录含原件 SHA-256，可在下载包中查看。
+EPW 6.0 的 `fila2f` 读取器先跳过一行，再读恰好 `nqstep` 行，每行前两列为频率和 α²F。频率必须是 **meV**，读入后程序除以 1000 转成 eV。第二列不乘换算因子；改变频率单位不应改变 λ=2∫α²F(ω)dω/ω。转换程序保留原始十列文件，另写 `al-sigma020.a2f`。下表按量名和单位列出转换与积分结果；原始谱、完整源码和实际输出随下载包保存。
 这一点可以直接从积分看清：令 $E=cf$，则 $\mathrm{d}E/E=\mathrm{d}f/f$，因此按此定义把横轴从 THz 换成 meV 时，α²F 的数值不用再乘 c。普通 PHDOS 是每单位频率的模式数密度，为保持模式数积分却要相应变换纵轴；两种表不能照搬同一种单位处理。这里转换后先核对 λ 和 ωlog，再交给求解器，正是要验证读入的仍是原来的配对谱。
 
 
+```bash
+python3 prepare_spectrum.py
+```
+
+原始转换结果按物理量及单位整理如下，两种积分口径保留各自的值：
+
+| 物理量 | 实际读数 | 单位 |
+|---|---:|---|
+| 原表频率点与列数 | 2000 × 11 | 点 × 列 |
+| 电子展宽 | 0.02 | Ry |
+| 构造谱的频率展宽 | 0.12 | THz |
+| 原谱估算 μ* | 0.1 | 无量纲 |
+| 求解器 μ* | 0.1 | 无量纲 |
+| 频率换算 | 4.135667696923859 | meV/THz |
+| 正频率点数 | 1999 | 点 |
+| 频率上限 | 57.89934775693402 | meV |
+| EPW 读取网格矩形积分 λ | 0.37454699239805433 | 无量纲 |
+| 原打印谱梯形积分 λ | 0.3745445563188833 | 无量纲 |
+| EPW 网格 ωlog | 343.74096331806055 | K |
+
+随后直接查看交给求解器的原生两列谱：
+
 ```console
-preston@preston-System-Product-Name:epw-tc$ python3 prepare_spectrum.py
-{
-  "source_shape": [
-    2000,
-    11
-  ],
-  "selected_sigma_Ry": 0.02,
-  "source_spectrum_width_THz": 0.12,
-  "source_mu_star": 0.1,
-  "solver_mu_star": 0.1,
-  "frequency_conversion_meV_per_THz": 4.135667696923859,
-  "nqstep": 1999,
-  "omega_max_meV": 57.89934775693402,
-  "epw_rectangle_lambda": 0.37454699239805433,
-  "trapz_lambda_printed_grid": 0.3745445563188833,
-  "epw_omega_log_K": 343.74096331806055
-}
 preston@preston-System-Product-Name:epw-tc$ head -n 5 al-sigma020.a2f
 # omega_meV alpha2F ; QE lambda.x sigma=0.020 Ry; zero row removed only
 0.028949673878 0.00000000
@@ -479,17 +484,13 @@ EPW 的完整计算链需要波函数、声子位移模式和自洽势的一阶�
 
 Al 原胞有一个原子，沿用原先优化得到的晶格常数 3.95606780081072 Å。交换关联为 LDA-PZ，赝势为非相对论模守恒 `Al.pz-vbc.UPF`，波函数和电荷密度截断分别为 40、160 Ry；无自旋极化、SOC、Hubbard 或额外色散项。SCF 使用 6 条能带、Marzari–Vanderbilt 展宽 0.02 Ry、`conv_thr=1.0d-12`。这些数值界定当前教学实例，没有针对 λ 或 Tc 完成联合收敛测试。
 
-赝势来自 [QE 公共下载页](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)，SHA-256 为：
-
-```text
-4eab06b63f87f07ede2d5a193e6d993a09107167fd6b8647afa807342501d6e5
-```
+赝势来自 [QE 公共下载页](https://pseudopotentials.quantum-espresso.org/upf_files/Al.pz-vbc.UPF)，使用本例的非相对论模守恒 `Al.pz-vbc.UPF`。
 
 原声子父链是响应 SCF 16×16×16、DFPT q 网格 4×4×4，共 8 个不可约 q 点。它之前还执行了供 `ph.x` 双网格 EPC 使用的 32×32×32 电子计算。EPW 沿用这些 DFPT 势响应，并重新计算自己的电子矩阵元和细网格积分；此前 `lambda.x` 的 α²F 不是本节 EPW 插值的输入。
 
 ### 收集 dyn、dvscf 和 patterns
 
-本次先核对 `al.dyn0` 中的 `4 4 4` 与 8 个不可约 q 点，再逐个确认 `al.dyn1` 到 `al.dyn8`、`patterns.1.xml` 到 `patterns.8.xml` 及 dvscf 文件。8 份 dvscf 均为 663552 字节，复制前后逐一比较 SHA-256。文件大小相同只是一个完整性检查，还需同时匹配赝势、晶胞、FFT 网格、prefix 和声子模式。
+本次先核对 `al.dyn0` 中的 `4 4 4` 与 8 个不可约 q 点，再逐个确认 `al.dyn1` 到 `al.dyn8`、`patterns.1.xml` 到 `patterns.8.xml` 及 dvscf 文件。8 份 dvscf 均为 663552 字节，复制前后逐一比较文件内容。文件大小相同只是一个完整性检查，还需同时匹配赝势、晶胞、FFT 网格、prefix 和声子模式。
 
 父计算使用 `fildvscf='aldv'`，因此原生文件名是 `al.aldv1`。EPW 读取的整理后名称为：
 
@@ -672,13 +673,13 @@ Summed el-ph coupling    0.3507955
 
 这里有两个应分开记录的 λ。模式和电子声子矩阵的离散直接求和给出 **0.3507955**；谱文件最后一个累计值为 **0.3508982**。从公开的 500 行舍入数据重新作正频率梯形积分，得到 λ=0.3508982379、ωlog=26.44613456 meV。谱末端求解器读取的是 α²F，后续引用 λ 时采用谱积分值。两种离散汇总相差约 0.000103，不把它们改写为一个逐字相同的输出。
 
-原生文件是 `runs/interpolate-003/al.a2f`，SHA-256 为 `f48a3230b47468b6fb813d9b5cabe6df5b7133ae1f13af1f2317300e3dd3cabf`。提取表 `derived/epw-a2f-k12-q4-fine24-q12.csv` 的列名为 `omega_meV,alpha2F,native_cumulative_lambda`；`analyse_final.py` 从原生文件重新提取这些列，并保留直接求和 λ 的独立元数据。
+原生文件是 `runs/interpolate-003/al.a2f`。提取表 `derived/epw-a2f-k12-q4-fine24-q12.csv` 的列名为 `omega_meV,alpha2F,native_cumulative_lambda`；`analyse_final.py` 从原生文件重新提取这些列，并保留直接求和 λ 的独立元数据。
 
 ### 声学模和插值质量怎样核对
 
 EPW 6.0 的谱构造对每个声子模判断 `wq > eps_acoustic`；负频率及低于阈值的频率不会贡献到 α²F。因此，一张全为正的谱图不能证明采样声子没有虚频。本次另用同一粗网格矩阵、同一力常数和同一 ASR 设置，令 `band_plot=.true.`、`filqf='qmesh12.dat'`，显式检查全部 1728 个 12³ q 点。该输入不再同时设置 `nqf1..3`，否则 EPW 6.0 会拒绝这组相互冲突的细网格指定。
 
-成功检查保存在 `runs/phononcheck-002/phband.freq`。共有 5184 个频率，原生输出精度为 0.0001 meV；Γ 点三支为 `-0.0000, -0.0000, 0.0000` meV，非 Γ 点最低值为 **5.9373 meV**，最高值为 **41.0944 meV**。在这张采样网格和打印精度上没有有限负频率；不高于 0.1 cm⁻¹ 阈值的恰是 Γ 点三支声学模。这个检查没有证明整个连续布里渊区动力学稳定，也没有证明声子网格收敛。完整逐模表是 `derived/phonons-all-q12-native-EPW.csv`，原生频率文件 SHA-256 为 `cabdd5b96b58fc1169763485b108e11b95bb172ddb418c3510c7cf028e36be40`。
+成功检查保存在 `runs/phononcheck-002/phband.freq`。共有 5184 个频率，原生输出精度为 0.0001 meV；Γ 点三支为 `-0.0000, -0.0000, 0.0000` meV，非 Γ 点最低值为 **5.9373 meV**，最高值为 **41.0944 meV**。在这张采样网格和打印精度上没有有限负频率；不高于 0.1 cm⁻¹ 阈值的恰是 Γ 点三支声学模。这个检查没有证明整个连续布里渊区动力学稳定，也没有证明声子网格收敛。完整逐模表是 `derived/phonons-all-q12-native-EPW.csv`。
 
 能带检查采用同一条 166 点路径、固定 EF=8.4122 eV 和相同的四个逐点能量排序，交叉附近比较能谱排序而非声称跟踪同一轨道。对直接 QE 能带满足 |E−EF|≤1 eV 的 47 个态，最终 12³ 插值的 RMS 误差为 **25.9 meV**，最大绝对误差为 **92.3 meV**。这比早期 4³ / 冻结窗上限 10 eV 的 RMS 634.5 meV 明显改善，但不构成为 Tc 选定的误差容限。8³ 到 12³ 的比较使用冻结窗上限 13.5 eV；完整 CSV 保留窗外能带，图中须标明粗网格与窗口同时变化的早期分支。
 这些误差为什么要在生成谱前读？本次电子展宽是 100 meV，而近 EF 路径上的最大能量偏差为 92.3 meV，已接近这个能量选择尺度。偏差可能改变哪些电子态落入双 δ 的有效范围；RMS 较小也不能抹去局部偏差。这只是量级比较，不是把能带误差直接传播成 Tc 误差。加密 24³ 的细网格会更密地取样同一个插值函数，不能自动修复粗网格或能窗造成的插值偏差。先核对这里的直接能带与插值能带，再比较粗网格、细积分和展宽，才能解释后面 α²F 的变化。
@@ -740,7 +741,7 @@ cd 04-fine
 mpirun -np 8 epw.x -nk 8 -in epw2.in > epw2.out 2> epw2.err
 ```
 
-上面的复制关系也封装在下载包的 `tools/prepare_stage.py` 中，作为可选的重跑辅助。目录已存在时应先读旧输出，不要在上面反复启动新程序。原始记录保留每次执行的独立目录、输入哈希、stdout、stderr、调度记录和失败状态。输入、父计算文件与原生结束状态分别核对。λ 和 Tc 的数值收敛及物理有效性仍需单独检查。
+上面的复制关系也封装在下载包的 `tools/prepare_stage.py` 中，作为可选的重跑辅助。目录已存在时应先读旧输出，不要在上面反复启动新程序。原始记录保留每次执行的独立目录、输入、stdout、stderr及实际程序停止记录。输入、父计算文件与原生结束状态分别核对。λ 和 Tc 的数值收敛及物理有效性仍需单独检查。
 
 ## 原生 EPW 谱的线性判据与低温解
 
@@ -847,6 +848,13 @@ python3 plot_native_tc.py
 <span id="material-anisotropic-route"></span>
 
 ## Ba₂N 图7为什么需要各向异性数据
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig7.png" alt="Qiu2022原文Fig.7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Qiu等，PRB105,165101](https://doi.org/10.1103/PhysRevB.105.165101)图7（原文PDF第5页，附录说明在第6页）展示未应变Ba₂N的各向异性能隙随温度变化。每个温度有能隙分布，随升温整体向零收缩，在约6 K消失；该图不是Al最低Matsubara点的单条等方Δ(T)曲线。正文由图3谱代入简式得到3.4 K，这与各向异性ME采用的近似不同，应分别标注。
 

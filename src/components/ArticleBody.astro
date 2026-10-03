@@ -41,22 +41,29 @@ const sections = bodySections(body);
   .md-body :global(img) { display: block; width: 100%; height: auto; margin: 1.4rem 0 .8rem; background: white; border: 1px solid var(--line); border-radius: 6px; }
   .md-body :global(figure) { margin: 1.3rem 0 1rem; }
   .md-body :global(figure img) { margin: 0 0 .35rem; border-radius: 0; }
-  .md-body :global(figcaption) { font-size: .82rem; color: var(--muted); line-height: 1.65; }
+  .md-body :global(figcaption) { font-size: .9rem; color: var(--muted); line-height: 1.7; }
   .md-body :global(.figure-downloads) { display: block; margin-top: .35rem; }
   .md-body :global(h2) { font-size: 1.23rem; margin: 2.4rem 0 .8rem; scroll-margin-top: 1.2rem; }
   .md-body :global(h2:first-child) { margin-top: .4rem; }
   .md-body :global(h3) { font-family: Georgia, "Songti SC", "STSong", "Noto Serif SC", serif; font-size: 1.06rem; font-weight: 600; margin: 1.5rem 0 .5rem; scroll-margin-top: 1.2rem; }
+  .md-body :global(h4) { font-size: 1rem; margin: 1.2rem 0 .5rem; scroll-margin-top: 1.2rem; }
   .md-body :global(p) { margin: .6rem 0; }
   .md-body :global(ul), .md-body :global(ol) { margin: .5rem 0; padding-left: 1.5rem; }
   .md-body :global(li) { margin: .25rem 0; }
   .md-body :global(pre) { overflow-wrap: normal; }
-  .md-body :global(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: .9rem 0; font-size: .88rem; }
-  .md-body :global(th), .md-body :global(td) { border: 1px solid var(--line); padding: .3rem .7rem; text-align: left; }
+  .md-body :global(table) { display: block; max-width: 100%; overflow-x: auto; overflow-wrap: normal; word-break: normal; border-collapse: collapse; margin: .9rem 0; font-size: .88rem; }
+  .md-body :global(th), .md-body :global(td) { min-width: 6rem; border: 1px solid var(--line); padding: .3rem .7rem; text-align: left; }
   .md-body :global(th) { background: var(--code-bg); }
+  .md-body :global(.table-value), .md-body :global(th code), .md-body :global(td code) { white-space: nowrap; }
   .md-body :global(blockquote) { border-left: 3px solid var(--accent); background: var(--card); border-radius: 0 8px 8px 0; margin: .9rem 0; padding: .5rem .9rem; }
   .md-body :global(hr) { border: none; border-top: 1px solid var(--line); margin: 1.4rem 0; }
   .md-body :global(details) { margin: 1rem 0; }
   .md-body :global(summary) { cursor: pointer; color: var(--accent); }
+  .md-body :global(.code-listing) { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: .65rem 0; }
+  .md-body :global(.code-listing > summary) { font-size: .9rem; }
+  .md-body :global(summary:focus-visible), .md-body :global(.figure-image:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .md-body :global(.figure-image) { display: block; }
+  .md-body :global(.figure-panels) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
   .md-body :global(.legacy-anchor) { display: block; height: 0; scroll-margin-top: 1.2rem; }
-  @media (max-width: 560px) { .md-body :global(table) { font-size: .82rem; } }
+  @media (max-width: 560px) { .md-body :global(table) { font-size: .82rem; } .md-body :global(.figure-panels) { grid-template-columns: 1fr; } }
 </style>

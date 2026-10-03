@@ -120,6 +120,18 @@ window 25.00:28.00 A  N=49  mean=5.029000094 eV  std=7.61576e-05 eV  range=0.000
 
 ![本例完整法向势及两侧真空窗口](/Atlas/examples/vasp/hfcl2_pbo2_potential/potential-z.png)
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/zhang2025-zri2-graphene-fig4d.png" alt="公开原文Fig.4(d)实际面板" />
+</div>
+<figcaption>Zhang 等，Phys. Chem. Chem. Phys. 27, 19410–19417 (2025)，PDF 第 5 页 Fig. 4(d)：ZrI₂/graphene 平面平均势，横轴为 Å、纵轴为 eV；紫色真空线与青色费米线之差给功函数。<a href="https://doi.org/10.1039/D5CP02349A">论文原文</a>。</figcaption>
+</figure>
+
+<figure>
+<img src="/Atlas/examples/charge-interactive/h2/zri2-dirac-fig5.jpg" alt="ZrI₂/graphene 原文 Fig.5(a–f)完整联图，重点读(d)面积积分差分密度" />
+<figcaption>Zhang 等，Phys. Chem. Chem. Phys. 27, 19410–19417 (2025)，PDF 第 5 页 Fig. 5(a–f) 完整联图，重点读 (d)：同一接触的差分电子线密度，纵轴 e/Å、横轴 z/Å，黄正青负；三维结构插图定位重排区域，插图不与横轴严格等比例。<a href="https://doi.org/10.1039/D5CP02349A">论文原文</a>。</figcaption>
+</figure>
+
 [ZrI₂/graphene 的 Fig. 4(d)](https://doi.org/10.1039/D5CP02349A)把z/Å、平面势/eV、原子层位置、真空与费米能两条虚线放在同一面板，功函数由后两条线的差表示。相同接触的Fig. 5(d)另给面积积分CDD，能区分势变化与电子重排的位置。本例已有整胞势图也保留原子区和两侧窗口；重现时用gnuplot读 `PLANAR_AVERAGE.dat` 的z、势两列，再从同次OUTCAR加EF横线，按照本例POSCAR标层位置。两侧窗口分别报告，不为了模仿论文的单条真空线把非对称模型的两个平台平均成一个。
 
 图中的原子区势阱、平台和边界必须在同一个坐标轴上读。平台内的range/std是空间起伏，不能作为多次计算的统计误差或真空高度收敛证明。
@@ -151,6 +163,14 @@ EF=−1.2958 eV应与同次计算的平台组合，进入 [功函数](/Atlas/m/w
 层净增电子数为零也不排除层内极化：同一区域中电子从一端移到另一端，正负贡献可抵消为零，但它们分布的位置已经分离。CDD的层净数汇总正负贡献，偶极则对贡献所在的位置敏感。因此把两幅图放在同一z坐标后，应同时检查积累/耗尽位于哪些层和间隙、累计曲线在哪些边界取值、势平台怎样变化。H₂中面对称例子演示的是对称成键重排；不能仅因真实非对称界面的某层净数很小，就排除其对势参考的影响。
 
 若求界面诱导的势差，三份LOCPOT必须采用相同的势组成（例如都为离子+Hartree势），并先处理各自的势零点和边界条件；不同计算的任意常数需先按物理参考对齐，不能简单逐点相减三份未经对齐的LOCPOT。电子数密度差带正号表示积累，实际电荷为$-e\Delta n$；LOCPOT的eV势是电子势能参照，不能未经符号和单位转换就把曲线斜率叫作电场。定量偶极/电场需要另明确电荷密度、边界条件和规范。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/ye2025-metal-mos2-fig2.png" alt="Rumson 等原文 Fig2(a–d)完整联图，重点比较(d)无Ca2N接触的TBH与距离" />
+<img src="/Atlas/figures/literature/ye2025-metal-ca2n-mos2-fig6b.png" alt="Rumson 等原文 Fig.6(a,b)完整联图，重点读(b)隧穿高度与S–Ca距离" />
+</div>
+<figcaption>Rumson 等，Phys. Chem. Chem. Phys. 27, 6438–6446 (2025)，PDF 第 6 页 Fig. 2(a–d) 与第 8 页 Fig. 6(a,b)：上图(d)为无 Ca₂N 接触的 TBH–距离散点（纵轴 −4 至 4 eV），下方联图的(a)为带隙/eV 随畸变幅度/Å，(b)为含 Ca₂N 的接触隧穿高度 TBH/eV 随平均 S–Ca 距离/Å。按金属标签读散点，并保留本图的纵轴刻度。<a href="https://doi.org/10.1039/D4CP04577G">论文原文</a>。</figcaption>
+</figure>
 
 金属/Ca₂N/MoS₂论文把势峰相对EF定义为隧穿高度、交点距离定义为宽度；它与半导体CBM/VBM形成的Schottky势垒不同。这里已有输出支持两侧真空读数，尚未给本例划出经能带验证的界面势垒。需要接触能级时继续 [能级对齐](/Atlas/m/band-alignment/vasp/)。
 

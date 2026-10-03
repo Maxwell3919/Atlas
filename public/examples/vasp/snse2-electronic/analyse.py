@@ -2,7 +2,6 @@
 """Read the fixed SnSe2 data set; export paired eigenvalues/projections/DOS."""
 from pathlib import Path
 import csv
-import json
 import re
 import xml.etree.ElementTree as ET
 import numpy as np
@@ -166,32 +165,29 @@ for name, (i,j) in [("VBM_path",vbm_index),("CBM_path",cbm_index)]:
 table("path-edges.csv", ["edge","k_index","band","kx_frac","ky_frac","kz_frac","energy_eV",
                         "energy_minus_scf_EF_eV","Sn_s","Sn_p","Sn_d","Se_s","Se_p","Se_d","projected_total"],
       edge_rows)
-summary = {
-    "version": "VASP 5.4.4", "encut_eV":400, "functional":"PBE",
-    "soc":False,"spin_polarized":False, "elements":["Sn","Se"],"counts":[1,2],
-    "nelect":nelect,"path_kpoints":nk,"bands":nb,"procar_states":len(seen),
-    "scf_mesh":[18,18,1],"scf_irreducible_kpoints":len(sk),
-    "energy_zero_source":"scf/vasprun.xml final efermi and scf/DOSCAR header",
-    "energy_zero_eV":ef,"path_reported_efermi_eV":ef_path,
-    "path_ticks":[{"index":i+1,"label":label,"distance_Ainv":float(distance[i])} for i,label in nodes],
-    "path_length_Ainv":float(distance[-1]),"procar_eigenval_max_difference_eV":energy_difference,
-    "dos_points":nedos,"dos_energy_bounds_eV":[float(total[0,0]),float(total[-1,0])],
-    "dos_grid_step_eV":float(np.median(np.diff(total[:,0]))),
-    "dos_sigma_eV":0.05,"weighted_occupied_states":occupied_count,
-    "IDOS_at_scf_EF":idos_ef,"IDOS_bottom":float(total[0,2]),"IDOS_top":float(total[-1,2]),
-    "trapezoid_total_DOS_full_window":float(np.trapezoid(total[:,1],total[:,0])),
-    "vbm_path":{"k_index":vbm_index[0]+1,"band":vbm_index[1]+1,"energy_eV":float(energy[vbm_index])},
-    "cbm_path":{"k_index":cbm_index[0]+1,"band":cbm_index[1]+1,"energy_eV":float(energy[cbm_index])},
-    "path_sampled_gap_eV":float(energy[cbm_index]-energy[vbm_index]),
-    "scope":"Single fixed PBE/no-SOC model; path extrema and finite SCF DOS sampling, no convergence scan or interface model."
-}
-(ROOT / "summary.json").write_text(json.dumps(summary,indent=2)+"\n")
+table("path-nodes.csv",["k_index","label","distance_Ainv"],
+      [(i+1,label,float(distance[i])) for i,label in nodes])
+dos_step=float(np.median(np.diff(total[:,0])))
+path_gap=float(energy[cbm_index]-energy[vbm_index])
+values=[("SCF_Fermi",ef,"eV"),("path_Fermi",ef_path,"eV"),
+        ("electrons",nelect,"electrons/cell"),("SCF_irreducible_points",len(sk),"points"),
+        ("path_points",nk,"points"),("bands",nb,"bands"),
+        ("path_length",float(distance[-1]),"A^-1"),
+        ("PROCAR_EIGENVAL_max_difference",energy_difference,"eV"),
+        ("DOS_points",nedos,"points"),("DOS_step",dos_step,"eV"),
+        ("DOS_SIGMA",0.05,"eV"),("weighted_occupied_states",occupied_count,"electrons/cell"),
+        ("IDOS_at_SCF_Fermi",idos_ef,"states/cell"),
+        ("IDOS_lower_bound",float(total[0,2]),"states/cell"),
+        ("IDOS_upper_bound",float(total[-1,2]),"states/cell"),
+        ("DOS_integral_full_window",float(np.trapezoid(total[:,1],total[:,0])),"states/cell"),
+        ("path_sampled_gap",path_gap,"eV")]
+table("electronic-values.csv",["quantity","value","unit"],values)
 print(f"SCF: 18x18x1 -> {len(sk)} irreducible points; weighted occupied states = {occupied_count:.8f}")
 print(f"Path: {nk} points x {nb} bands; length = {distance[-1]:.8f} A^-1")
 print(f"PROCAR: {len(seen)} paired states; max energy difference = {energy_difference:.3e} eV")
 print(f"Energy zero: SCF efermi = {ef:.8f} eV; path efermi = {ef_path:.8f} eV")
-print(f"DOS: {nedos} energy points; step = {summary['dos_grid_step_eV']:.6f} eV; SIGMA = 0.05 eV")
+print(f"DOS: {nedos} energy points; step = {dos_step:.6f} eV; SIGMA = 0.05 eV")
 print(f"IDOS: at SCF EF = {idos_ef:.8f}; lower/upper ends = {total[0,2]:.8f}/{total[-1,2]:.8f}")
 print(f"Path extrema: VBM k={vbm_index[0]+1}, band={vbm_index[1]+1}; CBM k={cbm_index[0]+1}, band={cbm_index[1]+1}")
-print(f"Path sampled gap = {summary['path_sampled_gap_eV']:.8f} eV")
-print("Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv and summary.json")
+print(f"Path sampled gap = {path_gap:.8f} eV")
+print("Wrote path.csv, bands.csv, fatband.csv, dos.csv, path-edges.csv, path-nodes.csv and electronic-values.csv")

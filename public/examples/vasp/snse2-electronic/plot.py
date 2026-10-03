@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Plot only the paired tables; use the common parent-SCF energy reference."""
 from pathlib import Path
-import json
+import csv
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parent
 FIG = ROOT / "figures"
 FIG.mkdir(exist_ok=True)
-summary = json.loads((ROOT / "summary.json").read_text())
 bands = np.genfromtxt(ROOT / "tables/bands.csv", delimiter=",", names=True)
 dos = np.genfromtxt(ROOT / "tables/dos.csv", delimiter=",", names=True)
 fat = np.genfromtxt(ROOT / "tables/fatband.csv", delimiter=",", names=True)
-nk, nb = summary["path_kpoints"], summary["bands"]
+nk, nb = int(np.max(bands["k_index"])), int(np.max(bands["band"]))
 x = bands["distance_Ainv"].reshape(nk,nb)[:,0]
 energy = bands["energy_minus_scf_EF_eV"].reshape(nk,nb)
-ticks = [item["distance_Ainv"] for item in summary["path_ticks"]]
+with (ROOT / "tables/path-nodes.csv").open(newline="") as f:
+    ticks = [float(row["distance_Ainv"]) for row in csv.DictReader(f)]
 labels = [r"$\Gamma$", "M", "K", r"$\Gamma$"]
 plt.rcParams.update({"font.family":"DejaVu Serif","font.size":10,
                      "axes.linewidth":0.8,"xtick.direction":"in","ytick.direction":"in",

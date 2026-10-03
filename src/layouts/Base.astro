@@ -85,6 +85,8 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     padding: 0 1.5rem 4rem;
   }
   main.site-wide { max-width: 68rem; }
+  main > article { padding-top: 1.5rem; }
+  main > article > h1 { font-size: 1.9rem; margin: 0 0 1.2rem; }
   .site-foot {
     padding: 1.4rem 1.5rem;
     border-top: 1px solid var(--line);
@@ -122,6 +124,7 @@ const base = normalizeBase(import.meta.env.BASE_URL);
     margin: 0.9rem 0;
   }
   pre code { background: none; padding: 0; color: inherit; }
+  pre code { display: block; min-width: max-content; }
   .katex-display { overflow-x: auto; overflow-y: hidden; padding: .25rem 0; }
   .katex-display > .katex { width: max-content; min-width: 100%; }
   .katex { font-size: 1.05em; }

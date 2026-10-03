@@ -1,5 +1,5 @@
 from pathlib import Path
-import json,csv,xml.etree.ElementTree as ET
+import csv,xml.etree.ElementTree as ET
 import numpy as np
 R=Path(__file__).resolve().parent
 BOHR_ANG=0.529177210903
@@ -21,7 +21,6 @@ for d,direction,part,col in [('mass','longitudinal',slice(None),0),('mass-k14','
         a,b,c=np.polyfit(q[mask]-q0,ec[mask],2)
         residual=np.polyval([a,b,c],q[mask]-q0)-ec[mask]
         rows.append({'directory':d,'direction':direction,'window_inv_A':window,'points':int(mask.sum()),'mass_over_me':float(C/a),'curvature_eVA2':float(2*a),'minimum_k_inv_A':float(q0-b/(2*a)),'rms_residual_meV':float(np.sqrt(np.mean(residual**2))*1000)})
-(R/'mass/mass-checks.json').write_text(json.dumps(rows,indent=2)+'\n')
 with (R/'mass/mass-checks.csv').open('w') as f:
     w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
 for row in rows:

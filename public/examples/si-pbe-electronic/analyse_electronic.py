@@ -1,5 +1,5 @@
 from pathlib import Path
-import csv, json, re, hashlib, xml.etree.ElementTree as ET
+import csv, xml.etree.ElementTree as ET
 import numpy as np
 ROOT=Path(__file__).resolve().parent
 RY_EV=13.605693122994
@@ -7,7 +7,6 @@ HA_EV=2*RY_EV
 BOHR_ANG=0.529177210903
 HBAR2_OVER_2ME=3.80998211615486 # eV Angstrom^2
 
-def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def table(path,header,rows):
     with path.open('w') as f:
         w=csv.writer(f);w.writerow(header);w.writerows(rows)
@@ -29,7 +28,10 @@ for name in ['gap12','gap18-cg','gap24-cg','gap24-k12-cg']:
     row={'directory':name,'nks':len(k),'vbm_eV':float(v[iv]),'cbm_eV':float(c[ic]),'gap_eV':float(c[ic]-v[iv]),'minimum_direct_gap_eV':float((c-v).min()),'vbm_k_tpiba':k[iv].tolist(),'cbm_k_tpiba':k[ic].tolist()}
     gaps.append(row)
     table(ROOT/name/'edges.csv',['kx_tpiba','ky_tpiba','kz_tpiba','vbm_band4_eV','cbm_band5_eV'],np.c_[k,v,c])
-(ROOT/'gap-results.json').write_text(json.dumps(gaps,indent=2)+'\n')
+gap_columns=['directory','nks','vbm_eV','cbm_eV','gap_eV','minimum_direct_gap_eV',
+             'vbm_kx_tpiba','vbm_ky_tpiba','vbm_kz_tpiba','cbm_kx_tpiba','cbm_ky_tpiba','cbm_kz_tpiba']
+table(ROOT/'gap-results.csv',gap_columns,
+      [[r[k] for k in gap_columns[:6]]+r['vbm_k_tpiba']+r['cbm_k_tpiba'] for r in gaps])
 
 # Fits use physical k in inverse Angstrom, not a path-point index.
 k,e,a=read_xml('mass'); kcart=k*2*np.pi/a
@@ -41,7 +43,7 @@ for window in [.010,.020,.030]:
     fit=np.polyval(coeff,kcart[take,0]-center)
     x0=center-coeff[1]/(2*coeff[0]);e0=coeff[2]-coeff[1]**2/(4*coeff[0])
     fits.append({'half_window_inv_A':window,'npoints':int(take.sum()),'quadratic_A_eVA2':float(coeff[0]),'minimum_k_inv_A':float(x0),'minimum_k_tpiba':float(x0*a/(2*np.pi)),'minimum_energy_eV':float(e0),'mass_over_me':float(HBAR2_OVER_2ME/coeff[0]),'rms_residual_meV':float(np.sqrt(np.mean((fit-e[take,4])**2))*1000)})
-(ROOT/'mass/mass-fits.json').write_text(json.dumps(fits,indent=2)+'\n')
+table(ROOT/'mass/mass-fits.csv',list(fits[0]),[list(r.values()) for r in fits])
 table(ROOT/'mass/longitudinal.csv',['kx_tpiba','kx_inv_A','band5_eV'],np.c_[k[:,0],kcart[:,0],e[:,4]])
 
 # Actual 3D local cube: retain every point, not only a plotted 2D slice.
@@ -73,3 +75,6 @@ for ik,proj in enumerate(projs):
 table(ROOT/'bands-cg/fatband.csv',['ik','iband','path_distance_tpiba','kx_tpiba','ky_tpiba','kz_tpiba','energy_eV','Si_s_weight','Si_p_weight','projection_norm'],rows)
 
 print('gaps:',len(gaps),'fits:',len(fits),'fatband rows:',len(rows))
+
+for g in gaps: print(f"{g['directory']}: {g['nks']} k points; indirect={g['gap_eV']:.8f} eV; minimum direct={g['minimum_direct_gap_eV']:.8f} eV")
+for f in fits: print(f"Window +/-{f['half_window_inv_A']:.2f} A^-1: {f['npoints']} points; mass/me={f['mass_over_me']:.8f}; RMS={f['rms_residual_meV']:.6f} meV")

@@ -180,6 +180,13 @@ cat new-bader-grid.csv
 
 Bader层数和法向CDD层积分即使使用相同中性片段，也未必严格相等。CDD在预先划定的同一空间区域Ω内比较接触前后密度；Bader则把接触后的原子盆地与孤立层的原子盆地分别加总。接触改变密度，也会移动零通量边界，界面重叠区可能被分给不同原子。对实际异质结，先核对两种统计的总数、符号和片段参考，再看差别是否集中在接触区域；不能通过把各层数归一化来让两种定义强行吻合。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/ye2025-metal-mos2-fig2.png" alt="公开原文Fig.2(a–d)实际面板" />
+</div>
+<figcaption>Rumson 等，Phys. Chem. Chem. Phys. 27, 6438–6446 (2025)，PDF 第 6 页 Fig. 2(a–d)：metal/MoS₂ 接触的距离、形变、隙内态、层转移与隧穿高度。绿色/黑色/紫色分别表示共价/中间/vdW 类别；(c) 为每 MoS₂ 单元的增电子数。<a href="https://doi.org/10.1039/D4CP04577G">论文原文</a>。</figcaption>
+</figure>
+
 Fig. 2(c)的“每MoS₂化学式单元”与每胞数可这样换算：若一个超胞含m个MoS₂单元，图上量为 $q_{\mathrm{f.u.}}=\Delta N_{\mathrm{layer}}/m$，该超胞的面积密度仍为 $\Delta N_{\mathrm{layer}}/S=mq_{\mathrm{f.u.}}/S$。扩大为k倍超胞时，层数和面积同时扩大k倍，面积密度应保持相同；这是核对跨超胞比较的一个直接办法。
 
 要复现 Fig. 2(c) 的画法，先按已定义的层原子编号加总 ACF.dat，再按该胞的化学式单元数归一，给每个构型保留同一平均法向距离定义；用 gnuplot 画散点并标明构型与分组，避免将不同胞大小的原子电荷直接排列成柱图。本页两个 Fe 网格用于核对积分与等价原子，结果表保留为表格。真正的界面层转移再与 [CDD 的法向积分](/Atlas/m/delta-charge/vasp/) 对照，符号也要统一：文献图中的增电子数与本页 $Q_i=\mathrm{ZVAL}_i-N_i$ 的电荷符号相反。

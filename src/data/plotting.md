@@ -7,9 +7,19 @@
 
 Qiu 等关于单层 Ba₂N 的研究中，Fig. 2 将能带、DOS、费米面和 ELF 放在一起；Fig. 3 接上声子色散、线宽、投影声子态密度和 α²F；Fig. 4 比较应变下的近费米态，Fig. 6 再看声子与耦合怎样变化。这几组图提供了一条具体的分析路线：先辨认参与低能过程的电子态，再寻找与它们耦合的振动。[原文与图件](https://doi.org/10.1103/PhysRevB.105.165101)
 
-<figure class="research-figure"><img src="/Atlas/figures/literature/M6_FatPhonon_Linewidth_Ba2N_Qiu2022_Fig3a.jpg" alt="Qiu 等 Ba₂N 论文 Fig. 3(a) 的声子色散与模式线宽" loading="lazy" /><figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，Fig. 3(a) 摘图。红色色带的宽度编码模式电声线宽，黑线给出频率。沿同一声子支追踪宽度，再与原文同图的 PHDOS 和 α²F 比较，可以找到值得检查的频率区间。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文来源</a>。</figcaption></figure>
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Qiu2022原文Fig.3(a–d)：未应变 Ba₂N 的声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点编码线宽，箭头表示位移。" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 3(a–d)：声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点大小编码线宽，箭头表示位移。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 线宽大和对总 λ 的贡献大，需要分别核对。λ 含频率权重与布里渊区积分；α²F 的一个峰也可能来自多个 q 点和模式。逐模文件的编号必须先与实际波矢、本征频率配对，再去读位移方向。具体文件格式与提取见[声子线宽](/Atlas/m/phonon-linewidth/qe/)和[谱函数](/Atlas/m/eliashberg-a2f/qe/)。
+
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6abcde.png" alt="Qiu2022原文Fig.6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+Fig. 3 与 Fig. 6 的未应变/4% 应变对照要逐量读取：频率用 cm⁻¹，红点大小表示线宽，α²F 使用自身的纵轴。先配对相同波矢与模式，再检查箭头所示位移。
 
 ## 电子态的图先统一参考
 
@@ -19,11 +29,32 @@ Qiu 等关于单层 Ba₂N 的研究中，Fig. 2 将能带、DOS、费米面和 
 
 图中相同颜色应一直表示相同元素、层或轨道。PDOS 的轴标要给出 states/eV/cell 或其他实际归一化；按原子求和时写清原子集合。选能窗积分得到的是该投影内的谱重，它与 Bader 电荷、差分密度积分属于不同定义。若要辨认间隙电子，还要看对应能带或能窗的实空间密度，不能只凭一个原子 PDOS 峰作判断。[Ba₂N 的能窗密度对照，Fig. 4](https://doi.org/10.1103/PhysRevB.105.165101)
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig2.png" alt="Qiu2022原文Fig.2(a–d)：能带、DOS、费米面与 ELF=0.5 的俯视/侧视；空球 X 的位置由虚线圈标出。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 2(a–d)：能带、DOS、费米面与 ELF=0.5 的俯视/侧视；空球 X 的位置由虚线圈标出。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+Fig.2以同一材料联系能量与空间：先看(a)零能穿越态，再读(b)同能量的投影，(c)定位口袋，(d)以ELF=0.5和空球位置约束间隙态的解释。红/蓝在(a)表示SOC对照，不能沿用作层颜色。
+
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig4abcd.png" alt="Qiu2022原文Fig.4(a–d)：应变下的 DOS/原子投影，以及 −0.1–0 eV 能窗内的分解密度；密度等值面为 0.0005 e/Å³。" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 4 页 Fig. 4(a–d)：应变下的 DOS/原子投影与 −0.1–0 eV 能窗分解密度；等值面为 0.0005 e/Å³。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+Fig. 4(a–c) 的颜色表示应变，(d) 才是选定能窗的实空间密度。该密度阈值有 e/Å³ 单位，与 Fig. 2 的无量纲 ELF 阈值分别读取。
+
 ## 空间分布保留坐标、单位和阈值
 
 VESTA 的等值面适合看三维位置，切片适合看层间连通与密度分布；平面平均及累计积分用于定量比较。先给出晶轴、法向、原子层的位置，再写等值面的数值与单位。ELF 是无量纲量；电子密度和差分密度要保留各自单位。两个结构作对照时，视向、阈值和色标范围应一致。
 
 正负差分密度可以用以零为中心的发散色标，ELF 可用顺序色标。坐标、切面和连续色标缺少时，图仍可展示空间轮廓，但数值判断要回到完整网格。差分密度的参照应为同晶胞、同网格、同冻结几何的孤立层；累计积分前写出符号约定、面积和电子数归一化。操作与源码见[差分电荷](/Atlas/m/delta-charge/vasp/)、[ELF](/Atlas/m/elf/vasp/)和[平面平均电势](/Atlas/m/electrostatic-potential/vasp/)。
+
+<figure>
+<img src="/Atlas/figures/literature/lee2013-ca2n-fig3.png" alt="Lee等Ca2N原文Fig3电子与空间分布" />
+<figcaption>Lee 等，Nature 494, 336–340 (2013)，PDF 第 4 页 Fig. 3(a–d)：能带、DOS、选中态密度/ELF 与费米面。密度的两个能窗与色标分别保留，ELF 无量纲。<a href="https://doi.org/10.1038/nature11812">论文原文</a>。</figcaption>
+</figure>
 
 Ca₂N 的电化合物研究把层间实空间电子分布与电子结构联系起来。读它的 Fig. 3 时，要同时辨认离子层和间隙区域；这套分析可用于设计自己的密度图，但材料是否具有相同电子态还需检查本模型。[Ca₂N 原文](https://doi.org/10.1038/nature11812)
 
@@ -36,6 +67,15 @@ Ca₂N 的电化合物研究把层间实空间电子分布与电子结构联系�
 这组 Al 的 32³ 与 48³ 曲线在实际采样范围内没有交点；下方 ΔTc 展示的是两条计算的差。不能把没有交点的曲线外推成一个答案。提取表、线性求交源码与运行记录见[Tc 的计算与提取](/Atlas/m/allen-dynes/qe/)。
 
 各向异性 Eliashberg 分析还要保留 Δ(k,T) 在费米面上的分布，以及能隙如何随温度消失。单条各向同性 Δ(T) 或 Allen–Dynes 数值不提供这部分信息。Ba₂N 原文 Fig. 7 展示了各向异性能隙的温度变化；本站已有方程求解入口见[EPW](/Atlas/m/epw-eliashberg/qe/)，数据覆盖到哪一类方程，以该页的实际输入输出为准。[Ba₂N Fig. 7](https://doi.org/10.1103/PhysRevB.105.165101)
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig7.png" alt="Qiu2022原文Fig.7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 7：未应变 Ba₂N 的各向异性能隙分布随温度收缩；纵轴为 meV，横轴为 K。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+能隙分布的纵轴为meV，横轴为温度K；各温度的分布随升温收缩到零，与单条各向同性Δ(T)的含义不同。自己的图必须与实际求解的方程类型和数据分辨率对应。
 
 ## 后处理代码从数据定义写起
 

@@ -280,7 +280,7 @@ maxwell@maxwell:~/al/dfpt$ tail -12 q2r.out
    JOB DONE.
 =------------------------------------------------------------------------------=
 ```
-`q2r.x` 已将这些矩阵变为 `al.fc`。[本次 q2r.in](/Atlas/examples/al/dfpt/q2r.in) 中，`fildyn='al.dyn'` 指向刚完成的矩阵，`flfrc='al.fc'` 指定实空间力常数文件。输入还保留 `zasr='simple'`；q2r 的这个选项针对 Born 有效电荷，不能当成下一步对力常数施加 `asr='crystal'` 的替代。本例是金属 Al，`q2r.out` 明确打印 `Dielectric Tensor not found`，没有把缺少非金属介电张量当作计算中断。输入、输出及全部动力学矩阵可从 [Al 示例文件](/Atlas/examples/al/manifest.json) 对照核验。
+`q2r.x` 已将这些矩阵变为 `al.fc`。[本次 q2r.in](/Atlas/examples/al/dfpt/q2r.in) 中，`fildyn='al.dyn'` 指向刚完成的矩阵，`flfrc='al.fc'` 指定实空间力常数文件。输入还保留 `zasr='simple'`；q2r 的这个选项针对 Born 有效电荷，不能当成下一步对力常数施加 `asr='crystal'` 的替代。本例是金属 Al，`q2r.out` 明确打印 `Dielectric Tensor not found`，没有把缺少非金属介电张量当作计算中断。原始 [ph.x 输入](/Atlas/examples/al/dfpt/al.ph.in)、[ph.x 输出](/Atlas/examples/al/dfpt/al.ph.out)、[q2r 输入](/Atlas/examples/al/dfpt/q2r.in)与[q2r 输出](/Atlas/examples/al/dfpt/q2r.out)可直接打开；[Al 示例文件完整包](/Atlas/examples/al-lesson-files.tar.gz)另含 al.dyn0–al.dyn8 全部动力学矩阵。
 
 ## 沿 Γ—X—W—L—Γ 把频率画出来
 
@@ -583,7 +583,22 @@ if __name__ == "__main__": main()
 
 ## 用论文中的真实模式图理解应变软化
 
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Ba2N论文Fig.3原图：声子色散红点线宽、原子PHDOS、a2F与Ba位移模式" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子色散、原子 PHDOS、α²F 与 Γ 附近约 55 cm⁻¹ 光学模。红点大小正比于线宽 γ；位移箭头表示原子运动幅度。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Qiu 等的 Ba₂N 论文](https://doi.org/10.1103/PhysRevB.105.165101) Fig. 3(a–d)（原文 165101-3 页）按 Γ–M–K–Γ 路径和 cm⁻¹ 频率连接色散、原子 PHDOS、α²F 与振动模式。先在 (a) 找到 Γ 附近约 55 cm⁻¹ 的光学支，再用 (b) 的 Ba 投影确定参与原子，用 (d) 的俯视与侧视辨认上下 Ba 层的面内反向运动。图 (a) 的红点大小正比于线宽 $\gamma_{\mathbf q\nu}$，(d) 的箭头长度表示位移幅度，两种长度不编码同一物理量；图注也未给出不同面板之间的共同振幅或热振幅归一化。最后对照 (c) 中相应频段，才能把运动与耦合联系起来。论文第 2 页的声子/EPC 方法为 QE DFPT、6×6×1 直接 q 网格与 72×72×1 电子积分网格；这组设置属于 Ba₂N，不替代本页 Al 或界面的收敛检查。
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6a.png" alt="Qiu2022原文Fig.6(a)：4% 应变的声子色散；K 附近约 24 cm⁻¹ 的声学模仍在零线上方，红点大小表示线宽。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6e.png" alt="Qiu2022原文Fig.6(e)：K 附近约 24 cm⁻¹ 模在 √3×√3 超胞中的俯视/侧视位移；黄色箭头给出相对运动。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 6(a)：4% 应变的声子色散；K 附近约 24 cm⁻¹ 的声学模仍在零线上方，红点大小表示线宽。；第 5 页 Fig. 6(e)：K 附近约 24 cm⁻¹ 模在 √3×√3 超胞中的俯视/侧视位移；黄色箭头给出相对运动。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
+4% 应变图的 K 模约24 cm⁻¹，仍在零线上方；它在 √3×√3 超胞中的黄色箭头给出位移，俯视与侧视揭示相位和方向。红点大小来自线宽，箭头长度来自模式运动，不能互相读取。本站 Al 的逐q数表与位移仍只由它自己的动力学矩阵生成。
 
 同一论文 Fig. 6（原文第 5 页）给出 4% 双轴拉伸后的对照。Γ 光学模降到约 49 cm⁻¹；K 点出现约 24 cm⁻¹ 的软化声学模。作者用 √3×√3 超胞把原胞 K 点折叠到超胞 Γ，在 Fig. 6(e) 显示真实模式：Ba 同时有面内和面外分量，N 主要在面内移动。读这组图时，先按 q 和频率定位模式，再看箭头与原子投影，最后结合线宽和 α²F 讨论耦合。不能把图上的红色圆点当成原子振幅，Fig. 3(a) 与 Fig. 6(a) 的点大小表示声子线宽。
 

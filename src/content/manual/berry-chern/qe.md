@@ -83,6 +83,13 @@ C_raw = sum(phi_on_fixed_k3_slice) / (2*pi)
 
 <code>phase_per_area_A2</code> 是有限小格的面积平均量。解释连续 Berry 曲率分布还需检查局部量随网格加密的变化；两个网格得到相同整数本身不证明局部曲率收敛。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/fukui2005-fig1.png" alt="公开原文Fig.1(a–c)实际面板" />
+</div>
+<figcaption>Fukui、Hatsugai 与 Suzuki，arXiv:cond-mat/0503172，PDF 第 3 页 Fig. 1(a–c)：同一磁通晶格中间带的两种离散网格和连续近似场强；磁布里渊区坐标与纵量尺度分别读。<a href="https://arxiv.org/pdf/cond-mat/0503172">论文原文</a>。</figcaption>
+</figure>
+
 [FHS 原文 Fig. 1(a–c)](https://arxiv.org/pdf/cond-mat/0503172#page=3)（PDF 第 3 页）给出了这种区别：a、b 是同一磁通晶格模型中间带在 3×9、9×27 网格上的逐小格场强，c 是连续场的有限差分近似。两种离散网格得到相同陈数，但纵轴尺度不同，小格相位会随网格加密而缩小；比较连续曲率前必须处理面积因子。横轴是该模型 Landau 规范下的磁布里渊区 kx、ky，长方形取值范围也不能被直接解释为材料的面内各向异性。
 
 本站复现这种比较可直接使用[4³ 逐小格 CSV](/Atlas/examples/topo_berry_si/k4-plaquettes.csv)：选择相同的 <code>k3_fraction</code> 切片，以 <code>k1_fraction</code>、<code>k2_fraction</code> 定位小格，分别读 <code>phase_rad</code> 或 <code>phase_per_area_A2</code>；[6³ 表](/Atlas/examples/topo_berry_si/k6-plaquettes.csv)使用相同字段。用 gnuplot 将相位作为逐格色值时保留实际网格，并统一对应物理量的色标；面积归一化前后的量各用自己的单位，避免平滑插值掩盖网格差异。这复用本页真实 Si 数据，不引入原文磁通模型的曲率分布。
@@ -378,16 +385,15 @@ print('INDEPENDENT_CHECKS_PASSED')
 
 </details>
 
-完整包还包含逐链接表、随机规范检查表、30 份输入文件的 <code>source-sha256.json</code> 和运行日志。<code>SHA256SUMS</code> 校验下载包内保存的文件；重新执行后处理会重写结果及日志，摘要中的运行时间也会变化，应在重跑前检查保存文件。
+完整包保留逐链接数值表、随机规范检查结果和原生输入/输出；重新执行前保留原有结果，便于将提取值与原档案逐项比较。
 
 ## 运行后处理，读取保存的核对输出
 
-上面的完整包包含两套 QE 输入、输出和 XML、原生 Wannier90 文件及运行日志。先核对包内保存文件的哈希，再执行后处理；以下是对应命令：
+上面的完整包包含两套 QE 输入、输出和 XML、原生 Wannier90 文件及运行日志。保留包内各目录的原始文件关系，再执行后处理；以下是对应命令：
 
 ~~~console
 tar -xzf topo_berry_si_files.tar.gz
 cd topo_berry_si
-sha256sum --check SHA256SUMS
 python3 -B analyse.py > analyse.out 2> analyse.err
 python3 -B verify.py > verify.out 2> verify.err
 cat verify.out
@@ -434,6 +440,13 @@ head -n 7 source/k4/silicon.mmn
 | 6³ | 0.5 | 0.375000228 | 0.812206405 | 0.874999841 | 0.937793627 |
 
 这四个相位不全相同，而相位和 modulo 1 接近周期端点。`0.9999998` 与 `0.0000001` 在这个圆周坐标上很接近，不能把跨过 0/1 的数值直接相减或按排序连成物理分支。矩阵回路保留了行列式总相位中看不见的内部结构。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/soluyanov2011-fig1.png" alt="公开原文Fig.1(a,b)实际面板" />
+</div>
+<figcaption>Soluyanov 与 Vanderbilt，arXiv:1102.5600，PDF 第 4 页 Fig. 1(a,b)：混合 WCC 的圆周/展开表示，蓝绿跟踪两中心，红菱形标最大间隙中心；横轴是泵浦参数，纵轴模 1。<a href="https://arxiv.org/pdf/1102.5600">论文原文</a>。</figcaption>
+</figure>
 
 [Soluyanov–Vanderbilt Fig. 1(a,b)](https://arxiv.org/pdf/1102.5600#page=4)（PDF 第 4 页）把同一 WCC 周期坐标画成左侧圆周和右侧展开的圆柱：纵坐标是模 1 的电荷中心，横坐标 t 从 0 到半个绝热泵浦周期。蓝、绿曲线表示两个中心，红菱形标出每个位置的最大间隙中心；a 示意奇数绕行及伙伴交换，b 示意偶数情形。b 中穿过 0/1 的分支在展开图上看似跳跃，正好说明为什么逐列排序再连线会产生错误。这里 t 表示参数演化，并非本页计算的实际时间。
 
@@ -907,6 +920,11 @@ awk 'NR==1 || NR==2 || NR==42 || NR==82' n81-final/wcc.dat
 这张边界图的强度来自推迟格林函数：能量写成 $E+i\eta$，边界投影上的负虚部给出展宽后的谱权重。这里 η 约为 37.4 meV，会把理想谱线展成有宽度的亮带；颜色高不等于能隙更大。所用 [WannierTools v2.6.2 的 SlabSS_calc](https://github.com/quanshengwu/wannier_tools/blob/v2.6.2/src/surfstat.f90#L84-L239)先累加边界格林函数对角元的负虚部，再取自然对数，没有在这里除以 π。`dos.dat_bulk` 的体投影与边界投影还具有不同的迹空间，两个文件不能直接当成同一绝对归一化下的态密度相除。
 
 复现现有图时保持同一能量窗、展宽和色标，先在体投影中定位能隙，再沿守恒 kₓ 看边界谱支如何接入两侧体带。更改终止方式可以改变边界色散或附加普通表面态；与同一体模型的 WCC 对照，才能区分贯穿能隙的连接和孤立的边界亮线。上述模型在 y 方向切开、x 方向周期，当前输入没有边界势，也没有表面电荷或结构的自洽重排；材料表面发生重构时要重新说明边界模型。
+
+<figure>
+<img src="/Atlas/figures/literature/li2023-fig4.png" alt="公开原文 Fig. 4(a–f) 的实际面板" />
+<figcaption>Li 等，Phys. Rev. B 108, 125302 (2023)，PDF 第 4 页 Fig. 4(a–f)：(a,d) WCC 与 (b,e) 半无限边缘谱构成同一模型的成对检查；横轴、能窗和相位的模 1 约定按原图保留，(c,f) 为原文额外示意。 <a href="https://doi.org/10.1103/PhysRevB.108.125302">论文原文</a>。</figcaption>
+</figure>
 
 [Li 等 Fig. 4(a,b,d,e)](https://doi.org/10.1103/PhysRevB.108.125302)（原文 PDF 第 4 页）在同一异质双层模型中并列 WCC 与半无限边缘谱。a、d 的横轴 k₂ 从 0 到 π，是横向半个倒空间周期；纵轴 WCC(θ/2π) 从 0 到 1，表示相位模 1。b、e 的横轴为边缘守恒动量 X̄–Γ̄–X̄，纵轴为能量 / eV；正文说明边缘谱由 MLWF 哈密顿量经迭代半无限格林函数得到。两幅谱的能量窗口不同，原图也未给数值色条，不能从同样的红色直接比较两构型的谱权重。
 

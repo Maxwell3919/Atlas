@@ -2,7 +2,7 @@
 from atlas_plot_style import install as install_atlas_style
 install_atlas_style()
 from pathlib import Path
-import argparse,csv,json
+import argparse,csv
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -13,8 +13,12 @@ plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top
 BLUE='#0072b2';ORANGE='#e69f00';GRAY='#667080'
 
 def read(name):return np.genfromtxt(ROOT/name,delimiter=',',names=True,encoding='utf-8')
+def numeric_rows(name):
+    with (ROOT/name).open(newline='') as f:
+        return [{k:(v if k=='directory' else float(v)) for k,v in row.items()}
+                for row in csv.DictReader(f)]
 def save(fig,name):
-    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print(OUT/(name+'.png'))
+    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print('plots/'+name+'.png')
 def clean(ax):ax.grid(alpha=.18);ax.set_axisbelow(True)
 def convergence():
     rows=list(csv.DictReader((ROOT/'convergence.csv').open()))
@@ -67,11 +71,11 @@ def relax():
     save(fig, 'relax')
 
 def gap():
-    r=json.loads((ROOT/'gap-results.json').read_text());base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
+    r=numeric_rows('gap-results.csv');base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     axes[0].plot([12,18,24],[x['gap_eV'] for x in base],'o-',color=BLUE);axes[0].set_xticks([12,18,24]);axes[0].set_xlabel('Uniform NSCF mesh n × n × n');axes[0].set_ylabel('Sampled indirect gap (eV)');axes[0].set_title('The sampled minimum need not vary monotonically',fontsize=10)
-    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x['cbm_k_tpiba']):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
-    m=read('mass/longitudinal.csv');fit=json.loads((ROOT/'mass/mass-fits.json').read_text())[1]
+    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x[f'cbm_k{axis}_tpiba'] for axis in 'xyz'):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
+    m=read('mass/longitudinal.csv');fit=numeric_rows('mass/mass-fits.csv')[1]
     dense=next(x for x in r if x['directory']=='gap24-k12-cg');axes[1].plot(m['kx_tpiba'],m['band5_eV']-dense['vbm_eV'],color=BLUE)
     axes[1].scatter([fit['minimum_k_tpiba']],[fit['minimum_energy_eV']-dense['vbm_eV']],color=ORANGE,zorder=4)
     axes[0].margins(y=.20)
@@ -79,7 +83,7 @@ def gap():
     for ax in axes:clean(ax)
     save(fig,'band-gap')
 def mass():
-    r=read('mass/longitudinal.csv');fits=json.loads((ROOT/'mass/mass-fits.json').read_text());fit=fits[1]
+    r=read('mass/longitudinal.csv');fits=numeric_rows('mass/mass-fits.csv');fit=fits[1]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     dk=r['kx_inv_A']-fit['minimum_k_inv_A'];take=np.abs(dk)<.04
     axes[0].scatter(dk[take],(r['band5_eV'][take]-fit['minimum_energy_eV'])*1000,s=24,color=BLUE,label='Actual QE eigenvalues')
@@ -125,7 +129,7 @@ def bands():
     for tick in ticks:ax.axvline(tick,color='#dce1e8',lw=.7)
     ax.axhline(0,color=GRAY,ls='--',lw=.7);ax.set_xticks(ticks,['Γ','X','W','K','Γ','L','X']);ax.set_xlim(ticks[0],ticks[-1]);ax.set_ylim(-13,7);ax.set_ylabel('Energy − VBM (eV)');ax.set_title('Si, PBE, fixed example cell; no SOC');save(fig,'bands')
 def dos():
-    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=json.loads((ROOT/'gap-results.json').read_text());vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
+    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=numeric_rows('gap-results.csv');vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
     fig,ax=plt.subplots(figsize=(7.5,3.7),layout='constrained');ax.plot(r[:,0]-vbm,r[:,1],color=BLUE);ax.fill_between(r[:,0]-vbm,r[:,1],alpha=.15,color=BLUE);ax.axvline(0,color=GRAY,ls='--');ax.set_xlim(-13,8);ax.set_xlabel('Energy − VBM (eV)');ax.set_ylabel('DOS (states/eV/cell)');ax.set_title('24³ NSCF mesh; Gaussian broadening 0.01 Ry');clean(ax);save(fig,'dos')
 
 if __name__=='__main__':

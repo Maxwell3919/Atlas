@@ -209,6 +209,14 @@ NVE 没有温控，温度从初始 300 K 下降也不自动意味着程序丢失
 
 
 
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/bussi2007-fig1.png" alt="公开原文Fig.1–2实际面板" />
+<img src="/Atlas/figures/literature/bussi2007-fig2.png" alt="公开原文Fig.1–2实际面板" />
+</div>
+<figcaption>Bussi、Donadio 与 Parrinello，arXiv:0803.4060v1，PDF 第 4–5 页 Fig. 1–2：物理能量/有效守恒量示意，以及 5 fs、40 fs 的 NVE/NVT 能量漂移对照。Fig. 1 为归一化示意，Fig. 2 左/右轴各使用 kJ/mol，黑/红为 NVE 能量/NVT 有效量。<a href="https://arxiv.org/pdf/0803.4060v1">论文原文</a>。</figcaption>
+</figure>
+
 [Bussi、Donadio 与 Parrinello，DOI: 10.1063/1.2408420](https://doi.org/10.1063/1.2408420)的作者版 PDF 第 4 页 [Fig. 1](https://arxiv.org/html/0803.4060v1#S2.F1)把物理能量 H 与有效守恒量 $\tilde H$ 分成上下两幅：横轴以积分步长计时，纵轴用 H 的均方根涨落归一化；实线段表示 Verlet 推进，虚线段表示速度重标度。这张示意图说明热浴能改变 H，而评估积分误差要跟踪相应守恒量，不能仅凭恒温轨迹的能量线“看着平”作判断。
 
 第 5 页 [Fig. 2 的上、下两幅](https://arxiv.org/html/0803.4060v1#S3.F2)使用相同的时间轴（ps），分别展示 5 fs 与 40 fs 的积分步长。每幅黑线对应左轴的 NVE 总能量，红线对应右轴的 SVR–NVT 有效能量，单位均为 kJ/mol；作者比较的是随时间的漂移，而不是把两种纵轴的绝对值相减。小步长没有明显漂移，大步长出现漂移，即使热浴仍让结构轨迹保持有界，也不能据此接受积分精度。本例只对应其中的 NVE 步长检查：已有的两条 Al 轨迹使用相同初态，作图按各自首个能量样本归零、换算为 meV/atom，并对齐真实能量采样时间。没有提取 $\tilde H$，所以不另造 NVT 守恒量曲线，也不用 SVR 的 $E_{\mathrm{kin}}+E_{\mathrm{tot}}$ 波动替代它。
@@ -612,6 +620,13 @@ print('Wrote aimd-temperature, aimd-energy, aimd-displacement as PNG and PDF')
 ## 怎样接到界面热运动
 
 界面 AIMD 的判读需要回到构型：在同一共同晶胞下追踪层间距的分布、两层相对滑移、层内键长和配位变化，并对相邻时间段与末帧查看是否发生持续重构。若原子跨过周期边界，应先按层和键的连续性展开坐标，再求距离，不能把分数 z 的跳变直接解释成层脱离。
+
+<figure>
+<div>
+<img src="/Atlas/figures/literature/bu2025-ws2-sc2c-fig6.png" alt="公开原文Fig.6(a–f)实际面板" />
+</div>
+<figcaption>Bu 与 Sun，Phys. Chem. Chem. Phys. 27, 14397–14409 (2025)，PDF 第 5 页 Fig. 6(a–f)：上排声子频率/THz，下排 300 K 轨迹的 Free energy/eV 随时间/fs 与首末结构。三列分别为未修饰、H 修饰、F 修饰。<a href="https://doi.org/10.1039/D5CP01402F">论文原文</a>。</figcaption>
+</figure>
 
 Bu 与 Sun 的 [WS₂/Sc₂C 研究](https://doi.org/10.1039/D5CP01402F)在 §2 说明 AIMD 使用 4×4×1 超胞，§3.1 给出 300 K、1 fs 步长和 6 ps 窗口。[原文 PDF 第 5 页，Fig. 6(d–f)](https://pubs.rsc.org/en/content/articlepdf/2025/cp/d5cp01402f#page=5)分别对应未修饰、H 修饰和 F 修饰的界面：横轴是 0–6000 fs，纵轴是各体系的能量（图上写为 Free energy，eV），黑色能量线旁同时放入初态、末态的侧视结构。各面板含不同组成，不能比较其绝对纵坐标高低来排列稳定性；作者依据各自时间序列与结构保持情况作分析，并将它们与上排 Fig. 6(a–c) 的沿高对称路径声子频率（THz）并列。
 

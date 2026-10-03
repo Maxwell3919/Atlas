@@ -163,12 +163,12 @@ $$
 把读取脚本放在解包后的双分支目录，可用同一条命令重建这张表：
 
 ```console
-$ python3 q_contributions.py k32 k48 --sigma 0.020 --outdir ledger
+$ python3 q_contributions.py k32 k48 --sigma 0.020 --outdir mode-tables
 k32: sigma=0.020 Ry; 24 modes; weight sum=64; lambda_qsum=0.3744859375; native rounding matched
 k48: sigma=0.020 Ry; 24 modes; weight sum=64; lambda_qsum=0.3675046875; native rounding matched
 ```
 
-[48³ 的逐模 CSV](/Atlas/examples/enrichment-20261003/supercon/k48-mode-contributions.csv)与[q 汇总 JSON](/Atlas/examples/enrichment-20261003/supercon/k48-q-contributions.json)也随这次读取保存。命令读取原件并写 ledger，不运行 pw.x、ph.x 或 lambda.x。
+[48³ 的逐模 CSV](/Atlas/examples/enrichment-20261003/supercon/k48-mode-contributions.csv)与[q 汇总 JSON](/Atlas/examples/enrichment-20261003/supercon/k48-q-contributions.json)也随这次读取保存。命令读取原件，把逐模 CSV 与 q 加权结果写入 `mode-tables/`；不会重新运行 pw.x、ph.x 或 lambda.x。
 
 
 
@@ -192,6 +192,16 @@ $$
 累计曲线在谱峰所在频段抬升，到最高频率后趋于总λ。某频段[a,b]的贡献为λ(b)−λ(a)，所以按同一频率范围比较两个体系的Δλ，比单看峰高更直接。1/ν使低频谱权重对λ更敏感；尖但很窄的高频峰不一定贡献最大的台阶。区间边界应来自实际模式和PHDOS归属，不能任意按元素质量替所有模式分类。
 
 ![Al实际α²F与累计λ](/Atlas/examples/al/figures/eliashberg-a2f.png)
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3b.png" alt="Qiu2022原文Fig.3(b)：未应变 Ba₂N 的原子 PHDOS；黑、红、蓝线分别表示总谱、N、Ba。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3c.png" alt="Qiu2022原文Fig.3(c)：未应变 Ba₂N 的 Eliashberg α²F 蓝色谱；横轴频率为 cm⁻¹。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6b.png" alt="Qiu2022原文Fig.6(a–d)完整联图，重点读(b)的4%应变原子PHDOS；其Frequency轴与(c)的λ(ω)标记分别属于各自面板。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6c.png" alt="Qiu2022原文Fig.6(c)：4% 应变的 α²F 蓝色谱线；右侧 λ 标记不能替代未清楚显示的累计数值。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 3(b)：未应变 Ba₂N 的原子 PHDOS；黑、红、蓝线分别表示总谱、N、Ba。；第 3 页 Fig. 3(c)：未应变 Ba₂N 的 Eliashberg α²F 蓝色谱；横轴频率为 cm⁻¹。；第 5 页 Fig. 6(a–d)完整联图，重点读(b)的4%应变原子PHDOS：黑、红、蓝线分别为总谱、N、Ba，横轴Frequency/cm⁻¹；相邻(c)的λ(ω)不属于(b)。；第 5 页 Fig. 6(c)：4% 应变的 α²F 蓝色谱线；右侧 λ 标记不能替代未清楚显示的累计数值。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Ba₂N Fig. 6(b,c)，PDF第5页](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.105.165101)的两块图用同一频率轴：PHDOS标出Ba/N的模态组成，蓝色α²F衡量配对权重。(c)右侧另标红色λ(ω)，但这份公开PDF没有可清楚辨认的红色累计曲线与右轴刻度，不据它读取累计λ。约24 cm⁻¹的α²F峰要回到Fig. 6(a,e)的K软模核对；同一频段的PHDOS峰补充原子组成，累计贡献则由自己的数值谱积分。复现时对每个真实频率点累计积分2α²F/ν，不把每条累计曲线归一化到1，也不按峰高缩放谱线。Ba₂N图注未给出PHDOS数值积分规范，不能从印刷峰高反推各元素的精确模式数；本页使用自己的Al文件与QE定义。现有Al图分别画σ=0.005、0.020、0.050 Ry的谱与累计λ，频率单位为THz，颜色贯穿上下两幅。若并排放PHDOS，先统一频率单位并相应换算谱密度，保留每原胞积分；读谱时保留α²F与PHDOS各自纵轴。
 
@@ -476,6 +486,11 @@ if __name__=='__main__':main()
 ## Ba₂N的应变比较怎样读
 
 Ba₂N图3和图6保持色散、PHDOS和α²F的对应关系。未应变Γ附近约55 cm⁻¹的Ba面内反向光学模，在4%拉伸后移至约49 cm⁻¹；K声学模软化后，在图6(c)出现约24 cm⁻¹峰。72、92、105 cm⁻¹附近的谱变化还要与Ba/N投影混合及对应模式一起解释。低频峰对累计λ的影响由1/ν积分权重决定，不能只按α²F最高峰归因。
+
+<figure>
+<img src="/Atlas/figures/literature/ponce2016-pb-fig13.png" alt="Poncé等原文Fig.13的Pb谱与采样对照" />
+<figcaption>Poncé 等，Comput. Phys. Commun. 209, 116–133 (2016)，原文 PDF 第 12 页 Fig. 13：Pb 的配对谱、输运谱和各自累计耦合。蓝色无 SOC，红色有 SOC；粗实线为配对谱，粗虚线为输运谱，细线为相应累计量。横轴为 meV，累计耦合无量纲。<a href="https://doi.org/10.1016/j.cpc.2016.07.028">论文原文</a>。</figcaption>
+</figure>
 
 图3(c)与图6(c)可直接比较蓝色α²F的峰位与谱重分布；4%应变的总λ=1.49来自正文和图5的报告值，不能将它当作从图6(c)红线末点读出的数。自己的累计曲线应按原谱计算，再将台阶与同频段模式对应起来。可见的累计线画法另见[Poncé等Fig. 13，PDF第12页](https://doi.org/10.1016/j.cpc.2016.07.028)：普通α²F用蓝粗实线、累计λ用蓝细实线；输运谱和输运积分采用蓝虚线，需按图例分别读。用于自己的界面，应保持单层与异质结的应变、结构参考和数值协议一致，才比较频段贡献。
 

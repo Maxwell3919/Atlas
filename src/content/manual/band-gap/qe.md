@@ -6,7 +6,7 @@ Si 的价带顶位于 Γ 附近，导带底却在 Γ–X 之间。只在几个�
 
 [pw.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_PW.html) · [bands.x 输入说明](https://www.quantum-espresso.org/Doc/INPUT_BANDS.html) · [PWscf 用户手册](https://www.quantum-espresso.org/Doc/pw_user_guide/)
 
-[下载 Si 算例](/Atlas/examples/si-pbe-electronic-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `gap-results.json`、`mass/longitudinal.csv` 和 `mass/mass-fits.json`；包内还保留用于核对的输入、输出与 XML。包中不含可接续计算的 `tmp/si.save`，重新求能级时需先按下文前提重建对应父 SCF 密度。
+[下载 Si 算例](/Atlas/examples/si-pbe-electronic-files.tar.gz)后保留目录结构，在 `si-pbe` 中运行绘图脚本。本页图读取 `gap-results.csv`、`mass/longitudinal.csv` 和 `mass/mass-fits.csv`；包内还保留用于核对的输入、输出与 XML。包中不含可接续计算的 `tmp/si.save`，重新求能级时需先按下文前提重建对应父 SCF 密度。
 
 ## 从父 SCF 密度生成均匀网格能级
 
@@ -211,7 +211,7 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 [preston@preston-System-Product-Name si-pbe]$
 ```
 
-`edges.csv` 保留每个实际计算点的坐标和第 4、5 条能级。[提取脚本](/Atlas/examples/si-pbe-electronic/analyse_electronic.py)读取 XML 的 Hartree 本征值并转换成 eV，同时保留坐标；[汇总结果](/Atlas/examples/si-pbe-electronic/gap-results.json)中记录了 VBM、CBM 的位置和直接/间接两种差值。
+`edges.csv` 保留每个实际计算点的坐标和第 4、5 条能级。[提取脚本](/Atlas/examples/si-pbe-electronic/analyse_electronic.py)读取 XML 的 Hartree 本征值并转换成 eV，同时保留坐标；[带边坐标与间隙表](/Atlas/examples/si-pbe-electronic/gap-results.csv)中记录了 VBM、CBM 的位置和直接/间接两种差值。
 
 重建 `12³` 父密度时，使用收敛算例的真实 [k12/scf.in](/Atlas/examples/basics-si-convergence/si-pbe/k12/scf.in)，在独立 `k12` 目录准备相同赝势并按 [Si SCF](/Atlas/m/scf/qe/) 的运行方法完成计算，生成 `k12/tmp/si.save`。这份输入保持同一晶胞、PBE、`60/640 Ry` 与无 SOC，网格为 `12 12 12 0 0 0`；不能用入门页的 `8³` 保存目录代替。
 
@@ -225,14 +225,14 @@ kx_tpiba,ky_tpiba,kz_tpiba,vbm_band4_eV,cbm_band5_eV
 | CBM变化 | −0.98673 |
 | 间隙变化：ΔCBM−ΔVBM | +0.69997 |
 
-这张差值表由同页 `gap-results.json` 的 `gap24-cg` 与 `gap24-k12-cg` 两行相减，主要用来分解间隙差的来源。两次输出未建立共同真空或静电势参考，不能把前两行解释成可测的绝对带边位移；它们的差才是不依赖统一能量平移的间隙变化。局部谷搜索随后继续使用12³父密度，使6.93552194 eV的谷底与6.39534226 eV的价带顶成对相减，而不是混用8³父密度的价带顶。
+这张差值表由同页 `gap-results.csv` 的 `gap24-cg` 与 `gap24-k12-cg` 两行相减，主要用来分解间隙差的来源。两次输出未建立共同真空或静电势参考，不能把前两行解释成可测的绝对带边位移；它们的差才是不依赖统一能量平移的间隙变化。局部谷搜索随后继续使用12³父密度，使6.93552194 eV的谷底与6.39534226 eV的价带顶成对相减，而不是混用8³父密度的价带顶。
 
 随后沿同一个 `12³` 父密度的 Γ–X 谷做密集采样，局部拟合把谷底定位在 `kx≈0.84430088×2π/a`。与同父密度的 VBM 相减，得到约 **0.54017968 eV**。下面保留这一步独立于均匀网格的输入、采样范围与拟合来源。
 
 <details>
 <summary>局部谷搜索：12³父密度、101点输入与拟合窗口</summary>
 
-[完整电子算例包](/Atlas/examples/si-pbe-electronic-files.tar.gz)中保留 `mass/mass.in`、`mass/mass.out`、`mass/data-file-schema.xml`、`mass/longitudinal.csv` 与 `mass/mass-fits.json`。公开包不含可接续运行的 `tmp/si.save`；重算先完成上面的 `k12` SCF，再把父保存目录复制到独立 `mass` 分支：
+[完整电子算例包](/Atlas/examples/si-pbe-electronic-files.tar.gz)中保留 `mass/mass.in`、`mass/mass.out`、`mass/data-file-schema.xml`、`mass/longitudinal.csv` 与 `mass/mass-fits.csv`。公开包不含可接续运行的 `tmp/si.save`；重算先完成上面的 `k12` SCF，再把父保存目录复制到独立 `mass` 分支：
 
 ```bash
 mkdir -p mass
@@ -384,7 +384,68 @@ K_POINTS tpiba
 | 0.02 | 13 | 0.84430088 | 6.93552194 | 0.000866 |
 | 0.03 | 21 | 0.84426999 | 6.93552156 | 0.003613 |
 
-采用 `±0.02 Å⁻¹` 的谷底，与 `gap24-k12-cg` 的同父密度 VBM=6.395342259906624eV相减，得到0.54017968eV。三个窗口的谷底位置略有变化，更宽窗口的二次拟合残差增大；这项检查针对局部拟合，不替代全布里渊区的极值搜索。窗口原始量见包内 `mass/mass-fits.json`；[纵向CSV](/Atlas/examples/si-pbe-electronic/mass/longitudinal.csv)、[窗口复核表](/Atlas/examples/si-pbe-electronic/mass/mass-checks.csv)和 [复核源码](/Atlas/examples/si-pbe-electronic/analyse_mass_checks.py)同时保留。复核源码还读取包内 `mass-transverse`、`mass-k14` 的XML，复用时需保留这些目录；只提取本段三个纵向窗口可用后文共用提取器中的 `mass` 拟合段。
+采用 `±0.02 Å⁻¹` 的谷底，与 `gap24-k12-cg` 的同父密度 VBM=6.395342259906624eV相减，得到0.54017968eV。三个窗口的谷底位置略有变化，更宽窗口的二次拟合残差增大；这项检查针对局部拟合，不替代全布里渊区的极值搜索。窗口原始量见包内 `mass/mass-fits.csv`；[纵向CSV](/Atlas/examples/si-pbe-electronic/mass/longitudinal.csv)、[窗口复核表](/Atlas/examples/si-pbe-electronic/mass/mass-checks.csv)和 [复核源码](/Atlas/examples/si-pbe-electronic/analyse_mass_checks.py)同时保留。复核源码还读取包内 `mass-transverse`、`mass-k14` 的XML，复用时需保留这些目录；只提取本段三个纵向窗口可用后文共用提取器中的 `mass` 拟合段。
+
+跨方向比较使用各自XML的物理波矢，仍按三种窗口逐次拟合。可向代码助手提出：
+
+```text
+读取mass、mass-k14、mass-transverse的QE XML，将Hartree能量转eV、tpiba波矢转Å⁻¹。用第5带最低采样点为窗口中心，分别拟合±0.01/0.02/0.03 Å⁻¹，输出方向、点数、有效质量、曲率、顶点与RMS的CSV；保留原点，不以点号代替波矢。
+```
+
+完整源码如下：
+
+```python
+from pathlib import Path
+import csv,xml.etree.ElementTree as ET
+import numpy as np
+R=Path(__file__).resolve().parent
+BOHR_ANG=0.529177210903
+HA_EV=27.211386245988
+C=3.80998211615486
+
+def read(d):
+    x=ET.parse(R/d/'data-file-schema.xml').getroot().find('output');a=float(x.find('atomic_structure').attrib['alat'])*BOHR_ANG
+    states=x.find('band_structure').findall('ks_energies')
+    k=np.array([[float(v) for v in s.find('k_point').text.split()] for s in states])*2*np.pi/a
+    e=np.array([[float(v)*HA_EV for v in s.find('eigenvalues').text.split()] for s in states])
+    return k,e
+
+rows=[]
+for d,direction,part,col in [('mass','longitudinal',slice(None),0),('mass-k14','longitudinal-k14',slice(None),0),('mass-transverse','transverse-y',slice(0,33),1),('mass-transverse','transverse-z',slice(33,66),2)]:
+    k,e=read(d);q=k[part,col];ec=e[part,4];q0=q[ec.argmin()]
+    for window in [.01,.02,.03]:
+        mask=np.abs(q-q0)<=window+1e-12
+        a,b,c=np.polyfit(q[mask]-q0,ec[mask],2)
+        residual=np.polyval([a,b,c],q[mask]-q0)-ec[mask]
+        rows.append({'directory':d,'direction':direction,'window_inv_A':window,'points':int(mask.sum()),'mass_over_me':float(C/a),'curvature_eVA2':float(2*a),'minimum_k_inv_A':float(q0-b/(2*a)),'rms_residual_meV':float(np.sqrt(np.mean(residual**2))*1000)})
+with (R/'mass/mass-checks.csv').open('w') as f:
+    w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+for row in rows:
+    print(f"{row['direction']:18s} window={row['window_inv_A']:.2f}  n={row['points']:2d}  m/me={row['mass_over_me']:.8f}  RMS={row['rms_residual_meV']:.6f} meV")
+```
+
+保留整包各方向XML，在si-pbe根目录执行：
+
+```bash
+python3 analyse_mass_checks.py
+```
+
+本次在Talos对原XML副本实际执行的结果为：
+
+```text
+longitudinal       window=0.01  n= 7  m/me=0.95645509  RMS=0.000212 meV
+longitudinal       window=0.02  n=13  m/me=0.95590414  RMS=0.000866 meV
+longitudinal       window=0.03  n=21  m/me=0.95557656  RMS=0.003613 meV
+longitudinal-k14   window=0.01  n= 7  m/me=0.95645402  RMS=0.000212 meV
+longitudinal-k14   window=0.02  n=13  m/me=0.95590308  RMS=0.000866 meV
+longitudinal-k14   window=0.03  n=21  m/me=0.95557550  RMS=0.003613 meV
+transverse-y       window=0.01  n= 7  m/me=0.19176939  RMS=0.000070 meV
+transverse-y       window=0.02  n=13  m/me=0.19193550  RMS=0.000712 meV
+transverse-y       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
+transverse-z       window=0.01  n= 7  m/me=0.19176939  RMS=0.000070 meV
+transverse-z       window=0.02  n=13  m/me=0.19193550  RMS=0.000712 meV
+transverse-z       window=0.03  n=21  m/me=0.19232024  RMS=0.005181 meV
+```
 
 </details>
 
@@ -396,9 +457,9 @@ K_POINTS tpiba
 
 ```text
 编写 Si 采样带隙分析程序，使用 Python 3、NumPy 和 Matplotlib。
-输入：gap12、gap18-cg、gap24-cg 的 edges.csv，gap-results.json，以及 mass/longitudinal.csv、mass-fits.json。k 为 tpiba（2π/a），band 4/5 能量为 eV。
+输入：gap12、gap18-cg、gap24-cg 的 edges.csv，gap-results.csv，以及 mass/longitudinal.csv、mass-fits.csv。k 为 tpiba（2π/a），band 4/5 能量为 eV。
 方法：各父 SCF 链分别计算 VBM=max(Ev)、CBM=min(Ec)、间接采样隙=CBM−VBM、直接采样隙=min_k[Ec(k)−Ev(k)]，保留极值坐标。将均匀网格与 12³ 父密度局部谷细化分开。
-检查：行数、有限数值、带号及父密度匹配，重算值与 JSON 一致。
+检查：行数、有限数值、带号及父密度匹配，将重算的带边和窗口拟合值与 CSV 各行比较。
 输出：源码、依赖、命令、带边及坐标表、PNG/SVG/PDF。图保留网格结果的非单调变化，结果标为固定晶胞 PBE 无 SOC 的 Kohn–Sham 能级差。
 ```
 
@@ -411,7 +472,7 @@ K_POINTS tpiba
 
 ```python
 from pathlib import Path
-import csv, json, re, hashlib, xml.etree.ElementTree as ET
+import csv, xml.etree.ElementTree as ET
 import numpy as np
 ROOT=Path(__file__).resolve().parent
 RY_EV=13.605693122994
@@ -419,7 +480,6 @@ HA_EV=2*RY_EV
 BOHR_ANG=0.529177210903
 HBAR2_OVER_2ME=3.80998211615486 # eV Angstrom^2
 
-def sha(p): return hashlib.sha256(p.read_bytes()).hexdigest()
 def table(path,header,rows):
     with path.open('w') as f:
         w=csv.writer(f);w.writerow(header);w.writerows(rows)
@@ -441,7 +501,10 @@ for name in ['gap12','gap18-cg','gap24-cg','gap24-k12-cg']:
     row={'directory':name,'nks':len(k),'vbm_eV':float(v[iv]),'cbm_eV':float(c[ic]),'gap_eV':float(c[ic]-v[iv]),'minimum_direct_gap_eV':float((c-v).min()),'vbm_k_tpiba':k[iv].tolist(),'cbm_k_tpiba':k[ic].tolist()}
     gaps.append(row)
     table(ROOT/name/'edges.csv',['kx_tpiba','ky_tpiba','kz_tpiba','vbm_band4_eV','cbm_band5_eV'],np.c_[k,v,c])
-(ROOT/'gap-results.json').write_text(json.dumps(gaps,indent=2)+'\n')
+gap_columns=['directory','nks','vbm_eV','cbm_eV','gap_eV','minimum_direct_gap_eV',
+             'vbm_kx_tpiba','vbm_ky_tpiba','vbm_kz_tpiba','cbm_kx_tpiba','cbm_ky_tpiba','cbm_kz_tpiba']
+table(ROOT/'gap-results.csv',gap_columns,
+      [[r[k] for k in gap_columns[:6]]+r['vbm_k_tpiba']+r['cbm_k_tpiba'] for r in gaps])
 
 # Fits use physical k in inverse Angstrom, not a path-point index.
 k,e,a=read_xml('mass'); kcart=k*2*np.pi/a
@@ -453,7 +516,7 @@ for window in [.010,.020,.030]:
     fit=np.polyval(coeff,kcart[take,0]-center)
     x0=center-coeff[1]/(2*coeff[0]);e0=coeff[2]-coeff[1]**2/(4*coeff[0])
     fits.append({'half_window_inv_A':window,'npoints':int(take.sum()),'quadratic_A_eVA2':float(coeff[0]),'minimum_k_inv_A':float(x0),'minimum_k_tpiba':float(x0*a/(2*np.pi)),'minimum_energy_eV':float(e0),'mass_over_me':float(HBAR2_OVER_2ME/coeff[0]),'rms_residual_meV':float(np.sqrt(np.mean((fit-e[take,4])**2))*1000)})
-(ROOT/'mass/mass-fits.json').write_text(json.dumps(fits,indent=2)+'\n')
+table(ROOT/'mass/mass-fits.csv',list(fits[0]),[list(r.values()) for r in fits])
 table(ROOT/'mass/longitudinal.csv',['kx_tpiba','kx_inv_A','band5_eV'],np.c_[k[:,0],kcart[:,0],e[:,4]])
 
 # Actual 3D local cube: retain every point, not only a plotted 2D slice.
@@ -485,6 +548,9 @@ for ik,proj in enumerate(projs):
 table(ROOT/'bands-cg/fatband.csv',['ik','iband','path_distance_tpiba','kx_tpiba','ky_tpiba','kz_tpiba','energy_eV','Si_s_weight','Si_p_weight','projection_norm'],rows)
 
 print('gaps:',len(gaps),'fits:',len(fits),'fatband rows:',len(rows))
+
+for g in gaps: print(f"{g['directory']}: {g['nks']} k points; indirect={g['gap_eV']:.8f} eV; minimum direct={g['minimum_direct_gap_eV']:.8f} eV")
+for f in fits: print(f"Window +/-{f['half_window_inv_A']:.2f} A^-1: {f['npoints']} points; mass/me={f['mass_over_me']:.8f}; RMS={f['rms_residual_meV']:.6f} meV")
 ```
 
 </details>
@@ -497,7 +563,7 @@ print('gaps:',len(gaps),'fits:',len(fits),'fatband rows:',len(rows))
 from atlas_plot_style import install as install_atlas_style
 install_atlas_style()
 from pathlib import Path
-import argparse,csv,json
+import argparse,csv
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -508,8 +574,12 @@ plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top
 BLUE='#0072b2';ORANGE='#e69f00';GRAY='#667080'
 
 def read(name):return np.genfromtxt(ROOT/name,delimiter=',',names=True,encoding='utf-8')
+def numeric_rows(name):
+    with (ROOT/name).open(newline='') as f:
+        return [{k:(v if k=='directory' else float(v)) for k,v in row.items()}
+                for row in csv.DictReader(f)]
 def save(fig,name):
-    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print(OUT/(name+'.png'))
+    fig.savefig(OUT/(name+'.png'),bbox_inches='tight');fig.savefig(OUT/(name+'.svg'),bbox_inches='tight');plt.close(fig);print('plots/'+name+'.png')
 def clean(ax):ax.grid(alpha=.18);ax.set_axisbelow(True)
 def convergence():
     rows=list(csv.DictReader((ROOT/'convergence.csv').open()))
@@ -562,11 +632,11 @@ def relax():
     save(fig, 'relax')
 
 def gap():
-    r=json.loads((ROOT/'gap-results.json').read_text());base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
+    r=numeric_rows('gap-results.csv');base=[x for x in r if x['directory'] in ['gap12','gap18-cg','gap24-cg']]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     axes[0].plot([12,18,24],[x['gap_eV'] for x in base],'o-',color=BLUE);axes[0].set_xticks([12,18,24]);axes[0].set_xlabel('Uniform NSCF mesh n × n × n');axes[0].set_ylabel('Sampled indirect gap (eV)');axes[0].set_title('The sampled minimum need not vary monotonically',fontsize=10)
-    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x['cbm_k_tpiba']):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
-    m=read('mass/longitudinal.csv');fit=json.loads((ROOT/'mass/mass-fits.json').read_text())[1]
+    for n,x in zip([12,18,24],base):axes[0].annotate(f"{max(x[f'cbm_k{axis}_tpiba'] for axis in 'xyz'):.4f} × 2π/a",(n,x['gap_eV']),xytext=(0,7),textcoords='offset points',ha='center',fontsize=8)
+    m=read('mass/longitudinal.csv');fit=numeric_rows('mass/mass-fits.csv')[1]
     dense=next(x for x in r if x['directory']=='gap24-k12-cg');axes[1].plot(m['kx_tpiba'],m['band5_eV']-dense['vbm_eV'],color=BLUE)
     axes[1].scatter([fit['minimum_k_tpiba']],[fit['minimum_energy_eV']-dense['vbm_eV']],color=ORANGE,zorder=4)
     axes[0].margins(y=.20)
@@ -574,7 +644,7 @@ def gap():
     for ax in axes:clean(ax)
     save(fig,'band-gap')
 def mass():
-    r=read('mass/longitudinal.csv');fits=json.loads((ROOT/'mass/mass-fits.json').read_text());fit=fits[1]
+    r=read('mass/longitudinal.csv');fits=numeric_rows('mass/mass-fits.csv');fit=fits[1]
     fig,axes=plt.subplots(1,2,figsize=(10,3.6),layout='constrained')
     dk=r['kx_inv_A']-fit['minimum_k_inv_A'];take=np.abs(dk)<.04
     axes[0].scatter(dk[take],(r['band5_eV'][take]-fit['minimum_energy_eV'])*1000,s=24,color=BLUE,label='Actual QE eigenvalues')
@@ -620,7 +690,7 @@ def bands():
     for tick in ticks:ax.axvline(tick,color='#dce1e8',lw=.7)
     ax.axhline(0,color=GRAY,ls='--',lw=.7);ax.set_xticks(ticks,['Γ','X','W','K','Γ','L','X']);ax.set_xlim(ticks[0],ticks[-1]);ax.set_ylim(-13,7);ax.set_ylabel('Energy − VBM (eV)');ax.set_title('Si, PBE, fixed example cell; no SOC');save(fig,'bands')
 def dos():
-    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=json.loads((ROOT/'gap-results.json').read_text());vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
+    r=np.loadtxt(ROOT/'dos-cg/si.dos.dat');g=numeric_rows('gap-results.csv');vbm=next(x['vbm_eV'] for x in g if x['directory']=='gap24-cg')
     fig,ax=plt.subplots(figsize=(7.5,3.7),layout='constrained');ax.plot(r[:,0]-vbm,r[:,1],color=BLUE);ax.fill_between(r[:,0]-vbm,r[:,1],alpha=.15,color=BLUE);ax.axvline(0,color=GRAY,ls='--');ax.set_xlim(-13,8);ax.set_xlabel('Energy − VBM (eV)');ax.set_ylabel('DOS (states/eV/cell)');ax.set_title('24³ NSCF mesh; Gaussian broadening 0.01 Ry');clean(ax);save(fig,'dos')
 
 if __name__=='__main__':
@@ -632,7 +702,7 @@ if __name__=='__main__':
 
 </details>
 
-`analyse_electronic.py` 是完整电子下载包的共用提取器：一次运行读取带隙网格 XML，并同时读取 `mass/data-file-schema.xml`、`bands-cg/data-file-schema.xml` 和 `bands-cg/atomic_proj.xml`，生成带隙、纵向质量及胖带数据；包内的局部三维 XML 存在时也会提取该网格。因此运行它时保留整包目录及这些跨页面数据。上面的提示词描述本页性质的分析逻辑，复用现有共用脚本时还需满足这组文件依赖。只重画已有 CSV/JSON 时，直接执行 `python3 plot_si.py gap`。
+`analyse_electronic.py` 是完整电子下载包的共用提取器：一次运行读取带隙网格 XML，并同时读取 `mass/data-file-schema.xml`、`bands-cg/data-file-schema.xml` 和 `bands-cg/atomic_proj.xml`，生成带隙、纵向质量及胖带数据；包内的局部三维 XML 存在时也会提取该网格。因此运行它时保留整包目录及这些跨页面数据。上面的提示词描述本页性质的分析逻辑，复用现有共用脚本时还需满足这组文件依赖。只重画已有 CSV 时，直接执行 `python3 plot_si.py gap`。
 
 解压本页示例包后，在 `si-pbe` 根目录执行：
 
@@ -642,12 +712,24 @@ python3 analyse_electronic.py
 python3 plot_si.py gap
 ```
 
-本例保存的绘图运行输出如下：
+下面是Talos本次读取原XML并重画既有图的实际输出：
 
 ```text
-[preston@preston-System-Product-Name si-pbe]$ python3 plot_si.py gap
-<工作目录>/si-pbe/plots/band-gap.png
+gaps: 4 fits: 3 fatband rows: 968
+gap12: 72 k points; indirect=0.54012956 eV; minimum direct=2.56952644 eV
+gap18-cg: 195 k points; indirect=0.55031696 eV; minimum direct=2.56952644 eV
+gap24-cg: 413 k points; indirect=0.54012957 eV; minimum direct=2.56952644 eV
+gap24-k12-cg: 413 k points; indirect=0.54082954 eV; minimum direct=2.57024205 eV
+Window +/-0.01 A^-1: 7 points; mass/me=0.95645509; RMS=0.000212 meV
+Window +/-0.02 A^-1: 13 points; mass/me=0.95590414; RMS=0.000866 meV
+Window +/-0.03 A^-1: 21 points; mass/me=0.95557656; RMS=0.003613 meV
+plots/band-gap.png
 ```
+
+<figure>
+<img src="/Atlas/examples/si-pbe-electronic/plots/band-gap.png" alt="Si均匀网格采样带隙与同父密度Gamma-X局部导带谷的实际数据图" />
+<figcaption>本站 Si/PBE 原始能级的后处理图：左侧比较 12³、18³、24³ 均匀 NSCF 网格采到的间接带隙；右侧显示沿 Γ–X 的 101 个实际点及局部谷拟合。同一面板中的价、导带参考保持成对，网格采样值的非单调变化按原数据保留。</figcaption>
+</figure>
 
 上面的均匀网格表保留非单调采样值，折叠段的101点输入与窗口表保留局部谷细化依据。采样间隙和局部细化值使用各自配对的父密度；不能把不同父密度的 CBM 与 VBM 相减。[原有采样对照图](/Atlas/examples/si-pbe-electronic/plots/band-gap.png)随完整算例保留。
 
@@ -655,7 +737,12 @@ python3 plot_si.py gap
 
 ## 带边搜索怎样接到界面金属化
 
-[SnSe₂/PtTe₂ 原文 PDF 第3页 Fig. 1(c,f,i)](https://arxiv.org/pdf/2502.13690v1#page=3)共用 Γ–M–K–Γ 路径与 E−E_F 能量读法。(c)、(f)辨认两个孤立层的带边，(i)以红/蓝层权重显示界面近费米分支，M附近插图标出电子口袋深度ΔE。这个量是能量差，不能直接当转移电子数；作者还联读(h)差分密度与正文分析。只看路径上是否穿过零能，也不能保证找到整个BZ的带边。
+<figure>
+<img src="/Atlas/figures/literature/fan2025-snse2-ptte2-fig1cfi.png" alt="公开论文原始Fig.1(c,f,i)面板" />
+<figcaption>Fan 等，arXiv:2502.13690v1 (2025)，原文第 3 页 Fig. 1(c,f,i)：SnSe₂、PtTe₂ 孤立层与接触后的界面能带/PDOS。红色与蓝色分别跟踪 SnSe₂、PtTe₂ 层；(i) 的插图标出 M 附近电子口袋深度 ΔE。<a href="https://arxiv.org/pdf/2502.13690v1">论文原文</a>。</figcaption>
+</figure>
+
+[SnSe₂/PtTe₂ 原文 PDF 第3页 Fig. 1(c,f,i)](https://arxiv.org/pdf/2502.13690v1#page=3)共用 Γ–M–K–Γ 路径与 E−E_F 能量读法。(c)、(f)辨认两个孤立层的带边，(i)以红/蓝层权重显示界面近费米分支，M附近插图标出电子口袋深度ΔE。这个量是能量差，不能直接当转移电子数；作者还联读(h)差分密度与正文分析。各面板用各自的 E_F 作零点；这个共同的标记方式不等于将孤立层能级按真空参考对齐。只看路径上是否穿过零能，也不能保证找到整个BZ的带边。
 
 本页均匀网格表与折叠段101点局部谷数据对应极值搜索环节。按文献面板方式整理本页数据时，保留真实路径距离、同父密度VBM/CBM及其k坐标，局部谷继续用原始点与三个窗口结果，不以论文口袋形状代替本页数据。界面层来源的现有展示见[本站历史三联图](/Atlas/m/bands/qe/)，胖带、PDOS与费米面仍对应各自真实分支；本页没有生成该论文界面。
 

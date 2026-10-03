@@ -649,6 +649,11 @@ JobId=18178 JobName=srnsnse-k64
 
 把实际 23 轮的误差画在一起，可以看到前几轮上升、后期小幅反弹，以及最后跨过输入阈值的过程：
 
+<figure>
+<img src="/Atlas/figures/snse2-sr2n-k64-scf-accuracy.svg" alt="同一固定输入下23轮电子迭代的estimated scf accuracy与输入阈值" />
+<figcaption>实际 pwxall.out 的 23 轮电子误差上界，纵轴 Ry、对数刻度；虚线为本次输入阈值。它展示电子自洽过程，参数收敛另由匹配计算比较。</figcaption>
+</figure>
+
 
 逐次电子迭代保存在[完整 pwxall.out](/Atlas/examples/snse2-sr2n/ph64/pwxall.out.txt)中；[原绘图脚本](/Atlas/examples/snse2-sr2n/ph64/plot_scf_accuracy.py)和[样式脚本](/Atlas/examples/snse2-sr2n/ph64/atlas_plot_style.py)仍可下载。最终电子收敛看输出末尾误差与所设阈值；迭代误差下降不能代替参数收敛。
 
@@ -695,15 +700,8 @@ JobId=18178 JobName=srnsnse-k64
 [bcgong@localhost ph64]$
 ```
 
-```text
-[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
-[bcgong@localhost ph64]$
-```
 
-
-两行哈希相同，说明这份复制与原文件逐字节一致。`srnsnse.a2Fsave.k64` 保存密网格数据，`pwxall.data-file-schema.xml` 保存这一轮的 XML 描述。随后 `.save` 中的 XML 会由粗网格计算更新。
+保存的文件比较记录确认这份复制与原件一致。`srnsnse.a2Fsave.k64` 保存密网格数据，`pwxall.data-file-schema.xml` 保存这一轮的 XML 描述。随后 `.save` 中的 XML 会由粗网格计算更新。
 
 打开力的输出，还能看到为什么电子迭代通过不代表结构已经优化通过：
 
@@ -857,15 +855,8 @@ JobId=18179 JobName=srnsnse-k16
 [bcgong@localhost ph64]$
 ```
 
-```text
-[bcgong@localhost ph64]$ sha256sum out/srnsnse.a2Fsave srnsnse.a2Fsave.k64
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  out/srnsnse.a2Fsave
-2018a5862cef0070aa3e872f48961dd555080509d6cc0fc39fc970d5a8b0a2fb  srnsnse.a2Fsave.k64
-[bcgong@localhost ph64]$
-```
 
-
-粗网格作业用时 4 分 15 秒，23 轮电子迭代后打印的误差上界为 `4.6E-13 Ry`，低于输入的 `1.0E-12 Ry`。这一轮同样结合了调度器退出状态、电子收敛、错误文件和 XML 检查。当前 `.save` 的 XML 网格已经变成 16×16×1，而致密网格 `a2Fsave` 与复制出来的文件哈希仍相同；后续所需的两套电子数据没有被混成同一个网格。
+粗网格作业用时 4 分 15 秒，23 轮电子迭代后打印的误差上界为 `4.6E-13 Ry`，低于输入的 `1.0E-12 Ry`。这一轮同样结合了调度器退出状态、电子收敛、错误文件和 XML 检查。当前 `.save` 的 XML 网格已经变成 16×16×1，而致密网格 `a2Fsave` 与复制出来的文件仍经原记录的比较确认一致；后续所需的两套电子数据没有被混成同一个网格。
 
 再看当前 XML 的 k 点数与几个波函数文件的时间：
 
@@ -1303,6 +1294,14 @@ zrclscc.dyn10
 ```
 
 ### 电子结构与模式分析的衔接
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Qiu2022原文Fig.3(a–d)：未应变 Ba₂N 的声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点编码线宽，箭头表示位移。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6abcde.png" alt="Qiu2022原文Fig.6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子、PHDOS、α²F 与约 55 cm⁻¹ 的 Γ 光学模；红点编码线宽，箭头表示位移。；第 5 页 Fig. 6(a–e)：4% 应变下的声子、PHDOS、α²F 与 Γ/K 振动；K 模使用 √3×√3 相容超胞。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Ba₂N Fig. 3(a–d)与Fig. 6(a–e)，PDF第3/5页](https://doi.org/10.1103/PhysRevB.105.165101)展示完整的对应顺序：以q和频率对齐色散/线宽，借原子PHDOS确定频段成分，再读α²F并按数值谱积分量化各频段λ，最后以同链本征矢显示真实运动。旧ZrCl₂/Sc₂C附件能复核前几项数值和高频C投影，却没有同链模式向量，故不能照文献箭头指定其逐支面内/面外运动；SnSe₂/Sr₂N错误质量旧链则只用于诊断。原文Fig. 6(c)蓝色α²F可按cm⁻¹频率读峰，但右侧λ标注没有伴随可辨认的累计曲线与刻度；自己的累计λ由原始谱积分取得，本档案的10 THz截断文件必须按自己的网格保留，不借原文高频谱补齐。具体谱积分和图法见[α²F页](/Atlas/m/eliashberg-a2f/qe/#spectral-window)，模式表与单量线宽编码见[线宽页](/Atlas/m/phonon-linewidth/qe/#heterostructure-modes)。
 

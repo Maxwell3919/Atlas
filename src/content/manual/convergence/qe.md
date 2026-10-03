@@ -362,6 +362,14 @@ k 网格的末端变化最能说明怎样用这条规则：8³ 与 14³ 相差 1
 
 这幅图从本页的 [convergence.csv](/Atlas/examples/basics-si-convergence/results/convergence.csv) 直接读取，没有增加计算或拟合。下载 [同一 CSV 副本](/Atlas/examples/basics-literature/si-convergence/convergence.csv) 和 [plot.gp](/Atlas/examples/basics-literature/si-convergence/plot.gp)，放在同一目录运行 `gnuplot plot.gp`，同时生成 SVG、PNG 和 PDF（[SVG](/Atlas/examples/basics-literature/si-convergence/convergence.svg)、[PDF](/Atlas/examples/basics-literature/si-convergence/convergence.pdf)）。脚本不使用 SSSP 的 Pd 数值或筛选阈值。
 
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/prandini2018-fig2.png" alt="公开原文Fig.2;6实际面板" />
+<img src="/Atlas/figures/literature/prandini2018-fig6.png" alt="公开原文Fig.2;6实际面板" />
+</div>
+<figcaption>Prandini 等，arXiv:1806.05609v2，PDF 第 12 页 Fig. 2 与第 15 页 Fig. 6：Pd 的多目标截断误差对照，及按声子/内聚能分别选出的截断组合。波函数截断使用 Ry，各误差使用自身的单位和阈值；圆点色条在 Fig. 6 表示赝势计数。<a href="https://arxiv.org/pdf/1806.05609v2">论文原文</a>。</figcaption>
+</figure>
+
 为何通过能量线后还要检查别的量，可以读 [SSSP 原文 Fig. 6，第 15 页](https://arxiv.org/pdf/1806.05609v2#page=15)：横轴是满足声子频率判据的截断能，纵轴是满足内聚能判据的截断能，单位都是 Ry；圆点颜色按右侧色条表示落在同一截断组合的赝势个数。两种判据来自该文 Table 2 的 efficiency 条件，许多点的横纵值不同。因此，针对一种性质选出的截断能，不能自动转用于另一种性质。本页三图都读总能量残差，没有力、压力或频率数据；若下一步要弛豫，应在匹配结构上看力对电子阈值、截断和采样的变化，变胞还要看应力。若下一步读 DOS，则比较目标能区随 k 网格与展宽的变化。原子能量差、力和费米能附近峰形各自决定应增加哪一组数据，而不是把一条总能量曲线重复当成它们的证据。
 
 <details>
@@ -660,7 +668,7 @@ Results: results
 
 16 个含 `scf.in` 的目录中，15 个有完整 SCF 输出；`gamma-phonon` 只有输入，列在运行清单中。三组得到 14 行数据。脚本还输出 [9 轮电子迭代表](/Atlas/examples/basics-si-convergence/results/scf-history.csv)，其最后一轮的估计精度为 4.3×10⁻¹¹ Ry。
 
-可分别下载 [能量表](/Atlas/examples/basics-si-convergence/results/convergence.csv)、[运行清单](/Atlas/examples/basics-si-convergence/results/run-inventory.csv)、[设置摘要](/Atlas/examples/basics-si-convergence/results/summary.json)、[文件哈希](/Atlas/examples/basics-si-convergence/results/source-files.json)、[数值报告](/Atlas/examples/basics-si-convergence/results/energy-report.md)及[实际命令输出](/Atlas/examples/basics-si-convergence/run.log)。将源码与原始文件目录一起保存，便可重算所有差值。
+可直接读取 [能量差值表](/Atlas/examples/basics-si-convergence/results/convergence.csv)与[9轮电子迭代表](/Atlas/examples/basics-si-convergence/results/scf-history.csv)。完整输入、原生 OUT 和提取源码在本页前面的下载包中；将源码与原始目录一起保存，便可重新提取每组差值。
 
 ## 将总能量比较接到界面与声子分析
 

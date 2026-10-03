@@ -196,7 +196,21 @@ for row in rows: print(row)
 
 ## Ba₂N 图3与图6的模式判读
 
+<figure>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig3.png" alt="Ba2N论文Fig.3原图：声子色散红点线宽、原子PHDOS、a2F与Ba位移模式" />
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，原文第 3 页 Fig. 3(a–d)：未应变 Ba₂N 的声子色散、原子 PHDOS、α²F 与 Γ 附近约 55 cm⁻¹ 光学模。红点大小正比于线宽 γ；位移箭头表示原子运动幅度。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Qiu等原文](https://doi.org/10.1103/PhysRevB.105.165101)图3(a)在声子色散上以红点大小编码γ，图3(d)显示约55 cm⁻¹的Γ光学振动：上下Ba层在面内相反运动。图3(b)的元素PHDOS、图3(c)的谱峰辅助确认频段，却不能代替位移图。图6在4%应变下沿同样的量比较：Γ光学模约49 cm⁻¹，K声学模约24 cm⁻¹且线宽增强，图6(e)用√3×√3超胞显示有限q位移。这里的红点不是连续包络色带，不能从重叠点的视觉宽度读取实验谱峰半宽。
+
+<figure>
+<div class="figure-panels">
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6a.png" alt="Qiu2022原文Fig.6(a)：4% 应变的声子色散；K 附近约 24 cm⁻¹ 的声学模仍在零线上方，红点大小表示线宽。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6d.png" alt="Qiu2022原文Fig.6(a–d)完整联图，重点读(d)的 Γ 光学模；(b)的频率轴与(c)右侧 λ(ω)标记各属于自己的面板。" />
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig6e.png" alt="Qiu2022原文Fig.6(e)：K 附近约 24 cm⁻¹ 模在 √3×√3 超胞中的俯视/侧视位移；黄色箭头给出相对运动。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 5 页 Fig. 6(a)：4% 应变的声子色散；K 附近约 24 cm⁻¹ 的声学模仍在零线上方，红点大小表示线宽。；第 5 页 Fig. 6(a–d) 联图：保留相邻色散、PHDOS 与 α²F 的完整坐标，重点读(d)中约 49 cm⁻¹ 的 Γ 光学模俯视/侧视。；第 5 页 Fig. 6(e)：K 附近约 24 cm⁻¹ 模在 √3×√3 超胞中的俯视/侧视位移；黄色箭头给出相对运动。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
 
 [Fig. 3(a,d)与Fig. 6(a,d,e)，PDF第3/5页](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.105.165101)区分两种“大小”：色散红点表示γ，振动箭头表示原子位移；γ较大的位置还要经频率平方换算才得到逐模λ。原图注说明红点大小正比于线宽，却没有公开点面积或直径的换算常数，因此不能从图上量一个圆就反推出γ。自己的图应公开映射，例如以点面积正比γ并用独立图例标GHz，另把λ保留在数值表；不要把γ和λ相加作为一个点面积。本页八个不可约q是文件顺序，现有表用于逐点核对，不能按编号连成原文那样的高对称路径。要做相同色散展示，需先从同一父链的matdyn路径坐标、频率与线宽插值输出建立逐点对应，再用gnuplot的variable pointsize展示明确的单量编码。原子方向则由同一模式e除以√M后统一缩放，Γ用原胞、K用相容超胞，在XCrySDen中分别读俯视与侧视。
 

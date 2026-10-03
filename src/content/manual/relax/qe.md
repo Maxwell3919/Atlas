@@ -253,6 +253,13 @@ End final coordinates
 
 对于规定面内晶格的异质结，应保留该晶格和真空方向，检查所有允许移动原子的末态力，并从最终坐标读取层间距。对同一应变下的各个堆叠使用一致约束，才能把能量差解释为该条件下的构型比较；若开放晶胞，比较的问题就改变了。
 
+<figure>
+<div>
+<img src="/Atlas/figures/literature/qiu2022-ba2n-fig1a.png" alt="Qiu2022原文Fig.1(a)：Ba₂N 的俯视、侧视、面内晶胞和二维布里渊区；蓝色为 Ba，红色为 N。" />
+</div>
+<figcaption>Qiu 等，Phys. Rev. B 105, 165101 (2022)，第 2 页 Fig. 1(a)：Ba₂N 的俯视、侧视、面内晶胞和二维布里渊区；蓝色为 Ba，红色为 N。<a href="https://doi.org/10.1103/PhysRevB.105.165101">论文原文</a>。</figcaption>
+</figure>
+
 [Ba₂N 原文 Fig. 1(a)，第 165101-2 页](https://doi.org/10.1103/PhysRevB.105.165101)同时给出俯视、侧视、晶胞边界和二维布里渊区。俯视图识别面内排列，侧视图把 Ba–N–Ba 的三层高度分开，便能读清结构图中的层间距与计算晶胞的真空是两回事。将本页末态按同样方式展示时，从最终 `ATOMIC_POSITIONS` 和固定晶格导出自己的结构文件，在 VESTA 显示晶胞与两个 Si，分别保存俯视和侧视；先把 `alat` 坐标换算为实际晶格下的位置，不按 Ba₂N 图把 Si 画成三原子层。本页 ±2.9×10⁻⁷ Ry/Bohr 的末力检查解释的是这份几何怎样停止，[界面建模页](/Atlas/m/heterostructure-modeling/)再把这类视图接到层间距和共同晶格；结构图本身不代替力、结合能或声子的计算。
 
 把最终坐标带到新的[固定结构 SCF](/Atlas/m/scf/qe/)；同一几何的电子结构和[声子](/Atlas/m/phonon-dfpt/qe/)从该父计算接续。需要求平衡晶格时，先读[晶胞弛豫](/Atlas/m/vc-relax/qe/)。
