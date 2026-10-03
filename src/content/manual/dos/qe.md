@@ -1,4 +1,4 @@
-界面前后近费米能级的态数和层来源怎样改变？先用 Si 的均匀网格结果认识 DOS 的单位、积分和投影缺口，再读 ZrCl₂/Sc₂C 的四态冻结对照。窄窗口积分在具体输出后给出，电子态归属与电荷转移采用不同定义。
+总 DOS 把布里渊区的电子态汇到能量轴上。先用 Si 的有隙谱认识单位、积分与投影，再用给定 Sc₂C 结构读取金属的近费米谱，最后在 ZrCl₂/Sc₂C 冻结对照中区分层贡献；每份结果采用自己的能量参考和实际条件。
 
 ## 在能量轴上数状态，先用均匀 k 网格
 
@@ -334,6 +334,357 @@ Gaussian 展宽会把带边附近的权重扩展到相邻能量，不能从这�
 “原子文件”说明投影来自哪个原子，并不自动把纵轴变成每原子归一化：每个文件仍是该原子在当前计算胞里的贡献。两个 Si 的 p 文件相加得到整胞 p 谱，若再报告平均每个 Si 的 p 谱，才另除以2。先逐行核对能量网格和壳层和，再做这个归一化，能避免把“每原子平均”和“按原子选出的贡献”混成同一种曲线。
 
 共线自旋极化时，`pdos_tot` 变为 `E、DOSup、DOSdw、PDOSup、PDOSdw`；原子文件也分别给 up/down 的 ldos 和 m 分量。按同一自旋、同一能量点求和后，再合并通道。本例非磁数据已含自旋简并，不再乘 2。
+
+
+<span id="sc2c-fixed-dos" class="legacy-anchor" aria-hidden="true"></span>
+## 给定 Sc₂C 结构：费米能附近的总 DOS
+
+Si 的零点取价带顶，带边外仍有 Gaussian 尾部；读金属谱时，先把同一计算的费米能设为零，再结合能带采样判断零能附近有哪些态。这里用一份三原子 Sc–C–Sc 固定结构的真实结果，把能量零点、总 DOS 和累计列连在一起读。
+
+本例 QE 7.5 的晶胞为 a=3.358477221 Å、c=40 Å，C 到两侧 Sc 平面的高度为 1.121277504 和 1.204184232 Å。它是给定的不对称固定几何，SCF 不改变这些位置。计算限定非磁、无 SOC 的中性解，26 个 PAW 价电子；交换关联为 vdW-DF3-opt1，截断 100/800 Ry，电子网格 16×16×1，Gaussian 参数 0.0037 Ry。采用的 [Sc.pbe-spn-kjpaw_psl.1.0.0.UPF](/Atlas/examples/sc2c-dos/pseudos/Sc.pbe-spn-kjpaw_psl.1.0.0.UPF) 与 [C.pbe-n-kjpaw_psl.1.0.0.UPF](/Atlas/examples/sc2c-dos/pseudos/C.pbe-n-kjpaw_psl.1.0.0.UPF) 是 PBE 构造的 PAW，实际计算的交换关联仍为上述 vdW-DF3-opt1。
+
+[下载完整单案例文件](/Atlas/examples/sc2c-dos-files.tar.gz)。包内保留完整 SCF/DOS 输入与 OUT、DOS stderr、原生数据、XML、两个 CSV、命名 PAW、完整 Python/GNUplot 源码和实际 SVG/PDF。输入与既有运行日志采用一致的单案例 prefix/目录映射，说明见 [SOURCE.md](/Atlas/examples/sc2c-dos/SOURCE.md)，文件使用方法见 [README.md](/Atlas/examples/sc2c-dos/README.md)。
+
+### 从固定结构 SCF 接到 dos.x
+
+以下完整 SCF 输入与[原始物理条件](/Atlas/examples/sc2c-dos/case/scf.in)对应。各 namelist 的用途接[SCF/QE 页](/Atlas/m/scf/qe/)，这里保留本例实际字段和结构，不重复一遍提交与收敛调试流程。
+
+<details>
+<summary>展开完整 Sc₂C SCF 输入</summary>
+
+```text
+&CONTROL
+  calculation = 'scf'
+  restart_mode = 'from_scratch'
+  prefix = 'sc2c'
+  outdir = './out/'
+  pseudo_dir = '../pseudos'
+  verbosity = 'high'
+  tprnfor = .true.
+  tstress = .true.
+/
+&SYSTEM
+  ibrav = 0
+  nat = 3
+  ntyp = 2
+  ecutwfc = 100
+  ecutrho = 800
+  input_dft = 'vdw-DF3-opt1'
+  occupations = 'smearing'
+  smearing = 'gaussian'
+  degauss = 3.7d-3
+  tot_charge = 0.0
+  nr1 = 60
+  nr2 = 60
+  nr3 = 720
+  nr1s = 45
+  nr2s = 45
+  nr3s = 486
+/
+&ELECTRONS
+  conv_thr = 1.0d-12
+  mixing_beta = 0.4
+/
+ATOMIC_SPECIES
+Sc  44.956  Sc.pbe-spn-kjpaw_psl.1.0.0.UPF
+C  12.011  C.pbe-n-kjpaw_psl.1.0.0.UPF
+CELL_PARAMETERS (angstrom)
+3.358477221000 -0.000000000000 0.000000000000
+-1.679238611000 2.908526592000 0.000000000000
+0.000000000000 0.000000000000 40.000000000000
+ATOMIC_POSITIONS (angstrom)
+C 0.000000000000 0.000000000000 17.688482212000
+Sc -0.000000000501 1.939017728097 16.567204708000
+Sc 1.679238610501 0.969508863903 18.892666444000
+K_POINTS automatic
+16 16 1 0 0 0
+```
+
+</details>
+
+[完整 scf.out](/Atlas/examples/sc2c-dos/case/scf.out) 中可对应到下面几行，摘录保留原打印精度：
+
+```text
+     Program PWSCF v.7.5 starts on  3Oct2026 at  2:20:27 
+     Exchange-correlation= VDW-DF3-OPT1
+     the Fermi energy is    -2.1247 ev
+     convergence has been achieved in  52 iterations
+     Writing all to output data dir ./out/sc2c.save/ :
+```
+
+52 次迭代完成的是这份固定结构的电子自洽。stdout 的费米能打印到四位小数，后处理采用 [SCF XML](/Atlas/examples/sc2c-dos/case/data-file-schema.xml) 中的 −0.07808269824364725 Ha，换算为 −2.124738461036814 eV。这样不会在窄窗里用舍入后的零点替代实际数值。
+
+本次 `dos.x` 沿用该 SCF 的均匀网格和保存数据。完整 [dos.in](/Atlas/examples/sc2c-dos/case/dos.in) 为：
+
+```text
+&DOS
+ prefix = 'sc2c'
+ outdir = './out/'
+ fildos = 'dos_preview.dat'
+ bz_sum = 'smearing'
+ ngauss = 0
+ degauss = 0.0037
+ Emin = -2.624738461037
+ Emax = -1.624738461037
+ DeltaE = 0.01
+/
+```
+
+`Emin/Emax` 围绕自身费米能给出 −0.5～+0.5 eV 的窗口，`DeltaE=0.01 eV` 共输出 101 点。`ngauss=0` 为普通 Gaussian，`degauss=0.0037 Ry` 约为 0.050341 eV；这里用它设定数值展宽，不把它解释为物理温度或谱线标准差。增加输出点只加密同一条展宽曲线，k 网格才决定输入的能级采样。
+
+[完整 dos.out](/Atlas/examples/sc2c-dos/case/dos.out) 的保存目录、展宽和结束记录可这样对应：
+
+```text
+     Reading xml data from directory:
+
+     ./out/sc2c.save/
+     file Sc.pbe-spn-kjpaw_psl.1.0.0.UPF: wavefunction(s)  3S 3P 3D renormalized
+     file C.pbe-n-kjpaw_psl.1.0.0.UPF: wavefunction(s)  2S 2P renormalized
+
+     Gaussian broadening (read from input): ngauss,degauss=   0    0.003700
+     DOS          :      7.72s CPU      8.05s WALL
+   JOB DONE.
+```
+
+本次 WALL 时间为 8.05 s。[dos.err](/Atlas/examples/sc2c-dos/case/dos.err) 保留显示授权提示及 IEEE underflow/denormal 信息，stdout 另有 `negative rho=8.592E−05`；完整诊断与结果一并提供。这次已写出 101 行原生 DOS，结束记录说明后处理执行完毕，峰形的采样与展宽依赖仍要通过相应对照判断。
+
+下载包直接支持下面的 XML/原生数据提取与作图，交付的是既有结果而非完整 `out/sc2c.save`。从头计算时，在 `case/` 用匹配版本 `pw.x` 读取完整 `scf.in` 生成保存数据，再用 `dos.x` 读取 `dos.in`；该流程接 SCF 页，单独 XML 在新目录重启 `dos.x` 尚未实际验证。
+
+### 原生三列与精确能量网格
+
+[dos_preview.dat](/Atlas/examples/sc2c-dos/case/dos_preview.dat) 的首行、逻辑费米点和末行如下：
+
+```text
+#  E (eV)   dos(E)     Int dos(E) EFermi =   -2.125 eV
+  -2.625  0.7598E+00  0.7598E-02
+  -2.125  0.5433E+01  0.1862E+01
+  -1.625  0.8759E+01  0.4172E+01
+```
+
+三列仍是能量 eV、双自旋合计总 DOS（states/eV/cell）、原生窗口累计态数（states/cell）。这里 cell 是三原子计算胞，D(E_F)=5.433 已包括两自旋。XML 的 k 权重和为 2，已含自旋计数；加权占据为 25.999999999982 个电子，与 26 对应，不再把 DOS 或权重乘 2。
+
+原生能量用 F8.3 打印，所以中间行写 −2.125 eV；由输入窗口与第 51 个格点重建的逻辑能量为 −2.124738461037 eV。两者减去 XML 费米能后，前者约 −0.000261538963186 eV，后者约 −1.86×10⁻¹³ eV。本例图用逻辑网格定位零能点，同时保留原生打印列供读者对照。
+
+累计列的 0.007598、1.862、4.172 分别对应窗口起点、费米点、上界。[QE 7.5 Gaussian 分支源码](https://github.com/QEF/q-e/blob/qe-7.5/PP/src/dos.f90#L197)先将累计量置零，每个格点先加 DOS(E)×DeltaE，再写该行，因此首行已有一个矩形项。4.172 计的是这个请求窗口内、包含费米能以上部分的态；26 则由带占据核对整胞价电子数，两者的能窗和计数定义不同。本节提取保留原生矩形累计列，另做的连续积分或梯形积分应另命名。
+
+### 从 XML 和原生 DOS 导出可读表
+
+[dos_shifted.csv](/Atlas/examples/sc2c-dos/data/dos_shifted.csv) 将两种能量精度和原生值分开，完整六列为：
+
+| 列名 | 定义与单位 |
+|---|---|
+| `native_printed_energy_eV_F8p3` | 原生打印能量，eV |
+| `native_printed_energy_minus_own_EF_eV` | 打印能量减 XML 自身 EF，eV |
+| `exact_input_grid_energy_eV` | Emin+i×DeltaE 重建的逻辑网格，eV |
+| `exact_input_grid_energy_minus_own_EF_eV` | 逻辑网格减自身 EF，eV，作图采用此列 |
+| `DOS_states_per_eV_per_cell_spin_summed` | 原生双自旋合计 DOS，states/eV/cell |
+| `native_window_cumulative_DOS_states` | 原生有限窗矩形累计，states/cell |
+
+[eigenvalues_k16.csv](/Atlas/examples/sc2c-dos/data/eigenvalues_k16.csv) 则有 `irreducible_k_index`、`kx_2pi_over_alat`、`ky_2pi_over_alat`、`kz_2pi_over_alat`、`raw_QE_weight_including_spin`、`band_index`、`energy_eV_raw`、`energy_minus_own_EF_eV` 八列。510 行是 30 个不可约 k 点×17 条带；三个 k 分量是 Cartesian 2π/alat 单位，不是晶格分数坐标，文件顺序也不是一条 M–Γ–K–M 路径。
+
+程序将 XML 的费米能和本征值从 Ha 转为 eV，核对非自旋标记、k 点/带数、权重与占据；对 DOS 保留全部原生值，用输入网格重建能量并检查 F8.3 序列化误差。可把下面的需求和本例文件一起交给代码助手：
+
+```text
+使用 Python 3 标准库，为本页非磁、无 SOC 的 Sc₂C 单案例编写独立导出程序。
+输入：case/data-file-schema.xml、case/dos.in 和三列 case/dos_preview.dat。
+XML 的 EF/eigenvalues 单位为 Ha，乘 27.211386245988 转为 eV；k 为 Cartesian 2π/alat，原 k 权重已含两自旋，权重和为2。
+核对 lsda/noncolin/spinorbit 为false，点数与nks、每点能量/占据数与nbnd一致，加权占据与nelec一致；本例30点×17带、26电子。
+从dos.in读Emin/Emax/DeltaE，按Emin+i×DeltaE重建101点；保留F8.3原打印能量，并检查其与逻辑网格的差不超过打印舍入界。
+输出dos_shifted.csv六列，分别为原打印能量/相对EF、逻辑网格/相对EF、原DOS、原累计；输出eigenvalues_k16.csv八列，保留k编号/坐标/原权重/带编号和原/相对EF能量。
+不平滑、裁剪或再归一原DOS，不用新积分替换累计列，不按不可约点编号拼路径能带。
+以CLI指定输入和输出目录，控制台报告EF、电子/带/点数、权重/占据和CSV行数；不依赖多案例元数据，不输出内部控制JSON。
+提供完整可执行源码和实际调用。
+```
+
+<details>
+<summary>展开完整 process_native_dos.py</summary>
+
+```python
+"""Export one scalar, nonmagnetic QE DOS case from its actual XML and files."""
+from pathlib import Path
+import argparse
+import csv
+import math
+import re
+import xml.etree.ElementTree as ET
+
+HA_EV = 27.211386245988
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--xml', type=Path, required=True)
+parser.add_argument('--dos-input', type=Path, required=True)
+parser.add_argument('--dos-data', type=Path, required=True)
+parser.add_argument('--output-dir', type=Path, required=True)
+args = parser.parse_args()
+root = ET.parse(args.xml).getroot()
+for element in root.iter():
+    element.tag = element.tag.split('}')[-1]
+band_structure = root.find('./output/band_structure')
+if band_structure is None:
+    raise ValueError('Missing QE output band_structure')
+for flag in ['lsda', 'noncolin', 'spinorbit']:
+    element = band_structure.find(flag)
+    if element is not None and element.text.strip().lower() in ['true', 't', '.true.']:
+        raise ValueError('This scalar NM example does not implement spinor/LSDA export')
+ef = float(band_structure.find('fermi_energy').text) * HA_EV
+nelec = float(band_structure.find('nelec').text)
+nbnd = int(band_structure.find('nbnd').text)
+points = band_structure.findall('ks_energies')
+if len(points) != int(band_structure.find('nks').text):
+    raise ValueError('XML k-point count mismatch')
+
+eigen_rows = []
+weights = []
+weighted_occupations = 0.0
+for index, point in enumerate(points, start=1):
+    kpoint = point.find('k_point')
+    coordinates = [float(value) for value in kpoint.text.split()]
+    weight = float(kpoint.attrib['weight'])
+    energies = [float(value) * HA_EV for value in point.find('eigenvalues').text.split()]
+    occupations = [float(value) for value in point.find('occupations').text.split()]
+    if len(coordinates) != 3 or len(energies) != nbnd or len(occupations) != nbnd:
+        raise ValueError('XML band/coordinate count mismatch')
+    if weight <= 0 or not all(math.isfinite(v) for v in coordinates + energies + occupations + [weight]):
+        raise ValueError('Invalid k-point data')
+    weights.append(weight)
+    weighted_occupations += weight * sum(occupations)
+    for band, energy in enumerate(energies, start=1):
+        eigen_rows.append([index, *coordinates, weight, band, energy, energy - ef])
+if abs(sum(weights) - 2.0) > 1e-8 or abs(weighted_occupations - nelec) > 1e-6:
+    raise ValueError('Scalar NM weight/electron conservation check failed')
+
+namelist = args.dos_input.read_text()
+def number(name):
+    match = re.search(r'\b' + name + r'\s*=\s*([+\-\d.eEdD]+)', namelist, re.I)
+    if match is None:
+        raise ValueError('Missing DOS input field: ' + name)
+    return float(match.group(1).replace('D', 'e').replace('d', 'e'))
+emin, emax, step = number('Emin'), number('Emax'), number('DeltaE')
+if step <= 0 or emax <= emin:
+    raise ValueError('Invalid DOS energy window')
+raw = []
+for line in args.dos_data.read_text().splitlines():
+    if not line.strip() or line.lstrip().startswith('#'):
+        continue
+    values = [float(value.replace('D', 'e')) for value in line.split()]
+    if len(values) != 3 or not all(math.isfinite(v) for v in values):
+        raise ValueError('Invalid native DOS row')
+    raw.append(values)
+if len(raw) != int(round((emax - emin) / step)) + 1:
+    raise ValueError('Native DOS row count does not match this example window')
+dos_rows = []
+for index, (printed_energy, dos, cumulative) in enumerate(raw):
+    exact_energy = emin + index * step
+    if abs(printed_energy - exact_energy) > 0.00050001:
+        raise ValueError('Native F8.3 energy serialization mismatch')
+    dos_rows.append([printed_energy, printed_energy - ef, exact_energy,
+                     exact_energy - ef, dos, cumulative])
+
+args.output_dir.mkdir(parents=True, exist_ok=True)
+def write_csv(name, fields, rows):
+    with (args.output_dir / name).open('w', newline='') as stream:
+        writer = csv.writer(stream)
+        writer.writerow(fields)
+        writer.writerows(rows)
+write_csv('dos_shifted.csv', ['native_printed_energy_eV_F8p3',
+          'native_printed_energy_minus_own_EF_eV', 'exact_input_grid_energy_eV',
+          'exact_input_grid_energy_minus_own_EF_eV',
+          'DOS_states_per_eV_per_cell_spin_summed', 'native_window_cumulative_DOS_states'], dos_rows)
+write_csv('eigenvalues_k16.csv', ['irreducible_k_index', 'kx_2pi_over_alat',
+          'ky_2pi_over_alat', 'kz_2pi_over_alat', 'raw_QE_weight_including_spin',
+          'band_index', 'energy_eV_raw', 'energy_minus_own_EF_eV'], eigen_rows)
+print(f"Fermi energy: {ef:.12f} eV")
+print(f"Electrons: {nelec:g}; bands: {nbnd}; irreducible k points: {len(points)}")
+print(f"Spin-inclusive weight sum: {sum(weights):.12f}; weighted occupations: {weighted_occupations:.12f}")
+print(f"Wrote {len(dos_rows)} DOS rows and {len(eigen_rows)} eigenvalue rows to {args.output_dir}")
+print("DOS and window cumulative values retained; energies shifted by the XML Fermi energy.")
+```
+
+</details>
+
+在解包后的 `sc2c-dos/` 根目录，实际执行：
+
+```bash
+python3 source/process_native_dos.py --xml case/data-file-schema.xml --dos-input case/dos.in --dos-data case/dos_preview.dat --output-dir data
+```
+
+实际输出为：
+
+```text
+Fermi energy: -2.124738461037 eV
+Electrons: 26; bands: 17; irreducible k points: 30
+Spin-inclusive weight sum: 2.000000000000; weighted occupations: 25.999999999982
+Wrote 101 DOS rows and 510 eigenvalue rows to data
+DOS and window cumulative values retained; energies shifted by the XML Fermi energy.
+```
+
+这次导出的 CSV 与随包数据逐字节一致。101 行保留原 DOS/累计值，510 行保留各 k 点的带能量与权重；代码和[独立源码下载](/Atlas/examples/sc2c-dos/source/process_native_dos.py)相同，读者可逐列回到原文件核对。
+
+### 用原始 101 点读费米能附近的谱形
+
+作图取 CSV 第四列相对能量和第五列 DOS，将 DOS 放横轴、能量放纵轴，水平虚线表示自身费米能。保持 per cell、双自旋合计的单位，不把三原子胞除成每原子曲线，也不额外平滑。GNUplot 的完整程序和[可下载源码](/Atlas/examples/sc2c-dos/source/plot_dos.gp)如下：
+
+<details>
+<summary>展开完整 plot_dos.gp</summary>
+
+```text
+# Run from sc2c-dos/: gnuplot source/plot_dos.gp
+# Col4: exact input energy minus XML EF, eV. Col5: spin-summed DOS, states/eV/cell.
+# All 101 rows are plotted as straight segments; no smoothing, rescaling or interpolation.
+set datafile separator comma
+set encoding utf8
+set border 3
+set tics nomirror out
+set xrange [0:*]
+set yrange [-0.5:0.5]
+set xlabel "DOS (states / eV / cell, both spins)"
+set ylabel "E - E_F (eV)"
+set title "Sc_2C: fixed three-atom geometry, NM / no SOC"
+set key off
+set arrow 1 from graph 0, first 0 to graph 1, first 0 nohead dt 2 lc rgb "#666666"
+set label 1 "D(E_F) = 5.433" at first 5.433, first 0 offset 1,1 font ",10"
+set terminal svg size 660,700 enhanced font "DejaVu Sans,13"
+set output "figures/sc2c-dos.svg"
+plot "data/dos_shifted.csv" every ::1 using 5:4 with lines lw 2 lc rgb "#215d96", \
+     "data/dos_shifted.csv" every ::1 using (abs($4)<1e-8?$5:1/0):4 with points pt 7 ps 1 lc rgb "#a6422b"
+set terminal pdfcairo enhanced color size 5.5in,5.8in font "DejaVu Sans,11"
+set output "figures/sc2c-dos.pdf"
+replot
+unset output
+```
+
+</details>
+
+实际采用 GNUplot 6.0，在同一目录运行：
+
+```bash
+gnuplot source/plot_dos.gp
+```
+
+生成 [SVG](/Atlas/examples/sc2c-dos/figures/sc2c-dos.svg) 与 [PDF](/Atlas/examples/sc2c-dos/figures/sc2c-dos.pdf)：
+
+<figure>
+<img src="/Atlas/examples/sc2c-dos/figures/sc2c-dos.svg" alt="固定三原子Sc2C实际101点DOS，横轴双自旋每胞态密度，纵轴相对自身费米能，费米点5.433" loading="lazy" />
+<figcaption>给定不对称固定几何 Sc₂C，QE 7.5、vdW-DF3-opt1、命名 Sc/C scalar PAW、100/800 Ry、16×16×1、Gaussian 参数 0.0037 Ry、非磁且无 SOC。全部 101 点直接连线，无额外平滑；纵轴 E−E_F（eV），横轴双自旋合计 states/(eV·cell)。红点为逻辑费米格点 D(E_F)=5.433；本例实际窗口为 −0.5～+0.5 eV。</figcaption>
+</figure>
+
+先看水平零能线：曲线在这里仍有有限 DOS；再沿纵轴看同一近费米窗口内的宽峰与凹陷，而不是把图上的高度读成某条带的电子数。已有本征值采样中，第 13 带相对 EF 的范围为 −0.975564～+0.357985 eV，第 14 带为 −0.340891～+0.536561 eV。同一带的采样值跨过 EF 与有限 DOS 一起支持这份固定模型的金属态特征；Gaussian 后的非零尾部单独不能作这个判断，这也是它与前面 Si 带边尾部需要联读的原因。
+
+### 从总 DOS 走向原文的能带和费米面
+
+<figure id="bekaert-sc2c-dos-fs">
+<img src="/Atlas/figures/literature/M2_Bands_DOS_FS_Ta2N_Sc2C_Bekaert2020_Fig5.jpg" alt="Bekaert2020 Fig5原图，b为Sc2C路径能带与横向DOS，d为费米速度着色的费米面，a和c为Ta2N" loading="lazy" />
+<figcaption>Bekaert 等，2020，RSC accepted manuscript Fig. 5；本页重点读 Sc₂C 的 (b,d)，(a,c) 为 Ta₂N。(b) 路径 M–Γ–K–M 的能带与右侧电子 DOS 共用 −1～+1 eV 能量轴，零点为费米能，DOS 横轴 e/eV·uc；图注蓝实线含 SOC、红虚线无 SOC。(d) 是 v_F 着色的二维费米面，色标单位 10⁶ m/s、刻度 0～0.7，蓝低红高。<a href="https://repository.uantwerpen.be/docman/irua/e6d66b/171988.pdf">机构库原文</a> · <a href="https://doi.org/10.1039/D0NR03875J">DOI</a>。</figcaption>
+</figure>
+
+读 (b) 时，在同一能量高度从左侧能带移到右侧 DOS，先区分“路径上出现带”与“全布里渊区在该能量积累多少态”。路径的平缓段是寻找峰来源的线索，右侧 DOS 的量仍来自布里渊区积分。原图展示 ±1 eV，本例只计算 ±0.5 eV，共同窗口是本节读法比较的范围，外半段属于原文数据。原文蓝/红表示有无 SOC 的对照，本例的实际条件固定为无 SOC。
+
+再看 (d) 的六角布里渊区、Γ/M/K 和费米轮廓。它保留了零能态位于哪里以及分支如何连接，颜色另表示费米速度；这里的红/蓝不是 (b) 的 SOC 线型含义。原文讨论的 Γ 附近轮廓与 K 附近 mini-pocket 要靠其 k 分辨结果定位。总 DOS 将这些不同位置汇成一个数，无法从 D(E_F)=5.433 反推出同一个口袋。
+
+速度需要物理 k 坐标下的带能量梯度，$v_F=\hbar^{-1}\nabla_k\varepsilon$。DOS 会同时受到等能轮廓长度、分支数量和速度的影响，相近的 D(E_F) 不保证相同费米面或速度分布。要进一步问本例哪些分支贡献了零能态，接[路径能带](/Atlas/m/bands/qe/)和[费米面](/Atlas/m/fermi-surface/qe/)的方法，准备对应的 k 分辨数据。
+
+原文采用 ABINIT/PBE/HGH、32×32 电子网格及弛豫结构；本例是 QE/vdW-DF3-opt1/PAW、16×16、固定不等高度的结构。两者的晶胞、泛函、采样和 SOC 条件不同。原图用于联读 DOS 与 k 空间结果，本例给出的是上述固定模型的近费米谱；原文 EPC/Tc 来自其声子与电子声子耦合计算，属于原作者的另一组物理证据。
+
+总 DOS 回答整胞在某能量有多少态；下面转向多组分界面的 PDOS，再按原子与轨道区分贡献。后续冻结四态采用它们自己的几何、采样和能量参考，与本节给定三原子结果分别读取。
 
 ## 二维异质结 ZrCl₂/Sc₂C：轨道分辨 PDOS 与能带、二维费米面的共享能量轴对准
 

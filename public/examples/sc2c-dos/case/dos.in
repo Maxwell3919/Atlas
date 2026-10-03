@@ -1,0 +1,11 @@
+&DOS
+ prefix = 'sc2c'
+ outdir = './out/'
+ fildos = 'dos_preview.dat'
+ bz_sum = 'smearing'
+ ngauss = 0
+ degauss = 0.0037
+ Emin = -2.624738461037
+ Emax = -1.624738461037
+ DeltaE = 0.01
+/
