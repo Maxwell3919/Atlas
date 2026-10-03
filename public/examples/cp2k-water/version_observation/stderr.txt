@@ -1,0 +1,11 @@
+At line 334 of file [build-path]/src/start/cp2k.F (unit = 6, file = 'stdout')
+Fortran runtime error: Missing initial left parenthesis in format
+
+
+Error termination. Backtrace:
+#0  0x74028eef4c57 in data_transfer_init
+	at ../../../libgfortran/io/transfer.c:3300
+#1  0x612f8dc968f1 in cp2k
+	at [source-path]/cp2k-2026.2/src/start/cp2k.F:334
+#2  0x612f8dc95060 in main
+	at [source-path]/cp2k-2026.2/src/start/cp2k.F:44

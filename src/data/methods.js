@@ -2,6 +2,7 @@
 import researchScope from './research-scope.json';
 
 export const engines = [
+  { "id": "cp2k", "name": "CP2K" },
   {
     "id": "qe",
     "name": "Quantum ESPRESSO"
@@ -173,8 +174,10 @@ export const methods = {
     ],
     "engines": [
       "qe",
-      "vasp"
-    ]
+      "vasp",
+      "cp2k"
+    ],
+    "needsByEngine": { "cp2k": [] }
   },
   "nscf": {
     "zh": "非自洽 NSCF",

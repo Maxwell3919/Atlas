@@ -1273,6 +1273,24 @@ export const manualTeaching = {
       "relax.out"
     ]
   },
+  "scf/cp2k": {
+  "title": "周期水的电子解、解析力与网格对照",
+  "kind": "DFT",
+  "summary": "从CP2K真实OUT提取能量与三行力，比较两套GPW网格并用一个中心有限差分检查解析力。",
+  "inputs": [],
+  "related": [
+    "convergence",
+    "relax",
+    "phonon-finite-disp"
+  ],
+  "files": [
+    "input.inp",
+    "cp2k.out",
+    "native_energy_forces.csv",
+    "postprocess.py",
+    "export_csv.py"
+  ]
+},
   "scf/qe": {
     "title": "Si 自洽密度与完整 OUT 判读",
     "kind": "DFT",
