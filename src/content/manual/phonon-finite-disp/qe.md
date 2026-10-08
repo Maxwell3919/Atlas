@@ -317,10 +317,10 @@ Phonopy 将 Fourier 力常数除以 $\sqrt{M_I M_J}$ 后对角化，得到 ω² 
 <div class="figure-panels">
 <img src="/Atlas/figures/literature/yang2023-alh2-fig3a.png" alt="Yang 等原文 Fig.3(a–c)完整上排，重点读(a)模式与(c)色散/PHDOS" />
 </div>
-<figcaption>Yang、Jiang 与 Zhao，Chin. Phys. Lett. 40, 107401 (2023)，PDF 第 4 页（107401-3）Fig. 3(a–c) 完整上排，重点读 (a,c)：Γ 模式箭头及红外/Raman 活性，与共频率纵轴的色散/PHDOS。红圈编码逐模 λ，蓝/红谱分别为 Al/H。<a href="https://doi.org/10.1088/0256-307X/40/10/107401">论文原文</a>。</figcaption>
+<figcaption>Qiuping Yang、Xue Jiang 与 Jijun Zhao，<cite>Coexistence of Zero-Dimensional Electride State and Superconductivity in AlH₂ Monolayer</cite>，Chin. Phys. Lett. 40, 107401 (2023)，DOI: 10.1088/0256-307X/40/10/107401。选取原 Fig. 3 上排 (a–c)，不含下排 (d–f)；所核官方六页 PDF 第 3 页（107401-3）。© 2023 Chinese Physical Society and IOP Publishing Ltd；<a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>。重点读 (a,c)：Γ 模式箭头及红外/Raman 活性，与共频率纵轴的色散/PHDOS。红圈编码逐模 λ，蓝/红谱分别为 Al/H。<a href="https://doi.org/10.1088/0256-307X/40/10/107401">论文原文</a>。</figcaption>
 </figure>
 
-[Yang、Jiang 与 Zhao 的 1H-AlH₂ 论文](https://doi.org/10.1088/0256-307X/40/10/107401) Fig. 3(a,c) 位于原文 107401-3 页（本机原 PDF 第 4 页）。(a) 先按 D₃h 对称性标出 Γ 模式：E′ 的第 4、5 模中上下 H 面内同相运动，E″ 的第 6、7 模中上下 H 反相运动；IR、R 标记分别表示红外和 Raman 活性。两组都以 H 位移为主，却不能只按元素投影合并。原文下一页将这两组与 (c) 的分支联系起来，指出 E′ 对 EPC 的贡献较大；(c) 红圈大小正比于逐模 $\lambda_{\mathbf q\nu}$，与 Ba₂N 图中的线宽圆点不同。它还把色散与 Al/H 的 PHDOS 放在同一频率纵轴（cm⁻¹）上，用来辨认低频声学段与 H 主导的光学段；中频 Mode I、II 的插图进一步区分 H 的面内和面外运动。
+[Yang、Jiang 与 Zhao 的 1H-AlH₂ 论文](https://doi.org/10.1088/0256-307X/40/10/107401) Fig. 3(a,c) 位于所核官方六页 PDF 第 3 页（107401-3）。(a) 先按 D₃h 对称性标出 Γ 模式：E′ 的第 4、5 模中上下 H 面内同相运动，E″ 的第 6、7 模中上下 H 反相运动；IR、R 标记分别表示红外和 Raman 活性。两组都以 H 位移为主，却不能只按元素投影合并。原文下一页将这两组与 (c) 的分支联系起来，指出 E′ 对 EPC 的贡献较大；(c) 红圈大小正比于逐模 $\lambda_{\mathbf q\nu}$，与 Ba₂N 图中的线宽圆点不同。它还把色散与 Al/H 的 PHDOS 放在同一频率纵轴（cm⁻¹）上，用来辨认低频声学段与 H 主导的光学段；中频 Mode I、II 的插图进一步区分 H 的面内和面外运动。
 
 本页的 Al 单原子原胞只有三条声学支，已有真实频率图用于比较位移幅度和超胞范围，不借用 AlH₂ 的光学模式或耦合数值。若在多元素结构上采用 Fig. 3(a,c) 的图法，应从同一次力常数处理导出频率与本征矢，按质量换成位移后，在 XCrySDen 中保留整模共同显示比例；同一频率附近还需比较上下层的方向与相位。色散旁的 PHDOS 可按[声子态密度页的共享频率轴 gnuplot 例子](/Atlas/m/phdos/qe/#h-将频段组成与应变机制对应起来)排布。只有另外取得对应逐 q 的 λ 后，才能加入耦合圆点；原文的点大小与箭头长度都不能由本页受力表直接生成。
 

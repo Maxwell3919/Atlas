@@ -8,8 +8,8 @@ import { normalizeBase } from '../../data/methods.js';
 
 export function getStaticPaths() {
   return [
+    { slug: 'charge-to-epc', title: '从静态电荷到模式耦合：H₂、Si 与 Al 的公开方法实例' },
     { slug: 'epc-al-verification', title: 'Al 双网格 EPC：完整执行与核验记录' },
-    { slug: 'epc-research-notes', title: 'EPC 研究记录：SnSe₂/Sr₂N 与 ZrCl₂/Sc₂C' },
   ].map((entry) => ({ params: { case: entry.slug }, props: entry }));
 }
 const { slug, title } = Astro.props;

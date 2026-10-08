@@ -1,0 +1,30 @@
+---
+import {readFileSync} from 'node:fs';
+import Base from '../../layouts/Base.astro';
+import ArticleBody from '../../components/ArticleBody.astro';
+import {renderMarkdownBody} from '../../lib/manual.js';
+import {normalizeBase} from '../../data/methods.js';
+const base=normalizeBase(import.meta.env.BASE_URL);
+let body=await renderMarkdownBody(readFileSync('src/content/cases/abinit-h2-sensitivity.md','utf8').replace(/^# [^\n]+\n/,''));
+body=body.replace(/<table>/g,'<table tabindex="0" aria-label="保存数值表，可左右滚动查看全部列">');
+const figures=[{name:'scf-residual',width:1280,height:720,context:'全局去均值势平方和 Ha²；tolvrs=1e-12 为原生停止线，不是逐点 RMS 或物理精度。'}, {name:'setting-comparisons',width:1760,height:640,context:'有符号能差 Ha（两面板独立线性尺度含零）；原子力差范数 Ha/Bohr（对数点，不连线）。联动 cutoff/FFT 两点不是收敛序列。'}];
+for(const f of figures){
+ const pattern=new RegExp('(<figure class="research-figure">(?:(?!</figure>)[\\s\\S])*?'+f.name+'\\.png(?:(?!</figure>)[\\s\\S])*?<\\/figcaption>)(<\\/figure>)');
+ if(!pattern.test(body))throw new Error('Expected scientific figure absent: '+f.name);
+ body=body.replace(pattern,(_m,figure,end)=>{
+  const src=figure.match(/<img[^>]*src="([^"]+)"/)?.[1];if(!src)throw new Error('Figure src absent');
+  return `${figure}<div class="figure-reader"><p>${f.context} NC-LDA / 10 Bohr 固定周期盒；基组/网格/盒长/力准确性未建立，最终 XC 裁剪前负密度 UNKNOWN。</p><p><a class="original" href="${src}" target="_blank" rel="noopener">打开原尺寸 PNG（新标签页，可放大） ↗</a></p><details class="enlarged"><summary>展开原尺寸图，左右滑动查看坐标与单位</summary><p>保持原 ${f.width} × ${f.height} 像素。触屏左右滑动；键盘聚焦图框后用左右方向键；收起返回正文。</p><div class="pan" tabindex="0" role="region" aria-label="原尺寸科学图，可横向滚动"><img src="${src}" width="${f.width}" height="${f.height}" alt="${f.context}"></div></details></div>${end}`;
+ });
+}
+---
+<Base title="ABINIT H₂：10 与 20 Ha 两点敏感性 · Atlas"><article class="record"><p><a href={`${base}/tools/abinit/`}>← ABINIT 工具</a> · <a href={`${base}/cases/abinit-h2/`}>原 smoke 案例</a></p><h1>ABINIT H₂：收紧 SCF 后，10 与 20 Ha 两点改变了什么？</h1><ArticleBody body={body}/></article></Base>
+<style>
+.record :global(.figure-reader){margin:.8rem 0 1rem;font-size:.95rem;line-height:1.75}
+.record :global(.original){display:inline-block;padding:.65rem .8rem;border:1px solid var(--accent);border-radius:6px;font-size:1rem;font-weight:600}
+.record :global(.enlarged summary){padding:.7rem .2rem;font-size:1rem;font-weight:600;cursor:pointer}
+.record :global(.pan){max-width:100%;overflow:auto;border:1px solid var(--line);background:white;overscroll-behavior-x:contain}
+.record :global(.pan img){display:block;width:var(--native-width);max-width:none;height:auto;margin:0;border:0;border-radius:0}
+.record :global(.pan:has(img[width="1280"])) {--native-width:1280px}
+.record :global(.pan:has(img[width="1760"])) {--native-width:1760px}
+.record :global(.pan:focus-visible),.record :global(table:focus-visible),.record :global(.original:focus-visible),.record :global(summary:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+</style>

@@ -1,0 +1,7 @@
+---
+import Base from '../../layouts/Base.astro';
+import SiModeViewer from '../../components/SiModeViewer.astro';
+import { normalizeBase } from '../../data/methods.js';
+const base=normalizeBase(import.meta.env.BASE_URL);
+---
+<Base title="Si Γ 模式互动 · Atlas"><article><p><a href={`${base}/tools/`}>← 关联工具工作流</a></p><h1>把保存的 Si 模式变成可检查的运动</h1><p>频率与位移来自公开的历史 QE 7.5 输出；网页仅对已核对的实数 Γ 位移做相位演示，不重新对角化或计算声子。</p><SiModeViewer base={base}/><p>文件关系：<a href={`${base}/examples/si-pbe/gamma-phonon/dynmat-crystal.in`}>crystal ASR 输入</a> → <a href={`${base}/examples/si-pbe/gamma-phonon/dynmat-crystal.out.txt`}>原生输出</a> → <a href={`${base}/examples/si-pbe/gamma-phonon/mode-character/mode-diagnostics.csv`}>频率与位移诊断</a>。<a href="https://github.com/QEF/q-e/blob/qe-7.5/PHonon/PH/write_eigenvectors.f90">同版本 writexsf 源码</a>用全模共同范数设置 0.10 的可视化尺度；六个 AXSF 块是六种模式，不是六个时间步。本页选择单个同频基向量时不宣称它是唯一物理运动方向。</p></article></Base>

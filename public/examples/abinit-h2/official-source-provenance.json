@@ -1,0 +1,73 @@
+{
+  "program_release": "Ubuntu24.04noble/universe ABINIT9.10.4-2ubuntu3, actual native9.10.4",
+  "binary_SHA256_identity_only_no_binary_in_payload": "4e83f055fdc2796b1fe1be75a8894aec5ffa2921fb14179ce3f8c914c1ee25d2",
+  "package_expected_and_actual_SHA256": "52d625d930f02589afc6d8230145d2d93e217e3aebee87ca934ddd87f39ad17a",
+  "official_package": "https://archive.ubuntu.com/ubuntu/pool/universe/a/abinit/abinit_9.10.4-2ubuntu3_amd64.deb",
+  "versionmatched_sources": [
+    {
+      "file": "sources/COPYING",
+      "url": "https://raw.githubusercontent.com/abinit/abinit/9.10.4/COPYING",
+      "sha256": "76bd835b6b42e02c9246f89a217a5f22f33276fede9ced430ecdafa50100041d",
+      "bytes": 35621
+    },
+    {
+      "file": "sources/tbase1_1.abi",
+      "url": "https://raw.githubusercontent.com/abinit/abinit/9.10.4/tests/tutorial/Input/tbase1_1.abi",
+      "sha256": "04e22b1c3a376b519c5c7d2b4c2bdecedd210adda3dfe26ee4570ad4387c0599",
+      "bytes": 3654
+    },
+    {
+      "file": "sources/base1.md",
+      "url": "https://raw.githubusercontent.com/abinit/abinit/9.10.4/doc/tutorial/base1.md",
+      "sha256": "c1b5031d14d962e7697e0c81e9df60fd7504558cba58fc92a1ab6ff18d74b8fc",
+      "bytes": 36573
+    },
+    {
+      "file": "sources/abinit.F90",
+      "url": "https://raw.githubusercontent.com/abinit/abinit/9.10.4/src/98_main/abinit.F90",
+      "sha256": "f7f212c691c654a6e5cdd59abfa54cab97e1cf87d12f08a30971ce86204d40d0",
+      "bytes": 21494
+    },
+    {
+      "file": "sources/debian-copyright",
+      "url": "https://changelogs.ubuntu.com/changelogs/pool/universe/a/abinit/abinit_9.10.4-2ubuntu3/copyright",
+      "sha256": "e2af928ac77964690b3fec4e0239122e51e57b0f06cb7707bf93344d0285c79a",
+      "bytes": 1666
+    },
+    {
+      "file": "sources/tag-ref.json",
+      "url": "https://api.github.com/repos/abinit/abinit/git/ref/tags/9.10.4",
+      "sha256": "b3520be0b829db7d8f6c5232a9c43e3914c9c57f805843c8e570e07948c6f324",
+      "bytes": 329
+    }
+  ],
+  "pseudo_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/abinit/pseudo_dojo/4048962957711c04281ffe6c2bd2c96f0f7110aa/README.md",
+      "file": "sources/dojo-pinned-README.md",
+      "sha256": "a58b12d847a819a766f1fe38211daec8a09ccc3db450bf2bd23dad93bd65a28a"
+    },
+    {
+      "url": "https://api.github.com/repos/abinit/pseudo_dojo/git/trees/4048962957711c04281ffe6c2bd2c96f0f7110aa?recursive=1",
+      "file": "sources/dojo-tree.json",
+      "sha256": "8bd00b0e090384f2211665ae359d320fdd2b0e81537557468c91eb479615465c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/abinit/pseudo_dojo/4048962957711c04281ffe6c2bd2c96f0f7110aa/pseudo_dojo/pseudos/ONCVPSP-PW-PDv0.3/H/H.psp8",
+      "sha256": "19843926597fa5b15f51a8db041c14b9ab2c06f641e0daadbdcbbe869a202e03",
+      "matches_cached": false,
+      "path": "pseudo_dojo/pseudos/ONCVPSP-PW-PDv0.3/H/H.psp8"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/abinit/pseudo_dojo/4048962957711c04281ffe6c2bd2c96f0f7110aa/pseudo_dojo/pseudos/ONCVPSP-PW-PDv0.4/H/H.psp8",
+      "sha256": "af415463efe6cbd281cad1b3fda928016408ec401b0f2c671275fa8f19594983",
+      "matches_cached": true,
+      "path": "pseudo_dojo/pseudos/ONCVPSP-PW-PDv0.4/H/H.psp8"
+    }
+  ],
+  "input_SHA256": "7a5a8f556bd91817f239b0b9c11a5f307874f97d2ca708044ce4b75403dc1ded",
+  "pseudo_SHA256": "af415463efe6cbd281cad1b3fda928016408ec401b0f2c671275fa8f19594983",
+  "input_changes": "only local pseudo directory/name compared to tagged9.10.4 tutorial; all physical/numerical tokens identical; source file may contain historical comments. Dataset unchanged.",
+  "scope": "one fixed public tutorial SCF; no materials claims, no private ranking/counts or paper images",
+  "status": "PROPOSED_PUBLIC_PAYLOAD_PENDING_INDEPENDENT_REVIEW_NOT_PUBLISHED"
+}

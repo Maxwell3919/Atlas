@@ -1,0 +1,28 @@
+{
+  "engine": {
+    "native_version": "9.10.4",
+    "Ubuntu_package": "9.10.4-2ubuntu3",
+    "program_SHA256": "4e83f055fdc2796b1fe1be75a8894aec5ffa2921fb14179ce3f8c914c1ee25d2",
+    "supported_status": "Pinned unsupported reproduction route, not latest supported production advice"
+  },
+  "cases": {
+    "A": {
+      "native_exit_code": 0,
+      "cleanup_complete": true,
+      "pre_post_identity_verified": true,
+      "source": "cases/A/inputs/h2.abo and outputs/stdout.txt",
+      "new_calls_in_this_package": 0
+    },
+    "B": {
+      "native_exit_code": 0,
+      "cleanup_complete": true,
+      "pre_post_identity_verified": true,
+      "source": "cases/B/inputs/h2.abo and outputs/stdout.txt",
+      "new_calls_in_this_package": 0
+    }
+  },
+  "baseline": "Cached accepted loose-SCF13 case, NOT new run",
+  "accepted_scope": "Independently accepted actual A/B saved teaching measurements; this public subset awaits separate source/figure review",
+  "native_calls_in_saved_history": 2,
+  "native_calls_by_postprocess": 0
+}

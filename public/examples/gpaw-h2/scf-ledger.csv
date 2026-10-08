@@ -1,0 +1,10 @@
+stage,SCF_block_index,iterations,converged_under_original_thresholds
+smoke,0,11,True
+relax,0,11,True
+relax,1,11,True
+relax,2,11,True
+relax,3,9,True
+relax,4,9,True
+forcecheck,0,11,True
+forcecheck,1,9,True
+forcecheck,2,10,True

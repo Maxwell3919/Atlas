@@ -1,0 +1,26 @@
+{
+  "stage": "relax",
+  "energy_initial_eV": -6.409789624898372,
+  "forces_initial_eV_A": [
+    [
+      -1.067498625320734e-13,
+      -1.582716985762275e-14,
+      3.0765964196252367
+    ],
+    [
+      -1.2413639068943903e-13,
+      -2.1815978954159192e-14,
+      -3.076596419625485
+    ]
+  ],
+  "bond_initial_A": 0.9,
+  "physics_converged": false,
+  "basis_box_converged": false,
+  "geometry_threshold_met": true,
+  "optimizer_steps": 2,
+  "energy_final_eV": -6.6638213304200535,
+  "bond_final_A": 0.7569389446946269,
+  "max_force_final_eV_A": 0.0254525825871726,
+  "accepted_local": true,
+  "scf_calls_completed": true
+}

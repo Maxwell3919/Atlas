@@ -1,0 +1,32 @@
+---
+import { readFileSync } from 'node:fs';
+import { parseSiModes } from '../lib/si-mode-data.js';
+const { base }=Astro.props;
+const dir='public/examples/si-pbe/gamma-phonon/mode-character/';
+const read=(name)=>readFileSync(dir+name,'utf8');
+const data=parseSiModes(read('mode-vectors.csv'),read('mode-diagnostics.csv'),read('dynmat.axsf'),read('si-crystal.modes'));
+---
+<section class="mode-viewer" data-si-mode-viewer aria-label="Si Γ 模式互动">
+ <script type="application/json" data-mode-data set:html={JSON.stringify(data)} />
+ <h2>同相平移，还是反相运动？</h2>
+ <p>公开 QE 7.5 的两原子 Si Γ 点，crystal ASR。这里展示原胞与两个原子，未复制周期邻居；切换投影可看三个笛卡尔方向。</p>
+ <div class="controls">
+  <label>模式 <select data-mode>{data.modes.map(m=><option value={m.number} selected={m.number===4}>模式 {m.number} · {m.frequency.toFixed(6)} cm⁻¹</option>)}</select></label>
+  <label>投影 <select data-view><option value="xz">x–z</option><option value="xy">x–y</option><option value="yz">y–z</option></select></label>
+  <label>相位 θ <input data-phase type="range" min="0" max="360" step="1" value="0" /><output data-phase-label>0°</output></label>
+  <label>整模显示尺度 A（Å）<input data-amplitude type="range" min="0" max="1" step="0.01" value="0.1" /><output data-amplitude-label>0.10 Å</output></label>
+  <button type="button" data-play aria-pressed="false">播放</button><button type="button" data-reset>重置</button><button type="button" data-export>导出当前视图 PNG</button>
+ </div>
+ <canvas width="720" height="440" tabindex="0" aria-label="Si 模式投影。聚焦后方向键调相位，空格播放或暂停，Home 回到零相位。"></canvas>
+ <p class="hint">PNG 导出保存当前模式、频率、投影、相位与整模显示尺度（Å），并保留非热振幅说明；点击导出会暂停在当前相位。原 AXSF 下载始终保留完整原文件。</p>
+ <p data-export-status role="status"></p>
+ <p data-status role="status">模式 4，523.722542 cm⁻¹；已暂停。</p>
+ <p class="hint">实心点为当前原子，空心点为平衡位置，线段为当前位移；坐标为 Å。Δr = A u cos θ / ‖u‖，对全模共用一个系数，不逐原子放大。A = 0.10 Å 对应 AXSF 的整模尺度，不是每个原子的振幅。播放速度只是演示速度，不是声子周期或温度。0° 与 180° 位移反号，90° 回到平衡位置。</p>
+ <p class="hint">滑块支持方向键、Home/End；画布支持方向键、空格、Home。触屏可直接操作控件。初始暂停，离开页面自动暂停。Γ 的前三个近零频模式不代表新的不稳定性判定；后三模为同频光学子空间的一组基，单根箭头不是唯一物理方向。</p>
+ <p class="downloads"><a href={`${base}/examples/si-pbe/gamma-phonon/mode-character/dynmat.axsf`} download>下载原 AXSF</a> · <a href={`${base}/examples/si-pbe/gamma-phonon/mode-character/mode-vectors.csv`} download>位移 CSV</a> · <a href={`${base}/examples/si-pbe/gamma-phonon/mode-character/si-crystal.modes`} download>原模式与频率</a> · <a href={`${base}/m/imaginary-phonon/qe/`}>频率与 ASR 的解释</a></p>
+ <noscript>启用 JavaScript 可播放模式；仍可下载原数据检查方向与频率。</noscript>
+</section>
+<script>import '../scripts/si-mode-viewer.js';</script>
+<style>
+ .mode-viewer{border:1px solid var(--line);border-radius:8px;padding:1rem;margin:2rem 0}.controls{display:flex;flex-wrap:wrap;gap:.8rem;align-items:end}.controls label{display:flex;flex-direction:column;min-width:140px;flex:1;font-size:.85rem}.controls input{width:100%;height:44px}.controls select,.controls button{min-height:44px;font:inherit;max-width:100%}.controls button{padding:.3rem .8rem;border:1px solid var(--line);border-radius:6px;color:var(--fg);background:var(--card)}canvas{display:block;width:100%;height:400px;background:#fff;color:#172b45;margin:1rem 0;border-radius:6px}canvas:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.hint,.downloads{font-size:.85rem;color:var(--muted)}@media(max-width:480px){.mode-viewer{padding:.7rem}.controls label{min-width:120px}}
+</style>

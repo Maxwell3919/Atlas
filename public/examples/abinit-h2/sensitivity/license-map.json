@@ -1,0 +1,8 @@
+{
+  "own_postprocess_parser_README_tables_figures": "MIT: licenses/OWN-ANALYSIS-MIT.txt; numeric facts are observations, no physical accuracy warranty",
+  "cases/*/inputs/h2.abi": "GPL-3.0-or-later tutorial derivatives; original comments retained; physical changes documented",
+  "sources/*": "ABINIT9.10.4 GPL-3.0-or-later official source/tutorial, exact upstream SHA; licenses/ABINIT-COPYING",
+  "cases/*/data/H.psp8": "Independent CC-BY-4.0; unmodified PseudoDojo ONCVPSP PWv0.4 H; licenses/H-NOTICE.txt and PseudoDojo-source-license-statement.md; https://creativecommons.org/licenses/by/4.0/",
+  "raw_native_text": "Original generated public teaching outputs, ABINIT notices/citations preserved; no private sources; no binaries or internal receipts",
+  "program_package": "GPL3+ plus separately declared exceptions per licenses/ABINIT-Ubuntu-copyright; not blanket license for H"
+}

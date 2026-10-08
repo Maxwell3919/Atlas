@@ -1,0 +1,49 @@
+{
+  "status": "EXECUTOR_NUMERIC_CRITERIA_PASS_NOT_INDEPENDENT_ACCEPTANCE",
+  "native_convergence_step": 6,
+  "ETOT_rows": 6,
+  "finite_native_energies": true,
+  "energy_unit": "hartree",
+  "final_three_precise_E_Ha": [
+    "-1.1171842773283",
+    "-1.1171843458762",
+    "-1.1171843463443"
+  ],
+  "last_two_absolute_differences_Ha": [
+    "6.85479E-8",
+    "4.681E-10"
+  ],
+  "rounding_error_upper_bounds_Ha": [
+    "1E-13",
+    "1E-13"
+  ],
+  "threshold_Ha": "1e-6",
+  "two_differences_strictly_below_threshold_even_with_rounding": true,
+  "force_unit": "hartree/bohr",
+  "raw_force_vectors": [
+    [
+      "-0.02690211036781",
+      "-0E-14",
+      "-0E-14"
+    ],
+    [
+      "0.02690211036781",
+      "-0E-14",
+      "-0E-14"
+    ]
+  ],
+  "raw_force_sum_components_Ha_Bohr": [
+    "0E-14",
+    "-0E-14",
+    "-0E-14"
+  ],
+  "net_force_norm_Ha_Bohr": "0E-14",
+  "net_force_guard": "1e-5",
+  "force_vectors_modified": false,
+  "native_symmetry_cancellation_can_enforce_netzero_not_force_accuracy": true,
+  "input_geometry_version_and_pseudo_echo_checks": true,
+  "process_exit_and_SCF_separate": true,
+  "warnings_review": "pending independent review",
+  "basis_box_force_accuracy": false,
+  "GPAW_energy_comparison_oracle": false
+}

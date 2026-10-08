@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import { normalizeBase } from '../../data/methods.js';
+const base=normalizeBase(import.meta.env.BASE_URL);
+const demo=`${base}/demos/altermagnet/`;
+---
+<Base title="d-wave 两自旋教学玩具 · Atlas"><article>
+ <p><a href={`${base}/tools/`}>← 工具与教学互动</a></p><h1>d-wave 两自旋教学玩具</h1>
+ <p>这是新建的公开教学模型，原始 HTML 未找回。它用人为选定的二维周期余弦色散演示两自旋分支与旋转关系；不计算材料 DFT，不证明真实自旋群、磁序或局域磁矩补偿，也不是新计算引擎。E₀ 为任意教学单位，k 为无量纲相位。</p>
+ <p><a class="direct" href={demo}>直接打开互动页（手机推荐） →</a> · <a href={`${demo}index.html`} download="altermagnet-toy.html">下载完整 HTML 源文件</a> · <a href={`${demo}default-grid.csv`}>默认 64×64 网格 CSV</a></p>
+ <p>先用 J=0 对照，再调 J 和共同 μ。方向键调滑块，Home/End 到边界，“复位”回到 J=0.6、μ=0.5；页面按钮导出当前 CSV 和 PNG，并保留参数、单位与玩具模型说明。离散能量壳点不是材料费米面。</p>
+ <iframe src={demo} title="d-wave 两自旋公开教学玩具互动" loading="lazy" sandbox="allow-scripts allow-same-origin allow-downloads"></iframe>
+ <p><a href={`${demo}model-contract.md`}>完整模型与边界</a> · <a href={`${demo}consistency.py`}>独立 stdlib 检查源</a> · <a href={`${demo}source-provenance.json`}>公开来源记录</a> · <a href={`${demo}LICENSE`}>原创代码/数据 MIT 许可</a>。独立检查可在下载目录运行 <code>python3 consistency.py --output-dir own-check</code>；本次网页集成没有重跑该分析。</p>
+ <p>页面只依赖这六个公开文件，未复制论文图片、正文或作者程序。原文出处与许可说明在来源记录中；这些出处提供对称性讨论背景，不把玩具输出变成材料证据。</p>
+</article></Base>
+<style>iframe{display:block;width:100%;height:1550px;border:1px solid var(--line);border-radius:6px}.direct{display:inline-block;padding:.6rem;border:1px solid var(--accent);border-radius:6px;font-weight:600}@media(max-width:600px){iframe{height:1900px}}</style>

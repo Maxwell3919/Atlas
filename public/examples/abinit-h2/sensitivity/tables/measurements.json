@@ -1,0 +1,1948 @@
+{
+  "scope": "Saved teaching sensitivity only; no smallness/order/stability/physical-accuracy classification",
+  "cases": {
+    "A": {
+      "status": "NATIVE_PARSER_GATES_PASS_NOT_MATERIAL_ACCURACY",
+      "point": "A10-tight",
+      "ledger": [
+        {
+          "dataset": 1,
+          "iteration": 1,
+          "line": 148,
+          "energy_Ha": {
+            "token": "-1.1093804698962",
+            "value": "-1.1093804698962",
+            "quantum": "1E-13",
+            "lower": "-1.10938046989625",
+            "upper": "-1.10938046989615"
+          },
+          "deltaE_Ha": {
+            "token": "-1.109E+00",
+            "value": "-1.109",
+            "quantum": "0.001",
+            "lower": "-1.1095",
+            "upper": "-1.1085"
+          },
+          "residm": {
+            "token": "6.384E-04",
+            "value": "0.0006384",
+            "quantum": "1E-7",
+            "lower": "0.00063835",
+            "upper": "0.00063845"
+          },
+          "vres2_Ha2": {
+            "token": "1.736E+01",
+            "value": "17.36",
+            "quantum": "0.01",
+            "lower": "17.355",
+            "upper": "17.365"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 2,
+          "line": 149,
+          "energy_Ha": {
+            "token": "-1.1170431098364",
+            "value": "-1.1170431098364",
+            "quantum": "1E-13",
+            "lower": "-1.11704310983645",
+            "upper": "-1.11704310983635"
+          },
+          "deltaE_Ha": {
+            "token": "-7.663E-03",
+            "value": "-0.007663",
+            "quantum": "0.000001",
+            "lower": "-0.0076635",
+            "upper": "-0.0076625"
+          },
+          "residm": {
+            "token": "7.449E-08",
+            "value": "7.449E-8",
+            "quantum": "1E-11",
+            "lower": "7.4485E-8",
+            "upper": "7.4495E-8"
+          },
+          "vres2_Ha2": {
+            "token": "2.737E-01",
+            "value": "0.2737",
+            "quantum": "0.0001",
+            "lower": "0.27365",
+            "upper": "0.27375"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 3,
+          "line": 150,
+          "energy_Ha": {
+            "token": "-1.1171736936408",
+            "value": "-1.1171736936408",
+            "quantum": "1E-13",
+            "lower": "-1.11717369364085",
+            "upper": "-1.11717369364075"
+          },
+          "deltaE_Ha": {
+            "token": "-1.306E-04",
+            "value": "-0.0001306",
+            "quantum": "1E-7",
+            "lower": "-0.00013065",
+            "upper": "-0.00013055"
+          },
+          "residm": {
+            "token": "5.867E-06",
+            "value": "0.000005867",
+            "quantum": "1E-9",
+            "lower": "0.0000058665",
+            "upper": "0.0000058675"
+          },
+          "vres2_Ha2": {
+            "token": "6.992E-02",
+            "value": "0.06992",
+            "quantum": "0.00001",
+            "lower": "0.069915",
+            "upper": "0.069925"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 4,
+          "line": 151,
+          "energy_Ha": {
+            "token": "-1.1171842773283",
+            "value": "-1.1171842773283",
+            "quantum": "1E-13",
+            "lower": "-1.11718427732835",
+            "upper": "-1.11718427732825"
+          },
+          "deltaE_Ha": {
+            "token": "-1.058E-05",
+            "value": "-0.00001058",
+            "quantum": "1E-8",
+            "lower": "-0.000010585",
+            "upper": "-0.000010575"
+          },
+          "residm": {
+            "token": "8.862E-07",
+            "value": "8.862E-7",
+            "quantum": "1E-10",
+            "lower": "8.8615E-7",
+            "upper": "8.8625E-7"
+          },
+          "vres2_Ha2": {
+            "token": "5.492E-04",
+            "value": "0.0005492",
+            "quantum": "1E-7",
+            "lower": "0.00054915",
+            "upper": "0.00054925"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 5,
+          "line": 152,
+          "energy_Ha": {
+            "token": "-1.1171843458762",
+            "value": "-1.1171843458762",
+            "quantum": "1E-13",
+            "lower": "-1.11718434587625",
+            "upper": "-1.11718434587615"
+          },
+          "deltaE_Ha": {
+            "token": "-6.855E-08",
+            "value": "-6.855E-8",
+            "quantum": "1E-11",
+            "lower": "-6.8555E-8",
+            "upper": "-6.8545E-8"
+          },
+          "residm": {
+            "token": "1.683E-09",
+            "value": "1.683E-9",
+            "quantum": "1E-12",
+            "lower": "1.6825E-9",
+            "upper": "1.6835E-9"
+          },
+          "vres2_Ha2": {
+            "token": "1.404E-05",
+            "value": "0.00001404",
+            "quantum": "1E-8",
+            "lower": "0.000014035",
+            "upper": "0.000014045"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 6,
+          "line": 153,
+          "energy_Ha": {
+            "token": "-1.1171843463443",
+            "value": "-1.1171843463443",
+            "quantum": "1E-13",
+            "lower": "-1.11718434634435",
+            "upper": "-1.11718434634425"
+          },
+          "deltaE_Ha": {
+            "token": "-4.681E-10",
+            "value": "-4.681E-10",
+            "quantum": "1E-13",
+            "lower": "-4.6815E-10",
+            "upper": "-4.6805E-10"
+          },
+          "residm": {
+            "token": "2.580E-11",
+            "value": "2.580E-11",
+            "quantum": "1E-14",
+            "lower": "2.5795E-11",
+            "upper": "2.5805E-11"
+          },
+          "vres2_Ha2": {
+            "token": "3.672E-07",
+            "value": "3.672E-7",
+            "quantum": "1E-10",
+            "lower": "3.6715E-7",
+            "upper": "3.6725E-7"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 7,
+          "line": 154,
+          "energy_Ha": {
+            "token": "-1.1171843463515",
+            "value": "-1.1171843463515",
+            "quantum": "1E-13",
+            "lower": "-1.11718434635155",
+            "upper": "-1.11718434635145"
+          },
+          "deltaE_Ha": {
+            "token": "-7.189E-12",
+            "value": "-7.189E-12",
+            "quantum": "1E-15",
+            "lower": "-7.1895E-12",
+            "upper": "-7.1885E-12"
+          },
+          "residm": {
+            "token": "6.858E-13",
+            "value": "6.858E-13",
+            "quantum": "1E-16",
+            "lower": "6.8575E-13",
+            "upper": "6.8585E-13"
+          },
+          "vres2_Ha2": {
+            "token": "1.767E-09",
+            "value": "1.767E-9",
+            "quantum": "1E-12",
+            "lower": "1.7665E-9",
+            "upper": "1.7675E-9"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 8,
+          "line": 155,
+          "energy_Ha": {
+            "token": "-1.1171843463516",
+            "value": "-1.1171843463516",
+            "quantum": "1E-13",
+            "lower": "-1.11718434635165",
+            "upper": "-1.11718434635155"
+          },
+          "deltaE_Ha": {
+            "token": "-4.774E-14",
+            "value": "-4.774E-14",
+            "quantum": "1E-17",
+            "lower": "-4.7745E-14",
+            "upper": "-4.7735E-14"
+          },
+          "residm": {
+            "token": "3.407E-16",
+            "value": "3.407E-16",
+            "quantum": "1E-19",
+            "lower": "3.4065E-16",
+            "upper": "3.4075E-16"
+          },
+          "vres2_Ha2": {
+            "token": "8.689E-11",
+            "value": "8.689E-11",
+            "quantum": "1E-14",
+            "lower": "8.6885E-11",
+            "upper": "8.6895E-11"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 9,
+          "line": 156,
+          "energy_Ha": {
+            "token": "-1.1171843463515",
+            "value": "-1.1171843463515",
+            "quantum": "1E-13",
+            "lower": "-1.11718434635155",
+            "upper": "-1.11718434635145"
+          },
+          "deltaE_Ha": {
+            "token": "3.619E-14",
+            "value": "3.619E-14",
+            "quantum": "1E-17",
+            "lower": "3.6185E-14",
+            "upper": "3.6195E-14"
+          },
+          "residm": {
+            "token": "2.378E-17",
+            "value": "2.378E-17",
+            "quantum": "1E-20",
+            "lower": "2.3775E-17",
+            "upper": "2.3785E-17"
+          },
+          "vres2_Ha2": {
+            "token": "3.241E-12",
+            "value": "3.241E-12",
+            "quantum": "1E-15",
+            "lower": "3.2405E-12",
+            "upper": "3.2415E-12"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 10,
+          "line": 157,
+          "energy_Ha": {
+            "token": "-1.1171843463515",
+            "value": "-1.1171843463515",
+            "quantum": "1E-13",
+            "lower": "-1.11718434635155",
+            "upper": "-1.11718434635145"
+          },
+          "deltaE_Ha": {
+            "token": "-9.548E-15",
+            "value": "-9.548E-15",
+            "quantum": "1E-18",
+            "lower": "-9.5485E-15",
+            "upper": "-9.5475E-15"
+          },
+          "residm": {
+            "token": "1.962E-18",
+            "value": "1.962E-18",
+            "quantum": "1E-21",
+            "lower": "1.9615E-18",
+            "upper": "1.9625E-18"
+          },
+          "vres2_Ha2": {
+            "token": "1.268E-14",
+            "value": "1.268E-14",
+            "quantum": "1E-17",
+            "lower": "1.2675E-14",
+            "upper": "1.2685E-14"
+          }
+        }
+      ],
+      "energy": {
+        "token": "-1.1171843463515",
+        "value": "-1.1171843463515",
+        "quantum": "1E-13",
+        "lower": "-1.11718434635155",
+        "upper": "-1.11718434635145"
+      },
+      "forces": [
+        [
+          {
+            "token": "-0.02690140666364",
+            "value": "-0.02690140666364",
+            "quantum": "1E-14",
+            "lower": "-0.026901406663645",
+            "upper": "-0.026901406663635"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ],
+        [
+          {
+            "token": "0.02690140666364",
+            "value": "0.02690140666364",
+            "quantum": "1E-14",
+            "lower": "0.026901406663635",
+            "upper": "0.026901406663645"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ]
+      ],
+      "netforce_interval_Ha_Bohr": {
+        "lower": "0",
+        "upper": "1.73205080757E-14",
+        "note": "Outward arithmetic bounds, not physical significant digits"
+      },
+      "marker_residual": {
+        "token": "1.27E-14",
+        "value": "1.27E-14",
+        "quantum": "1E-16",
+        "lower": "1.265E-14",
+        "upper": "1.275E-14"
+      },
+      "echoes": {
+        "tolvrs": [
+          {
+            "token": "1.00000000E-12",
+            "value": "1.00000000E-12",
+            "quantum": "1E-20",
+            "lower": "9.99999995E-13",
+            "upper": "1.000000005E-12"
+          }
+        ],
+        "ecut": [
+          {
+            "token": "1.00000000E+01",
+            "value": "10.0000000",
+            "quantum": "1E-7",
+            "lower": "9.99999995",
+            "upper": "10.00000005"
+          }
+        ],
+        "acell": [
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          },
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          },
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          }
+        ],
+        "natom": [
+          {
+            "token": "2",
+            "value": "2",
+            "quantum": "1",
+            "lower": "1.5",
+            "upper": "2.5"
+          }
+        ],
+        "nband": [
+          {
+            "token": "2",
+            "value": "2",
+            "quantum": "1",
+            "lower": "1.5",
+            "upper": "2.5"
+          }
+        ],
+        "ngfft": [
+          {
+            "token": "30",
+            "value": "30",
+            "quantum": "1",
+            "lower": "29.5",
+            "upper": "30.5"
+          },
+          {
+            "token": "30",
+            "value": "30",
+            "quantum": "1",
+            "lower": "29.5",
+            "upper": "30.5"
+          },
+          {
+            "token": "30",
+            "value": "30",
+            "quantum": "1",
+            "lower": "29.5",
+            "upper": "30.5"
+          }
+        ],
+        "nsym": [
+          {
+            "token": "16",
+            "value": "16",
+            "quantum": "1",
+            "lower": "15.5",
+            "upper": "16.5"
+          }
+        ],
+        "ixc": [
+          {
+            "token": "-1012",
+            "value": "-1012",
+            "quantum": "1",
+            "lower": "-1012.5",
+            "upper": "-1011.5"
+          }
+        ],
+        "nkpt": [
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          }
+        ],
+        "kptopt": [
+          {
+            "token": "0",
+            "value": "0",
+            "quantum": "1",
+            "lower": "-0.5",
+            "upper": "0.5"
+          }
+        ],
+        "typat": [
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          },
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          }
+        ],
+        "occ": [
+          {
+            "token": "2.000000",
+            "value": "2.000000",
+            "quantum": "0.000001",
+            "lower": "1.9999995",
+            "upper": "2.0000005"
+          },
+          {
+            "token": "0.000000",
+            "value": "0.000000",
+            "quantum": "0.000001",
+            "lower": "-5E-7",
+            "upper": "5E-7"
+          }
+        ],
+        "znucl": [
+          {
+            "token": "1.00000",
+            "value": "1.00000",
+            "quantum": "0.00001",
+            "lower": "0.999995",
+            "upper": "1.000005"
+          }
+        ],
+        "diemac": [
+          {
+            "token": "2.00000000E+00",
+            "value": "2.00000000",
+            "quantum": "1E-8",
+            "lower": "1.999999995",
+            "upper": "2.000000005"
+          }
+        ],
+        "fftalg": [
+          {
+            "token": "112",
+            "value": "112",
+            "quantum": "1",
+            "lower": "111.5",
+            "upper": "112.5"
+          }
+        ]
+      },
+      "immutable_input_binding": {
+        "sha256": "6ccb30a898aa8ebb5ef1bf834f816464f89d2a1c30d1dd5b37f162be6ba447dc",
+        "nstep": {
+          "token": "30",
+          "value": "30",
+          "quantum": "1",
+          "lower": "29.5",
+          "upper": "30.5"
+        },
+        "tolvrs": {
+          "token": "1.0d-12",
+          "value": "1.0E-12",
+          "quantum": "1E-13",
+          "lower": "9.5E-13",
+          "upper": "1.05E-12"
+        }
+      },
+      "nstep_binding": {
+        "input": {
+          "token": "30",
+          "value": "30",
+          "quantum": "1",
+          "lower": "29.5",
+          "upper": "30.5"
+        },
+        "selected_BeginCycle_nstep": "30",
+        "outvars": [
+          {
+            "present": false,
+            "source_default_contract": true
+          },
+          {
+            "present": false,
+            "source_default_contract": true
+          }
+        ],
+        "official_default_contract": {
+          "version": "9.10.4",
+          "default": 30,
+          "source": "sources/variables_abinit.py",
+          "sha256": "3dbd1f92ee8beb24edd78c5043eef50be62a233d5f62e8998d9b620ab315a263",
+          "scope": "Permits only absent nstep outvars; never replaces input or selected solver binding."
+        }
+      },
+      "native_YAML_tags": [
+        "DatasetInfo",
+        "BeginCycle",
+        "ResultsGS",
+        "EnergyTerms"
+      ],
+      "wavevector_tokens": [
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        },
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        },
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        }
+      ],
+      "grid": [
+        "30",
+        "30",
+        "30"
+      ],
+      "boxcut": {
+        "token": "2.10744",
+        "value": "2.10744",
+        "quantum": "0.00001",
+        "lower": "2.107435",
+        "upper": "2.107445"
+      },
+      "raw_logs_preserve_all_warnings": true,
+      "later_XC_prefloor_recurrence": "UNKNOWN",
+      "warning_lines": [
+        {
+          "line": 22,
+          "text": "- This version of ABINIT is not supported anymore."
+        },
+        {
+          "line": 195,
+          "text": " Integrated electronic density in atomic spheres:"
+        },
+        {
+          "line": 197,
+          "text": " Atom  Sphere_radius  Integrated_density"
+        },
+        {
+          "line": 325,
+          "text": "- [1] Libxc: A library of exchange and correlation functionals for density functional theory."
+        },
+        {
+          "line": 327,
+          "text": "- Comment: to be cited when LibXC is used (negative value of ixc)"
+        },
+        {
+          "line": 393,
+          "text": ".Delivered   1 WARNINGs and   3 COMMENTs to log file."
+        },
+        {
+          "line": 421,
+          "text": "- This version of ABINIT is not supported anymore."
+        },
+        {
+          "line": 755,
+          "text": " initro: for itypat=  1, take pseudo charge density from pp file"
+        },
+        {
+          "line": 768,
+          "text": "--- !WARNING"
+        },
+        {
+          "line": 772,
+          "text": "    Density went too small (lower than xc_denpos) at 1275 points"
+        },
+        {
+          "line": 775,
+          "text": "     pseudopotential core charge, or (3) too low ecut for estimated initial density."
+        },
+        {
+          "line": 778,
+          "text": "     density with a preliminary LDA or GGA-PBE if you are using a more exotic xc functional."
+        },
+        {
+          "line": 784,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 799,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 811,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 823,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 835,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 847,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 859,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 871,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 883,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 895,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 925,
+          "text": " Integrated electronic density in atomic spheres:"
+        },
+        {
+          "line": 927,
+          "text": " Atom  Sphere_radius  Integrated_density"
+        },
+        {
+          "line": 951,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 1021,
+          "text": ".Delivered   1 WARNINGs and   3 COMMENTs to log file."
+        },
+        {
+          "line": 1037,
+          "text": "num_warnings: 1"
+        }
+      ]
+    },
+    "B": {
+      "status": "NATIVE_PARSER_GATES_PASS_NOT_MATERIAL_ACCURACY",
+      "point": "B20-tight",
+      "ledger": [
+        {
+          "dataset": 1,
+          "iteration": 1,
+          "line": 148,
+          "energy_Ha": {
+            "token": "-1.1280525695351",
+            "value": "-1.1280525695351",
+            "quantum": "1E-13",
+            "lower": "-1.12805256953515",
+            "upper": "-1.12805256953505"
+          },
+          "deltaE_Ha": {
+            "token": "-1.128E+00",
+            "value": "-1.128",
+            "quantum": "0.001",
+            "lower": "-1.1285",
+            "upper": "-1.1275"
+          },
+          "residm": {
+            "token": "3.439E-05",
+            "value": "0.00003439",
+            "quantum": "1E-8",
+            "lower": "0.000034385",
+            "upper": "0.000034395"
+          },
+          "vres2_Ha2": {
+            "token": "5.531E+01",
+            "value": "55.31",
+            "quantum": "0.01",
+            "lower": "55.305",
+            "upper": "55.315"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 2,
+          "line": 149,
+          "energy_Ha": {
+            "token": "-1.1366439959508",
+            "value": "-1.1366439959508",
+            "quantum": "1E-13",
+            "lower": "-1.13664399595085",
+            "upper": "-1.13664399595075"
+          },
+          "deltaE_Ha": {
+            "token": "-8.591E-03",
+            "value": "-0.008591",
+            "quantum": "0.000001",
+            "lower": "-0.0085915",
+            "upper": "-0.0085905"
+          },
+          "residm": {
+            "token": "6.923E-09",
+            "value": "6.923E-9",
+            "quantum": "1E-12",
+            "lower": "6.9225E-9",
+            "upper": "6.9235E-9"
+          },
+          "vres2_Ha2": {
+            "token": "6.736E-01",
+            "value": "0.6736",
+            "quantum": "0.0001",
+            "lower": "0.67355",
+            "upper": "0.67365"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 3,
+          "line": 150,
+          "energy_Ha": {
+            "token": "-1.1368013448271",
+            "value": "-1.1368013448271",
+            "quantum": "1E-13",
+            "lower": "-1.13680134482715",
+            "upper": "-1.13680134482705"
+          },
+          "deltaE_Ha": {
+            "token": "-1.573E-04",
+            "value": "-0.0001573",
+            "quantum": "1E-7",
+            "lower": "-0.00015735",
+            "upper": "-0.00015725"
+          },
+          "residm": {
+            "token": "5.945E-06",
+            "value": "0.000005945",
+            "quantum": "1E-9",
+            "lower": "0.0000059445",
+            "upper": "0.0000059455"
+          },
+          "vres2_Ha2": {
+            "token": "2.077E-01",
+            "value": "0.2077",
+            "quantum": "0.0001",
+            "lower": "0.20765",
+            "upper": "0.20775"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 4,
+          "line": 151,
+          "energy_Ha": {
+            "token": "-1.1368126332192",
+            "value": "-1.1368126332192",
+            "quantum": "1E-13",
+            "lower": "-1.13681263321925",
+            "upper": "-1.13681263321915"
+          },
+          "deltaE_Ha": {
+            "token": "-1.129E-05",
+            "value": "-0.00001129",
+            "quantum": "1E-8",
+            "lower": "-0.000011295",
+            "upper": "-0.000011285"
+          },
+          "residm": {
+            "token": "9.789E-07",
+            "value": "9.789E-7",
+            "quantum": "1E-10",
+            "lower": "9.7885E-7",
+            "upper": "9.7895E-7"
+          },
+          "vres2_Ha2": {
+            "token": "6.426E-04",
+            "value": "0.0006426",
+            "quantum": "1E-7",
+            "lower": "0.00064255",
+            "upper": "0.00064265"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 5,
+          "line": 152,
+          "energy_Ha": {
+            "token": "-1.1368127111857",
+            "value": "-1.1368127111857",
+            "quantum": "1E-13",
+            "lower": "-1.13681271118575",
+            "upper": "-1.13681271118565"
+          },
+          "deltaE_Ha": {
+            "token": "-7.797E-08",
+            "value": "-7.797E-8",
+            "quantum": "1E-11",
+            "lower": "-7.7975E-8",
+            "upper": "-7.7965E-8"
+          },
+          "residm": {
+            "token": "5.453E-09",
+            "value": "5.453E-9",
+            "quantum": "1E-12",
+            "lower": "5.4525E-9",
+            "upper": "5.4535E-9"
+          },
+          "vres2_Ha2": {
+            "token": "1.028E-05",
+            "value": "0.00001028",
+            "quantum": "1E-8",
+            "lower": "0.000010275",
+            "upper": "0.000010285"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 6,
+          "line": 153,
+          "energy_Ha": {
+            "token": "-1.1368127130939",
+            "value": "-1.1368127130939",
+            "quantum": "1E-13",
+            "lower": "-1.13681271309395",
+            "upper": "-1.13681271309385"
+          },
+          "deltaE_Ha": {
+            "token": "-1.908E-09",
+            "value": "-1.908E-9",
+            "quantum": "1E-12",
+            "lower": "-1.9085E-9",
+            "upper": "-1.9075E-9"
+          },
+          "residm": {
+            "token": "9.350E-11",
+            "value": "9.350E-11",
+            "quantum": "1E-14",
+            "lower": "9.3495E-11",
+            "upper": "9.3505E-11"
+          },
+          "vres2_Ha2": {
+            "token": "2.625E-07",
+            "value": "2.625E-7",
+            "quantum": "1E-10",
+            "lower": "2.6245E-7",
+            "upper": "2.6255E-7"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 7,
+          "line": 154,
+          "energy_Ha": {
+            "token": "-1.1368127131013",
+            "value": "-1.1368127131013",
+            "quantum": "1E-13",
+            "lower": "-1.13681271310135",
+            "upper": "-1.13681271310125"
+          },
+          "deltaE_Ha": {
+            "token": "-7.403E-12",
+            "value": "-7.403E-12",
+            "quantum": "1E-15",
+            "lower": "-7.4035E-12",
+            "upper": "-7.4025E-12"
+          },
+          "residm": {
+            "token": "3.417E-13",
+            "value": "3.417E-13",
+            "quantum": "1E-16",
+            "lower": "3.4165E-13",
+            "upper": "3.4175E-13"
+          },
+          "vres2_Ha2": {
+            "token": "2.012E-09",
+            "value": "2.012E-9",
+            "quantum": "1E-12",
+            "lower": "2.0115E-9",
+            "upper": "2.0125E-9"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 8,
+          "line": 155,
+          "energy_Ha": {
+            "token": "-1.1368127131014",
+            "value": "-1.1368127131014",
+            "quantum": "1E-13",
+            "lower": "-1.13681271310145",
+            "upper": "-1.13681271310135"
+          },
+          "deltaE_Ha": {
+            "token": "-1.086E-13",
+            "value": "-1.086E-13",
+            "quantum": "1E-16",
+            "lower": "-1.0865E-13",
+            "upper": "-1.0855E-13"
+          },
+          "residm": {
+            "token": "5.023E-15",
+            "value": "5.023E-15",
+            "quantum": "1E-18",
+            "lower": "5.0225E-15",
+            "upper": "5.0235E-15"
+          },
+          "vres2_Ha2": {
+            "token": "1.325E-10",
+            "value": "1.325E-10",
+            "quantum": "1E-13",
+            "lower": "1.3245E-10",
+            "upper": "1.3255E-10"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 9,
+          "line": 156,
+          "energy_Ha": {
+            "token": "-1.1368127131014",
+            "value": "-1.1368127131014",
+            "quantum": "1E-13",
+            "lower": "-1.13681271310145",
+            "upper": "-1.13681271310135"
+          },
+          "deltaE_Ha": {
+            "token": "-2.287E-14",
+            "value": "-2.287E-14",
+            "quantum": "1E-17",
+            "lower": "-2.2875E-14",
+            "upper": "-2.2865E-14"
+          },
+          "residm": {
+            "token": "3.975E-16",
+            "value": "3.975E-16",
+            "quantum": "1E-19",
+            "lower": "3.9745E-16",
+            "upper": "3.9755E-16"
+          },
+          "vres2_Ha2": {
+            "token": "1.383E-12",
+            "value": "1.383E-12",
+            "quantum": "1E-15",
+            "lower": "1.3825E-12",
+            "upper": "1.3835E-12"
+          }
+        },
+        {
+          "dataset": 1,
+          "iteration": 10,
+          "line": 157,
+          "energy_Ha": {
+            "token": "-1.1368127131014",
+            "value": "-1.1368127131014",
+            "quantum": "1E-13",
+            "lower": "-1.13681271310145",
+            "upper": "-1.13681271310135"
+          },
+          "deltaE_Ha": {
+            "token": "1.443E-14",
+            "value": "1.443E-14",
+            "quantum": "1E-17",
+            "lower": "1.4425E-14",
+            "upper": "1.4435E-14"
+          },
+          "residm": {
+            "token": "1.572E-17",
+            "value": "1.572E-17",
+            "quantum": "1E-20",
+            "lower": "1.5715E-17",
+            "upper": "1.5725E-17"
+          },
+          "vres2_Ha2": {
+            "token": "9.715E-15",
+            "value": "9.715E-15",
+            "quantum": "1E-18",
+            "lower": "9.7145E-15",
+            "upper": "9.7155E-15"
+          }
+        }
+      ],
+      "energy": {
+        "token": "-1.1368127131014",
+        "value": "-1.1368127131014",
+        "quantum": "1E-13",
+        "lower": "-1.13681271310145",
+        "upper": "-1.13681271310135"
+      },
+      "forces": [
+        [
+          {
+            "token": "-0.02136465667753",
+            "value": "-0.02136465667753",
+            "quantum": "1E-14",
+            "lower": "-0.021364656677535",
+            "upper": "-0.021364656677525"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ],
+        [
+          {
+            "token": "0.02136465667753",
+            "value": "0.02136465667753",
+            "quantum": "1E-14",
+            "lower": "0.021364656677525",
+            "upper": "0.021364656677535"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ]
+      ],
+      "netforce_interval_Ha_Bohr": {
+        "lower": "0",
+        "upper": "1.73205080757E-14",
+        "note": "Outward arithmetic bounds, not physical significant digits"
+      },
+      "marker_residual": {
+        "token": "9.71E-15",
+        "value": "9.71E-15",
+        "quantum": "1E-17",
+        "lower": "9.705E-15",
+        "upper": "9.715E-15"
+      },
+      "echoes": {
+        "tolvrs": [
+          {
+            "token": "1.00000000E-12",
+            "value": "1.00000000E-12",
+            "quantum": "1E-20",
+            "lower": "9.99999995E-13",
+            "upper": "1.000000005E-12"
+          }
+        ],
+        "ecut": [
+          {
+            "token": "2.00000000E+01",
+            "value": "20.0000000",
+            "quantum": "1E-7",
+            "lower": "19.99999995",
+            "upper": "20.00000005"
+          }
+        ],
+        "acell": [
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          },
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          },
+          {
+            "token": "1.0000000000E+01",
+            "value": "10.000000000",
+            "quantum": "1E-9",
+            "lower": "9.9999999995",
+            "upper": "10.0000000005"
+          }
+        ],
+        "natom": [
+          {
+            "token": "2",
+            "value": "2",
+            "quantum": "1",
+            "lower": "1.5",
+            "upper": "2.5"
+          }
+        ],
+        "nband": [
+          {
+            "token": "2",
+            "value": "2",
+            "quantum": "1",
+            "lower": "1.5",
+            "upper": "2.5"
+          }
+        ],
+        "ngfft": [
+          {
+            "token": "45",
+            "value": "45",
+            "quantum": "1",
+            "lower": "44.5",
+            "upper": "45.5"
+          },
+          {
+            "token": "45",
+            "value": "45",
+            "quantum": "1",
+            "lower": "44.5",
+            "upper": "45.5"
+          },
+          {
+            "token": "45",
+            "value": "45",
+            "quantum": "1",
+            "lower": "44.5",
+            "upper": "45.5"
+          }
+        ],
+        "nsym": [
+          {
+            "token": "16",
+            "value": "16",
+            "quantum": "1",
+            "lower": "15.5",
+            "upper": "16.5"
+          }
+        ],
+        "ixc": [
+          {
+            "token": "-1012",
+            "value": "-1012",
+            "quantum": "1",
+            "lower": "-1012.5",
+            "upper": "-1011.5"
+          }
+        ],
+        "nkpt": [
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          }
+        ],
+        "kptopt": [
+          {
+            "token": "0",
+            "value": "0",
+            "quantum": "1",
+            "lower": "-0.5",
+            "upper": "0.5"
+          }
+        ],
+        "typat": [
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          },
+          {
+            "token": "1",
+            "value": "1",
+            "quantum": "1",
+            "lower": "0.5",
+            "upper": "1.5"
+          }
+        ],
+        "occ": [
+          {
+            "token": "2.000000",
+            "value": "2.000000",
+            "quantum": "0.000001",
+            "lower": "1.9999995",
+            "upper": "2.0000005"
+          },
+          {
+            "token": "0.000000",
+            "value": "0.000000",
+            "quantum": "0.000001",
+            "lower": "-5E-7",
+            "upper": "5E-7"
+          }
+        ],
+        "znucl": [
+          {
+            "token": "1.00000",
+            "value": "1.00000",
+            "quantum": "0.00001",
+            "lower": "0.999995",
+            "upper": "1.000005"
+          }
+        ],
+        "diemac": [
+          {
+            "token": "2.00000000E+00",
+            "value": "2.00000000",
+            "quantum": "1E-8",
+            "lower": "1.999999995",
+            "upper": "2.000000005"
+          }
+        ],
+        "fftalg": [
+          {
+            "token": "112",
+            "value": "112",
+            "quantum": "1",
+            "lower": "111.5",
+            "upper": "112.5"
+          }
+        ]
+      },
+      "immutable_input_binding": {
+        "sha256": "c841eef7bd075f632c173f572ad88255c362283b4c3c0fe4d01d1b35f4f21d6f",
+        "nstep": {
+          "token": "30",
+          "value": "30",
+          "quantum": "1",
+          "lower": "29.5",
+          "upper": "30.5"
+        },
+        "tolvrs": {
+          "token": "1.0d-12",
+          "value": "1.0E-12",
+          "quantum": "1E-13",
+          "lower": "9.5E-13",
+          "upper": "1.05E-12"
+        }
+      },
+      "nstep_binding": {
+        "input": {
+          "token": "30",
+          "value": "30",
+          "quantum": "1",
+          "lower": "29.5",
+          "upper": "30.5"
+        },
+        "selected_BeginCycle_nstep": "30",
+        "outvars": [
+          {
+            "present": false,
+            "source_default_contract": true
+          },
+          {
+            "present": false,
+            "source_default_contract": true
+          }
+        ],
+        "official_default_contract": {
+          "version": "9.10.4",
+          "default": 30,
+          "source": "sources/variables_abinit.py",
+          "sha256": "3dbd1f92ee8beb24edd78c5043eef50be62a233d5f62e8998d9b620ab315a263",
+          "scope": "Permits only absent nstep outvars; never replaces input or selected solver binding."
+        }
+      },
+      "native_YAML_tags": [
+        "DatasetInfo",
+        "BeginCycle",
+        "ResultsGS",
+        "EnergyTerms"
+      ],
+      "wavevector_tokens": [
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        },
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        },
+        {
+          "token": "0.0000",
+          "value": "0.0000",
+          "quantum": "0.0001",
+          "lower": "-0.00005",
+          "upper": "0.00005"
+        }
+      ],
+      "grid": [
+        "45",
+        "45",
+        "45"
+      ],
+      "boxcut": {
+        "token": "2.18561",
+        "value": "2.18561",
+        "quantum": "0.00001",
+        "lower": "2.185605",
+        "upper": "2.185615"
+      },
+      "raw_logs_preserve_all_warnings": true,
+      "later_XC_prefloor_recurrence": "UNKNOWN",
+      "warning_lines": [
+        {
+          "line": 22,
+          "text": "- This version of ABINIT is not supported anymore."
+        },
+        {
+          "line": 195,
+          "text": " Integrated electronic density in atomic spheres:"
+        },
+        {
+          "line": 197,
+          "text": " Atom  Sphere_radius  Integrated_density"
+        },
+        {
+          "line": 325,
+          "text": "- [1] Libxc: A library of exchange and correlation functionals for density functional theory."
+        },
+        {
+          "line": 327,
+          "text": "- Comment: to be cited when LibXC is used (negative value of ixc)"
+        },
+        {
+          "line": 393,
+          "text": ".Delivered   0 WARNINGs and   3 COMMENTs to log file."
+        },
+        {
+          "line": 421,
+          "text": "- This version of ABINIT is not supported anymore."
+        },
+        {
+          "line": 755,
+          "text": " initro: for itypat=  1, take pseudo charge density from pp file"
+        },
+        {
+          "line": 770,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 785,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 797,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 809,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 821,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 833,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 845,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 857,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 869,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 881,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 911,
+          "text": " Integrated electronic density in atomic spheres:"
+        },
+        {
+          "line": 913,
+          "text": " Atom  Sphere_radius  Integrated_density"
+        },
+        {
+          "line": 937,
+          "text": " Total charge density [el/Bohr^3]"
+        },
+        {
+          "line": 1007,
+          "text": ".Delivered   0 WARNINGs and   3 COMMENTs to log file."
+        },
+        {
+          "line": 1023,
+          "text": "num_warnings: 0"
+        }
+      ]
+    },
+    "cached-loose-baseline": {
+      "point": "cached-loose-baseline",
+      "energy": {
+        "token": "-1.1171843463443",
+        "value": "-1.1171843463443",
+        "quantum": "1E-13",
+        "lower": "-1.11718434634435",
+        "upper": "-1.11718434634425"
+      },
+      "forces": [
+        [
+          {
+            "token": "-0.02690211036781",
+            "value": "-0.02690211036781",
+            "quantum": "1E-14",
+            "lower": "-0.026902110367815",
+            "upper": "-0.026902110367805"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ],
+        [
+          {
+            "token": "0.02690211036781",
+            "value": "0.02690211036781",
+            "quantum": "1E-14",
+            "lower": "0.026902110367805",
+            "upper": "0.026902110367815"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          },
+          {
+            "token": "-0.00000000000000",
+            "value": "-0E-14",
+            "quantum": "1E-14",
+            "lower": "-5E-15",
+            "upper": "5E-15"
+          }
+        ]
+      ],
+      "ledger": [
+        {
+          "iteration": 1,
+          "energy_Ha": {
+            "token": "-1.1093804698962",
+            "value": "-1.1093804698962",
+            "quantum": "1E-13",
+            "lower": "-1.10938046989625",
+            "upper": "-1.10938046989615"
+          },
+          "deltaE_Ha": {
+            "token": "-1.109E+00",
+            "value": "-1.109",
+            "quantum": "0.001",
+            "lower": "-1.1095",
+            "upper": "-1.1085"
+          },
+          "residm": {
+            "token": "6.384E-04",
+            "value": "0.0006384",
+            "quantum": "1E-7",
+            "lower": "0.00063835",
+            "upper": "0.00063845"
+          },
+          "vres2_Ha2": {
+            "token": "1.736E+01",
+            "value": "17.36",
+            "quantum": "0.01",
+            "lower": "17.355",
+            "upper": "17.365"
+          }
+        },
+        {
+          "iteration": 2,
+          "energy_Ha": {
+            "token": "-1.1170431098364",
+            "value": "-1.1170431098364",
+            "quantum": "1E-13",
+            "lower": "-1.11704310983645",
+            "upper": "-1.11704310983635"
+          },
+          "deltaE_Ha": {
+            "token": "-7.663E-03",
+            "value": "-0.007663",
+            "quantum": "0.000001",
+            "lower": "-0.0076635",
+            "upper": "-0.0076625"
+          },
+          "residm": {
+            "token": "7.449E-08",
+            "value": "7.449E-8",
+            "quantum": "1E-11",
+            "lower": "7.4485E-8",
+            "upper": "7.4495E-8"
+          },
+          "vres2_Ha2": {
+            "token": "2.737E-01",
+            "value": "0.2737",
+            "quantum": "0.0001",
+            "lower": "0.27365",
+            "upper": "0.27375"
+          }
+        },
+        {
+          "iteration": 3,
+          "energy_Ha": {
+            "token": "-1.1171736936408",
+            "value": "-1.1171736936408",
+            "quantum": "1E-13",
+            "lower": "-1.11717369364085",
+            "upper": "-1.11717369364075"
+          },
+          "deltaE_Ha": {
+            "token": "-1.306E-04",
+            "value": "-0.0001306",
+            "quantum": "1E-7",
+            "lower": "-0.00013065",
+            "upper": "-0.00013055"
+          },
+          "residm": {
+            "token": "5.867E-06",
+            "value": "0.000005867",
+            "quantum": "1E-9",
+            "lower": "0.0000058665",
+            "upper": "0.0000058675"
+          },
+          "vres2_Ha2": {
+            "token": "6.992E-02",
+            "value": "0.06992",
+            "quantum": "0.00001",
+            "lower": "0.069915",
+            "upper": "0.069925"
+          }
+        },
+        {
+          "iteration": 4,
+          "energy_Ha": {
+            "token": "-1.1171842773283",
+            "value": "-1.1171842773283",
+            "quantum": "1E-13",
+            "lower": "-1.11718427732835",
+            "upper": "-1.11718427732825"
+          },
+          "deltaE_Ha": {
+            "token": "-1.058E-05",
+            "value": "-0.00001058",
+            "quantum": "1E-8",
+            "lower": "-0.000010585",
+            "upper": "-0.000010575"
+          },
+          "residm": {
+            "token": "8.862E-07",
+            "value": "8.862E-7",
+            "quantum": "1E-10",
+            "lower": "8.8615E-7",
+            "upper": "8.8625E-7"
+          },
+          "vres2_Ha2": {
+            "token": "5.492E-04",
+            "value": "0.0005492",
+            "quantum": "1E-7",
+            "lower": "0.00054915",
+            "upper": "0.00054925"
+          }
+        },
+        {
+          "iteration": 5,
+          "energy_Ha": {
+            "token": "-1.1171843458762",
+            "value": "-1.1171843458762",
+            "quantum": "1E-13",
+            "lower": "-1.11718434587625",
+            "upper": "-1.11718434587615"
+          },
+          "deltaE_Ha": {
+            "token": "-6.855E-08",
+            "value": "-6.855E-8",
+            "quantum": "1E-11",
+            "lower": "-6.8555E-8",
+            "upper": "-6.8545E-8"
+          },
+          "residm": {
+            "token": "1.683E-09",
+            "value": "1.683E-9",
+            "quantum": "1E-12",
+            "lower": "1.6825E-9",
+            "upper": "1.6835E-9"
+          },
+          "vres2_Ha2": {
+            "token": "1.404E-05",
+            "value": "0.00001404",
+            "quantum": "1E-8",
+            "lower": "0.000014035",
+            "upper": "0.000014045"
+          }
+        },
+        {
+          "iteration": 6,
+          "energy_Ha": {
+            "token": "-1.1171843463443",
+            "value": "-1.1171843463443",
+            "quantum": "1E-13",
+            "lower": "-1.11718434634435",
+            "upper": "-1.11718434634425"
+          },
+          "deltaE_Ha": {
+            "token": "-4.681E-10",
+            "value": "-4.681E-10",
+            "quantum": "1E-13",
+            "lower": "-4.6815E-10",
+            "upper": "-4.6805E-10"
+          },
+          "residm": {
+            "token": "2.580E-11",
+            "value": "2.580E-11",
+            "quantum": "1E-14",
+            "lower": "2.5795E-11",
+            "upper": "2.5805E-11"
+          },
+          "vres2_Ha2": {
+            "token": "3.672E-07",
+            "value": "3.672E-7",
+            "quantum": "1E-10",
+            "lower": "3.6715E-7",
+            "upper": "3.6725E-7"
+          }
+        }
+      ],
+      "scope": "Cached accepted10Ha toldfe1e-6/nstep10; no new native call"
+    }
+  },
+  "comparisons": [
+    {
+      "comparison": "A-minus-cached-loose-baseline",
+      "signed_energy_Ha": {
+        "value": "-7.2E-12",
+        "lower": "-7.30E-12",
+        "upper": "-7.10E-12",
+        "left_token": "-1.1171843463515",
+        "right_token": "-1.1171843463443"
+      },
+      "per_atom_force_differences_Ha_Bohr": [
+        [
+          {
+            "value": "7.0370417E-7",
+            "lower": "7.03704160E-7",
+            "upper": "7.03704180E-7",
+            "left_token": "-0.02690140666364",
+            "right_token": "-0.02690211036781"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          }
+        ],
+        [
+          {
+            "value": "-7.0370417E-7",
+            "lower": "-7.03704180E-7",
+            "upper": "-7.03704160E-7",
+            "left_token": "0.02690140666364",
+            "right_token": "0.02690211036781"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          }
+        ]
+      ],
+      "per_atom_norm_intervals_Ha_Bohr": [
+        {
+          "lower": "7.03704159999E-7",
+          "upper": "7.03704180001E-7",
+          "note": "Outward arithmetic bounds, not physical significant digits"
+        },
+        {
+          "lower": "7.03704159999E-7",
+          "upper": "7.03704180001E-7",
+          "note": "Outward arithmetic bounds, not physical significant digits"
+        }
+      ],
+      "max_atom_norm_interval_Ha_Bohr": {
+        "lower": "7.03704159999E-7",
+        "upper": "7.03704180001E-7",
+        "note": "Outward arithmetic bounds, not physical significant digits"
+      },
+      "classification": "NONE_MEASUREMENTS_REGARDLESS_SIGN_OR_MAGNITUDE"
+    },
+    {
+      "comparison": "B-minus-A",
+      "signed_energy_Ha": {
+        "value": "-0.0196283667499",
+        "lower": "-0.01962836675000",
+        "upper": "-0.01962836674980",
+        "left_token": "-1.1368127131014",
+        "right_token": "-1.1171843463515"
+      },
+      "per_atom_force_differences_Ha_Bohr": [
+        [
+          {
+            "value": "0.00553674998611",
+            "lower": "0.005536749986100",
+            "upper": "0.005536749986120",
+            "left_token": "-0.02136465667753",
+            "right_token": "-0.02690140666364"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          }
+        ],
+        [
+          {
+            "value": "-0.00553674998611",
+            "lower": "-0.005536749986120",
+            "upper": "-0.005536749986100",
+            "left_token": "0.02136465667753",
+            "right_token": "0.02690140666364"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          },
+          {
+            "value": "0E-14",
+            "lower": "-1.0E-14",
+            "upper": "1.0E-14",
+            "left_token": "-0.00000000000000",
+            "right_token": "-0.00000000000000"
+          }
+        ]
+      ],
+      "per_atom_norm_intervals_Ha_Bohr": [
+        {
+          "lower": "0.00553674998609",
+          "upper": "0.00553674998613",
+          "note": "Outward arithmetic bounds, not physical significant digits"
+        },
+        {
+          "lower": "0.00553674998609",
+          "upper": "0.00553674998613",
+          "note": "Outward arithmetic bounds, not physical significant digits"
+        }
+      ],
+      "max_atom_norm_interval_Ha_Bohr": {
+        "lower": "0.00553674998609",
+        "upper": "0.00553674998613",
+        "note": "Outward arithmetic bounds, not physical significant digits"
+      },
+      "classification": "NONE_MEASUREMENTS_REGARDLESS_SIGN_OR_MAGNITUDE"
+    }
+  ]
+}

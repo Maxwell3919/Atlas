@@ -1,0 +1,51 @@
+{
+  "A": {
+    "visible_WARNING_blocks": [
+      {
+        "full_block": "--- !WARNING\nsrc_file: m_drivexc.F90\nsrc_line: 783\nmessage: |\n    Density went too small (lower than xc_denpos) at 1275 points\n    and was set to xc_denpos =   1.00E-14. Lowest was  -0.34E-04.\n    This might be due to (1) too low boxcut or (2) too low ecut for\n     pseudopotential core charge, or (3) too low ecut for estimated initial density.\n     Possible workarounds : increase ecut, or define the input variable densty,\n     with a value larger than the guess for the decay length, or initialize your,\n     density with a preliminary LDA or GGA-PBE if you are using a more exotic xc functional.\n...\n\n",
+        "before_first_iteration": true,
+        "count": "1275",
+        "minimum_el_Bohr3_token": "-0.34E-04",
+        "floor_el_Bohr3_token": "1.00E-14"
+      }
+    ],
+    "visible_count": 1,
+    "unsupported_notice_lines": [
+      "- The starting date is more than 3 years after the initial release",
+      "- This version of ABINIT is not supported anymore."
+    ],
+    "later_XC_prefloor_and_final": "UNKNOWN",
+    "raw_stdout": "cases/A/outputs/stdout.txt",
+    "warning_count_not_no_clipping_proof": true
+  },
+  "B": {
+    "visible_WARNING_blocks": [],
+    "visible_count": 0,
+    "unsupported_notice_lines": [
+      "- The starting date is more than 3 years after the initial release",
+      "- This version of ABINIT is not supported anymore."
+    ],
+    "later_XC_prefloor_and_final": "UNKNOWN",
+    "raw_stdout": "cases/B/outputs/stdout.txt",
+    "warning_count_not_no_clipping_proof": true
+  },
+  "cached-loose-baseline": {
+    "visible_WARNING_blocks": [
+      {
+        "full_block": "--- !WARNING\nsrc_file: m_drivexc.F90\nsrc_line: 783\nmessage: |\n    Density went too small (lower than xc_denpos) at 1275 points\n    and was set to xc_denpos =   1.00E-14. Lowest was  -0.34E-04.\n    This might be due to (1) too low boxcut or (2) too low ecut for\n     pseudopotential core charge, or (3) too low ecut for estimated initial density.\n     Possible workarounds : increase ecut, or define the input variable densty,\n     with a value larger than the guess for the decay length, or initialize your,\n     density with a preliminary LDA or GGA-PBE if you are using a more exotic xc functional.\n...\n\n",
+        "before_first_iteration": true,
+        "count": "1275",
+        "minimum_el_Bohr3_token": "-0.34E-04",
+        "floor_el_Bohr3_token": "1.00E-14"
+      }
+    ],
+    "visible_count": 1,
+    "unsupported_notice_lines": [
+      "- The starting date is more than 3 years after the initial release",
+      "- This version of ABINIT is not supported anymore."
+    ],
+    "later_XC_prefloor_and_final": "UNKNOWN",
+    "raw_stdout": "cases/cached-loose-baseline/outputs/stdout.txt",
+    "warning_count_not_no_clipping_proof": true
+  }
+}

@@ -321,6 +321,16 @@ gnuplot -e "datafile='planar.csv'" h2-planar-and-cumulative.gnuplot
 
 异质结中，$\Delta N_{\mathrm{layer}}/S$才是所选空间分区下的转移面积密度。自由载流子还需确认哪些能带改变占据以及费米面体积/面积；满占据成键态的极化也会进入CDD。带电单层的NELECT调控与界面分区数不能直接互换。
 
+## 界面分区电荷能否说明某个声子耦合更强
+
+界面某层净增电子数较多，是否就说明某个声子有更强的电子–声子耦合？先要分清增加的电子属于什么态。空间层分区或 Bader 盆地是在实空间加总密度，[Löwdin 布居与 PDOS](/Atlas/m/population-analysis/qe/)则按选定的原子轨道子空间投影；[QE 的投影定义](https://www.quantum-espresso.org/Doc/INPUT_PROJWFC.html)明确了这种轨道布居的含义。费米口袋计数又依赖穿越费米能的能带、占据与倒空间体积或面积，三者不是同一种电子数。满占据态的成键极化也会改变层分区数；界面形成还会改变结构、杂化和电势。因此，分区边界与片段参考应随结果说明，不能把层净增电子数直接填成孤立单层的外加 NELECT 掺杂量。
+
+本页的静态差分 $\Delta n=n_{AB}-n_A-n_B$ 回答的是：在相同晶胞和原位片段参考下，结合后电子在哪里积累或耗尽。[VASP 的 CHGCAR 定义](https://www.vasp.at/wiki/index.php/CHGCAR)说明它保存密度，[官方对密度差的说明](https://vasp.at/forum/viewtopic.php?t=17586)也强调差分处理取决于所问问题。CDD 可以定位重排、辨认成键极化，并提出哪些层或轨道值得继续检查；它却不是沿某个声子位移方向的密度导数。声子一阶响应问的是：从同一个体系的平衡结构出发，按指定波矢和模式作无穷小位移时，电子密度怎样自洽改变，以及这种屏蔽如何进入扰动势。AB 与两个片段的有限参考差，不能直接替代这一响应。
+
+[EPC 的矩阵元定义](https://docs.epw-code.org/Theory.html#electron-phonon-matrix-elements)把这个一阶自洽势变化放在电子波函数之间：模式 $(\mathbf q,\nu)$ 将 $(n,\mathbf k)$ 态散射到 $(m,\mathbf k+\mathbf q)$ 态，耦合还含质量、模式位移和频率所定的振动归一化。[QE 的系数定义](https://www.quantum-espresso.org/Doc/ph_user_guide/node19.html)进一步说明，在金属的费米面双δ近似下，逐模线宽 $\gamma_{\mathbf q\nu}$ 汇总矩阵元平方与两端费米态的可用相空间，$\lambda_{\mathbf q\nu}$ 还按频率平方和费米能处 DOS 归一化。这里的 EPC λ 与上文线密度 λ(z) 是不同物理量。同一个层分区数或同样的 CDD 颜色没有给出这些模式、电子态和扰动矩阵元信息，因而不能据此认定电荷量与 DOS、γ、λ 或 $T_c$ 单调对应。
+
+继续判断时，可从[近费米电子态与费米面](/Atlas/m/fermi-surface/qe/#h-从等能口袋回到近费米态)确认占据、层和轨道来源，再结合[Wannier 插值的独立能带对照](/Atlas/m/wannier90/qe/#h-在网格外另算-dft-再谈插值好不好)检查目标能区；能带相合本身仍不能替代扰动矩阵元的检验。随后把同一结构、电子设置和 DFPT 父链中的声子频率、本征位移与矩阵元对应起来，按[声子线宽页](/Atlas/m/phonon-linewidth/qe/)所讨论的模式身份读取逐模 γ、λ，并分别核对电子与声子网格、展宽及插值的收敛。这些页面中的 Si、Al 与本页 H₂各有自己的方法示例边界，不能组合成某个界面的超导结论。跨 VASP/QE 可以比较上述物理定义，但 VASP 的 CHGCAR 不能直接接入 QE 的 save/DFPT 数据目录；具体判断须来自自身一致的数据链。
+
 ## 等值面看位置，数值从完整网格读
 
 [下载VESTA网格、场景与转换脚本](/Atlas/examples/charge-vesta-files.tar.gz)，进入 `charge-vesta`。转换保留AB结构，只写第一差分标量块；[build_delta_chgcar.py](/Atlas/examples/charge-vesta/scripts/build_delta_chgcar.py)的需求、源码和实际命令在文末。VESTA打开 `h2/CHGCAR_DELTA`，核对物理阈值±0.03 e/Å³；存储值为±30，本次显示界面转换为±0.00444555 e/bohr³，读显示单位后再输入。

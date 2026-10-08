@@ -1,0 +1,12 @@
+{
+  "verified_date_utc": "2026-10-05",
+  "primary_sources": [
+    {"authors": ["Libor Šmejkal", "Jairo Sinova", "Tomas Jungwirth"], "title": "Beyond Conventional Ferromagnetism and Antiferromagnetism: A Phase with Nonrelativistic Spin and Crystal Rotation Symmetry", "citation": "Phys. Rev. X 12, 031042 (2022)", "DOI": "10.1103/PhysRevX.12.031042", "publisher_url": "https://journals.aps.org/prx/abstract/10.1103/PhysRevX.12.031042", "primary_pdf_url": "https://journals.aps.org/prx/pdf/10.1103/PhysRevX.12.031042", "verified_original_scope": "Publisher abstract and original PDF pp1–3; rotation-connected opposite spins, nonrelativistic collinear compensation and alternating d-wave band symmetry", "license": "CC BY 4.0 verified publisher reuse section and PDF p1", "reused_text_or_figures": false},
+    {"authors": ["Libor Šmejkal", "Jairo Sinova", "Tomas Jungwirth"], "title": "Emerging Research Landscape of Altermagnetism", "citation": "Phys. Rev. X 12, 040501 (2022)", "DOI": "10.1103/PhysRevX.12.040501", "publisher_url": "https://journals.aps.org/prx/abstract/10.1103/PhysRevX.12.040501?ft=1", "verified_original_scope": "Publisher primary abstract/reuse section; d-wave or higher even-parity context only", "license": "CC BY 4.0 publisher", "reused_text_or_figures": false}
+  ],
+  "author_official_example_code": {"used": false, "note": "No official author executable example adopted or claimed verified; original primary paper supplies symmetry scope only. New cosine model derived explicitly in model-contract.md, not copied or recovered."},
+  "new_candidate_license": "MIT; original code/derived numerical data only, source papers retain own license",
+  "excluded_search_result": {"url": "https://arxiv.org/html/2406.08526v1", "reason": "An unrelated URL was mistakenly opened during discovery; excluded from model evidence and candidate content, no text/figures copied."},
+  "private_sources_or_images_used": false,
+  "original_HTML": "still unlocated within previously bounded allowed public/source/recovery-index search; no new recovery or private-disk search"
+}

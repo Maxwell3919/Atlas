@@ -1,0 +1,156 @@
+{
+  "status": "PUBLIC_SOURCE_IDENTITIES_NO_INTERNAL_PATHS",
+  "members": [
+    {
+      "file": "cases/A/inputs/h2.abi",
+      "sha256": "6ccb30a898aa8ebb5ef1bf834f816464f89d2a1c30d1dd5b37f162be6ba447dc",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/A/inputs/h2.abo",
+      "sha256": "c3eeb25add58d351bcdd0eca489a1c1236e58bd1aca28f0948bc393a095a6450",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/A/outputs/stdout.txt",
+      "sha256": "3b7eb4a1779cc8c06123d2cfb2054410021ee3e1533538a65cf2d101fd8cb88d",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/A/outputs/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/A/data/H.psp8",
+      "sha256": "af415463efe6cbd281cad1b3fda928016408ec401b0f2c671275fa8f19594983",
+      "role": "unchanged CC-BY-4.0 H",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/B/inputs/h2.abi",
+      "sha256": "c841eef7bd075f632c173f572ad88255c362283b4c3c0fe4d01d1b35f4f21d6f",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/B/inputs/h2.abo",
+      "sha256": "7bc2dc3ddd05ebb1f0f16e7d932cf2878b6e67d6b71b388376967f160d4ae629",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/B/outputs/stdout.txt",
+      "sha256": "9bc4f285eac4fe2414ab38fa5153c069ab39e64e45e330f0dfe050cfbfc80e77",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/B/outputs/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/B/data/H.psp8",
+      "sha256": "af415463efe6cbd281cad1b3fda928016408ec401b0f2c671275fa8f19594983",
+      "role": "unchanged CC-BY-4.0 H",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/cached-loose-baseline/inputs/h2.abi",
+      "sha256": "7a5a8f556bd91817f239b0b9c11a5f307874f97d2ca708044ce4b75403dc1ded",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/cached-loose-baseline/inputs/h2.abo",
+      "sha256": "558a997caa9c9643dabdc5b1f1b7cf6f0dd6838dacee57caba0150354edbaae0",
+      "role": "public actual native input/text output; cached baseline labelled",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/cached-loose-baseline/outputs/stdout.txt",
+      "sha256": "90cee0de4adab82d213e1546532dceac1a6bfe01d91fdea0110a20f0c1d0fa6f",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/cached-loose-baseline/outputs/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "full actual public native text/warnings",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "cases/cached-loose-baseline/data/H.psp8",
+      "sha256": "af415463efe6cbd281cad1b3fda928016408ec401b0f2c671275fa8f19594983",
+      "role": "unchanged CC-BY-4.0 H",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "licenses/ABINIT-Ubuntu-copyright",
+      "sha256": "e2af928ac77964690b3fec4e0239122e51e57b0f06cb7707bf93344d0285c79a",
+      "role": "existing accepted public license notice",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "licenses/PseudoDojo-source-license-statement.md",
+      "sha256": "a58b12d847a819a766f1fe38211daec8a09ccc3db450bf2bd23dad93bd65a28a",
+      "role": "existing accepted public license notice",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "licenses/ABINIT-COPYING",
+      "sha256": "76bd835b6b42e02c9246f89a217a5f22f33276fede9ced430ecdafa50100041d",
+      "role": "existing accepted public license notice",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "licenses/H-NOTICE.txt",
+      "sha256": "4fb3d2e12b9cebdb0b30e0411e980663cd32f447c8d4ce92ab9392ada3d35a9b",
+      "role": "existing accepted public license notice",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/m_drivexc.F90",
+      "sha256": "aa5a39efd7f503d74b05beeab99b90fe21bcb86dd04fccd3c3593da96651b5d3",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/m_common.F90",
+      "sha256": "9940e83e01bf89d600b119fc42e3206397e2ad1fd041d0fb2106d3d50851305e",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/variables_abinit.py",
+      "sha256": "3dbd1f92ee8beb24edd78c5043eef50be62a233d5f62e8998d9b620ab315a263",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/m_rhotov.F90",
+      "sha256": "d2f51269cc2ee952ca50153b992eee619f6c5d8579544cfe6f05fd713bc8a730",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/base1.md",
+      "sha256": "c1b5031d14d962e7697e0c81e9df60fd7504558cba58fc92a1ab6ff18d74b8fc",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    },
+    {
+      "file": "sources/m_cgtools.F90",
+      "sha256": "b82e7f5f4ab36bad9e6df9ea61162a7d0cc2196d296e2b66112ec63a0ecbd801",
+      "role": "GPL version9.10.4 primary source, no executed upstream code",
+      "transform": "NONE_BYTE_IDENTICAL"
+    }
+  ],
+  "scope": "A and B actual10-step saved SCFs; baseline saved loose-SCF6-step output, never rerun."
+}

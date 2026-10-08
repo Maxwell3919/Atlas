@@ -1,0 +1,58 @@
+{
+  "native_version": "9.10.4",
+  "MPI_native": "one direct native call, no mpirun",
+  "natom": 2,
+  "typat": [
+    1,
+    1
+  ],
+  "znucl": [
+    1
+  ],
+  "cell_Bohr": [
+    10,
+    10,
+    10
+  ],
+  "xcart_Bohr": [
+    [
+      "-.7",
+      "0",
+      "0"
+    ],
+    [
+      ".7",
+      "0",
+      "0"
+    ]
+  ],
+  "ecut_Ha": "10",
+  "nstep": 10,
+  "toldfe_Ha": "1e-6",
+  "ixc": -1012,
+  "pseudo": "PSP8 ONCVPSP3.3.0 scalarrel NC PseudoDojo0.4LDA PW from exact hash-bound H file",
+  "kpt_reduced": [
+    "0",
+    "0",
+    "0"
+  ],
+  "nband": 2,
+  "nsppol": 1,
+  "nspinor": 1,
+  "nspden": 1,
+  "occopt": 1,
+  "occ": [
+    "2",
+    "0"
+  ],
+  "nsym": 16,
+  "spgroup": 123,
+  "fftalg": 112,
+  "ngfft": [
+    30,
+    30,
+    30
+  ],
+  "source": "full h2.abo + stdout echoed defaults retained; no blanket10.8.3 equality",
+  "geometry_fixed": true
+}

@@ -1,0 +1,5852 @@
+!!****m* ABINIT/m_cgtools
+!! NAME
+!!  m_cgtools
+!!
+!! FUNCTION
+!! This module defines wrappers for BLAS routines. The arguments are stored
+!! using the "cg" convention, namely real array of shape cg(2,...)
+!!
+!! COPYRIGHT
+!! Copyright (C) 1992-2022 ABINIT group (MG, MT, XG, DCA, GZ, FB, MVer, DCA, GMR, FF)
+!! This file is distributed under the terms of the
+!! GNU General Public License, see ~abinit/COPYING
+!! or http://www.gnu.org/copyleft/gpl.txt .
+!! For the initials of contributors, see ~abinit/doc/developers/contributors.txt .
+!!
+!! NOTES
+!! 1) The convention about names of interfaced routine is: cg_<name>,
+!!    where <name> is equal to the name of the standard BLAS routine
+!!
+!! 2) Blas routines are called without an explicit interface on purpose since
+!!
+!!    a) The compiler should pass the base address of the array to the F77 BLAS
+!!
+!!    b) Any compiler would complain about type mismatch (REAL,COMPLEX)
+!!       if an explicit interface is given.
+!!
+!! 3) The use of mpi_type is not allowed here. MPI parallelism should be handled in a generic
+!!    way by passing the MPI communicator so that the caller can decide how to handle MPI.
+!!
+
+#if defined HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "abi_common.h"
+
+module m_cgtools
+
+ use defs_basis
+ use m_abicore
+ use m_errors
+ use m_xmpi
+
+ use m_fstrings,      only : toupper, itoa, sjoin
+ use m_time,          only : timab, cwtime, cwtime_report
+ use m_numeric_tools, only : hermit, rhophi
+ use m_abi_linalg,    only : abi_zgemm_2r, abi_xgemm
+ use m_pawcprj,       only : pawcprj_type,pawcprj_axpby,pawcprj_zaxpby
+
+ implicit none
+
+ private
+
+ real(dp),public,parameter :: cg_czero(2) = (/0._dp,0._dp/)
+ real(dp),public,parameter :: cg_cone(2)  = (/1._dp,0._dp/)
+
+ ! Helper functions.
+ !public :: cg_prod
+ public :: cg_tocplx
+ public :: cg_fromcplx
+ public :: cg_kfilter
+ public :: cg_setaug_zero
+ public :: cg_to_reim
+ public :: cg_from_reim
+ !public :: cg_times_eigr
+
+ ! Blas1
+ public :: cg_zcopy
+ public :: cg_zscal
+ public :: cg_dznrm2
+ public :: cg_zdotc
+ public :: cg_real_zdotc
+ public :: cg_zdotu
+ public :: cg_zaxpy
+ public :: cg_zaxpby
+
+ ! Blas2
+ public :: cg_zgemv         ! alpha*A*x + beta*y,
+ !public :: cg_dgemv
+
+ ! Blas3
+ public :: cg_zgemm
+
+ ! Helper functions for DFT calculations.
+ public :: set_istwfk               ! Returns the value of istwfk associated to the input k-point.
+ public :: sqnorm_g                 ! Square of the norm in reciprocal space.
+ public :: dotprod_g                ! Scalar product <vec1|vect2> of complex vectors vect1 and vect2 (can be the same)
+ public :: matrixelmt_g             ! matrix element <wf1|O|wf2> of two wavefunctions, in reciprocal space,
+                                    ! for an operator diagonal in G-space.
+ public :: dotprod_v                ! Dot product of two potentials (integral over FFT grid).
+ public :: dotprod_vn
+ public :: sqnorm_v                 ! Compute square of the norm of a potential (integral over FFT grid).
+ public :: mean_fftr                ! Compute the mean of an arraysp(nfft,nspden), over the FFT grid.
+ public :: cg_getspin               ! Sandwich a single wave function on the Pauli matrices
+ public :: cg_gsph2box              ! Transfer data from the G-sphere to the FFT box.
+ public :: cg_box2gsph              ! Transfer data from the FFT box to the G-sphere
+ public :: cg_addtorho              ! Add |ur|**2 to the ground-states density rho.
+ public :: cg_vlocpsi               ! Apply the local part of the potential to the wavefunction in real space.
+ public :: cgnc_cholesky            ! Cholesky orthonormalization (version optimized for NC wavefunctions).
+ public :: cgpaw_cholesky           ! Cholesky orthonormalization of PAW wavefunctions.
+ public :: cgnc_normalize           ! Normalize NC wavefunctions.
+ public :: cgnc_gramschmidt         ! Gram-Schmidt orthogonalization for NC wavefunctions.
+ public :: cgpaw_normalize          ! Normalize PAW wavefunctions.
+ public :: cgpaw_gramschmidt        ! Gram-Schmidt orthogonalization for PAW wavefuncion
+ public :: projbd                   ! Project out vector "direc" onto the bands i.e.
+                                    ! direc=direc-$sum_{j/=i} { <cg_{j}|direc>.|cg_{j}> }$
+ public :: cg_envlop                ! Multiply random number values in cg by envelope function to lower initial kinetic energy.
+ public :: cg_normev                ! Normalize a set of num eigenvectors of complex length ndim
+ public :: cg_precon                ! precondition $<G|(H-e_{n,k})|C_{n,k}>$
+ public :: cg_precon_block          ! precondition $<G|(H-e_{n,k})|C_{n,k}>$ for a block of band
+                                    ! in the case of real WFs (istwfk/=1)
+ public :: cg_zprecon_block         ! precondition $<G|(H-e_{n,k})|C_{n,k}>$ for a block of band
+ public :: fxphas_seq               ! Fix phase of all bands. Keep normalization but maximize real part
+ public :: fxphas_and_cmp           ! Fix phase and compare two set of wavefunctions
+ public :: overlap_g                ! Compute the scalar product between WF at two different k-points
+ public :: subdiago                 ! Diagonalizes the Hamiltonian in the eigenfunction subspace
+ public :: subdiago_low_memory      ! Diagonalizes the Hamiltonian in the eigenfunction subspace
+                                    ! G components are updated block by block to save memory.
+ public :: pw_orthon                ! Normalize nvec complex vectors each of length nelem and then
+                                    ! orthogonalize by modified Gram-Schmidt.
+ public :: pw_orthon_cprj           ! Normalize nvec complex vectors each of length nelem and then
+                                    ! orthogonalize by modified Gram-Schmidt. Also update cprj coeffs.
+ public :: cg_hprotate_and_get_diag
+ public :: cg_hrotate_and_get_diag
+ public :: cg_get_eigens            ! Compute <i|H|i> / <i|S|i> for ndat states.
+ public :: cg_get_residvecs         ! Compute (H - eS) |psi> for ndat states.
+ public :: cg_norm2g                ! Compute <psi|psi> for ndat states distributed inside communicator comm.
+ public :: cg_zdotg_zip             ! Compute <cg1|cg2> for ndat states
+ public :: cg_precon_many
+ public :: cg_zaxpy_many_areal
+ public :: cg_set_imag0_to_zero
+!***
+
+CONTAINS  !========================================================================================
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_tocplx
+!! NAME
+!!  cg_tocplx
+!!
+!! FUNCTION
+!!  Convert a real array with (real,imag) part to complex.
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in cg and ocplx
+!!  cg(2*n)=Input array with real and imaginary part.
+!!
+!! OUTPUT
+!!  ocplx(n)=Output complex array.
+!!
+!! SOURCE
+
+subroutine cg_tocplx(n, cg, ocplx)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(in) :: cg(2*n)
+ complex(dpc),intent(out) :: ocplx(n)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ii,idx
+
+! *************************************************************************
+
+!$OMP PARALLEL DO PRIVATE(idx)
+ do ii=1,n
+   idx = 2*ii-1
+   ocplx(ii) = DCMPLX(cg(idx),cg(idx+1))
+ end do
+
+end subroutine cg_tocplx
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_fromcplx
+!! NAME
+!!  cg_fromcplx
+!!
+!! FUNCTION
+!!  Convert a complex array to a real array with (real,imag) part
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in icplx and ocg.
+!!  icplx(n)=Input complex array.
+!!
+!! OUTPUT
+!!  ocg(2*n)=Output array with real and imaginary part.
+!!
+!! SOURCE
+
+subroutine cg_fromcplx(n, icplx, ocg)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(out) :: ocg(2*n)
+ complex(dpc),intent(in) :: icplx(n)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ii,idx
+
+! *************************************************************************
+
+!$OMP PARALLEL DO PRIVATE(idx)
+ do ii=1,n
+   idx = 2*ii-1
+   ocg(idx  ) = DBLE (icplx(ii))
+   ocg(idx+1) = AIMAG(icplx(ii))
+ end do
+
+end subroutine cg_fromcplx
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_kfilter
+!! NAME
+!!  cg_kfilter
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!  nband=Number of vectors in icg1
+!!
+!! SOURCE
+
+pure subroutine cg_kfilter(npw_k, my_nspinor, nband_k, kinpw, cg)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npw_k, my_nspinor, nband_k
+!arrays
+ real(dp), intent(in) :: kinpw(npw_k)
+ real(dp),intent(inout) :: cg(2,npw_k*my_nspinor*nband_k)
+
+!Local variables-------------------------------
+ integer :: ispinor, iband, igs, iwavef, ipw
+
+! *************************************************************************
+
+! Filter the WFs when modified kinetic energy is too large (see routine mkkin.f)
+! !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(igs, iwavef)
+ do ispinor=1,my_nspinor
+   igs=(ispinor-1)*npw_k
+   do iband=1,nband_k
+     iwavef=(iband-1)*npw_k*my_nspinor
+     do ipw=1+igs,npw_k+igs
+       if (kinpw(ipw-igs)>huge(zero)*1.d-11)then
+         cg(1,ipw+iwavef)=zero
+         cg(2,ipw+iwavef)=zero
+       end if
+     end do
+   end do
+ end do
+
+end subroutine cg_kfilter
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_setaug_zero
+!! NAME
+!!  cg_setaug_zero
+!!
+!! FUNCTION
+!!  Set to zero all elements of the array that are not in the FFT box.
+!!
+!! INPUTS
+!! nx,ny,nz=physical dimensions of the FFT box
+!! ldx,ldy,ldx=memory dimension of arr
+!! ndat=number of FFTs
+!!
+!! SIDE EFFECT
+!!  arr(2,ldx,ldy,ldz*ndat)= all entries in the augmented region are set to zero
+!!
+!! SOURCE
+
+pure subroutine cg_setaug_zero(cplex,nx,ny,nz,ldx,ldy,ldz,ndat,arr)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: cplex,nx,ny,nz,ldx,ldy,ldz,ndat
+!arrays
+ real(dp),intent(inout) :: arr(cplex,ldx,ldy,ldz*ndat)
+
+!Local variables-------------------------------
+ integer :: iy,iz,dat,padat
+
+! *************************************************************************
+
+ if (nx /= ldx) then
+   do iz=1,ldz*ndat
+     do iy=1,ldy
+       arr(:,nx+1:ldx,iy,iz) = zero
+     end do
+   end do
+ end if
+
+ if (ny /= ldy) then
+   do iz=1,ldz*ndat
+     arr(:,:,ny+1:ldy,iz) = zero
+   end do
+ end if
+
+ if (nz /= ldz) then
+   do dat=1,ndat
+     padat = ldz*(dat-1)
+     do iz=nz+1,ldz
+       arr(:,:,:,iz+padat) = zero
+     end do
+   end do
+ end if
+
+end subroutine cg_setaug_zero
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_to_reim
+!! NAME
+!!  cg_to_reim
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!
+!! SOURCE
+
+subroutine cg_to_reim(npw, ndat, cg, factor, reim)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npw,ndat
+ real(dp),intent(in) :: factor
+!arrays
+ real(dp),intent(in) :: cg(2*npw,ndat)
+ real(dp),intent(out) :: reim(npw*2,ndat)
+
+!Local variables-------------------------------
+ integer :: idat
+
+! *************************************************************************
+
+ ! Pack real and imaginary part of the wavefunctions.
+ ! and multiply by scale factor if factor /= one.
+ do idat=1,ndat
+   call dcopy(npw, cg(1, idat), 2, reim(1, idat), 1)
+   call dcopy(npw, cg(2, idat), 2, reim(npw+1, idat), 1)
+   if (factor /= one) call dscal(2*npw, factor, reim(1, idat), 1)
+ end do
+
+end subroutine cg_to_reim
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_from_reim
+!! NAME
+!!  cg_from_reim
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!
+!! SOURCE
+
+subroutine cg_from_reim(npw, ndat, reim, factor, cg)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npw,ndat
+ real(dp),intent(in) :: factor
+!arrays
+ real(dp),intent(in) :: reim(npw*2, ndat)
+ real(dp),intent(out) :: cg(2*npw, ndat)
+
+!Local variables-------------------------------
+ integer :: idat
+
+! *************************************************************************
+
+ ! UnPack real and imaginary part and multiply by scale factor if /= one.
+ do idat=1,ndat
+   call dcopy(npw, reim(1, idat), 1, cg(1, idat), 2)
+   call dcopy(npw, reim(npw+1, idat), 1, cg(2, idat), 2)
+   if (factor /= one) call dscal(2*npw, factor, cg(1, idat), 1)
+ end do
+
+end subroutine cg_from_reim
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zcopy
+!! NAME
+!!  cg_zcopy
+!!
+!! FUNCTION
+!!  Perform y = x, where x and y are vectors.
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vectors x and y.
+!!  x = Input Array
+!!
+!! OUTPUT
+!!  y = In output, y contains a copy of the values of x.
+!!
+!! SOURCE
+
+subroutine cg_zcopy(n, x, y)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(in) :: x(2*n)
+ real(dp),intent(out) :: y(2*n)
+
+! *************************************************************************
+
+ call zcopy(n, x, 1, y, 1)
+
+end subroutine cg_zcopy
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zscal
+!! NAME
+!!  cg_zscal
+!!
+!! FUNCTION
+!!  Perform x = a*x
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vector x.
+!!  a(2)= The scalar a. If a(2) is zero, x = a*x is computed via zdscal
+!!
+!! OUTPUT
+!!  x = Updated vector.
+!!
+!! SOURCE
+
+subroutine cg_zscal(n, a, x)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+ real(dp),intent(in) :: a(2)
+!arrays
+ real(dp),intent(inout) :: x(2*n)
+
+! *************************************************************************
+
+ if (a(2) == zero) then
+   call dscal(2*n, a(1), x, 1)
+ else
+   call zscal(n, a, x, 1)
+ end if
+
+end subroutine cg_zscal
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_dznrm2
+!! NAME
+!!  cg_dznrm2
+!!
+!! FUNCTION
+!!   returns the euclidean norm of a vector via the function name, so that
+!!   DZNRM2 := sqrt( x**H*x )
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vector x.
+!!  x(2*x) = Input array.
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+function cg_dznrm2(n, x) result(res)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+ real(dp) :: res
+!arrays
+ real(dp),intent(in) :: x(2*n)
+ real(dp),external :: dznrm2
+
+! *************************************************************************
+
+ res = dznrm2(n, x, 1)
+
+end function cg_dznrm2
+!!***
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zdotc
+!! NAME
+!!  cg_zdotc
+!!
+!! FUNCTION
+!!   Perform a vector-vector operation defined as res = \Sigma (conjg(x)*y) where x and y are n-element vectors.
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vector x and y
+!!  x,y = Input arrays.
+!!
+!! OUTPUT
+!!  res(2)=Real and Imaginary part of the scalar product.
+!!
+!! SOURCE
+
+function cg_zdotc(n, x, y) result(res)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(in) :: x(2,n)
+ real(dp),intent(in) :: y(2,n)
+ real(dp) :: res(2)
+
+!Local variables-------------------------------
+#ifdef HAVE_LINALG_ZDOTC_BUG
+ integer :: ii
+#else
+ complex(dpc) :: cres
+ complex(dpc),external :: zdotc
+#endif
+
+! *************************************************************************
+
+#ifdef HAVE_LINALG_ZDOTC_BUG
+ ! Workaround for veclib on MacOSx
+ res = zero
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:res)
+ do ii=1,n
+   res(1) = res(1) + x(1,ii)*y(1,ii) + x(2,ii)*y(2,ii)
+   res(2) = res(2) + x(1,ii)*y(2,ii) - x(2,ii)*y(1,ii)
+ end do
+
+#else
+ cres = zdotc(n, x, 1, y, 1)
+ res(1) = REAL(cres)
+ res(2) = AIMAG(cres)
+#endif
+
+end function cg_zdotc
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_real_zdotc
+!! NAME
+!!  cg_real_zdotc
+!!
+!! FUNCTION
+!!   Perform a vector-vector operation defined as res = REAL (\Sigma (conjg(x)*y)) where x and y are n-element vectors.
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vector x and y
+!!  x,y = Input arrays.
+!!
+!! OUTPUT
+!!  res=Real part of the scalar product.
+!!
+!! SOURCE
+
+function cg_real_zdotc(n,x,y) result(res)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(in) :: x(2,n)
+ real(dp),intent(in) :: y(2,n)
+ real(dp) :: res
+
+!Local variables-------------------------------
+ real(dp),external :: ddot
+
+! *************************************************************************
+
+ res = ddot(2*n, x, 1, y, 1)
+
+end function cg_real_zdotc
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zdotu
+!! NAME
+!!  cg_zdotu
+!!
+!! FUNCTION
+!!   Perform a vector-vector operation defined as res = \Sigma (x*y) where x and y are n-element vectors.
+!!   Note that x is unconjugated.
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vector x and y
+!!  x,y = Input arrays.
+!!
+!! OUTPUT
+!!  res(2)=Real and Imaginary part of the scalar product.
+!!
+!! SOURCE
+
+function cg_zdotu(n, x, y) result(res)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+!arrays
+ real(dp),intent(in) :: x(2,n)
+ real(dp),intent(in) :: y(2,n)
+ real(dp) :: res(2)
+
+!Local variables-------------------------------
+#ifdef HAVE_LINALG_ZDOTU_BUG
+ integer :: ii
+#else
+ complex(dpc) :: cres
+ complex(dpc),external :: zdotu
+#endif
+
+! *************************************************************************
+
+#ifdef HAVE_LINALG_ZDOTU_BUG
+ ! Workaround for veclib on MacOSx
+ res = zero
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:res)
+ do ii=1,n
+   res(1) = res(1) + x(1,ii)*y(1,ii) - x(2,ii)*y(2,ii)
+   res(2) = res(2) + x(1,ii)*y(2,ii) + x(2,ii)*y(1,ii)
+ end do
+#else
+ cres = zdotu(n, x, 1, y, 1)
+ res(1) = REAL(cres)
+ res(2) = AIMAG(cres)
+#endif
+
+end function cg_zdotu
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zaxpy
+!! NAME
+!!  cg_zaxpy
+!!
+!! FUNCTION
+!!  Computes y = alpha*x + y
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vectors x and y.
+!!  alpha = Specifies the scalar alpha.
+!!  x = Array
+!!
+!! SIDE EFFECTS
+!!  y = Array. In output, y contains the updated vector.
+!!
+!! SOURCE
+
+subroutine cg_zaxpy(n, alpha, x, y)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+ real(dp),intent(in) :: alpha(2)
+!arrays
+ real(dp),intent(in) :: x(2*n)
+ real(dp),intent(inout) :: y(2*n)
+
+! *************************************************************************
+
+ if (alpha(2) == zero) then
+   call daxpy(2*n, alpha(1), x, 1, y, 1)
+ else
+   call zaxpy(n, alpha, x, 1, y, 1)
+ end if
+
+end subroutine cg_zaxpy
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zaxpby
+!! NAME
+!!  cg_zaxpby
+!!
+!! FUNCTION
+!!  Scales two vectors, adds them to one another and stores result in the vector.
+!!  y := a*x + b*y
+!!
+!! INPUTS
+!! n = the number of elements in vectors x and y.
+!! a = Specifies the scalar a.
+!! x = Array.
+!! b = Specifies the scalar b.
+!! y = Array
+!!
+!! OUTPUT
+!! y Contains the updated vector y.
+!!
+!! SOURCE
+
+subroutine cg_zaxpby(n, a, x, b, y)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: n
+ real(dp),intent(in) :: a(2),b(2)
+!arrays
+ real(dp),intent(in) :: x(2*n)
+ real(dp),intent(inout) :: y(2*n)
+
+! *************************************************************************
+
+#ifdef HAVE_LINALG_AXPBY
+ call zaxpby(n, a, x, 1, b, y, 1)
+#else
+ call zscal(n, b, y, 1)
+ call zaxpy(n, a, x, 1, y,1)
+#endif
+
+end subroutine cg_zaxpby
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zgemv
+!! NAME
+!!  cg_zgemv
+!!
+!! FUNCTION
+!! The cg_zgemv routines perform a **complex** matrix-vector operation defined as:
+!!
+!!      y := alpha*A*x + beta*y,
+!! or
+!!      y := alpha*A'*x + beta*y,
+!! or
+!!      y := alpha*conjg(A')*x + beta*y,
+!!
+!! where: alpha and beta are COMPLEX scalars, x and y are COMPLEX vectors, A is a m-by-n COMPLEX matrix.
+!! Default is: alpha = 1 and beta = 0.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_zgemv(trans, nrows, ncols, cgmat, vec, matvec, alpha, beta)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: nrows, ncols
+ real(dp),optional,intent(in) :: alpha(2), beta(2)
+ character(len=1),intent(in) :: trans
+!arrays
+ real(dp),intent(in) :: cgmat(2,nrows*ncols), vec(2,*)
+ real(dp),intent(inout) :: matvec(2,*)
+
+!Local variables-------------------------------
+!scalars
+ integer :: mm, nn, kk, lda, ldb, ldc
+ real(dp) :: my_alpha(2), my_beta(2)
+
+! *************************************************************************
+
+ my_alpha = cg_cone;  if (present(alpha)) my_alpha = alpha
+ my_beta  = cg_czero; if (present(beta))  my_beta  = beta
+
+ lda = nrows; mm = nrows; nn = 1; kk = ncols
+ if (toupper(trans) /= 'N') then
+   mm = ncols; kk = nrows
+ end if
+ ldb = kk; ldc = mm
+
+ call ZGEMM(trans, "N", mm, nn, kk, my_alpha, cgmat, lda, vec, ldb, my_beta, matvec, ldc)
+ ! ZGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
+
+ !call ZGEMV(trans,mm,nn,my_alpha,cgmat,lda,vec,1,my_beta,matvec,1)
+
+end subroutine cg_zgemv
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zgemm
+!! NAME
+!!  cg_zgemm
+!!
+!! FUNCTION
+!!  The cg_zgemm routines perform a matrix-matrix operation with general matrices.
+!!  The operation is defined as C := alpha*op(A)*op(B) + beta*C, where:
+!!
+!!  op(x) is one of op(x) = x, or op(x) = x', or op(x) = conjg(x'),
+!!
+!!  alpha and beta are scalars,
+!!  A, B and C are matrices:
+!!  op(A) is an m-by-k matrix,
+!!  op(B) is a k-by-n matrix,
+!!  C is an m-by-n matrix.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_zgemm(transa, transb, npwsp, ncola, ncolb, cg_a, cg_b, cg_c, alpha, beta)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp,ncola,ncolb
+ real(dp),optional,intent(in) :: alpha(2), beta(2)
+ character(len=1),intent(in) :: transa, transb
+!arrays
+ real(dp),intent(in) :: cg_a(2,npwsp*ncola), cg_b(2,npwsp*ncolb)
+ real(dp),intent(inout) :: cg_c(2,*)
+
+!Local variables-------------------------------
+!scalars
+ integer :: mm,nn,kk,lda,ldb,ldc
+ !real(dp) :: my_alpha(2),my_beta(2)
+ complex(dpc) :: my_calpha, my_cbeta
+
+! *************************************************************************
+
+ lda = npwsp
+ ldb = npwsp
+
+ mm  = npwsp
+ nn  = ncolb
+ kk  = ncola
+
+ if (toupper(transa) /= 'N') then
+   mm = ncola
+   kk = npwsp
+ end if
+ if (toupper(transb) /= 'N') nn = npwsp
+
+ ldc = mm
+
+ !my_alpha = cg_cone;  if (PRESENT(alpha)) my_alpha = alpha
+ !my_beta  = cg_czero; if (PRESENT(beta))  my_beta  = beta
+ !call ZGEMM(transa, transb, mm, nn, kk, my_alpha, cg_a, lda, cg_b, ldb, my_beta, cg_c, ldc)
+ !call ZGEMM3M(transa, transb, mm, nn, kk, my_alpha, cg_a, lda, cg_b, ldb, my_beta, cg_c, ldc)
+
+ my_calpha = cone;  if (PRESENT(alpha)) my_calpha = DCMPLX(alpha(1), alpha(2))
+ my_cbeta  = czero; if (PRESENT(beta))  my_cbeta  = DCMPLX(beta(1), beta(2))
+
+ call abi_zgemm_2r(transa, transb, mm, nn, kk, my_calpha, cg_a, lda, cg_b, ldb, my_cbeta, cg_c, ldc)
+
+end subroutine cg_zgemm
+!!***
+
+!!****f* m_cgtools/set_istwfk
+!! NAME
+!!  set_istwfk
+!!
+!! FUNCTION
+!!  Returns the value of istwfk associated to the input k-point.
+!!
+!! INPUTS
+!!  kpoint(3)=The k-point in reduced coordinates.
+!!
+!! OUTPUT
+!!  istwfk= Integer flag internally used in the code to define the storage mode of the wavefunctions.
+!!  It also define the algorithm used to apply an operator in reciprocal space as well as the FFT
+!!  algorithm used to go from G- to r-space and vice versa.
+!!
+!!   1 => time-reversal cannot be used
+!!   2 => use time-reversal at the Gamma point.
+!!   3 => use time-reversal symmetry for k=(1/2, 0 , 0 )
+!!   4 => use time-reversal symmetry for k=( 0 , 0 ,1/2)
+!!   5 => use time-reversal symmetry for k=(1/2, 0 ,1/2)
+!!   6 => use time-reversal symmetry for k=( 0 ,1/2, 0 )
+!!   7 => use time-reversal symmetry for k=(1/2,1/2, 0 )
+!!   8 => use time-reversal symmetry for k=( 0 ,1/2,1/2)
+!!   9 => use time-reversal symmetry for k=(1/2,1/2,1/2)
+!!
+!!  Useful relations:
+!!   u_k(G) = u_{k+G0}(G-G0); u_{-k}(-G) = u_k(G)^*
+!!  and therefore:
+!!   u_{G0/2}(G) = u_{G0/2}(-G-G0)^*.
+!!
+!! SOURCE
+
+integer pure function set_istwfk(kpoint) result(istwfk)
+
+!Arguments ------------------------------------
+ real(dp),intent(in) :: kpoint(3)
+
+!Local variables-------------------------------
+!scalars
+ integer :: bit0,ii
+!arrays
+ integer :: bit(3)
+
+! *************************************************************************
+
+ bit0=1
+
+ do ii=1,3
+   if (DABS(kpoint(ii))<tol10) then
+     bit(ii)=0
+   else if (DABS(kpoint(ii)-half)<tol10 ) then
+     bit(ii)=1
+   else
+     bit0=0
+   end if
+ end do
+
+ if (bit0==0) then
+   istwfk=1
+ else
+   istwfk=2+bit(1)+4*bit(2)+2*bit(3) ! Note the inversion between bit(2) and bit(3)
+ end if
+
+end function set_istwfk
+!!***
+
+!!****f* m_cgtools/sqnorm_g
+!! NAME
+!! sqnorm_g
+!!
+!! FUNCTION
+!! Compute the square of the norm of one complex vector vecti, in reciprocal space
+!! Take into account the storage mode of the vector (istwf_k)
+!!
+!! INPUTS
+!!  istwf_k=option parameter that describes the storage of wfs
+!!  npwsp= (effective) number of planewaves at this k point.
+!!  vect(2,npwsp)=the vector in reciprocal space (npw*nspinor, usually)
+!!  me_g0=1 if this processors treats G=0, 0 otherwise.
+!!  comm=MPI communicator for MPI sum.
+!!
+!! OUTPUT
+!!  dotr= <vect|vect>
+!!
+!! SOURCE
+
+subroutine sqnorm_g(dotr, istwf_k, npwsp, vect, me_g0, comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k,npwsp,me_g0,comm
+ real(dp),intent(out) :: dotr
+!arrays
+ real(dp),intent(in) :: vect(2,npwsp)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr
+
+! *************************************************************************
+
+ if (istwf_k==1) then ! General k-point
+   !dotr = cg_real_zdotc(npwsp,vect,vect)
+   dotr = cg_dznrm2(npwsp, vect)
+   dotr = dotr * dotr
+
+ else
+   if (istwf_k == 2 .and. me_g0 == 1) then
+     ! Gamma k-point and I have G=0
+     dotr=half*vect(1,1)**2
+     dotr = dotr + cg_real_zdotc(npwsp-1, vect(1,2), vect(1,2))
+   else
+     ! Other TR k-points
+     dotr = cg_real_zdotc(npwsp, vect, vect)
+   end if
+   dotr=two*dotr
+ end if
+
+ if (xmpi_comm_size(comm)>1) call xmpi_sum(dotr,comm,ierr)
+
+end subroutine sqnorm_g
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/dotprod_g
+!! NAME
+!! dotprod_g
+!!
+!! FUNCTION
+!! Compute scalar product <vec1|vect2> of complex vectors vect1 and vect2 (can be the same)
+!! Take into account the storage mode of the vectors (istwf_k)
+!! If option=1, compute only real part, if option=2 compute also imaginary part.
+!! If the number of calls to the dot product scales quadratically
+!! with the volume of the system, it is preferable not to
+!! call the present routine, but but to write a specially
+!! optimized routine, that will avoid many branches related to
+!! the existence of 'option' and 'istwf_k'.
+!!
+!! INPUTS
+!!  istwf_k=option parameter that describes the storage of wfs
+!!  vect1(2,npw)=first vector (one should take its complex conjugate)
+!!  vect2(2,npw)=second vector
+!!  npw= (effective) number of planewaves at this k point (including spinorial level)
+!!  option= 1 if only real part to be computed,
+!!          2 if both real and imaginary.
+!!          3 if in case istwf_k==1 must compute real and imaginary parts,
+!!               but if  istwf_k >1 must compute only real part
+!!  me_g0=1 if this processor treats G=0, 0 otherwise
+!!  comm=MPI communicator used to reduce the results.
+!!
+!! OUTPUT
+!!  $doti=\Im ( <vect1|vect2> )$ , output only if option=2 and eventually option=3.
+!!  $dotr=\Re ( <vect1|vect2> )$
+!!
+!! SOURCE
+
+subroutine dotprod_g(dotr, doti, istwf_k, npw, option, vect1, vect2, me_g0, comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k,npw,option,me_g0,comm
+ real(dp),intent(out) :: doti,dotr
+!arrays
+ real(dp),intent(in) :: vect1(2,npw),vect2(2,npw)
+
+!Local variables-------------------------------
+ integer :: ierr
+ real(dp) :: dotarr(2)
+
+! *************************************************************************
+
+ ! Init results indipendently of option.
+ dotr = zero
+ doti = zero
+
+ if (istwf_k==1) then
+   ! General k-point
+
+   if(option==1)then
+     dotr = cg_real_zdotc(npw,vect1,vect2)
+   else
+     dotarr = cg_zdotc(npw,vect1,vect2)
+     dotr = dotarr(1)
+     doti = dotarr(2)
+   end if
+
+ else if (istwf_k==2 .and. me_g0==1) then
+   ! Gamma k-point and I have G=0
+   dotr=half*vect1(1,1)*vect2(1,1)
+   dotr = dotr + cg_real_zdotc(npw-1,vect1(1,2),vect2(1,2))
+   dotr = two*dotr
+   if (option==2) doti=zero
+
+ else
+   ! Other TR k-points
+   dotr = cg_real_zdotc(npw,vect1,vect2)
+   dotr=two*dotr
+   if (option==2) doti=zero
+ end if
+
+ !Reduction in case of parallelism
+ if (xmpi_comm_size(comm) > 1) then
+   if (option==1.or.istwf_k/=1) then
+     call xmpi_sum(dotr,comm,ierr)
+   else
+     dotarr(1)=dotr ; dotarr(2)=doti
+     call xmpi_sum(dotarr,comm,ierr)
+     dotr=dotarr(1) ; doti=dotarr(2)
+   end if
+ end if
+
+end subroutine dotprod_g
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/matrixelmt_g
+!! NAME
+!! matrixelmt_g
+!!
+!! FUNCTION
+!!  Compute a matrix element of two wavefunctions, in reciprocal space,
+!!  for an operator that is diagonal in reciprocal space: <wf1|op|wf2>
+!!  For the time being, only spin-independent operators are treated.
+!!
+!! INPUTS
+!!  diag(npw)=diagonal operator (real, spin-independent !)
+!!  istwf_k=storage mode of the vectors
+!!  needimag=0 if the imaginary part is not needed ; 1 if the imaginary part is needed
+!!  npw=number of planewaves of the first vector
+!!  nspinor=number of spinor components
+!!  vect1(2,npw*nspinor)=first vector
+!!  vect2(2,npw*nspinor)=second vector
+!!  comm_fft=MPI communicator for the FFT
+!!  me_g0=1 if this processors treats the G=0 component.
+!!
+!! OUTPUT
+!!  ai=imaginary part of the matrix element
+!!  ar=real part of the matrix element
+!!
+!! SOURCE
+
+subroutine matrixelmt_g(ai,ar,diag,istwf_k,needimag,npw,nspinor,vect1,vect2,me_g0,comm_fft)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k,needimag,npw,nspinor,me_g0,comm_fft
+ real(dp),intent(out) :: ai,ar
+!arrays
+ real(dp),intent(in) :: diag(npw),vect1(2,npw*nspinor),vect2(2,npw*nspinor)
+
+!Local variables-------------------------------
+!scalars
+ integer :: i1,ierr,ipw
+ character(len=500) :: msg
+!arrays
+ real(dp) :: buffer2(2)
+ !real(dp),allocatable :: re_prod(:), im_prod(:)
+
+! *************************************************************************
+
+ if (nspinor==2 .and. istwf_k/=1) then
+   write(msg,'(a,a,a,i6,a,i6)')&
+   'When istwf_k/=1, nspinor must be 1,',ch10,&
+   'however, nspinor=',nspinor,', and istwf_k=',istwf_k
+   ABI_BUG(msg)
+ end if
+
+#if 0
+ !TODO
+ ABI_MALLOC(re_prod,(npw*nspinor))
+ do ipw=1,npw*nspinor
+  re_prod(ipw) = vect1(1,ipw)*vect2(1,ipw) + vect1(2,ipw)*vect2(2,ipw)
+ end do
+
+ if (needimag == 1) then
+   ABI_MALLOC(im_prod,(npw*nspinor))
+   do ipw=1,npw*nspinor
+     im_prod(ipw) = vect1(1,ipw)*vect2(2,ipw) - vect1(2,ipw)*vect2(1,ipw)
+   end do
+ end if
+#endif
+
+ ar=zero
+ if(needimag==1)ai=zero
+
+!Normal storage mode
+ if(istwf_k==1)then
+
+!  Need only real part
+   if(needimag==0)then
+
+     do ipw=1,npw
+       ar=ar+diag(ipw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+     end do
+
+     if(nspinor==2)then
+       do ipw=1+npw,2*npw
+         ar=ar+diag(ipw-npw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+       end do
+     end if
+
+   else ! Need also the imaginary part
+
+     do ipw=1,npw
+       ar=ar+diag(ipw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+       ai=ai+diag(ipw)*(vect1(1,ipw)*vect2(2,ipw)-vect1(2,ipw)*vect2(1,ipw))
+     end do
+
+     if(nspinor==2)then
+       do ipw=1+npw,2*npw
+         ar=ar+diag(ipw-npw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+         ai=ai+diag(ipw-npw)*(vect1(1,ipw)*vect2(2,ipw)-vect1(2,ipw)*vect2(1,ipw))
+       end do
+     end if
+
+   end if ! needimag
+
+ else if(istwf_k>=2)then
+
+!  XG030513 : MPIWF need to know which proc has G=0
+
+   i1=1
+   if(istwf_k==2 .and. me_g0==1)then
+     ar=half*diag(1)*vect1(1,1)*vect2(1,1) ; i1=2
+   end if
+
+!  Need only real part
+   if(needimag==0)then
+
+     do ipw=i1,npw
+       ar=ar+diag(ipw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+     end do
+     ar=two*ar
+
+   else ! Need also the imaginary part
+
+     do ipw=i1,npw
+       ar=ar+diag(ipw)*(vect1(1,ipw)*vect2(1,ipw)+vect1(2,ipw)*vect2(2,ipw))
+       ai=ai+diag(ipw)*(vect1(1,ipw)*vect2(2,ipw)-vect1(2,ipw)*vect2(1,ipw))
+     end do
+     ar=two*ar ; ai=two*ai
+
+   end if
+
+ end if ! istwf_k
+
+#if 0
+ ABI_FREE(re_prod)
+ if (needimag == 1) then
+   ABI_FREE(im_prod)
+ end if
+#endif
+
+!MPIWF need to make reduction on ar and ai .
+ if (xmpi_comm_size(comm_fft)>1) then
+   buffer2(1)=ai
+   buffer2(2)=ar
+   call xmpi_sum(buffer2,comm_fft ,ierr)
+   ai=buffer2(1)
+   ar=buffer2(2)
+ end if
+
+end subroutine matrixelmt_g
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/dotprod_v
+!! NAME
+!! dotprod_v
+!!
+!! FUNCTION
+!! Compute dot product of two potentials (integral over FFT grid), to obtain
+!! a square residual-like quantity (so the sum of product of values
+!! is NOT divided by the number of FFT points, and NOT multiplied by the primitive cell volume).
+!! Take into account the spin components of the potentials (nspden), and sum over them.
+!!
+!! INPUTS
+!!  cplex=if 1, real space functions on FFT grid are REAL, if 2, COMPLEX
+!!  nfft= (effective) number of FFT grid points (for this processor)
+!!  nspden=number of spin-density components
+!!  opt_storage: 0, if potentials are stored as V^up-up, V^dn-dn, Re[V^up-dn], Im[V^up-dn]
+!!               1, if potentials are stored as V, B_x, B_y, Bz  (B=magn. field)
+!!  pot1(cplex*nfft,nspden)=first real space potential on FFT grid
+!!  pot2(cplex*nfft,nspden)=second real space potential on FFT grid
+!!  comm=MPI communicator in which results will be reduced.
+!!
+!! OUTPUT
+!!  dotr= value of the dot product
+!!
+!! SOURCE
+
+subroutine dotprod_v(cplex,dotr,nfft,nspden,opt_storage,pot1,pot2,comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: cplex,nfft,nspden,opt_storage,comm
+ real(dp),intent(out) :: dotr
+!arrays
+ real(dp),intent(in) :: pot1(cplex*nfft,nspden),pot2(cplex*nfft,nspden)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr,ifft,ispden
+ real(dp) :: ar
+!arrays
+
+! *************************************************************************
+
+!Real or complex inputs are coded
+
+ dotr=zero
+!$OMP PARALLEL DO COLLAPSE(2) REDUCTION(+:dotr)
+ do ispden=1,min(nspden,2)
+   do ifft=1,cplex*nfft
+     dotr =dotr + pot1(ifft,ispden)*pot2(ifft,ispden)
+   end do
+ end do
+
+ if (nspden==4) then
+   ar=zero
+!$OMP PARALLEL DO COLLAPSE(2) REDUCTION(+:ar)
+   do ispden=3,4
+     do ifft=1,cplex*nfft
+       ar = ar + pot1(ifft,ispden)*pot2(ifft,ispden)
+     end do
+   end do
+
+   if (opt_storage==0) then
+     if (cplex==1) then
+       dotr = dotr+two*ar
+     else
+       dotr = dotr+ar
+     end if
+   else
+     dotr = half*(dotr+ar)
+   end if
+ end if
+
+!MPIWF reduction (addition) on dotr is needed here
+ if (xmpi_comm_size(comm)>1) then
+   call xmpi_sum(dotr,comm,ierr)
+ end if
+
+end subroutine dotprod_v
+!!***
+
+!!****f* m_cgtools/dotprod_vn
+!! NAME
+!! dotprod_vn
+!!
+!! FUNCTION
+!! Compute dot product of potential and density (integral over FFT grid), to obtain
+!! an energy-like quantity (so the usual dotproduct is divided
+!! by the number of FFT points, and multiplied by the primitive cell volume).
+!! Take into account the spin components of the density and potentials (nspden),
+!! and sum correctly over them. Note that the storage of densities and
+!! potentials is different : for potential, one stores the matrix components,
+!! while for the density, one stores the trace, and then, either the
+!! up component (if nspden=2), or the magnetization vector (if nspden=4).
+!!
+!! INPUTS
+!!  cplex=if 1, real space functions on FFT grid are REAL, if 2, COMPLEX
+!!  dens(cplex*nfft,nspden)=real space density on FFT grid
+!!  mpi_enreg=information about MPI parallelization
+!!  nfft= (effective) number of FFT grid points (for this processor)
+!!  nfftot= total number of FFT grid points
+!!  nspden=number of spin-density components
+!!  option= if 1, only the real part is computed
+!!          if 2, both real and imaginary parts are computed  (not yet coded)
+!!  pot(cplex*nfft,nspden)=real space potential on FFT grid
+!!                 (will be complex conjugated if cplex=2 and option=2)
+!!  ucvol=unit cell volume (Bohr**3)
+!!
+!! OUTPUT
+!!  doti= imaginary part of the dot product, output only if option=2 (and cplex=2).
+!!  dotr= real part
+!!
+!! NOTES
+!!  Concerning storage when nspden=4:
+!!   cplex=1:
+!!     V is stored as : V^11, V^22, Re[V^12], Im[V^12] (complex, hermitian)
+!!     N is stored as : n, m_x, m_y, m_z               (real)
+!!   cplex=2:
+!!     V is stored as : V^11, V^22, V^12, i.V^21 (complex)
+!!     N is stored as : n, m_x, m_y, mz          (complex)
+!!
+!! SOURCE
+
+subroutine dotprod_vn(cplex,dens,dotr,doti,nfft,nfftot,nspden,option,pot,ucvol, &
+    mpi_comm_sphgrid)  ! Optional
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: cplex,nfft,nfftot,nspden,option
+ integer,intent(in),optional :: mpi_comm_sphgrid
+ real(dp),intent(in) :: ucvol
+ real(dp),intent(out) :: doti,dotr
+!arrays
+ real(dp),intent(in) :: dens(cplex*nfft,nspden),pot(cplex*nfft,nspden)
+
+!Local variables-------------------------------
+!scalars
+ integer  :: ierr,ifft,jfft
+ real(dp) :: dim11,dim12,dim21,dim22,dim_dn,dim_up,dre11,dre12,dre21,dre22
+ real(dp) :: dre_dn,dre_up,factor,nproc_sphgrid,pim11,pim12,pim21,pim22,pim_dn,pim_up,pre11
+ real(dp) :: pre12,pre21,pre22,pre_dn,pre_up
+ real(dp) :: bx_re,bx_im,by_re,by_im,bz_re,bz_im,v0_re,v0_im
+!arrays
+ real(dp) :: buffer2(2)
+
+! *************************************************************************
+
+!Real or complex inputs are coded
+ DBG_CHECK(ANY(cplex==(/1,2/)),"Wrong cplex")
+ DBG_CHECK(ANY(nspden==(/1,2,4/)),"Wrong nspden")
+
+!Real or complex output are coded
+ DBG_CHECK(ANY(option==(/1,2/)),"Wrong option")
+
+ dotr=zero; doti=zero
+
+ if(nspden==1)then
+
+   if(option==1 .or. cplex==1 )then
+!$OMP PARALLEL DO REDUCTION(+:dotr)
+     do ifft=1,cplex*nfft
+       dotr=dotr + pot(ifft,1)*dens(ifft,1)
+     end do
+!    dotr = ddot(cplex*nfft,pot,1,dens,1)
+
+   else  ! option==2 and cplex==2 : one builds the imaginary part, from complex den/pot
+
+!$OMP PARALLEL DO PRIVATE(jfft) REDUCTION(+:dotr,doti)
+     do ifft=1,nfft
+       jfft=2*ifft
+       dotr=dotr + pot(jfft-1,1)*dens(jfft-1,1) + pot(jfft,1)*dens(jfft  ,1)
+       doti=doti + pot(jfft-1,1)*dens(jfft  ,1) - pot(jfft,1)*dens(jfft-1,1)
+     end do
+
+   end if
+
+ else if(nspden==2)then
+
+   if(option==1 .or. cplex==1 )then
+!$OMP PARALLEL DO REDUCTION(+:dotr)
+     do ifft=1,cplex*nfft
+       dotr=dotr + pot(ifft,1)* dens(ifft,2)     &    ! This is the spin up contribution
+&      + pot(ifft,2)*(dens(ifft,1)-dens(ifft,2))      ! This is the spin down contribution
+     end do
+
+   else ! option==2 and cplex==2 : one builds the imaginary part, from complex den/pot
+
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nfft,dens,pot) REDUCTION(+:dotr,doti)
+     do ifft=1,nfft
+
+       jfft=2*ifft
+       dre_up=dens(jfft-1,2)
+       dim_up=dens(jfft  ,2)
+       dre_dn=dens(jfft-1,1)-dre_up
+       dim_dn=dens(jfft  ,1)-dim_up
+       pre_up=pot(jfft-1,1)
+       pim_up=pot(jfft  ,1)
+       pre_dn=pot(jfft-1,2)
+       pim_dn=pot(jfft  ,2)
+
+       dotr=dotr + pre_up * dre_up &
+&       + pim_up * dim_up &
+&       + pre_dn * dre_dn &
+&       + pim_dn * dim_dn
+       doti=doti + pre_up * dim_up &
+&       - pim_up * dre_up &
+&       + pre_dn * dim_dn &
+&       - pim_dn * dre_dn
+
+     end do
+   end if
+
+ else if(nspden==4)then
+!  \rho{\alpha,\beta} V^{\alpha,\beta} =
+!  rho*(V^{11}+V^{22})/2$
+!  + m_x Re(V^{12})- m_y Im{V^{12}}+ m_z(V^{11}-V^{22})/2
+   if (cplex==1) then
+!$OMP PARALLEL DO PRIVATE(ifft) SHARED(nfft,dens,pot) REDUCTION(+:dotr)
+     do ifft=1,nfft
+       dotr=dotr + &
+&       (pot(ifft,1) + pot(ifft,2))*half*dens(ifft,1) &   ! This is the density contrib
+&      + pot(ifft,3)      *dens(ifft,2) &   ! This is the m_x contrib
+&      - pot(ifft,4)      *dens(ifft,3) &   ! This is the m_y contrib
+&      +(pot(ifft,1) - pot(ifft,2))*half*dens(ifft,4)     ! This is the m_z contrib
+     end do
+   else ! cplex=2
+!    Note concerning storage when cplex=2:
+!    V is stored as : v^11, v^22, V^12, i.V^21 (each are complex)
+!    N is stored as : n, m_x, m_y, mZ          (each are complex)
+     if (option==1) then
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nfft,dens,pot) REDUCTION(+:dotr)
+       do ifft=1,nfft
+         jfft=2*ifft
+         dre11=half*(dens(jfft-1,1)+dens(jfft-1,4))
+         dim11=half*(dens(jfft  ,1)+dens(jfft-1,4))
+         dre22=half*(dens(jfft-1,1)-dens(jfft-1,4))
+         dim22=half*(dens(jfft  ,1)-dens(jfft-1,4))
+         dre12=half*(dens(jfft-1,2)+dens(jfft  ,3))
+         dim12=half*(dens(jfft  ,2)-dens(jfft-1,3))
+         dre21=half*(dens(jfft-1,2)-dens(jfft  ,3))
+         dim21=half*(dens(jfft  ,2)+dens(jfft-1,3))
+         pre11= pot(jfft-1,1)
+         pim11= pot(jfft  ,1)
+         pre22= pot(jfft-1,2)
+         pim22= pot(jfft  ,2)
+         pre12= pot(jfft-1,3)
+         pim12= pot(jfft  ,3)
+         pre21= pot(jfft  ,4)
+         pim21=-pot(jfft-1,4)
+
+         v0_re=half*(pre11+pre22)
+         v0_im=half*(pim11+pim22)
+         bx_re=half*(pre12+pre21)
+         bx_im=half*(pim12+pim21)
+         by_re=half*(-pim12+pim21)
+         by_im=half*(pre12-pre21)
+         bz_re=half*(pre11-pre22)
+         bz_im=half*(pim11-pim22)
+         dotr=dotr+v0_re * dens(jfft-1,1)&
+&         + v0_im * dens(jfft  ,1) &
+&         + bx_re * dens(jfft-1,2) &
+&         + bx_im * dens(jfft  ,2) &
+&         + by_re * dens(jfft-1,3) &
+&         + by_im * dens(jfft  ,3) &
+&         + bz_re * dens(jfft-1,4) &
+&         + bz_im * dens(jfft  ,4)
+!         dotr=dotr + pre11 * dre11 &
+!&         + pim11 * dim11 &
+!&         + pre22 * dre22 &
+!&         + pim22 * dim22 &
+!&         + pre12 * dre12 &
+!&         + pim12 * dim12 &
+!&         + pre21 * dre21 &
+!&         + pim21 * dim21
+       end do
+     else ! option=2
+!$OMP PARALLEL DO DEFAULT(PRIVATE) SHARED(nfft,dens,pot) REDUCTION(+:dotr,doti)
+       do ifft=1,nfft
+         jfft=2*ifft
+         dre11=half*(dens(jfft-1,1)+dens(jfft-1,4))
+         dim11=half*(dens(jfft  ,1)+dens(jfft-1,4))
+         dre22=half*(dens(jfft-1,1)-dens(jfft-1,4))
+         dim22=half*(dens(jfft  ,1)-dens(jfft-1,4))
+         dre12=half*(dens(jfft-1,2)+dens(jfft  ,3))
+         dim12=half*(dens(jfft  ,2)-dens(jfft-1,3))
+         dre21=half*(dens(jfft-1,2)-dens(jfft  ,3))
+         dim21=half*(dens(jfft  ,2)+dens(jfft-1,3))
+         pre11= pot(jfft-1,1)
+         pim11= pot(jfft  ,1)
+         pre22= pot(jfft-1,2)
+         pim22= pot(jfft  ,2)
+         pre12= pot(jfft-1,3)
+         pim12= pot(jfft  ,3)
+         pre21= pot(jfft  ,4)
+         pim21=-pot(jfft-1,4)
+         dotr=dotr + pre11 * dre11 &
+&         + pim11 * dim11 &
+&         + pre22 * dre22 &
+&         + pim22 * dim22 &
+&         + pre12 * dre12 &
+&         + pim12 * dim12 &
+&         + pre21 * dre21 &
+&         + pim21 * dim21
+         doti=doti + pre11 * dim11 &
+&         - pim11 * dre11 &
+&         + pre22 * dim22 &
+&         - pim22 * dre22 &
+&         + pre12 * dim12 &
+&         - pim12 * dre12 &
+&         + pre21 * dim21 &
+&         - pim21 * dre21
+       end do
+     end if ! option
+   end if ! cplex
+ end if ! nspden
+
+ factor=ucvol/dble(nfftot)
+ dotr=factor*dotr
+ doti=factor*doti
+
+!MPIWF reduction (addition) on dotr, doti is needed here
+ if(present(mpi_comm_sphgrid)) then
+   nproc_sphgrid=xmpi_comm_size(mpi_comm_sphgrid)
+   if(nproc_sphgrid>1) then
+     buffer2(1)=dotr
+     buffer2(2)=doti
+     call xmpi_sum(buffer2,mpi_comm_sphgrid,ierr)
+     dotr=buffer2(1)
+     doti=buffer2(2)
+   end if
+ end if
+
+end subroutine dotprod_vn
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/sqnorm_v
+!! NAME
+!! sqnorm_v
+!!
+!! FUNCTION
+!! Compute square of the norm of a potential (integral over FFT grid), to obtain
+!! a square residual-like quantity (so the sum of product of values
+!! is NOT divided by the number of FFT points, and NOT multiplied by the primitive cell volume).
+!! Take into account the spin components of the potentials (nspden),
+!! and sum over them.
+!!
+!! INPUTS
+!!  cplex=if 1, real space function on FFT grid is REAL, if 2, COMPLEX
+!!  nfft= (effective) number of FFT grid points (for this processor)
+!!  nspden=number of spin-density components
+!!  opt_storage: 0, if potential is stored as V^up-up, V^dn-dn, Re[V^up-dn], Im[V^up-dn]
+!!               1, if potential is stored as V, B_x, B_y, Bz  (B=magn. field)
+!!  pot(cplex*nfft,nspden)=real space potential on FFT grid
+!!
+!! OUTPUT
+!!  norm2= value of the square of the norm
+!!
+!! SOURCE
+
+subroutine sqnorm_v(cplex,nfft,norm2,nspden,opt_storage,pot,mpi_comm_sphgrid)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: cplex,nfft,nspden,opt_storage
+ integer,intent(in),optional :: mpi_comm_sphgrid
+ real(dp),intent(out) :: norm2
+!arrays
+ real(dp),intent(in) :: pot(cplex*nfft,nspden)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr,ifft,ispden,nproc_sphgrid
+ real(dp) :: ar
+
+! *************************************************************************
+
+!Real or complex inputs are coded
+
+ norm2=zero
+ do ispden=1,min(nspden,2)
+!$OMP PARALLEL DO PRIVATE(ifft) SHARED(cplex,ispden,nfft,pot) REDUCTION(+:norm2)
+   do ifft=1,cplex*nfft
+     norm2=norm2 + pot(ifft,ispden)**2
+   end do
+ end do
+ if (nspden==4) then
+   ar=zero
+   do ispden=3,4
+!$OMP PARALLEL DO PRIVATE(ifft) SHARED(cplex,ispden,nfft,pot) REDUCTION(+:ar)
+     do ifft=1,cplex*nfft
+       ar=ar + pot(ifft,ispden)**2
+     end do
+   end do
+   if (opt_storage==0) then
+     if (cplex==1) then
+       norm2=norm2+two*ar
+     else
+       norm2=norm2+ar
+     end if
+   else
+     norm2=half*(norm2+ar)
+   end if
+ end if
+
+!MPIWF reduction (addition) on norm2 is needed here
+ if(present(mpi_comm_sphgrid)) then
+   nproc_sphgrid=xmpi_comm_size(mpi_comm_sphgrid)
+   if(nproc_sphgrid>1)then
+     call xmpi_sum(norm2,mpi_comm_sphgrid,ierr)
+   end if
+ end if
+
+end subroutine sqnorm_v
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/mean_fftr
+!! NAME
+!! mean_fftr
+!!
+!! FUNCTION
+!!  Compute the mean of an arraysp(nfft,nspden), over the FFT grid, for each component nspden,
+!!  and return it in meansp(nspden).
+!!  Take into account the spread of the array due to parallelism: the actual number of fft
+!!  points is nfftot, but the number of points on this proc is nfft only.
+!!  So : for ispden from 1 to nspden
+!!       meansp(ispden) = sum(ifft=1,nfftot) arraysp(ifft,ispden) / nfftot
+!!
+!! INPUTS
+!!  arraysp(nfft,nspden)=the array whose average has to be computed
+!!  nfft=number of FFT points stored by one proc
+!!  nfftot=total number of FFT points
+!!  nspden=number of spin-density components
+!!
+!! OUTPUT
+!!  meansp(nspden)=mean value for each nspden component
+!!
+!! SOURCE
+
+subroutine mean_fftr(arraysp,meansp,nfft,nfftot,nspden,mpi_comm_sphgrid)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: nfft,nfftot,nspden
+ integer,intent(in),optional:: mpi_comm_sphgrid
+!arrays
+ real(dp),intent(in) :: arraysp(nfft,nspden)
+ real(dp),intent(out) :: meansp(nspden)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr,ifft,ispden,nproc_sphgrid
+ real(dp) :: invnfftot,tmean
+
+! *************************************************************************
+
+ invnfftot=one/(dble(nfftot))
+
+ do ispden=1,nspden
+   tmean=zero
+!$OMP PARALLEL DO REDUCTION(+:tmean)
+   do ifft=1,nfft
+     tmean=tmean+arraysp(ifft,ispden)
+   end do
+   meansp(ispden)=tmean*invnfftot
+ end do
+
+!XG030514 : MPIWF The values of meansp(ispden) should
+!now be summed accross processors in the same WF group, and spread on all procs.
+ if(present(mpi_comm_sphgrid)) then
+   nproc_sphgrid=xmpi_comm_size(mpi_comm_sphgrid)
+   if(nproc_sphgrid>1) then
+     call xmpi_sum(meansp,nspden,mpi_comm_sphgrid,ierr)
+   end if
+ end if
+
+end subroutine mean_fftr
+!!***
+
+!!****f* m_cgtools/cg_getspin
+!! NAME
+!! cg_getspin
+!!
+!! FUNCTION
+!!  Sandwich a single wave function on the Pauli matrices
+!!
+!! INPUTS
+!!  npw_k = number of plane waves
+!!  cgcband = coefficients of spinorial wave function
+!!
+!! OUTPUT
+!!  spin = 3-vector of spin components for this state
+!!  cgcmat = outer spin product of spinorial wf with itself
+!!
+!! SOURCE
+
+subroutine cg_getspin(cgcband, npw_k, spin, cgcmat)
+
+!Arguments ------------------------------------
+!scalars
+ integer, intent(in) :: npw_k
+ real(dp), intent(in) :: cgcband(2,2*npw_k)
+ complex(dpc), intent(out),optional :: cgcmat(2,2)
+ real(dp), intent(out) :: spin(3)
+
+!Local variables-------------------------------
+!scalars
+ complex(dpc) :: cspin(0:3), cgcmat_(2,2)
+! ***********************************************************************
+
+! cgcmat_ = cgcband * cgcband^T*  i.e. 2x2 matrix of spin components (dpcomplex)
+ cgcmat_ = czero
+ call zgemm('n','c',2,2,npw_k,cone,cgcband,2,cgcband,2,czero,cgcmat_,2)
+
+! spin(*)  = sum_{si sj pi} cgcband(si,pi)^* pauli_mat*(si,sj) cgcband(sj,pi)
+ cspin(0) = cgcmat_(1,1)*pauli_mat(1,1,0) + cgcmat_(2,1)*pauli_mat(2,1,0) &
+&         + cgcmat_(1,2)*pauli_mat(1,2,0) + cgcmat_(2,2)*pauli_mat(2,2,0)
+ cspin(1) = cgcmat_(1,1)*pauli_mat(1,1,1) + cgcmat_(2,1)*pauli_mat(2,1,1) &
+&         + cgcmat_(1,2)*pauli_mat(1,2,1) + cgcmat_(2,2)*pauli_mat(2,2,1)
+ cspin(2) = cgcmat_(1,1)*pauli_mat(1,1,2) + cgcmat_(2,1)*pauli_mat(2,1,2) &
+&         + cgcmat_(1,2)*pauli_mat(1,2,2) + cgcmat_(2,2)*pauli_mat(2,2,2)
+ cspin(3) = cgcmat_(1,1)*pauli_mat(1,1,3) + cgcmat_(2,1)*pauli_mat(2,1,3) &
+&         + cgcmat_(1,2)*pauli_mat(1,2,3) + cgcmat_(2,2)*pauli_mat(2,2,3)
+!write(std_out,*) 'cgmat: ', cgcmat_
+!write(std_out,*) 'real(spin): ', real(cspin)
+!write(std_out,*) 'aimag(spin): ', aimag(cspin)
+
+ spin = real(cspin(1:3))
+ if (present(cgcmat)) cgcmat = cgcmat_
+
+end subroutine cg_getspin
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_gsph2box
+!! NAME
+!! cg_gsph2box
+!!
+!! FUNCTION
+!! Array iarrsph is defined in sphere with npw_k points. Insert iarrsph inside box
+!! of nx*ny*nz points to define array oarrbox for fft box. rest of oarrbox is filled with 0 s.
+!!
+!! INPUTS
+!! iarrsph(2,npw_k*ndat)= contains values for npw_k G vectors in basis sphere
+!! ndat=number of FFT to perform.
+!! npw_k=number of G vectors in basis at this k point
+!! oarrbox(2,ldx*ldy*ldz*ndat) = fft box
+!! nx,ny,nz=physical dimension of the box (oarrbox)
+!! ldx,ldy,ldz=memory dimension of oarrbox
+!! kg_k(3,npw_k)=integer coordinates of G vectors in basis sphere
+!! istwf_k=option parameter that describes the storage of wfs
+!!
+!! OUTPUT
+!!   oarrbox(ldx*ldy*ldz*ndat)
+!!
+!! NOTES
+!! If istwf_k differs from 1, then special storage modes must be taken
+!! into account, for symmetric wavefunctions coming from k=(0 0 0) or other
+!! special k points.
+!!
+!! SOURCE
+
+subroutine cg_gsph2box(nx,ny,nz,ldx,ldy,ldz,ndat,npw_k,istwf_k,kg_k,iarrsph,oarrbox)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k,nx,ny,nz,ldx,ldy,ldz,ndat,npw_k
+!arrays
+ integer,intent(in) :: kg_k(3,npw_k)
+ real(dp),intent(in) :: iarrsph(2,npw_k*ndat)
+ real(dp),intent(out) :: oarrbox(2,ldx*ldy*ldz*ndat)
+
+!Local variables-------------------------------
+!scalars
+ integer,parameter :: me_g0=1
+ integer :: ix,ixinv,iy,iyinv,iz,izinv,dat,ipw,npwmin,pad_box,pad_sph,ifft,ifft_inv,ldxyz
+ character(len=500) :: msg
+!arrays
+ integer,allocatable :: ixinver(:),iyinver(:),izinver(:)
+
+! *************************************************************************
+
+!In the case of special k-points, invariant under time-reversal,
+!but not Gamma, initialize the inverse coordinates
+!Remember indeed that
+!u_k(G) = u_{k+G0}(G-G0); u_{-k}(-G) = u_k(G)^*
+!and therefore:
+!u_{G0/2}(G) = u_{G0/2}(-G-G0)^*.
+ if (istwf_k>=2) then
+   ABI_MALLOC(ixinver,(nx))
+   ABI_MALLOC(iyinver,(ny))
+   ABI_MALLOC(izinver,(nz))
+   if ( ANY(istwf_k==(/2,4,6,8/)) ) then
+     ixinver(1)=1
+     do ix=2,nx
+       ixinver(ix)=nx+2-ix
+     end do
+   else
+     do ix=1,nx
+       ixinver(ix)=nx+1-ix
+     end do
+   end if
+   if (istwf_k>=2 .and. istwf_k<=5) then
+     iyinver(1)=1
+     do iy=2,ny
+       iyinver(iy)=ny+2-iy
+     end do
+   else
+     do iy=1,ny
+       iyinver(iy)=ny+1-iy
+     end do
+   end if
+   if ( ANY(istwf_k==(/2,3,6,7/)) ) then
+     izinver(1)=1
+     do iz=2,nz
+       izinver(iz)=nz+2-iz
+     end do
+   else
+     do iz=1,nz
+       izinver(iz)=nz+1-iz
+     end do
+   end if
+ end if
+
+ ldxyz = ldx*ldy*ldz
+
+ if (istwf_k==1) then
+
+!$OMP PARALLEL DO PRIVATE(pad_sph,pad_box,ix,iy,iz,ifft)
+   do dat=1,ndat
+     pad_sph = (dat-1)*npw_k
+     pad_box = (dat-1)*ldxyz
+     oarrbox(:,1+pad_box:ldxyz+pad_box) = zero ! zero the sub-array
+     do ipw=1,npw_k
+       ix=kg_k(1,ipw); if (ix<0) ix=ix+nx; ix=ix+1
+       iy=kg_k(2,ipw); if (iy<0) iy=iy+ny; iy=iy+1
+       iz=kg_k(3,ipw); if (iz<0) iz=iz+nz; iz=iz+1
+       ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+#if defined __INTEL_COMPILER && defined HAVE_OPENMP
+       if (ifft==0) then
+         ABI_ERROR("prevent ifort+OMP from miscompiling this section on cronos")
+       end if
+#endif
+       oarrbox(1,ifft+pad_box) = iarrsph(1,ipw+pad_sph)
+       oarrbox(2,ifft+pad_box) = iarrsph(2,ipw+pad_sph)
+     end do
+   end do
+
+ else if (istwf_k>=2) then
+   !
+   npwmin=1
+   if(istwf_k==2 .and. me_g0==1) then ! If gamma point, then oarrbox must be completed
+     do dat=1,ndat
+       pad_sph = (dat-1)*npw_k
+       pad_box = (dat-1)*ldxyz
+       oarrbox(1,1+pad_box) = iarrsph(1,1+pad_sph)
+       oarrbox(2,1+pad_box) = zero
+     end do
+     npwmin=2
+   end if
+
+!$OMP PARALLEL DO PRIVATE(pad_sph,pad_box,ix,iy,iz,ixinv,iyinv,izinv,ifft,ifft_inv)
+   do dat=1,ndat
+     pad_sph = (dat-1)*npw_k
+     pad_box = (dat-1)*ldxyz
+     oarrbox(:,npwmin+pad_box:ldxyz+pad_box) = zero
+     do ipw=npwmin,npw_k
+       ix=kg_k(1,ipw); if(ix<0)ix=ix+nx; ix=ix+1
+       iy=kg_k(2,ipw); if(iy<0)iy=iy+ny; iy=iy+1
+       iz=kg_k(3,ipw); if(iz<0)iz=iz+nz; iz=iz+1
+       ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+       ! Construct the coordinates of -k-G
+       ixinv=ixinver(ix); iyinv=iyinver(iy); izinv=izinver(iz)
+       ifft_inv = ixinv + (iyinv-1)*ldx + (izinv-1)*ldx*ldy
+
+       oarrbox(:,ifft    +pad_box) =  iarrsph(:,ipw+pad_sph)
+       oarrbox(1,ifft_inv+pad_box) =  iarrsph(1,ipw+pad_sph)
+       oarrbox(2,ifft_inv+pad_box) = -iarrsph(2,ipw+pad_sph)
+     end do
+   end do
+   !
+ else
+   write(msg,'(a,i0)')"Wrong istwfk ",istwf_k
+   ABI_ERROR(msg)
+ end if
+
+ if (istwf_k>=2) then
+   ABI_FREE(ixinver)
+   ABI_FREE(iyinver)
+   ABI_FREE(izinver)
+ end if
+
+end subroutine cg_gsph2box
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_box2gsph
+!! NAME
+!!  cg_box2gsph
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!  nx,ny,nz=physical dimension of the FFT box.
+!!  ldx,ldy,ldz=Logical dimensions of the arrays.
+!!  ndat=number of data in iarrbox
+!!  npw_k=Number of planewaves in the G-sphere.
+!!  kg_k(3,npw_k)=Reduced coordinates of the G-vectoes.
+!!  iarrbox(2,ldx,ldy,ldz*ndat)=Input arrays on the FFT box.
+!!  [rscal] = Scaling factor
+!!
+!! OUTPUT
+!!  oarrsph(2,npw_k*ndat)=Data defined on the G-sphere.
+!!
+!! SOURCE
+
+subroutine cg_box2gsph(nx,ny,nz,ldx,ldy,ldz,ndat,npw_k,kg_k,iarrbox,oarrsph,rscal)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npw_k,nx,ny,nz,ldx,ldy,ldz,ndat
+ real(dp),optional,intent(in) :: rscal
+!arrays
+ integer,intent(in) :: kg_k(3,npw_k)
+ real(dp),intent(in) :: iarrbox(2,ldx*ldy*ldz*ndat)
+ real(dp),intent(out) :: oarrsph(2,npw_k*ndat)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ig,ix,iy,iz,idat,sph_pad,box_pad,ifft
+
+! *************************************************************************
+
+ if (.not. PRESENT(rscal)) then
+   !
+   if (ndat==1) then
+!$OMP PARALLEL DO PRIVATE(ix,iy,iz,ifft)
+     do ig=1,npw_k
+       ix=kg_k(1,ig); if (ix<0) ix=ix+nx; ix=ix+1
+       iy=kg_k(2,ig); if (iy<0) iy=iy+ny; iy=iy+1
+       iz=kg_k(3,ig); if (iz<0) iz=iz+nz; iz=iz+1
+       ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+       oarrsph(1,ig) = iarrbox(1,ifft)
+       oarrsph(2,ig) = iarrbox(2,ifft)
+     end do
+   else
+!$OMP PARALLEL DO PRIVATE(sph_pad,box_pad,ix,iy,iz,ifft)
+     do idat=1,ndat
+       sph_pad = (idat-1)*npw_k
+       box_pad = (idat-1)*ldx*ldy*ldz
+       do ig=1,npw_k
+         ix=kg_k(1,ig); if (ix<0) ix=ix+nx; ix=ix+1
+         iy=kg_k(2,ig); if (iy<0) iy=iy+ny; iy=iy+1
+         iz=kg_k(3,ig); if (iz<0) iz=iz+nz; iz=iz+1
+         ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+         oarrsph(1,ig+sph_pad) = iarrbox(1,ifft+box_pad)
+         oarrsph(2,ig+sph_pad) = iarrbox(2,ifft+box_pad)
+       end do
+     end do
+   end if
+   !
+ else
+   if (ndat==1) then
+!$OMP PARALLEL DO PRIVATE(ix,iy,iz,ifft)
+     do ig=1,npw_k
+       ix=kg_k(1,ig); if (ix<0) ix=ix+nx; ix=ix+1
+       iy=kg_k(2,ig); if (iy<0) iy=iy+ny; iy=iy+1
+       iz=kg_k(3,ig); if (iz<0) iz=iz+nz; iz=iz+1
+       ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+       oarrsph(1,ig) = iarrbox(1,ifft) * rscal
+       oarrsph(2,ig) = iarrbox(2,ifft) * rscal
+     end do
+   else
+!$OMP PARALLEL DO PRIVATE(sph_pad,box_pad,ix,iy,iz,ifft)
+     do idat=1,ndat
+       sph_pad = (idat-1)*npw_k
+       box_pad = (idat-1)*ldx*ldy*ldz
+       do ig=1,npw_k
+         ix=kg_k(1,ig); if (ix<0) ix=ix+nx; ix=ix+1
+         iy=kg_k(2,ig); if (iy<0) iy=iy+ny; iy=iy+1
+         iz=kg_k(3,ig); if (iz<0) iz=iz+nz; iz=iz+1
+         ifft = ix + (iy-1)*ldx + (iz-1)*ldx*ldy
+         oarrsph(1,ig+sph_pad) = iarrbox(1,ifft+box_pad) * rscal
+         oarrsph(2,ig+sph_pad) = iarrbox(2,ifft+box_pad) * rscal
+       end do
+     end do
+   end if
+ end if
+
+end subroutine cg_box2gsph
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_addtorho
+!! NAME
+!!  cg_addtorho
+!!
+!! FUNCTION
+!!  Add |ur|**2 to the ground-states density rho.
+!!    rho = rho + weight_r * Re[ur]**2 + weight_i * Im[ur]**2
+!!
+!! INPUTS
+!!  nx,ny,nz=physical dimension of the FFT box.
+!!  ldx,ldy,ldz=leading dimensions of the arrays.
+!!  ndat=number of contributions to accumulate.
+!!  weight_r=weight used for the accumulation of the density in real space
+!!  weight_i=weight used for the accumulation of the density in real space
+!!  ur(2,ldx,ldy,ldz*ndat)=wavefunctions in real space
+!!
+!! SIDE EFFECTS
+!!  rho(ldx,ldy,ldz) = contains the input density at input,
+!!                  modified in input with the contribution gived by ur.
+!!
+!! SOURCE
+
+subroutine cg_addtorho(nx,ny,nz,ldx,ldy,ldz,ndat,weight_r,weight_i,ur,rho)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: nx,ny,nz,ldx,ldy,ldz,ndat
+ real(dp),intent(in) :: weight_i,weight_r
+!arrays
+ real(dp),intent(in) :: ur(2,ldx,ldy,ldz*ndat)
+ real(dp),intent(inout) :: rho(ldx,ldy,ldz)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ix,iy,iz,idat,izdat
+
+! *************************************************************************
+
+ if (ndat==1) then
+!$OMP PARALLEL DO
+   do iz=1,nz
+     do iy=1,ny
+       do ix=1,nx
+         rho(ix,iy,iz) = rho(ix,iy,iz) + weight_r * ur(1,ix,iy,iz)**2 &
+&                                      + weight_i * ur(2,ix,iy,iz)**2
+       end do
+     end do
+   end do
+
+ else
+! It would be nice to use $OMP PARALLEL DO PRIVATE(izdat) REDUCTION(+:rho)
+! but it's risky as the private rho is allocated on the stack of the thread.
+!$OMP PARALLEL PRIVATE(izdat)
+   do idat=1,ndat
+!$OMP DO
+     do iz=1,nz
+       izdat = iz + (idat-1)*ldz
+       do iy=1,ny
+         do ix=1,nx
+           rho(ix,iy,iz) = rho(ix,iy,iz) + weight_r * ur(1,ix,iy,izdat)**2 &
+&                                        + weight_i * ur(2,ix,iy,izdat)**2
+         end do
+       end do
+     end do
+!$OMP END DO NOWAIT
+   end do
+!$OMP END PARALLEL
+ end if
+
+end subroutine cg_addtorho
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_vlocpsi
+!! NAME
+!!  cg_vlocpsi
+!!
+!! FUNCTION
+!!  Apply the local part of the potentatil to the wavefunction in real space.
+!!
+!! INPUTS
+!!  nx,ny,nz=physical dimension of the FFT box.
+!!  ldx,ldy,ldz=leading dimensions of the arrays.
+!!  ndat=number of wavefunctions.
+!!  cplex=  1 if vloc is real, 2 for complex
+!!  vloc(cplex*ldx,ldy,ldz)=Local potential on the FFT box.
+!!
+!! SIDE EFFECTS
+!!  ur(2,ldx,ldy,ldz*ndat)=
+!!    Input = wavefunctions in real space.
+!!    Output= vloc |ur>
+!!
+!! SOURCE
+
+subroutine cg_vlocpsi(nx,ny,nz,ldx,ldy,ldz,ndat,cplex,vloc,ur)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: nx,ny,nz,ldx,ldy,ldz,ndat,cplex
+!arrays
+ real(dp),intent(in) :: vloc(cplex*ldx,ldy,ldz)
+ real(dp),intent(inout) :: ur(2,ldx,ldy,ldz*ndat)
+
+!Local variables-------------------------------
+!scalars
+ integer :: idat,ix,iy,iz,padat
+ real(dp) :: fim,fre
+
+! *************************************************************************
+
+ if (cplex==1) then
+   !
+   if (ndat==1) then
+!$OMP PARALLEL DO
+     do iz=1,nz
+       do iy=1,ny
+         do ix=1,nx
+           ur(1,ix,iy,iz) = vloc(ix,iy,iz) * ur(1,ix,iy,iz)
+           ur(2,ix,iy,iz) = vloc(ix,iy,iz) * ur(2,ix,iy,iz)
+         end do
+       end do
+     end do
+     !
+   else
+     !
+!$OMP PARALLEL DO PRIVATE(padat)
+     do idat=1,ndat
+       padat = ldz*(idat-1)
+       do iz=1,nz
+         do iy=1,ny
+           do ix=1,nx
+             ur(1,ix,iy,iz+padat) = vloc(ix,iy,iz) * ur(1,ix,iy,iz+padat)
+             ur(2,ix,iy,iz+padat) = vloc(ix,iy,iz) * ur(2,ix,iy,iz+padat)
+           end do
+         end do
+       end do
+     end do
+     !
+   end if
+   !
+ else if (cplex==2)then
+   !
+   if (ndat==1) then
+!$OMP PARALLEL DO PRIVATE(fre,fim)
+     do iz=1,nz
+       do iy=1,ny
+         do ix=1,nx
+           fre = ur(1,ix,iy,iz)
+           fim = ur(2,ix,iy,iz)
+           ur(1,ix,iy,iz) = vloc(2*ix-1,iy,iz)*fre - vloc(2*ix,iy,iz)*fim
+           ur(2,ix,iy,iz) = vloc(2*ix-1,iy,iz)*fim + vloc(2*ix,iy,iz)*fre
+         end do
+       end do
+     end do
+   else
+!$OMP PARALLEL DO PRIVATE(padat,fre,fim)
+     do idat=1,ndat
+       padat = ldz*(idat-1)
+       do iz=1,nz
+         do iy=1,ny
+           do ix=1,nx
+             fre = ur(1,ix,iy,iz+padat)
+             fim = ur(2,ix,iy,iz+padat)
+             ur(1,ix,iy,iz+padat) = vloc(2*ix-1,iy,iz)*fre - vloc(2*ix,iy,iz)*fim
+             ur(2,ix,iy,iz+padat) = vloc(2*ix-1,iy,iz)*fim + vloc(2*ix,iy,iz)*fre
+           end do
+         end do
+       end do
+     end do
+   end if
+   !
+ else
+   ur = huge(one)
+   !ABI_BUG("Wrong cplex")
+ end if
+
+end subroutine cg_vlocpsi
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgnc_cholesky
+!! NAME
+!!  cgnc_cholesky
+!!
+!! FUNCTION
+!!  Cholesky orthonormalization of the vectors stored in cg (version optimized for NC wavefunctions).
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of band in cg
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband)
+!!    input: Input set of vectors.
+!!    output: Orthonormalized set.
+!!
+!! OUTPUT
+!!  [umat]=Cholesky upper triangle matrix.
+!!
+!! SOURCE
+
+subroutine cgnc_cholesky(npwsp, nband, cg, istwfk, me_g0, comm_pw, use_gemm, umat)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, nband, istwfk, comm_pw, me_g0
+ logical,optional,intent(in) :: use_gemm
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband)
+ real(dp),optional,allocatable,intent(out) :: umat(:,:,:)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ierr,b1,b2
+#ifdef DEBUG_MODE
+ integer :: ptr
+ character(len=500) :: msg
+#endif
+ !real(dp) :: max_absimag
+ logical :: my_usegemm
+!arrays
+ real(dp) :: rcg0(nband)
+ real(dp),allocatable :: r_ovlp(:,:), c_ovlp(:,:,:)
+
+! *************************************************************************
+
+#ifdef DEBUG_MODE
+ if (istwfk == 2 .and. me_g0 == 1) then
+   ierr = 0
+   do b1=1,nband
+     ptr = 2 + 2*(b1-1)*npwsp
+     if (abs(cg(ptr)) > zero) then
+       ierr = ierr + 1
+       write(msg,'(a,i0,es13.6)')" Input b1, Im u(g=0) should be zero ",b1,cg(ptr)
+       call wrtout(std_out, msg)
+       !cg(ptr) = zero
+     end if
+   end do
+   ABI_CHECK(ierr == 0, "Non zero imag part")
+ end if
+#endif
+
+ ! In matrix notation O = PSI^H PSI = U^H U  where PSI is a (ng,nb) matrix with the input wavefunctions
+ ! The new orthogonalized states PHI is given by: PHI = PSI U^{-1}
+
+ my_usegemm = .FALSE.; if (PRESENT(use_gemm)) my_usegemm = use_gemm
+
+ if (istwfk /= 1) then
+   ! Version optimized for real wavefunctions.
+   ABI_MALLOC(r_ovlp, (nband, nband))
+
+   !call cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, cg, max_absimag)
+
+   ! 1) Calculate O_ij = <phi_i|phi_j> (real symmetric matrix)
+   if (my_usegemm) then
+     call DGEMM("T", "N", nband, nband, 2*npwsp, one, cg, 2*npwsp, cg, 2*npwsp, zero, r_ovlp, nband)
+   else
+     call DSYRK("U", "T", nband, 2*npwsp, one, cg, 2*npwsp, zero, r_ovlp, nband)
+   end if
+
+   r_ovlp = two * r_ovlp
+   if (istwfk == 2 .and. me_g0 == 1) then
+     ! Extract the real part at G=0 and subtract its contribution to the overlap.
+     call dcopy(nband, cg, 2*npwsp, rcg0, 1)
+     do b2=1,nband
+       do b1=1,b2
+         r_ovlp(b1, b2) = r_ovlp(b1, b2) - rcg0(b1) * rcg0(b2)
+       end do
+     end do
+   end if
+
+   ! Sum the overlap if PW are distributed.
+   if (comm_pw /= xmpi_comm_self) call xmpi_sum(r_ovlp, comm_pw, ierr)
+
+   ! 2) Cholesky factorization: O = U^H U with U upper triangle matrix.
+   call DPOTRF('U', nband, r_ovlp, nband, ierr)
+   ABI_CHECK(ierr == 0, sjoin('DPOTRF returned info:', itoa(ierr)))
+
+   ! 3) Solve X U = cg. On exit cg is orthonormalized.
+   call DTRSM('R', 'U', 'N', 'N', 2*npwsp, nband, one, r_ovlp, nband, cg, 2*npwsp)
+
+   if (present(umat)) then
+     ABI_REMALLOC(umat, (1, nband, nband))
+     umat(1,:,:) = r_ovlp
+   end if
+
+   ABI_FREE(r_ovlp)
+
+ else
+   ! Version for complex wavefunctions.
+   ABI_MALLOC(c_ovlp, (2, nband, nband))
+
+   ! 1) Calculate O_ij = <phi_i|phi_j> (complex Hermitean)
+   if (my_usegemm) then
+     call abi_zgemm_2r("C", "N", nband, nband, npwsp, cone, cg, npwsp, cg, npwsp, czero, c_ovlp, nband)
+   else
+     call ZHERK("U", "C", nband, npwsp, cone, cg, npwsp, czero, c_ovlp, nband)
+   end if
+
+   ! Sum the overlap if PW are distributed.
+   if (comm_pw /= xmpi_comm_self) call xmpi_sum(c_ovlp, comm_pw, ierr)
+
+   ! 2) Cholesky factorization: O = U^H U with U upper triangle matrix.
+   call ZPOTRF('U', nband, c_ovlp, nband, ierr)
+   ABI_CHECK(ierr == 0, sjoin('ZPOTRF returned info:', itoa(ierr)))
+
+   ! 3) Solve X U = cg. On exit cg is orthonormalized.
+   call ZTRSM('R', 'U', 'N', 'N', npwsp, nband, cone, c_ovlp, nband, cg, npwsp)
+
+   if (present(umat)) then
+     ABI_REMALLOC(umat, (2, nband, nband))
+     umat = c_ovlp
+   end if
+
+   ABI_FREE(c_ovlp)
+ end if
+
+#ifdef DEBUG_MODE
+ if (istwfk == 2) then
+   ierr = 0
+   do b1=1,nband
+     ptr = 2 + 2*(b1-1)*npwsp
+     if (ABS(cg(ptr)) > zero) then
+       ierr = ierr + 1
+       write(msg,'(a,i0,es13.6)')" Output b1, Im u(g=0) should be zero ",b1,cg(ptr)
+     end if
+   end do
+   ABI_CHECK(ierr == 0, "Non zero imag part")
+ end if
+#endif
+
+end subroutine cgnc_cholesky
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgpaw_cholesky
+!! NAME
+!!  cgpaw_cholesky
+!!
+!! FUNCTION
+!!  Cholesky orthonormalization of the vectors stored in cg. (version for PAW wavefunctions).
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of band in cg and gsc
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband)
+!!    input: Input set of vectors |C>, S|C>
+!!    output: Orthonormalized set such as  <C|S|C> = 1
+!!  gsc(2*npwsp*nband): destroyed in output.
+!!
+!! OUTPUT
+!!  [umat]=Cholesky upper triangle matrix.
+!!
+!! SOURCE
+
+subroutine cgpaw_cholesky(npwsp, nband, cg, gsc, istwfk, me_g0, comm_pw, umat)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, nband, istwfk, me_g0, comm_pw
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband), gsc(2*npwsp*nband)
+ real(dp),optional,allocatable,intent(out) :: umat(:,:,:)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ierr, b1, b2
+ !real(dp) :: max_absimag
+ !character(len=500) :: msg
+!arrays
+ real(dp) :: rcg0(nband), rg0sc(nband)
+ real(dp),allocatable :: r_ovlp(:,:), c_ovlp(:,:,:)
+
+! *************************************************************************
+
+ if (istwfk /= 1) then
+   ! Version optimized for real wavefunctions.
+   ABI_MALLOC(r_ovlp, (nband, nband))
+
+   !call cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, cg, max_absimag)
+   !call cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, gsc, max_absimag)
+
+#ifdef HAVE_LINALG_GEMMT
+   ! Use zgemmt extension BLAS3 provided by e.g. MKL
+   r_ovlp = zero
+   call DGEMMT("U", "T", "N", nband, 2*npwsp, one, cg, 2*npwsp, gsc, 2*npwsp, zero, r_ovlp, nband)
+#else
+   call DGEMM("T", "N", nband, nband, 2*npwsp, one, cg, 2*npwsp, gsc, 2*npwsp, zero, r_ovlp, nband)
+#endif
+   r_ovlp = two * r_ovlp
+
+   if (istwfk == 2 .and. me_g0 == 1) then
+     ! Extract the real part at G=0 and subtract its contribution to the overlap.
+     call dcopy(nband, cg, 2*npwsp, rcg0, 1)
+     call dcopy(nband, gsc, 2*npwsp, rg0sc, 1)
+     do b2=1,nband
+       do b1=1,b2
+         r_ovlp(b1,b2) = r_ovlp(b1,b2) - rcg0(b1) * rg0sc(b2)
+       end do
+     end do
+   end if
+
+   ! Sum the overlap if PW are distributed.
+   if (comm_pw /= xmpi_comm_self) call xmpi_sum(r_ovlp, comm_pw, ierr)
+
+   ! 2) Cholesky factorization: O = U^H U with U upper triangle matrix.
+   call DPOTRF('U', nband, r_ovlp, nband, ierr)
+   ABI_CHECK(ierr == 0, sjoin('DPOTRF returned info:', itoa(ierr)))
+
+   ! 3) Solve X U = cg.
+   call DTRSM('R', 'U', 'N', 'N', 2*npwsp, nband, one, r_ovlp, nband, cg, 2*npwsp)
+
+   ! 4) Solve Y U = gsc. On exit <cg|gsc> = 1
+   call DTRSM('R', 'U', 'N', 'N', 2*npwsp, nband, one, r_ovlp, nband, gsc, 2*npwsp)
+
+   !call cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, cg, max_absimag)
+   !call cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, gsc, max_absimag)
+
+   if (present(umat)) then
+     ABI_REMALLOC(umat, (1, nband, nband))
+     umat(1,:,:) = r_ovlp
+   end if
+
+   ABI_FREE(r_ovlp)
+
+ else
+   ! 1) Calculate O_ij =  <phi_i|S|phi_j> (complex Hermitean)
+   ABI_MALLOC(c_ovlp, (2, nband, nband))
+
+#ifdef HAVE_LINALG_GEMMT
+   c_ovlp = zero
+   call ZGEMMT("U", "C", "N", nband, npwsp, cone, cg, npwsp, gsc, npwsp, czero, c_ovlp, nband)
+#else
+   call abi_zgemm_2r("C", "N", nband, nband, npwsp, cone, cg, npwsp, gsc, npwsp, czero, c_ovlp, nband)
+#endif
+
+   ! Sum the overlap if PW are distributed.
+   if (comm_pw /= xmpi_comm_self) call xmpi_sum(c_ovlp, comm_pw, ierr)
+   !
+   ! 2) Cholesky factorization: O = U^H U with U upper triangle matrix.
+   call ZPOTRF('U', nband, c_ovlp, nband, ierr)
+   ABI_CHECK(ierr == 0, sjoin('ZPOTRF returned info:', itoa(ierr)))
+
+   ! 3) Solve X U = cg.
+   call ZTRSM('R', 'U', 'N', 'N', npwsp, nband, cone, c_ovlp, nband, cg, npwsp)
+
+   ! 4) Solve Y U = gsc. On exit <cg|gsc> = 1
+   call ZTRSM('R', 'U', 'N', 'N', npwsp, nband, cone, c_ovlp, nband, gsc, npwsp)
+
+   if (present(umat)) then
+     ABI_REMALLOC(umat, (2, nband, nband))
+     umat = c_ovlp
+   end if
+
+   ABI_FREE(c_ovlp)
+ end if
+
+ !call cgpaw_normalize(npwsp, nband, cg, gsc, istwfk, me_g0, comm_pw)
+
+end subroutine cgpaw_cholesky
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgnc_normalize
+!! NAME
+!!  cgnc_normalize
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of vectors in icg1
+!!
+!! SIDE EFFECTS
+!!
+!! SOURCE
+
+subroutine cgnc_normalize(npwsp, nband, cg, istwfk, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp,nband,istwfk,me_g0,comm_pw
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ptr,ierr,band
+ !character(len=500) :: msg
+!arrays
+ real(dp) :: norm(nband),alpha(2)
+
+! *************************************************************************
+
+!$OMP PARALLEL DO PRIVATE(ptr) IF (nband > 1)
+ do band=1,nband
+   ptr = 1 + 2*npwsp*(band-1)
+   norm(band) = cg_dznrm2(npwsp, cg(ptr))
+   norm(band) = norm(band) ** 2
+   !norm(band) = cg_real_zdotc(npwsp, cg(ptr), cg(ptr))
+ end do
+
+ if (istwfk > 1) then
+   norm = two * norm
+   if (istwfk == 2 .and. me_g0 == 1) then
+!$OMP PARALLEL DO PRIVATE(ptr) IF (nband >1)
+     do band=1,nband
+       ptr = 1 + 2*npwsp*(band-1)
+       norm(band) = norm(band) - cg(ptr)**2
+     end do
+   end if
+ end if
+
+ if (comm_pw /= xmpi_comm_self) call xmpi_sum(norm, comm_pw, ierr)
+
+ ierr = 0
+ do band=1,nband
+   if (norm(band) > zero) then
+     norm(band) = SQRT(norm(band))
+   else
+     ierr = ierr + 1
+   end if
+ end do
+
+ if (ierr /= 0) then
+   ABI_ERROR(sjoin("Found ", itoa(ierr)," vectors with norm <= zero!"))
+ end if
+
+!$OMP PARALLEL DO PRIVATE(ptr,alpha) IF (nband > 1)
+ do band=1,nband
+   ptr = 1 + 2*npwsp*(band-1)
+   alpha = [one / norm(band), zero]
+   call cg_zscal(npwsp, alpha, cg(ptr))
+ end do
+
+end subroutine cgnc_normalize
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgnc_gsortho
+!! NAME
+!!  cgnc_gsortho
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband1=Number of vectors in icg1
+!!  nband1=Number of vectors in cg2
+!!  comm_pw=MPI communicator.
+!!
+!! SIDE EFFECTS
+!!  cg2(2*npwsp*nband2)
+!!  icg1(2*npwsp*nband1)
+!!    input: Input set of vectors.
+!!    output: Orthonormalized set.
+!!
+!! SOURCE
+
+subroutine cgnc_gsortho(npwsp, nband1, icg1, nband2, iocg2, istwfk, normalize, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp,nband1,nband2,istwfk,me_g0
+ integer,optional,intent(in) :: comm_pw
+ logical,intent(in) :: normalize
+!arrays
+ real(dp),intent(in) :: icg1(2*npwsp*nband1)
+ real(dp),intent(inout) :: iocg2(2*npwsp*nband2)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ierr,b1,b2
+!arrays
+ real(dp) :: r_icg1(nband1),r_iocg2(nband2)
+ real(dp),allocatable :: proj(:,:,:)
+
+! *************************************************************************
+
+ ABI_MALLOC(proj, (2, nband1, nband2))
+ !proj = zero
+
+ ! 1) Calculate <cg1|cg2>
+ call cg_zgemm("C", "N", npwsp, nband1, nband2, icg1, iocg2, proj)
+
+ if (istwfk>1) then
+   ! nspinor is always 1 in this case.
+   ! Account for the missing G and set the imaginary part to zero since wavefunctions are real.
+   proj(1,:,:) = two * proj(1,:,:)
+   proj(2,:,:) = zero
+   !
+   if (istwfk==2 .and. me_g0==1) then
+     ! Extract the real part at G=0 and subtract its contribution.
+     call dcopy(nband1,icg1, 2*npwsp,r_icg1, 1)
+     call dcopy(nband2,iocg2,2*npwsp,r_iocg2,1)
+     do b2=1,nband2
+       do b1=1,nband1
+         proj(1,b1,b2) = proj(1,b1,b2) - r_icg1(b1) * r_iocg2(b2)
+       end do
+     end do
+   end if
+   !
+ end if
+ !
+ ! This is for the MPI version
+ if (comm_pw /= xmpi_comm_self) call xmpi_sum(proj,comm_pw,ierr)
+
+ ! 2) cg2 = cg2 - <cg1|cg2> cg1
+ call cg_zgemm("N","N",npwsp,nband1,nband2,icg1,proj,iocg2,alpha=-cg_cone,beta=cg_cone)
+
+ ABI_FREE(proj)
+
+ ! 3) Normalize iocg2 if required.
+ if (normalize) call cgnc_normalize(npwsp,nband2,iocg2,istwfk,me_g0,comm_pw)
+
+end subroutine cgnc_gsortho
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgnc_gramschmidt
+!! NAME
+!!  cgnc_grortho
+!!
+!! FUNCTION
+!!  Gram-Schmidt orthonormalization of the vectors stored in cg
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of band in cg
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband)
+!!    input: Input set of vectors.
+!!    output: Orthonormalized set.
+!!
+!! SOURCE
+
+subroutine cgnc_gramschmidt(npwsp, nband, cg, istwfk, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, nband, istwfk, comm_pw, me_g0
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband)
+
+!Local variables ------------------------------
+!scalars
+ integer :: b1,nb2,opt
+ logical :: normalize
+
+! *************************************************************************
+
+ ! Normalize the first vector.
+ call cgnc_normalize(npwsp,1,cg(1),istwfk,me_g0,comm_pw)
+ if (nband == 1) RETURN
+
+ ! Orthogonaluze b1 wrt to the bands in [1,b1-1].
+ normalize = .TRUE.
+ do b1=2,nband
+   opt = 1 + 2*npwsp*(b1-1)
+   nb2=b1-1
+   call cgnc_gsortho(npwsp,nb2,cg(1),1,cg(opt),istwfk,normalize,me_g0,comm_pw)
+ end do
+
+end subroutine cgnc_gramschmidt
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgpaw_normalize
+!! NAME
+!!  cgpaw_normalize
+!!
+!! FUNCTION
+!!  Normalize a set of PAW pseudo wavefunctions.
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of band in cg and gsc
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband)
+!!    input: Input set of vectors |C>
+!!    output: Normalized set such as  <C|S|C> = 1
+!!  gsc(2*npwsp*nband)
+!!    input: Input set of vectors S|C>
+!!    output: New S|C> compute with the new |C>
+!!
+!! SOURCE
+
+subroutine cgpaw_normalize(npwsp, nband, cg, gsc, istwfk, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, nband, istwfk, me_g0, comm_pw
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband), gsc(2*npwsp*nband)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ptr,ierr,band
+ character(len=500) :: msg
+!arrays
+ real(dp) :: norm(nband),alpha(2)
+
+! *************************************************************************
+
+!$OMP PARALLEL DO PRIVATE(ptr) IF (nband > 1)
+ do band=1,nband
+   ptr = 1 + 2*npwsp*(band-1)
+   norm(band) = cg_real_zdotc(npwsp, gsc(ptr), cg(ptr))
+ end do
+
+ if (istwfk>1) then
+   norm = two * norm
+   if (istwfk==2 .and. me_g0==1) then
+!$OMP PARALLEL DO PRIVATE(ptr) IF (nband > 1)
+     do band=1,nband
+       ptr = 1 + 2*npwsp*(band-1)
+       norm(band) = norm(band) - gsc(ptr) * cg(ptr)
+     end do
+   end if
+ end if
+
+ if (comm_pw /= xmpi_comm_self) call xmpi_sum(norm, comm_pw, ierr)
+
+ ierr = 0
+ do band=1,nband
+   if (norm(band) > zero) then
+     norm(band) = SQRT(norm(band))
+   else
+     ierr = ierr + 1
+   end if
+ end do
+
+ if (ierr/=0) then
+   write(msg,'(a,i0,a)')" Found ",ierr," vectors with norm <= zero!"
+   ABI_ERROR(msg)
+ end if
+
+ ! Scale |C> and S|C>.
+!$OMP PARALLEL DO PRIVATE(ptr,alpha) IF (nband > 1)
+ do band=1,nband
+   ptr = 1 + 2*npwsp*(band-1)
+   alpha = [one / norm(band), zero]
+   call cg_zscal(npwsp, alpha, cg(ptr))
+   call cg_zscal(npwsp, alpha, gsc(ptr))
+ end do
+
+end subroutine cgpaw_normalize
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgpaw_gsortho
+!! NAME
+!!  cgpaw_gsortho
+!!
+!! FUNCTION
+!!  This routine uses the Gram-Schmidt method to orthogonalize a set of PAW wavefunctions.
+!!  with respect to an input block of states.
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband1=Number of vectors in the input block icg1
+!!  icg1(2*npwsp*nband1)=Input block of vectors.
+!!  igsc1(2*npwsp*nband1)= S|C> for C in icg1.
+!!  nband2=Number of vectors to orthogonalize
+!!  normalize=True if output wavefunction must be normalized.
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  iocg2(2*npwsp*nband2), iogsc2(2*npwsp*nband1)
+!!    input: set of |C> and S|C> wher |C> is the set of states to orthogonalize
+!!    output: Orthonormalized set.
+!!
+!! SOURCE
+
+subroutine cgpaw_gsortho(npwsp, nband1, icg1, igsc1, nband2, iocg2, iogsc2, istwfk, normalize, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, nband1, nband2, istwfk, me_g0
+ integer,optional,intent(in) :: comm_pw
+ logical,intent(in) :: normalize
+!arrays
+ real(dp),intent(in) :: icg1(2*npwsp*nband1),igsc1(2*npwsp*nband1)
+ real(dp),intent(inout) :: iocg2(2*npwsp*nband2),iogsc2(2*npwsp*nband2)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ierr,b1,b2
+!arrays
+ real(dp) :: r_icg1(nband1),r_iocg2(nband2)
+ real(dp),allocatable :: proj(:,:,:)
+
+! *************************************************************************
+
+ ABI_MALLOC(proj,(2,nband1,nband2))
+
+ ! 1) Calculate <cg1|cg2>
+ call cg_zgemm("C","N",npwsp,nband1,nband2,igsc1,iocg2,proj)
+
+ if (istwfk>1) then
+   ! nspinor is always 1 in this case.
+   ! Account for the missing G and set the imaginary part to zero since wavefunctions are real.
+   proj(1,:,:) = two * proj(1,:,:)
+   proj(2,:,:) = zero
+   !
+   if (istwfk==2 .and. me_g0==1) then
+     ! Extract the real part at G=0 and subtract its contribution.
+     call dcopy(nband1,igsc1,2*npwsp,r_icg1, 1)
+     call dcopy(nband2,iocg2,2*npwsp,r_iocg2,1)
+     do b2=1,nband2
+       do b1=1,nband1
+         proj(1,b1,b2) = proj(1,b1,b2) - r_icg1(b1) * r_iocg2(b2)
+       end do
+     end do
+   end if
+
+ end if
+
+ ! This is for the MPI version
+ if (comm_pw /= xmpi_comm_self) call xmpi_sum(proj,comm_pw,ierr)
+
+ ! 2)
+ !   cg2 = cg2 - <Scg1|cg2> cg1
+ ! S cg2 = S cg2 - <Scg1|cg2> S cg1
+ call cg_zgemm("N","N",npwsp,nband1,nband2,icg1,proj,iocg2,alpha=-cg_cone,beta=cg_cone)
+ call cg_zgemm("N","N",npwsp,nband1,nband2,igsc1,proj,iogsc2,alpha=-cg_cone,beta=cg_cone)
+
+ ABI_FREE(proj)
+
+ ! 3) Normalize iocg2 and iogsc2 if required.
+ if (normalize) call cgpaw_normalize(npwsp, nband2, iocg2, iogsc2, istwfk, me_g0, comm_pw)
+
+end subroutine cgpaw_gsortho
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cgpaw_gramschmidt
+!! NAME
+!!  cgpaw_gramschmidt
+!!
+!! FUNCTION
+!!  Gram-Schmidt orthonormalization of the vectors stored in cg
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  nband=Number of bands in cg
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!  comm_pw=MPI communicator for the planewave group. Set to xmpi_comm_self for sequential mode.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband), gsc(2*npwsp*nband)
+!!    input: Input set of vectors.
+!!    output: Orthonormalized set.
+!!
+!! SOURCE
+
+subroutine cgpaw_gramschmidt(npwsp, nband, cg, gsc, istwfk, me_g0, comm_pw)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp,nband,istwfk,comm_pw,me_g0
+!arrays
+ real(dp),intent(inout) :: cg(2*npwsp*nband),gsc(2*npwsp*nband)
+
+!Local variables ------------------------------
+!scalars
+ integer :: b1,nb2,opt
+ logical :: normalize
+
+! *************************************************************************
+
+ ! Normalize the first vector.
+ call cgpaw_normalize(npwsp,1,cg(1),gsc(1),istwfk,me_g0,comm_pw)
+ if (nband == 1) RETURN
+
+ ! Orthogonalize b1 wrt to the bands in [1,b1-1].
+ normalize = .TRUE.
+ do b1=2,nband
+   opt = 1 + 2*npwsp*(b1-1)
+   nb2=b1-1
+   call cgpaw_gsortho(npwsp,nb2,cg(1),gsc(1),1,cg(opt),gsc(opt),istwfk,normalize,me_g0,comm_pw)
+ end do
+
+end subroutine cgpaw_gramschmidt
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/projbd
+!!
+!! NAME
+!! projbd
+!!
+!! FUNCTION
+!! Project out vector "direc" onto the bands contained in "cg".
+!! if useoverlap==0
+!!  New direc=direc-$sum_{j/=i} { <cg_{j}|direc>.|cg_{j}> }$
+!! if useoverlap==1 (use of overlap matrix S)
+!!  New direc=direc-$sum_{j/=i} { <cg_{j}|S|direc>.|cg_{j}> }$
+!! (index i can be set to -1 to sum over all bands)
+!!
+!! INPUTS
+!!  cg(2,mcg)=wavefunction coefficients for ALL bands
+!!  iband0=which particular band we are interested in ("i" in the above formula)
+!!         Can be set to -1 to sum over all bands...
+!!  icg=shift to be given to the location of the data in cg
+!!  iscg=shift to be given to the location of the data in scg
+!!  istwf_k=option parameter that describes the storage of wfs
+!!  mcg=maximum size of second dimension of cg
+!!  mscg=maximum size of second dimension of scg
+!!  nband=number of bands
+!!  npw=number of planewaves
+!!  nspinor=number of spinorial components (on current proc)
+!!  scg(2,mscg*useoverlap)=<G|S|band> for ALL bands,
+!!                        where S is an overlap matrix
+!!  scprod_io=0 if scprod array has to be computed; 1 if it is input (already in memory)
+!!  tim_projbd=timing code of the calling subroutine(can be set to 0 if not attributed)
+!!  useoverlap=describe the overlap of wavefunctions:
+!!               0: no overlap (S=Identity_matrix)
+!!               1: wavefunctions are overlapping
+!! me_g0=1 if this processors treats G=0, 0 otherwise.
+!! comm=MPI communicator (used if G vectors are distributed.
+!!
+!! SIDE EFFECTS
+!!  direc(2,npw)= input: vector to be orthogonalised with respect to cg (and S)
+!!                output: vector that has been orthogonalized wrt cg (and S)
+!!
+!!  scprod(2,nband)=scalar_product
+!!        if useoverlap==0: scalar_product_i=$<cg_{j}|direc_{i}>$
+!!        if useoverlap==1: scalar_product_i=$<cg_{j}|S|direc_{i}>$
+!!    if scprod_io=0, scprod is output
+!!    if scprod_io=1, scprod is input
+!!
+!! NOTES
+!!  1) MPIWF Might have to be recoded for efficient paralellism
+!!
+!!  2) The new version employs BLAS2 routine so that the OMP parallelism is delegated to BLAS library.
+!!     May use BLAS3 if multiple wavefunctions are optimized at the same time.
+!!
+!!  3) Note for PAW: ref.= PRB 73, 235101 (2006) [[cite:Audouze2006]], equations (71) and (72):
+!!     in normal use, projbd applies P_c projector
+!!     if cg and scg are inverted, projbd applies P_c+ projector
+!!
+!!  4) cg_zgemv wraps ZGEMM whose implementation is more efficient, especially in the threaded case.
+!!
+!! SOURCE
+
+subroutine projbd(cg,direc,iband0,icg,iscg,istwf_k,mcg,mscg,nband,&
+                  npw,nspinor,scg,scprod,scprod_io,tim_projbd,useoverlap,me_g0,comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: iband0,icg,iscg,istwf_k,mcg,mscg,nband,npw,nspinor
+ integer,intent(in) :: scprod_io,tim_projbd,useoverlap,me_g0,comm
+!arrays
+ real(dp),intent(in) :: cg(2,mcg),scg(2,mscg*useoverlap)
+ real(dp),intent(inout) :: direc(2,npw*nspinor)
+ real(dp),intent(inout) :: scprod(2,nband)
+
+!Local variables-------------------------------
+!scalars
+ integer :: nbandm,npw_sp,ierr
+!arrays
+ real(dp) :: tsec(2),bkp_scprod(2),bkp_dirg0(2)
+
+! *************************************************************************
+
+ call timab(210+tim_projbd,1,tsec)
+
+ npw_sp=npw*nspinor
+
+ nbandm=nband
+
+ if (istwf_k==1) then
+
+   if (scprod_io==0) then
+     if (useoverlap==1) then
+       call cg_zgemv("C",npw_sp,nbandm,scg(1,iscg+1),direc,scprod)
+     else
+       call cg_zgemv("C",npw_sp,nbandm,cg(1,icg+1),  direc,scprod)
+     end if
+     call xmpi_sum(scprod,comm,ierr)
+   end if
+
+   if (iband0>0.and.iband0<=nbandm) then
+     bkp_scprod = scprod(:,iband0)
+     scprod(:,iband0) = zero
+   end if
+
+   call cg_zgemv("N",npw_sp,nbandm,cg(1,icg+1),scprod,direc,alpha=-cg_cone,beta=cg_cone)
+
+   if (iband0>0.and.iband0<=nbandm) scprod(:,iband0) = bkp_scprod ! Restore previous value as scprod is output.
+
+ else if (istwf_k>=2) then
+   !
+   !  u_{G0/2}(G) = u_{G0/2}(-G-G0)^*; k = G0/2
+   !  hence:
+   !  sum_G f*(G) g(G) = 2 REAL sum_G^{IZONE} w(G) f*(G)g(G)
+   !  where
+   !  w(G) = 1 except for k=0 and G=0 where w(G=0) = 1/2.
+   !
+   if (scprod_io==0) then
+
+     if (useoverlap==1) then
+
+       if (istwf_k==2 .and. me_g0==1) then
+         bkp_dirg0 = direc(:,1)
+         direc(1,1) = half * direc(1,1)
+         direc(2,1) = zero
+       end if
+
+       call cg_zgemv("C",npw_sp,nbandm,scg(1,iscg+1),direc,scprod)
+       scprod = two * scprod
+       scprod(2,:) = zero
+
+       if(istwf_k==2 .and. me_g0==1) direc(:,1) = bkp_dirg0
+
+     else
+
+       if (istwf_k==2 .and. me_g0==1) then
+         bkp_dirg0 = direc(:,1)
+         direc(1,1) = half * direc(1,1)
+         direc(2,1) = zero
+       end if
+
+       call cg_zgemv("C",npw_sp,nbandm,cg(1,icg+1),direc,scprod)
+       scprod = two * scprod
+       scprod(2,:) = zero
+
+       if (istwf_k==2 .and. me_g0==1) direc(:,1) = bkp_dirg0
+     end if ! useoverlap
+
+     call xmpi_sum(scprod,comm,ierr)
+   end if
+
+   if (iband0>0.and.iband0<=nbandm) then
+     bkp_scprod = scprod(:,iband0)
+     scprod(:,iband0) = zero
+   end if
+
+   call cg_zgemv("N",npw_sp,nbandm,cg(1,icg+1),scprod,direc,alpha=-cg_cone,beta=cg_cone)
+
+   if (iband0>0.and.iband0<=nbandm) scprod(:,iband0) = bkp_scprod ! Restore previous value as scprod is output.
+
+ end if ! Test on istwf_k
+
+ call timab(210+tim_projbd,2,tsec)
+
+end subroutine projbd
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_envlop
+!!
+!! NAME
+!! cg_envlop
+!!
+!! FUNCTION
+!! Multiply random number values in cg by envelope function to lower initial kinetic energy.
+!! Envelope  $\left( 1-\left( G/G_{\max }\right) ^2\right) ^{power}$ for |G|<= Gmax.
+!! Near G=0, little scaling, and goes to zero flatly near Gmax.
+!!
+!! INPUTS
+!! cg(2,mcg)=initial random number wavefunctions
+!! ecut=kinetic energy cutoff in Ha
+!! gmet(3,3)=reciprocal space metric (bohr^-2)
+!! icgmod=shift to be given to the location of data in cg
+!! kg(3,npw)=reduced coordinates of G vectors in basis sphere
+!! kpoint(3)=reduced coordinates of k point
+!! mcg=maximum second dimension of cg (at least npw*nband*nspinor)
+!! nband=number of bands being considered
+!! npw=number of planewaves in basis sphere
+!! nspinor=number of spinorial components of the wavefunctions
+!!
+!! OUTPUT
+!!  cg(2,mcg)=revised values (not orthonormalized)
+!!
+!! SOURCE
+
+
+subroutine cg_envlop(cg, ecut, gmet, icgmod, kg, kpoint, mcg, nband, npw, nspinor)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: icgmod,mcg,nband,npw,nspinor
+ real(dp),intent(in) :: ecut
+!arrays
+ integer,intent(in) :: kg(3,npw)
+ real(dp),intent(in) :: gmet(3,3),kpoint(3)
+ real(dp),intent(inout) :: cg(2,mcg)
+
+!Local variables-------------------------------
+!scalars
+ integer,parameter :: re=1,im=2,power=12
+ integer :: i1,i2,i3,ig,igs,ispinor,nn,spad
+ real(dp) :: cutoff,gs,kpgsqc
+ !character(len=500) :: msg
+!arrays
+ real(dp),allocatable :: cut_pws(:)
+
+! *************************************************************************
+
+!$(k+G)^2$ cutoff from $(1/2)(2 Pi (k+G))^2 = ecut$
+ kpgsqc=ecut/(2.0_dp*pi**2)
+ cutoff = kpgsqc
+
+ ABI_MALLOC(cut_pws,(npw))
+
+!Run through G vectors in basis
+!$OMP PARALLEL DO PRIVATE(gs)
+ do ig=1,npw
+   i1=kg(1,ig) ; i2=kg(2,ig) ; i3=kg(3,ig)
+!(k+G)^2 evaluated using metric and kpoint
+   gs = gmet(1,1)*(kpoint(1)+dble(i1))**2+&
+&    gmet(2,2)*(kpoint(2)+dble(i2))**2+&
+&    gmet(3,3)*(kpoint(3)+dble(i3))**2+&
+&    2.0_dp*(gmet(2,1)*(kpoint(2)+dble(i2))*(kpoint(1)+dble(i1))+&
+&    gmet(3,2)*(kpoint(3)+dble(i3))*(kpoint(2)+dble(i2))+&
+&    gmet(1,3)*(kpoint(1)+dble(i1))*(kpoint(3)+dble(i3)))
+   if (gs>cutoff) then
+     cut_pws(ig) = zero
+   else
+     cut_pws(ig) = (1.0_dp-(gs/cutoff))**power
+   end if
+ end do
+
+!Run through bands (real and imaginary components)
+!$OMP PARALLEL DO PRIVATE(spad,igs)
+ do nn=1,nband
+   spad = (nn-1)*npw*nspinor+icgmod
+   do ispinor=1,nspinor
+     do ig=1,npw
+       igs=ig+(ispinor-1)*npw
+       cg(1,igs+spad) = cg(1,igs+spad) * cut_pws(ig)
+       cg(2,igs+spad) = cg(2,igs+spad) * cut_pws(ig)
+     end do
+   end do
+ end do
+
+ ABI_FREE(cut_pws)
+
+end subroutine cg_envlop
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_normev
+!! NAME
+!! cg_normev
+!!
+!! FUNCTION
+!! Normalize a set of nband eigenvectors of complex length npw
+!! (real length 2*npw) and set phases to make cg(i,i) real and positive.
+!! Near convergence, cg(i,j) approaches delta(i,j).
+!!
+!! INPUTS
+!!  cg(2*npw,nband)=unnormalized eigenvectors
+!!  npw=dimension of cg as shown
+!!  nband=number of eigenvectors and complex length thereof.
+!!
+!! OUTPUT
+!!  cg(2*npw,nband)=nband normalized eigenvectors
+!!
+!! SOURCE
+
+subroutine cg_normev(cg, npw, nband)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npw,nband
+!arrays
+ real(dp),intent(inout) :: cg(2*npw,nband)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ii,jj
+ real(dp) :: den,evim,evre,phim,phre,xnorm
+ character(len=500) :: msg
+
+! *************************************************************************
+
+!Loop over vectors
+ do ii=1,nband
+   ! find norm
+   xnorm=0.0d0
+   do jj=1,2*npw
+     xnorm=xnorm+cg(jj,ii)**2
+   end do
+
+   if((xnorm-one)**2>tol6)then
+     write(msg,'(6a,i6,a,es16.6,3a)' )ch10,&
+     'normev: ',ch10,&
+     'Starting xnorm should be close to one (tol is tol6).',ch10,&
+     'However, for state number',ii,', xnorm=',xnorm,ch10,&
+     'It might be that your LAPACK library has not been correctly installed.'
+     ABI_BUG(msg)
+   end if
+
+   xnorm=1.0d0/sqrt(xnorm)
+!  Set up phase
+   phre=cg(2*ii-1,ii)
+   phim=cg(2*ii,ii)
+   if (phim/=0.0d0) then
+     den=1.0d0/sqrt(phre**2+phim**2)
+     phre=phre*xnorm*den
+     phim=phim*xnorm*den
+   else
+!    give xnorm the same sign as phre (negate if negative)
+     phre=sign(xnorm,phre)
+     phim=0.0d0
+   end if
+!  normalize with phase change
+   do jj=1,2*npw,2
+     evre=cg(jj,ii)
+     evim=cg(jj+1,ii)
+     cg(jj,ii)=phre*evre+phim*evim
+     cg(jj+1,ii)=phre*evim-phim*evre
+   end do
+ end do
+
+end subroutine cg_normev
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_precon
+!!
+!! NAME
+!! cg_precon
+!!
+!! FUNCTION
+!! precondition <G|(H-e)|C>
+!!
+!! INPUTS
+!!  cg(2,npw)=<G|C>.
+!!  eval=current band eigenvalue = <C|H|C>.
+!!  istwf_k=option parameter that describes the storage of wfs
+!!  kinpw(npw)=(modified) kinetic energy for each plane wave (Hartree)
+!!  nspinor=number of spinorial components of the wavefunctions
+!!  vect(2,npw)=<G|H|C>.
+!!  npw=number of planewaves at this k point.
+!!  optekin= 1 if the kinetic energy used in preconditionning is modified
+!!             according to Kresse, Furthmuller, PRB 54, 11169 (1996) [[cite:Kresse1996]]
+!!           0 otherwise
+!!  mg_g0=1 if the node treats G=0.
+!!  comm=MPI communicator
+!!
+!! OUTPUT
+!!  pcon(npw)=preconditioning matrix
+!!  vect(2,npw*nspinor)=<G|(H-eval)|C_{n,k}>*(polynomial ratio)
+!!
+!! SOURCE
+
+subroutine cg_precon(cg, eval, istwf_k, kinpw, npw, nspinor, me_g0, optekin, pcon, vect, comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k,npw,nspinor,optekin,me_g0,comm
+ real(dp),intent(in) :: eval
+!arrays
+ real(dp),intent(in) :: cg(2,npw*nspinor),kinpw(npw)
+ real(dp),intent(inout) :: vect(2,npw*nspinor)
+ real(dp),intent(out) :: pcon(npw)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr,ig,igs,ipw1,ispinor
+ real(dp) :: ek0,ek0_inv,fac,poly,xx
+ character(len=500) :: msg
+!arrays
+ real(dp) :: tsec(2)
+
+! *************************************************************************
+
+!Compute mean kinetic energy of band
+ if(istwf_k==1)then
+   ek0=zero
+   do ispinor=1,nspinor
+     igs=(ispinor-1)*npw
+     do ig=1+igs,npw+igs
+       if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+         ek0=ek0+kinpw(ig-igs)*(cg(1,ig)**2+cg(2,ig)**2)
+       end if
+     end do
+   end do
+
+ else if (istwf_k>=2)then
+   if (istwf_k==2 .and. me_g0 == 1)then
+     ek0=zero ; ipw1=2
+     if(kinpw(1)<huge(0.0_dp)*1.d-11)ek0=0.5_dp*kinpw(1)*cg(1,1)**2
+   else
+     ek0=zero ; ipw1=1
+   end if
+   do ispinor=1,nspinor
+     igs=(ispinor-1)*npw
+     do ig=ipw1+igs,npw+igs
+       if(kinpw(ig)<huge(0.0_dp)*1.d-11)then
+         ek0=ek0+kinpw(ig)*(cg(1,ig)**2+cg(2,ig)**2)
+       end if
+     end do
+   end do
+   ek0=2.0_dp*ek0
+ end if
+
+ call timab(48,1,tsec)
+ call xmpi_sum(ek0,comm,ierr)
+ call timab(48,2,tsec)
+
+ if(ek0<1.0d-10)then
+   write(msg,'(3a)')'The mean kinetic energy of a wavefunction vanishes.',ch10,'It is reset to 0.1 Ha.'
+   ABI_WARNING(msg)
+   ek0=0.1_dp
+ end if
+
+ if (optekin==1) then
+   ek0_inv=2.0_dp/(3._dp*ek0)
+ else
+   ek0_inv=1.0_dp/ek0
+ end if
+
+!Carry out preconditioning
+ do ispinor=1,nspinor
+   igs=(ispinor-1)*npw
+!$OMP PARALLEL DO PRIVATE(fac,ig,poly,xx) SHARED(cg,ek0_inv,eval,kinpw,igs,npw,vect,pcon)
+   do ig=1+igs,npw+igs
+     if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+       xx=kinpw(ig-igs)*ek0_inv
+!      Teter polynomial ratio
+       poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+       fac=poly/(poly+16._dp*xx**4)
+       if (optekin==1) fac=two*fac
+       pcon(ig-igs)=fac
+       vect(1,ig)=( vect(1,ig)-eval*cg(1,ig) )*fac
+       vect(2,ig)=( vect(2,ig)-eval*cg(2,ig) )*fac
+     else
+       pcon(ig-igs)=zero
+       vect(1,ig)=zero
+       vect(2,ig)=zero
+     end if
+   end do
+ end do
+
+end subroutine cg_precon
+!!***
+
+!!****f* m_cgtools/cg_precon_block
+!!
+!! NAME
+!! cg_precon_block
+!!
+!! FUNCTION
+!! precondition $<G|(H-e_{n,k})|C_{n,k}>$ for a block of band (band-FFT parallelisation)
+!! in the case of real WFs (istwfk/=1)
+!!
+!! INPUTS
+!!  blocksize= size of blocks of bands
+!!  cg(vectsize,blocksize)=<G|C_{n,k}> for a block of bands.
+!!  eval(blocksize,blocksize)=current block of bands eigenvalues=<C_{n,k}|H|C_{n,k}>.
+!!  ghc(vectsize,blocksize)=<G|H|C_{n,k}> for a block of bands.
+!!  iterationnumber=number of iterative minimizations in LOBPCG
+!!  kinpw(npw)=(modified) kinetic energy for each plane wave (Hartree)
+!!  nspinor=number of spinorial components of the wavefunctions (on current proc)
+!!  $vect(vectsize,blocksize)=<G|H|C_{n,k}> for a block of bands$.
+!!  npw=number of planewaves at this k point.
+!!  optekin= 1 if the kinetic energy used in preconditionning is modified
+!!             according to Kresse, Furthmuller, PRB 54, 11169 (1996) [[cite:Kresse1996]]
+!!           0 otherwise
+!!  optpcon= 0 the TPA preconditionning matrix does not depend on band
+!!           1 the TPA preconditionning matrix (not modified)
+!!           2 the TPA preconditionning matrix is independant of iteration number
+!!  vectsize= size of vectors
+!!  mg_g0=1 if this node has Gamma, 0 otherwise.
+!!
+!! OUTPUT
+!!  vect(2,npw)=<g|(h-eval)|c_{n,k}>*(polynomial ratio)
+!!
+!! SIDE EFFECTS
+!!  pcon(npw,blocksize)=preconditionning matrix
+!!            input  if optpcon=0,2 and iterationnumber/=1
+!!            output if optpcon=0,2 and iterationnumber==1
+!!
+!! SOURCE
+
+subroutine cg_precon_block(cg,eval,blocksize,iterationnumber,kinpw,&
+& npw,nspinor,me_g0,optekin,optpcon,pcon,ghc,vect,vectsize,comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: blocksize,iterationnumber,npw,nspinor,optekin
+ integer,intent(in) :: optpcon,vectsize,me_g0,comm
+!arrays
+ real(dp),intent(in) :: cg(vectsize,blocksize),eval(blocksize,blocksize)
+ real(dp),intent(in) :: ghc(vectsize,blocksize),kinpw(npw)
+ real(dp),intent(inout) :: pcon(npw,blocksize),vect(vectsize,blocksize)
+
+!Local variables-------------------------------
+!scalars
+ integer :: iblocksize,ierr,ig,igs,ipw1,ispinor
+ real(dp) :: fac,poly,xx
+ character(len=500) :: msg
+!arrays
+ real(dp) :: tsec(2)
+ real(dp),allocatable :: ek0(:),ek0_inv(:)
+
+! *************************************************************************
+
+ call timab(536,1,tsec)
+
+!In this case, the Teter, Allan and Payne preconditioner is approximated:
+!the factor xx=Ekin(G) and no more Ekin(G)/Ekin(iband)
+ if (optpcon==0) then
+   do ispinor=1,nspinor
+     igs=(ispinor-1)*npw
+     if (me_g0 == 1) then
+       do ig=1+igs,1+igs !g=0
+         if (iterationnumber==1) then
+           if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+             xx=kinpw(ig-igs)
+!            teter polynomial ratio
+             poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+             fac=poly/(poly+16._dp*xx**4)
+             if (optekin==1) fac=two*fac
+             pcon(ig-igs,1)=fac
+             do iblocksize=1,blocksize
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+             end do
+           else
+             pcon(ig-igs,1)=zero
+             vect(ig,:)=0.0_dp
+           end if
+         else
+           do iblocksize=1,blocksize
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+           end do
+         end if
+       end do
+       do ig=2+igs,npw+igs
+         if (iterationnumber==1) then
+           if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+             xx=kinpw(ig-igs)
+!            teter polynomial ratio
+             poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+             fac=poly/(poly+16._dp*xx**4)
+             if (optekin==1) fac=two*fac
+             pcon(ig-igs,1)=fac
+             do iblocksize=1,blocksize
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+               vect(ig+npw-1,iblocksize)=(ghc(ig+npw-1,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig+npw-1,iblocksize))*pcon(ig-igs,1)
+             end do
+           else
+             pcon(ig-igs,1)=zero
+             vect(ig,:)=zero
+             vect(ig+npw-1,:)=zero
+           end if
+         else
+           do iblocksize=1,blocksize
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+             vect(ig+npw-1,iblocksize)=(ghc(ig+npw-1,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig+npw-1,iblocksize))*pcon(ig-igs,1)
+           end do
+         end if
+       end do
+     else
+       do ig=1+igs,npw+igs
+         if (iterationnumber==1) then
+           if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+             xx=kinpw(ig-igs)
+!            teter polynomial ratio
+             poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+             fac=poly/(poly+16._dp*xx**4)
+             if (optekin==1) fac=two*fac
+             pcon(ig-igs,1)=fac
+             do iblocksize=1,blocksize
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+               vect(ig+npw,iblocksize)=(ghc(ig+npw,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig+npw,iblocksize))*pcon(ig-igs,1)
+             end do
+           else
+             pcon(ig-igs,:)=zero
+             vect(ig,:)=zero
+             vect(ig+npw,:)=zero
+           end if
+         else
+           do iblocksize=1,blocksize
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+             vect(ig+npw,iblocksize)=(ghc(ig+npw,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig+npw,iblocksize))*pcon(ig-igs,1)
+           end do
+         end if
+       end do
+     end if
+   end do
+
+ else if (optpcon>0) then
+!  Compute mean kinetic energy of all bands
+   ABI_MALLOC(ek0,(blocksize))
+   ABI_MALLOC(ek0_inv,(blocksize))
+   if (iterationnumber==1.or.optpcon==1) then
+     do iblocksize=1,blocksize
+       if (me_g0 == 1)then
+         ek0(iblocksize)=0.0_dp ; ipw1=2
+         if(kinpw(1)<huge(0.0_dp)*1.d-11)ek0(iblocksize)=0.5_dp*kinpw(1)*cg(1,iblocksize)**2
+         do ig=ipw1,npw
+           if(kinpw(ig)<huge(0.0_dp)*1.d-11)then
+             ek0(iblocksize)=ek0(iblocksize)+&
+&             kinpw(ig)*(cg(ig,iblocksize)**2+cg(ig+npw-1,iblocksize)**2)
+           end if
+         end do
+       else
+         ek0(iblocksize)=0.0_dp ; ipw1=1
+         do ig=ipw1,npw
+           if(kinpw(ig)<huge(0.0_dp)*1.d-11)then
+             ek0(iblocksize)=ek0(iblocksize)+&
+&             kinpw(ig)*(cg(ig,iblocksize)**2+cg(ig+npw,iblocksize)**2)
+           end if
+         end do
+       end if
+     end do
+
+     call xmpi_sum(ek0,comm,ierr)
+
+     do iblocksize=1,blocksize
+       if(ek0(iblocksize)<1.0d-10)then
+         write(msg, '(4a)' )ch10,&
+         'cg_precon_block: the mean kinetic energy of a wavefunction vanishes.',ch10,&
+         'it is reset to 0.1ha.'
+         ABI_WARNING(msg)
+         ek0(iblocksize)=0.1_dp
+       end if
+     end do
+     if (optekin==1) then
+       ek0_inv(:)=2.0_dp/(3._dp*ek0(:))
+     else
+       ek0_inv(:)=1.0_dp/ek0(:)
+     end if
+   end if !iterationnumber==1.or.optpcon==1
+
+!  Carry out preconditioning
+   do iblocksize=1,blocksize
+     do ispinor=1,nspinor
+       igs=(ispinor-1)*npw
+       if (me_g0 == 1) then
+         do ig=1+igs,1+igs !g=0
+           if (iterationnumber==1.or.optpcon==1) then
+             if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+               xx=kinpw(ig-igs)*ek0_inv(iblocksize)
+!              teter polynomial ratio
+               poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+               fac=poly/(poly+16._dp*xx**4)
+               if (optekin==1) fac=two*fac
+               pcon(ig-igs,iblocksize)=fac
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*fac
+             else
+               pcon(ig-igs,iblocksize)=zero
+               vect(ig,iblocksize)=0.0_dp
+             end if
+           else
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,iblocksize)
+           end if
+         end do
+         do ig=2+igs,npw+igs
+           if (iterationnumber==1.or.optpcon==1) then
+             if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+               xx=kinpw(ig-igs)*ek0_inv(iblocksize)
+!              teter polynomial ratio
+               poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+               fac=poly/(poly+16._dp*xx**4)
+               if (optekin==1) fac=two*fac
+               pcon(ig-igs,iblocksize)=fac
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*fac
+               vect(ig+npw-1,iblocksize)=(ghc(ig+npw-1,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig+npw-1,iblocksize))*fac
+             else
+               pcon(ig-igs,iblocksize)=zero
+               vect(ig,iblocksize)=zero
+               vect(ig+npw-1,iblocksize)=zero
+             end if
+           else
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,iblocksize)
+             vect(ig+npw-1,iblocksize)=(ghc(ig+npw-1,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig+npw-1,iblocksize))*pcon(ig-igs,iblocksize)
+           end if
+         end do
+       else
+         do ig=1+igs,npw+igs
+           if (iterationnumber==1.or.optpcon==1) then
+             if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+               xx=kinpw(ig-igs)*ek0_inv(iblocksize)
+!              teter polynomial ratio
+               poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+               fac=poly/(poly+16._dp*xx**4)
+               if (optekin==1) fac=two*fac
+               pcon(ig-igs,iblocksize)=fac
+               vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig,iblocksize))*fac
+               vect(ig+npw,iblocksize)=(ghc(ig+npw,iblocksize)-&
+&               eval(iblocksize,iblocksize)*cg(ig+npw,iblocksize))*fac
+             else
+               pcon(ig-igs,iblocksize)=zero
+               vect(ig,iblocksize)=zero
+               vect(ig+npw,iblocksize)=zero
+             end if
+           else
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,iblocksize)
+             vect(ig+npw,iblocksize)=(ghc(ig+npw,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig+npw,iblocksize))*pcon(ig-igs,iblocksize)
+           end if
+         end do
+       end if
+     end do
+   end do
+   ABI_FREE(ek0)
+   ABI_FREE(ek0_inv)
+ end if !optpcon
+
+ call timab(536,2,tsec)
+
+end subroutine cg_precon_block
+!!***
+
+!!****f* m_cgtools/cg_zprecon_block
+!!
+!! NAME
+!! cg_zprecon_block
+!!
+!! FUNCTION
+!! precondition $<G|(H-e_{n,k})|C_{n,k}>$ for a block of band (band-FFT parallelisation)
+!!
+!! INPUTS
+!!  blocksize= size of blocks of bands
+!!  $cg(vectsize,blocksize)=<G|C_{n,k}> for a block of bands$.
+!!  $eval(blocksize,blocksize)=current block of bands eigenvalues=<C_{n,k}|H|C_{n,k}>$.
+!!  $ghc(vectsize,blocksize)=<G|H|C_{n,k}> for a block of bands$.
+!!  iterationnumber=number of iterative minimizations in LOBPCG
+!!  kinpw(npw)=(modified) kinetic energy for each plane wave (Hartree)
+!!  nspinor=number of spinorial components of the wavefunctions (on current proc)
+!!  $vect(vectsize,blocksize)=<G|H|C_{n,k}> for a block of bands$.
+!!  npw=number of planewaves at this k point.
+!!  optekin= 1 if the kinetic energy used in preconditionning is modified
+!!             according to Kresse, Furthmuller, PRB 54, 11169 (1996) [[cite:Kresse1996]]
+!!           0 otherwise
+!!  optpcon= 0 the TPA preconditionning matrix does not depend on band
+!!           1 the TPA preconditionning matrix (not modified)
+!!           2 the TPA preconditionning matrix is independant of iteration number
+!!  vectsize= size of vectors
+!!  comm=MPI communicator.
+!!
+!! OUTPUT
+!!  vect(2,npw)=<g|(h-eval)|c_{n,k}>*(polynomial ratio)
+!!
+!! SIDE EFFECTS
+!!  pcon(npw,blocksize)=preconditionning matrix
+!!            input  if optpcon=0,2 and iterationnumber/=1
+!!            output if optpcon=0,2 and iterationnumber==1
+!!
+!! SOURCE
+
+subroutine cg_zprecon_block(cg,eval,blocksize,iterationnumber,kinpw,&
+&  npw,nspinor,optekin,optpcon,pcon,ghc,vect,vectsize,comm)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: blocksize,iterationnumber,npw,nspinor,optekin
+ integer,intent(in) :: optpcon,vectsize,comm
+!arrays
+ real(dp),intent(in) :: kinpw(npw)
+ real(dp),intent(inout) :: pcon(npw,blocksize)
+ complex(dpc),intent(in) :: cg(vectsize,blocksize),eval(blocksize,blocksize)
+ complex(dpc),intent(in) :: ghc(vectsize,blocksize)
+ complex(dpc),intent(inout) :: vect(vectsize,blocksize)
+
+!Local variables-------------------------------
+!scalars
+ integer :: iblocksize,ierr,ig,igs,ispinor
+ real(dp) :: fac,poly,xx
+ !character(len=500) :: msg
+!arrays
+ real(dp) :: tsec(2)
+ real(dp),allocatable :: ek0(:),ek0_inv(:)
+
+! *************************************************************************
+
+ call timab(536,1,tsec)
+
+!In this case, the Teter, Allan and Payne preconditioner is approximated:
+!the factor xx=Ekin(G) and no more Ekin(G)/Ekin(iband)
+ if (optpcon==0) then
+   do ispinor=1,nspinor
+     igs=(ispinor-1)*npw
+     do ig=1+igs,npw+igs
+       if (iterationnumber==1) then
+         if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+           xx=kinpw(ig-igs)
+!          teter polynomial ratio
+           poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+           fac=poly/(poly+16._dp*xx**4)
+           if (optekin==1) fac=two*fac
+           pcon(ig-igs,1)=fac
+           do iblocksize=1,blocksize
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+           end do
+         else
+           pcon(ig-igs,1)=zero
+           vect(ig,:)=dcmplx(0.0_dp,0.0_dp)
+         end if
+       else
+         do iblocksize=1,blocksize
+           vect(ig,iblocksize)=(ghc(ig,iblocksize)-eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,1)
+         end do
+       end if
+     end do
+   end do
+
+ else if (optpcon>0) then
+!  Compute mean kinetic energy of all bands
+   ABI_MALLOC(ek0,(blocksize))
+   ABI_MALLOC(ek0_inv,(blocksize))
+   if (iterationnumber==1.or.optpcon==1) then
+     do iblocksize=1,blocksize
+       ek0(iblocksize)=0.0_dp
+       do ispinor=1,nspinor
+         igs=(ispinor-1)*npw
+         do ig=1+igs,npw+igs
+           if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+             ek0(iblocksize)=ek0(iblocksize)+kinpw(ig-igs)*&
+&             (real(cg(ig,iblocksize))**2+aimag(cg(ig,iblocksize))**2)
+           end if
+         end do
+       end do
+     end do
+
+     call xmpi_sum(ek0,comm,ierr)
+
+     do iblocksize=1,blocksize
+       if(ek0(iblocksize)<1.0d-10)then
+         ABI_WARNING('the mean kinetic energy of a wavefunction vanishes. it is reset to 0.1ha.')
+         ek0(iblocksize)=0.1_dp
+       end if
+     end do
+     if (optekin==1) then
+       ek0_inv(:)=2.0_dp/(3._dp*ek0(:))
+     else
+       ek0_inv(:)=1.0_dp/ek0(:)
+     end if
+   end if !iterationnumber==1.or.optpcon==1
+
+!  Carry out preconditioning
+   do iblocksize=1,blocksize
+     do ispinor=1,nspinor
+       igs=(ispinor-1)*npw
+       do ig=1+igs,npw+igs
+         if (iterationnumber==1.or.optpcon==1) then
+           if(kinpw(ig-igs)<huge(0.0_dp)*1.d-11)then
+             xx=kinpw(ig-igs)*ek0_inv(iblocksize)
+!            teter polynomial ratio
+             poly=27._dp+xx*(18._dp+xx*(12._dp+xx*8._dp))
+             fac=poly/(poly+16._dp*xx**4)
+             if (optekin==1) fac=two*fac
+             pcon(ig-igs,iblocksize)=fac
+             vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&             eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,iblocksize)
+           else
+             pcon(ig-igs,iblocksize)=zero
+             vect(ig,iblocksize)=dcmplx(0.0_dp,0.0_dp)
+           end if
+         else
+           vect(ig,iblocksize)=(ghc(ig,iblocksize)-&
+&           eval(iblocksize,iblocksize)*cg(ig,iblocksize))*pcon(ig-igs,iblocksize)
+         end if
+       end do
+     end do
+   end do
+   ABI_FREE(ek0)
+   ABI_FREE(ek0_inv)
+ end if !optpcon
+
+ call timab(536,2,tsec)
+
+end subroutine cg_zprecon_block
+!!***
+
+!!****f* m_cgtools/fxphas_seq
+!!
+!! NAME
+!! fxphas_seq
+!!
+!! FUNCTION
+!! Fix phase of all bands. Keep normalization but maximize real part (minimize imag part).
+!! Also fix the sign of real part by setting the first non-zero element to be positive.
+!!
+!! This version has been stripped of all the mpi_enreg junk by MJV
+!! Use cgtk_fixphase if you need a routine that works with mpi_enreg and paral_kgb
+!!
+!! INPUTS
+!!  cg(2,mcg)= contains the wavefunction |c> coefficients.
+!!  gsc(2,mgsc)= if useoverlap==1, contains the S|c> coefficients,
+!!               where S is an overlap matrix.
+!!  icg=shift to be applied on the location of data in the array cg
+!!  igsc=shift to be applied on the location of data in the array gsc
+!!  istwfk=input option parameter that describes the storage of wfs
+!!    (set to 1 if usual complex vectors)
+!!  mcg=size of second dimension of cg
+!!  mgsc=size of second dimension of gsc
+!!  nband_k=number of bands
+!!  npw_k=number of planewaves
+!!  useoverlap=describe the overlap of wavefunctions:
+!!               0: no overlap (S=Identity_matrix)
+!!               1: PAW wavefunctions
+!!
+!! OUTPUT
+!!  cg(2,mcg)=same array with altered phase.
+!!  gsc(2,mgsc)= same array with altered phase.
+!!
+!! SOURCE
+
+subroutine fxphas_seq(cg, gsc, icg, igsc, istwfk, mcg, mgsc, nband_k, npw_k, useoverlap)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: icg,igsc,istwfk,mcg,mgsc,nband_k,npw_k,useoverlap
+!arrays
+ real(dp),intent(inout) :: cg(2,mcg),gsc(2,mgsc*useoverlap)
+
+!Local variables-------------------------------
+!scalars
+ integer :: iband,ii,indx
+ real(dp) :: cim,cre,gscim,gscre,quotient,root1,root2,saa,sab,sbb,theta
+ real(dp) :: thppi,xx,yy
+ character(len=500) :: msg
+!arrays
+ real(dp),allocatable :: cimb(:),creb(:),saab(:),sabb(:),sbbb(:) !,sarr(:,:)
+
+! *************************************************************************
+
+!The general case, where a complex phase indeterminacy is present
+ if(istwfk==1)then
+
+   ABI_MALLOC(cimb,(nband_k))
+   ABI_MALLOC(creb,(nband_k))
+   ABI_MALLOC(saab,(nband_k))
+   ABI_MALLOC(sabb,(nband_k))
+   ABI_MALLOC(sbbb,(nband_k))
+   cimb(:)=zero ; creb(:)=zero
+
+!  Loop over bands
+!  TODO: MG store saa arrays in sarr(3,nband_k) to reduce false sharing.
+   do iband=1,nband_k
+     indx=icg+(iband-1)*npw_k
+
+!    Compute several sums over Re, Im parts of c
+     saa=0.0_dp ; sbb=0.0_dp ; sab=0.0_dp
+     do ii=1+indx,npw_k+indx
+       saa=saa+cg(1,ii)*cg(1,ii)
+       sbb=sbb+cg(2,ii)*cg(2,ii)
+       sab=sab+cg(1,ii)*cg(2,ii)
+     end do
+     saab(iband)=saa
+     sbbb(iband)=sbb
+     sabb(iband)=sab
+   end do ! iband
+
+
+   do iband=1,nband_k
+
+     indx=icg+(iband-1)*npw_k
+
+     saa=saab(iband)
+     sbb=sbbb(iband)
+     sab=sabb(iband)
+
+!    Get phase angle theta
+     if (sbb+saa>tol8)then
+       if(abs(sbb-saa)>tol8*(sbb+saa) .or. 2*abs(sab)>tol8*(sbb+saa))then
+         if (abs(sbb-saa)>tol8*abs(sab)) then
+           quotient=sab/(sbb-saa)
+           theta=0.5_dp*atan(2.0_dp*quotient)
+         else
+!          Taylor expansion of the atan in terms of inverse of its argument. Correct up to 1/x2, included.
+           theta=0.25_dp*(pi-(sbb-saa)/sab)
+         end if
+!        Check roots to get theta for max Re part
+         root1=cos(theta)**2*saa+sin(theta)**2*sbb-2.0_dp*cos(theta)*sin(theta)*sab
+         thppi=theta+0.5_dp*pi
+         root2=cos(thppi)**2*saa+sin(thppi)**2*sbb-2.0_dp*cos(thppi)*sin(thppi)*sab
+         if (root2>root1) theta=thppi
+       else
+!        The real part vector and the imaginary part vector are orthogonal, and of same norm. Strong indeterminacy.
+!        Will determine the first non-zero coefficient, and fix its phase
+         do ii=1+indx,npw_k+indx
+           cre=cg(1,ii)
+           cim=cg(2,ii)
+           if(cre**2+cim**2>tol8**2*(saa+sbb))then
+             if(cre**2>tol8**2**cim**2)then
+               theta=atan(cim/cre)
+             else
+!              Taylor expansion of the atan in terms of inverse of its argument. Correct up to 1/x2, included.
+               theta=pi/2-cre/cim
+             end if
+             exit
+           end if
+         end do
+       end if
+     else
+       write(msg,'(a,i0,5a)')&
+       'The eigenvector with band ',iband,' has zero norm.',ch10,&
+       'This usually happens when the number of bands (nband) is comparable to the number of planewaves (mpw)',ch10,&
+       'Action: Check the parameters of the calculation. If nband ~ mpw, then decrease nband or, alternatively, increase ecut'
+       ABI_ERROR(msg)
+     end if
+
+     xx=cos(theta)
+     yy=sin(theta)
+
+!    Here, set the first non-zero element to be positive
+     do ii=1+indx,npw_k+indx
+       cre=cg(1,ii)
+       cim=cg(2,ii)
+       cre=xx*cre-yy*cim
+       if(abs(cre)>tol8)exit
+     end do
+     if(cre<zero)then
+       xx=-xx ; yy=-yy
+     end if
+
+     creb(iband)=xx
+     cimb(iband)=yy
+
+   end do
+
+   do iband=1,nband_k
+
+     indx=icg+(iband-1)*npw_k
+
+     xx=creb(iband)
+     yy=cimb(iband)
+     do ii=1+indx,npw_k+indx
+       cre=cg(1,ii)
+       cim=cg(2,ii)
+       cg(1,ii)=xx*cre-yy*cim
+       cg(2,ii)=xx*cim+yy*cre
+     end do
+
+!    Alter phase of array S|cg>
+     if (useoverlap==1) then
+       indx=igsc+(iband-1)*npw_k
+       do ii=1+indx,npw_k+indx
+         gscre=gsc(1,ii)
+         gscim=gsc(2,ii)
+         gsc(1,ii)=xx*gscre-yy*gscim
+         gsc(2,ii)=xx*gscim+yy*gscre
+       end do
+     end if
+
+   end do ! iband
+
+   ABI_FREE(cimb)
+   ABI_FREE(creb)
+   ABI_FREE(saab)
+   ABI_FREE(sabb)
+   ABI_FREE(sbbb)
+
+ else  ! if istwfk/=1
+   !  Storages that take into account the time-reversal symmetry: the freedom is only a sign freedom
+
+   ABI_MALLOC(creb,(nband_k))
+   creb(:)=zero
+!  Loop over bands
+   do iband=1,nband_k
+
+     indx=icg+(iband-1)*npw_k
+
+!    Here, set the first non-zero real element to be positive
+     do ii=1+indx,npw_k+indx
+       cre=cg(1,ii)
+       if(abs(cre)>tol8)exit
+     end do
+     creb(iband)=cre
+
+   end do ! iband
+
+   do iband=1,nband_k
+
+     cre=creb(iband)
+     if(cre<zero)then
+       indx=icg+(iband-1)*npw_k
+       do ii=1+indx,npw_k+indx
+         cg(1,ii)=-cg(1,ii)
+         cg(2,ii)=-cg(2,ii)
+       end do
+       if(useoverlap==1)then
+         indx=igsc+(iband-1)*npw_k
+         do ii=1+indx,npw_k+indx
+           gsc(1,ii)=-gsc(1,ii)
+           gsc(2,ii)=-gsc(2,ii)
+         end do
+       end if
+     end if
+
+   end do ! iband
+
+   ABI_FREE(creb)
+
+ end if ! istwfk
+
+end subroutine fxphas_seq
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/fxphas_and_cmp
+!! NAME
+!! fxphas_and_com
+!!
+!! FUNCTION
+!! Fix phase and compare two set of wavefunctions
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+logical function fxphas_and_cmp(npw_k, nspinor, nband_k, istwfk, cg1, cg2, eig_k, msg, atol_rho, atol_dphi) result(ok)
+
+!Arguments ------------------------------------
+ integer,intent(in) :: npw_k, nspinor, nband_k, istwfk
+ real(dp),intent(inout) :: cg1(2, npw_k*nspinor, nband_k), cg2(2, npw_k*nspinor, nband_k)
+ real(dp),intent(in) :: eig_k(nband_k)
+ character(len=*),intent(out) :: msg
+ real(dp),optional,intent(in) :: atol_rho, atol_dphi
+
+!Local variables-------------------------------
+ integer, parameter :: useoverlap0 = 0, mgsc = 0
+ integer :: ipw, ipwsp, isp, mcg, band
+ real(dp) :: phi1, rho1, phi2, rho2, max_rho_adiff, atol_rho__, phi_diff_ref, max_dphi_adiff, atol_dphi__, gsc(0,0)
+ character(len=500) :: btype
+
+! ***********************************************************************
+
+ atol_rho__ = tol6; if (present(atol_rho)) atol_rho__ = atol_rho
+ atol_dphi__ = tol3; if (present(atol_dphi)) atol_dphi__ = atol_dphi
+ max_rho_adiff = zero; max_dphi_adiff = zero; phi_diff_ref = huge(one)
+
+ mcg = npw_k * nspinor * nband_k
+ call fxphas_seq(cg1, gsc, 1, 1, istwfk, mcg, mgsc, nband_k, npw_k * nspinor, useoverlap0)
+ call fxphas_seq(cg2, gsc, 1, 1, istwfk, mcg, mgsc, nband_k, npw_k * nspinor, useoverlap0)
+
+ do band=1,nband_k
+   call band_type(band, btype)
+   if (btype == "degenerate") cycle
+   write(234, *)"band: ", band, "istwfk: ", istwfk, trim(btype)
+   write(235, *)"band: ", band, "istwfk:", istwfk, trim(btype)
+   write(234, *)"cg1:"; write(235, *)"cg2:"
+   !write(234, *)"cg1 rho:"; write(235, *)"cg2 rho phi:"
+   do isp=1,nspinor
+     do ipw=1,npw_k
+       ipwsp = ipw + (isp - 1) * npw_k
+       if (npw_k > 15 .and. ipw > 15 .and. ipw < npw_k - 15) cycle
+       !write(234, *)ipwsp, cg1(1, ipwsp, band); write(234, *)ipwsp, cg1(2, ipwsp, band)
+       !write(235, *)ipwsp, cg2(1, ipwsp, band); write(235, *)ipwsp, cg2(2, ipwsp, band)
+       call rhophi(cg1(:, ipwsp, band), phi1, rho1)
+       call rhophi(cg2(:, ipwsp, band), phi2, rho2)
+       write(234, *)ipwsp, rho1!; write(234, *)ipwsp, phi1
+       write(235, *)ipwsp, rho2!; write(235, *)ipwsp, phi2
+     end do
+   end do
+ end do
+
+ do band=1,nband_k
+   do ipw=1,npw_k * nspinor
+     call rhophi(cg1(:, ipw, band), phi1, rho1)
+     call rhophi(cg2(:, ipw, band), phi2, rho2)
+     max_rho_adiff = max(max_rho_adiff, abs(rho1 - rho2))
+     if (rho1 > atol_rho__ ** 2) then
+       if (phi_diff_ref /= huge(one)) phi_diff_ref = phi1 - phi2
+       max_dphi_adiff = max(max_dphi_adiff, abs(phi_diff_ref - (phi1 - phi2)))
+     end if
+   end do
+ end do
+
+ write(msg, "(2(a,es12.4))")"max_rho_adiff: ", max_rho_adiff, ", max_dphi_adiff: ", max_dphi_adiff
+ ok = (max_rho_adiff < atol_rho__ .and. max_dphi_adiff < atol_dphi__)
+
+contains
+subroutine band_type(band, btype)
+  integer,intent(in) :: band
+  character(len=*),intent(out) :: btype
+  real(dp) :: e0
+
+  e0 = eig_k(band)
+
+  if (band == 1) then
+    btype = "last_state"
+    if (nband_k > 1) then
+      btype = "non-degenerate"
+      if (abs(e0 - eig_k(band + 1)) < tol6) btype = "degenerate"
+    end if
+
+  else if (band == nband_k) then
+    btype = "last_state"
+    if (band - 1 > 0) then
+      if (abs(e0 - eig_k(band - 1)) < tol6) btype = "degenerate"
+    end if
+
+  else
+    btype = "non-degenerate"
+    if (abs(e0 - eig_k(band - 1)) < tol6 .or. abs(e0 - eig_k(band + 1)) < tol6) btype = "degenerate"
+  end if
+
+end subroutine band_type
+
+end function fxphas_and_cmp
+!!***
+
+!!****f* m_cgtools/overlap_g
+!! NAME
+!! overlap_g
+!!
+!! FUNCTION
+!! Compute the scalar product between WF at two different k-points
+!! < u_{n,k1} | u_{n,k2}>
+!!
+!! INPUTS
+!! mpw = maximum dimensioned size of npw
+!! npw_k1 = number of plane waves at k1
+!! npw_k2 = number of plane waves at k2
+!! nspinor = 1 for scalar, 2 for spinor wavefunctions
+!! pwind_k = array required to compute the scalar product (see initberry.f)
+!! vect1 = wavefunction at k1: | u_{n,k1} >
+!! vect2 = wavefunction at k1: | u_{n,k2} >
+!!
+!! OUTPUT
+!! doti = imaginary part of the scalarproduct
+!! dotr = real part of the scalarproduct
+!!
+!! NOTES
+!! In case a G-vector of the basis sphere of plane waves at k1
+!! does not belong to the basis sphere of plane waves at k2,
+!! pwind = 0. Therefore, the dimensions of vect1 &
+!! vect2 are (1:2,0:mpw) and the element (1:2,0) MUST be set to zero.
+!!
+!! The current implementation if not compatible with TR-symmetry (i.e. istwfk/=1) !
+!!
+!! SOURCE
+
+subroutine overlap_g(doti,dotr,mpw,npw_k1,npw_k2,nspinor,pwind_k,vect1,vect2)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: mpw,npw_k1,npw_k2,nspinor
+ real(dp),intent(out) :: doti,dotr
+!arrays
+ integer,intent(in) :: pwind_k(mpw)
+ real(dp),intent(in) :: vect1(1:2,0:mpw*nspinor),vect2(1:2,0:mpw*nspinor)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ipw,ispinor,jpw,spnshft1,spnshft2
+
+! *************************************************************************
+
+!Check if vect1(:,0) = 0 and vect2(:,0) = 0
+ if ((abs(vect1(1,0)) > tol12).or.(abs(vect1(2,0)) > tol12).or. &
+& (abs(vect2(1,0)) > tol12).or.(abs(vect2(2,0)) > tol12)) then
+   ABI_BUG('vect1(:,0) and/or vect2(:,0) are not equal to zero')
+ end if
+
+!Compute the scalar product
+ dotr = zero; doti = zero
+ do ispinor = 1, nspinor
+   spnshft1 = (ispinor-1)*npw_k1
+   spnshft2 = (ispinor-1)*npw_k2
+!$OMP PARALLEL DO PRIVATE(jpw) REDUCTION(+:doti,dotr)
+   do ipw = 1, npw_k1
+     jpw = pwind_k(ipw)
+     dotr = dotr + vect1(1,spnshft1+ipw)*vect2(1,spnshft2+jpw) + vect1(2,spnshft1+ipw)*vect2(2,spnshft2+jpw)
+     doti = doti + vect1(1,spnshft1+ipw)*vect2(2,spnshft2+jpw) - vect1(2,spnshft1+ipw)*vect2(1,spnshft2+jpw)
+   end do
+ end do
+
+end subroutine overlap_g
+!!***
+
+!!****f* ABINIT/subdiago
+!! NAME
+!! subdiago
+!!
+!! FUNCTION
+!! This routine diagonalizes the Hamiltonian in the trial subspace.
+!!
+!! INPUTS
+!!  icg=shift to be applied on the location of data in the array cg
+!!  igsc=shift to be applied on the location of data in the array gsc
+!!  istwf_k=input parameter that describes the storage of wfs
+!!  mcg=second dimension of the cg array
+!!  mgsc=second dimension of the gsc array
+!!  nband_k=number of bands at this k point for that spin polarization
+!!  npw_k=number of plane waves at this k point
+!!  my_nspinor=number of spinorial components of the wavefunctions (on current proc)
+!!  use_subovl=1 if the overlap matrix is not identity in WFs subspace
+!!  usepaw= 0 for non paw calculation; =1 for paw calculation
+!!  me_g0=1 if this processor has G=0, 0 otherwise.
+!!
+!! OUTPUT
+!!  eig_k(nband_k)=array for holding eigenvalues (hartree)
+!!  evec(2*nband_k,nband_k)=array for holding eigenvectors
+!!
+!! SIDE EFFECTS
+!!  subham(nband_k*(nband_k+1))=Hamiltonian expressed in the WFs subspace. Hermitianized in output.
+!!  subovl(nband_k*(nband_k+1)*use_subovl)=overlap matrix expressed in the WFs subspace. Hermitianized in output.
+!!  cg(2,mcg)=wavefunctions
+!!  gsc(2,mgsc)=<g|S|c> matrix elements (S=overlap)
+!!
+!! SOURCE
+
+subroutine subdiago(cg, eig_k, evec, gsc, icg, igsc, istwf_k, mcg, mgsc, nband_k, npw_k, my_nspinor, paral_kgb, &
+                    subham, subovl, use_subovl, usepaw, me_g0)
+
+ use m_linalg_interfaces
+ use m_abi_linalg
+
+!Arguments ------------------------------------
+ integer,intent(in) :: icg,igsc,istwf_k,mcg,mgsc,nband_k,npw_k,me_g0
+ integer,intent(in) :: my_nspinor,paral_kgb,use_subovl,usepaw
+ real(dp),intent(inout) :: subham(nband_k*(nband_k+1)),subovl(nband_k*(nband_k+1)*use_subovl)
+ real(dp),intent(out) :: eig_k(nband_k),evec(2*nband_k,nband_k)
+ real(dp),intent(inout) :: cg(2,mcg),gsc(2,mgsc)
+
+!Local variables-------------------------------
+ integer :: iband,ii,ierr,rvectsize,vectsize,use_slk
+ !real(dp) :: cpu, wall, gflops
+ character(len=500) :: msg
+ ! real(dp) :: tsec(2)
+ real(dp),allocatable :: evec_re(:,:),subovl_re(:),subham_tmp(:), work(:,:)
+ real(dp),allocatable :: blockvectora(:,:),blockvectorb(:,:),blockvectorc(:,:)
+
+! *********************************************************************
+
+ if (paral_kgb<0) then
+   ABI_BUG('paral_kgb should be positive ')
+ end if
+
+ ! 1 if Scalapack version is used.
+ ! MG TODO: This should not be bound to paral_kgb
+ use_slk = paral_kgb
+
+ rvectsize=npw_k*my_nspinor
+ vectsize=2*rvectsize;if (me_g0==1) vectsize=vectsize-1
+ !call cwtime(cpu, wall, gflops, "start")
+
+ !Impose Hermiticity on diagonal elements of subham (and subovl, if needed)
+ ! MG FIXME: In these two calls we are aliasing the args
+ call hermit(subham, subham, ierr, nband_k)
+ if (use_subovl==1) call hermit(subovl, subovl, ierr, nband_k)
+ !call cwtime_report(" hermit", cpu, wall, gflops)
+
+ ! Diagonalize the Hamitonian matrix
+ if (istwf_k==2) then
+   ABI_CALLOC(evec_re, (nband_k,nband_k))
+   ABI_MALLOC(subham_tmp, (nband_k*(nband_k+1)/2))
+   subham_tmp=subham(1:nband_k*(nband_k+1):2)
+   if (use_subovl==1) then
+     ABI_MALLOC(subovl_re, (nband_k*(nband_k+1)/2))
+     subovl_re=subovl(1:nband_k*(nband_k+1):2)
+     ! TODO: Not sure this one has been fully tested
+     call abi_xhpgv(1,'V','U',nband_k,subham_tmp,subovl_re,eig_k,evec_re,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+     ABI_FREE(subovl_re)
+   else
+     call abi_xhpev('V','U',nband_k,subham_tmp,eig_k,evec_re,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+   end if
+   evec(:,:)=zero; evec(1:2*nband_k:2,:) = evec_re
+   ABI_FREE(evec_re)
+   ABI_FREE(subham_tmp)
+ else
+   if (use_subovl==1) then
+     call abi_xhpgv(1,'V','U',nband_k,subham,subovl,eig_k,evec,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+   else
+     call abi_xhpev('V','U',nband_k,subham,eig_k,evec,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+   end if
+ end if
+ !call cwtime_report(" hdiago", cpu, wall, gflops)
+
+ ! Normalize each eigenvector and set phase:
+ ! this is because of the simultaneous diagonalisation of this
+ ! matrix by different processors, allowing to get different unitary transforms, thus breaking the
+ ! coherency of parts of cg stored on different processors).
+ !
+ ! The problem with minus/plus signs might be present also if .not. use_subovl
+ !
+ !if(use_subovl == 0) then
+ call cg_normev(evec, nband_k, nband_k)
+ !end if
+
+ if(istwf_k==2)then
+   do iband=1,nband_k
+     do ii=1,nband_k
+       if(abs(evec(2*ii,iband))>1.0d-10)then
+         write(msg,'(3a,2i0,2es16.6,a,a)')ch10,&
+         ' For istwf_k=2, observed the following element of evec:',ch10,&
+         iband,ii,evec(2*ii-1,iband),evec(2*ii,iband),ch10,' with a non-negligible imaginary part.'
+         ABI_BUG(msg)
+       end if
+     end do
+   end do
+ end if
+ !call cwtime_report(" normev", cpu, wall, gflops)
+
+ !=====================================================
+ ! Carry out rotation of bands C(G,n) according to evecs
+ ! ZGEMM if istwfk==1, DGEMM if istwfk==2
+ !=====================================================
+ if (istwf_k==2) then
+
+   ABI_MALLOC_OR_DIE(blockvectora, (vectsize, nband_k), ierr)
+   ABI_MALLOC_OR_DIE(blockvectorb, (nband_k, nband_k), ierr)
+   ABI_MALLOC_OR_DIE(blockvectorc, (vectsize, nband_k), ierr)
+
+   do iband=1,nband_k
+     if (me_g0 == 1) then
+       call abi_xcopy(1,cg(1,cgindex_subd(iband)),1,blockvectora(1,iband),1)
+       call abi_xcopy(rvectsize-1,cg(1,cgindex_subd(iband)+1),2,blockvectora(2,iband),1)
+       call abi_xcopy(rvectsize-1,cg(2,cgindex_subd(iband)+1),2,blockvectora(rvectsize+1,iband),1)
+     else
+       call abi_xcopy(rvectsize,cg(1,cgindex_subd(iband)),2,blockvectora(1,iband),1)
+       call abi_xcopy(rvectsize,cg(2,cgindex_subd(iband)),2,blockvectora(rvectsize+1,iband),1)
+     end if
+     call abi_xcopy(nband_k,evec(2*iband-1,1),2*nband_k,blockvectorb(iband,1),nband_k)
+   end do
+
+   !MG TODO: This one is a DGEMM.
+   call abi_xgemm('N','N',vectsize,nband_k,nband_k,&
+     cone,blockvectora,vectsize,blockvectorb,nband_k,czero,blockvectorc,vectsize)
+
+   do iband=1,nband_k
+     if (me_g0 == 1) then
+       call abi_xcopy(1,blockvectorc(1,iband),1,cg(1,cgindex_subd(iband)),1)
+       call abi_xcopy(rvectsize-1,blockvectorc(2,iband),1,cg(1,cgindex_subd(iband)+1),2)
+       call abi_xcopy(rvectsize-1,blockvectorc(rvectsize+1,iband),1,cg(2,cgindex_subd(iband)+1),2)
+     else
+       call abi_xcopy(rvectsize,blockvectorc(1,iband),1,cg(1,cgindex_subd(iband)),2)
+       call abi_xcopy(rvectsize,blockvectorc(rvectsize+1,iband),1,cg(2,cgindex_subd(iband)),2)
+     end if
+   end do
+
+   if (usepaw==1) then
+    ! If paw, must also rotate S.C(G,n):
+
+     do iband=1,nband_k
+       if (me_g0 == 1) then
+         call abi_xcopy(1,gsc(1,gscindex_subd(iband)),1,blockvectora(1,iband),1)
+         call abi_xcopy(rvectsize-1,gsc(1,gscindex_subd(iband)+1),2,blockvectora(2,iband),1)
+         call abi_xcopy(rvectsize-1,gsc(2,gscindex_subd(iband)+1),2,blockvectora(rvectsize+1,iband),1)
+       else
+         call abi_xcopy(rvectsize  ,gsc(1,gscindex_subd(iband)),2,blockvectora(1,iband),1)
+         call abi_xcopy(rvectsize  ,gsc(2,gscindex_subd(iband)),2,blockvectora(rvectsize+1,iband),1)
+       end if
+       call abi_xcopy(nband_k,evec(2*iband-1,1),2*nband_k,blockvectorb(iband,1),nband_k)
+     end do
+
+     call abi_xgemm('N','N',vectsize,nband_k,nband_k,&
+                    cone,blockvectora,vectsize,blockvectorb,nband_k,czero,blockvectorc,vectsize)
+
+     do iband=1,nband_k
+       if (me_g0 == 1) then
+         call abi_xcopy(1,blockvectorc(1,iband),1,gsc(1,gscindex_subd(iband)),1)
+         call abi_xcopy(rvectsize-1,blockvectorc(2,iband),1,gsc(1,gscindex_subd(iband)+1),2)
+         call abi_xcopy(rvectsize-1,blockvectorc(rvectsize+1,iband),1,gsc(2,gscindex_subd(iband)+1),2)
+       else
+         call abi_xcopy(rvectsize,blockvectorc(1,iband),1,gsc(1,gscindex_subd(iband)),2)
+         call abi_xcopy(rvectsize,blockvectorc(rvectsize+1,iband),1,gsc(2,gscindex_subd(iband)),2)
+       end if
+     end do
+
+   end if
+
+   ABI_FREE(blockvectora)
+   ABI_FREE(blockvectorb)
+   ABI_FREE(blockvectorc)
+
+ else
+   ! istwf_k /= 2
+   ABI_MALLOC_OR_DIE(work, (2,npw_k*my_nspinor*nband_k), ierr)
+
+   ! MG: Do not remove this initialization.
+   ! telast_06 stops in fxphase on inca_debug and little_buda (very very strange, due to atlas?)
+   !work=zero
+
+   call abi_xgemm('N','N',npw_k*my_nspinor,nband_k,nband_k,cone, &
+     cg(:,icg+1:npw_k*my_nspinor*nband_k+icg),npw_k*my_nspinor, &
+     evec,nband_k,czero,work,npw_k*my_nspinor,x_cplx=2)
+
+   call abi_xcopy(npw_k*my_nspinor*nband_k,work(1,1),1,cg(1,1+icg),1,x_cplx=2)
+
+   if (usepaw==1) then
+     ! If paw, must also rotate S.C(G,n):
+     call abi_xgemm('N','N',npw_k*my_nspinor,nband_k,nband_k,cone, &
+       gsc(:,1+igsc:npw_k*my_nspinor*nband_k+igsc),npw_k*my_nspinor, &
+       evec,nband_k,czero,work,npw_k*my_nspinor,x_cplx=2)
+     call abi_xcopy(npw_k*my_nspinor*nband_k, work(1,1),1,gsc(1,1+igsc),1,x_cplx=2)
+   end if
+
+   ABI_FREE(work)
+ end if
+ !call cwtime_report(" rotation", cpu, wall, gflops)
+
+ contains
+
+   function cgindex_subd(iband)
+     integer :: iband,cgindex_subd
+     cgindex_subd=npw_k*my_nspinor*(iband-1)+icg+1
+   end function cgindex_subd
+
+   function gscindex_subd(iband)
+     integer :: iband,gscindex_subd
+     gscindex_subd=npw_k*my_nspinor*(iband-1)+igsc+1
+ end function gscindex_subd
+
+end subroutine subdiago
+!!***
+
+!!****f* ABINIT/subdiago_low_memory
+!! NAME
+!! subdiago_low_memory
+!!
+!! FUNCTION
+!! This routine diagonalizes the Hamiltonian in the eigenfunction subspace
+!! Separate the computation in blocks of plane waves to save memory
+!!
+!! INPUTS
+!!  icg=shift to be applied on the location of data in the array cg
+!!  istwf_k=input parameter that describes the storage of wfs
+!!  mcg=second dimension of the cg array
+!!  nband_k=number of bands at this k point for that spin polarization
+!!  npw_k=number of plane waves at this k point
+!!  nspinor=number of spinorial components of the wavefunctions (on current proc)
+!!  subham(nband_k*(nband_k+1))=Hamiltonian expressed in the WFs subspace
+!!
+!! OUTPUT
+!!  eig_k(nband_k)=array for holding eigenvalues (hartree)
+!!  evec(2*nband_k,nband_k)=array for holding eigenvectors
+!!
+!! SIDE EFFECTS
+!!  cg(2,mcg)=wavefunctions
+!!
+!! SOURCE
+
+subroutine subdiago_low_memory(cg,eig_k,evec,icg,istwf_k,&
+&                   mcg,nband_k,npw_k,nspinor,paral_kgb,&
+&                   subham)
+
+ use m_linalg_interfaces
+ use m_abi_linalg
+
+!Arguments ------------------------------------
+ integer,intent(in) :: icg,istwf_k,mcg,nband_k,npw_k
+ integer,intent(in) :: nspinor,paral_kgb
+ real(dp),intent(inout) :: subham(nband_k*(nband_k+1))
+ real(dp),intent(out) :: eig_k(nband_k),evec(2*nband_k,nband_k)
+ real(dp),intent(inout),target :: cg(2,mcg)
+
+!Local variables-------------------------------
+ integer :: ig,igfirst,block_size,iblock,nblock,block_size_tmp,wfsize
+ integer :: iband,ii,ierr,vectsize,use_slk
+ character(len=500) :: message
+ ! real(dp) :: tsec(2)
+ real(dp),allocatable :: evec_tmp(:,:),subham_tmp(:)
+ real(dp),allocatable :: work(:,:)
+ real(dp),allocatable :: blockvectora(:,:),blockvectorb(:,:),blockvectorc(:,:)
+ real(dp),pointer :: cg_block(:,:)
+
+! *********************************************************************
+
+ if (paral_kgb<0) then
+   ABI_BUG('paral_kgb should be positive ')
+ end if
+
+ ! 1 if Scalapack version is used.
+ use_slk = paral_kgb
+
+!Impose Hermiticity on diagonal elements of subham (and subovl, if needed)
+! MG FIXME: In these two calls we are aliasing the args
+ call hermit(subham,subham,ierr,nband_k)
+
+!Diagonalize the Hamitonian matrix
+ if(istwf_k==2) then
+   ABI_MALLOC(evec_tmp,(nband_k,nband_k))
+   ABI_MALLOC(subham_tmp,(nband_k*(nband_k+1)/2))
+   subham_tmp=subham(1:nband_k*(nband_k+1):2)
+   evec_tmp=zero
+   call abi_xhpev('V','U',nband_k,subham_tmp,eig_k,evec_tmp,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+   evec(:,:)=zero;evec(1:2*nband_k:2,:) =evec_tmp
+   ABI_FREE(evec_tmp)
+   ABI_FREE(subham_tmp)
+ else
+   call abi_xhpev('V','U',nband_k,subham,eig_k,evec,nband_k,istwf_k=istwf_k,use_slk=use_slk)
+ end if
+
+!Normalize each eigenvector and set phase:
+!The problem with minus/plus signs might be present also if .not. use_subovl
+!if(use_subovl == 0) then
+ call cg_normev(evec,nband_k,nband_k)
+!end if
+
+ if(istwf_k==2)then
+   do iband=1,nband_k
+     do ii=1,nband_k
+       if(abs(evec(2*ii,iband))>1.0d-10)then
+         write(message,'(3a,2i0,2es16.6,a,a)')ch10,&
+&         ' subdiago: For istwf_k=2, observed the following element of evec :',ch10,&
+&         iband,ii,evec(2*ii-1,iband),evec(2*ii,iband),ch10,'  with a non-negligible imaginary part.'
+         ABI_BUG(message)
+       end if
+     end do
+   end do
+ end if
+
+!=====================================================
+!Carry out rotation of bands C(G,n) according to evecs
+! ZGEMM if istwfk==1, DGEMM if istwfk==2
+!=====================================================
+ wfsize=npw_k*nspinor
+
+ block_size=100
+
+ if (wfsize<block_size) block_size=wfsize
+
+ nblock=wfsize/block_size
+ if (mod(wfsize,block_size)/=0) nblock=nblock+1
+
+ if (istwf_k>1) then ! evec is real
+
+   vectsize=2*block_size
+
+   ABI_MALLOC_OR_DIE(blockvectora,(vectsize,nband_k), ierr)
+   ABI_MALLOC_OR_DIE(blockvectorb,(nband_k,nband_k), ierr)
+   ABI_MALLOC_OR_DIE(blockvectorc,(vectsize,nband_k), ierr)
+
+   do iband=1,nband_k
+     call abi_xcopy(nband_k,evec(2*iband-1,1),2*nband_k,blockvectorb(iband,1),nband_k)
+   end do
+
+   do iblock=1,nblock
+
+     igfirst=(iblock-1)*block_size
+     block_size_tmp=block_size
+     if (igfirst+block_size>wfsize) then
+       block_size_tmp=wfsize-igfirst
+     end if
+
+     do iband=1,nband_k
+       call abi_xcopy(block_size_tmp,cg(1,1+cgindex_subd(iblock,iband)),2,blockvectora(1,iband),1)
+       call abi_xcopy(block_size_tmp,cg(2,1+cgindex_subd(iblock,iband)),2,blockvectora(block_size+1,iband),1)
+       if (block_size_tmp<block_size) then
+         blockvectora(block_size_tmp+1:block_size,iband) = zero
+         blockvectora(block_size+block_size_tmp+1:2*block_size,iband) = zero
+       end if
+     end do
+
+     call abi_xgemm('N','N',vectsize,nband_k,nband_k,&
+&     cone,blockvectora,vectsize,blockvectorb,nband_k,czero,blockvectorc,vectsize)
+
+     do iband=1,nband_k
+       call abi_xcopy(block_size_tmp,blockvectorc(1,iband),1,cg(1,1+cgindex_subd(iblock,iband)),2)
+       call abi_xcopy(block_size_tmp,blockvectorc(block_size+1,iband),1,cg(2,1+cgindex_subd(iblock,iband)),2)
+     end do
+
+   end do
+
+   ABI_FREE(blockvectora)
+   ABI_FREE(blockvectorb)
+   ABI_FREE(blockvectorc)
+
+ else ! evec is complex
+
+   ABI_MALLOC_OR_DIE(work,(2,block_size*nband_k), ierr)
+   if (nblock==1) then
+     cg_block => cg(:,icg+1:icg+nband_k*wfsize)
+   else
+     ABI_MALLOC_OR_DIE(cg_block,(2,block_size*nband_k), ierr)
+   end if
+
+   do iblock=1,nblock
+     igfirst=(iblock-1)*block_size
+     block_size_tmp=block_size
+     if (igfirst+block_size>wfsize) then
+       block_size_tmp=wfsize-igfirst
+     end if
+     if (nblock/=1) then
+       do iband=1,nband_k
+         do ig=1,block_size_tmp
+           cg_block(:,ig+(iband-1)*block_size) = cg(:,ig+cgindex_subd(iblock,iband))
+         end do
+         if (block_size_tmp<block_size) then
+           do ig=block_size_tmp+1,block_size
+             cg_block(:,ig+(iband-1)*block_size) = zero
+           end do
+         end if
+       end do
+     end if
+     call abi_xgemm('N','N',block_size,nband_k,nband_k,cone,cg_block,block_size,evec,nband_k,czero,work,&
+       &     block_size,x_cplx=2)
+     do iband=1,nband_k
+       do ig=1,block_size_tmp
+         cg(:,ig+cgindex_subd(iblock,iband)) = work(:,ig+(iband-1)*block_size)
+       end do
+     end do
+   end do
+
+   ABI_FREE(work)
+   if (nblock/=1) then
+     ABI_FREE(cg_block)
+   end if
+
+ end if
+
+ contains
+
+   function cgindex_subd(iblock,iband)
+
+   integer :: iband,iblock,cgindex_subd
+   cgindex_subd=(iblock-1)*block_size+(iband-1)*wfsize+icg
+ end function cgindex_subd
+
+end subroutine subdiago_low_memory
+!!***
+
+!!****f* m_cgtools/pw_orthon
+!! NAME
+!! pw_orthon
+!!
+!! FUNCTION
+!! Normalize nvec complex vectors each of length nelem and then orthogonalize by modified Gram-Schmidt.
+!! Two orthogonality conditions are available:
+!!  Simple orthogonality: ${<Vec_{i}|Vec_{j}>=Delta_ij}$
+!!  Orthogonality with overlap S: ${<Vec_{i}|S|Vec_{j}>=Delta_ij}$
+!!
+!! INPUTS
+!!  icg=shift to be given to the location of the data in cg(=vecnm)
+!!  igsc=shift to be given to the location of the data in gsc(=ovl_vecnm)
+!!  istwf_k=option parameter that describes the storage of wfs
+!!  mcg=maximum size of second dimension of cg(=vecnm)
+!!  mgsc=maximum size of second dimension of gsc(=ovl_vecnm)
+!!  nelem=number of complex elements in each vector
+!!  nvec=number of vectors to be orthonormalized
+!!  ortalgo= option for the choice of the algorithm
+!!         -1: no orthogonalization (direct return)
+!!          0 or 2: old algorithm (use of buffers)
+!!          1: new algorithm (use of blas)
+!!          3: new new algorithm (use of lapack without copy)
+!!  useoverlap=select the orthogonality condition
+!!               0: no overlap between vectors
+!!               1: vectors are overlapping
+!!  me_g0=1 if this processor has G=0, 0 otherwise
+!!  comm=MPI communicator
+!!
+!! SIDE EFFECTS
+!!  vecnm= input: vectors to be orthonormalized; array of nvec column
+!!                vectors,each of length nelem,shifted by icg
+!!                This array is complex or else real(dp) of twice length
+!!         output: orthonormalized set of vectors
+!!  if (useoverlap==1) only:
+!!    ovl_vecnm= input: product of overlap and input vectors:
+!!                      S|vecnm>,where S is the overlap operator
+!!               output: updated S|vecnm> according to vecnm
+!!
+!! NOTES
+!! Note that each vector has an arbitrary phase which is not fixed in this routine.
+!!
+!! WARNING: not yet suited for nspinor=2 with istwfk/=1
+!!
+!! SOURCE
+
+subroutine pw_orthon(icg, igsc, istwf_k, mcg, mgsc, nelem, nvec, ortalgo, ovl_vecnm, useoverlap, vecnm, me_g0, comm)
+
+ use m_abi_linalg
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: icg,igsc,istwf_k,mcg,mgsc,nelem,nvec,ortalgo,useoverlap,me_g0,comm
+!arrays
+ real(dp),intent(inout) :: ovl_vecnm(2,mgsc*useoverlap),vecnm(2,mcg)
+
+!Local variables-------------------------------
+!scalars
+ integer :: ierr,ii,ii0,ii1,ii2,ivec,ivec2
+ integer :: rvectsiz,vectsize,cg_idx,gsc_idx
+ real(dp) :: doti,dotr,sum,xnorm
+ !real(dp) :: cpu, wall, gflops
+#ifdef DEBUG_MODE
+ character(len=500) :: msg
+#endif
+!arrays
+ integer :: cgindex(nvec), gscindex(nvec)
+ real(dp) :: buffer2(2),tsec(2)
+ real(dp),allocatable :: rblockvectorbx(:,:),rblockvectorx(:,:),rgramxbx(:,:)
+ complex(dpc),allocatable :: cblockvectorbx(:,:),cblockvectorx(:,:), cgramxbx(:,:)
+
+! *************************************************************************
+
+#ifdef DEBUG_MODE
+ !Make sure imaginary part at G=0 vanishes
+ if (istwf_k == 2 .and. me_g0 == 1) then
+   do ivec=1,nvec
+     if(abs(vecnm(2,1+nelem*(ivec-1)+icg))>zero)then
+     ! if(abs(vecnm(2,1+nelem*(ivec-1)+icg))>tol16)then
+       write(msg,'(2a,3i0,2es16.6,a,a)')&
+       ' For istwf_k = 2, observed the following element of vecnm :',ch10,&
+       nelem,ivec,icg,vecnm(1:2,1+nelem*(ivec-1)+icg), ch10,' with a non-negligible imaginary part.'
+       ABI_BUG(msg)
+     end if
+   end do
+ end if
+#endif
+
+ ! Nothing to do if ortalgo=-1
+ if(ortalgo==-1) return
+
+ !call wrtout(std_out, sjoin(" Begin wavefunction orthogonalization with ortalgo:", itoa(ortalgo)))
+ !call cwtime(cpu, wall, gflops, "start")
+
+ do ivec=1,nvec
+   cgindex(ivec)=nelem*(ivec-1)+icg+1
+   gscindex(ivec)=nelem*(ivec-1)+igsc+1
+ end do
+
+ if (ortalgo==3) then
+   ! =========================
+   ! First (new new) algorithm
+   ! =========================
+   ! NEW VERSION: avoid copies, use ZHERK for NC
+   cg_idx = cgindex(1)
+   if (useoverlap == 1) then
+     gsc_idx = gscindex(1)
+     call cgpaw_cholesky(nelem, nvec, vecnm(1,cg_idx), ovl_vecnm(1,gsc_idx), istwf_k, me_g0, comm)
+   else
+     call cgnc_cholesky(nelem, nvec, vecnm(1,cg_idx), istwf_k, me_g0, comm, use_gemm=.FALSE.)
+   end if
+
+ else if (ortalgo==1) then
+    ! =======================
+    ! Second (new) algorithm
+    ! =======================
+    ! This first algorithm seems to be more efficient especially in the parallel band-FFT mode.
+
+   if(istwf_k==1) then
+     vectsize=nelem
+     ABI_MALLOC(cgramxbx,(nvec,nvec))
+     ABI_MALLOC(cblockvectorx,(vectsize,nvec))
+     ABI_MALLOC(cblockvectorbx,(vectsize,nvec))
+     call abi_xcopy(nvec*vectsize,vecnm(:,cgindex(1):cgindex(nvec)-1),1,cblockvectorx,1,x_cplx=2)
+     if (useoverlap == 1) then
+       call abi_xcopy(nvec*vectsize,ovl_vecnm(:,gscindex(1):gscindex(nvec)-1),1,cblockvectorbx,1,x_cplx=2)
+     else
+       call abi_xcopy(nvec*vectsize,vecnm(:,cgindex(1):cgindex(nvec)-1),1,cblockvectorbx,1,x_cplx=2)
+     end if
+     call abi_xorthonormalize(cblockvectorx,cblockvectorbx,nvec,comm,cgramxbx,vectsize)
+     call abi_xcopy(nvec*vectsize,cblockvectorx,1,vecnm(:,cgindex(1):cgindex(nvec)-1),1,x_cplx=2)
+     if (useoverlap == 1) then
+       call abi_xtrsm('r','u','n','n',vectsize,nvec,cone,cgramxbx,nvec,cblockvectorbx,vectsize)
+       call abi_xcopy(nvec*vectsize,cblockvectorbx,1,ovl_vecnm(:,gscindex(1):gscindex(nvec)-1),1,x_cplx=2)
+     end if
+     ABI_FREE(cgramxbx)
+     ABI_FREE(cblockvectorx)
+     ABI_FREE(cblockvectorbx)
+
+   else if (istwf_k==2) then
+     ! Pack real and imaginary part of the wavefunctions.
+     rvectsiz=nelem
+     vectsize=2*nelem; if(me_g0==1) vectsize=vectsize-1
+     ABI_MALLOC(rgramxbx,(nvec,nvec))
+     ABI_MALLOC(rblockvectorx,(vectsize,nvec))
+     ABI_MALLOC(rblockvectorbx,(vectsize,nvec))
+     do ivec=1,nvec
+       if (me_g0 == 1) then
+         call abi_xcopy(1,vecnm(1,cgindex(ivec)),1,rblockvectorx (1,ivec),1)
+         call abi_xcopy(rvectsiz-1,vecnm(1,cgindex(ivec)+1),2,rblockvectorx(2,ivec),1)
+         call abi_xcopy(rvectsiz-1,vecnm(2,cgindex(ivec)+1),2,rblockvectorx(rvectsiz+1,ivec),1)
+         if (useoverlap == 1) then
+           call abi_xcopy(1,ovl_vecnm(1,gscindex(ivec)),1,rblockvectorbx(1,ivec),1)
+           call abi_xcopy(rvectsiz-1,ovl_vecnm(1,gscindex(ivec)+1),2,rblockvectorbx(2,ivec),1)
+           call abi_xcopy(rvectsiz-1,ovl_vecnm(2,gscindex(ivec)+1),2,rblockvectorbx(rvectsiz+1,ivec),1)
+         else
+           call abi_xcopy(1,vecnm(1,cgindex(ivec)),1,rblockvectorbx(1,ivec),1)
+           call abi_xcopy(rvectsiz-1,vecnm(1,cgindex(ivec)+1),2,rblockvectorbx(2,ivec),1)
+           call abi_xcopy(rvectsiz-1,vecnm(2,cgindex(ivec)+1),2,rblockvectorbx(rvectsiz+1,ivec),1)
+         end if
+         rblockvectorx (2:vectsize,ivec)=rblockvectorx (2:vectsize,ivec)*sqrt2
+         rblockvectorbx(2:vectsize,ivec)=rblockvectorbx(2:vectsize,ivec)*sqrt2
+       else
+         call abi_xcopy(rvectsiz,vecnm(1,cgindex(ivec)),2,rblockvectorx(1,ivec),1)
+         call abi_xcopy(rvectsiz,vecnm(2,cgindex(ivec)),2,rblockvectorx(rvectsiz+1,ivec),1)
+         if (useoverlap == 1) then
+           call abi_xcopy(rvectsiz,ovl_vecnm(1,gscindex(ivec)),2,rblockvectorbx(1,ivec),1)
+           call abi_xcopy(rvectsiz,ovl_vecnm(2,gscindex(ivec)),2,rblockvectorbx(rvectsiz+1,ivec),1)
+         else
+           call abi_xcopy(rvectsiz,vecnm(1,cgindex(ivec)),2,rblockvectorbx(1,ivec),1)
+           call abi_xcopy(rvectsiz,vecnm(2,cgindex(ivec)),2,rblockvectorbx(rvectsiz+1,ivec),1)
+         end if
+         rblockvectorx (1:vectsize,ivec)=rblockvectorx (1:vectsize,ivec)*sqrt2
+         rblockvectorbx(1:vectsize,ivec)=rblockvectorbx(1:vectsize,ivec)*sqrt2
+       end if
+     end do
+
+     call ortho_reim(rblockvectorx,rblockvectorbx,nvec,comm,rgramxbx,vectsize)
+
+     do ivec=1,nvec
+       ! Unpack results
+       if (me_g0 == 1) then
+         call abi_xcopy(1,rblockvectorx(1,ivec),1,vecnm(1,cgindex(ivec)),1)
+         vecnm(2,cgindex(ivec))=zero
+         rblockvectorx(2:vectsize,ivec)=rblockvectorx(2:vectsize,ivec)/sqrt2
+         call abi_xcopy(rvectsiz-1,rblockvectorx(2,ivec),1,vecnm(1,cgindex(ivec)+1),2)
+         call abi_xcopy(rvectsiz-1,rblockvectorx(rvectsiz+1,ivec),1,vecnm(2,cgindex(ivec)+1),2)
+       else
+         rblockvectorx(1:vectsize,ivec)=rblockvectorx(1:vectsize,ivec)/sqrt2
+         call abi_xcopy(rvectsiz,rblockvectorx(1,ivec),1,vecnm(1,cgindex(ivec)),2)
+         call abi_xcopy(rvectsiz,rblockvectorx(rvectsiz+1,ivec),1,vecnm(2,cgindex(ivec)),2)
+       end if
+
+       if(useoverlap == 1) then
+         call abi_xtrsm('r','u','n','n',vectsize,nvec,one,rgramxbx,nvec,rblockvectorbx,vectsize)
+         if (me_g0 == 1) then
+           call abi_xcopy(1,rblockvectorbx(1,ivec),1,ovl_vecnm(1,gscindex(ivec)),1)
+           ovl_vecnm(2,gscindex(ivec))=zero
+           rblockvectorbx(2:vectsize,ivec)=rblockvectorbx(2:vectsize,ivec)/sqrt2
+           call abi_xcopy(rvectsiz-1,rblockvectorbx(2,ivec),1,ovl_vecnm(1,gscindex(ivec)+1),2)
+           call abi_xcopy(rvectsiz-1,rblockvectorbx(rvectsiz+1,ivec),1,ovl_vecnm(2,gscindex(ivec)+1),2)
+         else
+           rblockvectorbx(1:vectsize,ivec)=rblockvectorbx(1:vectsize,ivec)/sqrt2
+           call abi_xcopy(rvectsiz,rblockvectorbx(1,ivec),1,ovl_vecnm(1,gscindex(ivec)),2)
+           call abi_xcopy(rvectsiz,rblockvectorbx(rvectsiz+1,ivec),1,ovl_vecnm(2,gscindex(ivec)),2)
+         end if
+       end if
+     end do
+     ABI_FREE(rgramxbx)
+     ABI_FREE(rblockvectorx)
+     ABI_FREE(rblockvectorbx)
+   end if
+
+ else if (ortalgo==4) then
+   ! else if (ANY(ortalgo==(/0,2/))) then
+
+   cg_idx = cgindex(1)
+   if (useoverlap==0) then
+     call cgnc_gramschmidt(nelem,nvec,vecnm(1,cg_idx),istwf_k,me_g0,comm)
+   else
+     gsc_idx = gscindex(1)
+     call cgpaw_gramschmidt(nelem,nvec,vecnm(1,cg_idx),ovl_vecnm(1,gsc_idx),istwf_k,me_g0,comm)
+   end if
+
+ else if (ANY(ortalgo==(/0,2/))) then
+   !  =======================
+   !  Third (old) algorithm
+   !  =======================
+   ! TODO: This algo should be removed. Ref files should be updated though.
+
+   do ivec=1,nvec
+     ! Normalize each vecnm(n,m) in turn:
+
+     if (useoverlap==1) then ! Using overlap S...
+       if(istwf_k/=2)then
+         sum=zero;ii0=1
+       else
+         if (me_g0 ==1) then
+           sum=half*ovl_vecnm(1,1+nelem*(ivec-1)+igsc)*vecnm(1,1+nelem*(ivec-1)+icg)
+           ii0=2
+         else
+           sum=zero;ii0=1
+         end if
+       end if
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:sum) SHARED(icg,ivec,nelem,vecnm)
+       do ii=ii0+nelem*(ivec-1),nelem*ivec
+         sum=sum+vecnm(1,ii+icg)*ovl_vecnm(1,ii+igsc)+vecnm(2,ii+icg)*ovl_vecnm(2,ii+igsc)
+       end do
+
+     else ! Without overlap...
+       if(istwf_k/=2)then
+         sum=zero;ii0=1
+       else
+         if (me_g0 ==1) then
+           sum=half*vecnm(1,1+nelem*(ivec-1)+icg)**2
+           ii0=2
+         else
+           sum=zero;ii0=1
+         end if
+       end if
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:sum) SHARED(icg,ivec,nelem,vecnm)
+       do ii=ii0+nelem*(ivec-1)+icg,nelem*ivec+icg
+         sum=sum+vecnm(1,ii)**2+vecnm(2,ii)**2
+       end do
+     end if
+
+     call timab(48,1,tsec)
+     call xmpi_sum(sum,comm,ierr)
+     call timab(48,2,tsec)
+
+     if(istwf_k>=2)sum=two*sum
+     xnorm = sqrt(abs(sum)) ;  sum=1.0_dp/xnorm
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(icg,ivec,nelem,sum,vecnm)
+     do ii=1+nelem*(ivec-1)+icg,nelem*ivec+icg
+       vecnm(1,ii)=vecnm(1,ii)*sum
+       vecnm(2,ii)=vecnm(2,ii)*sum
+     end do
+     if (useoverlap==1) then
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(icg,ivec,nelem,sum,ovl_vecnm)
+       do ii=1+nelem*(ivec-1)+igsc,nelem*ivec+igsc
+         ovl_vecnm(1,ii)=ovl_vecnm(1,ii)*sum
+         ovl_vecnm(2,ii)=ovl_vecnm(2,ii)*sum
+       end do
+     end if
+
+!    Remove projection in all higher states.
+     if (ivec<nvec) then
+
+       if(istwf_k==1)then
+!        Cannot use time-reversal symmetry
+
+         if (useoverlap==1) then ! Using overlap.
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             dotr=zero ; doti=zero
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+igsc
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:doti,dotr) SHARED(ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               dotr=dotr+vecnm(1,ii1+ii)*ovl_vecnm(1,ii2+ii)+vecnm(2,ii1+ii)*ovl_vecnm(2,ii2+ii)
+               doti=doti+vecnm(1,ii1+ii)*ovl_vecnm(2,ii2+ii)-vecnm(2,ii1+ii)*ovl_vecnm(1,ii2+ii)
+             end do
+
+             call timab(48,1,tsec)
+             buffer2(1)=doti;buffer2(2)=dotr
+             call xmpi_sum(buffer2,comm,ierr)
+             call timab(48,2,tsec)
+             doti=buffer2(1)
+             dotr=buffer2(2)
+
+!            Then subtract the appropriate amount of the lower state
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+#ifdef FC_INTEL
+!            DIR$ ivdep
+#endif
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(doti,dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)+doti*vecnm(2,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-doti*vecnm(1,ii1+ii)-dotr*vecnm(2,ii1+ii)
+             end do
+
+             ii1=nelem*(ivec-1)+igsc;ii2=nelem*(ivec2-1)+igsc
+             do ii=1,nelem
+               ovl_vecnm(1,ii2+ii)=ovl_vecnm(1,ii2+ii)&
+&               -dotr*ovl_vecnm(1,ii1+ii)&
+&               +doti*ovl_vecnm(2,ii1+ii)
+               ovl_vecnm(2,ii2+ii)=ovl_vecnm(2,ii2+ii)&
+               -doti*ovl_vecnm(1,ii1+ii)&
+&               -dotr*ovl_vecnm(2,ii1+ii)
+             end do
+           end do
+         else
+!          ----- No overlap -----
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             dotr=zero ; doti=zero
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:doti,dotr) SHARED(ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               dotr=dotr+vecnm(1,ii1+ii)*vecnm(1,ii2+ii)+&
+&               vecnm(2,ii1+ii)*vecnm(2,ii2+ii)
+               doti=doti+vecnm(1,ii1+ii)*vecnm(2,ii2+ii)-&
+&               vecnm(2,ii1+ii)*vecnm(1,ii2+ii)
+             end do
+!            Init mpi_comm
+             buffer2(1)=doti
+             buffer2(2)=dotr
+             call timab(48,1,tsec)
+             call xmpi_sum(buffer2,comm,ierr)
+!            call xmpi_sum(doti,spaceComm,ierr)
+!            call xmpi_sum(dotr,spaceComm,ierr)
+             call timab(48,2,tsec)
+             doti=buffer2(1)
+             dotr=buffer2(2)
+
+!            Then subtract the appropriate amount of the lower state
+#ifdef FC_INTEL
+!            DIR$ ivdep
+#endif
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(doti,dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)+&
+&               doti*vecnm(2,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-doti*vecnm(1,ii1+ii)-&
+&               dotr*vecnm(2,ii1+ii)
+             end do
+           end do
+
+         end if  ! Test on useoverlap
+
+       else if(istwf_k==2)then
+!        At gamma point use of time-reversal symmetry saves cpu time.
+
+         if (useoverlap==1) then
+!          ----- Using overlap -----
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+igsc
+             if (me_g0 ==1) then
+               dotr=half*vecnm(1,ii1+1)*ovl_vecnm(1,ii2+1)
+!              Avoid double counting G=0 contribution
+!              Imaginary part of vecnm at G=0 should be zero,so only take real part
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+               do ii=2,nelem
+                 dotr=dotr+vecnm(1,ii1+ii)*ovl_vecnm(1,ii2+ii)+&
+&                 vecnm(2,ii1+ii)*ovl_vecnm(2,ii2+ii)
+               end do
+             else
+               dotr=0._dp
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+               do ii=1,nelem
+                 dotr=dotr+vecnm(1,ii1+ii)*ovl_vecnm(1,ii2+ii)+&
+&                 vecnm(2,ii1+ii)*ovl_vecnm(2,ii2+ii)
+               end do
+             end if
+
+             dotr=two*dotr
+
+             call timab(48,1,tsec)
+             call xmpi_sum(dotr,comm,ierr)
+             call timab(48,2,tsec)
+
+!            Then subtract the appropriate amount of the lower state
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+#ifdef FC_INTEL
+!            DIR$ ivdep
+#endif
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-dotr*vecnm(2,ii1+ii)
+             end do
+             ii1=nelem*(ivec-1)+igsc;ii2=nelem*(ivec2-1)+igsc
+             do ii=1,nelem
+               ovl_vecnm(1,ii2+ii)=ovl_vecnm(1,ii2+ii)-dotr*ovl_vecnm(1,ii1+ii)
+               ovl_vecnm(2,ii2+ii)=ovl_vecnm(2,ii2+ii)-dotr*ovl_vecnm(2,ii1+ii)
+             end do
+           end do
+         else
+!          ----- No overlap -----
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+             if (me_g0 ==1) then
+!              Avoid double counting G=0 contribution
+!              Imaginary part of vecnm at G=0 should be zero,so only take real part
+               dotr=half*vecnm(1,ii1+1)*vecnm(1,ii2+1)
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+               do ii=2,nelem
+                 dotr=dotr+vecnm(1,ii1+ii)*vecnm(1,ii2+ii)+vecnm(2,ii1+ii)*vecnm(2,ii2+ii)
+               end do
+             else
+               dotr=0._dp
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+               do ii=1,nelem
+                 dotr=dotr+vecnm(1,ii1+ii)*vecnm(1,ii2+ii)+vecnm(2,ii1+ii)*vecnm(2,ii2+ii)
+               end do
+             end if
+             dotr=two*dotr
+
+             call timab(48,1,tsec)
+             call xmpi_sum(dotr,comm,ierr)
+             call timab(48,2,tsec)
+
+!            Then subtract the appropriate amount of the lower state
+#ifdef FC_INTEL
+!            DIR$ ivdep
+#endif
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-dotr*vecnm(2,ii1+ii)
+             end do
+           end do
+         end if  ! Test on useoverlap
+
+       else
+!        At other special points,use of time-reversal symmetry saves cpu time.
+
+         if (useoverlap==1) then
+!          ----- Using overlap -----
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+igsc
+!            Avoid double counting G=0 contribution
+!            Imaginary part of vecnm at G=0 should be zero,so only take real part
+             dotr=zero
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               dotr=dotr+vecnm(1,ii1+ii)*ovl_vecnm(1,ii2+ii)+vecnm(2,ii1+ii)*ovl_vecnm(2,ii2+ii)
+             end do
+             dotr=two*dotr
+
+             call timab(48,1,tsec)
+             call xmpi_sum(dotr,comm,ierr)
+             call timab(48,2,tsec)
+
+!            Then subtract the appropriate amount of the lower state
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+#ifdef FC_INTEL
+!            DIR$ ivdep
+#endif
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-dotr*vecnm(2,ii1+ii)
+             end do
+             ii1=nelem*(ivec-1)+igsc;ii2=nelem*(ivec2-1)+igsc
+             do ii=1,nelem
+               ovl_vecnm(1,ii2+ii)=ovl_vecnm(1,ii2+ii)-dotr*ovl_vecnm(1,ii1+ii)
+               ovl_vecnm(2,ii2+ii)=ovl_vecnm(2,ii2+ii)-dotr*ovl_vecnm(2,ii1+ii)
+             end do
+           end do
+         else
+!          ----- No overlap -----
+           do ivec2=ivec+1,nvec
+!            First compute scalar product
+             ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+!            Avoid double counting G=0 contribution
+!            Imaginary part of vecnm at G=0 should be zero,so only take real part
+             dotr=zero
+!$OMP PARALLEL DO PRIVATE(ii) REDUCTION(+:dotr) SHARED(ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               dotr=dotr+vecnm(1,ii1+ii)*vecnm(1,ii2+ii)+vecnm(2,ii1+ii)*vecnm(2,ii2+ii)
+             end do
+             dotr=two*dotr
+
+             call timab(48,1,tsec)
+             call xmpi_sum(dotr,comm,ierr)
+             call timab(48,2,tsec)
+
+!            Then subtract the appropriate amount of the lower state
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(dotr,ii1,ii2,nelem,vecnm)
+             do ii=1,nelem
+               vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)
+               vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-dotr*vecnm(2,ii1+ii)
+             end do
+           end do
+         end if
+
+       end if ! End use of time-reversal symmetry
+     end if  ! Test on "ivec"
+   end do ! end loop over vectors (or bands) with index ivec :
+
+ else
+   ABI_ERROR(sjoin("Wrong value for ortalgo:", itoa(ortalgo)))
+ end if
+
+ !call cwtime_report(sjoin(" pw_orthon with ortalgo: ", itoa(ortalgo)), cpu, wall, gflops)
+
+end subroutine pw_orthon
+!!***
+
+!!****f* m_cgtools/pw_orthon_paw
+!! NAME
+!! pw_orthon_paw
+!!
+!! FUNCTION
+!! Normalize nvec complex vectors each of length nelem and then orthogonalize by modified Gram-Schmidt.
+!! The overlap matrix <c_m|S|c_n> (S can be identity) has to be provided as input, and is overwritten.
+!!
+!! INPUTS
+!!  icg=shift to be given to the location of the data in cg(=vecnm)
+!!  mcg=maximum size of second dimension of cg(=vecnm)
+!!  nelem=number of complex elements in each vector
+!!  nspinor=number of spinorial components of the wavefunctions (on current proc)
+!!  nvec=number of vectors to be orthonormalized
+!!  ortalgo= option for the choice of the algorithm
+!!         -1: no orthogonalization (direct return)
+!!          0: do orthogonalization
+!!  comm=MPI communicator
+!!
+!! SIDE EFFECTS
+!!  cprj(optional)=<p_i|c_n> coefficients, updated to keep them consistent with the WF at output
+!!  ovl_mat=overlap matrix <c_m|S|c_n> for m<=n
+!!  vecnm= input: vectors to be orthonormalized; array of nvec column
+!!                vectors,each of length nelem,shifted by icg
+!!                This array is complex or else real(dp) of twice length
+!!         output: orthonormalized set of vectors
+!!
+!! NOTES
+!! Note that each vector has an arbitrary phase which is not fixed in this routine.
+!!
+!! SOURCE
+
+subroutine pw_orthon_cprj(icg,mcg,nelem,nspinor,nvec,ortalgo,ovl_mat,vecnm,cprj)
+
+ use m_abi_linalg
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: icg,mcg,nelem,nspinor,nvec,ortalgo
+!arrays
+ real(dp),intent(inout) :: ovl_mat(nvec*(nvec+1)),vecnm(2,mcg)
+ type(pawcprj_type),intent(inout),optional,target :: cprj(:,:)
+
+!Local variables-------------------------------
+!scalars
+ logical :: do_cprj
+ integer :: ii,ii1,ii2,ivec,ivec2,ivec3,iv1l,iv2l,iv3l,iv1r,iv2r,iv3r,ncprj
+ real(dp) :: doti,dotr,summ,xnorm
+!arrays
+ real(dp) :: ovl_row_tmp(2*nvec),ovl_col_tmp(2*nvec)
+ real(dp) :: re,im
+
+! *************************************************************************
+
+!Nothing to do if ortalgo=-1
+ if(ortalgo==-1) return
+
+ do_cprj=.false.
+ if (present(cprj)) then
+   do_cprj=.true.
+   ncprj = size(cprj,2)
+   if (ncprj/=nspinor*nvec) then
+     ABI_ERROR('bad size for cprj')
+   end if
+ end if
+
+ ! The overlap matrix is : ovl(i,j) = <psi_i|S|psi_j> = (<psi_j|S|psi_i>)^*
+ ! The row index stands for the "left"  band index
+ ! The column index stands for the "right" band index
+ ! Only the upper triangular part of the (complex) overlap matrix is stored, so only elements with i<=j.
+ ! They are stored in the following order: ovl(1,1),ovl(1,2),ovl(2,2),ovl(1,3),ovl(2,3),...
+ ! so:
+ ! -- shift for the ith row    : 2.(i.(i-1)/2) = i.(i-1)
+ ! -- shift for the ith column : 2.(i-1)+1 = 2.i-1
+ ! => index of real part of elem in the jth column and ith row (=ovl(i,j)) : 2.i-1+j.(j-1) (for i<=j)
+ ! => index of imaginary part = index of real part + 1
+ ! After orthogonalizing the first n vectors, we have:
+ ! for i<=n, i<=j : ovl(i,j) = delta_ij
+
+ do ivec=1,nvec
+
+   ! First we normalize the current vector
+   iv1r = ivec*(ivec-1) ! ith row
+   iv1l = 2*ivec-1      ! ith column
+   ! ovl(i1,i1) = <psi_i1|S|psi_i1>
+   summ = ovl_mat(iv1r+iv1l)
+   xnorm = sqrt(abs(summ)) ;  summ=1.0_dp/xnorm
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(icg,ivec,nelem,summ,vecnm)
+   do ii=1+nelem*(ivec-1)+icg,nelem*ivec+icg
+     vecnm(1,ii)=vecnm(1,ii)*summ
+     vecnm(2,ii)=vecnm(2,ii)*summ
+   end do
+!  Apply the normalization to cprj coeffs
+   if (do_cprj) call pawcprj_axpby(zero,summ,cprj(:,nspinor*(ivec-1)+1:nspinor*ivec),cprj(:,nspinor*(ivec-1)+1:nspinor*ivec))
+
+   ! As the norm of |psi_i1> changed, we update the overlap matrix accordingly.
+   ! From previous iterations, we already have:
+   ! ovl(i2,i1) = <psi_i2|S|psi_i1> = 0 for i2<i1
+   ! so we need to change only:
+   ! ovl(i1,i2) = <psi_i1|S|psi_i2> for i1<=i2
+   do ivec2=ivec,nvec
+     iv2r=ivec2*(ivec2-1)
+     if (ivec<ivec2) then
+       ovl_mat(iv2r+iv1l  ) = ovl_mat(iv2r+iv1l  )*summ
+       ovl_mat(iv2r+iv1l+1) = ovl_mat(iv2r+iv1l+1)*summ
+     else if (ivec==ivec2) then
+       ovl_mat(iv2r+iv1l  ) = ovl_mat(iv2r+iv1l  )*summ*summ
+       ovl_mat(iv2r+iv1l+1) = ovl_mat(iv2r+iv1l+1)*summ*summ
+       re = ovl_mat(iv2r+iv1l  )
+       im = ovl_mat(iv2r+iv1l+1)
+       if (abs(re-1)>tol10.or.abs(im)>tol10) then
+         write(std_out,'(a,es21.10e3)') '(pw_ortho) ovl (re)',re
+         write(std_out,'(a,es21.10e3)') '(pw_ortho) ovl (im)',im
+         ABI_WARNING('In pw_orthon_cprj : the result should be equal to one!')
+       end if
+     end if
+   end do
+
+!  Remove projection in all higher states.
+   if (ivec<nvec) then
+
+     do ivec2=ivec+1,nvec
+
+       iv2r = ivec2*(ivec2-1)
+       iv2l = 2*ivec2-1
+       ! (dotr,doti) = <psi_i1|S|psi_i2>
+       dotr = ovl_mat(iv2r+iv1l  )
+       doti = ovl_mat(iv2r+iv1l+1)
+
+!      Then subtract the appropriate amount of the lower state
+       ii1=nelem*(ivec-1)+icg;ii2=nelem*(ivec2-1)+icg
+       ! |psi'_i2> = |psi_i2> - <psi_i1|S|psi_i2> |psi_i1>
+!$OMP PARALLEL DO PRIVATE(ii) SHARED(doti,dotr,ii1,ii2,nelem,vecnm)
+       do ii=1,nelem
+         vecnm(1,ii2+ii)=vecnm(1,ii2+ii)-dotr*vecnm(1,ii1+ii)+doti*vecnm(2,ii1+ii)
+         vecnm(2,ii2+ii)=vecnm(2,ii2+ii)-doti*vecnm(1,ii1+ii)-dotr*vecnm(2,ii1+ii)
+       end do
+       if (do_cprj) call pawcprj_zaxpby((/-dotr,-doti/),(/one,zero/),cprj(:,nspinor*(ivec-1)+1:nspinor*ivec),&
+&                                                                    cprj(:,nspinor*(ivec2-1)+1:nspinor*ivec2))
+       ! As |psi_i2> changed, we update the overlap matrix accordingly.
+       ! We have: <psi'_i3|S|psi'_i2> = <psi'_i3|S|psi_i2> - <psi_i1|S|psi_i2> <psi'_i3|S|psi_i1>
+       ! Remember that i2>i1.
+       ! For i3<=i2, we compute the new column i2.
+       ! For i3<i1:
+       ! (1) <psi'_i3|S|psi'_i2> = <psi_i3|S|psi_i2> - <psi_i1|S|psi_i2> <psi_i3|S|psi_i1>
+       !                         = <psi_i3|S|psi_i2>
+       ! as for i3<i1 we have <psi_i3|S|psi_i1> = 0
+       ! For i1<=i3<i2:
+       ! (2) <psi'_i3|S|psi'_i2> = <psi_i3|S|psi_i2> - <psi_i1|S|psi_i2> <psi_i3|S|psi_i1>
+       !                         = <psi_i3|S|psi_i2> - <psi_i1|S|psi_i2> (<psi_i1|S|psi_i3>)^*
+       ! For i3=i2:
+       ! (3) <psi'_i3|S|psi'_i2> =  <psi'_i2|S|psi_i2> - <psi_i1|S|psi_i2> <psi'_i2|S|psi_i1>
+       !                         =   <psi_i2|S|psi_i2> - <psi_i1|S|psi_i2> <psi_i2|S|psi_i1>
+       !                           - <psi_i1|S|psi_i2> <psi_i2|S|psi_i1> + <psi_i1|S|psi_i2> <psi_1|S|psi_1> <psi_i2|S|psi_i1>
+       !                         =   <psi_i2|S|psi_i2> - <psi_i1|S|psi_i2> <psi_i2|S|psi_i1>
+       !                         =   <psi_i2|S|psi_i2> - <psi_i1|S|psi_i2> (<psi_i1|S|psi_i2>)^*
+       ! so the case i3=i2 (3) is equivalent to the case i1<=i3<i2 (2) with i3=i2.
+       ! Here we compute (2) and (3) in a temporary array:
+       do ivec3=ivec,ivec2
+         iv3r=ivec3*(ivec3-1)
+         iv3l=2*ivec3-1
+         ovl_col_tmp(iv3l  ) = ovl_mat(iv2r+iv3l  ) - dotr*ovl_mat(iv3r+iv1l) - doti*ovl_mat(iv3r+iv1l+1)
+         ovl_col_tmp(iv3l+1) = ovl_mat(iv2r+iv3l+1) - doti*ovl_mat(iv3r+iv1l) + dotr*ovl_mat(iv3r+iv1l+1)
+       end do
+       ! For i2<i3, we compute the new row i2.
+       ! (4) <psi'_i2|S|psi_i3> = <psi_i2|S|psi_i3> - <psi_i2|S|psi_i1> <psi_i1|S|psi_i3>
+       !                        = <psi_i2|S|psi_i3> - (<psi_i1|S|psi_i2>)^* <psi_i1|S|psi_i3>
+       ! Here we compute (4) in a temporary array:
+       do ivec3=ivec2+1,nvec
+         iv3r=ivec3*(ivec3-1)
+         iv3l=2*ivec3-1
+         ovl_row_tmp(iv3l  ) = ovl_mat(iv3r+iv2l  ) - dotr*ovl_mat(iv3r+iv1l) - doti*ovl_mat(iv3r+iv1l+1)
+         ovl_row_tmp(iv3l+1) = ovl_mat(iv3r+iv2l+1) + doti*ovl_mat(iv3r+iv1l) - dotr*ovl_mat(iv3r+iv1l+1)
+       end do
+       ! We update the column i2 (starting from ivec and not 1, thanks to (1))
+       do ivec3=ivec,ivec2
+         iv3l=2*ivec3-1
+         ovl_mat(iv2r+iv3l  ) = ovl_col_tmp(iv3l  )
+         ovl_mat(iv2r+iv3l+1) = ovl_col_tmp(iv3l+1)
+       end do
+       ! We update the row i2
+       do ivec3=ivec2+1,nvec
+         iv3r=ivec3*(ivec3-1)
+         iv3l=2*ivec3-1
+         ovl_mat(iv3r+iv2l  ) = ovl_row_tmp(iv3l  )
+         ovl_mat(iv3r+iv2l+1) = ovl_row_tmp(iv3l+1)
+       end do
+     end do
+
+   end if  ! Test on "ivec"
+
+!end loop over vectors (or bands) with index ivec :
+ end do
+
+end subroutine pw_orthon_cprj
+!!***
+
+!!****f* m_cgtools/cg_hprotate_and_get_diag
+!! NAME
+!!   cg_hprotate_and_get_diag
+!!
+!! FUNCTION
+!!  Compute the diagonal elements of E^H VNLX E
+!!  where VNLX is an Hermitean matrixin packed form and E is the matrix with eigenvectors as column vectors.
+!!  Mainly used to rotate the matrix elements of an operator after the subspace diagonalization.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_hprotate_and_get_diag(nband_k, subvnlx, evec, enlx_k)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: nband_k
+!arrays
+ real(dp),intent(in) :: subvnlx(nband_k*(nband_k+1))
+ real(dp),intent(in) :: evec(2*nband_k,nband_k)
+ real(dp), intent(out) :: enlx_k(nband_k)
+
+!Local variables ------------------------------
+!scalars
+ integer :: ii,jj,pidx,iband
+ real(dp),allocatable :: mat1(:,:,:),matvnl(:,:,:)
+
+! *************************************************************************
+
+ ABI_MALLOC(matvnl,(2,nband_k,nband_k))
+ ABI_MALLOC(mat1,(2,nband_k,nband_k))
+
+ ! Construct upper triangle of matvnl from subvnlx using full storage mode.
+ pidx=0
+ do jj=1,nband_k
+   do ii=1,jj
+     pidx=pidx+1
+     matvnl(1,ii,jj)=subvnlx(2*pidx-1)
+     matvnl(2,ii,jj)=subvnlx(2*pidx  )
+   end do
+ end do
+
+ call zhemm('L','U',nband_k,nband_k,cone,matvnl,nband_k,evec,nband_k,czero,mat1,nband_k)
+
+!$OMP PARALLEL DO
+ do iband=1,nband_k
+   enlx_k(iband) = cg_real_zdotc(nband_k,evec(:,iband),mat1(:,:,iband))
+ end do
+
+ ABI_FREE(matvnl)
+ ABI_FREE(mat1)
+
+end subroutine cg_hprotate_and_get_diag
+!!***
+
+!!****f* m_cgtools/cg_hrotate_and_get_diag
+!! NAME
+!!   cg_hrotate_and_get_diag
+!!
+!! FUNCTION
+!!  Compute the diagonal elements of E^H VNLX E
+!!  where VNLX is an Hermitean matrix.
+!!  Mainly used to rotate the matrix elements of an operator after the subspace diagonalization.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_hrotate_and_get_diag(istwf_k, nband_k, totvnlx, evec, enlx_k)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwf_k, nband_k
+!arrays
+ real(dp),intent(in) :: totvnlx(2*nband_k,nband_k)
+ real(dp),intent(in) :: evec(2*nband_k,nband_k)
+ real(dp),intent(out) :: enlx_k(nband_k)
+
+!Local variables ------------------------------
+!scalars
+ real(dp),external :: ddot
+ integer :: jj,iband
+ real(dp),allocatable :: mat_loc(:,:),mat1(:,:,:),matvnl(:,:,:), evec_loc(:,:)
+
+! *************************************************************************
+
+ ABI_MALLOC(matvnl, (2,nband_k, nband_k))
+ ABI_MALLOC(mat1, (2, nband_k, nband_k))
+ mat1=zero
+
+ enlx_k(1:nband_k)=zero
+
+ if (istwf_k==1) then
+   call zhemm('l','l',nband_k,nband_k,cone,totvnlx,nband_k,evec,nband_k,czero,mat1,nband_k)
+   do iband=1,nband_k
+     enlx_k(iband)= cg_real_zdotc(nband_k,evec(:,iband),mat1(:,:,iband))
+   end do
+
+ else if (istwf_k==2) then
+   ABI_MALLOC(evec_loc,(nband_k,nband_k))
+   ABI_MALLOC(mat_loc,(nband_k,nband_k))
+   do iband=1,nband_k
+     do jj=1,nband_k
+       evec_loc(iband,jj)=evec(2*iband-1,jj)
+     end do
+   end do
+   call dsymm('l','l',nband_k,nband_k,one,totvnlx,nband_k,evec_loc,nband_k,zero,mat_loc,nband_k)
+   do iband=1,nband_k
+     enlx_k(iband)=ddot(nband_k,evec_loc(:,iband),1,mat_loc(:,iband),1)
+   end do
+   ABI_FREE(evec_loc)
+   ABI_FREE(mat_loc)
+ end if
+
+ ABI_FREE(matvnl)
+ ABI_FREE(mat1)
+
+end subroutine cg_hrotate_and_get_diag
+!!***
+
+!!****f* m_cgtools/cg_get_eigens
+!! NAME
+!!  cg_get_eigens
+!!
+!! FUNCTION
+!!  Helper functions to compute <i|H|i> / <i|S|i> for ndat states.
+!!  Assume normalized input wavefunctions.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_get_eigens(usepaw, istwf_k, npwsp, ndat, cg, ghc, gsc, eig, me_g0, comm)
+
+ integer,intent(in) :: usepaw, istwf_k, npwsp, ndat, me_g0, comm
+ real(dp),intent(in) :: ghc(2*npwsp, ndat), cg(2*npwsp, ndat), gsc(2*npwsp, ndat*usepaw)
+ real(dp),intent(out) :: eig(ndat)
+
+!Local variables-------------------------------
+ integer,parameter :: option1 = 1
+ integer :: idat, ierr
+ real(dp) :: doti, dots_r(ndat)
+! *************************************************************************
+
+ ! <psi|H|psi> / <psi|S|psi>
+!$OMP PARALLEL DO
+ do idat=1,ndat
+   call dotprod_g(eig(idat), doti, istwf_k, npwsp, option1, ghc(:,idat), cg(:,idat), me_g0, xmpi_comm_self)
+   if (usepaw == 1) then
+     call dotprod_g(dots_r(idat), doti, istwf_k, npwsp, option1, gsc(:,idat), cg(:,idat), me_g0, xmpi_comm_self)
+   end if
+ end do
+
+ if (xmpi_comm_size(comm) > 1) then
+   call xmpi_sum(eig, comm, ierr)
+   if (usepaw == 1) call xmpi_sum(dots_r, comm, ierr)
+ end if
+
+ if (usepaw == 1) eig(:) = eig(:) / dots_r(:)
+
+end subroutine cg_get_eigens
+!!***
+
+!!****f* m_cgtools/cg_get_residvecs
+!! NAME
+!!  cg_get_residvecs
+!!
+!! FUNCTION
+!!  Compute redidual vectors (H - eS) |psi> for ndat states.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_get_residvecs(usepaw, npwsp, ndat, eig, cg, ghc, gsc, residvecs)
+
+ integer,intent(in) :: usepaw, npwsp, ndat
+ real(dp),intent(in) :: eig(ndat)
+ real(dp),intent(in) :: ghc(2*npwsp, ndat), cg(2*npwsp, ndat), gsc(2*npwsp, ndat*usepaw)
+ real(dp),intent(out) :: residvecs(2*npwsp, ndat)
+
+!Local variables-------------------------------
+ integer :: idat
+! *************************************************************************
+
+ if (usepaw == 1) then
+   ! (H - e) |psi>
+   !$OMP PARALLEL DO IF (ndat > 1)
+   do idat=1,ndat
+     residvecs(:,idat) = ghc(:,idat) - eig(idat) * gsc(:,idat)
+   end do
+ else
+   ! (H - eS) |psi>
+   !$OMP PARALLEL DO IF (ndat > 1)
+   do idat=1,ndat
+     residvecs(:,idat) = ghc(:,idat) - eig(idat) * cg(:,idat)
+   end do
+ end if
+
+end subroutine cg_get_residvecs
+!!***
+
+!!****f* m_cgtools/cg_norm2g
+!! NAME
+!!  cg_norm2g
+!!
+!! FUNCTION
+!!  Compute <psi|psi> for ndat states distributed inside communicator comm.
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_norm2g(istwf_k, npwsp, ndat, cg, norms, me_g0, comm)
+
+ integer,intent(in) :: istwf_k, npwsp, ndat, me_g0, comm
+ real(dp),intent(in) :: cg(2*npwsp, ndat)
+ real(dp),intent(out) :: norms(ndat)
+
+!Local variables-------------------------------
+ integer :: idat, ierr
+! *************************************************************************
+
+!$OMP PARALLEL DO IF (ndat > 1)
+ do idat=1,ndat
+   call sqnorm_g(norms(idat), istwf_k, npwsp, cg(:,idat), me_g0, xmpi_comm_self)
+ end do
+ if (xmpi_comm_size(comm) > 1) call xmpi_sum(norms, comm, ierr)
+
+end subroutine cg_norm2g
+!!***
+
+!!****f* m_cgtools/cg_zdotg_zip
+!! NAME
+!!  cg_zdotg_zip
+!!
+!! FUNCTION
+!!  Compute <cg1|cg2> for ndat states
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_zdotg_zip(istwf_k, npwsp, ndat, option, cg1, cg2, dots, me_g0, comm)
+
+ integer,intent(in) :: istwf_k, npwsp, ndat, option, me_g0, comm
+ real(dp),intent(in) :: cg1(2*npwsp,ndat), cg2(2*npwsp,ndat)
+ real(dp),intent(out) :: dots(2,ndat)
+
+!Local variables-------------------------------
+ integer :: idat, ierr
+ real(dp) :: dotr, doti, re_dots(ndat)
+! *************************************************************************
+
+!$OMP PARALLEL DO IF (ndat > 1) PRIVATE(dotr, doti)
+ do idat=1,ndat
+   call dotprod_g(dotr, doti, istwf_k, npwsp, option, cg1(:,idat), cg2(:,idat), me_g0, xmpi_comm_self)
+   if (istwf_k == 2) then
+     re_dots(idat) = dotr
+   else
+     dots(:, idat) = [dotr, doti]
+   end if
+ end do
+
+ if (xmpi_comm_size(comm) > 1) then
+   if (istwf_k == 2) then
+     call xmpi_sum(re_dots, comm, ierr)
+   else
+     call xmpi_sum(dots, comm, ierr)
+   end if
+ end if
+
+ if (istwf_k == 2) then
+   do idat=1,ndat
+     dots(1,idat) = re_dots(idat)
+     dots(2,idat) = zero
+   end do
+ end if
+
+end subroutine cg_zdotg_zip
+!!***
+
+!!****f* m_cgtools/cg_precon_many
+!! NAME
+!!  cg_precon_many
+!!
+!! FUNCTION
+!!
+!! INPUTS
+!!
+!! OUTPUT
+!!
+!! SOURCE
+
+subroutine cg_precon_many(istwf_k, npw, nspinor, ndat, cg, optekin, kinpw, vect, me_g0, comm)
+
+ integer,intent(in) :: istwf_k, npw, nspinor, optekin, ndat, me_g0, comm
+ real(dp),intent(in) :: cg(2*npw*nspinor,ndat), kinpw(npw)
+ real(dp),intent(inout) :: vect(2*npw*nspinor,ndat)
+
+!Local variables-------------------------------
+ integer :: idat
+ real(dp),allocatable :: pcon(:)
+! *************************************************************************
+
+ ! TODO: Optimized version for MPI with ndat > 1
+ ABI_MALLOC(pcon, (npw))
+ do idat=1,ndat
+   call cg_precon(cg(:,idat), zero, istwf_k, kinpw, npw, nspinor, me_g0, optekin, pcon, vect(:,idat), comm)
+ end do
+ ABI_FREE(pcon)
+
+ !call cg_kinene(istwf_k, npw, nspinor, ndat, cg, me_g0, comm)
+ !call cg_zprecon_block(cg,eval,blocksize,iterationnumber,kinpw, npw,nspinor,optekin,optpcon,pcon,ghc,vect,vectsize,comm)
+
+end subroutine cg_precon_many
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_zaxpy_many_areal
+!! NAME
+!!  cg_zaxpy_many_areal
+!!
+!! FUNCTION
+!!  Computes y = alpha*x + y
+!!
+!! INPUTS
+!!  n = Specifies the number of elements in vectors x and y.
+!!  ndat
+!!  alpha(ndat) = Specifies the scalar alpha.
+!!  x = Array
+!!
+!! SIDE EFFECTS
+!!  y = Array. In output, y contains the updated vector.
+!!
+!! SOURCE
+
+subroutine cg_zaxpy_many_areal(npwsp, ndat, alphas, x, y)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: npwsp, ndat
+ real(dp),intent(in) :: alphas(ndat)
+!arrays
+ real(dp),intent(in) :: x(2*npwsp, ndat)
+ real(dp),intent(inout) :: y(2*npwsp, ndat)
+
+!Local variables-------------------------------
+ integer :: idat
+! *************************************************************************
+
+!$OMP PARALLEL DO IF (ndat > 1)
+ do idat=1,ndat
+   call daxpy(2*npwsp, alphas(idat), x(1,idat), 1, y(1,idat), 1)
+ end do
+
+end subroutine cg_zaxpy_many_areal
+!!***
+
+!----------------------------------------------------------------------
+
+!!****f* m_cgtools/cg_set_imag0_to_zero
+!! NAME
+!!  cg_set_imag0_to_zero
+!!
+!! FUNCTION
+!!  Set the imaginary part at G=0 to zero if istwfk == 2 and this proc has the gamma point
+!!
+!! INPUTS
+!!  npwsp=Size of each vector (usually npw*nspinor)
+!!  istwfk=Storage mode for the wavefunctions. 1 for standard full mode
+!!  me_g0=1 if this node has G=0.
+!!
+!! SIDE EFFECTS
+!!  cg(2*npwsp*nband)
+!!    input: Input set of vectors.
+!!    output: Orthonormalized set.
+!!
+!! SOURCE
+
+pure subroutine cg_set_imag0_to_zero(istwfk, me_g0, npwsp, nband, cg, max_absimag)
+
+!Arguments ------------------------------------
+!scalars
+ integer,intent(in) :: istwfk, me_g0, npwsp, nband
+!arrays
+ real(dp),intent(inout) :: cg(2,npwsp*nband)
+ real(dp),intent(out) :: max_absimag
+
+!Local variables ------------------------------
+ integer :: ib, ii
+
+! *************************************************************************
+
+ max_absimag = zero
+ if (istwfk == 2 .and. me_g0 == 1) then
+   do ib=1,nband
+     ii = 1 + (ib - 1) * npwsp
+     max_absimag = max(max_absimag, abs(cg(2, ii)))
+     cg(2, ii) = zero
+   end do
+ end if
+
+end subroutine cg_set_imag0_to_zero
+!!***
+
+end module m_cgtools
+!!***

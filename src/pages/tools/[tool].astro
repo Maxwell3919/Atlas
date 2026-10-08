@@ -1,0 +1,21 @@
+---
+import { readFileSync } from 'node:fs';
+import Base from '../../layouts/Base.astro';
+import ArticleBody from '../../components/ArticleBody.astro';
+import { renderMarkdownBody } from '../../lib/manual.js';
+import { normalizeBase } from '../../data/methods.js';
+export function getStaticPaths() {
+ return [
+  {slug:'abinit',title:'ABINIT：NC-LDA 原生 SCF 主引擎'},
+  {slug:'gpaw',title:'GPAW：PAW 能量与力主引擎'},
+  {slug:'wannier90',title:'Wannier90：电子模型接口'},
+  {slug:'epw',title:'EPW：位移响应与谱接口'},
+  {slug:'phonopy',title:'Phonopy：超胞力与力常数接口'},
+ ].map(entry=>({params:{tool:entry.slug},props:entry}));
+}
+const {slug,title}=Astro.props;
+const base=normalizeBase(import.meta.env.BASE_URL);
+const raw=readFileSync(`src/content/tools/${slug}.md`,'utf8');
+const body=await renderMarkdownBody(raw.replace(/^# [^\n]+\n/,''));
+---
+<Base title={`${title} · Atlas`}><article><p><a href={`${base}/tools/`}>← 关联工具工作流</a></p><h1>{title}</h1><ArticleBody body={body}/></article></Base>

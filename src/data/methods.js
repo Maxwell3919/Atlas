@@ -2,6 +2,8 @@
 import researchScope from './research-scope.json';
 
 export const engines = [
+  { "id": "abinit", "name": "ABINIT" },
+  { "id": "gpaw", "name": "GPAW" },
   { "id": "cp2k", "name": "CP2K" },
   {
     "id": "qe",

@@ -1,0 +1,16 @@
+stage,observable,Talos_s4,Preston_s7,Preston_minus_Talos,use
+smoke,energy_initial_eV,-6.659426568123643,-6.659426568123882,-2.389199948993337e-13,observation only; not acceptance threshold
+smoke,bond_initial_A,0.74,0.74,0.0,observation only; not acceptance threshold
+relax,energy_initial_eV,-6.409789624898396,-6.409789624898372,2.398081733190338e-14,observation only; not acceptance threshold
+relax,bond_initial_A,0.9,0.9,0.0,observation only; not acceptance threshold
+relax,optimizer_steps,2,2,0,observation only; not acceptance threshold
+relax,energy_final_eV,-6.663821330295236,-6.6638213304200535,-1.24817489677298e-10,observation only; not acceptance threshold
+relax,bond_final_A,0.7569389495758476,0.7569389446946269,-4.8812207609216784e-09,observation only; not acceptance threshold
+relax,max_force_final_eV_A,0.02545238010997284,0.0254525825871726,2.024771997601038e-07,observation only; not acceptance threshold
+forcecheck,energy_initial_eV,-6.659426568123643,-6.659426568123882,-2.389199948993337e-13,observation only; not acceptance threshold
+forcecheck,bond_initial_A,0.74,0.74,0.0,observation only; not acceptance threshold
+forcecheck,delta_A,0.005,0.005,0.0,observation only; not acceptance threshold
+forcecheck,energy_plus_eV,-6.661754133223602,-6.661754133223575,2.7533531010703882e-14,observation only; not acceptance threshold
+forcecheck,energy_minus_eV,-6.656194809498301,-6.656194809497928,3.7214675785435247e-13,observation only; not acceptance threshold
+forcecheck,force_fd_eV_A,0.5559323725301546,0.5559323725646159,3.446132268436486e-11,observation only; not acceptance threshold
+forcecheck,force_error_eV_A,0.0009664363578032464,0.0009664363923405084,3.453726193924922e-11,observation only; not acceptance threshold

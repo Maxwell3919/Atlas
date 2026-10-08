@@ -1,5 +1,7 @@
 # Al 双网格 EPC：两条独立链的执行证据
 
+从电荷重排、电子子空间到模式与谱的读法，见[H₂、Si 与 Al 的公开方法实例](/Atlas/cases/charge-to-epc/)。
+
 Al32³与48³各自执行致密SCF、16³响应SCF、q4³的8个不可约点与后处理。两条链共享比较协议，使用各自的outdir与致密电子数据；q2r/matdyn插值谱和lambda.x直接逐q谱分别保存。下文是历史终端记录，提交号和RUNNING快照对应当次执行，不作为新的运行指令。
 
 完整结果在0.005–0.050 Ry十档电子σ上无孤立交点、无重合区间。最近的0.050 Ry处，Tc32=0.984588 K、Tc48=0.975366 K，差0.009222 K；固定q4³与响应16³的比较不认证材料Tc收敛。普通跟做与物理解释读[EPC正文](/Atlas/m/epc/qe/)、[谱积分](/Atlas/m/eliashberg-a2f/qe/)和[Tc比较](/Atlas/m/allen-dynes/qe/#tc-two-dense-grids)。两套原件及复算源码在[双分支包](/Atlas/examples/supercon-al-tc-files.tar.gz)。

@@ -25,13 +25,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Stage exact reviewed public inputs before compilation
+        run: python3 publication/stage.py --manifest publication/source-allowlist.json --destination "$RUNNER_TEMP/atlas-public"
+
       - name: Build with Astro
+        working-directory: ${{ runner.temp }}/atlas-public
         run: npm run build
+
+      - name: Apply public policies and verify reviewed output
+        working-directory: ${{ runner.temp }}/atlas-public
+        run: |
+          python3 preview-policy/sanitize.py --preview dist --receipt /tmp/atlas-s139-policy.json
+          python3 preview-policy/release.py --preview dist --expected publication/expected-output.json --receipt /tmp/atlas-s285-policy.json
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ${{ runner.temp }}/atlas-public/dist
 
   deploy:
     concurrency:

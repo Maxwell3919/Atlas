@@ -850,7 +850,15 @@ Fig. 4 的 WCC 纵轴为相位除以 2π 后的模 1 坐标、横轴为半周期
 
 
 
-同样的 Wannier 表象也用于 [EPW](/Atlas/m/epw-eliashberg/qe/) 的电子与电声矩阵元插值。它与 WCC 的数据用途不同，沿线色散相合不能替代电声矩阵元的检验。
+## 从能带插值走向电子–声子耦合
+
+同样的 Wannier 表象也用于 [EPW](/Atlas/m/epw-eliashberg/qe/) 的电子与电声矩阵元插值。它与 WCC 的数据用途不同，沿线色散相合不能替代电声矩阵元的检验。学完 Si 后，可以带过去的是“在独立 DFT 点检查目标子空间”的方法：本页的四条隔离价带只检验 Si 的能量重建，没有导带，也没有提供 Al 或界面的费米面、耦合与临界温度证据。进入金属 EPC 时，首先要把检查对象换成参与积分的费米能附近能带。
+
+已有的 [Al 能带与声子检查](/Atlas/m/epw-eliashberg/qe/#h-声学模和插值质量怎样核对)给出了这个转变的具体例子。Al 从较多 Bloch 带中解缠出四个 Wannier 函数，投影、外窗口和冻结窗口决定所保留的子空间，不能照搬 Si 的四价带设置。先读该页“先比较能带，再检查实空间衰减”，在同一路径、同一能量参考下比较直接 DFT 与插值结果，再读费米能附近的误差说明；[公开 Al 包](/Atlas/examples/al-epw-wannier-files.tar.gz)中的 `inputs/epw1-k12.in` 和 `derived/band-k12_frozen13p5.csv` 分别保存实际设置与逐点对照。路径上的吻合只回答这些采样点的能谱问题，不能扩大成整个费米面的精度保证。若目标能区仍有偏差，应回到电子粗网格、投影与能窗的选择；加密细积分网格只会更密地取样已有插值函数，不能自动修复它。
+
+能量检查之后还需要另一组物理输入。电子哈密顿量描述所选子空间中的电子运动，[EPC 矩阵元](https://docs.epw-code.org/Theory.html#electron-phonon-matrix-elements)还需要原子位移引起的势响应及其在电子态之间的矩阵元，并结合声子频率和振动模式。Al 正文“把局域化与粗网格 EPC 分为两次执行”说明了为何完成 Wannier 化后仍要读取同一 DFPT 父链的响应；包中的 `inputs/epw-coarse.in` 与 `inputs/epw2-k12-fine24.in` 对应粗矩阵构造和后续细网格积分。这里与 [QE 7.5 / EPW 6.0 官方教程](https://docs.epw-code.org/tutorials/tutorial_04/index.html)的 DFPT、Wannier 化、矩阵元插值顺序一致，单独的 HR 能量模型不包含完整的 EPC 输入。
+
+因此，读完能带对照还要接着看 Al 包中 `native-final/decay.H`、`decay.epmate` 和 `decay.epmatp`：它们分别检查哈密顿量、耦合沿电子方向及沿声子方向的实空间衰减，电子方向的结果不能替代声子方向的检查。声子本身则另看 `runs/phononcheck-002/phband.freq`，结合正文记录的力常数、声学求和规则和低频阈值理解，不能从一张正频率谱图推断动力学稳定。把这些检查接到“细网格插值生成 α²F”后，才有依据比较粗电子与粗声子网格、细积分网格、展宽和 Fermi 窗口对谱的影响。现有 Al 结果没有给出这些参数及方程截断的联合收敛结论；能带吻合、局域化停止或一次程序正常退出，都不足以证明耦合或 $T_c$ 收敛。
 
 ```text
 SCF → 完整均匀 NSCF → nnkp + 波函数接口 → amn / mmn / eig

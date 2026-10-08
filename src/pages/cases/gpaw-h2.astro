@@ -1,0 +1,41 @@
+---
+import { readFileSync } from 'node:fs';
+import Base from '../../layouts/Base.astro';
+import ArticleBody from '../../components/ArticleBody.astro';
+import { renderMarkdownBody } from '../../lib/manual.js';
+import { normalizeBase } from '../../data/methods.js';
+const base=normalizeBase(import.meta.env.BASE_URL);
+let body=await renderMarkdownBody(readFileSync('src/content/cases/gpaw-h2.md','utf8').replace(/^# [^\n]+\n/,''));
+// Presentation only: keep Markdown, original image and adjacent CSV unchanged.
+const figurePattern=/(<figure class="research-figure">[\s\S]*?h2-relax\.png[\s\S]*?<\/figcaption>)(<\/figure>)/g;
+if(!figurePattern.test(body)) throw new Error('Expected GPAW scientific figure missing');
+let figureNumber=0;
+body=body.replace(figurePattern, (_match,figure,end) => {
+ const src=figure.match(/<img[^>]*src="([^"]+)"/)?.[1];
+ if(!src) throw new Error('Scientific figure source missing');
+ const helpId=`gpaw-pan-help-${++figureNumber}`;
+ return `${figure}
+<div class="gpaw-figure-reader">
+ <p class="gpaw-figure-context">PBE / PW 340 eV / 6 Å 周期盒；截断能和盒长收敛未检验。左轴：相对末态能量（eV）；右轴：最大力（eV/Å）；虚线：0.05 eV/Å 局部力阈值。</p>
+ <p><a class="gpaw-original" href="${src}" target="_blank" rel="noopener">打开原尺寸 PNG（新标签页，可放大） ↗</a></p>
+ <details class="gpaw-enlarged">
+  <summary>展开原尺寸图：左右滑动查看坐标与阈值</summary>
+  <p id="${helpId}">图保持原始 1620 × 684 像素。触屏左右滑动；键盘聚焦图框后用左右方向键。收起可返回正文。</p>
+  <div class="gpaw-pan" tabindex="0" role="region" aria-label="原尺寸优化图，可横向滚动" aria-describedby="${helpId}"><img src="${src}" width="1620" height="684" alt="原尺寸图：PBE PW 340 eV 六埃周期模型，能量 eV、最大力 eV/Å 与 0.05 局部力阈值；基组盒长未检验"></div>
+ </details>
+</div>${end}`;
+});
+
+---
+<Base title="GPAW H₂：优化与力一致性 · Atlas"><article class="record"><p><a href={`${base}/tools/gpaw/`}>← GPAW 安装与输入</a> · <a href={`${base}/software/`}>软件算例</a></p><h1>GPAW H₂：固定设置下的能量、优化与力一致性</h1><ArticleBody body={body}/></article></Base>
+
+<style>
+ .record :global(.gpaw-figure-reader){margin:.8rem 0 1rem}
+ .record :global(.gpaw-figure-context){font-size:.95rem;line-height:1.75;color:var(--fg)}
+ .record :global(.gpaw-original){display:inline-block;padding:.65rem .8rem;border:1px solid var(--accent);border-radius:6px;font-size:1rem;font-weight:600}
+ .record :global(.gpaw-enlarged summary){padding:.7rem .2rem;font-size:1rem;font-weight:600;cursor:pointer}
+ .record :global(.gpaw-enlarged > p){font-size:.9rem}
+ .record :global(.gpaw-pan){max-width:100%;overflow:auto;border:1px solid var(--line);background:white;overscroll-behavior-x:contain}
+ .record :global(.gpaw-pan img){display:block;width:1620px;max-width:none;height:684px;margin:0;border:0;border-radius:0}
+ .record :global(.gpaw-pan:focus-visible),.record :global(.gpaw-original:focus-visible),.record :global(.gpaw-enlarged summary:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+</style>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>能量稳定，为什么 SCF 仍未收敛？ · GPAW H</title><link rel="stylesheet" href="style.css"><script src="viewer.js" defer></script></head><body><main>
+<h1>能量稳定，为什么 SCF 仍未收敛？</h1>
+<p>下面是一个中性 H 原子受约束双重态的真实 80 步 SCF 轨迹。打印外推总能量很快停止可见变化，密度判据也随后通过；但波函数是否满足 Kohn–Sham 方程，需要单独检查本征态残差。三个判据的合取未成立，程序在第 80 步以 <code>KohnShamConvergenceError</code> 退出（exit 1），分数自旋参考没有执行。</p>
+<p class="note">这是一份未收敛轨迹。没有成功返回的总能量、占据、最终密度或测得的磁矩，也没有完整双重态/分数自旋配对结果；它不能给出配对能差、铁磁或交换结论、孤立原子精度。此页只帮助读取保存日志。</p>
+<h2>先分别看两个残差</h2>
+<figure><div class="plot-scroll" tabindex="0" role="region" aria-label="双面板残差图，可水平滚动"><img src="residual.svg" alt="80步打印log10残差：本征态未达到−8阈值，密度从11步带c；密度第1步缺值。"></div><figcaption>上：全部能带平方 KS 残差，单位 eV²/价电子；下：密度变化，单位电子/价电子。纵轴是这些量按相应单位取数后的 log10，虚线分别为 −8、−6。点只代表两位小数的打印值，连接线帮助读顺序；不表示步间观测。手机可横向平移图，或<a href="residual.svg">打开完整 SVG</a>。<a href="residual.svg" download>下载 SVG</a> · <a href="scf-iterations.csv" download>下载实际 80 行 CSV</a></figcaption></figure>
+<h2>选择一步，核对原始标记</h2><label for="iteration">SCF 步数（方向键逐步；Home/End 到首末步）</label><input id="iteration" type="range" min="1" max="80" step="1" value="80"><div class="controls"><button id="previous">上一步</button><button id="next">下一步</button><button id="last">第80步</button></div><h3 id="step" aria-live="polite"></h3><dl id="readout" aria-live="polite"></dl><pre id="raw"></pre>
+<p><code>c</code> 保留原生日志的对应判据标记，不能从舍入 token 重新猜测。能量从第 7 步、密度从第 11 步持续带 c；本征态 80 步都没有 c。能量列是打印的外推总能量（eV），不是能量残差，也不是精确返回能量。能量 c 来自内部三值峰峰变化判据，不能用六位小数显示恢复精确能量差。</p>
+<p>第80步本征态 log10=−2.50，约为 3.16×10⁻³ eV²/价电子，仍高于目标 10⁻⁸；这说明实际未满足的判据是本征态残差。10ˣ 只由两位小数打印值近似换算，不是恢复的内部精确值。没有逐能带、逐自旋残差，不能据此认定空带或求解器内迭代是根因；日志的通用建议也不是本次已证实原因。</p>
+<h2>原始量与固定设置</h2><div class="table-scroll" tabindex="0" role="region" aria-label="量与单位对照表"><table><thead><tr><th>列 / 来源</th><th>含义与单位</th><th>保留精度 / 判据</th></tr></thead><tbody class="definitions"><tr><td>energy</td><td>外推总能量 / eV</td><td>6位小数；原生 c 从7</td></tr><tr><td>eigenstates</td><td>全部能带平方 KS 残差 / (eV²/价电子)</td><td>log10两位小数；目标1e−8</td></tr><tr><td>density</td><td>密度变化 / (电子/价电子)</td><td>log10两位小数；目标1e−6</td></tr><tr><td>magmom</td><td>打印受约束量 / μB</td><td>+1.0000，不是最终测量精度</td></tr></tbody></table></div>
+<p>GPAW 26.7.0 的旧计算器，ASE 3.29.0、Python 3.12.3、libxc 5.2.3；中性单 H、PBE、周期 6 Å 立方盒、Γ、PW 340 eV、2条能带，spinpol 与固定磁矩 1 μB，零展宽、symmetry off。H PAW 数据 SHA-256：<code>e16130c5eb16325a4404f46be86182a4b0f468038ae5c8ab9ffc777a2993fd1d</code>。这是固定模型的保存观察，未验证盒长、截断或材料精度。</p>
+<p>原生日志 <code>gpaw.txt</code> 第209–288行逐字保留为<a href="scf-raw-lines.txt" download>80行原文</a>；CSV的 source_line 对应原始行号，第一步密度空白。<a href="https://gitlab.com/gpaw/gpaw/-/blob/26.7.0/gpaw/scf.py">26.7.0 scf.py 的 write_iteration</a>规定列顺序和 c；<a href="https://gitlab.com/gpaw/gpaw/-/blob/26.7.0/gpaw/convergence_criteria.py">同版本 Energy / Density / Eigenstates</a>定义对应量、归一化与判据。</p>
+<h2>逐步打印表</h2><div class="table-scroll" tabindex="0" role="region" aria-label="80步打印值表，可横向滚动"><table><thead><tr><th>选择步</th><th>总能量 / eV</th><th>本征态 log10</th><th>密度 log10</th></tr></thead><tbody id="rows"></tbody></table></div>
+<p><a href="README.md">保存数据重绘与来源说明</a> · <a href="plot.py" download>下载重绘脚本</a>。重绘只读 CSV，不调用科学求解器。</p><noscript><p>启用 JavaScript 可逐步选择；完整图、CSV及原文下载不依赖 JavaScript。</p></noscript>
+</main></body></html>

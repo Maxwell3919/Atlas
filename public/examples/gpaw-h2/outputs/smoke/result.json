@@ -1,0 +1,21 @@
+{
+  "stage": "smoke",
+  "energy_initial_eV": -6.659426568123643,
+  "forces_initial_eV_A": [
+    [
+      1.801203277484581e-14,
+      4.7589771564858515e-15,
+      -0.5549659361723489
+    ],
+    [
+      -9.956907684805563e-15,
+      -7.582777631824297e-15,
+      0.5549659361723513
+    ]
+  ],
+  "bond_initial_A": 0.74,
+  "physics_converged": false,
+  "basis_box_converged": false,
+  "accepted_local": true,
+  "scf_calls_completed": true
+}
