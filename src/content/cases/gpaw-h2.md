@@ -1,6 +1,6 @@
 # GPAW H₂：固定设置下的能量、优化与力一致性
 
-H₂ 的势能梯度能否驱动优化？同一个 Cartesian 力分量能否与中心能量差分对应？这个小例使用 GPAW 26.7.0/PBE/PW 的真实本地原生输出回答这两个接口问题。先看[安装与输入解释](/Atlas/tools/gpaw/)。计算已在本地执行并经过独立数值核验；网页候选仍待独立科学与读者复核。同一输入在 Preston 的固定设置结果也已独立接受，保存证据与资源边界另列如下。
+H₂ 的势能梯度能否驱动优化？同一个 Cartesian 力分量能否与中心能量差分对应？这个小例使用 GPAW 26.7.0/PBE/PW 的真实本地原生输出回答这两个接口问题。先看安装与输入解释。计算已在本地执行并经过独立数值核验；网页候选仍待独立科学与读者复核。同一输入在 Preston 的固定设置结果也已独立接受，保存证据与资源边界另列如下。
 
 ## 固定模型与复现入口
 
@@ -29,7 +29,7 @@ IN 为输入、单一 H.PBE.gz 与已验证环境；OUT 每阶段为 `gpaw.txt`�
 
 完整输出：[smoke 原生日志](/Atlas/examples/gpaw-h2/outputs/smoke/gpaw.txt)、[relax 原生日志](/Atlas/examples/gpaw-h2/outputs/relax/gpaw.txt)、[forcecheck 原生日志](/Atlas/examples/gpaw-h2/outputs/forcecheck/gpaw.txt)。仅执行者用户名、进程标识与机器绝对路径作了公共文本定位替换，版本、输入参数、坐标、SCF 表和科学输出保留。精确结果 JSON：[smoke](/Atlas/examples/gpaw-h2/outputs/smoke/result.json)、[relax](/Atlas/examples/gpaw-h2/outputs/relax/result.json)、[forcecheck](/Atlas/examples/gpaw-h2/outputs/forcecheck/result.json)。
 
-实际有 1+5+3=9 个 SCF 块；迭代数依次为 smoke 11，relax 11/11/11/9/9，forcecheck 11/9/10。每块均满足输入的 energy/density/eigenstates 三标准，详细归一化定义见[工具页](/Atlas/tools/gpaw/)。[SCF CSV](/Atlas/examples/gpaw-h2/scf-ledger.csv)与[阶段汇总 CSV](/Atlas/examples/gpaw-h2/stage-summary.csv)可对照原生日志；五个 relax SCF 包含线搜索试探，不是五个优化步。
+实际有 1+5+3=9 个 SCF 块；迭代数依次为 smoke 11，relax 11/11/11/9/9，forcecheck 11/9/10。每块均满足输入的 energy/density/eigenstates 三标准，详细归一化定义见工具页。[SCF CSV](/Atlas/examples/gpaw-h2/scf-ledger.csv)与[阶段汇总 CSV](/Atlas/examples/gpaw-h2/stage-summary.csv)可对照原生日志；五个 relax SCF 包含线搜索试探，不是五个优化步。
 
 smoke 从 0.74 Å 开始，保存总能 −6.659426568123643 eV、有限的能量与力，净力范数约 8.88×10⁻¹⁵ eV/Å，小于 10⁻⁵ 局部标准。这是实现检查，不是绝对总能量准确性接受。
 
@@ -82,10 +82,10 @@ Preston 作业 **932** 在已独立核验的原生 GPAW 26.7.0 / ASE 3.29.0 / Li
 
 图旁数据：[Preston 图数据 CSV](/Atlas/examples/gpaw-h2/preston/figures/h2-relax.csv) · [原 PNG](/Atlas/examples/gpaw-h2/preston/figures/h2-relax.png) · [SVG](/Atlas/examples/gpaw-h2/preston/figures/h2-relax.svg)。保留实际三点和原图，不重画或拟合。完整原生日志：[smoke](/Atlas/examples/gpaw-h2/preston/outputs/smoke/gpaw.txt)、[relax](/Atlas/examples/gpaw-h2/preston/outputs/relax/gpaw.txt)、[forcecheck](/Atlas/examples/gpaw-h2/preston/outputs/forcecheck/gpaw.txt)；仅执行身份和私有路径作公开定位替换，所有科学数值行保留。
 
-精确结果：[smoke JSON](/Atlas/examples/gpaw-h2/preston/outputs/smoke/result.json) · [relax JSON](/Atlas/examples/gpaw-h2/preston/outputs/relax/result.json) · [forcecheck JSON](/Atlas/examples/gpaw-h2/preston/outputs/forcecheck/result.json)；配套[优化日志](/Atlas/examples/gpaw-h2/preston/outputs/relax/optimizer.log)、[三帧轨迹](/Atlas/examples/gpaw-h2/preston/outputs/relax/trajectory.traj)、[SCF CSV](/Atlas/examples/gpaw-h2/preston/scf-ledger.csv)、[阶段 CSV](/Atlas/examples/gpaw-h2/preston/stage-summary.csv)、[差分能量 CSV](/Atlas/examples/gpaw-h2/preston/force-energies.csv)、[力对比 CSV](/Atlas/examples/gpaw-h2/preston/force-check-comparison.csv)与[保存数据后处理源](/Atlas/examples/gpaw-h2/preston/derive-artifacts.py)。后处理源不启动 DFT；它是原执行者的精确源，完整运行还需它引用的阶段日志文件，本页选定下载集不提供这些过程日志，不声称仅此下载集即可重跑全部后处理。计算输入和 H 数据复用上文共享文件，无重复副本。GPAW/数据 GPL3+、ASE LGPL2.1+ 许可及公开原件沿用[工具页](/Atlas/tools/gpaw/)。
+精确结果：[smoke JSON](/Atlas/examples/gpaw-h2/preston/outputs/smoke/result.json) · [relax JSON](/Atlas/examples/gpaw-h2/preston/outputs/relax/result.json) · [forcecheck JSON](/Atlas/examples/gpaw-h2/preston/outputs/forcecheck/result.json)；配套[优化日志](/Atlas/examples/gpaw-h2/preston/outputs/relax/optimizer.log)、[三帧轨迹](/Atlas/examples/gpaw-h2/preston/outputs/relax/trajectory.traj)、[SCF CSV](/Atlas/examples/gpaw-h2/preston/scf-ledger.csv)、[阶段 CSV](/Atlas/examples/gpaw-h2/preston/stage-summary.csv)、[差分能量 CSV](/Atlas/examples/gpaw-h2/preston/force-energies.csv)、[力对比 CSV](/Atlas/examples/gpaw-h2/preston/force-check-comparison.csv)与[保存数据后处理源](/Atlas/examples/gpaw-h2/preston/derive-artifacts.py)。后处理源不启动 DFT；它是原执行者的精确源，完整运行还需它引用的阶段日志文件，本页选定下载集不提供这些过程日志，不声称仅此下载集即可重跑全部后处理。计算输入和 H 数据复用上文共享文件，无重复副本。GPAW/数据 GPL3+、ASE LGPL2.1+ 许可及公开原件沿用工具页。
 
 ## 检查输出而非退出码
 
 新复现应逐块核 SCF 表的三个收敛标记、`Converged`、实际参数、坐标与有限能量/力；优化另查最大力、接受步数和保存轨迹，差分另查 ±δ 几何和负梯度符号。达到局部标准与科学量收敛分开判断。本文未主张 atomization energy、实验键长、远程性能或材料结论。
 
-公开原件：[GPAW 26.7.0 发行版](https://pypi.org/project/gpaw/26.7.0/)、[GPAW H₂ 优化教程](https://gpaw.readthedocs.io/tutorialsexercises/structureoptimization/optimization/optimization.html)、[同版本收敛实现](https://gitlab.com/gpaw/gpaw/-/blob/26.7.0/gpaw/convergence_criteria.py#L122)。[安装、许可证与数据来源](/Atlas/tools/gpaw/)保留 GPL3+ GPAW/输入/数据及 LGPL2.1+ ASE 的范围。
+公开原件：[GPAW 26.7.0 发行版](https://pypi.org/project/gpaw/26.7.0/)、[GPAW H₂ 优化教程](https://gpaw.readthedocs.io/tutorialsexercises/structureoptimization/optimization/optimization.html)、[同版本收敛实现](https://gitlab.com/gpaw/gpaw/-/blob/26.7.0/gpaw/convergence_criteria.py#L122)。安装、许可证与数据来源保留 GPL3+ GPAW/输入/数据及 LGPL2.1+ ASE 的范围。

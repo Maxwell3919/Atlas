@@ -1,6 +1,6 @@
 # ABINIT H₂：固定 NC-LDA 模型的六步原生 SCF
 
-[ABINIT 安装、版本与调用](/Atlas/tools/abinit/) · [软件算例](/Atlas/software/)
+ABINIT 安装、版本与调用 · [软件算例](/Atlas/software/)
 
 这是 Ubuntu `9.10.4-2ubuntu3`（原生 ABINIT 9.10.4）直接单进程的一次保存观察。独立复核已接受该固定输入、精确原生输出、停止记录和派生表图的公开教学范围。没有新增计算，没有结构优化、基组/盒长或单原子力准确性接受。公开 README/JSON 中的 pending review 是生成当时的历史标签，原样保留；网页的接受范围另行说明，不改历史报告。
 
@@ -48,7 +48,7 @@ H₂ 位于 10 × 10 × 10 Bohr 周期盒，两个 H 的 x 坐标为 −0.7 与 
 
 ## 公开文件与许可
 
-下面 22 项按原布局逐字提供。下载后以 `saved-abinit-h2/` 为根，保留 `inputs/../data/`；输入和所有数值不作网页清理或替换。无二进制和 deb。解析与绘图只能在新副本中执行，命令与 IN/OUT 见[工具页](/Atlas/tools/abinit/#h-只处理保存结果与错误定位)。
+下面 22 项按原布局逐字提供。下载后以 `saved-abinit-h2/` 为根，保留 `inputs/../data/`；输入和所有数值不作网页清理或替换。无二进制和 deb。解析与绘图只能在新副本中执行，命令与 IN/OUT 见工具页。
 
 - [README.md](/Atlas/examples/abinit-h2/README.md)
 - [data/H.psp8](/Atlas/examples/abinit-h2/data/H.psp8)
@@ -73,4 +73,4 @@ H₂ 位于 10 × 10 × 10 Bohr 周期盒，两个 H 的 x 坐标为 −0.7 与 
 - [scf-ledger.csv](/Atlas/examples/abinit-h2/scf-ledger.csv)
 - [warnings.json](/Atlas/examples/abinit-h2/warnings.json)
 
-ABINIT GPL-3.0-or-later 与少量其他许可依上述 COPYING/Ubuntu copyright；H 数据独立 CC BY 4.0，保留 PseudoDojo/ONCVPSP 归属。本次接受的是固定设置的原生保存观察及公开教学文件，不包含结构/材料/实验结论。原生程序、Ubuntu 包和同版本教程来源详见[工具页](/Atlas/tools/abinit/)与 `official-source-provenance.json`。
+ABINIT GPL-3.0-or-later 与少量其他许可依上述 COPYING/Ubuntu copyright；H 数据独立 CC BY 4.0，保留 PseudoDojo/ONCVPSP 归属。本次接受的是固定设置的原生保存观察及公开教学文件，不包含结构/材料/实验结论。原生程序、Ubuntu 包和同版本教程来源详见工具页与 `official-source-provenance.json`。

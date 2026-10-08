@@ -15,8 +15,8 @@ const count=(engine)=>list.filter(m=>available.has(`${m.slug}/${engine}`)).lengt
   <h1>软件算例</h1>
   <p class="intro">同一个性质可以有不同的软件路线。下表中的链接通向实际输入、输出和后处理；“未收录”表示目前没有对应算例。</p>
   <section class="tool-entry" aria-label="关联工具工作流"><h2><a href={`${base}/tools/`}>关联工具：把输入输出接成工作流 →</a></h2><p>Wannier90 的电子模型、EPW 的位移响应与谱、Phonopy 的超胞力常数接口。另有<a href={`${base}/tools/si-modes/`}>公开 Si Γ 模式互动</a>，可调相位、暂停并下载原数据。另有<a href={`${base}/tools/altermagnet/`}>d-wave 两自旋教学玩具</a>，与计算引擎分列。</p></section>
-  <section class="tool-entry" aria-label="GPAW 主引擎"><h2><a href={`${base}/tools/gpaw/`}>GPAW 26.7.0：PAW 能量与力主引擎 →</a></h2><p>PBE/PW 的真实 H₂ 输入、原生输出与数值数据；<a href={`${base}/cases/gpaw-h2/`}>打开 H₂ 优化与力一致性案例</a>。现收录 1 个固定设置案例，尚无性质目录手册；局部力阈值不代表基组或盒长物理准确性。</p></section>
-  <section class="tool-entry" aria-label="ABINIT 主引擎"><h2><a href={`${base}/tools/abinit/`}>ABINIT 9.10.4：NC-LDA 原生 SCF 主引擎 →</a></h2><p>Ubuntu 固定版本 H₂ 输入、完整原生输出和六步 ETOT；<a href={`${base}/cases/abinit-h2/`}>打开固定模型案例与密度裁剪警告</a>。现有 1 个保存观察案例，尚无性质目录手册；不代表基组、盒长或力准确性。旧版本不受支持提示保留。</p></section>
+  <section class="tool-entry" aria-label="GPAW 主引擎"><h2>GPAW 26.7.0：PAW 能量与力主引擎 →</h2><p>PBE/PW 的真实 H₂ 输入、原生输出与数值数据；<a href={`${base}/cases/gpaw-h2/`}>打开 H₂ 优化与力一致性案例</a>。现收录 1 个固定设置案例，尚无性质目录手册；局部力阈值不代表基组或盒长物理准确性。</p></section>
+  <section class="tool-entry" aria-label="ABINIT 主引擎"><h2>ABINIT 9.10.4：NC-LDA 原生 SCF 主引擎 →</h2><p>Ubuntu 固定版本 H₂ 输入、完整原生输出和六步 ETOT；<a href={`${base}/cases/abinit-h2/`}>打开固定模型案例与密度裁剪警告</a>。现有 1 个保存观察案例，尚无性质目录手册；不代表基组、盒长或力准确性。旧版本不受支持提示保留。</p></section>
   <div class="software-counts">{visibleEngines.map(e=><span>{e.name}<strong>{count(e.id)}</strong></span>)}</div>
   <div class="coverage-scroll"><table><thead><tr><th>计算方法</th>{visibleEngines.map(e=><th>{e.id==='model'?'数值模型':e.name}</th>)}</tr></thead><tbody>{list.map(m=><tr><th><a href={`${base}/m/${m.slug}/`}>{m.zh}</a></th>{visibleEngines.map(e=><td>{available.has(`${m.slug}/${e.id}`)?<a href={`${base}/m/${m.slug}/${e.id}/`} title={manualTeaching[`${m.slug}/${e.id}`]?.title}>{e.id==='qe'?'QE':e.name} ↗</a>:m.engines.includes(e.id)?<span class="missing">未收录</span>:<span class="not-set">—</span>}</td>)}</tr>)}</tbody></table></div>
  </article>

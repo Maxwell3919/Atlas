@@ -12,8 +12,8 @@ const base=normalizeBase(import.meta.env.BASE_URL);
   <li><a href={`${base}/tools/phonopy/`}>Phonopy：固定超胞位移的力 → 力常数与声子</a>。保持结构、原子顺序和单位。</li>
  </ol>
  <h2>自旋投影与磁性教学入口</h2><p><a href={`${base}/m/spin-texture/vasp/`}>SOC 能带：读取 PROCAR 的路径自旋投影 →</a>。现有页面沿高对称线路径读同一态的能量与投影分量；不是磁基态搜索或交换参数案例。</p><p><a href={`${base}/tools/altermagnet/`}>d-wave 两自旋教学玩具 →</a>：新建公开模型，可导出当前网格与图；不是材料 DFT、磁序证明或新引擎。</p>
- <h2>独立主引擎</h2><p><a href={`${base}/tools/gpaw/`}>GPAW：安装原生扩展 → PAW 能量与力</a>，配套<a href={`${base}/cases/gpaw-h2/`}>H₂ 优化与力一致性案例</a>。</p>
- <p><a href={`${base}/tools/abinit/`}>ABINIT：固定 Ubuntu 原生版本 → NC-LDA SCF</a>，配套<a href={`${base}/cases/abinit-h2/`}>H₂ 六步 ETOT、完整力与密度裁剪案例</a>。旧版本路线和告警有明确边界。</p>
+ <h2>独立主引擎</h2><p>GPAW：安装原生扩展 → PAW 能量与力，配套<a href={`${base}/cases/gpaw-h2/`}>H₂ 优化与力一致性案例</a>。</p>
+ <p>ABINIT：固定 Ubuntu 原生版本 → NC-LDA SCF，配套<a href={`${base}/cases/abinit-h2/`}>H₂ 六步 ETOT、完整力与密度裁剪案例</a>。旧版本路线和告警有明确边界。</p>
  <p><a href={`${base}/tools/si-modes/`}>打开 Si Γ 模式互动 →</a> 从同相平移和反相运动检查模式方向；可暂停、调相位、切换投影并下载原 AXSF。</p>
  <p>跨材料的方法全链见<a href={`${base}/cases/charge-to-epc/`}>H₂、Si 与 Al 公开案例</a>。以上三个关联工具承接已有引擎；GPAW 独立主引擎另列，案例使用其真实原生求解。</p>
 </article></Base>

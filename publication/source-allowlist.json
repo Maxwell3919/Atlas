@@ -2998,7 +2998,7 @@
     },
     {
       "path": "publication/expected-output.json",
-      "sha256": "0b359878ce4f50e9b8f239e4a3363968c98014203dee828ce51ebed61fe7f40c"
+      "sha256": "994efc802ddae2e752e2d6bbdc1f0bbc325b6f0c54138c72dd447d6065f6dd6a"
     },
     {
       "path": "publication/stage.py",
@@ -3022,11 +3022,11 @@
     },
     {
       "path": "src/content/cases/abinit-h2-sensitivity.md",
-      "sha256": "323881cddc1f9dbfb1af7e28449f42dbd719168d778d31977fff4733fb684de3"
+      "sha256": "84d89531261e0d21c8cd87baf7c4399b59a12fd30fdcdb97dcbbd27082e8f4f8"
     },
     {
       "path": "src/content/cases/abinit-h2.md",
-      "sha256": "77a9826e1062c8f9f963b8837e5794494c3c8c1df8eae643d1f152c7d37596dd"
+      "sha256": "0abfb3fa731b0b56a065d5db9f532cc5c57cb26e766b518f9f233fec12648a9e"
     },
     {
       "path": "src/content/cases/charge-to-epc.md",
@@ -3038,7 +3038,7 @@
     },
     {
       "path": "src/content/cases/gpaw-h2.md",
-      "sha256": "cfeb96a647963c0f76fb3622a517f1da20c6894fc0e54b20516e5f0b52e7cf92"
+      "sha256": "9727cedc7861ad5628c85a45f8fc8728f54ee05a9d91ee932e918a3b05e41a93"
     },
     {
       "path": "src/content/learning/readme.md",
@@ -3290,15 +3290,15 @@
     },
     {
       "path": "src/pages/cases/abinit-h2-sensitivity.astro",
-      "sha256": "64833ea484d85c16387ac682f6f437c2b84d86fac32c63d27d9b0048497b907b"
+      "sha256": "e7b44f97ff2a2c9585d3e6c643eb5a39928143f04a77961c00b128e818f9611e"
     },
     {
       "path": "src/pages/cases/abinit-h2.astro",
-      "sha256": "a40e9d259696cb7216ec86e985fbd07dc266ad99aa1fc8ac1683d75a51bc0792"
+      "sha256": "e38f92cbcb534ebb58d39ead4665f50055481a83cb3d4c9bdf4acfaedd67005d"
     },
     {
       "path": "src/pages/cases/gpaw-h2.astro",
-      "sha256": "71fffeb94e0721c49130e828bee73f09bad712efd0eb27c31b43eaab8bfe43d2"
+      "sha256": "12e6909eb90617cd0146ad020815a6249a8b02952618945b7b40da7b8913bf13"
     },
     {
       "path": "src/pages/catalog.astro",
@@ -3330,11 +3330,11 @@
     },
     {
       "path": "src/pages/software.astro",
-      "sha256": "aad78237dba7c4b14eee0236c2253655f605e8f0338993ef6861f8041a4e05fd"
+      "sha256": "5d021b9334efd74fe749a28f8b8fa57a08e637cd047d0551bd8dbaaca332c655"
     },
     {
       "path": "src/pages/tools/[tool].astro",
-      "sha256": "5556d9444e2f40602c18d9b5c5e58808b545a7994cd4492435f4d3a14622a090"
+      "sha256": "7cd9ec6880f5b0759f8c42f13869129c8ad6c009d3e0163a0510e9f0a93d671c"
     },
     {
       "path": "src/pages/tools/altermagnet.astro",
@@ -3342,7 +3342,7 @@
     },
     {
       "path": "src/pages/tools/index.astro",
-      "sha256": "20d02dfc090501eb451849efe3e3c3a9be251f9d3a8269d08524b847d959e810"
+      "sha256": "121d3e93f7f2608ecaf9242a81fb2a518f7674b9855a9e59f886da0d00643f66"
     },
     {
       "path": "src/pages/tools/si-modes.astro",
@@ -3371,5 +3371,5 @@
   ],
   "count": 842,
   "source_self_excluded": true,
-  "purpose": "Precompile allowlist staging; all other repository files remain untouched and never copied/imported"
+  "purpose": "Public-only precompile staging;2softwaredescriptionrouteswithdrawn"
 }
